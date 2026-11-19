@@ -42,7 +42,6 @@ jobs:
           --health-timeout 5s
           --health-retries 30
     env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       # In the workspace (job-level env cannot read `runner.temp`); none of
       # these is committed, and only the report and log are uploaded.
       OKF_EVAL_KEY_FILE: okf-eval-key
@@ -69,9 +68,18 @@ jobs:
           node-version: 22
       # A debug build: it compiles in a fraction of release's time, and the
       # eval measures agent behavior, not server speed.
+      # No DATABASE_URL here: with it set, sqlx's query macros (a
+      # dependency's included) check their SQL against the empty eval
+      # database and fail. SQLX_OFFLINE makes them use the checked-in query
+      # data whatever the environment holds.
       - name: Build okf-mcp
+        env:
+          SQLX_OFFLINE: "true"
         run: cargo build --locked --bin okf-mcp
       - name: Start and seed the server
+        id: server
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         run: evals/telekin/setup.sh "$OKF_EVAL_KEY_FILE"
       - name: Run the eval
         env:
@@ -86,8 +94,10 @@ jobs:
               args+=(--case "$CASE")
           fi
           evals/telekin/run.sh "${args[@]}"
+      # Also when the eval fails, but not when the server never started
+      # (a failed build leaves nothing to keep).
       - name: Keep the report and server log
-        if: always()
+        if: always() && steps.server.outcome != 'skipped'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: telekin-eval

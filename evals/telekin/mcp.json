@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "telekin": {
+      "url": "${OKF_EVAL_URL}",
+      "headers": {
+        "Authorization": "Bearer ${OKF_EVAL_KEY}"
+      }
+    }
+  }
+}

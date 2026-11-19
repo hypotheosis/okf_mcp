@@ -1,0 +1,97 @@
+# The Telekin agent eval (evals/telekin/README.md): a model works through 17
+# scripted conversations against an okf-mcp server built from this commit,
+# and each case passes or fails on the tools it called and what it said.
+# Not a merge gate (gates run locally, design "Milestones"): it spends model
+# credits, so it runs on demand and when the eval itself changes.
+name: telekin-eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: Run only this case id (empty runs them all)
+        required: false
+        default: ""
+  pull_request:
+    paths:
+      - evals/telekin/**
+      - .github/workflows/telekin-eval.yml
+
+permissions:
+  contents: read
+
+# One paid run per ref at a time; a new push cancels the old run.
+concurrency:
+  group: telekin-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # In the workspace (job-level env cannot read `runner.temp`); none of
+      # these is committed, and only the report and log are uploaded.
+      OKF_EVAL_KEY_FILE: okf-eval-key
+      OKF_EVAL_LOG: okf-eval-server.log
+      OKF_EVAL_PID_FILE: okf-eval-server.pid
+      OKF_EVAL_REPORT_DIR: eval-report
+    steps:
+      - name: Check for the MCPJam key
+        env:
+          MCPJAM_API_KEY: ${{ secrets.MCPJAM_API_KEY }}
+        run: |
+          if [[ -z "$MCPJAM_API_KEY" ]]; then
+              echo "::error::Set the MCPJAM_API_KEY repository secret (an sk_ key from https://app.mcpjam.com/settings/api-keys)."
+              exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The same Rust as the Dockerfile and the workstation (1.99.1).
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: 1.99.1
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # A debug build: it compiles in a fraction of release's time, and the
+      # eval measures agent behavior, not server speed.
+      - name: Build okf-mcp
+        run: cargo build --locked --bin okf-mcp
+      - name: Start and seed the server
+        run: evals/telekin/setup.sh "$OKF_EVAL_KEY_FILE"
+      - name: Run the eval
+        env:
+          MCPJAM_API_KEY: ${{ secrets.MCPJAM_API_KEY }}
+          CASE: ${{ inputs.case }}
+        run: |
+          # The key is in a file, never printed; mask it in case a tool
+          # echoes it back.
+          echo "::add-mask::$(<"$OKF_EVAL_KEY_FILE")"
+          args=()
+          if [[ -n "${CASE:-}" ]]; then
+              args+=(--case "$CASE")
+          fi
+          evals/telekin/run.sh "${args[@]}"
+      - name: Keep the report and server log
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: telekin-eval
+          path: |
+            eval-report/
+            okf-eval-server.log
+          if-no-files-found: warn

@@ -3,3 +3,9 @@
 .env
 .worktrees/
 .superpowers/
+
+# Telekin agent eval outputs (evals/telekin/README.md)
+/okf-eval-key
+/okf-eval-server.log
+/okf-eval-server.pid
+/eval-report/

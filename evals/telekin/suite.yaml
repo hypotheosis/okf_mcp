@@ -1,0 +1,414 @@
+# The Telekin agent eval: the 2026-11-18 MCPJam swarm's 15 goals, scripted.
+#
+# Each case is one conversation between a model (the "agent") and an okf-mcp
+# server seeded from evals/telekin/catalog. All cases share one catalog, as a
+# team does; cases write different facts so they do not depend on each
+# other's order. Run it with evals/telekin/run.sh; evals/telekin/README.md
+# says what each case checks and how to read a failure.
+schemaVersion: "2"
+mode: agentWorkflow
+reportingMode: standard
+suite:
+  id: telekin-agent-eval
+  name: Telekin agent eval
+target:
+  servers:
+    - name: telekin
+defaults:
+  # Deterministic checks only: each case passes or fails on the tools the
+  # agent called and what they returned, so a run needs no grading model.
+  judge:
+    enabled: false
+  model: anthropic/claude-haiku-5.5
+  iterations: 1
+  passThreshold: 1
+  validity: {}
+cases:
+  # --- Skeptical Recall Prober ---------------------------------------------
+  - id: create-and-retrieve-fact
+    title: Store a personal fact, then read it back from the catalog
+    steps:
+      - id: store
+        kind: prompt
+        prompt: >-
+          Please save this in my catalog: my favorite coffee shop is called
+          The Daily Brew. Publish it so it's kept.
+      - id: recall
+        kind: prompt
+        prompt: >-
+          Don't rely on our chat. Search the catalog for it and tell me the
+          exact name of my favorite coffee shop.
+      - id: created
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: create_concept }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: searched
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: search }
+      - id: answered
+        kind: assert
+        assertion: { type: responseContains, needle: The Daily Brew }
+
+  - id: scattered-facts-retention
+    title: Save several unrelated facts, then list exactly what was stored
+    steps:
+      - id: dog
+        kind: prompt
+        prompt: Save to my catalog that my dog's name is Pepper.
+      - id: birthday
+        kind: prompt
+        prompt: Also save that my birthday is in March.
+      - id: hometown
+        kind: prompt
+        prompt: And that I grew up in Omaha. Publish everything you've saved.
+      - id: audit
+        kind: prompt
+        prompt: >-
+          Now search the catalog and list every personal fact about me that is
+          actually stored there. Don't include anything you only remember from
+          this chat.
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: searched
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: search }
+      - id: pepper
+        kind: assert
+        assertion: { type: responseContains, needle: Pepper }
+      - id: omaha
+        kind: assert
+        assertion: { type: responseContains, needle: Omaha }
+      - id: march
+        kind: assert
+        assertion: { type: responseContains, needle: March }
+
+  - id: source-attribution
+    title: Cite where a stored fact came from
+    steps:
+      - id: store
+        kind: prompt
+        prompt: >-
+          Record in my catalog that the build server has 8 cores, with a source:
+          the vendor spec sheet at https://example.com/build-spec. Publish it.
+      - id: ask
+        kind: prompt
+        prompt: Where does the catalog say the build server's core count comes from?
+      - id: sourced
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: add_source }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: cited
+        kind: assert
+        assertion: { type: responseContains, needle: example.com/build-spec }
+
+  - id: contradict-and-inspect-history
+    title: Correct a stored fact and inspect its revision history
+    steps:
+      - id: store
+        kind: prompt
+        prompt: Save in my catalog that my sister Mia lives in Portland. Publish it.
+      - id: correct
+        kind: prompt
+        prompt: >-
+          Correction: Mia moved to Seattle last month. Update what you stored
+          rather than adding a second note, and publish.
+      - id: inspect
+        kind: prompt
+        prompt: Show me the revision history of Mia's note and what changed.
+      - id: history
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: history }
+      - id: no-delete
+        kind: assert
+        assertion: { type: toolNeverCalled, toolName: delete_concept }
+      - id: seattle
+        kind: assert
+        assertion: { type: responseContains, needle: Seattle }
+
+  - id: hallucination-audit
+    title: Refuse to invent a fact the catalog does not hold
+    steps:
+      - id: ask
+        kind: prompt
+        prompt: >-
+          What does my catalog say my favorite hiking trail is? Check before you
+          answer, and don't guess.
+      - id: searched
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: search }
+      - id: nothing-written
+        kind: assert
+        assertion: { type: toolNeverCalled, toolName: publish }
+      - id: admits-absence
+        kind: assert
+        assertion:
+          type: responseMatches
+          # JavaScript regex source, no flags: case by character class.
+          pattern: "([Nn]o |[Nn]ot |isn't|doesn't|couldn't|can't|[Nn]othing)"
+
+  # --- Careful Fact Curator ------------------------------------------------
+  - id: create-and-source-fact
+    title: Create a concept in a new folder with a source
+    steps:
+      - id: create
+        kind: prompt
+        prompt: >-
+          Create a concept at /productivity/morning-planning.md titled "Morning
+          planning": I plan my day best before 9am. Add a source with id
+          "personal-observation", resource "my own notes", title "Personal
+          observation". Publish it.
+      - id: created
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: create_concept }
+      - id: sourced
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: add_source }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+
+  - id: review-and-publish-draft
+    title: Review a draft's diff and lint before publishing
+    steps:
+      - id: draft
+        kind: prompt
+        prompt: >-
+          Draft an update to the Legacy DNS concept saying its replacement is
+          dns1.example.com. Before publishing, show me the pending diff and run
+          lint. If lint has no errors, publish it.
+      - id: diff-before-publish
+        kind: assert
+        assertion: { type: toolCalledBefore, toolName: pending_changes, beforeToolName: publish }
+      - id: lint-before-publish
+        kind: assert
+        assertion: { type: toolCalledBefore, toolName: lint, beforeToolName: publish }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+
+  - id: add-sources-unpublished
+    title: Add several sources to a draft and leave it unpublished
+    steps:
+      - id: enrich
+        kind: prompt
+        prompt: >-
+          Add three sources to the time server concept: the chrony FAQ
+          (https://example.com/chrony-faq), RFC 5905 (https://example.com/rfc5905)
+          and the lab runbook (https://example.com/runbook). Show me the pending
+          changes but do NOT publish; I want to review them first.
+      - id: sourced
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: add_source }
+      - id: shown
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: pending_changes }
+      - id: not-published
+        kind: assert
+        assertion: { type: toolNeverCalled, toolName: publish }
+
+  - id: organize-into-folders
+    title: File facts into new folders, each listed in an index
+    steps:
+      - id: organize
+        kind: prompt
+        prompt: >-
+          Organize these into folders in my catalog, one concept each, and make
+          sure each folder is listed in the root index with a real description:
+          my favorite food is ramen (food), and my next trip is to Lisbon
+          (travel). Publish when done.
+      - id: show-index
+        kind: prompt
+        prompt: Read the published root index.md and quote it to me exactly.
+      - id: created
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: create_concept }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: read-index
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: read_document }
+      # Each folder listed with a real description, not "TODO: describe
+      # this folder" (issue #668's flow), in the index the agent quoted.
+      # RE2 has no lookahead, so "not TODO" is "does not start with TOD".
+      - id: food-described
+        kind: assert
+        assertion:
+          type: responseMatches
+          pattern: "\\[[Ff]ood\\]\\([^)]*\\) - ([^T\\n]|T[^O\\n]|TO[^D\\n])"
+      - id: travel-described
+        kind: assert
+        assertion:
+          type: responseMatches
+          pattern: "\\[[Tt]ravel\\]\\([^)]*\\) - ([^T\\n]|T[^O\\n]|TO[^D\\n])"
+
+  - id: verify-and-stamp
+    title: Record a hands-on check as a source and a verified stamp
+    steps:
+      - id: verify
+        kind: prompt
+        prompt: >-
+          I checked the time server today: ntp1 serves UDP port 123 and chronyc
+          tracking shows an offset under 100 ms. Record that check as a source
+          on the time server concept, add a verified stamp by
+          "human:sam-example", and publish.
+      - id: sourced
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: add_source }
+      - id: stamped
+        kind: assert
+        assertion:
+          type: toolCalledWith
+          toolName: stamp
+          args: { args: { field: verified } }
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+
+  # --- Playful Memory Tester -----------------------------------------------
+  - id: quick-capture-interview
+    title: Capture interview answers into the catalog
+    steps:
+      - id: answers
+        kind: prompt
+        prompt: >-
+          Quick interview, and save my answers to my catalog: my favorite color
+          is teal, I play the cello, and my first job was at a bakery. Publish
+          them.
+      - id: recall
+        kind: prompt
+        prompt: Check the catalog. What instrument do I play?
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: cello
+        kind: assert
+        assertion: { type: responseContains, needle: cello }
+
+  - id: personal-knowledge-base
+    title: Start a personal knowledge base and find a fact in it
+    steps:
+      - id: build
+        kind: prompt
+        prompt: >-
+          Start a personal knowledge base in my catalog with these facts:
+          I'm allergic to peanuts, I run on Tuesdays, and my car is a blue
+          hatchback. Publish it.
+      - id: find
+        kind: prompt
+        prompt: Search my catalog. What day do I run?
+      - id: searched
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: search }
+      - id: tuesday
+        kind: assert
+        assertion: { type: responseContains, needle: Tuesday }
+
+  - id: surprise-recall
+    title: Answer a surprise question from the catalog
+    steps:
+      - id: store
+        kind: prompt
+        prompt: Save in my catalog that my lucky number is 17. Publish it.
+      - id: surprise
+        kind: prompt
+        prompt: >-
+          Surprise question, and search the catalog rather than relying on our
+          chat: what's my lucky number?
+      - id: searched
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: search }
+      - id: answered
+        kind: assert
+        assertion: { type: responseContains, needle: "17" }
+
+  - id: indexed-memory-archive
+    title: Build a categorized archive across two folders
+    steps:
+      - id: family
+        kind: prompt
+        prompt: >-
+          Remember that my cousin Ada lives in Denver and works as a nurse. File
+          it under a family category in my catalog and publish.
+      - id: learning
+        kind: prompt
+        prompt: >-
+          Also remember that I studied Italian for two years. File it under a
+          learning category, list that category in the root index, and publish.
+      - id: recall
+        kind: prompt
+        prompt: Using the catalog, what do you have on Ada and on my Italian studies?
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: ada
+        kind: assert
+        assertion: { type: responseContains, needle: Denver }
+      - id: italian
+        kind: assert
+        assertion: { type: responseContains, needle: Italian }
+
+  - id: quiz-from-catalog
+    title: Quiz the user on facts the catalog holds
+    steps:
+      - id: store
+        kind: prompt
+        prompt: >-
+          Save these to my catalog: I'd live in Kyoto for a year, and I wish I'd
+          learned guitar as a kid. Publish them.
+      - id: quiz
+        kind: prompt
+        prompt: Quiz me using only what's in the catalog. Which city would I live in for a year?
+      - id: published
+        kind: assert
+        assertion: { type: toolCalledAtLeastOnce, toolName: publish }
+      - id: kyoto
+        kind: assert
+        assertion: { type: responseContains, needle: Kyoto }
+
+  # --- Server behavior the swarm exposed -----------------------------------
+  - id: bare-search-without-selection
+    title: "Search without naming a catalog (issue #663: expected to fail until it lands)"
+    steps:
+      - id: ask
+        kind: prompt
+        prompt: Search my catalog for the time server and tell me its host name.
+      - id: no-refusal
+        kind: assert
+        assertion: { type: noToolErrors }
+      - id: host
+        kind: assert
+        assertion: { type: responseContains, needle: ntp1.example.com }
+
+  - id: recover-from-publish-conflict
+    title: Recover from a publish conflict between two changesets
+    steps:
+      - id: conflict
+        kind: prompt
+        prompt: >-
+          Open two changesets on my catalog. In the first, add the line
+          "Patched on Monday." to the end of the build server concept; in the
+          second, add "Rebooted on Tuesday." to the end of the same concept.
+          Publish the first, then the second. If the second conflicts, re-read
+          the concept, redo that edit on the new text in a fresh changeset, and
+          publish it. Then read the published concept and quote its body to me
+          exactly.
+      # The first publish, the refused second one, and the retry.
+      - id: retried
+        kind: assert
+        assertion:
+          type: toolCalledWith
+          toolName: publish
+          args: { args: {}, argumentMatching: ignore }
+          minCount: 3
+      - id: monday
+        kind: assert
+        assertion: { type: responseContains, needle: Patched on Monday }
+      - id: tuesday
+        kind: assert
+        assertion: { type: responseContains, needle: Rebooted on Tuesday }

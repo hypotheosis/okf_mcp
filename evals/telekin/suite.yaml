@@ -366,7 +366,11 @@ cases:
           learned guitar as a kid. Publish them.
       - id: quiz
         kind: prompt
-        prompt: Quiz me using only what's in the catalog. Which city would I live in for a year?
+        # Asked as a question for the agent to answer: "quiz me" alone reads
+        # as a request to ask the user, and the agent did.
+        prompt: >-
+          Using only what's in the catalog, answer this yourself: which city
+          did I say I'd live in for a year?
       - id: published
         kind: assert
         assertion: { type: toolCalledAtLeastOnce, toolName: publish }

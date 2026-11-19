@@ -95,7 +95,10 @@ cases:
           the vendor spec sheet at https://example.com/build-spec. Publish it.
       - id: ask
         kind: prompt
-        prompt: Where does the catalog say the build server's core count comes from?
+        prompt: >-
+          Read the build server concept from the catalog. Which source does
+          its core count come from? Give me that source's resource URL exactly
+          as the catalog records it.
       - id: sourced
         kind: assert
         assertion: { type: toolCalledAtLeastOnce, toolName: add_source }

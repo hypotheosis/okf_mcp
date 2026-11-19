@@ -52,6 +52,8 @@ Two cases track open issues:
 
 The first local run (2026-11-19, `anthropic/claude-haiku-5.5`) passed 16 of 17, failing only `bare-search-without-selection`.
 
+Each case runs once, so a single run can fail on how the model words an answer rather than on what it did. Phrase a check on the final message so that only a wrong answer can fail it. For example, ask for a source's URL "exactly as the catalog records it" rather than "where it comes from". If a case still varies, raise its `iterations` and lower `passThreshold`.
+
 ## Changing it
 
 - Check a suite file offline before pushing: `npx -y @mcpjam/cli@6.3.2 cloud eval validate --file evals/telekin/suite.yaml`.

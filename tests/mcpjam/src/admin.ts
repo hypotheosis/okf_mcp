@@ -31,7 +31,9 @@ export class CatalogAdmin {
     async owner(): Promise<string> {
         const response = await this.request("GET", "/me");
         if (!response.ok) throw await failure("GET /me", response);
-        const { user } = (await response.json()) as { user: string };
+        const body = await readJson(response);
+        const user = isRecord(body) ? body.user : undefined;
+        if (typeof user !== "string" || user === "") throw new Error("GET /me: unusable answer");
         return user;
     }
 
@@ -58,7 +60,13 @@ export class CatalogAdmin {
             throw error;
         }
         if (response.status === 201) {
-            // Only a confirmed 201 makes the catalog this run's own.
+            // Only a 201 whose body names this catalog makes it this run's own.
+            // The body is parsed as `unknown` and its parser error is dropped.
+            const body = await readJson(response);
+            if (!isRecord(body) || body.name !== name) {
+                this.unresolved.set(name, "catalog create answer was not usable");
+                throw new Error(`POST /catalogs ${name}: unusable answer`);
+            }
             this.created.add(name);
             return null;
         }
@@ -131,6 +139,26 @@ export class CatalogAdmin {
             },
             ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         });
+    }
+}
+
+/** A JSON object (not null, not an array). */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Reads a response body as JSON.
+ *
+ * @returns the parsed value, or `undefined` when the body is not valid JSON.
+ *   The parser's own error is never kept or rethrown: Node's message can quote
+ *   part of the body, and a create answer may hold a secret.
+ */
+export async function readJson(response: Response): Promise<unknown> {
+    try {
+        return (await response.json()) as unknown;
+    } catch {
+        return undefined;
     }
 }
 

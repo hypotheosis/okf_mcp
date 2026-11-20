@@ -9,7 +9,7 @@
 // The admin key is used for setup and teardown only and is never handed out.
 // Each session key reaches exactly one catalog (with it as its default). Key
 // secrets live only in memory, in `KeyAdmin`; nothing here logs or returns one.
-import { CatalogAdmin } from "./admin.js";
+import { CatalogAdmin, isRecord, readJson } from "./admin.js";
 import { SCENARIOS, type Seed } from "./scenarios.js";
 
 /** One provisioned session: what a human or a follow-up needs to wire it up. */
@@ -68,7 +68,6 @@ export class KeyAdmin {
     async create(name: string, user: string, catalog: string): Promise<string> {
         this.assertPrefixed(name);
         let response: Response;
-        let body: { key: { id: string }; secret: string };
         try {
             response = await fetch(`${this.apiBase}/keys`, {
                 method: "POST",
@@ -96,13 +95,24 @@ export class KeyAdmin {
             // Not `response.text()` in the error: a create answer holds a secret.
             throw new Error(`POST /keys ${name}: ${response.status}`);
         }
-        try {
-            body = (await response.json()) as { key: { id: string }; secret: string };
-        } catch (error) {
-            this.unresolved.set(name, `unreadable answer: ${String(error)}`);
-            throw error;
+        // Parsed as `unknown` and checked: a 200/201 that is not the shape we
+        // need is unresolved by NAME (no guessed id, never `revoke undefined`),
+        // and the parser's own error, which may quote a secret, is never kept.
+        const raw = await readJson(response);
+        if (raw === undefined) {
+            this.unresolved.set(name, "key create answer was not valid JSON");
+            throw new Error(`POST /keys ${name}: key create answer was not valid JSON`);
         }
-        const created: CreatedKey = { id: body.key.id, secret: body.secret };
+        const key = isRecord(raw) ? raw.key : undefined;
+        const id = isRecord(key) ? key.id : undefined;
+        const answeredName = isRecord(key) ? key.name : undefined;
+        const secret = isRecord(raw) ? raw.secret : undefined;
+        const usable = (v: unknown): v is string => typeof v === "string" && v !== "";
+        if (!usable(id) || !usable(answeredName) || !usable(secret) || answeredName !== name) {
+            this.unresolved.set(name, "key create answer was not usable");
+            throw new Error(`POST /keys ${name}: key create answer was not usable`);
+        }
+        const created: CreatedKey = { id, secret };
         this.created.set(created.id, name);
         this.secrets.set(created.id, created.secret);
         return created.id;

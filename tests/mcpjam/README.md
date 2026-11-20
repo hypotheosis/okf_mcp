@@ -121,8 +121,10 @@ What it does, in order:
    same guard in `src/swarm.ts`). A failure at any step tears down whatever
    exists and stops. A step that fails per resource (a rejected request, an
    HTTP error) does not stop the others, and every leftover is named in the output.
-   Only creates confirmed by a 201 are deleted or revoked. A create with no
-   usable answer (lost response, 5xx, timeout) may or may not have happened, so
+   Only confirmed creates are deleted or revoked: a catalog needs a 201 whose
+   body names it, a key needs a 200 or 201 with a usable body (non-empty key id,
+   name and secret). A create with no usable answer (lost response, 5xx,
+   timeout, malformed or wrongly shaped body) may or may not have happened, so
    it is never deleted or revoked by name: the run reports `unresolved: catalog
    <name>` or `unresolved: key <name>` and exits non-zero for a human to check.
 

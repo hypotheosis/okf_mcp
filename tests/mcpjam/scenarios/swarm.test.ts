@@ -18,6 +18,10 @@ class FakeApi {
     secrets: string[] = [];
     /** Fail the Nth request matching this "METHOD /path-prefix", 1-based. */
     failOn: { match: string; nth: number; reject?: boolean; afterStore?: boolean } | null = null;
+    /** Replaces the answer of a key create (the key is stored first). */
+    keyAnswer: ((name: string, secret: string) => Response) | null = null;
+    /** Replaces the answer of a catalog create (the catalog is stored first). */
+    catalogAnswer: ((name: string) => Response) | null = null;
     /** Catalogs that exist server-side (a create of one answers 409). */
     serverCatalogs = new Set<string>();
     /** Keys that exist server-side: name to id and revoked flag. */
@@ -62,7 +66,8 @@ class FakeApi {
             const { name } = JSON.parse(String(init?.body)) as { name: string };
             if (this.serverCatalogs.has(name)) return new Response("taken", { status: 409 });
             this.serverCatalogs.add(name);
-            return new Response("{}", { status: 201 });
+            if (this.catalogAnswer !== null) return this.catalogAnswer(name);
+            return Response.json({ name }, { status: 201 });
         }
         if (method === "DELETE" && path.startsWith("/catalogs/")) return new Response(null, { status: 204 });
         if (method === "POST" && path === "/keys") {
@@ -71,7 +76,8 @@ class FakeApi {
             this.secrets.push(secret);
             this.serverKeys.set(body.name, { id: `id-${body.name}`, revoked: false });
             if (this.keyCount === this.loseKeyAnswer) throw new TypeError("fetch failed");
-            return Response.json({ key: { id: `id-${body.name}` }, secret }, { status: 200 });
+            if (this.keyAnswer !== null) return this.keyAnswer(body.name, secret);
+            return Response.json({ key: { id: `id-${body.name}`, name: body.name }, secret }, { status: 200 });
         }
         if (label === "GET /keys") {
             return Response.json({
@@ -374,6 +380,89 @@ describe("a transport error during cleanup", () => {
         await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/409/);
         expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
         expect(lines.join("\n")).not.toContain("unresolved");
+    });
+});
+
+describe("a create answer that is malformed or the wrong shape", () => {
+    const LEAK = "LEAK-9f3a-secret-text";
+    /** The three places a leak could surface. */
+    const surfaces = async (
+        keys: KeyAdmin,
+        catalogs: CatalogAdmin,
+        run: Promise<unknown>,
+    ): Promise<string> => {
+        const error = await run.catch((e: unknown) => e);
+        return [String(error), lines.join("\n"), ...keys.unresolvedCreates(), ...catalogs.unresolvedCreates()].join("\n");
+    };
+
+    test("malformed JSON containing a secret never reaches the error, the logs or the unresolved reason", async () => {
+        api.keyAnswer = () => new Response(`{"secret": "${LEAK}" oops`, { status: 200 });
+        const { catalogs, keys } = clients();
+        const out = await surfaces(keys, catalogs, runSwarm(options(), catalogs, keys, hooks()));
+        expect(out).not.toContain(LEAK);
+        expect(out).toContain("key create answer was not valid JSON");
+        expect(out).toContain(`unresolved: key ${PREFIX}-1`);
+        expect(api.calls.filter((c) => c.endsWith("/revoke"))).toEqual([]);
+    });
+
+    test("a catalog 201 with malformed JSON is unresolved, never deleted, and leaks nothing", async () => {
+        api.catalogAnswer = () => new Response(`{"x": "${LEAK}" oops`, { status: 201 });
+        const { catalogs, keys } = clients();
+        const out = await surfaces(keys, catalogs, runSwarm(options(), catalogs, keys, hooks()));
+        expect(out).not.toContain(LEAK);
+        expect(out).toContain(`unresolved: catalog ${PREFIX}-1`);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
+    });
+
+    const shapes: [string, string][] = [
+        ["{}", "{}"],
+        ["a null key", '{"key":null}'],
+        ["a missing id", `{"key":{"name":"${PREFIX}-1"},"secret":"${LEAK}"}`],
+        ["an empty id", `{"key":{"id":"","name":"${PREFIX}-1"},"secret":"${LEAK}"}`],
+        ["a missing secret", `{"key":{"id":"id-x","name":"${PREFIX}-1"}}`],
+        ["a null secret", `{"key":{"id":"id-x","name":"${PREFIX}-1"},"secret":null}`],
+        ["a missing name", `{"key":{"id":"id-x"},"secret":"${LEAK}"}`],
+        ["a different name", `{"key":{"id":"id-x","name":"other"},"secret":"${LEAK}"}`],
+        ["an array", "[]"],
+    ];
+    for (const [what, text] of shapes) {
+        test(`a key 200 with ${what} is unresolved by name; nothing is revoked`, async () => {
+            api.keyAnswer = () => new Response(text, { status: 200 });
+            const { catalogs, keys } = clients();
+            const out = await surfaces(keys, catalogs, runSwarm(options(), catalogs, keys, hooks()));
+            expect(out).toContain(`unresolved: key ${PREFIX}-1`);
+            expect(out).not.toContain(LEAK);
+            expect(api.calls.filter((c) => c.endsWith("/revoke"))).toEqual([]);
+            expect(api.calls.join("\n")).not.toContain("undefined");
+        });
+    }
+
+    for (const [what, text] of [["{}", "{}"], ["the wrong name", '{"name":"other"}'], ["null", "null"]] as const) {
+        test(`a catalog 201 with ${what} is unresolved; nothing is deleted`, async () => {
+            api.catalogAnswer = () => new Response(text, { status: 201 });
+            const { catalogs, keys } = clients();
+            const out = await surfaces(keys, catalogs, runSwarm(options(), catalogs, keys, hooks()));
+            expect(out).toContain(`unresolved: catalog ${PREFIX}-1`);
+            expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
+        });
+    }
+
+    test("a key 201 with a usable body is accepted like a 200", async () => {
+        api.keyAnswer = (name) =>
+            Response.json({ key: { id: `id-${name}`, name }, secret: "s" }, { status: 201 });
+        const { catalogs, keys } = clients();
+        await runSwarm(options(), catalogs, keys, hooks());
+        expect(keys.unresolvedCreates()).toEqual([]);
+    });
+
+    test("a /me answer of the wrong shape is refused without echoing the body", async () => {
+        const inner = api.fetch;
+        vi.stubGlobal("fetch", async (input: string, init?: RequestInit) =>
+            String(input).endsWith("/me") ? new Response(`oops ${LEAK}`) : inner(input, init));
+        const { catalogs } = clients();
+        const error = await catalogs.owner().catch((e: Error) => e);
+        expect(String(error)).not.toContain(LEAK);
+        expect(String(error)).toContain("unusable answer");
     });
 });
 

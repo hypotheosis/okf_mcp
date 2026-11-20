@@ -87,8 +87,7 @@ export function realHooks(url: string, adminKey: string, log: (line: string) => 
             try {
                 const ntp = await own.attempt("get_concept", { path: "/infra/ntp.md" });
                 if (!ntp.ok) throw new Error(`session ${session.index}: its key cannot read /infra/ntp.md`);
-                const [other] = others;
-                if (other !== undefined) {
+                for (const other of others) {
                     const foreign = await own.attempt("get_concept", {
                         path: "/infra/ntp.md",
                         catalog: other,
@@ -116,8 +115,9 @@ export async function main(argv: string[], log: (line: string) => void): Promise
     const prefix = `mcpjam-${Date.now().toString(36)}-${randomBytes(3).toString("hex")}`;
     const abort = new AbortController();
     const onSignal = (): void => abort.abort();
-    process.once("SIGINT", onSignal);
-    process.once("SIGTERM", onSignal);
+    // `on`, not `once`: a second Ctrl-C must not kill the process mid-teardown.
+    process.on("SIGINT", onSignal);
+    process.on("SIGTERM", onSignal);
 
     // A dry run needs no environment at all: it calls nothing.
     log(`goal ${args.goalId}, ${args.sessions} session(s), run ${prefix}`);

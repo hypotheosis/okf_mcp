@@ -17,7 +17,9 @@ class FakeApi {
     calls: string[] = [];
     secrets: string[] = [];
     /** Fail the Nth request matching this "METHOD /path-prefix", 1-based. */
-    failOn: { match: string; nth: number; reject?: boolean } | null = null;
+    failOn: { match: string; nth: number; reject?: boolean; afterStore?: boolean } | null = null;
+    /** Catalogs that exist server-side (a create of one answers 409). */
+    serverCatalogs = new Set<string>();
     /** Keys that exist server-side: name to id and revoked flag. */
     serverKeys = new Map<string, { id: string; revoked: boolean }>();
     /** Create the Nth key server-side, but lose the answer (the request rejects). */
@@ -39,13 +41,29 @@ class FakeApi {
             const count = (this.seen.get(this.failOn.match) ?? 0) + 1;
             this.seen.set(this.failOn.match, count);
             if (count === this.failOn.nth) {
+                // afterStore: the server commits the create, then the answer is lost or a 500.
+                if (this.failOn.afterStore === true) await this.handle(method, path, init, label);
                 // A transport error: the request rejects instead of answering.
                 if (this.failOn.reject === true) throw new TypeError("fetch failed");
                 return new Response("boom", { status: 500 });
             }
         }
+        return this.handle(method, path, init, label);
+    };
+
+    private async handle(
+        method: string,
+        path: string,
+        init: RequestInit | undefined,
+        label: string,
+    ): Promise<Response> {
         if (label === "GET /me") return Response.json({ user: "alice" });
-        if (method === "POST" && path === "/catalogs") return new Response("{}", { status: 201 });
+        if (method === "POST" && path === "/catalogs") {
+            const { name } = JSON.parse(String(init?.body)) as { name: string };
+            if (this.serverCatalogs.has(name)) return new Response("taken", { status: 409 });
+            this.serverCatalogs.add(name);
+            return new Response("{}", { status: 201 });
+        }
         if (method === "DELETE" && path.startsWith("/catalogs/")) return new Response(null, { status: 204 });
         if (method === "POST" && path === "/keys") {
             const body = JSON.parse(String(init?.body)) as { name: string };
@@ -71,7 +89,7 @@ class FakeApi {
             return Response.json({});
         }
         return new Response("not found", { status: 404 });
-    };
+    }
 }
 
 let api: FakeApi;
@@ -304,22 +322,58 @@ describe("a transport error during cleanup", () => {
         expect(lines.join("\n")).toMatch(/left behind: key mcpjam-run1-1/);
     });
 
-    test("a key whose create answer was lost is found by name and revoked", async () => {
-        api.loseKeyAnswer = 2;
+    test("a key whose create answer was lost is reported unresolved, never revoked by name", async () => {
+        api.failOn = { match: "POST /keys", nth: 2, reject: true, afterStore: true };
         const { catalogs, keys } = clients();
         await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/fetch failed/);
-        expect([...api.serverKeys.values()].every((k) => k.revoked)).toBe(true);
-        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toHaveLength(2);
+        // Key 1 (confirmed) is revoked; key 2 is not touched.
+        expect(api.calls.filter((c) => c.endsWith("/revoke"))).toEqual([`POST /keys/id-${PREFIX}-1/revoke`]);
+        expect(api.calls).not.toContain("GET /keys");
+        expect(lines.join("\n")).toContain(`unresolved: key ${PREFIX}-2`);
+        expect(lines.join("\n")).toContain("may or may not exist");
     });
 
-    test("a catalog whose create answer was lost is still deleted", async () => {
-        api.failOn = { match: "POST /catalogs", nth: 2, reject: true };
+    test("a key the server stored before answering 500 is reported unresolved, not revoked", async () => {
+        api.failOn = { match: "POST /keys", nth: 1, afterStore: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow();
+        expect(api.calls.filter((c) => c.endsWith("/revoke"))).toEqual([]);
+        expect(lines.join("\n")).toContain(`unresolved: key ${PREFIX}-1 (HTTP 500`);
+    });
+
+    test("a catalog whose create answer was lost is reported unresolved, never deleted", async () => {
+        api.failOn = { match: "POST /catalogs", nth: 2, reject: true, afterStore: true };
         const { catalogs, keys } = clients();
         await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/fetch failed/);
-        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([
-            `DELETE /catalogs/${PREFIX}-1`,
-            `DELETE /catalogs/${PREFIX}-2`,
-        ]);
+        // Catalog 1 (confirmed) is deleted; catalog 2 exists server-side and is left alone.
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([`DELETE /catalogs/${PREFIX}-1`]);
+        expect(lines.join("\n")).toContain(`unresolved: catalog ${PREFIX}-2`);
+    });
+
+    test("a catalog the server stored before answering 500 is reported unresolved, not deleted", async () => {
+        api.failOn = { match: "POST /catalogs", nth: 1, afterStore: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow();
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
+        expect(lines.join("\n")).toContain(`unresolved: catalog ${PREFIX}-1 (HTTP 500`);
+    });
+
+    test("a catalog that already existed (409) is not tracked, and a lost 409 is never deleted", async () => {
+        // Pre-existing, not ours; the 409 answer is lost on the wire.
+        api.serverCatalogs.add(`${PREFIX}-1`);
+        api.failOn = { match: "POST /catalogs", nth: 1, reject: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/fetch failed/);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
+        expect(lines.join("\n")).toContain(`unresolved: catalog ${PREFIX}-1`);
+    });
+
+    test("a definitive 409 is not tracked at all", async () => {
+        api.serverCatalogs.add(`${PREFIX}-1`);
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/409/);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([]);
+        expect(lines.join("\n")).not.toContain("unresolved");
     });
 });
 

@@ -119,7 +119,12 @@ What it does, in order:
 5. Tears down, always (success, failure, Ctrl-C): revokes the keys, then deletes
    the catalogs. Only what this run created is touched (`src/admin.ts` and the
    same guard in `src/swarm.ts`). A failure at any step tears down whatever
-   exists and stops.
+   exists and stops. A step that fails per resource (a rejected request, an
+   HTTP error) does not stop the others, and every leftover is named in the output.
+   Only creates confirmed by a 201 are deleted or revoked. A create with no
+   usable answer (lost response, 5xx, timeout) may or may not have happened, so
+   it is never deleted or revoked by name: the run reports `unresolved: catalog
+   <name>` or `unresolved: key <name>` and exits non-zero for a human to check.
 
 `--keep` skips the normal-path teardown and prints the catalogs and key ids left
 behind. `--dry-run` prints the plan and calls nothing, neither okf-mcp nor

@@ -12,6 +12,8 @@ export type CreateRefusal = "forbidden";
 export class CatalogAdmin {
     /** The catalogs this instance created and has not deleted yet. */
     private readonly created = new Set<string>();
+    /** Creates with no definitive answer: name to the reason. Never deleted. */
+    private readonly unresolved = new Map<string, string>();
 
     /**
      * @param apiBase - the admin API's base, e.g. `https://host/api/v1`.
@@ -43,20 +45,38 @@ export class CatalogAdmin {
      */
     async create(name: string, owner: string): Promise<CreateRefusal | null> {
         this.assertPrefixed(name);
-        // Recorded before the request: if the answer is lost (a transport
-        // error) the catalog may exist, and the teardown must still try it.
-        this.created.add(name);
-        const response = await this.request("POST", "/catalogs", {
-            name,
-            owner,
-            description: "Temporary catalog of an mcpjam scenario run; deleted when the run ends.",
-        });
-        // Any answer settles it: only 201 means this run made the catalog (a
-        // 409 is somebody else's, and must never be deleted).
-        if (response.status !== 201) this.created.delete(name);
+        let response: Response;
+        try {
+            response = await this.request("POST", "/catalogs", {
+                name,
+                owner,
+                description: "Temporary catalog of an mcpjam scenario run; deleted when the run ends.",
+            });
+        } catch (error) {
+            // No answer: the catalog may or may not exist. Not ours to delete.
+            this.unresolved.set(name, String(error));
+            throw error;
+        }
+        if (response.status === 201) {
+            // Only a confirmed 201 makes the catalog this run's own.
+            this.created.add(name);
+            return null;
+        }
+        // A 5xx proves nothing: the server may have created it first.
+        if (response.status >= 500) this.unresolved.set(name, `HTTP ${response.status}`);
+        // Any other refusal (403, 409, 422) is definitive: not created, not tracked.
         if (response.status === 403) return "forbidden";
-        if (response.status !== 201) throw await failure(`POST /catalogs ${name}`, response);
-        return null;
+        throw await failure(`POST /catalogs ${name}`, response);
+    }
+
+    /**
+     * Catalogs whose create got no usable answer: they may or may not exist.
+     * They are never deleted (that would be a guess); a human must check.
+     *
+     * @returns each name with why it is unresolved.
+     */
+    unresolvedCreates(): string[] {
+        return [...this.unresolved].map(([name, why]) => `${name} (${why}; may or may not exist)`);
     }
 
     /**

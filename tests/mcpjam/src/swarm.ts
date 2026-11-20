@@ -40,11 +40,8 @@ interface CreatedKey {
 export class KeyAdmin {
     /** Keys created and not yet revoked: id to name. */
     private readonly created = new Map<string, string>();
-    /**
-     * Names whose create request got no answer: the key may exist. The
-     * teardown looks them up by name (`GET /keys`) and revokes what it finds.
-     */
-    private readonly pending = new Set<string>();
+    /** Creates with no definitive answer: name to the reason. Never revoked. */
+    private readonly unresolved = new Map<string, string>();
     /** Secrets by key id. Never exposed except through `secretOf`. */
     private readonly secrets = new Map<string, string>();
 
@@ -70,31 +67,41 @@ export class KeyAdmin {
      */
     async create(name: string, user: string, catalog: string): Promise<string> {
         this.assertPrefixed(name);
-        // Pending until an answer settles it: a lost answer leaves a key we
-        // cannot name by id, so the teardown finds it by name.
-        this.pending.add(name);
-        const response = await fetch(`${this.apiBase}/keys`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${this.adminKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                access: "write",
-                catalogs: [catalog],
-                default_catalog: catalog,
-                user,
-            }),
-        });
-        // Not `response.text()` in the error: a create answer holds a secret.
+        let response: Response;
+        let body: { key: { id: string }; secret: string };
+        try {
+            response = await fetch(`${this.apiBase}/keys`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${this.adminKey}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name,
+                    access: "write",
+                    catalogs: [catalog],
+                    default_catalog: catalog,
+                    user,
+                }),
+            });
+        } catch (error) {
+            // No answer: the key may or may not exist. Not ours to revoke.
+            this.unresolved.set(name, String(error));
+            throw error;
+        }
         if (response.status !== 200 && response.status !== 201) {
-            // The server answered no: there is no key to look for.
-            this.pending.delete(name);
+            // A 5xx proves nothing (the key is created before the handler
+            // re-reads it); a 4xx is a definitive refusal and is not tracked.
+            if (response.status >= 500) this.unresolved.set(name, `HTTP ${response.status}`);
+            // Not `response.text()` in the error: a create answer holds a secret.
             throw new Error(`POST /keys ${name}: ${response.status}`);
         }
-        const body = (await response.json()) as { key: { id: string }; secret: string };
-        this.pending.delete(name);
+        try {
+            body = (await response.json()) as { key: { id: string }; secret: string };
+        } catch (error) {
+            this.unresolved.set(name, `unreadable answer: ${String(error)}`);
+            throw error;
+        }
         const created: CreatedKey = { id: body.key.id, secret: body.secret };
         this.created.set(created.id, name);
         this.secrets.set(created.id, created.secret);
@@ -120,7 +127,6 @@ export class KeyAdmin {
             // Per key: a transport error on one must not stop the rest.
             await this.revokeOne(id, name, kept);
         }
-        await this.revokePending(kept);
         return kept;
     }
 
@@ -142,32 +148,19 @@ export class KeyAdmin {
         }
     }
 
-    // Keys whose create answer was lost: find them by exact name and revoke.
-    private async revokePending(kept: string[]): Promise<void> {
-        if (this.pending.size === 0) return;
-        try {
-            const response = await fetch(`${this.apiBase}/keys`, {
-                headers: { Authorization: `Bearer ${this.adminKey}` },
-            });
-            if (!response.ok) throw new Error(`GET /keys: ${response.status}`);
-            const { keys } = (await response.json()) as {
-                keys: { id: string; name: string; revoked_at: string | null }[];
-            };
-            for (const key of keys) {
-                if (!this.pending.has(key.name) || key.revoked_at !== null) continue;
-                this.assertPrefixed(key.name);
-                await this.revokeOne(key.id, key.name, kept);
-            }
-            // Looked up: whatever was there is revoked or reported.
-            for (const name of [...this.pending]) this.pending.delete(name);
-        } catch (error) {
-            for (const name of this.pending) kept.push(`${name} (possible orphan: ${String(error)})`);
-        }
+    /**
+     * Keys whose create got no usable answer: they may or may not exist. They
+     * are never revoked (that would be a guess); a human must check.
+     *
+     * @returns each name with why it is unresolved.
+     */
+    unresolvedCreates(): string[] {
+        return [...this.unresolved].map(([name, why]) => `${name} (${why}; may or may not exist)`);
     }
 
     /** The ids still held, for the `--keep` report. */
     get live(): string[] {
-        return [...this.created.keys(), ...this.pending];
+        return [...this.created.keys()];
     }
 
     private assertOwned(id: string, name: string): void {
@@ -271,7 +264,12 @@ export async function runSwarm(
         // skips the other: both always run, and every leftover is named.
         const left = await keys.revokeCreated().catch((e: unknown) => [`(revoking failed: ${String(e)})`]);
         const gone = await catalogs.deleteCreated().catch((e: unknown) => [`(deleting failed: ${String(e)})`]);
-        return [...left.map((k) => `key ${k}`), ...gone.map((c) => `catalog ${c}`)];
+        return [
+            ...left.map((k) => `key ${k}`),
+            ...gone.map((c) => `catalog ${c}`),
+            ...keys.unresolvedCreates().map((k) => `unresolved: key ${k}`),
+            ...catalogs.unresolvedCreates().map((c) => `unresolved: catalog ${c}`),
+        ];
     };
 
     // Checked between steps: a signal ends the run through the same teardown.

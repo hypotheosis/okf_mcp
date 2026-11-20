@@ -17,7 +17,11 @@ class FakeApi {
     calls: string[] = [];
     secrets: string[] = [];
     /** Fail the Nth request matching this "METHOD /path-prefix", 1-based. */
-    failOn: { match: string; nth: number } | null = null;
+    failOn: { match: string; nth: number; reject?: boolean } | null = null;
+    /** Keys that exist server-side: name to id and revoked flag. */
+    serverKeys = new Map<string, { id: string; revoked: boolean }>();
+    /** Create the Nth key server-side, but lose the answer (the request rejects). */
+    loseKeyAnswer: number | null = null;
     private seen = new Map<string, number>();
     private keyCount = 0;
 
@@ -34,7 +38,11 @@ class FakeApi {
         if (this.failOn !== null && label.startsWith(this.failOn.match)) {
             const count = (this.seen.get(this.failOn.match) ?? 0) + 1;
             this.seen.set(this.failOn.match, count);
-            if (count === this.failOn.nth) return new Response("boom", { status: 500 });
+            if (count === this.failOn.nth) {
+                // A transport error: the request rejects instead of answering.
+                if (this.failOn.reject === true) throw new TypeError("fetch failed");
+                return new Response("boom", { status: 500 });
+            }
         }
         if (label === "GET /me") return Response.json({ user: "alice" });
         if (method === "POST" && path === "/catalogs") return new Response("{}", { status: 201 });
@@ -43,9 +51,25 @@ class FakeApi {
             const body = JSON.parse(String(init?.body)) as { name: string };
             const secret = `SESSION-SECRET-${++this.keyCount}`;
             this.secrets.push(secret);
+            this.serverKeys.set(body.name, { id: `id-${body.name}`, revoked: false });
+            if (this.keyCount === this.loseKeyAnswer) throw new TypeError("fetch failed");
             return Response.json({ key: { id: `id-${body.name}` }, secret }, { status: 200 });
         }
-        if (method === "POST" && path.endsWith("/revoke")) return Response.json({});
+        if (label === "GET /keys") {
+            return Response.json({
+                keys: [...this.serverKeys].map(([name, k]) => ({
+                    id: k.id,
+                    name,
+                    revoked_at: k.revoked ? "t" : null,
+                })),
+            });
+        }
+        if (method === "POST" && path.endsWith("/revoke")) {
+            for (const k of this.serverKeys.values()) {
+                if (path === `/keys/${k.id}/revoke`) k.revoked = true;
+            }
+            return Response.json({});
+        }
         return new Response("not found", { status: 404 });
     };
 }
@@ -238,6 +262,64 @@ describe("a failure tears down what exists and stops", () => {
         const { catalogs, keys } = clients();
         await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/left 1 resources/);
         expect(lines.join("\n")).toMatch(new RegExp(`left behind: catalog ${PREFIX}-2`));
+    });
+});
+
+describe("a transport error during cleanup", () => {
+    test("a rejected first revoke does not stop the other revokes or any catalog delete, and is reported", async () => {
+        api.failOn = { match: "POST /keys/", nth: 1, reject: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/left 1 resources/);
+        const revokes = api.calls.filter((c) => c.endsWith("/revoke"));
+        expect(revokes).toEqual([
+            `POST /keys/id-${PREFIX}-1/revoke`,
+            `POST /keys/id-${PREFIX}-2/revoke`,
+        ]);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([
+            `DELETE /catalogs/${PREFIX}-1`,
+            `DELETE /catalogs/${PREFIX}-2`,
+        ]);
+        expect(lines.join("\n")).toContain(`left behind: key ${PREFIX}-1 id-${PREFIX}-1 (TypeError: fetch failed)`);
+    });
+
+    test("a rejected catalog delete does not stop the other deletes, and is reported", async () => {
+        api.failOn = { match: "DELETE /catalogs/", nth: 1, reject: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/left 1 resources/);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toHaveLength(2);
+        expect(lines.join("\n")).toContain(`left behind: catalog ${PREFIX}-1 (TypeError: fetch failed)`);
+    });
+
+    test("on a setup failure, a rejected revoke still leaves the catalogs deleted and names the key", async () => {
+        api.failOn = { match: "POST /keys/", nth: 1, reject: true };
+        const { catalogs, keys } = clients();
+        await expect(
+            runSwarm(options(), catalogs, keys, hooks({
+                verify: async () => {
+                    throw new Error("verify failed");
+                },
+            })),
+        ).rejects.toThrow(/verify failed/);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toHaveLength(2);
+        expect(lines.join("\n")).toMatch(/left behind: key mcpjam-run1-1/);
+    });
+
+    test("a key whose create answer was lost is found by name and revoked", async () => {
+        api.loseKeyAnswer = 2;
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/fetch failed/);
+        expect([...api.serverKeys.values()].every((k) => k.revoked)).toBe(true);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toHaveLength(2);
+    });
+
+    test("a catalog whose create answer was lost is still deleted", async () => {
+        api.failOn = { match: "POST /catalogs", nth: 2, reject: true };
+        const { catalogs, keys } = clients();
+        await expect(runSwarm(options(), catalogs, keys, hooks())).rejects.toThrow(/fetch failed/);
+        expect(api.calls.filter((c) => c.startsWith("DELETE"))).toEqual([
+            `DELETE /catalogs/${PREFIX}-1`,
+            `DELETE /catalogs/${PREFIX}-2`,
+        ]);
     });
 });
 

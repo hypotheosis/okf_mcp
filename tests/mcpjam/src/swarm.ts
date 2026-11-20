@@ -40,6 +40,11 @@ interface CreatedKey {
 export class KeyAdmin {
     /** Keys created and not yet revoked: id to name. */
     private readonly created = new Map<string, string>();
+    /**
+     * Names whose create request got no answer: the key may exist. The
+     * teardown looks them up by name (`GET /keys`) and revokes what it finds.
+     */
+    private readonly pending = new Set<string>();
     /** Secrets by key id. Never exposed except through `secretOf`. */
     private readonly secrets = new Map<string, string>();
 
@@ -65,6 +70,9 @@ export class KeyAdmin {
      */
     async create(name: string, user: string, catalog: string): Promise<string> {
         this.assertPrefixed(name);
+        // Pending until an answer settles it: a lost answer leaves a key we
+        // cannot name by id, so the teardown finds it by name.
+        this.pending.add(name);
         const response = await fetch(`${this.apiBase}/keys`, {
             method: "POST",
             headers: {
@@ -81,9 +89,12 @@ export class KeyAdmin {
         });
         // Not `response.text()` in the error: a create answer holds a secret.
         if (response.status !== 200 && response.status !== 201) {
+            // The server answered no: there is no key to look for.
+            this.pending.delete(name);
             throw new Error(`POST /keys ${name}: ${response.status}`);
         }
         const body = (await response.json()) as { key: { id: string }; secret: string };
+        this.pending.delete(name);
         const created: CreatedKey = { id: body.key.id, secret: body.secret };
         this.created.set(created.id, name);
         this.secrets.set(created.id, created.secret);
@@ -106,6 +117,15 @@ export class KeyAdmin {
         const kept: string[] = [];
         for (const [id, name] of [...this.created]) {
             this.assertOwned(id, name);
+            // Per key: a transport error on one must not stop the rest.
+            await this.revokeOne(id, name, kept);
+        }
+        await this.revokePending(kept);
+        return kept;
+    }
+
+    private async revokeOne(id: string, name: string, kept: string[]): Promise<void> {
+        try {
             const response = await fetch(`${this.apiBase}/keys/${encodeURIComponent(id)}/revoke`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${this.adminKey}` },
@@ -117,13 +137,37 @@ export class KeyAdmin {
             } else {
                 kept.push(`${name} ${id} (${response.status})`);
             }
+        } catch (error) {
+            kept.push(`${name} ${id} (${String(error)})`);
         }
-        return kept;
+    }
+
+    // Keys whose create answer was lost: find them by exact name and revoke.
+    private async revokePending(kept: string[]): Promise<void> {
+        if (this.pending.size === 0) return;
+        try {
+            const response = await fetch(`${this.apiBase}/keys`, {
+                headers: { Authorization: `Bearer ${this.adminKey}` },
+            });
+            if (!response.ok) throw new Error(`GET /keys: ${response.status}`);
+            const { keys } = (await response.json()) as {
+                keys: { id: string; name: string; revoked_at: string | null }[];
+            };
+            for (const key of keys) {
+                if (!this.pending.has(key.name) || key.revoked_at !== null) continue;
+                this.assertPrefixed(key.name);
+                await this.revokeOne(key.id, key.name, kept);
+            }
+            // Looked up: whatever was there is revoked or reported.
+            for (const name of [...this.pending]) this.pending.delete(name);
+        } catch (error) {
+            for (const name of this.pending) kept.push(`${name} (possible orphan: ${String(error)})`);
+        }
     }
 
     /** The ids still held, for the `--keep` report. */
     get live(): string[] {
-        return [...this.created.keys()];
+        return [...this.created.keys(), ...this.pending];
     }
 
     private assertOwned(id: string, name: string): void {
@@ -223,9 +267,10 @@ export async function runSwarm(
 
     let sessions: SessionInfo[] = [];
     const teardown = async (): Promise<string[]> => {
-        // Keys first: no key outlives its catalog.
-        const left = await keys.revokeCreated();
-        const gone = await catalogs.deleteCreated();
+        // Keys first: no key outlives its catalog. A failure of one step never
+        // skips the other: both always run, and every leftover is named.
+        const left = await keys.revokeCreated().catch((e: unknown) => [`(revoking failed: ${String(e)})`]);
+        const gone = await catalogs.deleteCreated().catch((e: unknown) => [`(deleting failed: ${String(e)})`]);
         return [...left.map((k) => `key ${k}`), ...gone.map((c) => `catalog ${c}`)];
     };
 

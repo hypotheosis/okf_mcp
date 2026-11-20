@@ -43,14 +43,19 @@ export class CatalogAdmin {
      */
     async create(name: string, owner: string): Promise<CreateRefusal | null> {
         this.assertPrefixed(name);
+        // Recorded before the request: if the answer is lost (a transport
+        // error) the catalog may exist, and the teardown must still try it.
+        this.created.add(name);
         const response = await this.request("POST", "/catalogs", {
             name,
             owner,
             description: "Temporary catalog of an mcpjam scenario run; deleted when the run ends.",
         });
+        // Any answer settles it: only 201 means this run made the catalog (a
+        // 409 is somebody else's, and must never be deleted).
+        if (response.status !== 201) this.created.delete(name);
         if (response.status === 403) return "forbidden";
         if (response.status !== 201) throw await failure(`POST /catalogs ${name}`, response);
-        this.created.add(name);
         return null;
     }
 
@@ -64,15 +69,20 @@ export class CatalogAdmin {
         const kept: string[] = [];
         for (const name of [...this.created]) {
             this.assertOwned(name);
-            const response = await this.request(
-                "DELETE",
-                `/catalogs/${encodeURIComponent(name)}?force=true`,
-            );
-            // 404: already gone, which is what the teardown wants.
-            if (response.ok || response.status === 404) {
-                this.created.delete(name);
-            } else {
-                kept.push(`${name} (${response.status} ${await response.text()})`);
+            // Per catalog: a transport error on one must not stop the rest.
+            try {
+                const response = await this.request(
+                    "DELETE",
+                    `/catalogs/${encodeURIComponent(name)}?force=true`,
+                );
+                // 404: already gone, which is what the teardown wants.
+                if (response.ok || response.status === 404) {
+                    this.created.delete(name);
+                } else {
+                    kept.push(`${name} (${response.status} ${await response.text()})`);
+                }
+            } catch (error) {
+                kept.push(`${name} (${String(error)})`);
             }
         }
         return kept;

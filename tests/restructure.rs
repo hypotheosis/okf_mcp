@@ -6,7 +6,8 @@
 //! - a delete refused while linked, then allowed;
 //! - a delete that unlinks `log.md` (issue #658), alone and against a
 //!   concurrent `log` entry in either order, and still refused for links
-//!   outside `log.md`.
+//!   outside `log.md`;
+//! - a delete refused by a racing log link (issue #661), then retried.
 
 mod support;
 
@@ -474,6 +475,70 @@ async fn a_log_entry_published_after_a_delete_replays() {
 #[tokio::test(flavor = "multi_thread")]
 async fn a_delete_published_after_a_log_entry_replays() {
     a_concurrent_log_entry_replays(false).await;
+}
+
+/// Issue #661, the documented rare case: the delete's snapshot has no
+/// `log.md` link, so it records no unlink, and a log entry linking the
+/// concept publishes first. The delete's publish is refused (a link into a
+/// deleted path), and the same delete in a fresh changeset succeeds.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_delete_refused_by_a_racing_log_link_succeeds_when_retried() {
+    let server = TestServer::start(catalog(), Config::default()).await;
+    let deleter_key = writer(&server, "writer-a").await;
+    let logger_key = writer(&server, "writer-b").await;
+    let deleter = server.client(&deleter_key, None).await.unwrap();
+    let logger = server.client(&logger_key, None).await.unwrap();
+    let publish = |handle: &str| json!({"message": "publish", "changeset": handle});
+    // A concept nothing links to (no log entry, unlike `logged_concept`).
+    let creating = open_changeset(&deleter, None).await;
+    let concept = json!({
+        "path": "/infra/x",
+        "frontmatter": {"type": "System", "title": "X", "description": "A test system."},
+        "body": "# X\n",
+        "index_summary": "a test system",
+        "changeset": creating,
+    });
+    ok(&deleter, "create_concept", concept).await;
+    ok(&deleter, "publish", publish(&creating)).await;
+    let (deleting, logging) = (
+        open_changeset(&deleter, None).await,
+        open_changeset(&logger, None).await,
+    );
+    let delete = |handle: &str| json!({"path": "/infra/x", "changeset": handle});
+    let deleted = ok(&deleter, "delete_concept", delete(&deleting)).await;
+    let entry = json!({"text": "Added [X](/infra/x.md)", "changeset": logging});
+    ok(&logger, "log", entry).await;
+    ok(&logger, "publish", publish(&logging)).await;
+
+    let refused = call(&deleter, "publish", publish(&deleting)).await;
+    let retrying = open_changeset(&deleter, None).await;
+    let retried = ok(&deleter, "delete_concept", delete(&retrying)).await;
+    let published = ok(&deleter, "publish", publish(&retrying)).await;
+    let errors = lint_errors(&deleter).await;
+    let log = ok(&deleter, "read_document", json!({"path": "/log.md"})).await;
+    deleter.cancel().await.unwrap();
+    logger.cancel().await.unwrap();
+
+    // The first delete's snapshot had no log link, so it noted none.
+    assert!(
+        deleted["notes"].as_array().is_none_or(Vec::is_empty),
+        "{deleted}"
+    );
+    assert_eq!(refused.is_error, Some(true), "{refused:?}");
+    let body = refused.structured_content.expect("the error's JSON");
+    assert_eq!(body["error"], "LintFailed", "{body}");
+    assert_eq!(body["errors"][0]["rule"], "link-into-deleted", "{body}");
+    assert_eq!(body["errors"][0]["file"], "/log.md", "{body}");
+    // The fresh changeset sees the log link and unlinks it.
+    assert!(
+        retried["notes"].to_string().contains("/log.md"),
+        "{retried}"
+    );
+    assert_eq!(published["published"], true, "{published}");
+    assert!(errors.is_empty(), "{errors:?}");
+    let text = log["text"].as_str().unwrap();
+    assert!(text.contains("Added X\n"), "{text}");
+    assert!(!text.contains("/infra/x.md"), "{text}");
 }
 
 #[tokio::test(flavor = "multi_thread")]

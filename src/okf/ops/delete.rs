@@ -163,7 +163,10 @@ fn links_into(
 /// * `outcome` - the delete's outcome, extended in place.
 ///
 /// # Errors
-/// The workspace's read or write error.
+/// The workspace's read or write error. [`OkfError::Io`] (an internal error)
+/// when `logged` holds an empty run or a file with no link into `path`:
+/// [`links_into`] never produces either, so it is a bug, and failing here
+/// beats a publish refusal that names no cause.
 #[tracing::instrument(level = "trace", skip_all)]
 fn unlink_logs(
     workspace: &dyn Workspace,
@@ -175,13 +178,13 @@ fn unlink_logs(
     // `itertools.groupby`: `logged` is in walk order, so each file is one run.
     for run in logged.chunk_by(|a, b| a.source == b.source) {
         let Some(first) = run.first() else {
-            continue; // unreachable: a run is never empty
+            return Err(invariant_broken("", "an empty run of links"));
         };
         let log = first.source.trim_start_matches('/');
         // Byte for byte, as the replay rewrites it (`\r\n` endings kept).
         let text = workspace.read_to_string(log)?;
         let Some(unlinked) = unlink_text(workspace, log, &text, path) else {
-            continue; // unreachable: `links_into` found a link here
+            return Err(invariant_broken(log, "no link to the deleted concept"));
         };
         workspace.write_atomic(log, &unlinked)?;
         let op = ReplayOp::Unlink {
@@ -195,6 +198,23 @@ fn unlink_logs(
         ));
     }
     Ok(())
+}
+
+/// The internal error for a state `delete_concept` never reaches.
+///
+/// # Arguments
+/// * `path` - the file concerned (empty when there is none).
+/// * `what` - what was found.
+///
+/// # Returns
+/// An [`OkfError::Io`], which [`OkfError::is_internal`] counts as the
+/// server's fault: clients see a generic message and the log has the detail.
+#[tracing::instrument(level = "trace", skip_all)]
+fn invariant_broken(path: &str, what: &str) -> OkfError {
+    OkfError::Io {
+        path: path.to_string(),
+        source: std::io::Error::other(format!("delete_concept invariant broken: {what}")),
+    }
 }
 
 /// Does `folder` hold its `index.md` and nothing else?
@@ -266,6 +286,20 @@ mod tests {
             source: format!("/{source}"),
             line,
         }
+    }
+
+    #[test]
+    fn unlink_logs_fails_hard_on_a_file_with_no_link() {
+        let workspace = MemWorkspace::from_files([("log.md", "# Log\n")]);
+        let mut outcome = OpOutcome::default();
+
+        let no_link = [link("log.md", 1)];
+        let error = unlink_logs(&workspace, "infra/x.md", &no_link, &mut outcome).unwrap_err();
+
+        assert!(error.is_internal(), "{error:?}");
+        assert!(error.to_string().contains("no link"), "{error}");
+        assert!(outcome.notes.is_empty());
+        assert_eq!(workspace.read_text("log.md").unwrap(), "# Log\n");
     }
 
     #[test]

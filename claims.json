@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1511,
+  "next_claim_seq": 1522,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c1516004be25a98b49b2d376c0c5bc319fc30795867cdf3df4fbe71144b830a5"
+    "mac": "477fc78d85785b1ee5d1ab56167de81698fec5b6f60607fd3a171c97f276d98f"
   },
-  "next_evidence_seq": 2241,
+  "next_evidence_seq": 2253,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "d35ea8b3da588925591d81932887fcb36b645137aece2b87aeaf414f49868011"
+    "mac": "055d2e3c07b516de2b1d5835496d5cc5638b77e5893aa4d6415c98c19c9e7fd0"
   },
   "claims": [
     {
@@ -122586,6 +122586,717 @@
       "seal": {
         "by": "server",
         "mac": "2fba299106eb29cade6e389b7f6ba0ffe8f455891ad72d181c9c492dd464e8c3"
+      }
+    },
+    {
+      "id": "CLM-1511",
+      "statement": "Issue #661 (option a) is delivered: the delete/log race behavior is kept, documented, and the unreachable branches fail hard.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/661",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/restructure.rs",
+        "src/okf/ops/delete.rs",
+        "tests/restructure.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2252",
+          "kind": "analysis",
+          "locator": "children of CLM-1511",
+          "summary": "Children cover the three requirements (description and docs, hard errors in unlink_logs, race/retry test), no behavior change, and every checkable PR statement; all supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:00:35.133156830Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9ef1caf9ceaa870789f89789b9f87c5f56d86c2e927d2bf959f69819d682bde"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2252"
+          ],
+          "recorded_at": "2026-11-25T23:00:38.787626762Z",
+          "seal": {
+            "by": "server",
+            "mac": "3584f2f43bb5d47535a26afc8e6e2949478fe5c447d37951ed81d8e3e693037e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:38.787626762Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f7866b308771d3209c2e7786052cc6af02f9b98784871e3ef8423019508739e"
+      }
+    },
+    {
+      "id": "CLM-1512",
+      "statement": "delete_concept's registered tool description says that, rarely, a log entry linking the concept published by another changeset after the delete began makes publish refuse with a link into a deleted path, and that running delete_concept again in a fresh changeset succeeds.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #661 requirement 1; PR body: \"`delete_concept` tool description (`src/mcp/restructure.rs`) and `docs/reference/tools.md`: when a log entry linking the concept is published by another changeset after the delete began, publish is refused with a link into a deleted path; running the delete again in a fresh changeset succeeds.\"",
+      "source_anchor": {
+        "path": "src/mcp/restructure.rs",
+        "lines": {
+          "start": 244,
+          "end": 251
+        },
+        "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+      },
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "src/mcp/restructure.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2241",
+          "kind": "inspection",
+          "locator": "src/mcp/restructure.rs:244-251",
+          "summary": "Description string now contains \"Rarely, a log entry linking the concept, published by another changeset after this delete began, makes publish refuse with a link into a deleted path; then run delete_concept again in a fresh changeset, which succeeds.\"",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/restructure.rs",
+              "lines": {
+                "start": 244,
+                "end": 251
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:16.602173098Z",
+          "seal": {
+            "by": "server",
+            "mac": "eae20f3ce19f5ae949c51fdd9d6a88df1157dcb6596cbb22161bd3538464256b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The registered description contains the rare-case wording and the retry instruction.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2241"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.390836965Z",
+          "seal": {
+            "by": "server",
+            "mac": "964980425bd6b0867cf108a09d0c1b9cdf7541c4a9bebce4b890582505f27d21"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.390836965Z",
+      "seal": {
+        "by": "server",
+        "mac": "a788839bd071f67a5061b75f87939536c0dc76d665faad3f798e3f6651c540f6"
+      }
+    },
+    {
+      "id": "CLM-1513",
+      "statement": "docs/reference/tools.md's delete_concept entry carries the same retry wording as the registered tool description, and the mcp::reference test that compares the two passes.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #661 requirement 1 (docs/reference/tools.md if it holds the description)",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2242",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib -- okf::ops mcp::reference",
+          "summary": "docs/reference/tools.md:149 holds the same Rarely... sentence; 202 passed, 0 failed including the mcp::reference docs comparison.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 149,
+                "end": 149
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:16.695722844Z",
+          "seal": {
+            "by": "server",
+            "mac": "125b1785a59835421ab68ad4248ce5c922173a4d3839d615297e4d2b0cff4033"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Same sentence in the docs; reference test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2242"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.470877539Z",
+          "seal": {
+            "by": "server",
+            "mac": "d93235ea95e73f47a0c6023ceccf2e3f97ecfbbfe534af93396bd3d0ee52b82f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.470877539Z",
+      "seal": {
+        "by": "server",
+        "mac": "692b57bd976993d75a31602be182e1bdc8eebc4a8f5c8a3328100549d98a00f7"
+      }
+    },
+    {
+      "id": "CLM-1514",
+      "statement": "Both former `continue` branches commented \"unreachable\" in unlink_logs (src/okf/ops/delete.rs) now return an internal error (OkfError::Io via invariant_broken, which is_internal counts as internal) instead of continuing, and neither panics.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #661 requirement 2; PR body: \"both former `continue` branches now return `OkfError::Io` (an internal error) through `invariant_broken`.\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "src/okf/ops/delete.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2243",
+          "kind": "inspection",
+          "locator": "src/okf/ops/delete.rs:178-213; src/error.rs:412-420",
+          "summary": "Both branches now `return Err(invariant_broken(..))`, which builds OkfError::Io (no panic); OkfError::is_internal matches Io. No \"unreachable\" comment remains in the file.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/delete.rs",
+              "lines": {
+                "start": 178,
+                "end": 218
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:16.781642731Z",
+          "seal": {
+            "by": "server",
+            "mac": "d35bfa4bbb5ca4769072295934ce661f79bdcbdfc5e8777985e37078c473856b"
+          }
+        },
+        {
+          "id": "EVD-2244",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib -- okf::ops::delete",
+          "summary": "13 passed, 0 failed, including unlink_logs_fails_hard_on_a_file_with_no_link (asserts is_internal). The empty-run branch has no test (see sibling claim); it is verified by reading only.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:00:16.864577796Z",
+          "seal": {
+            "by": "server",
+            "mac": "6291972e2bc69c4430251e852e7b2d1d2c17425ac6ced1caee0e1e197242409c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows both branches return OkfError::Io (internal, no panic); the no-link branch is exercised by a passing test; the empty-run branch is untestable by construction (see its own claim).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2243",
+            "EVD-2244"
+          ],
+          "recorded_at": "2026-11-25T23:00:32.338366520Z",
+          "seal": {
+            "by": "server",
+            "mac": "75efecf77c85d851f982764206600ed70a260f58eaf5313a774a3dd177c97d6d"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:32.338366520Z",
+      "seal": {
+        "by": "server",
+        "mac": "205a1eab0294a86497580ed4b84f98feee0c1b169309d1d33718ea36b004b2df"
+      }
+    },
+    {
+      "id": "CLM-1515",
+      "statement": "The unit test unlink_logs_fails_hard_on_a_file_with_no_link covers the no-link branch: it asserts an internal error whose text contains \"no link\", no notes, and log.md untouched.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"the no-link branch is covered by a unit test with a hand-built `logged` list.\"",
+      "derived_from": [
+        "CLM-1514"
+      ],
+      "artifacts": [
+        "src/okf/ops/delete.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2245",
+          "kind": "test",
+          "locator": "src/okf/ops/delete.rs:291-303; okf::ops::delete::tests::unlink_logs_fails_hard_on_a_file_with_no_link",
+          "summary": "Test passes (13 passed in the delete module). Assertions read: error.is_internal(), message contains \"no link\" (message is \"...invariant broken: no link to the deleted concept\"), outcome.notes empty, log.md still \"# Log\\n\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/delete.rs",
+              "lines": {
+                "start": 291,
+                "end": 303
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:16.950210402Z",
+          "seal": {
+            "by": "server",
+            "mac": "53882a3cf1cdc388beba00a307f21302c07476140959cf81afb59abcd072dee8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test exists, passes, and its assertions match the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2245"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.604504958Z",
+          "seal": {
+            "by": "server",
+            "mac": "571c50525c2dc11e46c2f78c63f6a88366620214a3ecbfacf4f9e3d9a54f5a56"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.604504958Z",
+      "seal": {
+        "by": "server",
+        "mac": "22823bc359a02b229c7e1ad9a04d7e0a3a507a4b5150de53dbd939abe09133bd"
+      }
+    },
+    {
+      "id": "CLM-1516",
+      "statement": "The empty-run branch of unlink_logs cannot be reached from a test because slice::chunk_by never yields an empty run.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The empty-run branch cannot be reached from a test, because `chunk_by` never yields an empty run\"",
+      "derived_from": [
+        "CLM-1514"
+      ],
+      "artifacts": [
+        "src/okf/ops/delete.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2246",
+          "kind": "analysis",
+          "locator": "src/okf/ops/delete.rs:178-181",
+          "summary": "The loop is `logged.chunk_by(..)`; std documents that chunk_by yields non-empty slices only, so run.first() is always Some. The branch is defensive only and indeed has no test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/delete.rs",
+              "lines": {
+                "start": 178,
+                "end": 182
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:17.037480124Z",
+          "seal": {
+            "by": "server",
+            "mac": "216e9718cb2159121468341c4140dc1d2d143bba73c2d98bdb147c7349a1fbbe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "chunk_by yields only non-empty chunks, so the branch is unreachable and untested as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2246"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.814785887Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa93de0bd4baf71f3e4bc91dfce4f94346edca8d06381f09412fdbdc0cbd895f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.814785887Z",
+      "seal": {
+        "by": "server",
+        "mac": "c63577347fcd689fef1b52c5cdf3ce7ef3ae97bc5abd6198b071aae581e57122"
+      }
+    },
+    {
+      "id": "CLM-1517",
+      "statement": "Integration test a_delete_refused_by_a_racing_log_link_succeeds_when_retried publishes a racing log entry first, asserts the delete's publish is refused with LintFailed rule link-into-deleted on /log.md, then asserts a delete in a fresh changeset publishes and leaves no link to /infra/x.md in log.md.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #661 requirement 3; PR body: \"the racing log entry publishes first, the delete's publish is refused (`LintFailed`, `link-into-deleted`, `/log.md`), and the delete in a fresh changeset publishes and leaves no link in `log.md`.\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "tests/restructure.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2247",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --test restructure; tests/restructure.rs:485-541",
+          "summary": "10 passed, 0 failed incl. the new test. Read the assertions: refused.is_error true, error == LintFailed, errors[0].rule == link-into-deleted, errors[0].file == /log.md; retry published == true, lint errors empty, log text contains \"Added X\" and not /infra/x.md. Order: logger publishes before the deleter's publish; the first delete's notes are empty (no snapshot link), so the race is real.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/restructure.rs",
+              "lines": {
+                "start": 485,
+                "end": 541
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:17.122850109Z",
+          "seal": {
+            "by": "server",
+            "mac": "45cf38577902cc4383253897a2d730b56c6d25ed83825983f404a568ea40cea7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passes and asserts the refusal, its rule and file, and the successful fresh-changeset retry.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2247"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.913280342Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa58f03ea5ececd3712ba67537206dfae7cfa0691e6ab56666cd35ee9256c799"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.913280342Z",
+      "seal": {
+        "by": "server",
+        "mac": "a9946c5665c78b1e6f4006be9265474e2cdb110fe39cacc838a98fd9d80feb65"
+      }
+    },
+    {
+      "id": "CLM-1518",
+      "statement": "The change does not alter publish or delete behavior for any reachable state: the only non-test, non-doc semantic change is the two formerly unreachable branches, and the description text.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #661: \"Behavior of publish/delete must not change.\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "src/okf/ops/delete.rs",
+        "src/mcp/restructure.rs"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2248",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src",
+          "summary": "Non-test src hunks: description string in restructure.rs, doc comment, the two branches changed from continue to Err, and the new invariant_broken helper (only called from those branches). links_into never yields an empty run or a file lacking a link (unlink_text uses the same links_to test), so reachable behavior is unchanged. publish code untouched (no diff outside delete.rs/restructure.rs).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/delete.rs",
+              "lines": {
+                "start": 171,
+                "end": 201
+              },
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:17.207074820Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce20f2cc8a68548c7490ba21f91aeb3cb04c1c92404ad31e05d868407e787667"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff reading shows only formerly impossible states change; no publish code touched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2248"
+          ],
+          "recorded_at": "2026-11-25T23:00:31.995444125Z",
+          "seal": {
+            "by": "server",
+            "mac": "2770e0c6f52386e19629a20d01f7a7ff9b2cbddba815daab47d2737e8765ec5a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:31.995444125Z",
+      "seal": {
+        "by": "server",
+        "mac": "61a7604796dc5b99b2ea6df1305c9b141ded6b6269d0dc28f15641f0054ababd"
+      }
+    },
+    {
+      "id": "CLM-1519",
+      "statement": "PR statement: `gate.sh fmt`, `lint` and `dylint` pass on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`: pass.\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2249",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt; gate.sh lint; gate.sh dylint",
+          "summary": "Reran on head a52e32e: fmt (cargo fmt --check) clean; lint finished with cargo doc -D warnings generated; dylint finished on the nightly toolchain; no errors printed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:00:17.290307816Z",
+          "seal": {
+            "by": "server",
+            "mac": "86c70613d7ec35f42e67e6b009cf8e525d557ee9a786e004be0c24d5f09ae4a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three gates reran clean on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2249"
+          ],
+          "recorded_at": "2026-11-25T23:00:32.081288321Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba2e8172b494d323265b936d138745d431fe00d84ed0e0f7458dd242416fd061"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:32.081288321Z",
+      "seal": {
+        "by": "server",
+        "mac": "fc9f8811caa0a099f5fe21ca4a5969a292307b1479103a1f1dad7f96249d08d0"
+      }
+    },
+    {
+      "id": "CLM-1520",
+      "statement": "PR statement: gate.sh narrow `--lib okf::ops mcp::reference` passes 202 tests and `--test restructure` passes 10 tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"`--lib okf::ops mcp::reference` (202 passed), `--test restructure` (10 passed).\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2250",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib -- okf::ops mcp::reference; gate.sh narrow --jobs 4 --test restructure",
+          "summary": "Reran: \"test result: ok. 202 passed; 0 failed\" and \"running 10 tests ... 10 passed; 0 failed\" for restructure.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:00:17.371267544Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbf79962a449e0f038e648be280b6466ef69031796931ab0647ef510102b3fef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Counts reproduced exactly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2250"
+          ],
+          "recorded_at": "2026-11-25T23:00:32.175167829Z",
+          "seal": {
+            "by": "server",
+            "mac": "379f5871e673dc2e3047ea923dfe269b437f805b03d22e06217ae6c6fc5e4a25"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:32.175167829Z",
+      "seal": {
+        "by": "server",
+        "mac": "ebbe281a98bc9791bdcfecc2fd14a201e8ad74112417dc8b871533a3c1d68f6f"
+      }
+    },
+    {
+      "id": "CLM-1521",
+      "statement": "PR statement: the change adds a changelog entry under changelog/ and touches only the delete op, one tool description (plus its docs entry) and one integration test file, plus the unit test and changelog.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry under `changelog/`.\" and \"the change touches only the delete op, one tool description (checked by `mcp::reference`) and one integration test file\"",
+      "derived_from": [
+        "CLM-1511"
+      ],
+      "artifacts": [
+        "changelog/2026-11-25T22-56-13Z-issue-661-delete-log-race.md"
+      ],
+      "tags": [
+        "from-issue:661"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2251",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "5 files: changelog/2026-11-25T22-56-13Z-issue-661-delete-log-race.md (new), docs/reference/tools.md, src/mcp/restructure.rs, src/okf/ops/delete.rs, tests/restructure.rs. Matches the statement.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T22-56-13Z-issue-661-delete-log-race.md",
+              "commit": "a52e32e81fc922ef30ddec3b95836e042f9d8575"
+            }
+          },
+          "recorded_at": "2026-11-25T23:00:17.454521321Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f306f9f40f0d26aca48784fe09720df8192d8e27a9ef982e68fabb95197de63"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff stat matches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2251"
+          ],
+          "recorded_at": "2026-11-25T23:00:32.257313841Z",
+          "seal": {
+            "by": "server",
+            "mac": "97406fc0dad8130a8766fbd22807fb7c3ce466719815b6eafed8dbc6b2ab6608"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:59:55.961267694Z",
+      "updated_at": "2026-11-25T23:00:32.257313841Z",
+      "seal": {
+        "by": "server",
+        "mac": "697ff9a1ba97b7aab34057b1070535d89cdf3777d3692f0e4509fd3fa2296971"
       }
     }
   ]

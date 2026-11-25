@@ -1,12 +1,14 @@
-// The catalog picker. With no catalog chosen yet and only one reachable,
-// it chooses that one and goes home.
+// The catalog picker: the catalogs this account may read now (`readable`:
+// the server leaves out a catalog an admin reaches but has not unlocked).
+// With no catalog chosen yet and only one readable, it chooses that one and
+// goes home.
 import { h } from '/ui/js/core/dom.js';
 import { readAll } from '../api.js';
 import { hrefs } from '../route.js';
 import { message, pageTitle } from '../parts.js';
 
 export async function render(view, ctx) {
-    const result = await readAll('/catalogs', 'catalogs');
+    const result = await readAll('/catalogs?readable=true', 'catalogs');
     if (!ctx.live()) return;
     ctx.freshness(result);
     const found = result.data;

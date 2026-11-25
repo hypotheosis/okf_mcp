@@ -14,7 +14,7 @@ use axum::{Extension, Json, Router};
 use serde::Serialize;
 use sqlx::PgPool;
 
-use super::{reachable_page, PageQuery};
+use super::{navigable_page, PageQuery};
 use crate::app::App;
 use crate::auth::{CredentialKind, Principal, Reach};
 use crate::clock::format_timestamp;
@@ -159,7 +159,7 @@ async fn whoami(
     Query(query): Query<PageQuery>,
 ) -> Result<Json<WhoAmI>, AppError> {
     // First, so a malformed cursor is refused before anything else is read.
-    let page = reachable_page(&app, &principal, &query).await?;
+    let page = navigable_page(&app, &principal, &query).await?;
     let (name, user) = match &principal.kind {
         // A session has no key row: it is its user.
         CredentialKind::Session { .. } => (None, principal.user.clone()),

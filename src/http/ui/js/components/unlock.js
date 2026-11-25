@@ -23,6 +23,7 @@ import { drawerTicket } from '../core/drawer.js';
 import { guard, once } from '../core/pending.js';
 import { catalogLabel } from '../core/labels.js';
 import { picker } from './picker.js';
+import { refreshIdentity } from '../core/shell.js';
 
 // The categories, in the server's form order (`Category::ALL`), labelled.
 export const CATEGORIES = [
@@ -137,6 +138,8 @@ export async function openUnlock(catalog, { onDone = () => {}, view = document.b
             }
             toast(`Unlocked ${made.catalog} until ${when(made.expires)}.`, 'ok');
             answer.ticket.close();
+            // The catalog is readable now: the switcher offers it.
+            await refreshIdentity().catch(() => {});
             onDone(made);
         });
     });

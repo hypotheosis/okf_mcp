@@ -54,6 +54,8 @@ mod owner_access_tests;
 mod people;
 #[cfg(test)]
 mod provisioner_tests;
+#[cfg(test)]
+mod readable_listing_tests;
 mod search;
 mod settings;
 mod stores;
@@ -459,14 +461,20 @@ pub(crate) fn require_reader(principal: &Principal) -> Result<(), OkfError> {
     require_admin(principal)
 }
 
-/// `?after=&limit=` of a paginated catalog listing (M18 spec Decision 7):
-/// `GET /catalogs`, `GET /whoami` and `GET /labels`.
+/// `?after=&limit=` (and `readable`) of a paginated catalog listing (M18 spec
+/// Decision 7): `GET /catalogs`, `GET /whoami` and `GET /labels`.
 #[derive(Debug, Clone, Default, Deserialize)]
 pub(crate) struct PageQuery {
     /// The `next` of the previous page; absent or empty for the first.
     after: Option<String>,
     /// The page size: default 100, at most 1000 (a larger one is cut).
     limit: Option<u32>,
+    /// `?readable=true` (issue #955): list only the catalogs the caller may
+    /// read now, as the content endpoints would admit it. Navigation lists
+    /// ask for it; the default is every catalog the caller reaches, which
+    /// administrative pages need to find a locked catalog to unlock.
+    #[serde(default)]
+    readable: bool,
 }
 
 /// One page of the catalogs `principal` reaches, for `query`.
@@ -490,5 +498,42 @@ pub(crate) async fn reachable_page(
 ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
     app.directory()
         .reachable_page(principal, query.after.as_deref(), page_size(query.limit))
+        .await
+}
+
+/// One page of a navigation listing, for `query`: the catalogs `principal`
+/// reaches, or with `?readable=true` (issue #955) only those it may also
+/// read now, as the content endpoints would admit it. `GET /catalogs` and
+/// `GET /whoami` list through this; the labels table does not, as it names
+/// catalogs and never offers them.
+///
+/// # Arguments
+/// * `app` - the application, for its catalog directory and clock.
+/// * `principal` - the caller.
+/// * `query` - the request's paging parameters.
+///
+/// # Returns
+/// The page, as [`reachable_page`] or, when `readable`,
+/// [`crate::cache::directory::CatalogDirectory::readable_page`] gives it.
+///
+/// # Errors
+/// 400 for a malformed cursor; 500 if the read fails.
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn navigable_page(
+    app: &App,
+    principal: &Principal,
+    query: &PageQuery,
+) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+    if !query.readable {
+        return reachable_page(app, principal, query).await;
+    }
+    // The server clock decides, as it does for a content read.
+    app.directory()
+        .readable_page(
+            principal,
+            query.after.as_deref(),
+            page_size(query.limit),
+            app.clock().now(),
+        )
         .await
 }

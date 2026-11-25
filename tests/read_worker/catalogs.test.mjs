@@ -37,7 +37,7 @@ const byId = (nodes, id) => find(nodes, node => node.attrs?.id === id);
 const text = node => (typeof node === 'string' ? node : (node.children ?? []).map(text).join(' '));
 
 /**
- * One render of the picker: `answer` is what `readAll('/catalogs')` gives
+ * One render of the picker: `answer` is what `readAll('/catalogs?readable=true')` gives
  * (a promise, or a list of catalogs), `state`/`route` the screen's. Spies
  * record every `choose`, `location.replace`, `location.hash` assignment and
  * freshness report.
@@ -46,7 +46,7 @@ function scene({ answer, state = { catalog: null }, route = { gone: null } }) {
     const world = { appended: [], chosen: [], replaced: [], hashes: [], fresh: [], live: true };
     globalThis.treeWorld = {
         readAll: async (path, field) => {
-            assert.deepEqual([path, field], ['/catalogs', 'catalogs']);
+            assert.deepEqual([path, field], ['/catalogs?readable=true', 'catalogs']);
             const found = await answer;
             return { data: found, offline: false };
         },

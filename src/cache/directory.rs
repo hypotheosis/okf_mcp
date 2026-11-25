@@ -29,6 +29,7 @@ use std::time::Duration;
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine as _;
+use chrono::{DateTime, Utc};
 use futures_util::StreamExt as _;
 use sqlx::PgPool;
 
@@ -37,6 +38,7 @@ use crate::cache::{Bounded, CacheName, Limit};
 use crate::error::OkfError;
 use crate::invalidate::Invalidation;
 use crate::store::catalogs::{self, CatalogRow};
+use crate::store::keys::Access;
 use crate::stores::{StoreName, Stores, READ_CONCURRENCY};
 use crate::telemetry::metrics::Metrics;
 
@@ -282,8 +284,16 @@ impl CatalogDirectory {
     /// returned, so the caller decides whether that fails the read (a
     /// single-catalog lookup) or only names the catalogs (a listing).
     ///
+    /// A store in `known_down` (already found unreachable earlier in the same
+    /// request) is not probed again: it is returned as down at once, so a
+    /// request that reads several pages pays the store-load bound once.
+    ///
+    /// # Arguments
+    /// * `rows` - the rows to fill.
+    /// * `known_down` - stores this request already found unreachable.
+    ///
     /// # Returns
-    /// The stores that could not be reached.
+    /// The stores among `rows` that could not be reached (known ones too).
     ///
     /// # Errors
     /// [`OkfError::Database`] when a reachable store's query fails.
@@ -291,10 +301,16 @@ impl CatalogDirectory {
     async fn fill_generations(
         &self,
         rows: &mut [CatalogRow],
+        known_down: &HashSet<StoreName>,
     ) -> Result<HashSet<StoreName>, OkfError> {
         let mut by_store: HashMap<StoreName, Vec<i64>> = HashMap::new();
+        let mut down: HashSet<StoreName> = HashSet::new();
         for row in rows.iter() {
-            by_store.entry(row.store.clone()).or_default().push(row.id);
+            if known_down.contains(&row.store) {
+                down.insert(row.store.clone());
+            } else {
+                by_store.entry(row.store.clone()).or_default().push(row.id);
+            }
         }
         let bound = self.stores.connect_timeout();
         // `buffer_unordered(n)` runs at most `n` of these futures at once,
@@ -325,7 +341,6 @@ impl CatalogDirectory {
                 .collect()
                 .await;
         let mut generations: HashMap<i64, i64> = HashMap::with_capacity(rows.len());
-        let mut down = HashSet::new();
         for (store, answer) in answers {
             match answer {
                 Ok(found) => generations.extend(found),
@@ -354,7 +369,7 @@ impl CatalogDirectory {
     ) -> Result<Option<CatalogRow>, OkfError> {
         let Some(row) = row else { return Ok(None) };
         let mut rows = [row];
-        let down = self.fill_generations(&mut rows).await?;
+        let down = self.fill_generations(&mut rows, &HashSet::new()).await?;
         let [row] = rows;
         if down.contains(&row.store) {
             return Err(OkfError::store_unavailable(&row.store));
@@ -518,6 +533,24 @@ impl CatalogDirectory {
         &self,
         names: &[String],
     ) -> Result<(Vec<Arc<CatalogRow>>, HashSet<StoreName>), OkfError> {
+        self.resolve_many_skipping(names, &HashSet::new()).await
+    }
+
+    /// [`CatalogDirectory::resolve_many`] that does not probe the stores in
+    /// `known_down` again (see [`CatalogDirectory::fill_generations`]).
+    ///
+    /// # Arguments
+    /// * `names` - as for [`CatalogDirectory::resolve_many`].
+    /// * `known_down` - stores this request already found unreachable.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::resolve_many`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    async fn resolve_many_skipping(
+        &self,
+        names: &[String],
+        known_down: &HashSet<StoreName>,
+    ) -> Result<(Vec<Arc<CatalogRow>>, HashSet<StoreName>), OkfError> {
         let mut seen: HashSet<&str> = HashSet::with_capacity(names.len());
         let mut found: Vec<Arc<CatalogRow>> = Vec::new();
         let mut missing: Vec<String> = Vec::new();
@@ -535,7 +568,7 @@ impl CatalogDirectory {
         let mut down = HashSet::new();
         if !missing.is_empty() {
             let mut rows = catalogs::rows_by_names(&self.pool, &missing).await?;
-            down = self.fill_generations(&mut rows).await?;
+            down = self.fill_generations(&mut rows, known_down).await?;
             found.extend(rows.into_iter().map(Arc::new));
         }
         found.sort_by(|left, right| left.name.cmp(&right.name));
@@ -564,6 +597,95 @@ impl CatalogDirectory {
         limit: u32,
     ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
         self.offered_page(principal, None, after, limit).await
+    }
+
+    /// The catalogs `principal` reaches and may read now, one page at a time
+    /// (issue #955): [`CatalogDirectory::reachable_page`] followed by the
+    /// content admission ([`Principal::admission`] for a read), so a catalog
+    /// an administrator reaches but has no live unlock for is left out. The
+    /// admission is pure: nothing is recorded, so listing counts as no read.
+    ///
+    /// Reach pages are read until `limit + 1` readable rows are found or the
+    /// reach list ends, so a page is full whenever more readable catalogs
+    /// follow (a run of locked catalogs, even a whole reach page of them, is
+    /// skipped) and `next` is set only when a readable row follows.
+    ///
+    /// # Arguments
+    /// * `principal` - the caller.
+    /// * `after` - as for [`CatalogDirectory::reachable_page`].
+    /// * `limit` - as for [`CatalogDirectory::reachable_page`].
+    /// * `now` - the server clock, against which unlocks expire.
+    ///
+    /// # Returns
+    /// The page's rows, ordered by name, and the cursor of the page after.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::offered_page`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn readable_page(
+        &self,
+        principal: &Principal,
+        after: Option<&str>,
+        limit: u32,
+        now: DateTime<Utc>,
+    ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+        // A scan page at least as large as the answer, so a run of readable
+        // catalogs takes one read; the cursor still only moves forward.
+        let scan = limit.clamp(1, MAX_PAGE).max(DEFAULT_PAGE);
+        self.readable_page_by(principal, after, limit, now, scan)
+            .await
+    }
+
+    /// [`CatalogDirectory::readable_page`] reading the reach list `scan`
+    /// catalogs at a time (the tests use a small `scan` to cross scan pages).
+    ///
+    /// # Arguments
+    /// * `scan` - how many reachable catalogs one read looks at.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::readable_page`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub(crate) async fn readable_page_by(
+        &self,
+        principal: &Principal,
+        after: Option<&str>,
+        limit: u32,
+        now: DateTime<Utc>,
+        scan: u32,
+    ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+        let limit = limit.clamp(1, MAX_PAGE);
+        let mut readable: Vec<Arc<CatalogRow>> = Vec::new();
+        let mut down: HashSet<String> = HashSet::new();
+        // The stores found unreachable, kept across the scan pages so a
+        // stalled store is probed (and waited on) once per request.
+        let mut down_stores: HashSet<StoreName> = HashSet::new();
+        let mut cursor = after.map(str::to_owned);
+        loop {
+            let page = self
+                .offered_page_skipping(principal, None, cursor.as_deref(), scan, &mut down_stores)
+                .await?;
+            down.extend(page.unavailable);
+            readable.extend(
+                page.items
+                    .into_iter()
+                    .filter(|row| principal.admission(row, Access::Read, now).is_ok()),
+            );
+            cursor = page.next;
+            // `limit + 1`: the extra row tells `cut` that a page follows.
+            if cursor.is_none() || readable.len() > limit as usize {
+                break;
+            }
+        }
+        let mut page = Page::cut(readable, limit as usize);
+        let mut unavailable: Vec<String> = page
+            .items
+            .iter()
+            .filter(|row| down.contains(&row.name))
+            .map(|row| row.name.clone())
+            .collect();
+        unavailable.sort();
+        page.unavailable = unavailable;
+        Ok(page)
     }
 
     /// [`CatalogDirectory::reachable_page`] narrowed to an MCP connection's
@@ -606,6 +728,30 @@ impl CatalogDirectory {
         after: Option<&str>,
         limit: u32,
     ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+        self.offered_page_skipping(principal, connection, after, limit, &mut HashSet::new())
+            .await
+    }
+
+    /// [`CatalogDirectory::offered_page`] for a request that reads several
+    /// pages: the stores in `down_stores` are not probed again, and a store
+    /// found unreachable is added to it, so the request spends the store-load
+    /// bound once per stalled store, not once per page.
+    ///
+    /// # Arguments
+    /// * `down_stores` - the stores this request found unreachable so far;
+    ///   updated with those this page finds.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::offered_page`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    async fn offered_page_skipping(
+        &self,
+        principal: &Principal,
+        connection: Option<&[String]>,
+        after: Option<&str>,
+        limit: u32,
+        down_stores: &mut HashSet<StoreName>,
+    ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
         let after = parse_cursor(after)?;
         let limit = limit.clamp(1, MAX_PAGE);
         // The bounded set of names to read, or `None` to page through every
@@ -626,7 +772,7 @@ impl CatalogDirectory {
             };
         let (rows, down) = match (names, &principal.reach) {
             (Some(names), _) => {
-                let (mut rows, down) = self.resolve_many(&names).await?;
+                let (mut rows, down) = self.resolve_many_skipping(&names, down_stores).await?;
                 // `retain` keeps the rows after the cursor (sorted by name)
                 // that the principal reaches.
                 rows.retain(|row| {
@@ -648,7 +794,7 @@ impl CatalogDirectory {
                 let mut rows =
                     catalogs::ceiling_page(&self.pool, &teams, &entitled, after.as_deref(), fetch)
                         .await?;
-                let down = self.fill_generations(&mut rows).await?;
+                let down = self.fill_generations(&mut rows, down_stores).await?;
                 let rows = rows
                     .into_iter()
                     .map(Arc::new)
@@ -660,10 +806,11 @@ impl CatalogDirectory {
             }
             (None, Reach::All | Reach::Catalogs(_)) => {
                 let mut rows = catalogs::page(&self.pool, after.as_deref(), fetch).await?;
-                let down = self.fill_generations(&mut rows).await?;
+                let down = self.fill_generations(&mut rows, down_stores).await?;
                 (rows.into_iter().map(Arc::new).collect(), down)
             }
         };
+        down_stores.extend(down.iter().cloned());
         // A `u32` always fits a `usize` on the 64-bit targets this builds for.
         let mut page = Page::cut(rows, limit as usize);
         // Named after the cut and the reach checks: only a catalog this page

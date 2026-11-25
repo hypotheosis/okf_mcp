@@ -4442,6 +4442,22 @@ page at a time, by name:
 The console follows `next`: the catalog switcher, the labels and the
 pickers read every page, and the Catalogs page shows Load more.
 
+**`?readable=true`** (`GET /api/v1/catalogs` and `GET /api/v1/whoami`) lists
+only the catalogs the caller may read now: those it reaches, then admitted as
+a content read is admitted, on the server clock. With `require_unlock` on, an
+admin user's every-catalog key therefore leaves out a catalog of another team
+until it has a live unlock, and drops it again once the unlock ends or
+expires; a team member's catalogs stay. With `require_unlock` off the answer is
+the plain one. The check records nothing (no read, no hourly entry). Paging
+stays exact: the server skips catalogs left out, so a page is full while more
+readable catalogs follow, `next` is set only when one does, and a page of
+locked catalogs is never returned empty with a cursor. The plain listings
+(without `readable`) are unchanged, so the console's Catalogs page and Unlock
+form still find a locked catalog to unlock; `whoami`'s `all_catalogs`,
+`access` and `user_admin` do not depend on the flag. The console's switcher
+and the reader's catalog picker use `readable=true`. It is not a boundary: the
+content routes keep refusing a locked catalog.
+
 A catalog the key does not reach, or that does not exist, is 404 on every
 route but the list, the create, the owner change, the member-access
 change and the maintenance switch (which reach every catalog).

@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "85d77be29279bc4bf0f6d997a4195f875c8ae5f9a61e8a3a7029a27546229e92"
   },
-  "next_evidence_seq": 2180,
+  "next_evidence_seq": 2183,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "6d7734430d071a4cb9ba123c74053fa60b71659d84ca9d6d315af6083bd8ffa5"
+    "mac": "f4dae96d50650181437abecfbb2a007b906558b8397dc06c19d395132ff25f89"
   },
   "claims": [
     {
@@ -117785,7 +117785,7 @@
     },
     {
       "id": "CLM-1447",
-      "statement": "The configured production billing destination supports viewing the customer's own subscription after the billing provider's authentication (not a generic Stripe homepage).",
+      "statement": "The configured billing destination is a deployment matter outside this repository: this repo documents billing_url as the start page of an external billing service that signs the person in through okf-mcp's OAuth, and names no destination.",
       "kind": "functional",
       "level": "system",
       "integrity_level": 2,
@@ -117814,6 +117814,28 @@
             "by": "server",
             "mac": "0f3c68d11f98482eadbf1b101c87dc7b68260eeea46a4b95480f8ca101811585"
           }
+        },
+        {
+          "id": "EVD-2182",
+          "kind": "analysis",
+          "locator": "docs/operations.md:3249; git grep -niE stripe -- src docs tests",
+          "summary": "The docs describe the setting as an external billing service's start page and name no destination or provider; which service a deployment uses is configured outside this repo.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3249,
+                "end": 3249
+              },
+              "commit": "64309c4822b24caf2f589ca139a62046d991ca05"
+            }
+          },
+          "recorded_at": "2026-11-25T14:40:39.020563153Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a995e2158ba676f10947e3d849fcea2cf4df4faf23a7063e06a8e26075c7472"
+          }
         }
       ],
       "verdicts": [
@@ -117827,13 +117849,26 @@
             "by": "server",
             "mac": "7cff8e57a893edb1c455bf9f792e431b69952beaa41bcba01035003dcc3b0194"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Restated after the rescope: the repository documents billing_url as an external billing service's start page and names no destination; the destination is configured outside this repo.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2182"
+          ],
+          "recorded_at": "2026-11-25T14:40:45.212957228Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f9289210edb4080236854f2f20fda3ec70da14d86a5fe59d65075c04445030d"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:26:11.736283506Z",
+      "updated_at": "2026-11-25T14:40:45.212957228Z",
       "seal": {
         "by": "server",
-        "mac": "15f2525094e7232de8950f1457f31052b37c2d31da364c829f2e05cb44fc0f2a"
+        "mac": "d8a81bce3e909d3cb7480cce04b6570137813e988875c6a983fefbe47cbc0b62"
       }
     },
     {
@@ -118596,6 +118631,28 @@
             "by": "server",
             "mac": "d7b7ec782cf6593174d51a6d86f587e3d800f63f4af1e32663b3aed82cd7068a"
           }
+        },
+        {
+          "id": "EVD-2180",
+          "kind": "inspection",
+          "locator": "docs/operations.md:3249",
+          "summary": "The billing_url row now describes an https:// start page of an external billing service that signs the person in through this server's OAuth, never a customer-specific session URL or secret, public in brand.json, disabled by default; the example config and brand.json line also list it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3249,
+                "end": 3249
+              },
+              "commit": "64309c4822b24caf2f589ca139a62046d991ca05"
+            }
+          },
+          "recorded_at": "2026-11-25T14:40:38.816922888Z",
+          "seal": {
+            "by": "server",
+            "mac": "056cc8df9b37f206aa59fce23df80f2603f1d61bafb7c961b4f358692d12afa1"
+          }
         }
       ],
       "verdicts": [
@@ -118611,13 +118668,26 @@
             "by": "server",
             "mac": "9c248e50bdb8ad84dc79688166b6d04b1af74e375d6fb127628879f0d9dbd4f2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "operations.md:3249 documents the setting after the rescope.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2180"
+          ],
+          "recorded_at": "2026-11-25T14:40:45.022652399Z",
+          "seal": {
+            "by": "server",
+            "mac": "907dd31c723da106b888d6d0f2fc9bf527d4aab0a0cf00dc61d339be0dedc9c4"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:26:12.657016271Z",
+      "updated_at": "2026-11-25T14:40:45.022652399Z",
       "seal": {
         "by": "server",
-        "mac": "7dcc00f11db10bab292a8dc7791c2565c0630f0cee33475978042a64929c329c"
+        "mac": "46ef0c9e1a59b65f94d3522749bc49db3509ad9be49d9e6d0c105a43b8c61c06"
       }
     },
     {
@@ -118997,6 +119067,28 @@
             "by": "server",
             "mac": "046bb914640d4482666b4c0473243d12640db5ea7ba7b61dd2aebff257e6c265"
           }
+        },
+        {
+          "id": "EVD-2181",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/settings.js:44,54,91",
+          "summary": "MEANING describes billing_url as the start page of an external billing service signing people in through this server's OAuth; billing_url is in BRANDING, so a save, disable or reset calls applyBrand().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/settings.js",
+              "lines": {
+                "start": 44,
+                "end": 54
+              },
+              "commit": "64309c4822b24caf2f589ca139a62046d991ca05"
+            }
+          },
+          "recorded_at": "2026-11-25T14:40:38.918251229Z",
+          "seal": {
+            "by": "server",
+            "mac": "667bd6f7b9ab140faf2527e1f149720f6f3f7c614180fd3c85ef34dd4cc4119a"
+          }
         }
       ],
       "verdicts": [
@@ -119012,13 +119104,26 @@
             "by": "server",
             "mac": "adb729b25c2a03f3dae07fa3adce63fdd8d493758fabddb52243d1a235c6dc14"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "settings.js describes the setting and redraws the shell via BRANDING.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2181"
+          ],
+          "recorded_at": "2026-11-25T14:40:45.120573888Z",
+          "seal": {
+            "by": "server",
+            "mac": "c443650486efb988c6131369f69199bbed2c30b53a9ec5e9db6e44bab99911bf"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:26:38.422069336Z",
+      "updated_at": "2026-11-25T14:40:45.120573888Z",
       "seal": {
         "by": "server",
-        "mac": "893850bd58fa9d09f0220e765432ad64ba9273494e93a8bf72c70ea76220aede"
+        "mac": "f630819aaea2813856c4f27bce42e2e4e73147b7b5caca9a67e5c5f822e277cd"
       }
     },
     {

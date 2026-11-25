@@ -2314,31 +2314,101 @@ mod tests {
         pg_support::LabelledContainer {
             id: id.to_string(),
             start_label: start_label.to_string(),
-            pid_namespace: namespace.map(str::to_string),
+            owner_scope: namespace.map(str::to_string),
         }
     }
 
-    /// Issue #784: only a dead owner in our own pid namespace gets swept.
+    /// Issue #784: only a dead owner in our own scope (boot and pid namespace)
+    /// gets swept. Two machines report the same namespace id, so the same
+    /// namespace on another boot or machine is kept.
     #[test]
-    fn the_sweep_picks_only_containers_of_dead_owners_in_this_namespace() {
+    fn the_sweep_picks_only_containers_of_dead_owners_in_this_scope() {
+        let ours = "boot-a/pid:[1]";
         let containers = [
-            labelled("dead", "100-3", Some("pid:[1]")),
-            labelled("alive", "200-0", Some("pid:[1]")),
-            labelled("other-namespace", "100-4", Some("pid:[2]")),
-            labelled("no-namespace", "100-5", None),
-            labelled(
-                "shared-server",
-                "server-okf-mcp-test-pg-100",
-                Some("pid:[1]"),
-            ),
-            labelled("malformed", "100", Some("pid:[1]")),
-            labelled("bad-counter", "100-x", Some("pid:[1]")),
-            labelled("dead-too", "300-12", Some("pid:[1]")),
+            labelled("dead", "100-3", Some(ours)),
+            labelled("alive", "200-0", Some(ours)),
+            labelled("other-namespace", "100-4", Some("boot-a/pid:[2]")),
+            labelled("other-machine", "100-6", Some("boot-b/pid:[1]")),
+            labelled("no-scope", "100-5", None),
+            labelled("shared-server", "server-okf-mcp-test-pg-100", Some(ours)),
+            labelled("malformed", "100", Some(ours)),
+            labelled("bad-counter", "100-x", Some(ours)),
+            labelled("dead-too", "300-12", Some(ours)),
         ];
 
-        let stale = pg_support::stale_container_ids(&containers, "pid:[1]", |pid| pid == 200);
+        let stale = pg_support::stale_container_ids(&containers, ours, |pid| pid == 200);
 
         assert_eq!(stale, ["dead", "dead-too"]);
+    }
+
+    /// The scope names the boot as well as the namespace.
+    #[test]
+    fn the_owner_scope_names_the_boot_and_the_namespace() {
+        if !pg_support::liveness_is_reliable() {
+            return;
+        }
+        let scope = pg_support::owner_scope().unwrap();
+        let (boot, namespace) = scope.split_once('/').unwrap();
+        assert!(!boot.is_empty() && namespace.starts_with("pid:["));
+    }
+
+    /// Issue #784, review of PR #1043: the whole path, with Docker: labelled
+    /// containers are listed and exactly the dead owner's is removed. The
+    /// sweep gets a scope of its own and a stub liveness check, so it can
+    /// match nothing but the containers this test creates (other sessions'
+    /// real containers carry the real scope).
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_sweep_removes_only_the_dead_owners_container() {
+        use testcontainers_modules::testcontainers::runners::AsyncRunner;
+        use testcontainers_modules::testcontainers::ImageExt;
+
+        let scope = format!("test-scope-{}", pg_support::unique_start_label());
+        let dead_pid = 4_000_001_u32;
+        let live_pid = 4_000_002_u32;
+        let request = |start: String, owner_scope: Option<&str>| {
+            let request = pg_support::postgres_17().with_label(pg_support::START_LABEL, start);
+            match owner_scope {
+                Some(scope) => request.with_label(pg_support::OWNER_SCOPE_LABEL, scope),
+                None => request,
+            }
+        };
+        let mut started = Vec::new();
+        for (name, start, owner_scope) in [
+            ("dead", format!("{dead_pid}-0"), Some(scope.as_str())),
+            ("live", format!("{live_pid}-0"), Some(scope.as_str())),
+            ("no-scope", format!("{dead_pid}-1"), None),
+            (
+                "shared-server",
+                format!("server-test-{live_pid}"),
+                Some(scope.as_str()),
+            ),
+            (
+                "other-machine",
+                format!("{dead_pid}-2"),
+                Some("another-boot/pid:[1]"),
+            ),
+        ] {
+            let container = request(start, owner_scope)
+                .with_startup_timeout(pg_support::STARTUP_TIMEOUT)
+                .start()
+                .await
+                .unwrap_or_else(|error| panic!("start the {name} container: {error}"));
+            started.push((name, container));
+        }
+
+        let removed = pg_support::sweep_stale_containers_of(&scope, |pid| pid == live_pid).await;
+
+        let remaining = pg_support::all_labelled_containers().await;
+        // Remove every container this test created before any assertion.
+        for (_, container) in &started {
+            let _ = pg_support::remove_container_by_id(container.id()).await;
+        }
+        assert_eq!(removed.unwrap(), 1);
+        let remaining = remaining.unwrap();
+        for (name, container) in &started {
+            let present = remaining.iter().any(|found| found.id == container.id());
+            assert_eq!(present, *name != "dead", "{name} container");
+        }
     }
 
     /// With every owner alive nothing is picked, and an empty list is fine.

@@ -66,11 +66,12 @@ use tokio::sync::OnceCell;
 /// The label key whose value identifies one start of a test container.
 pub const START_LABEL: &str = "okf-mcp.test-start";
 
-/// The label key that names the pid namespace the [`START_LABEL`] pid belongs
-/// to. A pid means nothing outside its namespace (a test run inside a
-/// container sees its own pids), so the sweep removes only containers from
-/// its own namespace.
-pub const PID_NAMESPACE_LABEL: &str = "okf-mcp.test-pidns";
+/// The label key that names where the [`START_LABEL`] pid is meaningful: the
+/// machine's boot id and the pid namespace ([`owner_scope`]). A pid means
+/// nothing in another namespace (a test run inside a container sees its own
+/// pids) or on another machine sharing the Docker daemon (two hosts report the
+/// same namespace id), so the sweep removes only containers of its own scope.
+pub const OWNER_SCOPE_LABEL: &str = "okf-mcp.test-owner-scope";
 
 /// How long one start may take before it counts as failed (testcontainers'
 /// own default).
@@ -1033,8 +1034,8 @@ pub async fn start_labelled<I: Image>(
 ) -> Result<ContainerAsync<I>, TestcontainersError> {
     sweep_stale_containers_once().await;
     let request = request.with_label(START_LABEL, label);
-    let request = match pid_namespace() {
-        Some(namespace) => request.with_label(PID_NAMESPACE_LABEL, namespace),
+    let request = match owner_scope() {
+        Some(namespace) => request.with_label(OWNER_SCOPE_LABEL, namespace),
         None => request,
     };
     let start_error = match request.start().await {
@@ -1128,16 +1129,22 @@ pub async fn remove_labelled(label: &str) -> Result<usize, DockerError> {
     Ok(removed)
 }
 
-/// The pid namespace this process runs in (Linux: the target of
-/// `/proc/self/ns/pid`, such as `pid:[4026531836]`).
+/// Where this process's pid is meaningful (Linux): the kernel's boot id, which
+/// differs between machines and between boots, and the pid namespace (the
+/// target of `/proc/self/ns/pid`, such as `pid:[4026531836]`), as
+/// `<boot id>/<namespace>`.
 ///
 /// # Returns
-/// `None` where the namespace cannot be read (not Linux); the container then
-/// carries no namespace label and no sweep removes it.
-pub fn pid_namespace() -> Option<String> {
-    std::fs::read_link("/proc/self/ns/pid")
-        .ok()
-        .map(|target| target.to_string_lossy().into_owned())
+/// `None` where either cannot be read (not Linux); the container then carries
+/// no scope label and no sweep removes it.
+pub fn owner_scope() -> Option<String> {
+    let boot_id = std::fs::read_to_string("/proc/sys/kernel/random/boot_id").ok()?;
+    let namespace = std::fs::read_link("/proc/self/ns/pid").ok()?;
+    Some(format!(
+        "{}/{}",
+        boot_id.trim(),
+        namespace.to_string_lossy()
+    ))
 }
 
 /// Whether a process with this pid exists in this process's pid namespace.
@@ -1152,7 +1159,7 @@ pub fn process_exists(pid: u32) -> bool {
 /// namespace's processes (pid 1 is always there) and the namespace is known.
 /// With `hidepid` mounted, or no `/proc`, every process would look dead.
 pub fn liveness_is_reliable() -> bool {
-    pid_namespace().is_some() && std::path::Path::new("/proc/1").exists()
+    owner_scope().is_some() && std::path::Path::new("/proc/1").exists()
 }
 
 /// One container that carries a [`START_LABEL`], as the sweep sees it.
@@ -1162,8 +1169,8 @@ pub struct LabelledContainer {
     pub id: String,
     /// The value of [`START_LABEL`] (`<pid>-<counter>` for a test start).
     pub start_label: String,
-    /// The value of [`PID_NAMESPACE_LABEL`], if the container has one.
-    pub pid_namespace: Option<String>,
+    /// The value of [`OWNER_SCOPE_LABEL`], if the container has one.
+    pub owner_scope: Option<String>,
 }
 
 /// The owner pid in a start label (`<pid>-<counter>`).
@@ -1178,25 +1185,27 @@ pub fn owner_pid(start_label: &str) -> Option<u32> {
 }
 
 /// The ids of the containers that are safe to remove: those labelled with this
-/// process's own pid namespace, whose owner pid is not alive there.
+/// process's own [`owner_scope`] (same machine boot and pid namespace), whose
+/// owner pid is not alive there.
 ///
-/// A container is kept when anything is uncertain: no namespace label (an
-/// older start, or a platform without one), another namespace, a label that is
-/// not `<pid>-<counter>`, or an owner that is alive. A dead pid that was
-/// reused by another process only keeps a leak for one more run.
+/// A container is kept when anything is uncertain: no scope label (an
+/// older start, or a platform without one), another scope (namespace or
+/// machine), a label that is not `<pid>-<counter>`, or an owner that is alive.
+/// A dead pid that was reused by another process keeps its container until
+/// that process exits.
 ///
 /// # Arguments
 /// * `containers` - every container carrying [`START_LABEL`].
-/// * `own_namespace` - [`pid_namespace`] of this process.
-/// * `is_alive` - whether a pid exists in `own_namespace`.
+/// * `own_scope` - [`owner_scope`] of the sweeper.
+/// * `is_alive` - whether a pid exists in `own_scope`.
 pub fn stale_container_ids(
     containers: &[LabelledContainer],
-    own_namespace: &str,
+    own_scope: &str,
     is_alive: impl Fn(u32) -> bool,
 ) -> Vec<String> {
     containers
         .iter()
-        .filter(|container| container.pid_namespace.as_deref() == Some(own_namespace))
+        .filter(|container| container.owner_scope.as_deref() == Some(own_scope))
         .filter_map(|container| Some((container, owner_pid(&container.start_label)?)))
         .filter(|(_, pid)| !is_alive(*pid))
         .map(|(container, _)| container.id.clone())
@@ -1224,7 +1233,7 @@ pub async fn all_labelled_containers() -> Result<Vec<LabelledContainer>, DockerE
             Some(LabelledContainer {
                 id: summary.id?,
                 start_label: labels.get(START_LABEL)?.clone(),
-                pid_namespace: labels.get(PID_NAMESPACE_LABEL).cloned(),
+                owner_scope: labels.get(OWNER_SCOPE_LABEL).cloned(),
             })
         })
         .collect())
@@ -1242,32 +1251,55 @@ pub async fn all_labelled_containers() -> Result<Vec<LabelledContainer>, DockerE
 /// container being gone already (404) or already being removed (409), as when
 /// another process's sweep got there first.
 pub async fn sweep_stale_containers() -> Result<usize, DockerError> {
-    let Some(namespace) = pid_namespace().filter(|_| liveness_is_reliable()) else {
+    let Some(scope) = owner_scope().filter(|_| liveness_is_reliable()) else {
         return Ok(0);
     };
-    let stale = stale_container_ids(
-        &all_labelled_containers().await?,
-        &namespace,
-        process_exists,
-    );
-    let docker = Docker::connect_with_defaults()?;
+    sweep_stale_containers_of(&scope, process_exists).await
+}
+
+/// [`sweep_stale_containers`] for an explicit scope and liveness check: removes
+/// the containers labelled with `own_scope` whose owner pid `is_alive` denies.
+/// A test passes a scope of its own, so the sweep can only match its containers.
+///
+/// # Errors
+/// As [`sweep_stale_containers`].
+pub async fn sweep_stale_containers_of(
+    own_scope: &str,
+    is_alive: impl Fn(u32) -> bool,
+) -> Result<usize, DockerError> {
+    let stale = stale_container_ids(&all_labelled_containers().await?, own_scope, is_alive);
     let mut removed = 0;
     for id in stale {
-        let options = RemoveContainerOptions {
-            force: true,
-            v: true,
-            ..Default::default()
-        };
-        match docker.remove_container(&id, Some(options)).await {
-            Ok(()) => removed += 1,
-            Err(DockerError::DockerResponseServerError {
-                status_code: 404 | 409,
-                ..
-            }) => {}
-            Err(error) => return Err(error),
+        if remove_container_by_id(&id).await? {
+            removed += 1;
         }
     }
     Ok(removed)
+}
+
+/// Force-removes one container with its anonymous volumes.
+///
+/// # Returns
+/// Whether this call removed it; `false` when it was gone already (404) or
+/// already being removed (409).
+///
+/// # Errors
+/// If Docker is unreachable or refuses the removal for another reason.
+pub async fn remove_container_by_id(id: &str) -> Result<bool, DockerError> {
+    let docker = Docker::connect_with_defaults()?;
+    let options = RemoveContainerOptions {
+        force: true,
+        v: true,
+        ..Default::default()
+    };
+    match docker.remove_container(id, Some(options)).await {
+        Ok(()) => Ok(true),
+        Err(DockerError::DockerResponseServerError {
+            status_code: 404 | 409,
+            ..
+        }) => Ok(false),
+        Err(error) => Err(error),
+    }
 }
 
 /// Runs [`sweep_stale_containers`] on the first call in this process and

@@ -436,7 +436,9 @@ async fn the_billing_url_set_on_the_settings_page_shows_and_hides_the_billing_li
             "http://billing.example.com/login",
         );
         ui.click("[data-test=setting-save-billing_url]");
-        // A plain-http destination is refused, and no link appears.
+        // A plain-http destination is refused with its reason, and no link
+        // appears. Wait for the reason: the page redraws after the answer.
+        ui.wait_text("[data-test=setting-error-billing_url]", "https://");
         ui.wait_text("[data-test=setting-source-billing_url]", "default");
         ui.wait_hidden("#billing-link");
         ui.fill(

@@ -244,7 +244,10 @@ impl OkfServer {
                        replayed at publish so concurrent log entries never conflict. Refused \
                        with StillLinked, listing each link (source, line), while any other \
                        document links to it, other index.md files included; move_concept or \
-                       edit_document fixes them first. index.md files are never deleted. Write \
+                       edit_document fixes them first. index.md files are never deleted. Rarely, \
+                       a log entry linking the concept, published by another changeset after \
+                       this delete began, makes publish refuse with a link into a deleted path; \
+                       then run delete_concept again in a fresh changeset, which succeeds. Write \
                        access.",
         annotations(
             title = "Delete Concept",

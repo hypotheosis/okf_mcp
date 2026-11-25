@@ -894,7 +894,11 @@ two). What `[redis]` does not share:
   second, through its announcement ("Catalog snapshots" in the Redis
   section), but not before the write's answer returns: a client's next read
   on another replica may still see the old text. There is no read-your-writes
-  guarantee across replicas. A lost announcement (Redis down, or the
+  guarantee across replicas. Clients and test authors: read through the
+  changeset (or `pending_changes`, which is always current for its own edits)
+  before publishing, or retry a read briefly after `publish`; the `publish`
+  tool description says the same, and eval or MCPJam scenarios that fire calls
+  rapid-fire are the likeliest to notice (`tests/mcpjam/README.md`). A lost announcement (Redis down, or the
   subscriber reconnecting) is covered by the Postgres change message the same
   write sends; if that is missed too, by the catalog row's lifetime,
   `catalog_ttl` (10 seconds by default). A catalog created or deleted on one

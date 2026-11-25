@@ -20,6 +20,18 @@ red test is a server behaviour change.
 
 Each `describe` is named after its MCPJam goal, verbatim.
 
+## Reads after a publish
+
+Against a server with several replicas (staging, say), a `publish` returns
+before the other replicas have refreshed, so a read sent straight after it can
+land on a replica that still shows the previous revision for a moment (usually
+well under a second). Reads through the changeset and `pending_changes` are
+always current for the changeset's own edits. A scenario that checks published
+text right after a `publish` should read through its changeset before
+publishing, or retry the read briefly. The guarantee is in
+[docs/operations.md](../../docs/operations.md) ("Catalog reads are eventually
+consistent across replicas").
+
 ## Running
 
 Local, on a throwaway Postgres (needs Docker and Node 22+), from the repo root:

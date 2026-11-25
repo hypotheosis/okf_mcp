@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "9f80875dab6ca5d31b46012079385b5e72df4a14c02ff5068cc228290bed29e3"
   },
-  "next_evidence_seq": 1962,
+  "next_evidence_seq": 1963,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "121d61cd1251ea8e2805929f0a1f05427383c44dd69019ea0e67f76f0297a7ad"
+    "mac": "cf3981a1f1cf348893f045a4fe1ef79f289346a1219588722992543f01545895"
   },
   "claims": [
     {
@@ -107519,6 +107519,28 @@
             "by": "server",
             "mac": "fb856ba9e75bc4e53ff4c6292e1d975d5312cc4afbfb312ef31cbb944af08dd2"
           }
+        },
+        {
+          "id": "EVD-1962",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs an_idle_entry_expires_but_a_used_one_stays",
+          "summary": "After review round 1: idle time 800 ms, eight 150 ms reads (1.2 s, longer than one idle lifetime), asserts unread entry gone and read entry present; comment and changelog state the residual stall sensitivity and that moka's clock() is pub(crate).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "with_idle\\(Duration::from_millis\\(800\\)\\)",
+              "scope": [
+                "src/cache/bounded.rs"
+              ],
+              "hits": 1,
+              "commit": "2379e0ea3ec8e33d406b529cc16405c288618c66"
+            }
+          },
+          "recorded_at": "2026-11-25T03:09:16.796615811Z",
+          "seal": {
+            "by": "server",
+            "mac": "3454f7dc8e1d32ecb47ce6284c17965cbfe77ba7d8108ac5a054ed0f7af4b359"
+          }
         }
       ],
       "verdicts": [
@@ -107549,13 +107571,26 @@
             "by": "server",
             "mac": "dddaf0862062b9c5747de7bc52679ef3ef3210cb1f8bc4fa3159808dfb5025aa"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Siblings in bounded.rs fixed or qualified; idle test keeps proving reads refresh the timer.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1962"
+          ],
+          "recorded_at": "2026-11-25T03:09:21.080226766Z",
+          "seal": {
+            "by": "server",
+            "mac": "273e108676621d2409dc330d623209c41bd9cffada2f746d35255fcf2ac95407"
+          }
         }
       ],
       "created_at": "2026-11-25T02:42:07.974210452Z",
-      "updated_at": "2026-11-25T02:58:29.999760035Z",
+      "updated_at": "2026-11-25T03:09:21.080226766Z",
       "seal": {
         "by": "server",
-        "mac": "21c8ffdd7c025a363e534c0dd4ac300dfc1a7553980eb4c078e2b370b91ebb5e"
+        "mac": "67c44a6291a2b8261aaa4b1ec62889a9bc229b5c913837e281d2a862c7bac341"
       }
     },
     {

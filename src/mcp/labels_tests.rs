@@ -106,6 +106,8 @@ async fn history_resolves_a_user_actor_to_a_label_and_others_to_null() {
         path: path.to_string(),
         catalog: None,
         limit: None,
+        user: None,
+        since: None,
     };
 
     let by_user = history(&ctx, params("a.md")).await.unwrap();

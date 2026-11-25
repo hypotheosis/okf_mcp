@@ -35,6 +35,7 @@ use crate::store::catalogs;
 use crate::store::keys::Access;
 // `as publishing`: the module's `publish` would clash with this file's
 // `publish` function.
+use crate::mcp::history::Persons;
 use crate::store::publish as publishing;
 use crate::stores::{StoreName, READ_CONCURRENCY};
 use crate::write::{apply_audited, OpAudit, WriteReport};
@@ -64,8 +65,12 @@ pub struct ListedChangeset {
     pub key_name: Option<String>,
     /// The actor of the key that opened it.
     pub actor: String,
-    /// The actor's label, when the actor is a user; null for a key or OAuth actor.
+    /// The label of the actor when the actor is itself a user (a console session); null for a key or OAuth actor. The person behind any credential is `user_label`.
     pub actor_label: Option<String>,
+    /// The person who opened it: their user id; null for a key no user owns. Read from the key now, so reassigning the key changes it.
+    pub user: Option<String>,
+    /// The person's label: say this to people. Null with no `user`.
+    pub user_label: Option<String>,
     /// When it was opened.
     pub created: String,
     /// Its last change.
@@ -205,28 +210,35 @@ pub(crate) async fn list_changesets(
         ctx.app().clock().now(),
         ctx.app().config().session_idle_timeout,
     );
+    let persons = Persons::load(ctx, rows.iter().filter_map(|row| row.user_id.as_deref())).await?;
     let mut wanted = Wanted::default();
+    persons.want(&mut wanted);
     for row in &rows {
         wanted.catalog(&row.catalog).user(&row.changeset.actor);
     }
     let labels = ctx.labels_for(&wanted).await?;
     let changesets = rows
         .into_iter()
-        .map(|row| ListedChangeset {
-            changeset: row.changeset.handle,
-            catalog_label: labels
-                .catalog(&row.catalog)
-                .unwrap_or(&row.catalog)
-                .to_string(),
-            catalog: row.catalog,
-            actor_label: labels.actor(&row.changeset.actor).map(str::to_string),
-            key: row.changeset.key_id,
-            key_name: row.key_name,
-            actor: row.changeset.actor,
-            created: format_timestamp(row.changeset.created_at),
-            last_change: format_timestamp(row.changeset.updated_at),
-            idle: row.changeset.updated_at < idle_since,
-            paths: row.paths.iter().map(|path| format!("/{path}")).collect(),
+        .map(|row| {
+            let (user, user_label) = persons.show(row.user_id.as_deref(), &labels);
+            ListedChangeset {
+                user,
+                user_label,
+                changeset: row.changeset.handle,
+                catalog_label: labels
+                    .catalog(&row.catalog)
+                    .unwrap_or(&row.catalog)
+                    .to_string(),
+                catalog: row.catalog,
+                actor_label: labels.actor(&row.changeset.actor).map(str::to_string),
+                key: row.changeset.key_id,
+                key_name: row.key_name,
+                actor: row.changeset.actor,
+                created: format_timestamp(row.changeset.created_at),
+                last_change: format_timestamp(row.changeset.updated_at),
+                idle: row.changeset.updated_at < idle_since,
+                paths: row.paths.iter().map(|path| format!("/{path}")).collect(),
+            }
         })
         .collect();
     Ok(Listed {
@@ -692,6 +704,10 @@ pub struct PendingChanges {
     pub catalog_label: String,
     /// The changeset's handle.
     pub changeset: String,
+    /// The person who opened it: their user id; null for a key no user owns. Read from the key now, so reassigning the key changes it.
+    pub user: Option<String>,
+    /// The person's label: say this to people. Null with no `user`.
+    pub user_label: Option<String>,
     /// Its entries, in path order.
     pub files: Vec<PendingFile>,
 }
@@ -999,10 +1015,23 @@ pub(crate) async fn pending_changes(
         .refreshed_if_moved(&state, before)
         .await;
     let files = blocking(move || pending_files(&loaded, &entries)).await?;
+    let opener = match row.key_id.as_deref() {
+        Some(key) => changesets::opener_users(ctx.app().accounts(), &[key])
+            .await?
+            .remove(key),
+        None => None,
+    };
+    let persons = Persons::load(ctx, opener.as_deref()).await?;
+    let mut wanted = Wanted::default();
+    persons.want(&mut wanted);
+    let labels = ctx.labels_for(&wanted).await?;
+    let (user, user_label) = persons.show(opener.as_deref(), &labels);
     Ok(PendingChanges {
         catalog: state.name().to_string(),
         catalog_label: ctx.catalog_label(state.name()).await?,
         changeset: row.handle,
+        user,
+        user_label,
         files,
     })
 }

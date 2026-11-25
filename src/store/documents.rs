@@ -198,6 +198,11 @@ pub struct RevisionRecord<'a> {
     pub changeset_id: Option<i64>,
     /// The publish message (`import` for an import).
     pub message: &'a str,
+    /// The `users.id` of the person who published it, from the publishing
+    /// credential; `None` for an import, a repair, a starter file or a
+    /// credential no user owns. Stored without a foreign key: deleting the
+    /// user leaves it.
+    pub user_id: Option<&'a str>,
 }
 
 impl<'a> RevisionRecord<'a> {
@@ -225,6 +230,7 @@ impl<'a> RevisionRecord<'a> {
             file,
             changeset_id: None,
             message: "import",
+            user_id: None,
         }
     }
 }
@@ -309,7 +315,7 @@ pub async fn delete_document(
 /// # Arguments
 /// * `conn` - the transaction's connection.
 /// * `write` - path, revision, actor and time.
-/// * `record` - op, content, changeset and message.
+/// * `record` - op, content, changeset, message and person.
 ///
 /// # Errors
 /// [`OkfError::Database`]: a unique violation if the revision already
@@ -322,8 +328,8 @@ pub async fn record_revision(
 ) -> Result<(), OkfError> {
     sqlx::query(
         "INSERT INTO revisions (catalog_id, path, revision, op, content, executable, actor, \
-                                changeset_id, message, created_at) \
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                                changeset_id, message, created_at, user_id) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
     )
     .bind(write.catalog_id)
     .bind(write.path)
@@ -335,6 +341,7 @@ pub async fn record_revision(
     .bind(record.changeset_id)
     .bind(record.message)
     .bind(write.now)
+    .bind(record.user_id)
     .execute(&mut *conn)
     .await?;
     Ok(())

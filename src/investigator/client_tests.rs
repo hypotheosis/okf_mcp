@@ -687,7 +687,7 @@ async fn investigator_client_real_slice1_http_nine_tools() {
     ));
     let mut client = McpClient::loopback(&endpoint, "pg", &key).await.unwrap();
     let tools = client.list_tools().await.unwrap();
-    assert_eq!(tools.len(), 44);
+    assert_eq!(tools.len(), 45);
     assert!(client.call(search()).await.is_ok());
     assert!(client
         .call(request(

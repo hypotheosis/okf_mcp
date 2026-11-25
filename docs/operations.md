@@ -2237,7 +2237,7 @@ name, else its description (cut to 80 characters), else "Untitled catalog".
   label to people, pass the id in calls. Audit details record only the
   length of a display name, never the text.
 - **Where labels show.** Views gain `label` fields, MCP results gain
-  `catalog_label` (and `actor_label`), and the console resolves ids
+  `catalog_label` (and `actor_label`, the label of a user actor; `user_label` for the person behind a revision, see [Who made a revision](#who-made-a-revision)), and the console resolves ids
   through `GET /api/v1/labels` (its own user and teams, and the catalogs
   it reaches) and, for the other users and teams a view shows, `GET
   /api/v1/labels/named`; pickers label users and teams from their own
@@ -2405,6 +2405,59 @@ an admin key that reaches every catalog, as `POST /api/v1/catalogs` does;
 reading users and teams needs any admin key, so a scoped admin can pick the
 user of a key it creates. For any other admin the console shows these
 controls disabled, or the Unassigned view a note, saying why.
+
+### Who made a revision
+
+Every revision keeps two names for who made it. `actor` is the credential's
+actor: a key's actor, the OAuth client's name (a self-issued grant's actor is
+the client's name, so every Claude Code user's edits share one), or a console
+session's user name. It never changes. `user` is the person: the `users.id` of
+the user whose credential published the revision, recorded at publish time
+(`revisions.user_id`, a catalog-store column, null when no person is known).
+
+- **Recorded once.** A publish records the publishing credential's user: a
+  key's or grant's user, or the signed-in person of a console session. It is
+  the publisher, not the opener of the changeset, who is recorded. An import,
+  `catalog repair-indexes` and a catalog's starter files record none. Reassigning a
+  key to another user afterwards changes nothing already recorded.
+- **Deleting a user keeps it.** There is no foreign key: deleting a user
+  leaves `revisions.user_id` as it was, so the revision still names that user.
+  The user's name and label no longer resolve, so history shows the stored id
+  (a uuid) as `user` and `null` as `user_label`. Giving a deleted user's id to
+  the `user` filter still finds their revisions; their old name does not. This
+  may be revisited for privacy.
+- **Existing revisions.** Catalog migration 0004 fills `user_id` from the
+  changeset's key (`changesets.key_id` to `api_keys.user_id`) where that
+  resolves, on the account database's own store (`main`) only: another store's
+  database has no `api_keys` table, so its older revisions stay null. A
+  console session's older revisions stay null too (their changeset names
+  `session:<user>`, no key). The migration is two files, so the table lock
+  is short: 0003 adds the nullable column (a brief ACCESS EXCLUSIVE lock, no
+  rewrite), 0004 backfills with one UPDATE that takes only row locks (reads
+  and publishes continue; it makes dead rows for autovacuum), and 0005 builds
+  the partial index `revisions_catalog_user_recent` with `CREATE INDEX
+  CONCURRENTLY`, so publishes continue while it builds. A build that failed
+  part-way is dropped and built again by the next start.
+- **Where it shows.** `history` and `recent_changes` (MCP) and `GET
+  /api/v1/catalogs/{catalog}/history/{path}` and `.../recent-changes` (HTTP)
+  give each revision `user` and `user_label` beside `actor` and
+  `actor_label`. `actor_label` is the label of a user *actor* (a console
+  session): for a key or an OAuth grant it is null, and the person is
+  `user_label`. `list_changesets` and `pending_changes` show the person who
+  opened a changeset the same way, read from its key now (there is no
+  revision yet). Anyone who may read a catalog's history sees these fields,
+  the same readers who already see its actors; the person's display name and
+  user id reach them even when the credential is an OAuth grant or a key.
+- **Filters.** `history` and the HTTP history route take `user` (a user's
+  id, or the id a revision shows for a deleted user) and `since` (an RFC 3339
+  time; a revision made at that time counts). A path whose revisions the
+  filters exclude answers an empty list. `recent_changes` and the HTTP
+  `recent-changes` route list a catalog's revisions across every path, newest
+  first, with the same filters, and page by `after` (the previous page's
+  `next_after`); a page holds `limit` revisions (default 50, at most 200).
+  The unfiltered and `since` pages read `revisions_catalog_recent` and a
+  `user` page reads `revisions_catalog_user_recent`, backwards, so a page
+  reads about one page of index entries whatever the catalog's size.
 
 ### Audit log
 
@@ -4387,10 +4440,10 @@ whole body and scrolls to that heading.
 | `GET /api/v1/catalogs/{catalog}/tree` | read | Every concept, `index.md` and `log.md`, and the root `AGENTS.md`: `path`, `kind`, `title`, `description` (the frontmatter's, when it is a string; else null) |
 | `GET /api/v1/catalogs/{catalog}/concepts/{path}?full=` | read | `get_concept` with `raw`, plus `body_html` and the whole `outline`. Over `concept_outline_chars` without `full=true`: no `body`, `raw` or `body_html` |
 | `GET /api/v1/catalogs/{catalog}/links/{path}` | read | Outbound `links` and `backlinks`, as `get_concept` with `links` |
-| `GET /api/v1/catalogs/{catalog}/history/{path}?limit=` | read | The `history` tool |
+| `GET /api/v1/catalogs/{catalog}/history/{path}?limit=&user=&since=` | read | The `history` tool, with its `user` and `since` filters ([Who made a revision](#who-made-a-revision)) |
 | `GET /api/v1/catalogs/{catalog}/revisions/{n}/{path}` | read | `text` at revision `n` (null for a deletion or non-text bytes) and a unified `diff` from revision `n-1` |
 | `GET /api/v1/catalogs/{catalog}/documents/{path}` | read | `read_document` (any `index.md` or `log.md`, the root `AGENTS.md`) plus `body_html` |
-| `GET /api/v1/catalogs/{catalog}/recent-changes?limit=&after=` | read | The catalog's published revisions, newest first: `{catalog, catalog_label, changes, next_after}`, each change `{path, title, description, revision, op, actor, actor_label, message, at}` (`title` and `description` as the catalog has the document now; null for a deletion or a document gone since), content left out. Revisions sharing a time come by path, then revision, both descending. `limit` 1..=200 (default 50; outside is 409); `after` is the previous page's `next_after` (an unknown or malformed one is 404); `next_after` is `null` on the last page |
+| `GET /api/v1/catalogs/{catalog}/recent-changes?limit=&after=&user=&since=` | read | The catalog's published revisions, newest first: `{catalog, catalog_label, changes, next_after}`, each change `{path, title, description, revision, op, actor, actor_label, user, user_label, message, at}` (`title` and `description` as the catalog has the document now; null for a deletion or a document gone since), content left out. Revisions sharing a time come by path, then revision, both descending. `limit` 1..=200 (default 50; outside is 409); `after` is the previous page's `next_after` (an unknown or malformed one is 404); `user` and `since` filter as for `history` (a `since` that is not RFC 3339 is 409); `next_after` is `null` on the last page. The MCP `recent_changes` tool is the same query without titles |
 | `GET /api/v1/search?q=&catalogs=&limit=` | read | The `search` tool. `catalogs` is comma-separated and defaults to every catalog the key reaches, if it reaches at most `search_fanout_max` (25); past that, leaving `catalogs` out is a 400 (`InvalidPath`, "name the catalogs to search (at most 25 are searched by default)"). Naming more than `search_fanout_max` distinct catalogs is also a 400 (`InvalidPath`, "name at most 25 catalogs to search at once"); a repeated name counts once. A named catalog it does not reach is a 404. Each hit also has `snippet_text`: the text of the snippet's block from its line on, without markdown syntax, cut to 160 characters with an ellipsis (null without a snippet). `unavailable` lists the catalogs left out because their store could not be reached (absent when empty); the others still answer |
 
 A catalog the key does not reach, or that does not exist, is 404 on all

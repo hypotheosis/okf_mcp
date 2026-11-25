@@ -17,6 +17,8 @@ pub(crate) mod feedback;
 pub mod context;
 pub(crate) mod history;
 #[cfg(test)]
+mod history_people_tests;
+#[cfg(test)]
 mod labels_tests;
 pub(crate) mod maintenance;
 #[cfg(test)]

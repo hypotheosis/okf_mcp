@@ -418,7 +418,7 @@ fn the_reference_lists_every_tool_with_a_heading_its_link_points_at() {
     let page = render();
     let tools = OkfServer::tools().list_all();
 
-    assert_eq!(tools.len(), 45);
+    assert_eq!(tools.len(), 46);
     for tool in &tools {
         assert!(
             page.contains(&format!("\n## `{}`\n", tool.name)),

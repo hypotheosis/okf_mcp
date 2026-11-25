@@ -607,7 +607,10 @@ impl OkfServer {
                        then stays open (an error the published file already has is a warning, not \
                        a refusal). Lint errors elsewhere come back as warnings. When every \
                        edit already matches the published text, the changeset is closed with \
-                       published: true and no revisions. Write access.",
+                       published: true and no revisions. With several replicas, a read on another replica may still show the previous revision for a \
+                       moment after this returns (usually well under a second); reads through a \
+                       changeset and pending_changes are always current for its own edits. \
+                       Write access.",
         annotations(
             title = "Publish Changeset",
             read_only_hint = false,

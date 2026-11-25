@@ -128,7 +128,9 @@ let brandTicket = 0;
 let brand = null;
 
 // The sidebar's help entries, from the last brand.json answer: the
-// "Documentation" link (Settings: docs_url), shown to everyone, and one
+// "Documentation" link (Settings: docs_url), shown to everyone, the
+// "Billing" link (Settings: billing_url) under "Your account", shown only
+// to someone signed in with an account (never by key alone), and one
 // feedback entry. The in-console form (#feedback-open, brand.json's
 // `feedback_form`, there with a `[feedback]` table) needs an account's
 // session, so for someone signed in that way it wins over the external
@@ -140,14 +142,16 @@ function drawHelp() {
     const link = document.getElementById('feedback-link');
     const open = document.getElementById('feedback-open');
     const url = value => (typeof value === 'string' && value ? value : null);
-    const docsUrl = url(brand?.docs_url);
-    if (docsUrl) docs.href = docsUrl; else docs.removeAttribute('href');
-    docs.hidden = !docsUrl;
+    const setLink = (el, target) => {
+        if (target) el.href = target; else el.removeAttribute('href');
+        el.hidden = !target;
+    };
+    setLink(docs, url(brand?.docs_url));
+    setLink(document.getElementById('billing-link'), store.session ? url(brand?.billing_url) : null);
     const form = store.session && brand?.feedback_form ? brand.feedback_form : null;
     open.hidden = !form;
     const feedbackUrl = form ? null : url(brand?.feedback_url);
-    if (feedbackUrl) link.href = feedbackUrl; else link.removeAttribute('href');
-    link.hidden = !feedbackUrl;
+    setLink(link, feedbackUrl);
     // For the browser tests: the entries above now follow a brand.json
     // answer (until then every one is hidden, as index.html draws them).
     if (brand) document.getElementById('app').dataset.brandLoaded = 'true';

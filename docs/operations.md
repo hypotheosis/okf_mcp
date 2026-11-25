@@ -3199,7 +3199,7 @@ and `true`.
 
 A deployment that rebrands the server sets the branding in `[auth]`, so a
 fresh database shows it with no Settings change (`support_contact`,
-`feedback_url`, `docs_url` and `onboarding_url` are left out for none):
+`feedback_url`, `docs_url`, `billing_url` and `onboarding_url` are left out for none):
 
 ```toml
 [auth]
@@ -3207,6 +3207,7 @@ product_name = "Acme Notes"
 support_contact = "help@example.com"
 feedback_url = "https://example.com/feedback"
 docs_url = "https://docs.example.com"
+billing_url = "https://billing.example.com/login"
 onboarding_url = "https://docs.example.com/start/first-15-minutes/"
 mcp_server_name = "acme-notes"
 ```
@@ -3245,6 +3246,7 @@ name when the server starts.
 | `support_contact` | `none` | An email address or an `https://` URL (with a host). When set, every email ends with "Questions? Contact ..." and the server pages show the same line (a URL as a link); `none` shows no line |
 | `feedback_url` | `none` | An `https://` URL (with a host, at most 500 characters, no whitespace or control characters; an email address is refused). When set, the console's sidebar footer shows a "Send feedback" link to it, opening in a new tab; `none` shows no link. With a `[feedback]` table, someone signed in with an account sees the in-console feedback form instead ([Feedback](#feedback)), never both; a key still sees this link. Nothing else changes when it is unset |
 | `docs_url` | `none` | An `https://` URL, checked as `feedback_url` is. When set, the console's sidebar shows a "Documentation" link to it on every page, for everyone signed in (by key or account, admin or not), opening in a new tab; `none` shows no link |
+| `billing_url` | `none` | An `https://` URL, checked as `feedback_url` is: a reusable billing-portal login or other external billing entry point where the customer signs in with the billing provider and sees their own subscription. Never a customer-specific session URL or a secret: it is public in `/ui/brand.json`, and the console passes no credentials or personal information in it. When set, the console's sidebar shows a "Billing" link under "Your account" to it, for people signed in with an account (admin or not), opening in a new tab with `rel="noopener noreferrer"`; people signed in with an API key alone never see it. `none` (the default) shows no link, and saving or disabling it updates an open console without a reload. Which destination a deployment uses is the operator's to configure; nothing in this repository names one |
 | `onboarding_url` | `none` | An `https://` URL, checked as `feedback_url` is: where a successful first password setup (`POST /account/setup`) sends the person, still signed in, instead of the console. The setup answers with a short welcome page ("Your account is ready", signed in) that has a button linking to the URL and a link to the console, not a 303 and not a timed refresh: browsers apply the console CSP's `form-action 'self'` to redirects after a form POST and would block one to another origin, and a link click is not a form submission. The person clicks to continue; nothing moves on its own. A setup that continues an OAuth authorization (`return_to=/oauth/authorize?...`) resumes it instead; sign-in, password reset and a passkey setup are unchanged. `none` goes to the console as before |
 | `audit_retention_days` | `400` | How many days [audit log](#audit-log) entries are kept, `30` to `3650`. A daily pass deletes older ones |
 | `require_unlock` | `false` | Whether operator credentials (admin keys, admin users' sessions) need an unlock, with a reason and a time limit, before they open a customer catalog's contents |
@@ -3259,6 +3261,7 @@ okf-mcp settings set product_name "Acme Notes"
 okf-mcp settings set support_contact https://example.com/help
 okf-mcp settings set feedback_url https://example.com/feedback
 okf-mcp settings set docs_url https://docs.example.com
+okf-mcp settings set billing_url https://billing.example.com/login
 okf-mcp settings set onboarding_url https://docs.example.com/start/first-15-minutes/
 okf-mcp settings set audit_retention_days 730
 ```
@@ -3266,7 +3269,7 @@ okf-mcp settings set audit_retention_days 730
 A value is checked as its config key is: `true`/`false` (or `on`/`off`), a
 whole number, or a duration like `12h` above zero and at most ten years
 (`none` for `max_key_lifetime`); `product_name`, `support_contact`,
-`feedback_url`, `docs_url` and `onboarding_url` as in the table. A bad one is refused, naming the key: 422
+`feedback_url`, `docs_url`, `billing_url` and `onboarding_url` as in the table. A bad one is refused, naming the key: 422
 over REST, a non-zero exit on the command line, and an unknown key is clap's
 list of the keys. Each change records who made it (`cli:<os user>` for the
 command line, the admin's actor over REST and in the console), writes an
@@ -3925,7 +3928,7 @@ the same port as `/mcp`:
 | `GET /ui`, `GET /ui/` | none | `/ui` redirects (308) to `/ui/`, which serves the console's shell |
 | `GET /ui/*` | none | The console's static files, embedded in the binary at build time; an unknown file is 404 |
 | `GET /ui/manifest.json` | none | `{"pages": [...]}`: the console pages this build has |
-| `GET /ui/brand.json` | none | `{"product_name", "support_contact", "feedback_url", "docs_url", "feedback_form"}`: the [branding settings](#settings) (`null` when unset), which the console shows before anyone signs in, and `feedback_form`, `{"disclosure", "max_message_chars", "kinds"}` with a `[feedback]` table, else `null` (never the form id or the API key). `onboarding_url` is not in it |
+| `GET /ui/brand.json` | none | `{"product_name", "support_contact", "feedback_url", "docs_url", "billing_url", "feedback_form"}`: the [branding settings](#settings) (`null` when unset), which the console shows before anyone signs in, and `feedback_form`, `{"disclosure", "max_message_chars", "kinds"}` with a `[feedback]` table, else `null` (never the form id or the API key). `onboarding_url` is not in it |
 | `GET /read`, `GET /read/` | none | The [mobile reader](reference/reader.md), an installable read-only app for phones: `/read` redirects (308) to `/read/`. `/read/` and `/read/manifest.webmanifest` are rendered per request with the current `product_name`; signed out, the page stays and shows a Sign in button rather than redirecting. Its files (`GET /read/*`, `GET /read/sw.js`, and `GET /read/shell.json`, the worker's precache listing with a SHA-256 per file) are embedded in the binary, carry the console's security headers and hold no catalog data; the app reads `/api/v1` with the console's session cookie |
 | `/api/v1/*` | bearer key or console session | The JSON API; each endpoint checks the level it needs |
 | `GET /signin`, `POST /signin` | none | The sign-in page and its password form ([Signing in and self-service](#signing-in-and-self-service)). Without `public_url` the page offers only the pasted key and the POST is 404; with `password_sign_in` off the POST is 404 |

@@ -401,3 +401,89 @@ async fn the_feedback_url_set_on_the_settings_page_shows_a_send_feedback_link() 
         .brand();
     assert_eq!(brand.feedback_url, None);
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_billing_url_set_on_the_settings_page_shows_and_hides_the_billing_link() {
+    let server = login_server().await;
+    server
+        .user_with_password("bob", "bob@example.com", PASSWORD)
+        .await;
+    crate::support::server::applied(&server.app, async {
+        okf_mcp::store::users::set_admin(
+            &server.db.pool,
+            "bob",
+            okf_mcp::store::users::AdminChange {
+                on: true,
+                allow_last: false,
+            },
+            &okf_mcp::store::audit::AuditActor::cli(),
+            Utc::now(),
+        )
+        .await
+        .expect("make bob an admin");
+    })
+    .await;
+    let ran = drive(console_base(&server), |ui| {
+        // An admin account: it has "Your account", so the link can show.
+        ui.sign_in_password("bob@example.com", PASSWORD);
+        ui.wait_text("#whoami", " - ");
+        ui.wait_visible("#app[data-brand-loaded=true]");
+        ui.wait_hidden("#billing-link");
+        ui.click("a[data-nav=settings]");
+        ui.wait_text("[data-test=setting-source-billing_url]", "default");
+        ui.fill(
+            "[data-test=setting-input-billing_url]",
+            "http://billing.example.com/login",
+        );
+        ui.click("[data-test=setting-save-billing_url]");
+        // A plain-http destination is refused, and no link appears.
+        ui.wait_text("[data-test=setting-source-billing_url]", "default");
+        ui.wait_hidden("#billing-link");
+        ui.fill(
+            "[data-test=setting-input-billing_url]",
+            "https://billing.example.com/login",
+        );
+        ui.click("[data-test=setting-save-billing_url]");
+        ui.wait_text("[data-test=setting-source-billing_url]", "override");
+        // The shell follows the save without a reload.
+        ui.wait_visible("#billing-link");
+        ui.wait_text("#billing-link", "Billing");
+        let link = ui.eval(
+            "() => { const a = document.getElementById('billing-link'); \
+             return [a.getAttribute('href'), a.target, a.rel]; }",
+            json!(null),
+        );
+        assert_eq!(
+            link,
+            json!([
+                "https://billing.example.com/login",
+                "_blank",
+                "noopener noreferrer"
+            ])
+        );
+        // A fresh load reads it at boot.
+        ui.page.reload(GotoOptions::default()).expect("reload");
+        ui.wait_visible("#billing-link");
+        // `none` clears it, and no stale destination stays.
+        ui.click("a[data-nav=settings]");
+        ui.fill("[data-test=setting-input-billing_url]", "none");
+        ui.click("[data-test=setting-save-billing_url]");
+        ui.wait_hidden("#billing-link");
+        assert_eq!(
+            ui.eval(
+                "() => document.getElementById('billing-link').hasAttribute('href')",
+                json!(null)
+            ),
+            json!(false)
+        );
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    let brand = settings::load(&server.db.pool, &AuthConfig::default())
+        .await
+        .expect("load settings")
+        .brand();
+    assert_eq!(brand.billing_url, None);
+}

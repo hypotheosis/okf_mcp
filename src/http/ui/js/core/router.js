@@ -65,7 +65,10 @@ export async function route() {
 export async function start() {
     const manifest = await (await fetch('/ui/manifest.json')).json();
     pages = new Set(manifest.pages);
-    document.querySelectorAll('.nav-link').forEach(link => { if (!pages.has(link.dataset.nav)) link.hidden = true; });
+    document.querySelectorAll('.nav-link').forEach(link => {
+        // A link with no `data-nav` is external (Billing): not a page.
+        if (link.dataset.nav && !pages.has(link.dataset.nav)) link.hidden = true;
+    });
     if (!started) {
         addEventListener('hashchange', route);
         started = true;

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1368,
+  "next_claim_seq": 1369,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "364fa26a386bbaaaf4cff703bdcadd35877afa4637cc8b456d6923fc5cc549bb"
+    "mac": "92a4b7931a55787fef7ea0d46d861adbd986aa99ee72d0cf856a9a61f05c7225"
   },
-  "next_evidence_seq": 2015,
+  "next_evidence_seq": 2017,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "229eedd6693e9574d27f995d88f0d3d24ba9c67df606b9af60d54dac702fceca"
+    "mac": "c7b4675b8e05b1aeb152fc9c27221693ce45ac147e7cc8cadec82e2d7eafd97d"
   },
   "claims": [
     {
@@ -110850,7 +110850,9 @@
         "from-issue:948"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded in PR #1041 after review: the 0.3 s sleeps it describes were replaced by readiness markers (see the replacement claim derived from CLM-1354).",
+        "retired_at": "2026-11-25T06:18:52.207784318Z"
       },
       "evidence": [
         {
@@ -110892,10 +110894,10 @@
         }
       ],
       "created_at": "2026-11-25T05:36:00.054387141Z",
-      "updated_at": "2026-11-25T05:37:28.024134679Z",
+      "updated_at": "2026-11-25T06:18:52.207784318Z",
       "seal": {
         "by": "server",
-        "mac": "4c90eaefdb5679a983de176ff744df668971396dbca67a4d4d28d925cf6a772e"
+        "mac": "43184fbad54ba7b7305c0de82195eaf941ac92797a448055dbdcae968a2b5385"
       }
     },
     {
@@ -111009,6 +111011,95 @@
       "seal": {
         "by": "server",
         "mac": "f0898a1956d0ae3ede04b7c22a59e0031976eda8b57071c46fb28559c473ee0c"
+      }
+    },
+    {
+      "id": "CLM-1368",
+      "statement": "The fake gates in tools/agentic/tests/run.sh synchronize on readiness markers, not on a delay: the leaky_gate child writes child.ready after installing its TERM trap, the daemon fixture's shell writes daemon.ready after setsid has completed, and the fake gate's leader waits (at most 10 s) for the marker before it ends; no `sleep 0.3` delay remains in either fake gate.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #1041 review comment 4691048183",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2015",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:1056-1073 and :1118-1124 at 5ad4862; tests/run.sh x3 (107 passed, 0 failed each)",
+          "summary": "fake_gate_wait_for polls up to 100 x 0.1 s for a marker file. leaky_gate's child writes child.ready after `trap \"\" TERM` and the leader calls the wait before $1; the daemon fixture's setsid'd shell writes daemon.ready and the leader waits for it. Three plain repeats of the suite passed (107/0).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1056,
+                "end": 1073
+              },
+              "commit": "5ad4862c471b67ba3f874d847338771ec113aa10"
+            }
+          },
+          "recorded_at": "2026-11-25T06:18:57.562738454Z",
+          "seal": {
+            "by": "server",
+            "mac": "4baa1b29dd378339ef40782f50e823ee364e21c6fd1e821845c6d51465d7e16f"
+          }
+        },
+        {
+          "id": "EVD-2016",
+          "kind": "analysis",
+          "locator": "git grep -nE 'sleep 0\\.3 # let' -- tools/agentic/tests/run.sh",
+          "summary": "No delay-based wait comment/line remains in the fake gates: zero hits.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "sleep 0\\.3 # let",
+              "scope": [
+                "tools/agentic/tests/run.sh"
+              ],
+              "hits": 0,
+              "commit": "5ad4862c471b67ba3f874d847338771ec113aa10"
+            }
+          },
+          "recorded_at": "2026-11-25T06:18:57.643473498Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b1aa354bafdb4c0439ece49c8e131bdd01080d4c1b773b60d2888a612512806"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both fake gates write a readiness marker after their setup and the leader waits on it with a bounded poll; no delay remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2015",
+            "EVD-2016"
+          ],
+          "recorded_at": "2026-11-25T06:19:01.168034032Z",
+          "seal": {
+            "by": "server",
+            "mac": "01d0802cd80d13711e2ca4407d62ba5f9b3aaf2d88d3f7cf8a5e7d1c2c3677a5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T06:18:52.281722351Z",
+      "updated_at": "2026-11-25T06:19:01.168034032Z",
+      "seal": {
+        "by": "server",
+        "mac": "9cc223990ab3bec9b067f7a4d4cbcf4cfab210d3cd0b6719e6dc3085dc9d09be"
       }
     }
   ]

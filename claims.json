@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1398,
+  "next_claim_seq": 1414,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c15ec5596748657629e7d814f1c31f34aea6ea5ba30b3e3fe8bf2baed65db831"
+    "mac": "e939cccb326073d2d3780d24e15309b0666567a68542b0a4b0d9db7a187b87f4"
   },
-  "next_evidence_seq": 2054,
+  "next_evidence_seq": 2074,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7de5cd3fdfbd8dd76ab654ee60d31d5651459b9b915e267df1a95cfb48197189"
+    "mac": "e298929ea85cc7df15f98ec0f31c883b31871052f1924f0000c1906c9cda0115"
   },
   "claims": [
     {
@@ -98878,6 +98878,28 @@
             "by": "server",
             "mac": "15fce6b65807ddf36e2f498211bf532980fd352c1d9c84eb591b47017cae6d0b"
           }
+        },
+        {
+          "id": "EVD-2071",
+          "kind": "test",
+          "locator": "gate.sh narrow the_catalog_listing_route_spends_one_load_bound (1 passed); src/http/api/catalogs.rs:266-298",
+          "summary": "Recheck for #955: only the page source line changed in list_catalogs; per-call down set (ctx.mark_down, ctx.listed_state) unchanged; the route stall test passes at head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 266,
+                "end": 298
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:20:38.081480581Z",
+          "seal": {
+            "by": "server",
+            "mac": "90e71a0d9f81e6d0afa01e51ebea8ab3c746848a158fb082682507e067ec75ac"
+          }
         }
       ],
       "verdicts": [
@@ -98934,13 +98956,26 @@
             "by": "server",
             "mac": "9d813055cae8e1549acae3c268523973ac818d5b2fc15b722d62d7d6ec216652"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit after #955: down-set handling in list_catalogs unchanged, route test passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2071"
+          ],
+          "recorded_at": "2026-11-25T10:20:40.868997939Z",
+          "seal": {
+            "by": "server",
+            "mac": "1442abc17f47dcb8724ce712f895953f0d74b3726e90a982a3550f121e8bd6b6"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-24T15:54:39.230374208Z",
+      "updated_at": "2026-11-25T10:20:40.868997939Z",
       "seal": {
         "by": "server",
-        "mac": "da98347603fc1cdb5cd1010cadc68b6d39959c3140074564d65e0beb91b94958"
+        "mac": "af39ec53abfbfccb345ac0160090f50f450dfc7569a43cf8490c43ba46a67f72"
       }
     },
     {
@@ -100142,6 +100177,28 @@
             "by": "server",
             "mac": "79d5b390d7f1b8f8b265d768c1a7fb7ebae15b5b76bf6e1d0bd848669f3e7c24"
           }
+        },
+        {
+          "id": "EVD-2070",
+          "kind": "test",
+          "locator": "gate.sh narrow the_catalog_listing_route_spends_one_load_bound (1 passed); src/http/api/catalogs.rs:266-298",
+          "summary": "Recheck for #955: the diff changed only the page source line in list_catalogs (reachable_page -> navigable_page); ctx = context(...), ctx.mark_down and ctx.listed_state are unchanged. The route's stall test passes at head. The old dirty anchors are re-recorded clean here.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 266,
+                "end": 298
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:20:31.382950348Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8514dff1d86780164139bff321d16f95d4d2218a53a7d69610dc23a3000f1aa"
+          }
         }
       ],
       "verdicts": [
@@ -100157,13 +100214,26 @@
             "by": "server",
             "mac": "d826df529bbc7b376a1718ac7f9438ca41d4edd014b1a0d6a1072d1a941070b8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit after #955: ctx/mark_down/listed_state path unchanged, test passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2070"
+          ],
+          "recorded_at": "2026-11-25T10:20:38.232644544Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9bff55b31122832cd6dc6a0bd7cef13c8903d08d764c3df82e478ad442bba4c"
+          }
         }
       ],
       "created_at": "2026-11-24T15:47:36.168875358Z",
-      "updated_at": "2026-11-24T15:54:39.072811744Z",
+      "updated_at": "2026-11-25T10:20:38.232644544Z",
       "seal": {
         "by": "server",
-        "mac": "28fef560ec98794803657330023fadd17df12a3bef55b48341a83a0187f0c4b9"
+        "mac": "e236b747dc8ed6d2cbd155ee85b42071ea346e6ceb9811e9f439245d8230c636"
       }
     },
     {
@@ -113093,6 +113163,1127 @@
       "seal": {
         "by": "server",
         "mac": "ac334415926c5c5699180cfa26e3dce7114094a8a546ae4ef78c45e9f9c6324f"
+      }
+    },
+    {
+      "id": "CLM-1398",
+      "statement": "Issue #955 is fixed: the reader and console catalog selectors list only catalogs the identity may read now, while administrative discovery of locked catalogs is kept.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/955",
+      "derived_from": [],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/http/api/mod.rs",
+        "src/http/ui/js/core/shell.js",
+        "src/http/read/js/screens/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2069",
+          "kind": "analysis",
+          "locator": "children of CLM-1398",
+          "summary": "Behavior children (listing, admission, paging, unlock/end, admin discovery, whoami, call sites) are supported. CLM-1413 is refuted: the committed reader worker test still expects '/catalogs', so the suite fails at head until the uncommitted fix is committed. CLM-1404 (selection replacement untested) and CLM-1412 (revert claim unreproduced) are not_enough_info.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T10:20:31.303386924Z",
+          "seal": {
+            "by": "server",
+            "mac": "07c0c75d253ed401d0305fb74c9d3dd70ec37255c352acc0a5b258802a38271e"
+          }
+        },
+        {
+          "id": "EVD-2073",
+          "kind": "analysis",
+          "locator": "children of CLM-1398",
+          "summary": "Re-audit at 01a599f: all behavior children supported and the formerly refuted CLM-1413 is now supported. CLM-1404 and CLM-1412 stay not_enough_info (non-blocking).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T10:28:45.270620646Z",
+          "seal": {
+            "by": "server",
+            "mac": "55f76f897c92cfad71d4d3ac2e90de4f83167d7036fbcc268fbbcdf1bb25c2e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behavior is delivered, but a child (CLM-1413) is refuted: the committed reader worker test fails against the new picker path. Fix: commit tests/read_worker/catalogs.test.mjs edit (to '/catalogs?readable=true') and re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2069"
+          ],
+          "recorded_at": "2026-11-25T10:20:38.156567591Z",
+          "seal": {
+            "by": "server",
+            "mac": "02b705c2338e42a4df53badf503ba86ce9ad9e8723b283b1ac29002d5c4f63b2"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Behavior children supported and CLM-1413 now supported; remaining not_enough_info children are test-coverage and reproduction gaps, not defects.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2073"
+          ],
+          "recorded_at": "2026-11-25T10:28:48.040987098Z",
+          "seal": {
+            "by": "server",
+            "mac": "468e06edbde50964f8b84f0bc77ddd239518866dd66bc00322dca72a1a19d8ab"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:28:48.040987098Z",
+      "seal": {
+        "by": "server",
+        "mac": "c594fcd4fcfeb7fdf3221ffe112404bddbe83ff4ee7da952422169a149896fe9"
+      }
+    },
+    {
+      "id": "CLM-1399",
+      "statement": "With require_unlock on, GET /api/v1/catalogs?readable=true and GET /api/v1/whoami?readable=true omit another team's catalog for an admin with no live unlock, while the plain listings still include it.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 AC1: \"With require_unlock=true, an admin's reader picker and console content dropdown omit another team's catalog when the admin lacks read admission.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/http/api/identity.rs",
+        "src/http/api/mod.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2054",
+          "kind": "test",
+          "locator": "gate.sh narrow readable_listing_tests: http::api::readable_listing_tests::a_locked_catalog_is_left_out_of_the_readable_lists_but_not_the_plain_ones (5 passed)",
+          "summary": "Ran the module: 5 passed. Test asserts plain /catalogs and /whoami list [main, mine, other] while ?readable=true lists [mine] for admin 'staff' with require_unlock on and no unlock; levels has 1 key.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/readable_listing_tests.rs",
+              "lines": {
+                "start": 77,
+                "end": 113
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.559832177Z",
+          "seal": {
+            "by": "server",
+            "mac": "d41971bd346eddb2eec732cb046b46e2f87f051e556eb2e471b9800b2c9a3211"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test ran and passed; it asserts both endpoints, plain vs readable.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2054"
+          ],
+          "recorded_at": "2026-11-25T10:20:24.773784167Z",
+          "seal": {
+            "by": "server",
+            "mac": "f737631c394650e15cb90b0eda35e83cf389bccb86dc3faa1fda5642ce6c1116"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:24.773784167Z",
+      "seal": {
+        "by": "server",
+        "mac": "a7d5a696e5dc5e88ce18be1da3ae5ab8ab69ab99dbfb3d7d98beee5ad2e7fad2"
+      }
+    },
+    {
+      "id": "CLM-1400",
+      "statement": "Catalogs readable through ordinary access stay in the readable listing, and a scoped (non-every-catalog) key sees exactly the same catalogs with or without readable=true, so access is not broadened.",
+      "kind": "security",
+      "level": "software",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #955 AC2: \"Catalogs readable through ordinary access remain listed; non-admin access and scoped credential limits are not broadened.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/http/api/readable_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2055",
+          "kind": "test",
+          "locator": "readable_listing_tests::a_scoped_key_sees_the_same_catalogs_either_way (passed); world(): 'mine' owned by team of staff stays listed",
+          "summary": "Scoped read and stranger keys under require_unlock list exactly [main] / [other] both plain and readable, so no catalog is added; the team-owned 'mine' stays in the admin's readable list (test 1). Passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/readable_listing_tests.rs",
+              "lines": {
+                "start": 216,
+                "end": 228
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.640147416Z",
+          "seal": {
+            "by": "server",
+            "mac": "e703e3ed7135fc8e78322580c074834744bce54b794d408d2525f7a03c3b006a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Scoped key lists identical either way; team-owned catalog stays. Test passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2055"
+          ],
+          "recorded_at": "2026-11-25T10:20:24.864302579Z",
+          "seal": {
+            "by": "server",
+            "mac": "a58837d496568a338d287276920c605259e25b7c2e63b97caa8977938bbc0171"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:24.864302579Z",
+      "seal": {
+        "by": "server",
+        "mac": "aaf568130e174474c465be1844ad8ce5266d91b0211d154b4bc43ab41aac974c"
+      }
+    },
+    {
+      "id": "CLM-1401",
+      "statement": "The admin can still discover and select a locked catalog to unlock it: the console Catalogs page and the Unlock form picker keep calling the plain /catalogs listing, which still lists the locked catalog.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 AC3: \"The admin can still discover and unlock a locked catalog through the console's administrative UI.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/ui/js/components/unlock.js",
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/unlocks.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2056",
+          "kind": "test",
+          "locator": "gate.sh narrow the_switcher_offers: ui_e2e unlocks::the_switcher_offers_a_catalog_only_while_it_is_unlocked_and_unlock_still_finds_it ... ok",
+          "summary": "Browser journey: with nothing unlocked the switcher is empty, yet /catalogs page shows main and other and the Unlock form select accepts 'main'. Code: unlock.js:78 and pages/catalogs.js:91 still call plain '/catalogs'; HTTP test 1 shows plain list keeps locked catalogs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/unlocks.rs",
+              "lines": {
+                "start": 399,
+                "end": 431
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.720395686Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cb51b899b157c456cc65f8f21d307457fe225a561d94303767023b6d2acdb2a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "E2E passed: locked catalogs visible on the Catalogs page and selectable in the Unlock form while hidden from the switcher; code keeps plain /catalogs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2056"
+          ],
+          "recorded_at": "2026-11-25T10:20:24.939557623Z",
+          "seal": {
+            "by": "server",
+            "mac": "b128b4808d90518302295b9b360ac363e51bbbb6b6396c9ebf0221ac5bf8ef97"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:24.939557623Z",
+      "seal": {
+        "by": "server",
+        "mac": "ce736a6c34647e147d5ec292c18edb453dcce950879fe77b8b401d40123bc91c"
+      }
+    },
+    {
+      "id": "CLM-1402",
+      "statement": "After a successful unlock the catalog appears in the readable listings and its content reads succeed; the console switcher refreshes its identity after the unlock, and the reader picker offers the catalog on its next listing.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 AC4: \"A successful unlock makes the catalog selectable in the console after its identity/list refresh and in the reader on its next online listing refresh; content reads succeed under that unlock.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/ui/js/components/unlock.js",
+        "tests/ui_e2e/unlocks.rs",
+        "src/http/api/readable_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2057",
+          "kind": "test",
+          "locator": "readable_listing_tests::an_unlock_makes_a_catalog_readable_and_ending_or_expiring_it_hides_it_again; ui_e2e unlocks::the_switcher_offers... and the_readers_picker_lists_only_the_catalogs_an_admin_may_read (both ok)",
+          "summary": "After unlock('main') readable list is [main, mine] and /catalogs/main/tree returns 200; e2e: after 'Unlocked main' the switcher options become exactly ['main'] (unlock.js:141 calls refreshIdentity) and reader /c goes home once main is the only readable catalog. Passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/readable_listing_tests.rs",
+              "lines": {
+                "start": 115,
+                "end": 167
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.798187358Z",
+          "seal": {
+            "by": "server",
+            "mac": "57d605a6d55304cd125a29f3c42cf9d31ce4e4a71e9df128622fcafb832cf7cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "HTTP and e2e tests passed on head covering list, content read and both surfaces.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2057"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.016454214Z",
+          "seal": {
+            "by": "server",
+            "mac": "99a4acf0b7f9efc8942ca534a2a9f516003d9e6ae9b5b678050291d76e2125fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.016454214Z",
+      "seal": {
+        "by": "server",
+        "mac": "4d7a9dc9bdc197019d3e1a02318a5726435ea986a09575e67d3e6e6199c1b53a"
+      }
+    },
+    {
+      "id": "CLM-1403",
+      "statement": "Ending an unlock, or letting it expire on the server clock, removes the catalog from the readable listing on the next listing, and an expired unlock does not read content; the console switcher refreshes its identity after an end-unlock.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 AC5: \"Ending or expiring the unlock removes the catalog on the next online eligibility refresh unless another valid access path remains.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/unlocks.js",
+        "src/cache/directory_listing_tests.rs",
+        "src/http/api/readable_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2058",
+          "kind": "test",
+          "locator": "readable_listing_tests (end/expired steps), directory listing_tests::an_unlock_that_expired_by_the_server_clock_is_not_readable, ui_e2e switcher journey end-unlock step (all ok)",
+          "summary": "An unlock created 2h ago is absent from the list and /catalogs/other/tree is refused; after unlocks::end the list returns to [mine]; e2e: after 'Ended the unlock of' switcher has 0 options (unlocks.js:84 refreshIdentity). Directory test passes a clock past expiry. Passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/readable_listing_tests.rs",
+              "lines": {
+                "start": 115,
+                "end": 167
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.879745771Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d509b0b15eb4c96b7b84c1f13098891d2f1a17bc316eb0cc00ec70087e95d0f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ended and expired cases both drop the catalog; passed on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2058"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.091230403Z",
+          "seal": {
+            "by": "server",
+            "mac": "b4257026d85c527d4d7f764bda61dfa8d49d340588e262c527605058a8f34a8e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.091230403Z",
+      "seal": {
+        "by": "server",
+        "mac": "2aebe93674c268db93d5f5ec61c86327f3d68fc2a6a6bcb23088a3efb477bdb1"
+      }
+    },
+    {
+      "id": "CLM-1404",
+      "statement": "A stale selection does not bypass authorization: the content routes still refuse a locked catalog (UnlockRequired) regardless of the listing, and the console replaces an ineligible current catalog with the default or first listed one when the identity is refreshed.",
+      "kind": "security",
+      "level": "software",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #955 AC5: \"A stale selection does not bypass server authorization.\"; Suggested fix 4: \"clear or replace an ineligible current selection\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "src/http/api/readable_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2059",
+          "kind": "test",
+          "locator": "readable_listing_tests.rs:100-112 (GET /catalogs/main/tree -> error UnlockRequired); src/http/ui/js/core/shell.js:37-39",
+          "summary": "Content route refuses the locked catalog with UnlockRequired while it is hidden from the list (test passed). shell.js refreshIdentity resets store.catalog to default_catalog or first listed when the current one is not in me.catalogs. The replacement branch is not itself unit-tested; the e2e only shows the empty-list case.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 36,
+                "end": 42
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:53.958528096Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb415f6fb866859b70e78b3f96bf0740f354ebd400c58b0790b2dbef522634d5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Server refusal of content is tested (UnlockRequired), but the console's replace-ineligible-selection branch (shell.js:37-39) is only read, not tested with a non-empty remaining list. Fix: add a ui_e2e or JS test where the selected catalog leaves the list while another stays, asserting the selector moves to the default or first catalog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2059"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.165866511Z",
+          "seal": {
+            "by": "server",
+            "mac": "6efd7a45d1239ea245c19eb786d35b739cf16d900aca22419c6e578b8fdae110"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.165866511Z",
+      "seal": {
+        "by": "server",
+        "mac": "750b4516aaa75fddf902064e7436824fa927be5d944a6e5b4c73e9a4cc356061"
+      }
+    },
+    {
+      "id": "CLM-1405",
+      "statement": "With require_unlock=false the readable listing equals the plain reach listing (existing read-admission policy retained).",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 AC6: \"require_unlock=false retains the existing read-admission policy.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/http/api/readable_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2060",
+          "kind": "test",
+          "locator": "readable_listing_tests::without_require_unlock_the_readable_lists_are_the_plain_ones; directory listing_tests::without_require_unlock_the_readable_listing_is_the_reach_listing (both ok)",
+          "summary": "With require_unlock off both /catalogs and /whoami give [main, other] plain and readable; directory-level test equal too. auth.rs admission returns AdminRead/Untracked before the unlock check when require_unlock is false.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/readable_listing_tests.rs",
+              "lines": {
+                "start": 169,
+                "end": 182
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.038266513Z",
+          "seal": {
+            "by": "server",
+            "mac": "38e39f3417c1cc13e8184014ae33dee7768e9c2f9c93b20ef5124ebafbb469e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "HTTP and directory tests passed; admission code short-circuits when require_unlock is false.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2060"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.239657497Z",
+          "seal": {
+            "by": "server",
+            "mac": "724c049f274f9e4f030275ab66624b064bd1a8d0481097877555abaf6a321412"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.239657497Z",
+      "seal": {
+        "by": "server",
+        "mac": "531d9427f4e724f423a10fcc5bd079558a5ce131e2de1b458993789374f7b182"
+      }
+    },
+    {
+      "id": "CLM-1406",
+      "statement": "Filtered pagination is exact: readable_page scans the reach list until limit+1 readable rows or its end, sets next only when a readable row follows, skips a reach page made only of locked catalogs instead of returning it empty, and a cursor at a locked catalog continues with the next readable one.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 Suggested fix 5: \"Maintain correct pagination through filtered results, including pages containing only locked catalogs.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/cache/directory_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2061",
+          "kind": "test",
+          "locator": "src/cache/directory.rs:617-655 (readable_page_by); listing_tests::the_readable_listing_pages_through_locked_catalogs_without_gaps, a_page_of_only_locked_catalogs_is_skipped_and_none_readable_is_empty; readable_listing_tests::the_readable_list_pages_through_the_catalogs_left_out (all ok)",
+          "summary": "Loop reads reach pages and breaks only when cursor is None or readable.len() > limit; Page::cut sets next from the extra row. Tests with scan size 2 walk without gaps, skip an all-locked run, and HTTP test shows a cursor at locked 'main' continues with 'mine'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 617,
+                "end": 655
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.115614964Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5c799aecab0160d0c7bdfbf63cbd2523cc4e51d849d44682f9b5c26fefbcd41"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Loop logic reads as claimed and three tests (scan size 2, all-locked, cursor at locked) passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2061"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.314344135Z",
+          "seal": {
+            "by": "server",
+            "mac": "1540465e56f4f185b219b1b8b38396c009de6ecf4e37d4fbec0afc7a4cbdba43"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.314344135Z",
+      "seal": {
+        "by": "server",
+        "mac": "3567cc40af443683a47cbb714cf6d1c283ddb4bb81bd26ccf3304b2ce4db2fae"
+      }
+    },
+    {
+      "id": "CLM-1407",
+      "statement": "The readable check uses the server clock (app.clock().now()) and the existing Principal::admission for Access::Read, and records no content read.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #955 Suggested fix 1: \"Evaluate against the server clock; do not duplicate unlock rules in JavaScript or record a content read merely for checking eligibility.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/http/api/mod.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2062",
+          "kind": "analysis",
+          "locator": "src/http/api/mod.rs:522-539 (navigable_page); src/cache/directory.rs:640-642; src/auth.rs:651 (Principal::admission, pure &self)",
+          "summary": "navigable_page passes app.clock().now() to readable_page, which filters with principal.admission(row, Access::Read, now).is_ok(). admission takes &self and returns Result<Admission>; no recording call exists in the path (only the existing admission value is discarded). Neither JS file re-implements unlock rules.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/mod.rs",
+              "lines": {
+                "start": 522,
+                "end": 539
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.199882065Z",
+          "seal": {
+            "by": "server",
+            "mac": "399d727ad125750ccd78880567fca70a39522ed058e8aa670212cf1cc5fdd6c8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code path read end to end: server clock into the pure admission, no recording call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2062"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.388389962Z",
+          "seal": {
+            "by": "server",
+            "mac": "e757880c2059c543e4d6869309d7963a4c2c66d7dca5ae462c3179a24e0adeb7"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.388389962Z",
+      "seal": {
+        "by": "server",
+        "mac": "3c0a2f921714f728acaf2a9a5a2bec1be9f127adff1f409b8d9663024aa28b15"
+      }
+    },
+    {
+      "id": "CLM-1408",
+      "statement": "whoami's administrative fields (access, all_catalogs, user_admin, user, key_id) are unchanged by readable=true; only catalogs and levels follow the reduced list.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 Suggested fix 2 and PR body: \"`whoami`'s `all_catalogs`, `access`, `user_admin` are unaffected by the flag; its `catalogs` and `levels` follow the readable list.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:955",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2063",
+          "kind": "test",
+          "locator": "readable_listing_tests.rs:94-98 (loop over access, all_catalogs, user_admin, user, key_id); src/http/api/identity.rs:159-230",
+          "summary": "Test asserts each admin field equals between readable and plain whoami and all_catalogs==true. identity.rs derives all_catalogs from principal.reach and access from the principal; only catalogs and levels iterate page.items. Passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/identity.rs",
+              "lines": {
+                "start": 159,
+                "end": 232
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.286257104Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed45acaecc17bc2cef29e9afa299e1c719ec84aed9e368ff27a7407eb884cc75"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test compares each admin field; code derives them independent of the page.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2063"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.461856066Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3a6e8151cc60842956964371c1891db3d581e905de0678b66125cb173897d7a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.461856066Z",
+      "seal": {
+        "by": "server",
+        "mac": "1ffc3447e1f9f1ee9d67ddd785d0321aecb4c534eae859384dcc8a37426887a0"
+      }
+    },
+    {
+      "id": "CLM-1409",
+      "statement": "The reader's /read/ picker and known-catalog list, and the console switcher's refreshIdentity, all request readable=true.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"Reader (`/read/` picker and known-catalog list) and console switcher (`refreshIdentity`) pass `readable=true`.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/read/js/main.js",
+        "src/http/read/js/screens/catalogs.js",
+        "src/http/ui/js/core/shell.js"
+      ],
+      "tags": [
+        "from-issue:955",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2064",
+          "kind": "test",
+          "locator": "main.js:149, screens/catalogs.js:11, ui/js/core/shell.js:23; ui_e2e the_readers_picker_lists_only_the_catalogs_an_admin_may_read and the_switcher_offers... (ok)",
+          "summary": "All three call sites pass readable=true; the e2e journeys show an empty reader picker (#no-catalogs) while locked and an empty switcher, then the catalog once unlocked.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/screens/catalogs.js",
+              "lines": {
+                "start": 9,
+                "end": 12
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.365727681Z",
+          "seal": {
+            "by": "server",
+            "mac": "305afb3751681a66a00209f30a2d3cdbdc5416b0ccd77a46e9ed21981485402f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three call sites verified in code and exercised by passing e2e journeys.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2064"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.535791672Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc3952caf21997d3720cd9796f5e457e3ed93edc7cd08c302fb188071fe7c335"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.535791672Z",
+      "seal": {
+        "by": "server",
+        "mac": "245456a59505387f1cfc9389e90cfe429a9ed4490a0221c8d3e26121d111c1f4"
+      }
+    },
+    {
+      "id": "CLM-1410",
+      "statement": "The reader does not clear a stored catalog selection when the catalog leaves the readable list; a locked catalog reached by deep link still shows the \"Unlock in the console\" notice.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The reader does not clear a stored selection: a deep link to a locked catalog must still show its \\\"Unlock in the console\\\" notice.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/http/read/js/main.js",
+        "src/http/read/js/screens/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:955",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2065",
+          "kind": "inspection",
+          "locator": "src/http/read/js/main.js:30-60,149-152,205-207; src/http/read/js/screens/catalogs.js:11-19",
+          "summary": "Neither catalogList() nor the picker calls choose(null) or removes the stored catalog when it is absent from the list; main.js:207 still renders an 'Unlock in the console' link on UnlockRequired. Not covered by a test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 145,
+                "end": 156
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.446237481Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a8790b363467c41bb08ebe54f5389229bcdcdb2f018e3b3453d603a4977b2cf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No clearing code in the reader and the UnlockRequired link remains (inspection only, integrity 2).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2065"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.610297350Z",
+          "seal": {
+            "by": "server",
+            "mac": "ebe4ef599e57340809461a462563e994ff5d14fccd3eab16fb35a5d315e50548"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.610297350Z",
+      "seal": {
+        "by": "server",
+        "mac": "149223366736b13b9d6f7db351b8cb8812923ce5a06b4b74ff124d6212c4a285"
+      }
+    },
+    {
+      "id": "CLM-1411",
+      "statement": "docs/operations.md documents ?readable=true on GET /catalogs and GET /whoami (readable-now semantics, unchanged plain listings, exact paging, no read recorded).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`docs/operations.md` (\\\"Catalog listings are paginated\\\"); changelog entry.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:955",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2066",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4445-4460",
+          "summary": "Paragraph describes ?readable=true on /catalogs and /whoami, require_unlock behaviour, server clock, no read recorded, exact paging, unchanged plain listings and unchanged whoami admin fields, and that content routes still refuse.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4445,
+                "end": 4460
+              },
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55"
+            }
+          },
+          "recorded_at": "2026-11-25T10:19:54.530366502Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd297ea30e437e79dc17bb8723632ddacbbf484760115a14326dc1c2d8a8cabf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The added paragraph covers every listed point.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2066"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.684301686Z",
+          "seal": {
+            "by": "server",
+            "mac": "8addec045c7e40e5f4adc77699f35933292178137c0a0b934de632ea1b4c6310"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.684301686Z",
+      "seal": {
+        "by": "server",
+        "mac": "aed44212f2778002ac57024db36df675d012455db3f616d91cab4ffe8adbd53d"
+      }
+    },
+    {
+      "id": "CLM-1412",
+      "statement": "The directory, HTTP and ui_e2e regression tests fail with the fix reverted.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Both journeys and the directory/HTTP tests were seen to fail with the fix reverted.\"",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/unlocks.rs",
+        "src/http/api/readable_listing_tests.rs",
+        "src/cache/directory_listing_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2067",
+          "kind": "log",
+          "locator": "target/i955-logs/narrow3.log and ui2.log (author's logs, not re-run by me)",
+          "summary": "narrow3.log shows FAILED for the directory and HTTP readable tests and ui2.log FAILED for both e2e journeys (switcher 'locked catalogs are offered'), consistent with a reverted run, but the logs do not state what was reverted and I could not revert the code (audit may not edit files) to repeat it.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T10:19:54.608197124Z",
+          "seal": {
+            "by": "server",
+            "mac": "107cd89290f23598f97b7eafbd6e4d0cc3b9b6cc70f1b9b5d33c8006d68b2c9f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Author logs show failures but not what was reverted, and I could not repeat it. Fix: have the author rerun with the src changes reverted (git stash push -u -m tag or a scratch worktree) via gate.sh narrow and name the log files in the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2067"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.758521053Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbd3bfdef0a4cffd46b30b4fe80521851143af8f0897c85d6a70a48dd309bf8c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:20:25.758521053Z",
+      "seal": {
+        "by": "server",
+        "mac": "8ed4fc1fc0a8a1ecc809fa096aa4db8c697fa846f30dc14a24c8f128ae31e1fc"
+      }
+    },
+    {
+      "id": "CLM-1413",
+      "statement": "Every test that asserts the reader picker's listing path is consistent with the committed code: no test at the head commit still expects '/catalogs' without readable=true for the picker.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #955 AC7 regression tests cover both navigation surfaces; repository-wide universal check",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "tests/read_worker/catalogs.test.mjs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2068",
+          "kind": "test",
+          "locator": "git show HEAD:tests/read_worker/catalogs.test.mjs line 49 vs src/http/read/js/screens/catalogs.js:11; node --test tests/read_worker/catalogs.test.mjs on the working tree (5 pass)",
+          "summary": "At the head commit the worker test still asserts readAll path ['/catalogs','catalogs'] while the picker now calls '/catalogs?readable=true', so the committed test fails (just test-worker). The working tree has an UNCOMMITTED edit to tests/read_worker/catalogs.test.mjs (lines 40,49) that passes; it is not in origin/main..HEAD.",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "\\['/catalogs', 'catalogs'\\]",
+              "scope": [
+                "tests/read_worker/catalogs.test.mjs"
+              ],
+              "hits": 1,
+              "commit": "3e75bb4507433edee66e3abf2e5c9647c6ae6d55",
+              "dirty": true
+            }
+          },
+          "recorded_at": "2026-11-25T10:20:00.632446059Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ddbe23d25c9fe6f2ce1d398a16e800832a2cf2e34f0b47251970ed79727e759"
+          }
+        },
+        {
+          "id": "EVD-2072",
+          "kind": "test",
+          "locator": "node --test tests/read_worker/*.test.mjs (115 pass, 0 fail) at 01a599f; tests/ui_e2e/read.rs pause pattern",
+          "summary": "Head 01a599f commits the catalogs.test.mjs fix (zero hits of the old path pair at HEAD) and updates tests/ui_e2e/read.rs to pause '*/api/v1/catalogs?readable=true'. Whole reader worker suite passes 115/115 on a clean tree (only claims.json modified).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\\['/catalogs', 'catalogs'\\]",
+              "scope": [
+                "tests/read_worker/catalogs.test.mjs"
+              ],
+              "hits": 0,
+              "commit": "01a599f321cdf66e9ffe81b34266a9ab95c8d32a"
+            }
+          },
+          "recorded_at": "2026-11-25T10:28:40.562490074Z",
+          "seal": {
+            "by": "server",
+            "mac": "9de1fdbd4c5be715950491dd9eae3bf9de81c2ec7944805c32e1be93b207f1a8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The committed tests/read_worker/catalogs.test.mjs still expects '/catalogs' and fails against the changed picker; only an uncommitted working-tree edit fixes it. Fix: commit the change to tests/read_worker/catalogs.test.mjs (lines 40 and 49 to '/catalogs?readable=true') before the ledger commit, and run just test-worker.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2068"
+          ],
+          "recorded_at": "2026-11-25T10:20:25.832984931Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d060a5684f15c71baac2fe88927d3e4befe1b3958c0008b32f38bf8bce055d1"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Fix committed at 01a599f; worker suite 115/115 passes and the old path expectation is gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2072"
+          ],
+          "recorded_at": "2026-11-25T10:28:45.162149783Z",
+          "seal": {
+            "by": "server",
+            "mac": "421b3e1e12807f7df5963d87b2af8445c9e0608c87007db38717a6a179deee9f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T10:19:06.728801431Z",
+      "updated_at": "2026-11-25T10:28:45.162149783Z",
+      "seal": {
+        "by": "server",
+        "mac": "cf1c8069ef334ed74d293cbb45bb78e8e9c997fd8330a9692d9884fd4d6b43f6"
       }
     }
   ]

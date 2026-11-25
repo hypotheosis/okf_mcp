@@ -165,7 +165,7 @@ struct RecentQuery {
     limit: Option<u32>,
     /// The previous page's `next_after`; an unknown or malformed one is a 404.
     after: Option<String>,
-    /// Only this person's revisions: a user's id, or the id a revision shows for a deleted user.
+    /// Only this person's revisions: a user's id, or the `deleted:<id>` a revision shows for a deleted user.
     user: Option<String>,
     /// Only revisions at or after this RFC 3339 time; a bad one is a 409.
     since: Option<String>,
@@ -193,7 +193,7 @@ pub(crate) struct RecentChange {
     /// credential is `user_label`.
     pub actor_label: Option<String>,
     /// The person whose credential published it: their user id, or the
-    /// stored id of a deleted user; `None` when no person is recorded.
+    /// `deleted:<stored id>` of a deleted user; `None` when no person is recorded.
     pub user: Option<String>,
     /// The person's label; `None` with no `user`, or once that user is deleted.
     pub user_label: Option<String>,

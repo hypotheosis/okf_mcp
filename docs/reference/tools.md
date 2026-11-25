@@ -198,14 +198,14 @@ Get a concept: its frontmatter as JSON, its body and the body's size (`lines`, `
 
 **Document History** (read-only)
 
-A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
+A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `path` | string | yes | The document: `/infra/time-server.md`, `infra/time-server`, `/log.md`. |
 | `catalog` | string | no | The catalog id (the `name` from `list_catalogs`; default: the first selected catalog with any revision of it; when `list_catalogs` shows an empty selection, pass `catalog`). |
 | `limit` | integer | no | At most this many revisions (default 20, at most 200; 0 counts as 1). |
-| `user` | string | no | Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or the id a revision shows for a user since deleted. |
+| `user` | string | no | Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or, for a user since deleted, the `deleted:<id>` a revision shows. A bare value is always a name. |
 | `since` | string | no | Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`). |
 
 ## `index`
@@ -510,14 +510,14 @@ Read the raw text of an index.md (default /index.md), log.md or AGENTS.md. Witho
 
 **Recent Changes** (read-only)
 
-A catalog's published revisions across every document, newest first: path, revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published it (null for an import or a key no user owned); `actor` names the credential. Filter with `user` (a user's id) and `since` (RFC 3339, inclusive). A page holds `limit` revisions (default 50, at most 200); pass `next_after` as `after` for the next page. Uses `catalog`, else the first selected catalog. Published history only: an open changeset shows in `pending_changes`.
+A catalog's published revisions across every document, newest first: path, revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published it (null for an import or a key no user owned); `actor` names the credential. Filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). A page holds `limit` revisions (default 50, at most 200); pass `next_after` as `after` for the next page. Uses `catalog`, else the first selected catalog. Published history only: an open changeset shows in `pending_changes`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `catalog` | string | no | The catalog id (the `name` from `list_catalogs`; default: the first selected catalog; when `list_catalogs` shows an empty selection, pass `catalog`). |
 | `limit` | integer | no | At most this many revisions in the page (default 50, at most 200; 0 counts as 1). |
 | `after` | string | no | The previous page's `next_after`, to continue after it. |
-| `user` | string | no | Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or the id a revision shows for a user since deleted. |
+| `user` | string | no | Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or, for a user since deleted, the `deleted:<id>` a revision shows. A bare value is always a name. |
 | `since` | string | no | Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`). |
 
 ## `remove_source`

@@ -2425,9 +2425,14 @@ misattributes an old revision.
   key to another user afterwards changes nothing already recorded.
 - **Deleting a user keeps it.** There is no foreign key: deleting a user
   leaves `revisions.user_id` as it was, so the revision still names that user.
-  The user's name and label no longer resolve, so history shows the stored `users.id`
-  (a uuid) as `user` and `null` as `user_label`. Giving a deleted user's id to
-  the `user` filter still finds their revisions; their old name does not. This
+  The user's name and label no longer resolve, so history shows
+  `deleted:<users.id>` (the stored uuid) as `user` and `null` as `user_label`.
+  Passing that exact value as the `user` filter finds their revisions; their
+  old name does not. The prefix keeps names and stored ids apart: a name is
+  `[a-z0-9-]+`, so no name has a colon, and a bare `user` is always a name. A
+  user created later with a name equal to a deleted user's uuid (a uuid is a
+  valid name) is that new user for the filter, and `deleted:<uuid>` is still
+  the deleted one. A bare value no user has as a name matches nothing. This
   may be revisited for privacy.
 - **Existing revisions.** Catalog migration 0004 fills `user_id` from the
   changeset's key (`changesets.key_id` to `api_keys.user_id`) where that
@@ -2452,7 +2457,7 @@ misattributes an old revision.
   the same readers who already see its actors; the person's display name and
   user id reach them even when the credential is an OAuth grant or a key.
 - **Filters.** `history` and the HTTP history route take `user` (a user's
-  id, or the id a revision shows for a deleted user) and `since` (an RFC 3339
+  id, or `deleted:<id>` as a revision shows a deleted user) and `since` (an RFC 3339
   time; a revision made at that time counts). A path whose revisions the
   filters exclude answers an empty list. `recent_changes` and the HTTP
   `recent-changes` route list a catalog's revisions across every path, newest

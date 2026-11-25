@@ -23,7 +23,7 @@ use crate::mcp::{reply, OkfServer};
 use crate::okf::paths::{escapes_root, normpath};
 use crate::store::audit::AccessKind;
 use crate::store::history::{recent_by, revisions_by, Filter, RecentCursor, RecentRow, RECENT_MAX};
-use crate::store::users::{filter_id, names_by_ids};
+use crate::store::users::{filter_id, names_by_ids, DELETED_USER_PREFIX};
 
 /// The design's default `limit`.
 const DEFAULT_LIMIT: u32 = 20;
@@ -42,7 +42,7 @@ pub struct HistoryParams {
     pub catalog: Option<String>,
     /// At most this many revisions (default 20, at most 200; 0 counts as 1).
     pub limit: Option<u32>,
-    /// Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or the id a revision shows for a user since deleted.
+    /// Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or, for a user since deleted, the `deleted:<id>` a revision shows. A bare value is always a name.
     pub user: Option<String>,
     /// Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`).
     pub since: Option<String>,
@@ -59,7 +59,7 @@ pub struct Revision {
     pub actor: String,
     /// The label of the actor when the actor is itself a user (a console session); null for a key or OAuth actor. The person behind any credential is `user_label`.
     pub actor_label: Option<String>,
-    /// The person whose credential published it: their id. For a user since deleted this is their `users.id`, which has no label. Null when no person is recorded (an import, a key no user owned, an older revision).
+    /// The person whose credential published it: their id. For a user since deleted this is `deleted:` and their stored `users.id`, which has no label; pass it back as the `user` filter. Null when no person is recorded (an import, a key no user owned, an older revision).
     pub user: Option<String>,
     /// The person's label: say this to people. Null with no `user`, or once that user is deleted.
     pub user_label: Option<String>,
@@ -166,7 +166,7 @@ impl Persons {
     /// * `labels` - the labels [`Persons::want`] asked for.
     ///
     /// # Returns
-    /// `(user, user_label)`: the user's name and label; the stored id and no
+    /// `(user, user_label)`: the user's name and label; `deleted:<stored id>` and no
     /// label for a deleted user; both `None` with no person recorded.
     #[tracing::instrument(level = "trace", skip_all)]
     pub(crate) fn show(
@@ -179,7 +179,7 @@ impl Persons {
         };
         match self.names.get(id) {
             Some(name) => (Some(name.clone()), labels.user(name).map(str::to_string)),
-            None => (Some(id.to_string()), None),
+            None => (Some(format!("{DELETED_USER_PREFIX}{id}")), None),
         }
     }
 }
@@ -337,7 +337,7 @@ pub struct RecentParams {
     pub limit: Option<u32>,
     /// The previous page's `next_after`, to continue after it.
     pub after: Option<String>,
-    /// Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or the id a revision shows for a user since deleted.
+    /// Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or, for a user since deleted, the `deleted:<id>` a revision shows. A bare value is always a name.
     pub user: Option<String>,
     /// Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`).
     pub since: Option<String>,
@@ -356,7 +356,7 @@ pub struct RecentChange {
     pub actor: String,
     /// The label of the actor when the actor is itself a user (a console session); null for a key or OAuth actor. The person behind any credential is `user_label`.
     pub actor_label: Option<String>,
-    /// The person whose credential published it: their id. For a user since deleted this is their `users.id`, which has no label. Null when no person is recorded (an import, a key no user owned, an older revision).
+    /// The person whose credential published it: their id. For a user since deleted this is `deleted:` and their stored `users.id`, which has no label; pass it back as the `user` filter. Null when no person is recorded (an import, a key no user owned, an older revision).
     pub user: Option<String>,
     /// The person's label: say this to people. Null with no `user`, or once that user is deleted.
     pub user_label: Option<String>,
@@ -492,7 +492,7 @@ impl OkfServer {
                        their history; log.md, indexes and other files have one too. Without \
                        `catalog`, the first selected catalog with any revision of the path \
                        answers. At most `limit` revisions (default 20, at most 200); filter with \
-                       `user` (a user's id) and `since` (RFC 3339, inclusive). For a catalog's \
+                       `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's \
                        changes across documents, use `recent_changes`.",
         annotations(
             title = "Document History",
@@ -518,7 +518,7 @@ impl OkfServer {
                        path, revision, op (create, update, delete, import), actor, user, \
                        user_label, message and time. `user` is the person whose credential \
                        published it (null for an import or a key no user owned); `actor` names \
-                       the credential. Filter with `user` (a user's id) and `since` (RFC 3339, \
+                       the credential. Filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, \
                        inclusive). A page holds `limit` revisions (default 50, at most 200); pass \
                        `next_after` as `after` for the next page. Uses `catalog`, else the first \
                        selected catalog. Published history only: an open changeset shows in \

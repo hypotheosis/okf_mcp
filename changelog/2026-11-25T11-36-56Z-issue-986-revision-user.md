@@ -17,7 +17,7 @@ and `actor_label` was null for it, so nothing said which person made a change.
   publisher's user) on every revision; `actor` is unchanged. An import,
   `repair-indexes` and starter files record none.
 - **Showing it.** `history`, the new `recent_changes` tool and the HTTP history
-  and recent-changes routes give `user` (the user's name; the stored id for a
+  and recent-changes routes give `user` (the user's name; `deleted:<stored id>` for a
   deleted user) and `user_label`. `list_changesets` and `pending_changes` give
   the opener's `user` and `user_label`, read from the key now. The `actor_label`
   descriptions now say it labels a user actor.
@@ -39,3 +39,10 @@ and `actor_label` was null for it, so nothing said which person made a change.
   blocked in `pg_advisory_lock` is an open transaction, and the holder's
   `CREATE INDEX CONCURRENTLY` (0005) waits for it, so the two deadlocked and
   the build was aborted when several starts met a store that needed 0005.
+- **Names and stored ids stay apart (review of PR #1053).** A user name is
+  `[a-z0-9-]+`, so a uuid is a valid name: a user created after A's deletion
+  could be named A's id, and a bare id filter would have found that user's
+  revisions. History now shows a deleted user as `deleted:<users.id>` (no
+  name has a colon) and the `user` filter takes that form as a stored id; a
+  bare value is always a name, and a name nobody has matches nothing, so it
+  is never read as an id. Test: the collision created after deleting A.

@@ -421,14 +421,25 @@ pub async fn names_by_ids<'e>(
     Ok(rows.into_iter().collect())
 }
 
-/// The `users.id` a `user` filter means: the id of the user with that name,
-/// else the text itself, so a deleted user's id (which readers are shown in
-/// place of a name) filters as it reads. An id no revision records matches
-/// nothing.
+/// The prefix of the form in which history shows a deleted user's stored id
+/// (`deleted:<users.id>`), and in which the `user` filter takes one. A name
+/// is `[a-z0-9-]+`, so no name can carry the colon: a bare `user` is always
+/// a name, and a name that equals some deleted user's id (a UUID is a valid
+/// name) cannot be taken for that id.
+pub const DELETED_USER_PREFIX: &str = "deleted:";
+
+/// What `revisions.user_id` is compared with when a `user` names nobody: no
+/// row holds an empty id, so the filter matches nothing.
+pub const NO_USER_ID: &str = "";
+
+/// The `users.id` a `user` filter means: `deleted:<id>` is that stored id
+/// (a deleted user's, as history shows it), and anything else is a user's
+/// name, resolved to the id of the user who has it now. A name nobody has
+/// matches nothing ([`NO_USER_ID`]); it is never read as an id.
 ///
 /// # Arguments
 /// * `executor` - a `&PgPool`, or `&mut *tx`.
-/// * `user` - the caller's `user` argument: a user's name, or an id.
+/// * `user` - the caller's `user` argument.
 ///
 /// # Returns
 /// The id to compare `revisions.user_id` with.
@@ -443,19 +454,21 @@ pub async fn filter_id<'e>(
     // A NUL is refused by Postgres as a database error: no name or id has one.
     if user.contains('\0') {
         return Err(OkfError::Refused {
-            reason: "`user` is a user's name or id".to_string(),
+            reason: "`user` is a user's name, or `deleted:<id>`".to_string(),
         });
     }
-    // A malformed name never reaches SQL ([`id_by_name`]); it can still be
-    // an id.
+    if let Some(id) = user.strip_prefix(DELETED_USER_PREFIX) {
+        return Ok(id.to_string());
+    }
+    // A malformed name never reaches SQL ([`id_by_name`]).
     if !is_valid_name(user) {
-        return Ok(user.to_string());
+        return Ok(NO_USER_ID.to_string());
     }
     let found: Option<String> = sqlx::query_scalar("SELECT id FROM users WHERE name = $1")
         .bind(user)
         .fetch_optional(executor)
         .await?;
-    Ok(found.unwrap_or_else(|| user.to_string()))
+    Ok(found.unwrap_or_else(|| NO_USER_ID.to_string()))
 }
 
 /// Ends every console session of the user called `name` (an admin's "sign

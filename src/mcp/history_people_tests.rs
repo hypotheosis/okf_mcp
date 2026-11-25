@@ -196,7 +196,8 @@ async fn deleting_the_user_keeps_the_record_and_history_shows_the_id() {
         None,
     );
     let after = revisions_of(&reader, "n.md").await;
-    assert_eq!(after[0].user.as_deref(), Some(carol.as_str()), "the id");
+    let shown = format!("deleted:{carol}");
+    assert_eq!(after[0].user.as_deref(), Some(shown.as_str()), "the id");
     assert_eq!(after[0].user_label, None, "no label resolves any more");
     let stored: Option<String> =
         sqlx::query_scalar("SELECT user_id FROM catalog.revisions WHERE path = 'n.md'")
@@ -205,7 +206,7 @@ async fn deleting_the_user_keeps_the_record_and_history_shows_the_id() {
             .unwrap();
     assert_eq!(stored.as_deref(), Some(carol.as_str()));
     // The id the revision shows filters as it reads; the gone name does not.
-    let by_id = recent_changes(&reader, recent_of(Some(&carol)))
+    let by_id = recent_changes(&reader, recent_of(Some(&shown)))
         .await
         .unwrap();
     let by_name = recent_changes(&reader, recent_of(Some("carol")))
@@ -213,6 +214,59 @@ async fn deleting_the_user_keeps_the_record_and_history_shows_the_id() {
         .unwrap();
     assert_eq!(paths(&by_id), ["/n.md"]);
     assert!(by_name.changes.is_empty());
+}
+
+/// A user name may equal a deleted user's stored id (both are `[a-z0-9-]+`
+/// text): the bare value is the new user, and `deleted:<id>` the old one.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_name_equal_to_a_deleted_users_id_does_not_take_over_their_revisions() {
+    let test = pg().await;
+    let carol = user(&test, "carol").await;
+    let carol_ctx = writer_of(&test, "carol-key", "carol", &carol).await;
+    publish_file(&test, &carol_ctx, "carols.md").await;
+    users::delete(
+        test.app.accounts().executor(),
+        "carol",
+        DeleteOptions::default(),
+        &AuditActor::cli(),
+        Utc::now(),
+    )
+    .await
+    .expect("delete the user");
+    // User B, named like A's stored id, publishes too.
+    let imposter = user(&test, &carol).await;
+    let imposter_ctx = writer_of(&test, "imposter-key", &carol, &imposter).await;
+    publish_file(&test, &imposter_ctx, "theirs.md").await;
+    let reader = context(
+        &test,
+        principal_as("reader", Access::Read, &[], Some("pg")),
+        None,
+    );
+    let shown = format!("deleted:{carol}");
+
+    let carols_shown = revisions_of(&reader, "carols.md").await;
+    let theirs_shown = revisions_of(&reader, "theirs.md").await;
+    let bare = recent_changes(&reader, recent_of(Some(&carol)))
+        .await
+        .unwrap();
+    let explicit = recent_changes(&reader, recent_of(Some(&shown)))
+        .await
+        .unwrap();
+    let unknown = recent_changes(&reader, recent_of(Some("nobody-at-all")))
+        .await
+        .unwrap();
+
+    assert_eq!(carols_shown[0].user.as_deref(), Some(shown.as_str()));
+    assert_eq!(theirs_shown[0].user.as_deref(), Some(carol.as_str()));
+    assert_eq!(paths(&bare), ["/theirs.md"], "a bare value is a name");
+    assert_eq!(paths(&explicit), ["/carols.md"]);
+    assert!(unknown.changes.is_empty());
+    // And a bare name nobody has is not read as a stored id.
+    let id_as_name = format!("{}x", &carol[..carol.len() - 1]);
+    let none = recent_changes(&reader, recent_of(Some(&id_as_name)))
+        .await
+        .unwrap();
+    assert!(none.changes.is_empty());
 }
 
 #[tokio::test(flavor = "multi_thread")]

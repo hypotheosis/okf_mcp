@@ -31,44 +31,46 @@
                 <span class="brand"></span>
                 <span class="brand-sub">Catalog console</span>
             </div>
-            <label class="catalog-switch">Catalog
-                <select id="catalog-select"></select>
-            </label>
-            <a class="nav-link" data-nav="health" href="#/health">Health</a>
-            <a class="nav-link" data-nav="browse" href="#/browse">Browse</a>
-            <a class="nav-link" data-nav="recent" href="#/recent">Recent changes</a>
-            <a class="nav-link" data-nav="search" href="#/search">Search</a>
-            <a class="nav-link" data-nav="transfer" href="#/transfer">Import &amp; export</a>
+            <form id="sidebar-search" class="sidebar-search" role="search">
+                <svg class="search-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="10" y1="10" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <input id="sidebar-search-input" type="search" name="q" autocomplete="off" placeholder="Search" aria-label="Search the catalogs">
+            </form>
             <div class="nav-group">
-                <span class="nav-group-label">Maintenance</span>
+                <span class="nav-group-label">Catalogs</span>
+                <a class="nav-link" data-nav="browse" href="#/browse">Browse</a>
+                <a class="nav-link" data-nav="recent" href="#/recent">Recent changes</a>
+                <a class="nav-link" data-nav="transfer" href="#/transfer">Import &amp; export</a>
+                <label class="catalog-switch">Catalog
+                    <select id="catalog-select"></select>
+                </label>
+            </div>
+            <div class="nav-group">
+                <span class="nav-group-label">Records</span>
                 <a class="nav-link" data-nav="findings" href="#/findings">Findings <span id="findings-badge" class="nav-badge" hidden></span></a>
                 <a class="nav-link" data-nav="runs" href="#/runs">Runs</a>
                 <a class="nav-link" data-nav="changesets" href="#/changesets">Changesets</a>
-            </div>
-            <div class="nav-group" data-need="session" hidden>
-                <span class="nav-group-label">Your account</span>
-                <a class="nav-link" data-nav="my-keys" href="#/my-keys">My keys</a>
-                <a class="nav-link" data-nav="my-grants" href="#/my-grants">My grants</a>
-                <a class="nav-link" data-nav="account" href="#/account">Account</a>
-                <a id="billing-link" class="nav-link" target="_blank" rel="noopener noreferrer" hidden>Billing</a>
+                <div data-need="audit" hidden>
+                    <a class="nav-link" data-nav="audit" href="#/audit">Audit</a>
+                </div>
+                <div data-need="records" hidden>
+                    <a class="nav-link" data-nav="unlocks" href="#/unlocks">Unlocks</a>
+                </div>
             </div>
             <div class="nav-group" data-need="admin" hidden>
                 <span class="nav-group-label">Administer</span>
-                <a class="nav-link" data-nav="catalogs" href="#/catalogs">Catalogs</a>
                 <a class="nav-link" data-nav="keys" href="#/keys">API keys</a>
                 <a class="nav-link" data-nav="users" href="#/users">Users <span id="unassigned-badge" class="nav-badge" hidden></span></a>
                 <a class="nav-link" data-nav="teams" href="#/teams">Teams</a>
                 <a class="nav-link" data-nav="settings" href="#/settings">Settings</a>
             </div>
-            <div class="nav-group" data-need="records" hidden>
-                <span class="nav-group-label">Records</span>
-                <div data-need="audit" hidden>
-                    <a class="nav-link" data-nav="audit" href="#/audit">Audit</a>
+            <div class="nav-group" data-need="account" hidden>
+                <span class="nav-group-label">Your account</span>
+                <div data-need="session" hidden>
+                    <a class="nav-link" data-nav="my-keys" href="#/my-keys">My keys</a>
+                    <a class="nav-link" data-nav="my-grants" href="#/my-grants">My grants</a>
+                    <a class="nav-link" data-nav="account" href="#/account">Account</a>
+                    <a id="billing-link" class="nav-link" target="_blank" rel="noopener noreferrer" hidden>Billing</a>
                 </div>
-                <a class="nav-link" data-nav="unlocks" href="#/unlocks">Unlocks</a>
-            </div>
-            <div class="nav-group" data-need="owner" hidden>
-                <span class="nav-group-label">Your teams</span>
                 <a class="nav-link" data-nav="catalogs" href="#/catalogs">Catalogs</a>
             </div>
             <div class="nav-group help-links">

@@ -1,10 +1,11 @@
-// Health (the landing page): five tiles from GET /catalogs/{c}/health, then
-// one report table at a time, switched by a segmented control. A row opens
-// its concept in Browse. Every number is computed by the server.
+// The Health section of Recent changes (#/recent; #/health redirects
+// there): five tiles from GET /catalogs/{c}/health, then one report table at
+// a time, switched by a segmented control. A row opens its concept in
+// Browse. Every number is computed by the server. Its reads fail on their
+// own: a failed tile or report says so in its place and nothing else on
+// the page is touched.
 import { h, clear, pill } from '../core/dom.js';
 import { api, enc } from '../core/api.js';
-import { store } from '../core/store.js';
-import { catalogLabel } from '../core/labels.js';
 import { ago, count } from '../core/format.js';
 import { go, browseHash } from '../core/router.js';
 import { listTable } from '../components/list-table.js';
@@ -117,17 +118,17 @@ async function loadTiles(catalog, tiles) {
     }
 }
 
-export async function render(main) {
-    const catalog = store.catalog;
-    main.append(h('header', { class: 'page-head' },
-        h('div', {}, h('h1', {}, 'Health'), h('p', { class: 'muted' }, catalog ? `Catalog ${catalogLabel(catalog)}` : 'No catalog selected.')),
-        catalog
-            ? h('div', { class: 'actions' }, h('button', {
-                type: 'button', id: 'health-refresh', class: 'secondary',
-                onclick: () => { render(clear(main)); },
-            }, 'Refresh'))
-            : null));
-    if (!catalog) return;
+// Draws the section into `section` (an empty element) for `catalog`, which
+// is not null. Its Refresh button draws it again from scratch, so the
+// cached reports are read anew. Resolves once the tiles and the first
+// report have loaded or failed.
+export async function renderHealth(section, catalog) {
+    section.append(h('header', { class: 'section-head' },
+        h('h2', {}, 'Health'),
+        h('button', {
+            type: 'button', id: 'health-refresh', class: 'secondary',
+            onclick: () => { renderHealth(clear(section), catalog); },
+        }, 'Refresh')));
 
     const tiles = h('section', { class: 'tiles', id: 'health-tiles' }, h('p', { class: 'muted' }, 'Loading...'));
     const holder = h('section', { id: 'health-report' });
@@ -154,6 +155,6 @@ export async function render(main) {
     }
 
     const switcher = segments(Object.entries(REPORTS).map(([value, spec]) => ({ value, label: spec.label })), 'lint', show);
-    main.append(tiles, switcher, holder);
+    section.append(tiles, switcher, holder);
     await Promise.all([loadTiles(catalog, tiles), show('lint')]);
 }

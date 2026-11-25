@@ -1,8 +1,8 @@
 // Boot: theme, sign-in, the shell, the router.
 import { $ } from './core/dom.js';
 import { store } from './core/store.js';
-import { api, ApiError, authHeaders, setUnauthorizedHandler } from './core/api.js';
-import { start, route } from './core/router.js';
+import { api, enc, ApiError, authHeaders, setUnauthorizedHandler } from './core/api.js';
+import { start, route, go, parse } from './core/router.js';
 import { closeDrawer } from './core/drawer.js';
 import { forgetLabels } from './core/labels.js';
 import { toast } from './core/toast.js';
@@ -35,11 +35,19 @@ function showLogin(message) {
     error.hidden = !message;
 }
 
+// The sidebar search box shows the query of the search page on screen, so a
+// reloaded or linked search reads as one; elsewhere it keeps what was typed.
+function syncSidebarSearch() {
+    const { page, rest } = parse(location.hash);
+    if (page === 'search') $('#sidebar-search-input').value = rest.join('/');
+}
+
 async function enter() {
     await refreshIdentity();
     $('#login').hidden = true;
     $('#app').hidden = false;
     await start();
+    syncSidebarSearch();
     refreshFindingsBadge();
     refreshUnassigned();
 }
@@ -113,6 +121,7 @@ function signedOut(message) {
     store.csrf = null;
     store.session = null;
     history.replaceState(null, '', '/ui/');
+    $('#sidebar-search-input').value = '';
     showLogin(message);
 }
 setSignedOutHandler(signedOut);
@@ -139,6 +148,15 @@ $('#catalog-select').addEventListener('change', event => {
     route();
     refreshFindingsBadge();
 });
+// Enter in the sidebar search shows the results in the main panel at the
+// shareable #/search/<query>; a repeated query reads again (go()). A blank
+// box does nothing, so no request goes out.
+$('#sidebar-search').addEventListener('submit', event => {
+    event.preventDefault();
+    const text = $('#sidebar-search-input').value.trim();
+    if (text) go(`#/search/${enc(text)}`);
+});
+addEventListener('hashchange', syncSidebarSearch);
 $('#drawer-scrim').addEventListener('click', closeDrawer);
 addEventListener('keydown', event => { if (event.key === 'Escape') closeDrawer(); });
 

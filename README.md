@@ -422,11 +422,11 @@ sign out (or only in memory for the page's lifetime, where storage is
 blocked), so sign out on a shared machine; an account session is an
 `HttpOnly` cookie.
 
-The Health page shows lint, sprawl, link, staleness and open-question counts,
-with each report one click away.
+Recent changes opens with the catalog's health: lint, sprawl, link, staleness
+and open-question counts, with each report one click away.
 
 Catalogs can be created, described and deleted from the console's
-Administer group. Import & export, in the main navigation, exports any
+Your account > Catalogs page (admins). Import & export, in the main navigation, exports any
 catalog you can read and imports into any you can write, with no archive
 piped through a shell on the server.
 A suspended catalog's import is open to admins only, and the page says so.
@@ -437,7 +437,7 @@ reopened) and runs inspected from the browser.
 The Records group holds the audit log (every entry for an admin, a team's
 own entries for its owners) and the unlocks; a locked catalog offers Unlock
 where it is refused, and a team's owners turn a catalog's maintenance on or
-off from Your teams > Catalogs.
+off from Your account > Catalogs.
 
 Every console action is an `/api/v1` call with the same credential (the
 bearer key, or the session cookie with its `X-OKF-CSRF` header on writes), so

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1474,
+  "next_claim_seq": 1499,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "85d77be29279bc4bf0f6d997a4195f875c8ae5f9a61e8a3a7029a27546229e92"
+    "mac": "c5e5be03322eb4a9faea34db38cc9905c12d616475021f1bcef9f0d6630aab8c"
   },
-  "next_evidence_seq": 2185,
+  "next_evidence_seq": 2228,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "52cb660aa505e235abe0109988ebb113f76754bb25196880fe161e232691b2a5"
+    "mac": "f9ae57bb1a07beb4c55f48aa48b946ef16372e13561084166c1257ed0e0b06f7"
   },
   "claims": [
     {
@@ -117936,6 +117936,28 @@
             "by": "server",
             "mac": "58c651b306a3469914c90e1efbc8f9fcf9e5c5072cbcd9d9ce47a3f447ec97be"
           }
+        },
+        {
+          "id": "EVD-2226",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:66-75; tests/ui_e2e/help.rs:92-96 (ui2.log:86 help::the_billing_link_shows_for_a_member_and_not_for_a_key ... ok)",
+          "summary": "At HEAD #billing-link is still inside data-need=session within the data-need=account group labelled Your account; the Administer group (data-need=admin, lines 59-65) does not contain it. The help.rs member test still asserts Administer hidden and the link visible, and passed in the 291-test run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 59,
+                "end": 75
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:19:41.962506277Z",
+          "seal": {
+            "by": "server",
+            "mac": "38fd9b19769750907dc444c6026aaec87b2ce702328033f274cbadeb7dfa9a5f"
+          }
         }
       ],
       "verdicts": [
@@ -117952,13 +117974,26 @@
             "by": "server",
             "mac": "a9d3339ea0ac1971e3e5bb164210e1a7ac56331856e7dcbbaa0e7d4e9b585933"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on the head commit after the index.html rewrite: Billing is still in Your account behind the session gate, not in Administer, and the test still passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2226"
+          ],
+          "recorded_at": "2026-11-25T22:19:46.652583732Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d4065ddd746635ebfef8d787dc2edd0c75e9d9845bce21331d5697236c056c5"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:26:11.814228461Z",
+      "updated_at": "2026-11-25T22:19:46.652583732Z",
       "seal": {
         "by": "server",
-        "mac": "10908651cc9949a1688568bd28927bd1bce4a6259614b5e7b732eb0f883def1b"
+        "mac": "3dd7fc35aa99c44ed91fcde127b6dc3f0e32567c1f8c464d77dddc78be5073f7"
       }
     },
     {
@@ -119715,6 +119750,2017 @@
       "seal": {
         "by": "server",
         "mac": "3a4d89f144c9fb8b2220344333320d4ce1bb5c0534e5dfa07b57266500507e26"
+      }
+    },
+    {
+      "id": "CLM-1474",
+      "statement": "Issue #989 is delivered: the console sidebar is reorganized around search, catalogs, records and account, with Health folded into Recent changes.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/989 (groomed body, Acceptance criteria)",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "src/http/ui/js/main.js",
+        "src/http/ui/js/core/shell.js",
+        "src/http/ui/js/core/router.js",
+        "src/http/ui/js/pages/recent.js",
+        "src/http/ui/js/components/health.js"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2227",
+          "kind": "analysis",
+          "locator": "children of CLM-1474",
+          "summary": "Children cover the issue's acceptance criteria: order and removals (CLM-1475, 1476, 1477), search (1478-1481), selector (1482), Health in Recent changes (1483-1485), routes (1486, 1487), visibility (1488, 1489), tests (1490), and the PR's factual statements (1491-1498). All are supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:19:42.048350991Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3d4cf5d8e33fb9684650ec64b41644834e43d8080e386c2eb8636c32b4fdf70"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every child is supported by evidence gathered at HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2227"
+          ],
+          "recorded_at": "2026-11-25T22:19:46.789236966Z",
+          "seal": {
+            "by": "server",
+            "mac": "886bf16e9b0a190e0316d8237b80a8d91fa7d49c31671210f6063e740df16bf2"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:46.789236966Z",
+      "seal": {
+        "by": "server",
+        "mac": "701d80ea385e9931adf2f6170c9aa59cb1e6cdd98395d8daddfc75347f93f900"
+      }
+    },
+    {
+      "id": "CLM-1475",
+      "statement": "The sidebar lists, in order beneath the branding: a search box; Catalogs (Browse, Recent changes, Import & export, then the catalog selector); Records (Findings, Runs, Changesets, Audit, Unlocks); Administer; Your account (My keys, My grants, Account, Billing, Catalogs); then help and footer.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #989 AC1; PR body Changes: \"sidebar order is a search box, Catalogs (Browse, Recent changes, Import & export, catalog selector), Records (Findings, Runs, Changesets, Audit, Unlocks), Administer, Your account (My keys, My grants, Account, Billing, Catalogs)\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2185",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:34-87",
+          "summary": "Markup order after the brand block: form#sidebar-search; nav-group Catalogs (browse, recent, transfer, then label.catalog-switch with #catalog-select); group Records (findings, runs, changesets, audit, unlocks); group Administer (data-need=admin); group Your account (my-keys, my-grants, account, #billing-link, then Catalogs link); help-links group; sidebar-footer.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 34,
+                "end": 87
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:28.698051882Z",
+          "seal": {
+            "by": "server",
+            "mac": "b759246411ffff1a5ebbd7c6f64c1ef745ac6ebd9ffbf8cc5fca53d83166db25"
+          }
+        },
+        {
+          "id": "EVD-2186",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:53-110 (target/i989-logs/ui2.log:133 nav::an_admin_key_sees_search_then_catalogs_records_administer_and_account ... ok)",
+          "summary": "The rendered sidebar text for an admin key equals [search], Catalogs, Browse, Recent changes, Import & export, Records, Findings, Runs, Changesets, Unlocks, Administer, API keys, Users, Teams, Settings, Your account, Catalogs; passed. Audit, My keys/grants/Account and Billing are not exercised by this test (key sign-in), only by markup order.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 53,
+                "end": 110
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:28.783344818Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe366383bbcac845d18292b453633cd6bc5038159c994560337683c8e8d3adca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Markup order matches every group and link; the admin-key test asserts the rendered order for the links it can see.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2185",
+            "EVD-2186"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.361187112Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2f11cf70847ab0c691ccbbc432c7302c1fcb2c8105aceafc59cdd37649ad1d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.361187112Z",
+      "seal": {
+        "by": "server",
+        "mac": "bed86f9651e5083f0d0e444d2a82f7dc841f2c67ba18d1b2f1bb5cfe3dd531bf"
+      }
+    },
+    {
+      "id": "CLM-1476",
+      "statement": "No standalone Search, Health, Maintenance or Your teams navigation entry remains in the sidebar markup.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #989 AC1; PR body: \"No Search, Health, Maintenance or Your teams entries remain.\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2187",
+          "kind": "analysis",
+          "locator": "git grep -iE 'data-nav=\"(search|health)\"|Maintenance|Your teams|data-need=\"owner\"' -- src/http/ui/index.html",
+          "summary": "Zero matches in the sidebar markup for a search or health nav link, the Maintenance label, the Your teams label or the old owner gate.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "data-nav=\"(search|health)\"|Maintenance|Your teams|data-need=\"owner\"",
+              "case_insensitive": true,
+              "scope": [
+                "src/http/ui/index.html"
+              ],
+              "hits": 0,
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:28.870965931Z",
+          "seal": {
+            "by": "server",
+            "mac": "6961bb3ad2070c2e6529437ad48a3ff7e8aded4f3c2b45d373db618feadb26d0"
+          }
+        },
+        {
+          "id": "EVD-2188",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:83-93 (ui2.log:133 ok)",
+          "summary": "At runtime no a[data-nav=search] or a[data-nav=health] exists and the sidebar text contains neither Maintenance nor Your teams; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 83,
+                "end": 93
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:28.963542151Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b3c43686e556309584d332c7c9aeb8fc180444431e4e876b45d6a89c48c1acc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search of the sidebar markup plus the runtime assertion.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2187",
+            "EVD-2188"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.443740494Z",
+          "seal": {
+            "by": "server",
+            "mac": "1bd7d97fdcec78cc08599b9df4fb90e58db678965334dd7785adb016cedd0919"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.443740494Z",
+      "seal": {
+        "by": "server",
+        "mac": "c39dee82571df75a6858c7f8db3ad048de6055cec88422eb97de3c4045afbebc"
+      }
+    },
+    {
+      "id": "CLM-1477",
+      "statement": "The first sidebar item beneath the branding is an initially empty search input with an accessible name and a magnifying-glass icon.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #989 Sidebar and search item 1",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "src/http/ui/styles.css",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2189",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:34-37; src/http/ui/styles.css:75-77",
+          "summary": "form role=search is the first element after the brand block; it holds an inline SVG magnifier (aria-hidden) and input type=search with no value attribute, placeholder \"Search\" and aria-label \"Search the catalogs\"; CSS positions the icon inside the box.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 34,
+                "end": 37
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:29.048366255Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb6ec7a5dfaa24b18e09318789261a2f080f1a37b4a988248821e57840104b65"
+          }
+        },
+        {
+          "id": "EVD-2190",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:146-153 (ui2.log:135 ok)",
+          "summary": "After login the test asserts #sidebar-search-input value is the empty string; and the order test's first sidebar entry is the search form; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 146,
+                "end": 153
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:29.131467344Z",
+          "seal": {
+            "by": "server",
+            "mac": "146f2b509f6b6aa1495c165c56c90ba2f8981d83b2ec1fd53761f1691adebb31"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Input is first, empty, aria-labelled, with an SVG magnifier; test asserts empty value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2189",
+            "EVD-2190"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.521587949Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b454b04b58b3c6b383ab35ec5c4163ef4bf1ebb1134d0ba491db267940c5a24"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.521587949Z",
+      "seal": {
+        "by": "server",
+        "mac": "182d6ab5d957862094280ca143d05f45ef9c1d50f6204ef7f932f7bbe0385254"
+      }
+    },
+    {
+      "id": "CLM-1478",
+      "statement": "Enter in the sidebar search box navigates to #/search/<encoded trimmed query>, shows the results in the main panel, and a repeat of the same query reads again.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC2; PR body: \"Enter in the sidebar box goes to `#/search/<query>` (a repeat of the same query reads again)\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2191",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/main.js:154-158; src/http/ui/js/core/router.js:36-39",
+          "summary": "The form's submit handler prevents default, trims the box and calls go(`#/search/${enc(text)}`); go() sets location.hash, or calls route() when the hash is already identical, so the search page remounts and reads again.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 154,
+                "end": 158
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:49.931777376Z",
+          "seal": {
+            "by": "server",
+            "mac": "07f9c6e3d9f0ba07377776f6e9f4306977091283e14084256bdd040c2225b89f"
+          }
+        },
+        {
+          "id": "EVD-2192",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:161-176 (ui2.log:135 ok)",
+          "summary": "Fill \"alpha\", Enter: #search-count shows \"1 hit\", #search-results lists \"main /alpha.md\", location.hash is #/search/alpha; Enter again raises the /api/v1/search resource count above its earlier value. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 161,
+                "end": 176
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.027141314Z",
+          "seal": {
+            "by": "server",
+            "mac": "d040c5381cc6d676e5571fe6cf446ab8fdacb8ca6560ad5d3246d3b8f00cf540"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Handler code and a passing test that asserts hash, results and a second request on repeat.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2191",
+            "EVD-2192"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.603607709Z",
+          "seal": {
+            "by": "server",
+            "mac": "70997bd8365ae4f7f7a0fdfa256b145cef7bbafda6c1edd1a396c09c9723971b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.603607709Z",
+      "seal": {
+        "by": "server",
+        "mac": "2bd05485e9d5490b0024a4602dfbc67f1bf39bfd8f61189c66949345d553276c"
+      }
+    },
+    {
+      "id": "CLM-1479",
+      "statement": "A blank (empty or whitespace-only) sidebar search sends no search request and navigates nowhere.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC2; PR body: \"a blank box sends no request\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2193",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/main.js:154-158",
+          "summary": "go() is called only when the trimmed text is non-empty, so a blank or spaces-only box does nothing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 154,
+                "end": 158
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.148681127Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd5318e373b4f724337c5402eb5cdce7454472737939f09a45097bef1b402f0e"
+          }
+        },
+        {
+          "id": "EVD-2194",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:154-160 (ui2.log:135 ok)",
+          "summary": "Enter on an empty box, then on \"   \", leaves the /api/v1/search request count at 0 and the main panel without \"hit\"; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 154,
+                "end": 160
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.256917758Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e4ebfa4e888466b875bbf8471d95e34aea352c4e3be0adba3d8050cb6b07dd0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Guarded by a non-empty trimmed check; test asserts zero search requests for empty and whitespace input.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2193",
+            "EVD-2194"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.687578706Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7a2e9e353ad42ddb6ee0d2ca8f4f496491cf8f0bc8df3783c394e6de7981887"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.687578706Z",
+      "seal": {
+        "by": "server",
+        "mac": "e415b8942078d2037459892b918cb2540e2ce46038665566c378a49c05a7b401"
+      }
+    },
+    {
+      "id": "CLM-1480",
+      "statement": "A linked or reloaded #/search/<query> fills the sidebar box with that query, and a search result link still opens its concept in Browse.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC3; PR body: \"The box shows the query of a linked search.\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "src/http/ui/js/pages/search.js",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2195",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/main.js:40-43,50,159; src/http/ui/js/pages/search.js:63-64,118",
+          "summary": "syncSidebarSearch copies parse(location.hash).rest.join('/') into the box when the page is search, on boot and on every hashchange; search.js reads the query as rest.join('/') (same inverse of enc) and builds result links with browseHash.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 38,
+                "end": 51
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.337041417Z",
+          "seal": {
+            "by": "server",
+            "mac": "a20628dc2e04e1b58fc2a7e7465aa140c4c6a14db3c99553fee2ee00462f6801"
+          }
+        },
+        {
+          "id": "EVD-2196",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:176-192 (ui2.log:135 ok)",
+          "summary": "Clicking a result opens \"Alpha\" in Browse; opening /search/alpha afresh shows the hit count and the box value \"alpha\"; passed. A reload (page load at that hash) is the same boot path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 176,
+                "end": 192
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.435325044Z",
+          "seal": {
+            "by": "server",
+            "mac": "744b5a13604048e66a0e5c11b4f5c101cf36f602dc7df04939886bbba9f9cea8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Sync code on boot and hashchange, and a test that opens a deep link and clicks a result into Browse.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2195",
+            "EVD-2196"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.768719434Z",
+          "seal": {
+            "by": "server",
+            "mac": "03879c7539fd92a611ead24ac7af2e924935805abc9df2842d5e55685cf4e8d1"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.768719434Z",
+      "seal": {
+        "by": "server",
+        "mac": "c69222957d3915034d32f6c276566525aea0a27c2cb1b99da022daffe2abeb66"
+      }
+    },
+    {
+      "id": "CLM-1481",
+      "statement": "The search page's bounded catalog chooser and fan-out behavior (no catalogs= within the cap, chooser above it, an empty choice sends no request) is unchanged by this change.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC3 and Proposed approach (preserve fan-out behavior); Out of scope: fan-out limits",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/search.js",
+        "tests/ui_e2e/browse.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2197",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/http/ui/js/pages/search.js (empty, 0 lines)",
+          "summary": "search.js is not modified by the commit range, so its cap read, chooser and empty-choice handling are byte-identical to main.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/search.js",
+              "lines": {
+                "start": 57,
+                "end": 100
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.516747648Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b9f56ca9929594386c1476b5d771b70ec261d2e730780bac24fb22c768f7101"
+          }
+        },
+        {
+          "id": "EVD-2198",
+          "kind": "test",
+          "locator": "target/i989-logs/ui2.log:39-45 browse::search_within_the_cap_names_no_catalogs_and_shows_no_chooser, search_past_the_cap_asks_for_a_choice_and_limits_it, an_empty_choice_is_kept_and_searches_nothing, a_chosen_catalog_that_is_no_longer_reachable_drops_out_of_the_choice",
+          "summary": "The existing chooser and cap tests all pass in the 291-test test-ui run (they drive the search page's own form, not the sidebar box).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:17:50.597473729Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1bf5fdea4548d24f0e9b6df3a207489857d9bae818a8487e290c8a463c8baad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "search.js is untouched and its chooser/cap tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2197",
+            "EVD-2198"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.860237107Z",
+          "seal": {
+            "by": "server",
+            "mac": "8601767f3e3293e517216b4214cad4bcd3573c4866de0ba633371692f7e82ea8"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.860237107Z",
+      "seal": {
+        "by": "server",
+        "mac": "0d27b10ec2d4071f56a743353eb3076dcb726a62e767e065ffcaf2a8540e497f"
+      }
+    },
+    {
+      "id": "CLM-1482",
+      "statement": "The catalog selector sits in the Catalogs group after its links, and choosing another catalog switches the scoped views (Recent changes) to it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC4; PR body: \"the catalog selector in the Catalogs group still switches catalogs\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "src/http/ui/js/main.js",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2199",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:38-46; src/http/ui/js/main.js:146-151",
+          "summary": "#catalog-select is the last child of the Catalogs group after the transfer link; its change handler (unchanged) stores the catalog, calls route() and refreshes the findings badge.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 38,
+                "end": 46
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.682539744Z",
+          "seal": {
+            "by": "server",
+            "mac": "05d3e3a53c5879a654a39c1da8ee7a79cc51385e52ec72ca37856436e6f645e0"
+          }
+        },
+        {
+          "id": "EVD-2200",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:70-82,195-207 (ui2.log:134 ok)",
+          "summary": "The selector follows the transfer link inside the first nav-group; selecting \"other\" on Recent changes switches #recent-scope from main to other; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 195,
+                "end": 207
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:17:50.767574969Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b15dc1fca132f040c9da38c7f1fcb2778aa701e46c114008825fb3b1d3383a4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Selector placed after the links and switch test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2199",
+            "EVD-2200"
+          ],
+          "recorded_at": "2026-11-25T22:19:34.940395011Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fda2bbfc9a225eb63b12fcf21b1fcd6859d835a164eebf6d16493c48788ea42"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:34.940395011Z",
+      "seal": {
+        "by": "server",
+        "mac": "ebc06cf2e1a4c440543d1caff0fcec296a3a326ec9757357d86b61ff0d899029"
+      }
+    },
+    {
+      "id": "CLM-1483",
+      "statement": "Recent changes shows the complete Health content (five tiles, the Lint/Sprawl/Links/Oldest/Open questions reports with Browse row links) above the revision list.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC5; PR body: \"`renderHealth` is the top section of Recent changes with its own Refresh\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/recent.js",
+        "src/http/ui/js/components/health.js",
+        "tests/ui_e2e/health.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2201",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/recent.js:58-69; src/http/ui/js/components/health.js:125-158",
+          "summary": "recent.js appends section#health (renderHealth) before the Revision history heading, status and table. renderHealth keeps the pre-existing content: five tiles via loadTiles, segmented control over the five REPORTS with row links to Browse; the diff only changes its header, Refresh wiring and removes catalog/title handling.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/recent.js",
+              "lines": {
+                "start": 58,
+                "end": 69
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.127271835Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c52dab39ccd4e6a3e2ecb49f9e4ed8e05a32d25fd26a0258abb55de169cec35"
+          }
+        },
+        {
+          "id": "EVD-2202",
+          "kind": "test",
+          "locator": "tests/ui_e2e/health.rs:56-112 (ui2.log:83 health::health_tiles_match_the_api_and_a_row_opens_its_concept ... ok)",
+          "summary": "On #/recent the five tiles equal the API's counts, #health precedes #recent-table in document order, the Links report lists an orphan and a row opens its concept in Browse; passed. Reports other than Links/Lint are not individually exercised.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/health.rs",
+              "lines": {
+                "start": 56,
+                "end": 112
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.212376270Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5588a6ed1e5294edb7dbafecd438064fa7710272c2ca8c6d089d7a32cf9df43"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Health section precedes the list; content code retained; test checks tiles, order and a report row. Per-report coverage beyond Lint/Links is by unchanged code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2201",
+            "EVD-2202"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.023950177Z",
+          "seal": {
+            "by": "server",
+            "mac": "d10a266bede9b24fd9ba2a12a2b01b0a530c855ec09565548052249c156163d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.023950177Z",
+      "seal": {
+        "by": "server",
+        "mac": "83e4d7f7cd1d017de4f9d2f2e5037b368cc3bb22919b21577a9178f3299cac6f"
+      }
+    },
+    {
+      "id": "CLM-1484",
+      "statement": "Recent changes' own Refresh, Load older and revision drawers still work with Health on the page.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC5",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/recent.js",
+        "tests/ui_e2e/recent.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2203",
+          "kind": "test",
+          "locator": "target/i989-logs/ui2.log:212-216 recent::the_feed_lists_every_revision_newest_first_and_opens_each_diff, load_older_pages_through_ties_and_refresh_shows_a_new_change, an_overtaken_or_failed_refresh_keeps_the_newest_rows_and_their_cursor, a_late_answer_for_the_old_catalog_fills_neither_the_feed_nor_the_drawer, an_empty_catalog_and_a_failed_read_say_so",
+          "summary": "All five pre-existing Recent changes tests (rows, diff drawers, Load older, Refresh, failures) pass with Health rendered above the list. recent.rs itself is unchanged in the diff.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:18:13.292567370Z",
+          "seal": {
+            "by": "server",
+            "mac": "240587bdca6efbb89e493497d6b57f5f775a352129c5a66ab278c022a0092c2b"
+          }
+        },
+        {
+          "id": "EVD-2204",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/recent.js:58-69,147",
+          "summary": "The Recent changes refresh/loadOlder/openRevision code is untouched by the diff apart from appending health and the history heading; row handlers still target the same table.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/recent.js",
+              "lines": {
+                "start": 56,
+                "end": 70
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.379556191Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf7db624b33f16b799a3fd52443f2a051b8c00ac2f36cd3d087930aec6578375"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Existing recent tests pass unchanged and the page code is untouched beyond adding Health.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2203",
+            "EVD-2204"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.119624765Z",
+          "seal": {
+            "by": "server",
+            "mac": "332b1f84f6aa247133a88036060435da4f35173c5329747d51842e979dfaebe6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.119624765Z",
+      "seal": {
+        "by": "server",
+        "mac": "bd0e222a28be4d4309ea62208eb985cdfbf602957663e99511a77f14f2114ba4"
+      }
+    },
+    {
+      "id": "CLM-1485",
+      "statement": "Health and the revision list fail independently on Recent changes: a failed Health read leaves the list working, and Health's Refresh recovers it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 Health within Recent changes; PR body: \"Health and the revision list fail independently\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/recent.js",
+        "src/http/ui/js/components/health.js",
+        "tests/ui_e2e/health.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2205",
+          "kind": "test",
+          "locator": "tests/ui_e2e/health.rs:117-142 (ui2.log:82 health::a_failed_health_read_leaves_the_revision_list_working_and_refresh_recovers ... ok)",
+          "summary": "With the first GET /health forced to 503, #health-tiles says \"The counts could not be loaded.\", #recent-table still lists /systems/alpha.md, and clicking #health-refresh makes #n-lint visible; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/health.rs",
+              "lines": {
+                "start": 117,
+                "end": 142
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.467613536Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d657594eca45f71c76f72e635eb3ee9864be6640ede605072bf8fa1f24c1b6d"
+          }
+        },
+        {
+          "id": "EVD-2206",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/components/health.js:110-118,148-156; src/http/ui/js/pages/recent.js:60,147",
+          "summary": "loadTiles and the per-report loader each catch their own read failure and draw a muted message in their own place; renderHealth starts independently of refresh(), so neither area awaits the other before drawing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/components/health.js",
+              "lines": {
+                "start": 110,
+                "end": 158
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.551554688Z",
+          "seal": {
+            "by": "server",
+            "mac": "719b0dbf9224ef604a8bbf977f26b46ede2580420263867132d85d29cf167f54"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Forced Health failure leaves the list populated and Refresh recovers; code catches per-area.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2205",
+            "EVD-2206"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.195403063Z",
+          "seal": {
+            "by": "server",
+            "mac": "aaa7c5e79157bf9ce97f211615c40b6034fc3b3b22ba88fcf9a4ff3c9a8fe88a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.195403063Z",
+      "seal": {
+        "by": "server",
+        "mac": "fca295a30a6a828384b072ac6297159bdfe9e67407582470d5567a3954077bbc"
+      }
+    },
+    {
+      "id": "CLM-1486",
+      "statement": "The default route (empty hash) opens Browse, not Health.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #989 AC6; PR body: \"the default route is Browse\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/router.js",
+        "tests/ui_e2e/nav.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2207",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/router.js:14,59",
+          "summary": "DEFAULTS is now ['browse', 'keys']; an empty page takes the first one the build has.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/router.js",
+              "lines": {
+                "start": 12,
+                "end": 15
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.640733756Z",
+          "seal": {
+            "by": "server",
+            "mac": "d66a4c40e804c7ccb4c33533c6e0a54b66dae95632df1ddf69ec600e86e574a9"
+          }
+        },
+        {
+          "id": "EVD-2208",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:104-108 (ui2.log:133 ok)",
+          "summary": "ui.open(\"\") then #concept-title shows /index.md (Browse); passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 104,
+                "end": 108
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.725622781Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f87e1147d3972f41a42922837540d78e3a35e5180a942de798fba7f84dff1ac"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "DEFAULTS starts with browse and the test lands on Browse.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2207",
+            "EVD-2208"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.281393098Z",
+          "seal": {
+            "by": "server",
+            "mac": "47606d0035e58ef783418db38f25002b01537c74708cf84c48ba1d267a56d76a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.281393098Z",
+      "seal": {
+        "by": "server",
+        "mac": "9c62eae1a088f43a79340049a1247fab2a3a6f887f08af289cbaa30dba178916"
+      }
+    },
+    {
+      "id": "CLM-1487",
+      "statement": "#/health is rewritten to #/recent and shows Recent changes with Recent changes highlighted in the sidebar.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #989 AC6; PR body: \"`router.js`: `#/health` is rewritten to `#/recent`\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/router.js",
+        "tests/ui_e2e/health.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2209",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/router.js:50-60",
+          "summary": "route() replaces #/health by #/recent with history.replaceState and sets page to recent before the nav-link highlight loop runs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/router.js",
+              "lines": {
+                "start": 50,
+                "end": 60
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.810370785Z",
+          "seal": {
+            "by": "server",
+            "mac": "1418f093b50103c1b61e15ad050e39cbaf6fdac4623d3abb2e59c6c6ee4d74da"
+          }
+        },
+        {
+          "id": "EVD-2210",
+          "kind": "test",
+          "locator": "tests/ui_e2e/health.rs:59-75 (ui2.log:83 ok)",
+          "summary": "ui.open(\"/health\") ends with location.hash \"#/recent\", Health tiles visible and a[data-nav=recent] carrying the active class; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/health.rs",
+              "lines": {
+                "start": 59,
+                "end": 75
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:13.895113639Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c939cc5c5de0e8c8d49f50d44acc3966d41a80ddf6947342d152b1223cf8d88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rewrite in route() and a test asserting hash, content and active link.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2209",
+            "EVD-2210"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.366496109Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f68e4ae038a9eea19d9e5db271b3d81cd1c050b74b7140dfc42dce746001aa6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.366496109Z",
+      "seal": {
+        "by": "server",
+        "mac": "5dc470b0c0ac0b6705d77a86f81fcc2971a239e783aec99f0cabfe026e7af027"
+      }
+    },
+    {
+      "id": "CLM-1488",
+      "statement": "Findings, Runs and Changesets are unrestricted by data-need, while Audit and Unlocks keep their existing audit and records gates and Administer keeps its admin gate.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #989 Visibility; PR body: \"Audit and Unlocks keep their gates; Findings, Runs and Changesets stay unrestricted.\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "src/http/ui/js/core/shell.js"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2211",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:47-65; src/http/ui/js/core/shell.js:62-68",
+          "summary": "The Records group div has no data-need; Findings, Runs and Changesets sit directly in it. Audit is wrapped in data-need=audit and Unlocks in data-need=records, whose predicates in shows() are unchanged from main (audit = canAdministerPeople()||session; records = audit||whoami.access==='admin'). The Administer group keeps data-need=admin.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 47,
+                "end": 65
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.145937105Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d88b248cfdf115cd3d8c5c9a5d38f3d7fade849eb22f1f29fb65081313031c6"
+          }
+        },
+        {
+          "id": "EVD-2212",
+          "kind": "test",
+          "locator": "tests/ui_e2e/nav.rs:113-136 (ui2.log:132 ok)",
+          "summary": "A read key sees Records with Findings, Runs, Changesets only (no Audit, Unlocks, Administer, Your account); the admin-key test shows Unlocks but not Audit for a key not reaching every catalog; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 113,
+                "end": 136
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.230200253Z",
+          "seal": {
+            "by": "server",
+            "mac": "b3583e63788cc47c671d465ea436be23e66c4e9dc8efd88a262e185f19477d0a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Gates are on the same elements/predicates as before; read key sees exactly the ungated links.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2211",
+            "EVD-2212"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.450797837Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0c52c540be25ab3d4862ca35170f52e3a5b10ec7c617eb937ef2c7e295222cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.450797837Z",
+      "seal": {
+        "by": "server",
+        "mac": "bacb2fb14ebf893b8763dbeb99960f0f7b76e6f2e4ea4ad14133ff2434cdaa39"
+      }
+    },
+    {
+      "id": "CLM-1489",
+      "statement": "The single Catalogs link in Your account shows to an account session and to any admin credential (so API-key admins keep it), and is hidden from a non-admin key, granting no access the previous Administer and Your teams placements did not.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #989 AC7; PR body: \"the Catalogs link is one link in Your account, shown to an admin credential or an account session (`data-need=\\\"account\\\"`), so API-key admins keep it\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "src/http/ui/index.html",
+        "tests/ui_e2e/nav.rs",
+        "tests/ui_e2e/unlocks.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2213",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/core/shell.js:62-68 against git show origin/main:src/http/ui/js/core/shell.js",
+          "summary": "New rule is session || can('admin'). Old Catalogs placements were can('admin') (Administer) and session && !session.admin (Your teams). Same visibility for every case except an admin-flagged session whose current-catalog level is below admin, which now also sees the link; that is a navigation link to a page non-admin sessions already reach, and the API still enforces access. A key without admin never sees it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 62,
+                "end": 68
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.314475792Z",
+          "seal": {
+            "by": "server",
+            "mac": "d78ff3f865896bfe6aa0fe8c6cb2ee974b40b1e9b0e755e98292557b45b01c39"
+          }
+        },
+        {
+          "id": "EVD-2214",
+          "kind": "test",
+          "locator": "nav::an_admin_key_sees_..._account (ui2.log:133), nav::a_read_key_sees_no_administer_or_account_group... (ui2.log:132), unlocks::an_owner_switches_maintenance_off_for_its_catalog (ui2.log, unlocks.rs:169)",
+          "summary": "An admin key sees Your account > Catalogs; a read key sees no Your account group; a non-admin owner signed in with an account waits for [data-need=account] [data-nav=catalogs] and uses it; all passed. A non-admin session's full sidebar order is not asserted.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/unlocks.rs",
+              "lines": {
+                "start": 165,
+                "end": 172
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.392705038Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b9f89852af35260fe5d9a3642578e9cf19d7ede685848043a446683d9d34c69"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The new predicate covers every old case; the only widening is an admin-flagged session below admin on the current catalog, which sees a link non-admin sessions already have. Tests cover admin key, read key and an owner session.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2213",
+            "EVD-2214"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.533533110Z",
+          "seal": {
+            "by": "server",
+            "mac": "ccdae0c66dc459d89f7ac46abffa6101064982e95367085bc3e89195b90a5697"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.533533110Z",
+      "seal": {
+        "by": "server",
+        "mac": "4509651910544ca1734c360386384e8c5b131d7cd666d019fbcaff74cac1eaae"
+      }
+    },
+    {
+      "id": "CLM-1490",
+      "statement": "Browser tests in tests/ui_e2e cover navigation order, search submission, combined Health and history behavior, and role-dependent visibility.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #989 AC8",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/nav.rs",
+        "tests/ui_e2e/health.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2215",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/nav.rs (4 tests), tests/ui_e2e/health.rs:56-142, tests/ui_e2e/unlocks.rs:169, tests/ui_e2e/help.rs:92-96",
+          "summary": "Order: nav.rs admin and read key. Search submission: nav.rs search test and smoke.rs. Combined Health/history: health.rs (redirect, order, failure, refresh) plus recent.rs. Role visibility: admin key, read key, non-admin owner session (Catalogs link), non-admin member (Billing, Administer hidden). Not asserted: a non-admin session's whole Your account order, and a scoped admin's sidebar Catalogs link (catalogs.rs now filters Catalogs out of visible_admin_links).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 50,
+                "end": 208
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.478060381Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3cc58e5743ef944a0ffe40c661976aa3ea4066b25e502eab4ccbf48e7cc7660"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four named areas have tests; the role gaps (a session's whole sidebar, a scoped admin's Catalogs link) are noted, not required by the criterion's wording.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2215"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.617180516Z",
+          "seal": {
+            "by": "server",
+            "mac": "57da3f872f36f6a3330955902ffd1951b6bdd28b22419983f1b7d4a840b485b4"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.617180516Z",
+      "seal": {
+        "by": "server",
+        "mac": "529cca9a7ef7f7d91e06bf93c0ea268cc841c146a05b394093b17d1208fa1b6f"
+      }
+    },
+    {
+      "id": "CLM-1491",
+      "statement": "Health's renderer moved from js/pages/health.js to js/components/health.js (renderHealth), so no health page remains in the console's page set.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"`components/health.js` (moved from `pages/health.js`): `renderHealth` ...\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js/components/health.js",
+        "src/http/ui/js/pages"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2216",
+          "kind": "analysis",
+          "locator": "git diff --name-status origin/main..HEAD (R src/http/ui/js/{pages => components}/health.js); src/http/ui.rs:49-60",
+          "summary": "Git records a rename pages/health.js to components/health.js (87% similar) exporting renderHealth; page_names() in ui.rs derives the manifest from js/pages/*.js, and pages/ has no health.js now. No other source references pages/health.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui.rs",
+              "lines": {
+                "start": 49,
+                "end": 62
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.564849368Z",
+          "seal": {
+            "by": "server",
+            "mac": "92aed32afe056435805a09029faee53c1902d81cebcf607eb4c6e2f24ca9d949"
+          }
+        },
+        {
+          "id": "EVD-2217",
+          "kind": "analysis",
+          "locator": "git grep -E 'pages/health' -- src tests Cargo.toml build.rs",
+          "summary": "Zero references to the old module path remain in source or tests.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "pages/health",
+              "scope": [
+                "Cargo.toml",
+                "build.rs",
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.656504252Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f1c5f7f40486fc1e585263342a9f847a719c09669a577f3d20300012a10b7e9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rename recorded, manifest scans pages/ only, no stale references.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2216",
+            "EVD-2217"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.707722376Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d50b761070ff14993fee0f29984aed95685643bec35e3372cd18671b55f2eca"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.707722376Z",
+      "seal": {
+        "by": "server",
+        "mac": "60ec89767673b2e1c99a59911e5d9360bc2cf69aa7963ab0b4aa00595c84acad"
+      }
+    },
+    {
+      "id": "CLM-1492",
+      "statement": "docs/operations.md, README.md and a changelog entry describe the new sidebar and Health in Recent changes, with no remaining text that calls Health the landing page or names the Your teams group.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"Docs: `docs/operations.md`, `README.md`, a changelog entry.\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "README.md",
+        "changelog/2026-11-25T21-42-01Z-issue-989-console-nav.md"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2218",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- README.md docs/operations.md changelog/2026-11-25T21-42-01Z-issue-989-console-nav.md",
+          "summary": "README.md:425-429 and 437-440, docs/operations.md:3991-4004 and 4414-4415 and the new changelog describe the search-first sidebar, Health in Recent changes, #/health still working, Browse as the opening page, and Your account > Catalogs replacing Your teams.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3991,
+                "end": 4004
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.740568979Z",
+          "seal": {
+            "by": "server",
+            "mac": "fce01c2090988c4fdfacd072efc89c6023d08cbceeed0d7f629c3e25b73bfc5f"
+          }
+        },
+        {
+          "id": "EVD-2219",
+          "kind": "analysis",
+          "locator": "git grep -iE 'Your teams|Health page|landing page|Administer group' -- README.md docs/operations.md docs/reference",
+          "summary": "No leftover wording in the user docs that names the removed group, the Health page or Health as the landing page.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "Your teams|Health page|landing page|Administer group",
+              "case_insensitive": true,
+              "scope": [
+                "README.md",
+                "docs/operations.md",
+                "docs/reference"
+              ],
+              "hits": 0,
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:37.825981272Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cd79988ea3d0c6bd7312a1097cf393ce7d4428406427ed821cf1da671e73da1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs changed to match and a zero-hit search finds no stale phrases. README.md:437 still says the Records group holds \"the audit log ... and the unlocks\" without naming Findings, Runs, Changesets; incomplete but not false.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2218",
+            "EVD-2219"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.787698789Z",
+          "seal": {
+            "by": "server",
+            "mac": "be342bd2b6edc83885d7f37ccf1696ec4c187b540ad5aee507fe464680d52b0d"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.787698789Z",
+      "seal": {
+        "by": "server",
+        "mac": "8276559e57fc8083d99270da2fbeb554d84e52ee28b4f99906337faba3e31265"
+      }
+    },
+    {
+      "id": "CLM-1493",
+      "statement": "PR body: `tools/agentic/gate.sh fmt` passes on the head files.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: \"`tools/agentic/gate.sh fmt`: pass\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2220",
+          "kind": "log",
+          "locator": "rustfmt --check --edition 2021 $(git diff --name-only origin/main..HEAD | grep '\\.rs$') (exit 0); target/i989-logs/fmt.log",
+          "summary": "I ran rustfmt --check on every Rust file in the diff at HEAD: exit 0, no output. The logged gate (fmt.log, 16:41) holds only the command line and no rc file, and predates the last edit of nav.rs (17:00), so the log alone does not prove the final tree.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:18:53.314487045Z",
+          "seal": {
+            "by": "server",
+            "mac": "669733504b539cec7b701cfc486ddb7683b80fdb4aa16e5d5bbc3c56175f1c32"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "My own rustfmt --check over all changed Rust files is clean at HEAD (the gate's own log is inconclusive).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2220"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.876911585Z",
+          "seal": {
+            "by": "server",
+            "mac": "87a010cec0cb548193347cbcdb7358fc91b0e4bce3fbdcc526b0d5d150a0d158"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.876911585Z",
+      "seal": {
+        "by": "server",
+        "mac": "176a3c317df7f7fcfbf235bff2e9bfaf65b069f0347e8d608377c2704e64de01"
+      }
+    },
+    {
+      "id": "CLM-1494",
+      "statement": "PR body: `tools/agentic/gate.sh lint` and `gate.sh dylint` pass on the final tree.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: \"`tools/agentic/gate.sh lint`: pass\", \"`tools/agentic/gate.sh dylint`: pass\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2221",
+          "kind": "log",
+          "locator": "target/i989-logs/lint2.log + lint2.rc (0, 17:14:12); target/i989-logs/dylint.rc (0, 17:02:58)",
+          "summary": "lint2.log shows cargo clippy --all-targets -D warnings and RUSTDOCFLAGS=-D warnings cargo doc finishing clean, rc 0, at 17:14; dylint rc 0 at 17:02. Both stamps are after the last source edit (nav.rs 17:00:19). I did not rerun them (gates were out of scope).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:18:53.397740559Z",
+          "seal": {
+            "by": "server",
+            "mac": "e909b1c7e0e3dd0f4ab69820d3328b3b0995bbb0259086e7a6527686b50e7537"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Logs with rc 0 timestamped after the last source edit; not rerun by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2221"
+          ],
+          "recorded_at": "2026-11-25T22:19:35.956949108Z",
+          "seal": {
+            "by": "server",
+            "mac": "f598c763c9d87005f5b15c3c497613b4e9eaec0174d8f80a8f5216c57b0a0293"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:35.956949108Z",
+      "seal": {
+        "by": "server",
+        "mac": "2e60f02639d641d53dfb65db2a309d586e170ef6823846d8b7f357c9843ba56e"
+      }
+    },
+    {
+      "id": "CLM-1495",
+      "statement": "PR body: `tools/agentic/gate.sh test-ui` passes with 291 tests on the final tree.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation: \"`tools/agentic/gate.sh test-ui`: pass (291 tests; 1 earlier failure in the new nav test, fixed)\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2222",
+          "kind": "log",
+          "locator": "target/i989-logs/ui2.log:300 and ui2.rc (0); ui.log:579,761 and ui.rc (101)",
+          "summary": "ui2.log ends \"test result: ok. 291 passed; 0 failed; 1 ignored\", rc 0, at 17:13:54, after the last file edit (17:00:19) and before the 17:14:08 commit. The earlier run ui.log (rc 101, 17:00) failed exactly nav::a_read_key_sees_no_administer_or_account_group_and_keeps_the_maintenance_links, matching the PR's \"1 earlier failure in the new nav test\".",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:18:53.479597579Z",
+          "seal": {
+            "by": "server",
+            "mac": "b18aaa38e958645f4854f62d3ac71055fbe63cd6e3680400bf1a38a8203c0930"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "ui2.log shows 291 passed, rc 0, after the last edit; the earlier failure is the one the PR names.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2222"
+          ],
+          "recorded_at": "2026-11-25T22:19:36.035450936Z",
+          "seal": {
+            "by": "server",
+            "mac": "b551e83d15f5068083395bf7ec5f8f9e0b65b67777ce2ddf02353d8432885b54"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:36.035450936Z",
+      "seal": {
+        "by": "server",
+        "mac": "efee017cbd93f328cd65a6d5bbea00de79f975deb6efd9f9edf1e06692bf71de"
+      }
+    },
+    {
+      "id": "CLM-1496",
+      "statement": "PR body: `node --check` passes on each touched JS file.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: \"`node --check` on each touched JS file: pass\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "src/http/ui/js"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2223",
+          "kind": "demonstration",
+          "locator": "node --check src/http/ui/js/{main.js,core/router.js,core/shell.js,pages/recent.js,components/health.js}",
+          "summary": "I ran node --check on all five touched JS files at HEAD; each exited 0 with no output.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T22:18:53.560821026Z",
+          "seal": {
+            "by": "server",
+            "mac": "a27b3af2cec6165938ec4a393227f2eb089d3cf6223835ee9ab5a46bc1ed2042"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I reran it on every touched JS file at HEAD; all passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2223"
+          ],
+          "recorded_at": "2026-11-25T22:19:36.113349721Z",
+          "seal": {
+            "by": "server",
+            "mac": "488a72707e5c35a55b60289e5af6afd10d915876e926287a0a685565c5b81cc0"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:36.113349721Z",
+      "seal": {
+        "by": "server",
+        "mac": "e42567e0e6efb4d2081ea85eb1f30aeafcb836d734d02d96a9ee64096c0df264"
+      }
+    },
+    {
+      "id": "CLM-1497",
+      "statement": "The change touches no Rust file outside tests/ui_e2e.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body Validation: \"`just test` (full suite) not run: the change touches no Rust outside `tests/ui_e2e`.\"",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2224",
+          "kind": "analysis",
+          "locator": "git diff --name-only origin/main..HEAD | grep '\\.rs$'",
+          "summary": "The only .rs files in the range are tests/ui_e2e/{catalogs,health,main,nav,self_service,smoke,unlocks}.rs; no src/*.rs, Cargo or build change. Note the console assets are embedded in the binary, but I found no non-e2e test or source that names the changed assets (grep for pages/health, data-need, catalog-select outside tests/ui_e2e), and ui.rs's manifest test counts pages dynamically.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui.rs",
+              "lines": {
+                "start": 204,
+                "end": 219
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:53.646751481Z",
+          "seal": {
+            "by": "server",
+            "mac": "9c6bdf47e7ae3e78db25eb4d161dfec7b3e90f816e79e52c77d61736b7edaada"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff's only Rust files are under tests/ui_e2e.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2224"
+          ],
+          "recorded_at": "2026-11-25T22:19:36.191380047Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c30bac2d9a14746272b399e8720a969c68b02a2ab4b5e09cd6c2079aca874f5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:36.191380047Z",
+      "seal": {
+        "by": "server",
+        "mac": "547a56723e9d68960ced006f44bb3afa7379cc2514d8e084ee0e96a6e34a6e69"
+      }
+    },
+    {
+      "id": "CLM-1498",
+      "statement": "The PR's Tests added list is accurate: nav.rs covers order and visibility for an admin key and a read key, search submission and the catalog selector; health.rs covers the #/health redirect, Health before the list and an independent Health failure; smoke, self_service, unlocks and catalogs only update selectors.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Tests added",
+      "derived_from": [
+        "CLM-1474"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/nav.rs",
+        "tests/ui_e2e/health.rs",
+        "tests/ui_e2e/smoke.rs",
+        "tests/ui_e2e/self_service.rs",
+        "tests/ui_e2e/unlocks.rs",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:989"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2225",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- tests/ui_e2e (nav.rs new 208 lines; health.rs +57; smoke/self_service/unlocks/catalogs)",
+          "summary": "nav.rs holds the four described tests (admin key and read key order, search, selector); health.rs adds the #/health redirect, Health-before-list and failed-Health tests; smoke.rs, self_service.rs, unlocks.rs and catalogs.rs change only selectors/helper filters (smoke also drives the sidebar box instead of the old Search link). Matches the PR list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/nav.rs",
+              "lines": {
+                "start": 1,
+                "end": 60
+              },
+              "commit": "9181585e17b82a00669f288a36dc5609145c89e4"
+            }
+          },
+          "recorded_at": "2026-11-25T22:18:53.732100223Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfcc18fe3008d94c7a1817f2fac9f485d0a81eae46f2e399b6e18f1381a142b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The PR's list matches the test diffs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2225"
+          ],
+          "recorded_at": "2026-11-25T22:19:36.295553286Z",
+          "seal": {
+            "by": "server",
+            "mac": "227af99d46313efd4495b535467fbbcef2d5f998cfae3c660e4981b2440de676"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:16:52.093619619Z",
+      "updated_at": "2026-11-25T22:19:36.295553286Z",
+      "seal": {
+        "by": "server",
+        "mac": "ae9fa4f295dadb326535a9c8e0831c7b2bb8b6e635057739dcc97da3b55f37f2"
       }
     }
   ]

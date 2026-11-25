@@ -26,6 +26,7 @@ mod help;
 mod keys;
 mod login;
 mod maintenance;
+mod nav;
 // The library's in-process OIDC provider, compiled in from its own file.
 // It names the provider config `super::OidcProviderConfig`, which the
 // `use` above provides; the journeys use only part of it.

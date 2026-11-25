@@ -11,7 +11,7 @@ import { h } from './dom.js';
 
 let pages = new Set();
 let started = false;
-const DEFAULTS = ['health', 'browse', 'keys'];
+const DEFAULTS = ['browse', 'keys'];
 
 export function parse(hash) {
     const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
@@ -49,6 +49,13 @@ export async function mount(render, rest) {
 
 export async function route() {
     let { page, rest } = parse(location.hash);
+    // The standalone Health page is part of Recent changes now: old links
+    // land there, and the address bar says so.
+    if (page === 'health') {
+        history.replaceState(null, '', '#/recent');
+        page = 'recent';
+        rest = [];
+    }
     if (!page) page = DEFAULTS.find(name => pages.has(name)) ?? '';
     document.querySelectorAll('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.nav === page));
     if (!pages.has(page)) {

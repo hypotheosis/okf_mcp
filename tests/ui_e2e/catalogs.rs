@@ -158,15 +158,14 @@ async fn an_admin_changes_a_catalogs_owner_and_a_scoped_admin_cannot() {
     assert_eq!(owned.catalogs, ["main"]);
 }
 
-/// The admin-only navigation links (catalogs, API keys, users, teams,
-/// settings) that are showing. The "Your teams" group's own Catalogs link,
-/// shown to a non-admin signed in with an account, is not one of them.
+/// The admin-only navigation links (API keys, users, teams, settings) that
+/// are showing. The Catalogs link, which sits in the "Your account" group
+/// and shows to a non-admin signed in with an account too, is not one.
 fn visible_admin_links(ui: &Ui) -> serde_json::Value {
     ui.eval(
-        "() => ['catalogs', 'keys', 'users', 'teams', 'settings'] \
+        "() => ['keys', 'users', 'teams', 'settings'] \
          .filter(nav => [...document.querySelectorAll(`a[data-nav=${nav}]`)] \
-             .some(link => link.offsetParent !== null \
-                 && !link.closest('[data-need=owner]')))",
+             .some(link => link.offsetParent !== null))",
         json!(null),
     )
 }

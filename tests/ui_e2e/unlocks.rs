@@ -166,7 +166,7 @@ async fn an_owner_switches_maintenance_off_for_its_catalog() {
     let owner_email = server.owner_with_password(PASSWORD).await;
     let ran = drive(console_base(&server), move |ui| {
         ui.sign_in_password(&owner_email, PASSWORD);
-        ui.wait_visible("[data-need=owner] [data-nav=catalogs]");
+        ui.wait_visible("[data-need=account] [data-nav=catalogs]");
         ui.open("/catalogs");
         ui.click("[data-catalog=main]");
         ui.wait_visible("#catalog-maintenance:checked");

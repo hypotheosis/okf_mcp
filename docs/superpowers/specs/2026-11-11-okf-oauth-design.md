@@ -283,14 +283,17 @@ document.
   ceiling of 24 hours. The freshness is stored in
   `oauth_clients.cache_expires_at` (Plan deviation 6). A refetch that fails
   in transport (the name does not resolve or resolves to a refused address, a timeout, a
-  connection or TLS failure, or any answer but HTTP 200) keeps a cached document in use for up
+  connection or TLS failure, or any answer but HTTP 200, 404 or 410) keeps a cached document in use for up
   to 24 hours after it was fetched, then fails the authorization. A refetch
+  answered 404 Not Found or 410 Gone fails the authorization at once, even
+  with a cached copy: the client's own host says the document no longer
+  exists (issue #656). Every other 4xx and all 5xx keep the fallback. A refetch
   that delivers a document the server cannot accept (not JSON, over the size
   cap, or a document that fails validation, such as a
   changed `client_id` or invalid `redirect_uris`) fails the authorization at
   once, even with a cached copy: the client's host tendered invalid data
   without any transport error (issue #268). The cached row is left as it was,
-  neither replaced nor evicted: a later refetch that fails in transport can
+  neither replaced nor evicted (a 404 or 410 leaves it the same way): a later refetch that fails in transport can
   still use it within the 24 hours, and the next valid fetch refreshes it.
 
 ## Sign-in codes

@@ -543,10 +543,15 @@ impl CimdError {
     /// request was sent and no document arrived, so it counts with the
     /// failures that leave the cache in use (as before the decision).
     ///
+    /// A 404 Not Found or 410 Gone is the client's own host saying the
+    /// document no longer exists, so it fails closed too (issue #656): a
+    /// deleted document stops authorizing at once. Every other status (the
+    /// other 4xx and all 5xx) still counts as a failure the cache covers.
+    ///
     /// # Returns
     /// `true` for an unresolvable name, a refused address, a timeout, any
-    /// other transport failure or a non-200 answer; `false` for a document
-    /// that arrived unusable.
+    /// other transport failure or a non-200 answer other than 404 and 410;
+    /// `false` for a document that arrived unusable and for a 404 or 410.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(
@@ -556,11 +561,8 @@ impl CimdError {
     )]
     fn allows_stale_fallback(&self) -> bool {
         match self {
-            Self::Unresolvable
-            | Self::PrivateAddress
-            | Self::Timeout
-            | Self::Transport
-            | Self::Status(_) => true,
+            Self::Unresolvable | Self::PrivateAddress | Self::Timeout | Self::Transport => true,
+            Self::Status(status) => !matches!(*status, 404 | 410),
             Self::TooLarge | Self::NotJson => false,
         }
     }
@@ -1704,6 +1706,9 @@ mod tests {
                     }))
                 }),
             )
+            .route("/not-found.json", get(|| async { StatusCode::NOT_FOUND }))
+            .route("/gone.json", get(|| async { StatusCode::GONE }))
+            .route("/forbidden.json", get(|| async { StatusCode::FORBIDDEN }))
             .route("/big.json", get(|| async { padded_json(CIMD_MAX_BYTES) }))
             .route("/text", get(|| async { "not json" }))
             .route(
@@ -2143,6 +2148,52 @@ mod tests {
         }
     }
 
+    /// Issue #656: a 404 or 410 from the client's host fails the
+    /// authorization closed even with a usable cached copy, and leaves the
+    /// row as it was (as an invalid document does); any other 4xx still
+    /// serves the copy.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_missing_document_fails_closed_and_keeps_the_cached_row() {
+        let host = cimd_host().await;
+        let test = rig(true).await;
+        let client_id = format!("{}/client.json", host.base);
+        let cached = cached_but_expired(&host, &test, &client_id).await;
+
+        for (path, serves_stale) in [
+            ("not-found.json", false),
+            ("gone.json", false),
+            ("forbidden.json", true),
+        ] {
+            // Arrange: the same cached, expired row under a URL that answers
+            // with the status under test.
+            let id = format!("{}/{path}", host.base);
+            let seeded = ClientRecord {
+                client_id: id.clone(),
+                ..cached.clone()
+            };
+            client_rows::upsert_cimd(test.app.accounts().executor(), &seeded)
+                .await
+                .expect("seed");
+
+            // Act
+            let result = resolve(&test.app, oauth(&test), &id).await;
+
+            // Assert
+            if serves_stale {
+                assert_eq!(result.expect("stale on a 403"), seeded, "{path}");
+            } else {
+                assert!(
+                    matches!(result, Err(OAuthError::InvalidClient(_))),
+                    "{path}: {result:?}"
+                );
+            }
+            let kept = client_rows::find(test.app.accounts().executor(), &id)
+                .await
+                .expect("find");
+            assert_eq!(kept, Some(seeded), "{path}: the row is left in place");
+        }
+    }
+
     #[test]
     fn only_failures_without_a_document_allow_the_stale_fallback() {
         for transport in [
@@ -2151,11 +2202,18 @@ mod tests {
             CimdError::Timeout,
             CimdError::Transport,
             CimdError::Status(500),
-            CimdError::Status(404),
+            CimdError::Status(503),
+            CimdError::Status(403),
+            CimdError::Status(429),
         ] {
             assert!(transport.allows_stale_fallback(), "{transport:?}");
         }
-        for tendered in [CimdError::TooLarge, CimdError::NotJson] {
+        for tendered in [
+            CimdError::TooLarge,
+            CimdError::NotJson,
+            CimdError::Status(404),
+            CimdError::Status(410),
+        ] {
             assert!(!tendered.allows_stale_fallback(), "{tendered:?}");
         }
     }

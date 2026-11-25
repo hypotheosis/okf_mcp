@@ -1352,21 +1352,28 @@ mod tests {
         use crate::telemetry::subscriber::capture::{attribute, Observer};
 
         const WRONG: &str = "zq-wrong-password-5d1c";
+        // Only this test sends this trace id.
+        const CALLER_TRACE: &str = "3c1d0e5a7b9f4a2d8e6f1b0c9d8a7e65";
         let test = login_app().await;
         user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
         let mut browser = Browser::default();
         let observer = Observer::start("off", "debug", "off", LogFormat::Text);
 
+        // The sign-ins carry a `traceparent` of this test's own, and only the
+        // spans of requests that link to it are read back: spans another test
+        // exports at the same time are not this test's to count (issue #848).
+        browser.traceparent = Some(format!("00-{CALLER_TRACE}-b7ad6b7169203331-01"));
         let refused = post_sign_in(&mut browser, &test, "alice@example.com", WRONG).await;
         let signed_in = post_sign_in(&mut browser, &test, "alice@example.com", PASSWORD).await;
         let observed = observer.finish();
+        let own_spans = observed.spans_of_requests_from(CALLER_TRACE);
 
         assert_eq!(refused.status, StatusCode::UNAUTHORIZED);
         assert_eq!(signed_in.status, StatusCode::SEE_OTHER);
         let pair = |name: &str| -> Vec<(Option<String>, Option<String>)> {
-            observed
-                .spans_named(name)
+            own_spans
                 .iter()
+                .filter(|span| span.name == name)
                 .map(|span| {
                     (
                         attribute(span, "method").map(ToString::to_string),
@@ -1378,7 +1385,7 @@ mod tests {
         let want = |outcome: &str| (Some("password".to_string()), Some(outcome.to_string()));
         assert_eq!(pair("audit"), [want("failed")]);
         assert_eq!(pair("start_in"), [want("ok")]);
-        let exported = observed.exported_text();
+        let exported = format!("{own_spans:?}");
         let line = signed_in.set_cookie(COOKIE).expect("a session cookie");
         let session_id = line
             .split(';')

@@ -403,6 +403,9 @@ pub(crate) struct Browser {
     pub csrf: Option<String>,
     /// A bearer key.
     pub bearer: Option<String>,
+    /// A `traceparent` header value sent on every request, so a test can find
+    /// the spans its own requests made among those of tests running beside it.
+    pub traceparent: Option<String>,
 }
 
 impl Browser {
@@ -458,6 +461,9 @@ impl Browser {
         }
         if let Some(key) = &self.bearer {
             request = request.header("authorization", format!("Bearer {key}"));
+        }
+        if let Some(traceparent) = &self.traceparent {
+            request = request.header("traceparent", traceparent);
         }
         let request = match payload {
             Payload::Empty => request.body(Body::empty()),

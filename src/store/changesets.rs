@@ -186,6 +186,9 @@ pub struct ListedRow {
     /// The credential's grouping name (read from `api_keys`, on the account
     /// side); null only if its key row was deleted.
     pub key_name: Option<String>,
+    /// The `users.id` of the person who opened it (their key's user, or the
+    /// console session's); null for a key no user owns, or one deleted.
+    pub user_id: Option<String>,
     /// Its entries' paths, catalog-relative and sorted; empty for an empty
     /// changeset.
     pub paths: Vec<String>,
@@ -772,6 +775,7 @@ async fn listed(
             .await?
             .into_iter()
             .collect();
+    let openers = opener_users(accounts, &wanted_keys).await?;
     // A catalog's position in the name-ordered answer is its sort key; its
     // name goes with it.
     let catalog_rank: HashMap<i64, (usize, String)> = named
@@ -792,18 +796,77 @@ async fn listed(
             .as_ref()
             .and_then(|key| key_names.get(key))
             .cloned();
+        let user_id = raw
+            .changeset
+            .key_id
+            .as_ref()
+            .and_then(|key| openers.get(key))
+            .cloned();
         rows.push((
             *rank,
             ListedRow {
                 changeset: ChangesetRow::try_from(raw.changeset)?,
                 catalog: catalog.clone(),
                 key_name,
+                user_id,
                 paths: raw.paths,
             },
         ));
     }
     rows.sort_by_key(|(rank, row)| (*rank, row.changeset.updated_at, row.changeset.id));
     Ok(rows.into_iter().map(|(_, row)| row).collect())
+}
+
+/// The people who opened changesets: the user of each credential.
+///
+/// A key or grant names its user in `api_keys`; a console session's id is
+/// `session:<user name>` ([`crate::auth::SESSION_KEY_PREFIX`]), which names
+/// the user directly. Read now, not recorded: an open changeset is not yet
+/// history, and the revisions it publishes record their own person.
+///
+/// # Arguments
+/// * `accounts` - the account database.
+/// * `key_ids` - the changesets' `key_id` values, distinct.
+///
+/// # Returns
+/// `key_id -> users.id` for the ones that have a user now.
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "changesets.opener_users"))]
+pub async fn opener_users(
+    accounts: &AccountDb,
+    key_ids: &[&str],
+) -> Result<HashMap<String, String>, OkfError> {
+    if key_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let mut found: HashMap<String, String> = sqlx::query_as(
+        "SELECT id, user_id FROM api_keys WHERE id = ANY($1) AND user_id IS NOT NULL",
+    )
+    .bind(key_ids)
+    .fetch_all(accounts.executor())
+    .await?
+    .into_iter()
+    .collect();
+    // A session's user is named by the id's suffix.
+    let sessions: Vec<&str> = key_ids
+        .iter()
+        .filter_map(|key| key.strip_prefix(crate::auth::SESSION_KEY_PREFIX))
+        .collect();
+    if !sessions.is_empty() {
+        let users: Vec<(String, String)> =
+            sqlx::query_as("SELECT name, id FROM users WHERE name = ANY($1)")
+                .bind(&sessions)
+                .fetch_all(accounts.executor())
+                .await?;
+        found.extend(
+            users
+                .into_iter()
+                .map(|(name, id)| (format!("{}{name}", crate::auth::SESSION_KEY_PREFIX), id)),
+        );
+    }
+    Ok(found)
 }
 
 /// Discards every open changeset without entries whose last change is

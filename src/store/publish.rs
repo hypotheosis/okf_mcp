@@ -102,6 +102,9 @@ struct Publication<'a> {
     changeset: &'a ChangesetRow,
     actor: &'a str,
     message: &'a str,
+    /// The publishing credential's user (`users.id`), recorded on every
+    /// revision beside the actor.
+    user_id: Option<&'a str>,
     now: DateTime<Utc>,
 }
 
@@ -269,6 +272,7 @@ async fn publish_locked(
         changeset: &locked,
         actor,
         message,
+        user_id: audit.user_id.as_deref(),
         now,
     };
     // `tx` moves into the block (it is consumed by `commit`); the rest is borrowed.
@@ -770,6 +774,7 @@ async fn write_all(
             file: file.as_ref(),
             changeset_id: Some(changeset.id),
             message: publication.message,
+            user_id: publication.user_id,
         };
         let backstop = |error| as_conflict(error, path, live.map(|row| row.revision));
         match &file {

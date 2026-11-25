@@ -29,6 +29,7 @@ pub(crate) const READS: &[&str] = &[
     "open_questions",
     "pending_changes",
     "read_document",
+    "recent_changes",
     "search",
     "sprawl",
     "whoami",
@@ -152,7 +153,7 @@ fn every_tool_is_classified_exactly_once() {
         registered, classified,
         "the registered tools and the classified tools differ"
     );
-    assert_eq!(registered.len(), 45);
+    assert_eq!(registered.len(), 46);
 }
 
 #[test]

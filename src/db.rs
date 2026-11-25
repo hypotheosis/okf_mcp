@@ -81,6 +81,11 @@ const CONCURRENT_INDEXES: [&str; 6] = [
     "catalogs_unprovisioned",
 ];
 
+/// The indexes the catalog migrations (`migrations/catalog/`) build
+/// `CONCURRENTLY`, in schema `catalog`, with the same failure mode as
+/// [`CONCURRENT_INDEXES`].
+const CATALOG_CONCURRENT_INDEXES: [&str; 1] = ["revisions_catalog_user_recent"];
+
 /// The advisory lock [`migrate`] holds around the cleanup and the
 /// migrations (an arbitrary constant, distinct from sqlx's own lock key).
 const CONCURRENT_INDEX_LOCK: i64 = 0x6f6b_665f_6964_7831;
@@ -91,12 +96,39 @@ const CONCURRENT_INDEX_LOCK: i64 = 0x6f6b_665f_6964_7831;
 /// Advisory locks are per database, so every add of that database meets it.
 pub const STORE_ADD_LOCK_KEY: &str = "okf.store-add.database";
 
-/// Drops each of [`CONCURRENT_INDEXES`] that exists but is INVALID (a
-/// failed concurrent build), so its migration builds it again.
+/// Takes [`CONCURRENT_INDEX_LOCK`], waiting for another holder by polling
+/// `pg_try_advisory_lock` rather than blocking in `pg_advisory_lock`: a
+/// blocked statement is an open transaction, and the holder's
+/// `CREATE INDEX CONCURRENTLY` waits for every transaction open when it
+/// starts, so the two would wait on each other until the deadlock detector
+/// aborted the build.
+///
+/// # Errors
+/// [`OkfError::Database`] (or `Busy`) for a driver error.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn lock_migrations(conn: &mut PgConnection) -> Result<(), OkfError> {
+    loop {
+        let taken: bool = sqlx::query_scalar("SELECT pg_try_advisory_lock($1)")
+            .bind(CONCURRENT_INDEX_LOCK)
+            .fetch_one(&mut *conn)
+            .await?;
+        if taken {
+            return Ok(());
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    }
+}
+
+/// Drops each of `names` in `schema` that exists but is INVALID (a failed
+/// concurrent build), so its migration builds it again.
 ///
 /// # Arguments
 /// * `conn` - a connection outside any transaction (`DROP INDEX
 ///   CONCURRENTLY` cannot run in one).
+/// * `schema` - the schema holding the indexes (`public` or `catalog`); a
+///   schema that does not exist holds none.
+/// * `names` - the index names ([`CONCURRENT_INDEXES`] or
+///   [`CATALOG_CONCURRENT_INDEXES`]).
 ///
 /// # Returns
 /// How many it dropped.
@@ -104,14 +136,22 @@ pub const STORE_ADD_LOCK_KEY: &str = "okf.store-add.database";
 /// # Errors
 /// [`sqlx::Error`] if a read or a drop fails.
 #[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "db.drop_invalid_indexes"))]
-async fn drop_invalid_indexes(conn: &mut sqlx::PgConnection) -> Result<usize, sqlx::Error> {
+async fn drop_invalid_indexes(
+    conn: &mut sqlx::PgConnection,
+    schema: &str,
+    names: &[&str],
+) -> Result<usize, sqlx::Error> {
+    // Joined by namespace name, not cast with `::regnamespace`, which fails
+    // for a schema that does not exist yet (a new store's `catalog`).
     let invalid: Vec<String> = sqlx::query_scalar(
         "SELECT c.relname::text FROM pg_index i \
          JOIN pg_class c ON c.oid = i.indexrelid \
-         WHERE c.relnamespace = 'public'::regnamespace \
-           AND c.relname = ANY($1) AND NOT i.indisvalid",
+         JOIN pg_namespace n ON n.oid = c.relnamespace \
+         WHERE n.nspname = $1 \
+           AND c.relname = ANY($2) AND NOT i.indisvalid",
     )
-    .bind(&CONCURRENT_INDEXES[..])
+    .bind(schema)
+    .bind(names)
     .fetch_all(&mut *conn)
     .await?;
     for name in &invalid {
@@ -119,7 +159,7 @@ async fn drop_invalid_indexes(conn: &mut sqlx::PgConnection) -> Result<usize, sq
         // The name is one of the constants above, never input: safe to
         // splice (an identifier cannot be a bound parameter).
         sqlx::query(sqlx::AssertSqlSafe(format!(
-            "DROP INDEX CONCURRENTLY IF EXISTS {name}"
+            "DROP INDEX CONCURRENTLY IF EXISTS {schema}.{name}"
         )))
         .execute(&mut *conn)
         .await?;
@@ -149,12 +189,9 @@ pub async fn migrate(pool: &PgPool) -> Result<(), OkfError> {
     // The migrator runs on that same connection: a pool of one
     // (`database_max_connections = 1`) has no second to give it.
     let mut conn = pool.acquire().await?;
-    sqlx::query("SELECT pg_advisory_lock($1)")
-        .bind(CONCURRENT_INDEX_LOCK)
-        .execute(&mut *conn)
-        .await?;
+    lock_migrations(&mut conn).await?;
     // The lock is released below whatever this returns, so no `?` here.
-    let migrated = match drop_invalid_indexes(&mut conn).await {
+    let migrated = match drop_invalid_indexes(&mut conn, "public", &CONCURRENT_INDEXES).await {
         // `&mut *conn`: the pooled connection itself (sqlx's migrator takes
         // its own advisory lock on it, and runs `no-transaction` files on
         // it outside any transaction, as on a pool).
@@ -243,10 +280,7 @@ pub async fn migrate_store(
     if store_is_current(conn, store).await? {
         return Ok(StoreMigration::default());
     }
-    sqlx::query("SELECT pg_advisory_lock($1)")
-        .bind(CONCURRENT_INDEX_LOCK)
-        .execute(&mut *conn)
-        .await?;
+    lock_migrations(conn).await?;
     // The lock is released below whatever this returns, so no `?` here.
     let migrated = migrate_store_locked(conn, store).await;
     sqlx::query("SELECT pg_advisory_unlock($1)")
@@ -331,6 +365,9 @@ async fn migrate_store_locked(
         sqlx::query_scalar("SELECT to_regclass('catalog.catalog_state') IS NOT NULL")
             .fetch_one(&mut *conn)
             .await?;
+    // A failed concurrent build of a catalog index, before the migrator
+    // would find its name taken (`CREATE INDEX IF NOT EXISTS`).
+    drop_invalid_indexes(conn, "catalog", &CATALOG_CONCURRENT_INDEXES).await?;
     let before = history_len(conn).await?;
     let adopted = has_state && before == 0;
     if adopted {
@@ -2579,6 +2616,159 @@ mod tests {
         assert!(recorded, "the rebuilt migration is recorded");
     }
 
+    /// Issue #986: a failed concurrent build of the catalog's user index
+    /// leaves it INVALID; the next `migrate` drops it and builds it again.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_failed_build_of_the_catalog_user_index_is_rebuilt_by_the_next_migrate() {
+        let db = test_db_account_layout().await;
+        let valid = || {
+            sqlx::query_scalar::<_, bool>(
+                "SELECT i.indisvalid FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid \
+                 WHERE c.relname = 'revisions_catalog_user_recent'",
+            )
+        };
+        sqlx::query(
+            "UPDATE pg_index SET indisvalid = false \
+             WHERE indexrelid = 'catalog.revisions_catalog_user_recent'::regclass",
+        )
+        .execute(&db.pool)
+        .await
+        .unwrap();
+        sqlx::query("DELETE FROM catalog._sqlx_migrations WHERE version = 5")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        assert!(!valid().fetch_one(&db.pool).await.unwrap());
+
+        super::migrate(&db.pool).await.unwrap();
+
+        assert!(valid().fetch_one(&db.pool).await.unwrap());
+        let recorded: bool = sqlx::query_scalar(
+            "SELECT EXISTS (SELECT 1 FROM catalog._sqlx_migrations WHERE version = 5)",
+        )
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+        assert!(recorded, "the rebuilt migration is recorded");
+    }
+
+    /// Issue #986, catalog migration 0004: revision -> changeset -> key ->
+    /// user, where each link resolves; everything else stays null, and a
+    /// revision that already has a person keeps it.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_user_backfill_follows_revision_changeset_key_to_user_where_it_resolves() {
+        let db = test_db_account_layout().await;
+        let owner: String = sqlx::query_scalar("SELECT id FROM users WHERE name = $1")
+            .bind(TEST_USER)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+        let catalog = crate::store::catalogs::create(
+            &db.pool,
+            &crate::store::catalogs::NewCatalog {
+                name: "pg",
+                display_name: &crate::labels::DisplayName::default(),
+                description: "",
+                owner_team: TEST_TEAM,
+            },
+            &crate::store::audit::AuditActor::cli(),
+            chrono::Utc::now(),
+        )
+        .await
+        .unwrap();
+        for key in ["k-owned", "k-legacy"] {
+            crate::store::keys::insert_legacy_test_key(
+                &db.pool,
+                key,
+                crate::store::keys::Access::Write,
+                key,
+                chrono::Utc::now(),
+            )
+            .await;
+        }
+        sqlx::query("UPDATE api_keys SET user_id = $1 WHERE id = 'k-owned'")
+            .bind(&owner)
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM catalog.revisions WHERE catalog_id = $1")
+            .bind(catalog.id)
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        // One changeset per key, and one whose key is gone.
+        let mut changesets = Vec::new();
+        for key in ["k-owned", "k-legacy", "k-deleted"] {
+            let id: i64 = sqlx::query_scalar(
+                "INSERT INTO catalog.changesets (catalog_id, key_id, actor, state, created_at, \
+                 updated_at) VALUES ($1, $2, 'a', 'published', now(), now()) RETURNING id",
+            )
+            .bind(catalog.id)
+            .bind(key)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+            changesets.push(id);
+        }
+        // path, changeset, a person already recorded
+        let rows: [(&str, Option<i64>, Option<&str>); 5] = [
+            ("owned.md", Some(changesets[0]), None),
+            ("legacy.md", Some(changesets[1]), None),
+            ("deleted.md", Some(changesets[2]), None),
+            ("import.md", None, None),
+            ("kept.md", Some(changesets[0]), Some("someone-else")),
+        ];
+        for (path, changeset, person) in rows {
+            sqlx::query(
+                "INSERT INTO catalog.revisions (catalog_id, path, revision, op, executable, \
+                 actor, changeset_id, message, created_at, user_id) \
+                 VALUES ($1, $2, 1, 'create', false, 'a', $3, 'm', now(), $4)",
+            )
+            .bind(catalog.id)
+            .bind(path)
+            .bind(changeset)
+            .bind(person)
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        }
+        let users = || async {
+            sqlx::query_as::<_, (String, Option<String>)>(
+                "SELECT path, user_id FROM catalog.revisions WHERE catalog_id = $1 ORDER BY path",
+            )
+            .bind(catalog.id)
+            .fetch_all(&db.pool)
+            .await
+            .unwrap()
+        };
+
+        sqlx::raw_sql(include_str!(
+            "../migrations/catalog/0004_revisions_user_backfill.sql"
+        ))
+        .execute(&db.pool)
+        .await
+        .unwrap();
+        let once = users().await;
+        sqlx::raw_sql(include_str!(
+            "../migrations/catalog/0004_revisions_user_backfill.sql"
+        ))
+        .execute(&db.pool)
+        .await
+        .unwrap();
+
+        assert_eq!(
+            once,
+            [
+                ("deleted.md".to_string(), None),
+                ("import.md".to_string(), None),
+                ("kept.md".to_string(), Some("someone-else".to_string())),
+                ("legacy.md".to_string(), None),
+                ("owned.md".to_string(), Some(owner)),
+            ]
+        );
+        assert_eq!(users().await, once, "a rerun changes nothing");
+    }
+
     /// Review of PR #739: with a pool of one connection (the smallest
     /// `database_max_connections`), `migrate` finishes on a fresh database
     /// and on one already migrated, instead of waiting for a second
@@ -2661,6 +2851,15 @@ mod tests {
             .execute(pool)
             .await
             .unwrap();
+        // And without what the later catalog migrations add to `revisions`
+        // (0003 and 0005), as an account database that has not run them.
+        sqlx::raw_sql(
+            "DROP INDEX catalog.revisions_catalog_user_recent; \
+             ALTER TABLE catalog.revisions DROP COLUMN user_id",
+        )
+        .execute(pool)
+        .await
+        .unwrap();
     }
 
     #[tokio::test(flavor = "multi_thread")]

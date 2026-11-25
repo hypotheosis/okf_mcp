@@ -47,7 +47,7 @@ pub struct WhoAmI {
     pub user_label: Option<String>,
     /// What writes are recorded as, and what `by` defaults to.
     pub actor: String,
-    /// The actor's label, when the actor is a user; null for a key or OAuth actor.
+    /// The label of the actor when the actor is itself a user (a console session); null for a key or OAuth actor. The person behind a credential is `user_label`.
     pub actor_label: Option<String>,
     /// `api_key` or `oauth`.
     pub credential: String,

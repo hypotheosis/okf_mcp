@@ -733,6 +733,7 @@ async fn write_starter_files(
             file: Some(&file),
             changeset_id: None,
             message: STARTER_MESSAGE,
+            user_id: None,
         };
         documents::write_document(conn, &write, &file, &Derived::of(snapshot.get(path))).await?;
         documents::record_revision(conn, &write, &record).await?;

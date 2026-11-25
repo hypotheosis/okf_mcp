@@ -1,0 +1,21 @@
+-- The person behind each revision (issue #986).
+--
+-- `revisions.user_id` is the `users.id` of the user whose credential
+-- published the revision, recorded at publish time; `actor` stays what it
+-- was (the key's actor, the OAuth client's name, a session's user name).
+-- Null for a revision with no person: an import, a repair, a starter file,
+-- a key no user owned, or a revision from before this column the backfill
+-- (0004) could not resolve.
+--
+-- No foreign key, on purpose (decision of 2026-11-23): a store holds no
+-- account table, and deleting a user must leave the column as it is, so
+-- there is nothing that fires on delete. A deleted user's label no longer
+-- resolves; readers show the id.
+--
+-- Lock: ACCESS EXCLUSIVE on `revisions`, held only for this one
+-- statement. A nullable column with no default is
+-- metadata-only: the table is neither scanned nor rewritten. The file holds
+-- this statement alone, so the lock is released as soon as it commits.
+-- Replicas of the release before this one keep inserting revisions without
+-- the column, which stay null.
+ALTER TABLE catalog.revisions ADD COLUMN IF NOT EXISTS user_id text;

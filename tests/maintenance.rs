@@ -561,8 +561,8 @@ async fn maintenance_http_tool_schemas_are_exact() {
     let tools = client.list_all_tools().await.unwrap();
     assert_eq!(
         tools.len(),
-        44,
-        "33 existing tools plus 10 maintenance tools"
+        45,
+        "35 existing tools plus 10 maintenance tools"
     );
     for name in [
         "list_catalogs",

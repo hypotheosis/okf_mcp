@@ -23,20 +23,19 @@ use crate::error::OkfError;
 use crate::http::api::context;
 use crate::http::requester::Requester;
 use crate::http::AppError;
-use crate::labels::directory::Wanted;
 use crate::mcp::blocking;
 use crate::mcp::changesets::unified_diff;
 use crate::mcp::documents::{
     get_concept, read_document, text_field, Concept, Document, GetConceptParams, InboundLink,
     OutboundLink, ReadDocumentParams,
 };
-use crate::mcp::history::{history, History, HistoryParams};
+use crate::mcp::history::{history, labelled, History, HistoryParams, Selection, RECENT_DEFAULT};
 use crate::okf::outline::Outline;
 use crate::okf::pystr::universal_newlines;
 use crate::okf::snapshot::DocKind;
 use crate::render::{to_html, Page};
 use crate::store::audit::AccessKind;
-use crate::store::history::{content_at, recent, RecentCursor};
+use crate::store::history::{content_at, recent_by, RecentCursor};
 use crate::store::keys::Access;
 
 /// This area's routes.
@@ -148,23 +147,28 @@ struct FullQuery {
     full: bool,
 }
 
-/// `?limit=` on the history route.
-#[derive(Debug, Clone, Copy, Default, Deserialize)]
+/// `?limit=&user=&since=` on the history route.
+#[derive(Debug, Clone, Default, Deserialize)]
 struct LimitQuery {
     /// At most this many revisions (as `history`: default 20, at most 200).
     limit: Option<u32>,
+    /// Only this person's revisions (as `history`'s `user`).
+    user: Option<String>,
+    /// Only revisions at or after this RFC 3339 time (as `history`'s `since`).
+    since: Option<String>,
 }
 
-/// The page size of `recent-changes` when `limit` is left out.
-const RECENT_DEFAULT: u32 = 50;
-
-/// `?limit=&after=` on the recent-changes route.
+/// `?limit=&after=&user=&since=` on the recent-changes route.
 #[derive(Debug, Clone, Default, Deserialize)]
 struct RecentQuery {
     /// The page size, 1..=200 (default 50); outside it is a 409.
     limit: Option<u32>,
     /// The previous page's `next_after`; an unknown or malformed one is a 404.
     after: Option<String>,
+    /// Only this person's revisions: a user's id, or the `deleted:<id>` a revision shows for a deleted user.
+    user: Option<String>,
+    /// Only revisions at or after this RFC 3339 time; a bad one is a 409.
+    since: Option<String>,
 }
 
 /// One revision in `GET /catalogs/{catalog}/recent-changes`.
@@ -184,8 +188,15 @@ pub(crate) struct RecentChange {
     pub op: String,
     /// Who published it.
     pub actor: String,
-    /// The actor's display label, when the directory knows one.
+    /// The label of the actor when the actor is itself a user (a console
+    /// session); `None` for a key or OAuth actor. The person behind any
+    /// credential is `user_label`.
     pub actor_label: Option<String>,
+    /// The person whose credential published it: their user id, or the
+    /// `deleted:<stored id>` of a deleted user; `None` when no person is recorded.
+    pub user: Option<String>,
+    /// The person's label; `None` with no `user`, or once that user is deleted.
+    pub user_label: Option<String>,
     /// The publish message (`import` for an import).
     pub message: String,
     /// When, as the `history` tool writes times.
@@ -204,40 +215,6 @@ pub(crate) struct RecentChanges {
     pub changes: Vec<RecentChange>,
     /// `after` for the next page; `None` on the last.
     pub next_after: Option<String>,
-}
-
-/// A recent-changes cursor as the API writes it: `<revision>:<path>`, the
-/// path as stored. The revision comes first because it holds no `:`.
-///
-/// # Arguments
-/// * `cursor` - the last row of a page.
-#[tracing::instrument(level = "trace", skip_all)]
-fn cursor_text(cursor: &RecentCursor) -> String {
-    format!("{}:{}", cursor.revision, cursor.path)
-}
-
-/// Reads a cursor [`cursor_text`] wrote.
-///
-/// # Arguments
-/// * `text` - the `after` parameter.
-///
-/// # Errors
-/// [`OkfError::NotFound`] for text that is not a cursor: like a cursor
-/// naming no revision, it continues nothing.
-#[tracing::instrument(level = "trace", skip_all)]
-fn parse_cursor(text: &str) -> Result<RecentCursor, OkfError> {
-    // `split_once` splits at the first `:`; a path may hold more.
-    text.split_once(':')
-        .and_then(|(revision, path)| {
-            let revision = revision.parse::<i32>().ok()?;
-            (!path.is_empty() && revision > 0).then(|| RecentCursor {
-                path: path.to_string(),
-                revision,
-            })
-        })
-        .ok_or_else(|| OkfError::NotFound {
-            path: format!("recent changes after {text}"),
-        })
 }
 
 /// The tree's name for a document kind, or `None` for a file the console
@@ -420,6 +397,8 @@ async fn revisions(
             path,
             catalog: Some(catalog),
             limit: query.limit,
+            user: query.user,
+            since: query.since,
         },
     )
     .await?;
@@ -454,6 +433,8 @@ async fn revision(
             path,
             catalog: Some(catalog),
             limit: Some(1),
+            user: None,
+            since: None,
         },
     )
     .await?;
@@ -573,28 +554,30 @@ async fn recent_changes(
     // The parameters are checked only once the catalog is admitted, so a
     // refusal never depends on them.
     // `transpose` turns Option<Result<..>> into Result<Option<..>> for `?`.
-    let after = query.after.as_deref().map(parse_cursor).transpose()?;
+    let after = query
+        .after
+        .as_deref()
+        .map(RecentCursor::parse)
+        .transpose()?;
     let limit = query.limit.unwrap_or(RECENT_DEFAULT);
-    let page = recent(
+    let selection = Selection::of(&ctx, query.user.as_deref(), query.since.as_deref()).await?;
+    let page = recent_by(
         &app.store_db(state.store()).await?,
         state.id(),
         after.as_ref(),
         limit,
+        &selection.filter(),
     )
     .await?;
-    let mut wanted = Wanted::default();
-    for row in &page.rows {
-        wanted.user(&row.actor);
-    }
-    let labels = ctx.labels_for(&wanted).await?;
+    let (rows, labels, persons) = labelled(&ctx, page.rows).await?;
     // Titles and descriptions come from the published snapshot, read now:
     // the history rows hold no content.
     let loaded = ctx.snapshot(&state);
     let snapshot = loaded.snapshot();
-    let changes = page
-        .rows
+    let changes = rows
         .into_iter()
         .map(|row| {
+            let (user, user_label) = persons.show(row.user_id.as_deref(), &labels);
             // A deletion names no document, even if one was created again
             // at the path since.
             let doc = if row.op == "delete" {
@@ -610,6 +593,8 @@ async fn recent_changes(
                 op: row.op,
                 actor_label: labels.actor(&row.actor).map(str::to_string),
                 actor: row.actor,
+                user,
+                user_label,
                 message: row.message,
                 at: format_timestamp(row.created_at),
             }
@@ -619,7 +604,7 @@ async fn recent_changes(
         catalog: state.name().to_string(),
         catalog_label: ctx.catalog_label(state.name()).await?,
         changes,
-        next_after: page.next.as_ref().map(cursor_text),
+        next_after: page.next.as_ref().map(RecentCursor::text),
     }))
 }
 
@@ -1443,6 +1428,40 @@ mod tests {
 
         assert_eq!(paged, summary(&whole));
         assert_eq!(pages, paged.len().div_ceil(2));
+    }
+
+    #[tokio::test]
+    async fn recent_changes_and_history_take_user_and_since_and_show_the_person() {
+        let test = app().await;
+        let keys = keys(&test).await;
+        three_rounds(&test, &keys).await;
+        let get = |uri: String| {
+            let test = &test;
+            let key = keys.read.clone();
+            async move { send(test, "GET", &uri, Some(&key), None).await }
+        };
+        let base = "/api/v1/catalogs/main/recent-changes";
+
+        let (_, all) = get(format!("{base}?limit=200")).await;
+        let (_, nobody) = get(format!("{base}?user=nobody-at-all")).await;
+        let (_, future) = get(format!("{base}?since=2999-01-01T00:00:00Z")).await;
+        let (_, past) = get(format!("{base}?since=2000-01-01T00:00:00Z&limit=200")).await;
+        let (bad, body) = get(format!("{base}?since=yesterday")).await;
+        let (hist_status, hist) =
+            get("/api/v1/catalogs/main/history/index.md?user=nobody".into()).await;
+
+        let first = &all["changes"][0];
+        assert!(
+            first.get("user").is_some() && first.get("user_label").is_some(),
+            "{first}"
+        );
+        assert!(nobody["changes"].as_array().unwrap().is_empty(), "{nobody}");
+        assert_eq!(nobody["next_after"], serde_json::Value::Null);
+        assert!(future["changes"].as_array().unwrap().is_empty());
+        assert_eq!(past["changes"], all["changes"]);
+        assert_eq!(bad.as_u16(), 409, "{body}");
+        assert_eq!(hist_status.as_u16(), 200, "{hist}");
+        assert!(hist["revisions"].as_array().unwrap().is_empty(), "{hist}");
     }
 
     /// Percent-encodes everything but unreserved characters, for a query value.

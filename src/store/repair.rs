@@ -266,6 +266,7 @@ async fn write_files(
             file: Some(file),
             changeset_id: None,
             message: REPAIR_MESSAGE,
+            user_id: None,
         };
         documents::write_document(conn, &write, file, derived).await?;
         documents::record_revision(conn, &write, &record).await?;

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1370,
+  "next_claim_seq": 1383,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "be069a2bed2350ad9cb0e1895c6e3606df1354a08e240e6eac870ca37f62fa6b"
+    "mac": "4fa148d77ed557c7cd0d7abe4143194efc384d5957745e16293fe945935d1f37"
   },
-  "next_evidence_seq": 2018,
+  "next_evidence_seq": 2035,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "6a66bab62f8720fbcd04c439c6c93e2b31706e2d787146e07276265a2fe00a29"
+    "mac": "afd8735489ad6e3fb5657e1bd34eae4f36c3d8756068b6ef76c0ae313db7cb56"
   },
   "claims": [
     {
@@ -42114,6 +42114,28 @@
             "by": "server",
             "mac": "db9fa68ab2da7a38485ca001f9a14add2f5bbc2062815d5d588e0a1c40840d24"
           }
+        },
+        {
+          "id": "EVD-2030",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/account.rs:123-146 at 8ea769f",
+          "summary": "Re-read at head: open_account is ui.open + wait_loaded (wait_visible #main .view[data-loaded=true]); the diff only added a // raw-open: comment line above the open. Every open_account call site precedes the page's first action; the 4 raw opens are the held-read, failed-read and key journeys the claim excepts.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 123,
+                "end": 146
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:14:09.721707398Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0078b497c9b7439cac1a47ebba44e42ac55b03d991c7476b8b932cb06f611dc"
+          }
         }
       ],
       "verdicts": [
@@ -42129,13 +42151,26 @@
             "by": "server",
             "mac": "4b28ef4a92998c995af3778d5d3629028c6bee71d0c63b692fc2f61a0382b360"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the account.rs anchor changed; the claim still holds (only a comment line was added).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2030"
+          ],
+          "recorded_at": "2026-11-25T08:14:12.730619418Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0d1dcee5cd1ff3971c65568157d2a567ed2ba434873ad0226bc17cf134f2b3f"
+          }
         }
       ],
       "created_at": "2026-11-22T23:04:49.663095956Z",
-      "updated_at": "2026-11-22T23:05:58.537199086Z",
+      "updated_at": "2026-11-25T08:14:12.730619418Z",
       "seal": {
         "by": "server",
-        "mac": "6771dfbb702a69e89b732e05deeb37870b9e22a9345b9d08afde6b70dfa8e6bc"
+        "mac": "360bce99d00973b7670283bf0999b274ec86a79ec3a008654030ef9686fbd455"
       }
     },
     {
@@ -111168,6 +111203,886 @@
       "seal": {
         "by": "server",
         "mac": "7fe36f396c6cbcb98da95df5647983a632790f1d83d126c912a8195f66c77024"
+      }
+    },
+    {
+      "id": "CLM-1370",
+      "statement": "Issue #785 is resolved: every Account journey waits for the Account page to have loaded (.view[data-loaded=true]) before acting, through a helper a new journey cannot easily omit, and the issue's other possible causes (OIDC discovery stub timeout, Detached click on #confirm-ok) are addressed on their merits.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/785",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2028",
+          "kind": "analysis",
+          "locator": "children of CLM-1370",
+          "summary": "Journeys use open_account (wait fix, from main/#500), the stub and confirm dialog analyses hold, and the guard adds the 'cannot omit' protection for account.rs. One child is refuted: the raw-open comment on the failed-read journey gives a reason that the page code contradicts (the page still reaches loaded). That is a wrong comment, not a missed wait, so the issue's behavior requirement holds, but the PR's text is inaccurate.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T08:13:33.852460726Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb2b2a31a641489804586a9df363142896c0fd693f82d73c270c2bf0a52c4843"
+          }
+        },
+        {
+          "id": "EVD-2029",
+          "kind": "analysis",
+          "locator": "children of CLM-1370",
+          "summary": "Child CLM-1373 is refuted (the failed-read raw-open comment says the page never loads, but the page sets data-loaded even after a failed read). Other children are supported or unverifiable-by-no-run.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T08:13:38.365086318Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6f881063cb6c3e4a45321fbfd43e14d265b9820561989ee270ac5c9d931e38d"
+          }
+        },
+        {
+          "id": "EVD-2034",
+          "kind": "analysis",
+          "locator": "children of CLM-1370",
+          "summary": "Active children are supported (journeys, raw-open list, failed-read journey, guard, stub, dialog, constants) except two not_enough_info (CLM-1378 past 10x run, CLM-1382 revert check), which were not decidable without running. The earlier refuted child was retired after caf798d fixed it.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T08:17:30.383143884Z",
+          "seal": {
+            "by": "server",
+            "mac": "6879cdb4e56418e8afdc03e5fc37a3317c026e9ec136c43207d8da3f859e0428"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behavior requirement is met, but one child (the failed-read raw-open comment) is wrong, so the PR's account of its deliberate raw opens is inaccurate. Fix: correct or remove the failed-read raw open as described on that claim, then re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2029"
+          ],
+          "recorded_at": "2026-11-25T08:13:57.134390294Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f0df9a52f03aa1f1987ae1a2d156b2c44dddb202d60750ec13fa21734f8cf7b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at caf798d: the refuted child is fixed and retired, the remaining children are supported or undecidable without a run (not blocking).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2034"
+          ],
+          "recorded_at": "2026-11-25T08:17:34.034492632Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9e9772f86e3bfd72bcca81a750fb20dcb18e4f7b4a241524cb09c3ae21610ae"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:17:34.034492632Z",
+      "seal": {
+        "by": "server",
+        "mac": "977b7921963983d5155a80ee7468d8fb9a29b8017f76f3ff24d9df1d1eb69640"
+      }
+    },
+    {
+      "id": "CLM-1371",
+      "statement": "Every journey the issue names (the eight listed, #440's passkey rename journey, and the two sign-out/add-passkey journeys from the comments) opens the Account page through open_account, which calls wait_loaded, before its first action.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "Issue #785 body: 'Add wait_loaded(ui); after every ui.open(\"/account\") in these journeys ... fold the wait into a helper'",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2018",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/account.rs:144-145 and open_account call sites (awk map of fn -> open call)",
+          "summary": "open_account = ui.open + wait_loaded (wait_visible on #main .view[data-loaded=true]). It is the first page action in all 8 issue-listed journeys (password change 168, wrong current 201, mismatched 237, last sign-in 359, refused link 641, delete with password 926, refused deletion 970, passkey delete 1007), #440's rename journey (301), and the sign-out (418) and add-passkey (269) journeys. The only other ui.open(\"/account\") calls are the 4 raw ones plus the helper.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 123,
+                "end": 146
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.253113560Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6e2423ee741c6677589d67a39591f742cad7613092eeb829b6968d36d77b5e0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All named journeys call open_account first.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2018"
+          ],
+          "recorded_at": "2026-11-25T08:13:55.851657718Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0bc72f5c86fe421427b71f207840c321a44949c15c764d7047e1e7ed4dee2f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:55.851657718Z",
+      "seal": {
+        "by": "server",
+        "mac": "b70ea40b0ea4e61db72c682b4e4e9cb34e47098f1cde0fc276cfe875b3c19860"
+      }
+    },
+    {
+      "id": "CLM-1372",
+      "statement": "PR body: \"The helper and the four deliberate raw opens (two held reads, one failed read, a key's refused session) carry the comment\" - exactly four ui.open(\"/account\") calls outside open_account exist, each is one of those kinds, and each is preceded by a // raw-open: comment.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Changes section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded: the PR body now states three raw opens, not four; replaced by a claim on the new text.",
+        "retired_at": "2026-11-25T08:17:07.148000610Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2019",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/account.rs:557-558, 677-678, 1038-1039, 1074-1075; helper 143-144",
+          "summary": "Exactly four raw opens outside the helper: held /me/sessions read (558), a key's refused session (678), held /api/v1/me read (1039), failed /api/v1/me read (1075). Each is directly preceded by a // raw-open: comment, as is the helper's own open (143). Counts match the PR body.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "ui\\.open\\(\"/account\"\\);",
+              "scope": [
+                "tests/ui_e2e"
+              ],
+              "hits": 6,
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.343358588Z",
+          "seal": {
+            "by": "server",
+            "mac": "9190d0f979a1e52fc60fc0ae7868d3938a657d2dcf175bff12845483d68f6619"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Four raw opens, each commented, of the stated kinds (the failed-read one's reason is judged separately).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2019"
+          ],
+          "recorded_at": "2026-11-25T08:13:55.998648198Z",
+          "seal": {
+            "by": "server",
+            "mac": "74ff285ef88284b78d34c235d9e05502f686465887f23746448f85b388013f2e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:17:07.148000610Z",
+      "seal": {
+        "by": "server",
+        "mac": "3cda9679bb2fe3e0cfa66d680759be47ca8a6a305266c999717b432821717d9a"
+      }
+    },
+    {
+      "id": "CLM-1373",
+      "statement": "The // raw-open: comment on the failed-read journey (\"the failed read means the page is never fully loaded\") is true: a failed account read leaves .view[data-loaded=true] unset.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "tests/ui_e2e/account.rs comment above the ui.open in a_failed_account_read_draws_no_deletion_control; PR body Changes section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs",
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded: commit caf798d removed the false comment and moved the journey to open_account; replaced by a claim on the new text.",
+        "retired_at": "2026-11-25T08:17:07.075183032Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2020",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:80-82 and 452-461",
+          "summary": "drawAccount catches a failed freshAccount() and returns (toasted); the Promise.all of all six draws then resolves and main.dataset.loaded = 'true' is set. The page's own comment says each draw settles 'a failed read included'. So with GET /api/v1/me failing 503 the page still reaches data-loaded=true, contradicting the comment on the journey's raw open.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 80,
+                "end": 83
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.426354674Z",
+          "seal": {
+            "by": "server",
+            "mac": "894f3ab73faea89145603a0099fc9abc57088b78aacadf3194d476d295db312d"
+          }
+        },
+        {
+          "id": "EVD-2021",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:452-461",
+          "summary": "The marker comment states 'Every section has now drawn (each draw settles on its own, a failed read included)' right before setting main.dataset.loaded.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 452,
+                "end": 461
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.522876090Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b8fb9e429336a513559ab0167dd732af34744606ce5b9e88b4167c9cb22d130"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "drawAccount returns on a failed read and the page's own comment says the marker is set after every draw settles, failed reads included, so the page does load after the 503 and the comment's reason is wrong. Fix: in tests/ui_e2e/account.rs a_failed_account_read_draws_no_deletion_control, use open_account(ui) instead of the raw open (and drop the comment), or reword the comment to give a true reason; also fix the PR body and changelog counts to three deliberate raw opens if changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2020",
+            "EVD-2021"
+          ],
+          "recorded_at": "2026-11-25T08:13:56.139380909Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5b1d639e7d04c7215afe606e6b6fb25e4a5453483d64a99a9cf421ca503d1eb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:17:07.075183032Z",
+      "seal": {
+        "by": "server",
+        "mac": "40be83aba5a8e8b931cd1e5317e8e5f16db4ba373ca96a48cbe6fba9195d088b"
+      }
+    },
+    {
+      "id": "CLM-1374",
+      "statement": "PR body: the test every_raw_open_of_the_account_page_says_why_it_skips_the_wait fails on any ui.open(\"/account\"); line not preceded by a // raw-open: comment.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body, Changes section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2022",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/account.rs:1093-1118",
+          "summary": "The test reads its own source via include_str!, flags lines whose trimmed text equals ui.open(\"/account\"); unless the previous line starts with // raw-open:, and asserts the list is empty. Read by hand against the 6 matching lines: all are preceded by the comment, so it passes; removing a comment makes that line flagged. Limits: exact-literal match only (a route with a query, spacing variants, or a raw open in another file are not caught), and the 'previous line' must be the comment. Not run (no build allowed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1090,
+                "end": 1118
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.612154384Z",
+          "seal": {
+            "by": "server",
+            "mac": "99f42ced6a1d33c04f8675bc88e0bcc71cae456537579beb9d7994797b2b25b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The assertion logic matches the statement by reading (not run).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2022"
+          ],
+          "recorded_at": "2026-11-25T08:13:56.280773361Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f189afde1c4d653abfbb55128247906cf3098db6db3b4de04bb853c31bf4569"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:56.280773361Z",
+      "seal": {
+        "by": "server",
+        "mac": "00aa9f043b3ab8c76d95fb19048de6e26c26b46b3fbc685a1807b678af8b8503"
+      }
+    },
+    {
+      "id": "CLM-1375",
+      "statement": "PR body: the OIDC discovery stub answers 503 at once with no timeout of its own and the server does not retry, so the toast cannot be late because of the stub; the harness wait is now 60 s.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Findings section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "src/oidc/testing.rs",
+        "src/oidc.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2023",
+          "kind": "inspection",
+          "locator": "src/oidc/testing.rs:137-141; src/oidc.rs:546-562 (discover), 66, 354; tests/ui_e2e/harness.rs:13",
+          "summary": "The stub's discovery handler returns StatusCode::SERVICE_UNAVAILABLE immediately when discovery_down is set, with no delay. Server discover() makes one discover_async call and maps the error to OidcError::Discovery; client() with an empty cache returns that error with no retry loop. HTTP_TIMEOUT (10 s) applies only to a connection that hangs, which a 503 does not. Harness WAIT is Duration::from_secs(60).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc/testing.rs",
+              "lines": {
+                "start": 137,
+                "end": 141
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.720682492Z",
+          "seal": {
+            "by": "server",
+            "mac": "080034a65b35b049e0e71fb2f3f546a4758e26a1576d41f607c05b120dc30a3a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "503 is immediate, discover is single-shot, WAIT is 60 s.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2023"
+          ],
+          "recorded_at": "2026-11-25T08:13:56.391553958Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0bc5958569d91faaea9d7642fabdf10cacdadc2e6a1bd82e6ac7a9056da3fad"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:56.391553958Z",
+      "seal": {
+        "by": "server",
+        "mac": "c1b371bfc131d67d64831084554bc17dc87749bd395e0f83bb1aff1dd164a9c0"
+      }
+    },
+    {
+      "id": "CLM-1376",
+      "statement": "PR body: the confirm dialog is appended to body, outside #main, so a page redraw cannot detach #confirm-ok.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Findings section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "src/http/ui/js/components/confirm.js"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2024",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/components/confirm.js:22-23",
+          "summary": "confirmDialog builds the dialog and calls document.body.append(dialog); dialog.showModal() synchronously. #main is not an ancestor, so a page redraw (which replaces content in #main) does not detach #confirm-ok; it is removed only by done().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/components/confirm.js",
+              "lines": {
+                "start": 20,
+                "end": 24
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.808250078Z",
+          "seal": {
+            "by": "server",
+            "mac": "e277330961f1dc249063add4a85c5e0c6cf3050d8d293cdaa25ebd87b1d71f3d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Dialog is appended to document.body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2024"
+          ],
+          "recorded_at": "2026-11-25T08:13:56.571177681Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc94ddf0f63a2ad71456a99ef8f0b276cc18453fb3de7e73f68a26ff8a8318fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:56.571177681Z",
+      "seal": {
+        "by": "server",
+        "mac": "10b705bebb1e0e01763000dddaddd7009d16a7537d343d4c9d70df12e9ed98f6"
+      }
+    },
+    {
+      "id": "CLM-1377",
+      "statement": "PR body: Chromium maps localhost to IPv4 in the harness, and the harness wait is 60 s (both already on main from #500).",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body, Summary",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2025",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:13-24, 118; git show 01494f1",
+          "summary": "WAIT = 60 s, LOCALHOST_IS_IPV4 = --host-resolver-rules=MAP localhost 127.0.0.1 passed to the browser; both came in with commit 01494f1 (Closes #500), already on origin/main, not in this branch's diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 13,
+                "end": 24
+              },
+              "commit": "8ea769fbe26de1cab0361500871937e592298c71"
+            }
+          },
+          "recorded_at": "2026-11-25T08:13:25.905397947Z",
+          "seal": {
+            "by": "server",
+            "mac": "f84a7cc27c8582ea146238b0a02d07d92d9607b62d88fa18172b0e98a56b585a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both constants present, from #500.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2025"
+          ],
+          "recorded_at": "2026-11-25T08:13:56.744031092Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a42b77af46c1a1e98874e3ff2802d330bb7dd190e2f6de75d5a6b3eec284078"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:56.744031092Z",
+      "seal": {
+        "by": "server",
+        "mac": "a6bdf95e8f8aaba2e7b07e6c49659ea887e4a4f2275e074b856fa94aa2fc1cdb"
+      }
+    },
+    {
+      "id": "CLM-1378",
+      "statement": "PR body: 23 account:: journeys, 10 repeats alone on main before this change, passed 10 of 10 (the #431 journey included).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Validation section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2026",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/account.rs (count of #[tokio::test] on origin/main = 23); no run",
+          "summary": "The journey count of 23 matches origin/main. The 10-of-10 result is a past run that was not repeated here (builds and gates forbidden on the busy machine), so it cannot be confirmed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T08:13:33.546874068Z",
+          "seal": {
+            "by": "server",
+            "mac": "973ef5c310768838828e3de2fb08bef8ef46fb5565eb2a5c5a2b125201869306"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "A past run result; no builds allowed in this audit. Fix: rerun `tools/agentic/gate.sh narrow --test ui_e2e -- account::` ten times on origin/main when the machine is free and quote the counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T08:13:56.901266384Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b8385b10e6c4fc5b7973572f20f603b21883f6233b9e145394d0b152a285b71"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:13:56.901266384Z",
+      "seal": {
+        "by": "server",
+        "mac": "627a50fb71820e863b1ce7ba8d37234bfc472cf5ec325e693cf952e32d43ae33"
+      }
+    },
+    {
+      "id": "CLM-1379",
+      "statement": "PR body: the guard test fails when a // raw-open: comment is removed (reported line 678) and passes when restored.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Validation section",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded: the PR body no longer quotes a reported line; replaced by a claim on the new text.",
+        "retired_at": "2026-11-25T08:17:07.222116404Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2027",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/account.rs:1093-1118 read by hand; no run",
+          "summary": "By reading, removing a comment makes the guard flag the line, and restoring it passes, so the behaviour is plausible. Not rerun here (no builds). The 'reported line 678' is ambiguous: deleting the comment line at 677 would move the open to 677, so 678 holds only if the comment text was altered rather than the line deleted.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T08:13:33.730153976Z",
+          "seal": {
+            "by": "server",
+            "mac": "ab33cc5ae69d91b0f04d9f150ab2cdff99d223cb123bbcd288817c0e8d167fec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Not rerun, and the reported line 678 is inconsistent with deleting the comment line. Fix: run the guard test with the comment above line 678 deleted and quote the reported line, or drop the line number from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T08:13:57.014501659Z",
+          "seal": {
+            "by": "server",
+            "mac": "6507ff55e522be03c1b16b6b5f340ce2c73e5065a9302a102b474460d3868cda"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:13:03.409486751Z",
+      "updated_at": "2026-11-25T08:17:07.222116404Z",
+      "seal": {
+        "by": "server",
+        "mac": "9375d36652be26c91e8dd41fa3d1cced22bbe96993df940b9691101f8c0dd431"
+      }
+    },
+    {
+      "id": "CLM-1380",
+      "statement": "PR body: the helper and the three deliberate raw opens (two held reads, a key's refused session) carry the // raw-open: comment, and no other ui.open(\"/account\") call exists in tests/ui_e2e.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Changes section (after caf798d)",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2031",
+          "kind": "inspection",
+          "locator": "git grep -n 'ui.open(\"/account\");' tests/ui_e2e at caf798d",
+          "summary": "Five matches: account.rs 144 (helper), 558 and 1039 (held reads), 678 (key session), 1101 (the guard's own string literal). Each of the first four is preceded by a // raw-open: comment (143, 557, 677, 1038). No other file opens /account raw.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "ui\\.open\\(\"/account\"\\);",
+              "scope": [
+                "tests/ui_e2e"
+              ],
+              "hits": 5,
+              "commit": "caf798d429e65da1af30fedfeae05edade16d534"
+            }
+          },
+          "recorded_at": "2026-11-25T08:17:15.021124520Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1e5a564c09711c26e3b4a72165cf456e196f462411dbd9f596ee64f96a6e96a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search finds only the helper, three commented raw opens and the guard's own literal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2031"
+          ],
+          "recorded_at": "2026-11-25T08:17:30.158362779Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fc82eb39a99bcbaeb5d6f45e593db256b6fd9d8efcbcfd45206aaccad4f6ec8"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:17:07.294237719Z",
+      "updated_at": "2026-11-25T08:17:30.158362779Z",
+      "seal": {
+        "by": "server",
+        "mac": "d8435a1280d1f7d749f89f919892fa245f2fb1e68616de7ee6b3fc0f81c076f1"
+      }
+    },
+    {
+      "id": "CLM-1381",
+      "statement": "a_failed_account_read_draws_no_deletion_control opens the page through open_account, and its comment 'A failed read still settles, so the page does set its marker' is true: a failed account read still sets .view[data-loaded=true].",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Changes section (after caf798d); tests/ui_e2e/account.rs",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs",
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2032",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/account.rs:1066-1080; src/http/ui/js/pages/account.js:80-83,452-461",
+          "summary": "The journey now calls open_account(ui) after fail_next on /api/v1/me, under the comment 'A failed read still settles...'. drawAccount catches the failure and returns, so the Promise.all settles and main.dataset.loaded = 'true' is set, so wait_loaded will succeed and the later assertions (no delete controls, #account-delete-loading) are unaffected by waiting. Not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1066,
+                "end": 1082
+              },
+              "commit": "caf798d429e65da1af30fedfeae05edade16d534"
+            }
+          },
+          "recorded_at": "2026-11-25T08:17:15.100752404Z",
+          "seal": {
+            "by": "server",
+            "mac": "e96e8ece26377b5bb2a1121a4758c2c95a28fbefad104b6044be626763eff7f9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The journey uses open_account and the page code sets the marker after a failed read, so the comment is true (by reading, not run).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2032"
+          ],
+          "recorded_at": "2026-11-25T08:17:30.234048140Z",
+          "seal": {
+            "by": "server",
+            "mac": "b81b2bb06ddd2b63dba88eb95d2ecc246a43dd19a99b313d2133edc4a8792ac7"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:17:07.294237719Z",
+      "updated_at": "2026-11-25T08:17:30.234048140Z",
+      "seal": {
+        "by": "server",
+        "mac": "bce657582401decc99430f02f925fb7f0f6e4991d2d8a0d970a67f2f3d04dd7d"
+      }
+    },
+    {
+      "id": "CLM-1382",
+      "statement": "PR body: the guard test fails when a // raw-open: comment is removed and passes when restored (checked).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Validation section (after caf798d)",
+      "derived_from": [
+        "CLM-1370"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:785"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2033",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/account.rs:1093-1118 read by hand; no run",
+          "summary": "By reading, the guard flags a raw open whose previous line does not start with // raw-open:. Changing the comment to plain text at 677 leaves the open on 678 and the guard reports [678], consistent with the author's reported revert check. That check is the author's account and was not rerun here (no builds), so it is not evidence.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T08:17:15.175164499Z",
+          "seal": {
+            "by": "server",
+            "mac": "eaad2086ba68a64df6a99c99b166a7ae7e992cf239262233e257089c99b81578"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Plausible by reading, but a run result I did not repeat; the author's own report is not evidence. Fix: with the machine free, run the guard test (`tools/agentic/gate.sh narrow --test ui_e2e -- every_raw_open`) with the comment above the key-session open changed to plain text, confirm it panics with lines [678], restore, confirm it passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T08:17:30.308700437Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1b1a578f09abd8a8c92c987ecac1fe36fd31a978dd4ac7b13859dc929acb63f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T08:17:07.294237719Z",
+      "updated_at": "2026-11-25T08:17:30.308700437Z",
+      "seal": {
+        "by": "server",
+        "mac": "396bd5107b962c7b3818162cf466b1a18ba372549e54d8ca76f2d05b999e41a8"
       }
     }
   ]

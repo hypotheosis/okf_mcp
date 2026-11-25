@@ -36,6 +36,20 @@ const X: &str = "---\ntype: Note\ntitle: X\ndescription: X.\n---\n# X\n";
 
 /// Two replicas sharing one catalog `pg`.
 async fn pair() -> (TestApp, Arc<App>, TestRedis) {
+    pair_with(Config::default()).await
+}
+
+/// A config whose cached catalog rows do not expire during a test, so the TTL
+/// backstop cannot show a publish and hide a missing announcement or catch-up.
+fn never_expiring() -> Config {
+    Config {
+        catalog_ttl: Duration::from_secs(3600),
+        ..Config::default()
+    }
+}
+
+/// Two replicas sharing one catalog `pg`, started with `config`.
+async fn pair_with(config: Config) -> (TestApp, Arc<App>, TestRedis) {
     let files: &[(&str, &str)] = &[
         ("index.md", INDEX),
         ("infra/index.md", INFRA),
@@ -43,7 +57,7 @@ async fn pair() -> (TestApp, Arc<App>, TestRedis) {
     ];
     tokio::time::timeout(
         Duration::from_secs(120),
-        replica_pair(&[("pg", files)], Config::default()),
+        replica_pair(&[("pg", files)], config),
     )
     .await
     .expect("starting two replicas within 120 s")
@@ -214,7 +228,9 @@ async fn a_lost_announcement_is_caught_up_when_the_row_expires() {
 /// Redis does not replay the announcement it missed.
 #[tokio::test(flavor = "multi_thread")]
 async fn a_subscriber_catches_up_on_a_missed_publish_when_it_subscribes() {
-    let (a, b, _redis) = pair().await;
+    // An hour: B's cached row must not expire, or the TTL backstop would
+    // show the publish and hide a missing catch-up.
+    let (a, b, _redis) = pair_with(never_expiring()).await;
     let on_a = writer(&a, "alice", "pg").await;
     let on_b = alice_on(&b);
     // B holds pg before A publishes.
@@ -284,23 +300,7 @@ impl Source for RestartWindow {
 /// code's own subscribe end in the same catch-up.
 #[tokio::test(flavor = "multi_thread")]
 async fn a_publish_during_a_resubscribe_window_is_seen_once_the_subscriber_returns() {
-    let files: &[(&str, &str)] = &[
-        ("index.md", INDEX),
-        ("infra/index.md", INFRA),
-        ("infra/x.md", X),
-    ];
-    // An hour: B's cached row must not expire during the test, or the TTL
-    // backstop would show the publish and hide a missing catch-up.
-    let config = Config {
-        catalog_ttl: Duration::from_secs(3600),
-        ..Config::default()
-    };
-    let (a, b, _redis) = tokio::time::timeout(
-        Duration::from_secs(120),
-        replica_pair(&[("pg", files)], config),
-    )
-    .await
-    .expect("starting two replicas within 120 s");
+    let (a, b, _redis) = pair_with(never_expiring()).await;
     let on_a = writer(&a, "alice", "pg").await;
     let on_b = alice_on(&b);
     read(&on_b, "/index.md", None).await;

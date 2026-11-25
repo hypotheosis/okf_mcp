@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1522,
+  "next_claim_seq": 1537,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "477fc78d85785b1ee5d1ab56167de81698fec5b6f60607fd3a171c97f276d98f"
+    "mac": "a2a974df821fe4f067ee94f61a27552a5a9a15353433ecd5c23b5526306449c2"
   },
-  "next_evidence_seq": 2253,
+  "next_evidence_seq": 2274,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "055d2e3c07b516de2b1d5835496d5cc5638b77e5893aa4d6415c98c19c9e7fd0"
+    "mac": "43b6af3b97f4828c53b1a76fce882f042b09d0d2578bc3cc4b54a4cf548dbd24"
   },
   "claims": [
     {
@@ -16409,7 +16409,9 @@
         "issue:891"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Described the README text that issue 1062 rewrote; the defect is fixed there.",
+        "retired_at": "2026-11-25T23:41:55.314217367Z"
       },
       "evidence": [
         {
@@ -16451,10 +16453,10 @@
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-21T20:02:54.689347162Z",
+      "updated_at": "2026-11-25T23:41:55.314217367Z",
       "seal": {
         "by": "server",
-        "mac": "9ab1c1511235b254384ce4b216e706598994eaba1d98b0463e70be7b7367bb3e"
+        "mac": "424c664c1f93ae17491bb19af2c50ab613a7d799d64e17f486cbf06d1705fc35"
       }
     },
     {
@@ -16485,7 +16487,9 @@
         "issue:891"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Described the README text that issue 1062 rewrote; the defect is fixed there.",
+        "retired_at": "2026-11-25T23:41:55.436910738Z"
       },
       "evidence": [
         {
@@ -16562,10 +16566,10 @@
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-25T13:01:53.483111258Z",
+      "updated_at": "2026-11-25T23:41:55.436910738Z",
       "seal": {
         "by": "server",
-        "mac": "bd16e3c68fa581cdf74b9fa75e2fce5b1fd8a376d2d66810a2f2baf20b368b49"
+        "mac": "a434c5a85893da23c1b69e07b9dbd7c429f66794fb922cfe47143f349a20dc47"
       }
     },
     {
@@ -16596,7 +16600,9 @@
         "issue:891"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Described the README text that issue 1062 rewrote; the defect is fixed there.",
+        "retired_at": "2026-11-25T23:41:55.523143814Z"
       },
       "evidence": [
         {
@@ -16638,10 +16644,10 @@
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-21T20:02:54.734721428Z",
+      "updated_at": "2026-11-25T23:41:55.523143814Z",
       "seal": {
         "by": "server",
-        "mac": "3d3190e35056f7b1c0594eaa0a4fbbc23f0c18dc5614104ca9cb3de075403e7e"
+        "mac": "da2ef07c9616c4acd5f5b16e4d1b9c3d27037ba7b60e3a704b68b5144d59db41"
       }
     },
     {
@@ -123297,6 +123303,1087 @@
       "seal": {
         "by": "server",
         "mac": "697ff9a1ba97b7aab34057b1070535d89cdf3777d3692f0e4509fd3fa2296971"
+      }
+    },
+    {
+      "id": "CLM-1522",
+      "statement": "Issue #1062 is implemented: every tool that can overwrite or remove content is destructiveHint true per the MCP spec, and the docs follow.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1062 (Decision)",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/annotations.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2269",
+          "kind": "analysis",
+          "locator": "children of CLM-1522",
+          "summary": "Every code and generated-doc requirement of the issue (class split, 12 hints, 4 additive tool sets unchanged, send_feedback, idempotent/open-world invariants, tool_label, descriptions, tools.md) is supported. The README rewrite (CLM-1531) is refuted: it says 17 destructive but lists 16 and totals do not add to 46.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T23:38:57.695910060Z",
+          "seal": {
+            "by": "server",
+            "mac": "51a8e0109970b204e09598f3209c74d891c9cd14022a3b1d23abad66c231ec5d"
+          }
+        },
+        {
+          "id": "EVD-2273",
+          "kind": "analysis",
+          "locator": "children of CLM-1522",
+          "summary": "All 14 children are now supported: the code, hints, docs and README counts match the issue, and the PR body statements hold.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:41:43.282835124Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c8f654c2c18e1e0affbc4f9a4fa375a4cec473c7f09626361a85df43276c92b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "All children are supported except the README count rewrite. Fix: correct the README (and changelog) destructive count to 16, then re-audit the README claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2269"
+          ],
+          "recorded_at": "2026-11-25T23:39:01.469655107Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e5be679e2bebe706a02fb6e02e9d518ad7ff9b109741bd7a218675527cfc9d0"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Every child is supported after the README count fix at aab5d79.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2273"
+          ],
+          "recorded_at": "2026-11-25T23:41:45.945440275Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa0b4f356e2488fc795a2e30f009927e16ccdeddd05010bef8df50b79c435062"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:41:45.945440275Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c5f77fa53a2f6f9266fed28e98b13801d97feca034070f295a5382d85fa7ee7"
+      }
+    },
+    {
+      "id": "CLM-1523",
+      "statement": "annotations.rs splits STAGED into ADDITIVE (add_source, create_concept, log, maintenance_claim, maintenance_dispose, maintenance_renew, maintenance_submit, open_changeset, question) and STAGED_DESTRUCTIVE (edit_document, index, move_concept, remove_source, repair_indexes, replace_body, review, revert, set_frontmatter, split_concept, stamp, unquestion), and expected() gives ADDITIVE destructive=false and STAGED_DESTRUCTIVE destructive=true.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #1062 Work: 'src/mcp/annotations.rs: split STAGED ... Update expected() and the class tests'; PR body: 'STAGED is split into ADDITIVE (9 tools, stay false) and STAGED_DESTRUCTIVE (12 tools, now true)'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/annotations.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2253",
+          "kind": "inspection",
+          "locator": "src/mcp/annotations.rs:42-81,100-125",
+          "summary": "ADDITIVE holds the 9 named tools, STAGED_DESTRUCTIVE the 12 named tools (exactly the issue's table), and expected() maps ADDITIVE to destructive false and STAGED_DESTRUCTIVE/DESTRUCTIVE to destructive true. Matches the issue table with no discrepancy.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/annotations.rs",
+              "lines": {
+                "start": 42,
+                "end": 125
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.146327383Z",
+          "seal": {
+            "by": "server",
+            "mac": "462c2c1d6d2b5ae7d9696e56f4acd5258af5c740622fecc4d9871d5760dc8d44"
+          }
+        },
+        {
+          "id": "EVD-2254",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib mcp::",
+          "summary": "Ran on head 40fe06e: 269 passed, 0 failed (includes every_tool_is_classified_exactly_once and every_tool_has_a_title_and_all_four_hints).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:38:14.247663661Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ec02ab5c75f2cd3facd7d5ce43c1e7daf834e236f1b0ea8b6226a45e781bca1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lists match the issue table exactly; expected() maps them correctly; the class tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2253",
+            "EVD-2254"
+          ],
+          "recorded_at": "2026-11-25T23:38:55.318343029Z",
+          "seal": {
+            "by": "server",
+            "mac": "b24b1b5c29a90dd12d70bbeee0bd4c05b89a8e70c26f747735f4d7cad6722922"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:55.318343029Z",
+      "seal": {
+        "by": "server",
+        "mac": "85dc66a6007c39070b3084ca2099a4ff9974ba069c3b02a39516292fa6bed22f"
+      }
+    },
+    {
+      "id": "CLM-1524",
+      "statement": "The #[tool] attributes of edit_document, replace_body, set_frontmatter, remove_source, unquestion, revert, review, stamp, index, repair_indexes, move_concept and split_concept have destructive_hint = true, and the test every_tool_has_a_title_and_all_four_hints checks each registered tool against its class.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #1062 Reclassification table; PR body: '#[tool(...)] hints set to true for edit_document, ... split_concept, send_feedback'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs",
+        "src/mcp/changesets.rs",
+        "src/mcp/restructure.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2255",
+          "kind": "inspection",
+          "locator": "git show 5d58636 -- src/mcp/writes.rs src/mcp/changesets.rs src/mcp/restructure.rs; src/mcp/annotations.rs:172-200",
+          "summary": "The diff flips destructive_hint to true on Edit Document, Replace Concept Body, Set Frontmatter, Stamp Concept, Record Review, Resolve Question (unquestion), Remove Source, Add Index Entry, Repair Indexes, Revert Document, Move Concept, Split Concept. The test asserts each registered tool's destructive_hint equals expected(name), which is true for these 12.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/annotations.rs",
+              "lines": {
+                "start": 172,
+                "end": 200
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.338985374Z",
+          "seal": {
+            "by": "server",
+            "mac": "e19a1632169e22c1271747c7187bb795b221697919684ed67ecb7c31dd9a7019"
+          }
+        },
+        {
+          "id": "EVD-2256",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib mcp::",
+          "summary": "269 passed, 0 failed on head, so every_tool_has_a_title_and_all_four_hints holds for all registered tools.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:38:14.434963718Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec2759f1501dda6131e313e2d53826f5d46e5064ff6edb655a4804579c7044fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff sets the 12 hints and the per-tool test asserting them passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2255",
+            "EVD-2256"
+          ],
+          "recorded_at": "2026-11-25T23:38:55.518984274Z",
+          "seal": {
+            "by": "server",
+            "mac": "42c7a2162e06b3aaf88a292fa10447a9f357d8723a421d5af1390fb163237726"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:55.518984274Z",
+      "seal": {
+        "by": "server",
+        "mac": "6fc46ab00388f6f36e036cc77bc3d78974a349ad1309a62c26547a3086c9265f"
+      }
+    },
+    {
+      "id": "CLM-1525",
+      "statement": "open_changeset, create_concept, add_source, question, log and the four maintenance_claim/renew/submit/dispose tools stay destructiveHint false.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #1062: 'Stays destructiveHint: false (additive only)' and 'Maintenance tools ... stay additive'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/annotations.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2257",
+          "kind": "test",
+          "locator": "src/mcp/annotations.rs:42-52 and every_tool_has_a_title_and_all_four_hints (269 passed)",
+          "summary": "The nine tools are the whole ADDITIVE list, which expected() maps to destructive false; the per-tool test passes on head, so their #[tool] attributes still say false (the diff left them untouched).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/annotations.rs",
+              "lines": {
+                "start": 42,
+                "end": 52
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.530061528Z",
+          "seal": {
+            "by": "server",
+            "mac": "13414e9d0d781bad5607e82079c7b78227ac8388d518c690c75dfdb0136bafd5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "ADDITIVE unchanged in membership of these nine and test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2257"
+          ],
+          "recorded_at": "2026-11-25T23:38:55.613606508Z",
+          "seal": {
+            "by": "server",
+            "mac": "69568e872a0abcfa8478c47cfadcc010ea3320e63afaa954ac72e7cd08f1b0a3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:55.613606508Z",
+      "seal": {
+        "by": "server",
+        "mac": "cac2dae05416bf00886d380659e0e517b33cc331183dd6daba6433a12f429285"
+      }
+    },
+    {
+      "id": "CLM-1526",
+      "statement": "send_feedback has destructiveHint true and openWorldHint true, readOnlyHint false, idempotentHint false.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #1062: 'send_feedback (EXTERNAL): becomes destructiveHint: true. It is open-world'; PR body: 'send_feedback is now destructiveHint: true (still open-world)'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/feedback.rs",
+        "src/mcp/annotations.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2258",
+          "kind": "test",
+          "locator": "src/mcp/feedback.rs:185-192,305-314; src/mcp/annotations.rs:119-125",
+          "summary": "The #[tool] has read_only false, destructive true, idempotent false, open_world true; the feedback unit test asserts (Some(false), Some(true), Some(false), Some(true)); expected() EXTERNAL gives the same. Passes in the 269-test run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/feedback.rs",
+              "lines": {
+                "start": 300,
+                "end": 314
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.645738547Z",
+          "seal": {
+            "by": "server",
+            "mac": "c340aaa5c1deabf4c260b29578a0ad5464572baaf9433ba4d2bdf6ea17915d2d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Attribute and unit test both show destructive true, open-world true.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2258"
+          ],
+          "recorded_at": "2026-11-25T23:38:55.815383609Z",
+          "seal": {
+            "by": "server",
+            "mac": "7bafadd41987afee1e2ff57a4fb3dc0e8e9917e206d0520a066086f4dfd4db33"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:55.815383609Z",
+      "seal": {
+        "by": "server",
+        "mac": "b75dffd4b3bf89452c01209f1a1d14695e6ab160839191364d30d7f373a89319"
+      }
+    },
+    {
+      "id": "CLM-1527",
+      "statement": "Every non-read tool has idempotentHint false, only the 20 read tools have idempotentHint true, and only send_feedback has openWorldHint true.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #1062: 'Every non-read tool stays idempotentHint: false and every catalog tool stays openWorldHint: false'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/annotations.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2259",
+          "kind": "analysis",
+          "locator": "git grep -h 'idempotent_hint = true' -- src (20); 'open_world_hint = true' (1); expected() at src/mcp/annotations.rs:98-130",
+          "summary": "20 idempotent_hint = true attributes, matching the 20 READS; 26 false; exactly 1 open_world_hint = true (send_feedback), 45 false. expected() enforces these per class in a passing test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/annotations.rs",
+              "lines": {
+                "start": 98,
+                "end": 130
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.767883094Z",
+          "seal": {
+            "by": "server",
+            "mac": "e34df22c8d469ad7fd5f2a8f85ffb544b1e6e73275198db4f0c31c455c9aee65"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Attribute counts and the enforcing test agree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2259"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.008215871Z",
+          "seal": {
+            "by": "server",
+            "mac": "eaa7a3236a2d1a7e7debb8c526a3499759fd538187520a70e70851b83e0694be"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:56.008215871Z",
+      "seal": {
+        "by": "server",
+        "mac": "106e71a2169317e3d6ae54d5888ccb2aebd5d1f04f9a0e36f88d2806b1693209"
+      }
+    },
+    {
+      "id": "CLM-1528",
+      "statement": "metrics::tool_label chains READS, ADDITIVE, STAGED_DESTRUCTIVE, DESTRUCTIVE and EXTERNAL, so every tool still has a label.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'metrics::tool_label chains the new lists, so every tool still has a label.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2260",
+          "kind": "test",
+          "locator": "src/telemetry/metrics.rs:1266-1275; src/mcp/annotations.rs:141-170 every_tool_is_classified_exactly_once",
+          "summary": "tool_label chains READS, ADDITIVE, STAGED_DESTRUCTIVE, DESTRUCTIVE, EXTERNAL. The classified-exactly-once test chains the same five lists and passes, so every registered tool is in one of them and gets a label.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 1266,
+                "end": 1275
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.856360006Z",
+          "seal": {
+            "by": "server",
+            "mac": "de934346b35d5a3ee711acd47073df31e72c592834b282d145c05471dc4e0f54"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "tool_label chains all five lists; the classification test covers every registered tool.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2260"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.202343859Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc534e99707875092c36072dac5f405e7d4760a2d8a4c5f8ec9bafd6ce1c2687"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:56.202343859Z",
+      "seal": {
+        "by": "server",
+        "mac": "c112e3bb9fcf5909ddd71e13946343aac0c853c2650ec762d9b3a3dab599eccf"
+      }
+    },
+    {
+      "id": "CLM-1529",
+      "statement": "The descriptions of edit_document, replace_body and set_frontmatter say the edit is staged, nothing changes until publish, and discard drops it.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'edit_document, replace_body and set_frontmatter descriptions say the edit is staged, nothing changes until publish, and discard drops it.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2261",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:262-268,286-296,310-320",
+          "summary": "All three descriptions end with 'Staged in the changeset: nothing changes until `publish`, and `discard` drops it. Write access.' (replace_body's wraps over two source lines).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 260,
+                "end": 320
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:14.944534486Z",
+          "seal": {
+            "by": "server",
+            "mac": "5bdc8d524900c20d8b9ded6ed0533c20f62c6f16c5a6b1b5714fb86e71abf387"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Text present in all three descriptions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2261"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.348439943Z",
+          "seal": {
+            "by": "server",
+            "mac": "058323f6897b9b3cae17288967c937c6720fd28630aae10483b3ae779609a7bc"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:56.348439943Z",
+      "seal": {
+        "by": "server",
+        "mac": "6e87f92860f536be45a80cde36b78d04f11bf49c216c1ead8d608d5cf6632014"
+      }
+    },
+    {
+      "id": "CLM-1530",
+      "statement": "docs/reference/tools.md is generated from src/mcp/reference.rs, is in sync with it, renames the 'staged' kind to 'additive', and defines destructive as may overwrite or remove existing content, staged or not.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'docs/reference/tools.md (regenerated from src/mcp/reference.rs): kinds redefined per the spec; the staged kind is renamed additive; destructive means may overwrite or remove existing content, staged or not.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2262",
+          "kind": "test",
+          "locator": "src/mcp/reference.rs:408 the_checked_in_tool_reference_matches_the_tool_list (within gate.sh narrow --lib mcp::, 269 passed); docs/reference/tools.md:40-57",
+          "summary": "The sync test passes, so tools.md equals the generated text. tools.md lists no 'staged' kind, has 'additive' (9) and defines destructive as 'can overwrite or remove existing content ... whether or not it is staged'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 40,
+                "end": 57
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:15.032153214Z",
+          "seal": {
+            "by": "server",
+            "mac": "a4e0892f6412350c3af8094b861f6b90f733ab1dc51c38f06e30ba51f26b628c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Sync test passes and tools.md text shows the redefinition and rename.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2262"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.532619478Z",
+          "seal": {
+            "by": "server",
+            "mac": "f21b76017f96b685f8d0a6f90e82187700b1b29aec68319792870eee0197f688"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:56.532619478Z",
+      "seal": {
+        "by": "server",
+        "mac": "aee19072be66db50d650b3d624f7623bdf3148c52c6f9453fece2eb9b193421f"
+      }
+    },
+    {
+      "id": "CLM-1531",
+      "statement": "The README counts (20 read-only, 9 additive, destructive tools, send_feedback, 46 in all) are consistent with each other and match the class lists in annotations.rs.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "README.md:316-333 ('Of the 46 tools: 20 read-only ... 9 additive ... 17 destructive ... send_feedback'); issue #1062 Work: 'README.md: Rewrite them for the new classes'",
+      "source_anchor": {
+        "path": "README.md",
+        "lines": {
+          "start": 315,
+          "end": 333
+        },
+        "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+      },
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "README.md"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2263",
+          "kind": "analysis",
+          "locator": "README.md:319-334 vs src/mcp/annotations.rs:15-81",
+          "summary": "Class sizes in code: READS 20, ADDITIVE 9, STAGED_DESTRUCTIVE 12, DESTRUCTIVE 4, EXTERNAL 1 = 46. README line 326 says '17 destructive' but its own list is 12 + 4 = 16, and send_feedback is then listed in a separate bullet; 20+9+17+1 = 47, not the 46 it states. send_feedback is also destructive, so 'destructive' is either 16 (excluding it) or 17 (including it) but the bullet structure double-counts. The other counts (20, 9, 46) are correct.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 319,
+                "end": 334
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:30.943092595Z",
+          "seal": {
+            "by": "server",
+            "mac": "19a8267ea8cbe9d5f0f1be9ed4d1262761d6788e0886ebda4d2317c433273647"
+          }
+        },
+        {
+          "id": "EVD-2270",
+          "kind": "analysis",
+          "locator": "README.md:319-334 at aab5d79 vs src/mcp/annotations.rs:15-81",
+          "summary": "README now says 20 read-only, 9 additive, 16 destructive (12 staged plus publish, discard, delete_concept, maintenance_close) and send_feedback separately: 20+9+16+1 = 46, matching READS 20, ADDITIVE 9, STAGED_DESTRUCTIVE 12 + DESTRUCTIVE 4, EXTERNAL 1. The changelog line 20 also says 16.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 319,
+                "end": 334
+              },
+              "commit": "aab5d799d47150d2ccb8abe9aa33387d876fdca6"
+            }
+          },
+          "recorded_at": "2026-11-25T23:41:29.779509176Z",
+          "seal": {
+            "by": "server",
+            "mac": "f18bec05167077fa1490f52991b5bbb3caabecd26df8322d0198bc67752ad085"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "README says 17 destructive but lists 12 + 4 = 16, then lists send_feedback separately; the stated total 46 does not equal 20+9+17+1 = 47. Fix: in README.md line 326 change '17 destructive' to '16 destructive' (12 staged plus publish, discard, delete_concept, maintenance_close), and make the same change in changelog/2026-11-26T01-00-00Z-issue-1062-destructive-hints.md line 20 ('17 destructive' to '16 destructive').",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2263"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.747437854Z",
+          "seal": {
+            "by": "server",
+            "mac": "f730da5a60ebce025b0bdc3807e6517a05c046cb70fc6a5928871ec7d61c33c9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "At aab5d79 the README counts 20+9+16+1 = 46 and match the code's class lists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2270"
+          ],
+          "recorded_at": "2026-11-25T23:41:42.846201206Z",
+          "seal": {
+            "by": "server",
+            "mac": "55233867bfd22d7e27960205cf6f7939ca63004e5de011f63fe6e6da3510f9bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:41:42.846201206Z",
+      "seal": {
+        "by": "server",
+        "mac": "af3e61d1a175801f987dce8fc054d45e8af11941d0868457244bc5d2bd28b64e"
+      }
+    },
+    {
+      "id": "CLM-1532",
+      "statement": "The PR body's README sentence is accurate: 20 read-only, 9 additive, 12 staged-destructive plus 4 other destructive (publish, discard, delete_concept, maintenance_close), and send_feedback; 46 tools in all.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'README.md: counts rewritten from the code: 20 read-only, 9 additive, 12 staged-destructive plus 4 other destructive (...), and send_feedback; 46 tools in all.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "target/pr-1062-body.md"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2264",
+          "kind": "analysis",
+          "locator": "src/mcp/annotations.rs:15-81 (list lengths)",
+          "summary": "READS 20, ADDITIVE 9 (includes the 4 maintenance steps), STAGED_DESTRUCTIVE 12, DESTRUCTIVE 4 (delete_concept, discard, maintenance_close, publish), EXTERNAL 1; 20+9+12+4+1 = 46. The PR body sentence matches the code exactly.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/annotations.rs",
+              "lines": {
+                "start": 15,
+                "end": 81
+              },
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:31.042394058Z",
+          "seal": {
+            "by": "server",
+            "mac": "9aaf295da2fb7951581e727bf8cc63effb60fbb90b521a45201982ef91478a71"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The sentence's counts equal the list lengths and sum to 46.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2264"
+          ],
+          "recorded_at": "2026-11-25T23:38:56.897969617Z",
+          "seal": {
+            "by": "server",
+            "mac": "1bed4a49775e331b3523e9c705d25792441b0a6eb7b2e3938a49738a13c6346d"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:56.897969617Z",
+      "seal": {
+        "by": "server",
+        "mac": "e76951d0498a915998683fd93b56785752abbcd75838248e54a3f96db2f89079"
+      }
+    },
+    {
+      "id": "CLM-1533",
+      "statement": "The PR body's list of 13 #[tool] hints set to true is exact: those 13 tools changed from destructive_hint false to true and no other #[tool] hint changed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: '#[tool(...)] hints set to true for edit_document, replace_body, set_frontmatter, remove_source, unquestion, revert, review, stamp, index, repair_indexes, move_concept, split_concept, send_feedback.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs",
+        "src/mcp/changesets.rs",
+        "src/mcp/restructure.rs",
+        "src/mcp/feedback.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2265",
+          "kind": "analysis",
+          "locator": "git show 5d58636 -- src | grep -B? 'destructive_hint'",
+          "summary": "The commit's src diff changes destructive_hint false->true on exactly 13 attributes: edit_document, replace_body, set_frontmatter, stamp, review, unquestion, remove_source, index, repair_indexes (writes.rs), revert (changesets.rs), move_concept, split_concept (restructure.rs), send_feedback (feedback.rs). Total destructive_hint = true in src is 17 = these 13 + publish, discard, delete_concept, maintenance_close. No other #[tool] hint changed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:38:31.123511762Z",
+          "seal": {
+            "by": "server",
+            "mac": "e696e45641a66fd8cf720ac56af65abc8bea44ac9cf92f8f3624fd461d7ce294"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff shows exactly those 13 flips.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2265"
+          ],
+          "recorded_at": "2026-11-25T23:38:57.066957617Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b7ff94e7f180f7b51649b5ea9d5ad51c403aa39513863dad9cbe4f52b3570b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:57.066957617Z",
+      "seal": {
+        "by": "server",
+        "mac": "414c49e9a3f69e9ea348b62444c875d09882d744479b485c944ec87f06af5ec2"
+      }
+    },
+    {
+      "id": "CLM-1534",
+      "statement": "After merging origin/main, 'gate.sh narrow --lib mcp::' passes with 269 tests, including the mcp::reference sync test.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'gate.sh narrow --lib mcp:: passed (269 tests), including the mcp::reference sync test.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2266",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib mcp::",
+          "summary": "Rerun on head 40fe06e (post-merge): 'test result: ok. 269 passed; 0 failed; 0 ignored; 2846 filtered out'. The reference sync test lives in mcp::reference and is in that filter.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:38:31.203952766Z",
+          "seal": {
+            "by": "server",
+            "mac": "94846c2867a6e4c8e72e34741b582a92713ae8be7495e4718f861e7f8d1769c4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 269 passed, 0 failed on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2266"
+          ],
+          "recorded_at": "2026-11-25T23:38:57.209625916Z",
+          "seal": {
+            "by": "server",
+            "mac": "432f1b303246fe52024746b8bdacfb2820f4b2ff74a448c7220b0a11abaad574"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:57.209625916Z",
+      "seal": {
+        "by": "server",
+        "mac": "b568c84710f6e3123faed9ce785597d2c6df2c681a90c9eb7723c6d6087406f9"
+      }
+    },
+    {
+      "id": "CLM-1535",
+      "statement": "gate.sh fmt, lint, dylint and test all passed before the merge of main.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'gate.sh fmt, lint, dylint, test: all passed before the merge of main.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "target/pr-1062-body.md"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2267",
+          "kind": "other",
+          "locator": "PR body Validation section",
+          "summary": "The fmt, lint, dylint and full test gates were not rerun (the brief forbids the full suite), and nothing in the repository records their earlier result. Only the narrow mcp:: run was reproduced.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T23:38:31.284028169Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8578a2527557ef0483eef9b533c0be82189647d7558ede5fcbddb9148c70831"
+          }
+        },
+        {
+          "id": "EVD-2271",
+          "kind": "log",
+          "locator": "target/i1062-logs/status.log, lint.log, dylint.log, test.log",
+          "summary": "status.log: lint, dylint, test each exit 0. lint.log and dylint.log end with 'Finished' and have no warning or error lines; test.log has every 'test result' line ok (main lib 3113 passed, 0 failed; no FAILED or panicked). Logs were last written 18:33, before the merge commit (18:33:30). I did not run fmt (no log for it) and cannot prove the logs ran on commit 5d58636 exactly, only that they are consistent with it.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:41:29.946692285Z",
+          "seal": {
+            "by": "server",
+            "mac": "b069a56e10fade93c4efc5c353062fc32bb721ab41e93aaa4dcf80b48dc87f9d"
+          }
+        },
+        {
+          "id": "EVD-2272",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt (on aab5d79)",
+          "summary": "Ran 'cargo fmt --all --check' via the gate: no output, exit 0 on head aab5d79.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T23:41:38.039730022Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0580880569aa734ba5afc55e727badca930201c03d8fbae5c7d2b4574c4798b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The earlier full gate runs cannot be reproduced under the brief's limits and are not recorded in the repo. Fix: rerun tools/agentic/gate.sh fmt, lint, dylint and test on the head commit and record the pass counts, or have the author quote the gate logs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T23:38:57.365635631Z",
+          "seal": {
+            "by": "server",
+            "mac": "568df2f3173f607e82c25a31e8624b63bc66a10cb09e418cb83756f4cf5fdaf5"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Logs show lint, dylint and test exit 0 with no failures; fmt rerun clean on head. Caveat: the logs' exact commit is not provable, only consistent with the pre-merge tree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2271",
+            "EVD-2272"
+          ],
+          "recorded_at": "2026-11-25T23:41:43.073657297Z",
+          "seal": {
+            "by": "server",
+            "mac": "185ab290f4d6b5eb7cc329e30cc6cb822438c0c5d99dd392ee41a4426a307227"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:41:43.073657297Z",
+      "seal": {
+        "by": "server",
+        "mac": "0adf077c908fb67cfd48730cd7b87859ac85258f671df2f5f4ca5a5b5521d5f8"
+      }
+    },
+    {
+      "id": "CLM-1536",
+      "statement": "The merge of origin/main (PR #1063) touched the publish description and docs/reference/tools.md and had no conflicts; a changelog entry was added for #1062.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'PR #1063 touched the publish description and docs/reference/tools.md; no conflicts' and 'Changelog entry added.'",
+      "derived_from": [
+        "CLM-1522"
+      ],
+      "artifacts": [
+        "changelog/2026-11-26T01-00-00Z-issue-1062-destructive-hints.md"
+      ],
+      "tags": [
+        "from-issue:1062"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2268",
+          "kind": "inspection",
+          "locator": "git show 40fe06e --stat; git diff 5d58636 40fe06e -- src/mcp/changesets.rs",
+          "summary": "The merge commit brought in 4b3f420's changes: the publish description gained the multi-replica read note in changesets.rs, docs/reference/tools.md changed by 2 lines, plus operations.md, a changelog and a test README. The merge is a clean commit with no conflict markers. The changelog file changelog/2026-11-26T01-00-00Z-issue-1062-destructive-hints.md exists. (The PR number #1063 was not checked on GitHub.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T01-00-00Z-issue-1062-destructive-hints.md",
+              "commit": "40fe06e96922fd580734340b6e7381bd1426a34f"
+            }
+          },
+          "recorded_at": "2026-11-25T23:38:31.367374847Z",
+          "seal": {
+            "by": "server",
+            "mac": "00ff8afd5f9f67dd155a36534e22cee407e76cee07987d6a977129b6983e0b27"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Merge diff shows the publish description and tools.md changes from main; changelog exists. The PR number was not verified on GitHub.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2268"
+          ],
+          "recorded_at": "2026-11-25T23:38:57.510584790Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4f797512dee7f951f2bffda7ee57989713483e16fcede3e4ba4d39485f96368"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T23:37:48.941679546Z",
+      "updated_at": "2026-11-25T23:38:57.510584790Z",
+      "seal": {
+        "by": "server",
+        "mac": "de8834a33f27343d2e8d82023d09c8c20427fc66d5c050e23f712b44bbb54610"
       }
     }
   ]

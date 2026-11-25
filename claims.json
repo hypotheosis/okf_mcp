@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1390,
+  "next_claim_seq": 1398,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "45ef1c74801886a4080dfe7e8bc21d807e16f96bdf76cab7c824932619cceba0"
+    "mac": "c15ec5596748657629e7d814f1c31f34aea6ea5ba30b3e3fe8bf2baed65db831"
   },
-  "next_evidence_seq": 2046,
+  "next_evidence_seq": 2054,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7ed5d8d61f96df3043da90f896931961f938482cbc383f043da16b37878194f5"
+    "mac": "7de5cd3fdfbd8dd76ab654ee60d31d5651459b9b915e267df1a95cfb48197189"
   },
   "claims": [
     {
@@ -112585,6 +112585,514 @@
       "seal": {
         "by": "server",
         "mac": "11e4f2eb590fdd395f5fae818dbedbe11a497cee928577196228b35e338e3ed5"
+      }
+    },
+    {
+      "id": "CLM-1390",
+      "statement": "Issue #935 is delivered: slugify strips angle-bracket link destinations containing ) from heading text, matching the CommonMark/GitHub slug",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/935",
+      "derived_from": [],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2053",
+          "kind": "analysis",
+          "locator": "children of CLM-1390",
+          "summary": "Children show the regex shares LINK's angle destination, the issue's two rows plus image forms yield see-x, and existing tests still pass, which together deliver the issue.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:44:59.491978371Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa1923923679da3795e53e424b933522effe37ce8842b83518fcbc2f55b16690"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported; see the roll-up evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2053"
+          ],
+          "recorded_at": "2026-11-25T09:45:14.390354250Z",
+          "seal": {
+            "by": "server",
+            "mac": "ae02e16e90267a68d8cd7942fa864a0f5c4057c059a93296c6053f4aaf2896e3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:14.390354250Z",
+      "seal": {
+        "by": "server",
+        "mac": "bac1e7de2999f9b1c1097eaf82934fe664ceb14e5637280191d28a5898e115cc"
+      }
+    },
+    {
+      "id": "CLM-1391",
+      "statement": "SLUG_LINK accepts the same angle-bracket destination text as LINK, from one shared definition, with an optional quoted title, before falling back to the plain `[^)]*` destination",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #935: 'SLUG_LINK must accept the same angle-bracket destination LINK accepts'; PR body: 'LINK and SLUG_LINK both build from it so they cannot drift'",
+      "source_anchor": {
+        "path": "src/okf/markdown.rs",
+        "lines": {
+          "start": 45,
+          "end": 99
+        },
+        "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+      },
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2046",
+          "kind": "inspection",
+          "locator": "src/okf/markdown.rs:45-52,62-69,89-99",
+          "summary": "angle_destination!() yields [^<>\\n\\r\\x1c-\\x1f]+ and is used by both LINK (inside <(...)>) and SLUG_LINK (<...> then optional [\\s\\x1c-\\x1f]+\"[^\"]*\" title, else [^)]* alternative). LINK's pre-change class was the identical string.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 45,
+                "end": 99
+              },
+              "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:44:55.111836967Z",
+          "seal": {
+            "by": "server",
+            "mac": "f97c7afa8e2ec21b9590e8f13297515631bb42a106dc58b7f6bb86514e6e71a0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both regexes interpolate the one angle_destination!() macro; SLUG_LINK adds optional title and fallback.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2046"
+          ],
+          "recorded_at": "2026-11-25T09:45:08.702446919Z",
+          "seal": {
+            "by": "server",
+            "mac": "2376192f963f7cbeda7cffacb2e1a7bfafbeab13566588a7c43faedfa42d73c5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:08.702446919Z",
+      "seal": {
+        "by": "server",
+        "mac": "40c62e2a615022c81e1c938a11dd34140132c01a2870f3470bf68e8e7fa02cd8"
+      }
+    },
+    {
+      "id": "CLM-1392",
+      "statement": "slugify(\"See [x](<a)b.md>)\") and slugify(\"See [x](<a b.md> \\\"t\\\")\") both return \"see-x\"",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #935: 'add slugify test rows for [x](<a)b.md>) and [x](<a b.md> \"t\")'; PR body: 'GitHub/CommonMark render see-x'",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2047",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib slugify -> okf::markdown::tests::slugify_strips_angle_bracket_destinations",
+          "summary": "6 slugify tests passed, 0 failed. The test asserts assert_eq!(slugify(h), \"see-x\") for \"See [x](<a)b.md>)\" and \"See [x](<a b.md> \\\"t\\\")\" (src/okf/markdown.rs:778-793), plus a title containing \")\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 778,
+                "end": 793
+              },
+              "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:44:55.450735512Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e076a39f892c2ca33c4e31b85d3f8b74f106dd3507e5f8cf9a29e7e73658d23"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The new test asserts both inputs equal see-x and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2047"
+          ],
+          "recorded_at": "2026-11-25T09:45:08.826260446Z",
+          "seal": {
+            "by": "server",
+            "mac": "a727f2591073e9c6f6be68872b782f520bdfb3dac893dc6264ef072b5a5de961"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:08.826260446Z",
+      "seal": {
+        "by": "server",
+        "mac": "9a62e8cc5a9e0edcedaf9671cd1ba9ea2281bf42cc4bbc25a068c22195939bec"
+      }
+    },
+    {
+      "id": "CLM-1393",
+      "statement": "slugify returns \"see-x\" for the image forms `See ![x](<a)b.png>)` and `See ![x](<a b.png> \"t\")`",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #935: 'and an image form'; PR body: 'two image forms'",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2048",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib slugify -> slugify_strips_angle_bracket_destinations (6 passed)",
+          "summary": "The same test loop includes \"See ![x](<a)b.png>)\" and \"See ![x](<a b.png> \\\"t\\\")\", asserted equal to \"see-x\"; SLUG_LINK starts with !? so the image forms share the link alternatives.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 778,
+                "end": 793
+              },
+              "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:44:55.569198831Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d186470e33c6b8fddc1b62c56fbd185a32909a1b5c293a227bbfe0466a6fc70"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both image rows are asserted in the passing test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2048"
+          ],
+          "recorded_at": "2026-11-25T09:45:08.955004488Z",
+          "seal": {
+            "by": "server",
+            "mac": "96878b7f30f855a1c56e065f85189739f3e7af590cffa70169022e9ced54e056"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:08.955004488Z",
+      "seal": {
+        "by": "server",
+        "mac": "03c1e88643afca6cf847912d720efaefacee62bc3cfa27c5f953490fe4180aed"
+      }
+    },
+    {
+      "id": "CLM-1394",
+      "statement": "The existing slugify tests (Python-parity table, word characters, emphasis table, property tests) and the LINK/find_links tests still pass at head",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #935: 'existing rows still pass'; PR body: 'Existing slugify tests (Python-parity table etc.) pass.'",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2049",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib okf::markdown",
+          "summary": "32 passed, 0 failed (includes slugify_cases, slugify_follows_python_word_characters, slugify_emphasis_table_matches_python, slugify_output_has_no_spaces_or_uppercase_ascii, slugify_output_has_no_dot, find_links and encoded-name round-trip tests) on head 3fb919d. Whole-crate suite not run (another process runs the gates).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:44:55.824342938Z",
+          "seal": {
+            "by": "server",
+            "mac": "36259972c9939c1ca04f28de9f26630191d3de5d9f14c2ced4b4c0eeebf2019d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All 32 okf::markdown tests pass, covering the existing slugify and link tests. Only the module was run, not the whole crate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2049"
+          ],
+          "recorded_at": "2026-11-25T09:45:09.109482562Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c5c3ab4e7b174e9cbe6fa04cf7e3226f7c1372cfdfce6441b8cdd34e1aad258"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:09.109482562Z",
+      "seal": {
+        "by": "server",
+        "mac": "e454159200a9b9973e414ed703131b669272f83601d59db5ea9242ce38293747"
+      }
+    },
+    {
+      "id": "CLM-1395",
+      "statement": "PR body: with the old SLUG_LINK, `## See [x](<a)b.md>)` slugged as `see-xbmd` instead of `see-x`",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'so `## See [x](<a)b.md>)` slugged as `see-xbmd` instead of `see-x`'",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2050",
+          "kind": "analysis",
+          "locator": "python3 re.sub of old SLUG_LINK r\"!?\\[((?:[^\\]\\\\]|\\\\.)*)\\]\\([^)]*\\)\" on \"See [x](<a)b.md>)\" (git show origin/main:src/okf/markdown.rs, old pattern)",
+          "summary": "Old pattern leaves \"See xb.md>)\"; slugify's remaining steps (SLUG_TAG no match, SLUG_PUNCTUATION drops . > ) ) give \"see-xbmd\". The author's revert run itself was not repeated, but the old regex plus the unchanged pipeline reproduces the value.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:44:55.902073257Z",
+          "seal": {
+            "by": "server",
+            "mac": "0cfbf8b9cb15c5d8aa90e138737eeebcf6b6497496d062320caa436c38b75a5a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced the old regex's output by hand and the downstream steps give see-xbmd.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2050"
+          ],
+          "recorded_at": "2026-11-25T09:45:09.261315359Z",
+          "seal": {
+            "by": "server",
+            "mac": "0dc3cd0d9ca8f92130914dce03825dc421665800de6d005345ca535a4670aea9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:09.261315359Z",
+      "seal": {
+        "by": "server",
+        "mac": "17ee143a3cd56fa2bce9e40b107141f9da6d1debd4a635291d164b5fdb6d2ebc"
+      }
+    },
+    {
+      "id": "CLM-1396",
+      "statement": "PR body: the change makes LINK's regex byte-for-byte unchanged in meaning (LINK is rebuilt from the shared angle_destination!() macro with the same character class) and touches only src/okf/markdown.rs plus one changelog file",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'LINK and SLUG_LINK both build from it'; Changes lists src/okf/markdown.rs, test, changelog",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs",
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:935",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2051",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD --stat; src/okf/markdown.rs:55-69",
+          "summary": "Diff touches only src/okf/markdown.rs and one changelog file. LINK's concat! pieces join to the same pattern as before (angle class [^<>\\n\\r\\x1c-\\x1f]+ inside <(...)>, plain alternative and title unchanged); 32 okf::markdown tests pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 55,
+                "end": 69
+              },
+              "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:44:55.982898116Z",
+          "seal": {
+            "by": "server",
+            "mac": "42ae1676f4dbee3288722858200a52c31e40eb740af6ea37709279bbc03f534f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff scope and LINK pattern equivalence confirmed by reading.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2051"
+          ],
+          "recorded_at": "2026-11-25T09:45:09.388193115Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b1511b7ff011b27eca989d6532f7a04acf0f7d5590a22cec948e2494cabe69e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:09.388193115Z",
+      "seal": {
+        "by": "server",
+        "mac": "b5002496b6fa643d4d17e722195d33e79cb9dd1273a7a5667ff9d5dbe91515c3"
+      }
+    },
+    {
+      "id": "CLM-1397",
+      "statement": "PR body: slugify_strips_angle_bracket_destinations also covers a title containing `)` and an unterminated `<` that falls back to the plain rule",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'a title containing `)`, two image forms, and an unterminated `<` falling back to the plain rule'",
+      "derived_from": [
+        "CLM-1390"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:935",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2052",
+          "kind": "inspection",
+          "locator": "src/okf/markdown.rs:778-793",
+          "summary": "Test rows include \"See [x](<a)b.md> \\\"t)\\\")\" (title with \")\", expects see-x) and the assertion slugify(\"See [x](<a b) end\") == \"see-x-end\" for the unterminated angle destination. Both assertions pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 778,
+                "end": 793
+              },
+              "commit": "3fb919dd1760a8d5a23d0df99a84c1c8844583b1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:44:56.064988578Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf3017c715073ecff8e6739009bc7e9e225cb88cc5522223b00f0962386aa515"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both rows exist in the test and pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2052"
+          ],
+          "recorded_at": "2026-11-25T09:45:09.505974202Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d708a4ab8032ab7aeb5092ce3ac07ae654f120ce31147cb8fb6008bb056f928"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:44:38.680113680Z",
+      "updated_at": "2026-11-25T09:45:09.505974202Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac334415926c5c5699180cfa26e3dce7114094a8a546ae4ef78c45e9f9c6324f"
       }
     }
   ]

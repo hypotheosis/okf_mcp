@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1328,
+  "next_claim_seq": 1341,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "9f80875dab6ca5d31b46012079385b5e72df4a14c02ff5068cc228290bed29e3"
+    "mac": "5e195b49967239f495c6f9a7ae5e2f30731acf2781ef2ce5609a7d0c417ea0c1"
   },
-  "next_evidence_seq": 1963,
+  "next_evidence_seq": 1978,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "cf3981a1f1cf348893f045a4fe1ef79f289346a1219588722992543f01545895"
+    "mac": "d29b6656c7a91eeb4c42a1e1457b057722356029bc458cc20e28d5a32a1ac198"
   },
   "claims": [
     {
@@ -108103,6 +108103,884 @@
       "seal": {
         "by": "server",
         "mac": "9d072ca40c68b3fc5a1477943dd214b7e9a4f339d31fbd6faa6dd85c53314f6b"
+      }
+    },
+    {
+      "id": "CLM-1328",
+      "statement": "Issue #848: sign_in_spans_carry_method_and_outcome_and_no_secret no longer counts spans exported by other tests running in parallel.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/848 (requirement: the test no longer counts spans from other tests)",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1975",
+          "kind": "analysis",
+          "locator": "children of CLM-1328",
+          "summary": "The issue requirement is met by CLM-1329 (supported) and the narrow run passes (CLM-1336). Two children are description-only notes left not_enough_info (CLM-1338, CLM-1339); they do not bear on the requirement. Not a strict all-children-supported roll-up.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T03:34:16.132716401Z",
+          "seal": {
+            "by": "server",
+            "mac": "f85eb81e947edbe1b29dbe184d3b0c74dfe4f69beca759c780db13b36b8027e0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Requirement decided by CLM-1329; the unsupported children are description notes only (see evidence).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1975"
+          ],
+          "recorded_at": "2026-11-25T03:34:19.633117597Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd9ed319039536f425b396a973564ab0cd1993ff75c91844421c9a79361a4c39"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:19.633117597Z",
+      "seal": {
+        "by": "server",
+        "mac": "848ef09c0149ab3e92eec4b56f598f0f657492858943b3db8eda594724eaa364"
+      }
+    },
+    {
+      "id": "CLM-1329",
+      "statement": "The test reads back only spans in traces whose request span links to a trace id the test itself sends, so an unrelated trace cannot enter its audit/start_in lists.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"The test now sends a `traceparent` of its own with both sign-ins and counts only spans in traces whose request span links to that id.\"",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "src/http/signin.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1974",
+          "kind": "analysis",
+          "locator": "children of CLM-1329",
+          "summary": "Request spans are roots that only link the caller trace; the test sends its own unique trace id on both sign-ins, the helper keeps only traces linking to it, and the exact assertions and secret scan read only those spans. Together a span from another test (different trace, no link to this id) cannot enter the lists.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T03:34:10.499342817Z",
+          "seal": {
+            "by": "server",
+            "mac": "af02ad070a79054255f9df13967c14326a5cc64103f59d7b1e2619c0e78f6797"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All five children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1974"
+          ],
+          "recorded_at": "2026-11-25T03:34:16.059601557Z",
+          "seal": {
+            "by": "server",
+            "mac": "c164aa879e319ec51220ee756ee38a1b38490de6cf7e0aa599e13707999b4a03"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:16.059601557Z",
+      "seal": {
+        "by": "server",
+        "mac": "aca0f02a59a17cf1a546aad1f74e64abecc6dd865f7d11dd67d5df1f84e02a98"
+      }
+    },
+    {
+      "id": "CLM-1330",
+      "statement": "A request span is a root that links, never adopts, the caller's traceparent trace (the premise the scoping relies on).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "src/http/mod.rs request_span doc; PR body premise",
+      "derived_from": [
+        "CLM-1329"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1963",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::telemetry_tests::a_forged_traceparent (1 passed)",
+          "summary": "Test asserts the span's trace id differs from the forged one, parent is INVALID (root), and links[0] trace id equals the forged id. Ran on head: 1 passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 162,
+                "end": 182
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:47.753787602Z",
+          "seal": {
+            "by": "server",
+            "mac": "84d8ff347a555fb9cc2a889b8ac5c86ad118cc8b188948c57e8927b3480b1307"
+          }
+        },
+        {
+          "id": "EVD-1964",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:596-616",
+          "summary": "request_span uses parent: None and adds the caller's traceparent via span.add_link only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 596,
+                "end": 616
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:47.843489129Z",
+          "seal": {
+            "by": "server",
+            "mac": "b085cada0cbf555d6af5bee3258d1e406637d181c7d4bc75077fa919c4f20516"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code uses parent: None plus add_link, and the existing test asserting root/link/different trace id passes on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1963",
+            "EVD-1964"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.007292426Z",
+          "seal": {
+            "by": "server",
+            "mac": "d65bec13abed38844749559b70abbaf2cfdb7196c758c50452e26d38a223f29d"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.007292426Z",
+      "seal": {
+        "by": "server",
+        "mac": "001cc8e6ca9a0e494bd0beb07d7f5e67d560613a28c7f61af4c649cbc5b31059"
+      }
+    },
+    {
+      "id": "CLM-1331",
+      "statement": "Observed::spans_of_requests_from(caller_trace) returns the exported spans in every trace whose request span links to the given trace id.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`Observed::spans_of_requests_from(caller_trace)` (test capture, src/telemetry/subscriber.rs): the exported spans in every trace whose request span links to the given trace id.\"",
+      "derived_from": [
+        "CLM-1329"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1965",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:641-668",
+          "summary": "Collects trace ids of spans having a link to caller_trace, then returns all spans whose trace id is among them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 641,
+                "end": 668
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:47.922150010Z",
+          "seal": {
+            "by": "server",
+            "mac": "65d1fa1bb48955c2df07231b0b2b59346bc1166226d866c127a4e641c8a519bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1965"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.080954192Z",
+          "seal": {
+            "by": "server",
+            "mac": "f76750bbb8f25d488229181985245efa8f7d63a67518257714301f3324571ae4"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.080954192Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f74f0e8c80ba4fa33e743a6630f08140d1aca03412abc342924b4b093b784ae"
+      }
+    },
+    {
+      "id": "CLM-1332",
+      "statement": "Browser::traceparent is an optional header value that Browser::send adds as a traceparent header on every request.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`Browser::traceparent` (src/http/api/testing.rs): an optional `traceparent` header sent on every request.\"",
+      "derived_from": [
+        "CLM-1329"
+      ],
+      "artifacts": [
+        "src/http/api/testing.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1966",
+          "kind": "inspection",
+          "locator": "src/http/api/testing.rs:406-408,465-467",
+          "summary": "Field is Option<String>; send() sets the traceparent header whenever it is Some, for every request.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/testing.rs",
+              "lines": {
+                "start": 462,
+                "end": 468
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:47.999083375Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2cb1dc8576e211109bba9b8df189dc8645d73fccd062c6ca0a4b66bc7204973"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1966"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.155020209Z",
+          "seal": {
+            "by": "server",
+            "mac": "dba904064975a20ad244a1290246d18a7e748638d85cb76ba9b0361015b1b1e6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.155020209Z",
+      "seal": {
+        "by": "server",
+        "mac": "7b09f65bf0f3200ab4f35145e1572fb5acf118c25751a822ceffae545464e034"
+      }
+    },
+    {
+      "id": "CLM-1333",
+      "statement": "The test keeps its exact assertions: assert_eq!(pair(\"audit\"), [want(\"failed\")]) and assert_eq!(pair(\"start_in\"), [want(\"ok\")]).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"its exact assertions are kept\"",
+      "derived_from": [
+        "CLM-1329"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1967",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:1385-1386",
+          "summary": "Both assert_eq! lines are unchanged context in the diff; only pair() source changed to own_spans.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1370,
+                "end": 1388
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:48.087495789Z",
+          "seal": {
+            "by": "server",
+            "mac": "80fc3a90cd1405d2ea866aaa78be84816e8c9636656dddafc92ffe7f333cc98f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both assertions unchanged in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1967"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.228478634Z",
+          "seal": {
+            "by": "server",
+            "mac": "c32d3232f6cac74264300a2162a0e3fa323dbf7608f4a59b16adf3e687fc225e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.228478634Z",
+      "seal": {
+        "by": "server",
+        "mac": "9e1b08b2fe15a8cce73804639a8472b62bb026dacbaf8c50f17099f75c71fc9a"
+      }
+    },
+    {
+      "id": "CLM-1334",
+      "statement": "The secret scan in the test runs over the test's own spans (own_spans), not over everything exported.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"the secret scan runs over its own spans.\"",
+      "derived_from": [
+        "CLM-1329"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1968",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:1388",
+          "summary": "`let exported = format!(\"{own_spans:?}\");` replaces observed.exported_text(); SpanData Debug includes attributes. Note it no longer scans logs/stderr, which exported_text() included.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1388,
+                "end": 1397
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:48.169736631Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ad8f4b442dd8e84e12f905d0d7404c7c6293e78137b974bf8a59b53b1d207b9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Scan string is the Debug of own_spans. Caveat: it no longer covers logs/stderr that exported_text() included (the description does not claim it does).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1968"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.301494637Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6020c10aff145b5926a0be42fe0728007d17f4907f91bf4e11522c5a89b1d81"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.301494637Z",
+      "seal": {
+        "by": "server",
+        "mac": "6e77aaa405fd9fd800d4c3991c1325f1e02f8f0fe0ad70805824bd922e668ea5"
+      }
+    },
+    {
+      "id": "CLM-1335",
+      "statement": "The change adds no serial_test dependency or use; the test stays parallel.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"It stays parallel; no `serial_test`.\"",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "Cargo.toml",
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1969",
+          "kind": "analysis",
+          "locator": "git grep -n serial_test -- Cargo.toml src",
+          "summary": "Zero hits at head in Cargo.toml and src; the test is a plain #[tokio::test].",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "serial_test",
+              "case_insensitive": true,
+              "scope": [
+                "Cargo.toml",
+                "src"
+              ],
+              "hits": 0,
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:48.255655987Z",
+          "seal": {
+            "by": "server",
+            "mac": "2888abf1c5d91aea51ef6e41afc7e07951d7f2a81beb52e3ba3b9cee5ee45d9f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search for serial_test across Cargo.toml and src.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1969"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.374639742Z",
+          "seal": {
+            "by": "server",
+            "mac": "eb874a7ad0f36849e0e20ccd188761761a703ed7ea5f8e4c4a41924845ed83d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.374639742Z",
+      "seal": {
+        "by": "server",
+        "mac": "24257da1b39686c59ad24904626f67a20dfd313461b4abf89ef23081de328acf"
+      }
+    },
+    {
+      "id": "CLM-1336",
+      "statement": "The narrow run of http::signin tests passes on the head commit.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Auditor-derived from PR body validation section",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1970",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::signin",
+          "summary": "53 passed; 0 failed on head a717693, including sign_in_spans_carry_method_and_outcome_and_no_secret.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T03:33:48.329367411Z",
+          "seal": {
+            "by": "server",
+            "mac": "3895aa3bcfb2b0c9ef6ff247b85debba84691599110c45203a510d919802fed3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 53 passed, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1970"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.448253237Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b602d663b78b23298331d42de063e3b35b052ff2eedb27d0b4b6ea27d3a9c42"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.448253237Z",
+      "seal": {
+        "by": "server",
+        "mac": "c2df69d1f1db952789fac3e31350a04f85885504af2bb3b645a60984e5e89d2c"
+      }
+    },
+    {
+      "id": "CLM-1337",
+      "statement": "The change adds a changelog entry for issue 848.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"changelog entry.\"",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "changelog/2026-11-25T03-00-00Z-issue-848-signin-span-flake.md"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1971",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-25T03-00-00Z-issue-848-signin-span-flake.md",
+          "summary": "File added in the commit, titled for issue #848, describing the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T03-00-00Z-issue-848-signin-span-flake.md",
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:48.407207629Z",
+          "seal": {
+            "by": "server",
+            "mac": "51c859f985cfcc7f6bf9ac2ede1d7e33894d1cf380fd63575270f5fe98af43ca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Changelog file present in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1971"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.521045480Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec39f73d5c4a2a51bc42b12bdef3c1e6c4fb7df62f6827fde904a6ba14c643e4"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.521045480Z",
+      "seal": {
+        "by": "server",
+        "mac": "9fa2ea8dab32cacadb2a49eb4c45f543c639e8ec127c5fcdce156ecca7d47fb9"
+      }
+    },
+    {
+      "id": "CLM-1338",
+      "statement": "Other Observer::start tests assert on span names unique to their route or feature, and none was changed.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"Other `Observer::start` tests assert on span names unique to their route or feature; none was changed.\"",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "src/store/sign_in_events.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1972",
+          "kind": "analysis",
+          "locator": "src/store/sign_in_events.rs:339-340; src/http/telemetry_tests.rs:198-199,522-523",
+          "summary": "Not changed (diff touches 4 files only). But names are not all unique: sign_in_events asserts spans_named(\"record\").len()==1 (generic name); telemetry_tests assert exact counts on \"GET /healthz\" in several tests (unique to a route, but the same route in many tests). Whether any can capture foreign spans was not shown.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/store/sign_in_events.rs",
+              "lines": {
+                "start": 337,
+                "end": 341
+              },
+              "commit": "a7176930511aaec9a80dcaf66a8d38abc879f830"
+            }
+          },
+          "recorded_at": "2026-11-25T03:33:48.484927267Z",
+          "seal": {
+            "by": "server",
+            "mac": "a1a82672f8cff31ac80891e7673e0405db1124f8e9b232a7ef6f2eaf5aa5c89e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No other test was changed, but \"unique to their route or feature\" is not shown: sign_in_events asserts exactly one span named the generic \"record\", and several tests assert exact counts on \"GET /healthz\". Whether foreign spans can reach them is undecided. Fix: reword the PR note to \"no other test was changed; they assert on span names of their own route or feature\" or drop the uniqueness claim, since not every name is unique.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1972"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.594572795Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff2d56129b66b50eb2246e8c292a92c789cc956c40a27caf137c4642f29b88e9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.594572795Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c1e83ef585ca92d3ce3fbb875991d62ed852b1274304f566a10d2aa49e992c0"
+      }
+    },
+    {
+      "id": "CLM-1339",
+      "statement": "The flake did not reproduce in plain repeat runs and the narrow http::signin run passed before the change.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body: \"The flake did not reproduce in plain repeat runs here (the narrow `http::signin` run passed before the change)\"",
+      "derived_from": [
+        "CLM-1328"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:848"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1973",
+          "kind": "analysis",
+          "locator": "PR body Notes",
+          "summary": "A past run by the author; not repeatable by the auditor on the pre-change commit without a stress loop (forbidden) and the head run proves nothing about before.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T03:33:48.559265714Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6ef58c2e41b513737c45b2daf2dae2eabc6d00b6720a3a02b5d2bd8c8724b97"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "A past manual observation by the author that the auditor cannot repeat on the pre-change commit within its limits. Fix: none needed to merge; to decide it, run plain repeat runs of http::signin on origin/main and report the counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1973"
+          ],
+          "recorded_at": "2026-11-25T03:34:06.667280648Z",
+          "seal": {
+            "by": "server",
+            "mac": "53ca77ccb0fa94ed16dca5714da0e42fa371b776a3d5e258868064dae0471861"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:33:20.229631175Z",
+      "updated_at": "2026-11-25T03:34:06.667280648Z",
+      "seal": {
+        "by": "server",
+        "mac": "6dfef7e7dfb4190d7c37e73a16e78b7eb7af5f9203ff185d982bad1bd6992068"
+      }
+    },
+    {
+      "id": "CLM-1340",
+      "statement": "The sign-in span test also signs in under a second caller trace in the same observer, and its exact audit and start_in lists still hold only its own requests' spans",
+      "kind": "functional",
+      "level": "unit",
+      "verification_method": "test",
+      "source_anchor": {
+        "path": "src/http/signin.rs",
+        "lines": {
+          "start": 1368,
+          "end": 1384
+        },
+        "commit": "fffe1e906d0ae46b9368df15d0601953f6bd40ec"
+      },
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [
+        "from-issue:848",
+        "review-round-1"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1976",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::signin::tests::sign_in_spans",
+          "summary": "Passes; the test asserts the decoy caller's one audit and one start_in span were captured (two audit spans in all) while its own audit list stays one entry.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1368,
+                "end": 1384
+              },
+              "commit": "fffe1e906d0ae46b9368df15d0601953f6bd40ec"
+            }
+          },
+          "recorded_at": "2026-11-25T03:51:35.185239603Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3ca7ba4a8d9754ee50fdacdbc8b15362631cc907c16b7439c26a68e02350dcf"
+          }
+        },
+        {
+          "id": "EVD-1977",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:1370-1380",
+          "summary": "Every span assertion reads spans selected by CALLER_TRACE or OTHER_TRACE (spans_of_requests_from); the earlier unfiltered audit count was removed, so unrelated traces in the observer cannot fail the test. The decoy's own audit and start_in spans are asserted at (1, 1).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1370,
+                "end": 1380
+              },
+              "commit": "f66b0cbe924f0f96485be73ceb0d5ebdd87b235d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:01:59.384266068Z",
+          "seal": {
+            "by": "server",
+            "mac": "802ff27d15680c41e21fdf8357430acee4c9a2305ccdccc416f91c76de6aea64"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The narrow run passes with decoy-capture assertions; without the trace filter the own audit list would hold two entries.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1976"
+          ],
+          "recorded_at": "2026-11-25T03:51:45.058983701Z",
+          "seal": {
+            "by": "server",
+            "mac": "4053982e41d372402b6c87738a3e58a6a4b101c025ec32f810c6b73bb1d27abe"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "After review round 2 the unfiltered count is gone (EVD-1977); the earlier \"two audit spans in all\" detail in EVD-1976 is superseded. Narrow test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1977"
+          ],
+          "recorded_at": "2026-11-25T04:02:03.367525989Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c9a8d0d34e147b5f13654aef510bb888843ab592c34b5f9827503cfb1b738a2"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:51:32.090493846Z",
+      "updated_at": "2026-11-25T04:02:03.367525989Z",
+      "seal": {
+        "by": "server",
+        "mac": "d70209edeff9404fa1e074caba6eabc9140b7726fed2eabd242b6d48233f7c03"
       }
     }
   ]

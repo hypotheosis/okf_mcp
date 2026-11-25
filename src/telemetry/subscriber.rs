@@ -638,6 +638,35 @@ pub(crate) mod capture {
             self.spans.iter().filter(|span| span.name == name).collect()
         }
 
+        /// The exported spans in every trace whose root request span links to
+        /// the trace id `caller_trace` (32 hex digits): the spans a test's own
+        /// requests made, whatever other tests exported at the same time
+        /// (issue #848).
+        ///
+        /// A request span is a root that links, never adopts, the trace of a
+        /// caller's `traceparent`, so a test sends a `traceparent` of its own
+        /// choosing with each request and reads back only what that id marks.
+        pub(crate) fn spans_of_requests_from(
+            &self,
+            caller_trace: &str,
+        ) -> Vec<&opentelemetry_sdk::trace::SpanData> {
+            let own_traces: Vec<_> = self
+                .spans
+                .iter()
+                .filter(|span| {
+                    span.links
+                        .links
+                        .iter()
+                        .any(|link| link.span_context.trace_id().to_string() == caller_trace)
+                })
+                .map(|span| span.span_context.trace_id())
+                .collect();
+            self.spans
+                .iter()
+                .filter(|span| own_traces.contains(&span.span_context.trace_id()))
+                .collect()
+        }
+
         /// Everything exported, as one text: each log record (target, body
         /// and attributes) and each span, for a test that a value never
         /// reached OTLP.

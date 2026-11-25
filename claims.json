@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "5e195b49967239f495c6f9a7ae5e2f30731acf2781ef2ce5609a7d0c417ea0c1"
   },
-  "next_evidence_seq": 1977,
+  "next_evidence_seq": 1978,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "a7bd896710921f3c14995194a9c17511abcfc13e6518e98aa9057a3d0e116269"
+    "mac": "d29b6656c7a91eeb4c42a1e1457b057722356029bc458cc20e28d5a32a1ac198"
   },
   "claims": [
     {
@@ -108924,6 +108924,28 @@
             "by": "server",
             "mac": "a3ca7ba4a8d9754ee50fdacdbc8b15362631cc907c16b7439c26a68e02350dcf"
           }
+        },
+        {
+          "id": "EVD-1977",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:1370-1380",
+          "summary": "Every span assertion reads spans selected by CALLER_TRACE or OTHER_TRACE (spans_of_requests_from); the earlier unfiltered audit count was removed, so unrelated traces in the observer cannot fail the test. The decoy's own audit and start_in spans are asserted at (1, 1).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1370,
+                "end": 1380
+              },
+              "commit": "f66b0cbe924f0f96485be73ceb0d5ebdd87b235d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:01:59.384266068Z",
+          "seal": {
+            "by": "server",
+            "mac": "802ff27d15680c41e21fdf8357430acee4c9a2305ccdccc416f91c76de6aea64"
+          }
         }
       ],
       "verdicts": [
@@ -108939,13 +108961,26 @@
             "by": "server",
             "mac": "4053982e41d372402b6c87738a3e58a6a4b101c025ec32f810c6b73bb1d27abe"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "After review round 2 the unfiltered count is gone (EVD-1977); the earlier \"two audit spans in all\" detail in EVD-1976 is superseded. Narrow test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1977"
+          ],
+          "recorded_at": "2026-11-25T04:02:03.367525989Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c9a8d0d34e147b5f13654aef510bb888843ab592c34b5f9827503cfb1b738a2"
+          }
         }
       ],
       "created_at": "2026-11-25T03:51:32.090493846Z",
-      "updated_at": "2026-11-25T03:51:45.058983701Z",
+      "updated_at": "2026-11-25T04:02:03.367525989Z",
       "seal": {
         "by": "server",
-        "mac": "27c86a1a383ca3ca59f3c392baccedb18245e3ea46613cb614456999cb5d0285"
+        "mac": "d70209edeff9404fa1e074caba6eabc9140b7726fed2eabd242b6d48233f7c03"
       }
     }
   ]

@@ -1620,15 +1620,21 @@ mod tests {
         F: FnMut() -> Fut,
         Fut: std::future::Future<Output = Result<T, E>>,
     {
-        let deadline = Instant::now() + REFRESH_DEADLINE;
-        loop {
-            match attempt().await {
-                Ok(done) => return done,
-                Err(error) if Instant::now() >= deadline => {
-                    panic!("no success for {what} within {REFRESH_DEADLINE:?}: {error:?}")
+        let mut last_error = String::new();
+        // The timeout covers the whole loop, so an attempt still in flight
+        // when the deadline passes is cancelled, and a late `Ok` is not taken.
+        let retrying = async {
+            loop {
+                match attempt().await {
+                    Ok(done) => return done,
+                    Err(error) => last_error = format!("{error:?}"),
                 }
-                Err(_) => tokio::time::sleep(Duration::from_millis(100)).await,
+                tokio::time::sleep(Duration::from_millis(100)).await;
             }
+        };
+        match tokio::time::timeout(REFRESH_DEADLINE, retrying).await {
+            Ok(done) => done,
+            Err(_) => panic!("no success for {what} within {REFRESH_DEADLINE:?}: {last_error}"),
         }
     }
 

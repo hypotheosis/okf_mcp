@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1443,
+  "next_claim_seq": 1445,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "513909a17409df2a39e43b575ba806e6822081e175cbdb6cee2a71437f1c5270"
+    "mac": "fc02e1a2c3419994f41867cfa8b0cccfc693f770a133cf5e819bdab91c69379d"
   },
-  "next_evidence_seq": 2132,
+  "next_evidence_seq": 2147,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e9cffd7c5d55a4fb08ed5d9f76485a96ddf13d380da137d0dde737dd4b29dbd0"
+    "mac": "81f3da66a115a3584422b8107a633e7cdc3a4431420236b60ed8f1f9570fc075"
   },
   "claims": [
     {
@@ -115088,6 +115088,30 @@
             "by": "server",
             "mac": "74a084861af23b2673f313335f6ac8b1be3d6525191ea9383929f39ce62d52c7"
           }
+        },
+        {
+          "id": "EVD-2143",
+          "kind": "analysis",
+          "locator": "children of CLM-1415",
+          "summary": "At 644d7c2 the behavior children are supported, including the new collision claim CLM-1443 and CLM-1438 (on the author's logs). Open: CLM-1437 is refuted (PR body says 3109 lib tests, now 3110) and CLM-1444 is not_enough_info (no test pins that a bare deleted id matches nothing).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T13:38:54.075444998Z",
+          "seal": {
+            "by": "server",
+            "mac": "02cd35892255206325fb829ee22b2d5c6ef770a5ce3de3d15878fd10fecd147b"
+          }
+        },
+        {
+          "id": "EVD-2146",
+          "kind": "analysis",
+          "locator": "children of CLM-1415",
+          "summary": "At 71aa994 every child is supported: CLM-1437 and CLM-1444 are now supported, as are CLM-1424, 1440, 1442, 1443 and CLM-1438 (the last on the author's logs).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T13:42:52.494850075Z",
+          "seal": {
+            "by": "server",
+            "mac": "39043b53507eb053587e9543639f5545fbabc3be2d8aaffb57564965ab234e14"
+          }
         }
       ],
       "verdicts": [
@@ -115114,13 +115138,37 @@
             "by": "server",
             "mac": "643b57d9396e1b235b4a609f9e718d695ca58c52bc0e3032ebd004f0806450ef"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Behavior and docs children are supported, but CLM-1437 is refuted (PR body says 3109 lib tests, now 3110) and CLM-1444 is undecided (EVD-2143). Fix: change the lib test count in pr-986-body.md line 33 to 3110, add the bare-deleted-id-matches-nothing assertion to the collision test, then re-judge CLM-1437, CLM-1444 and this claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T13:38:58.232529685Z",
+          "seal": {
+            "by": "server",
+            "mac": "a2a7f6f206b7594fb975d280f3b542c33f851f496f60dcd4925bae13f7913879"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children are supported at 71aa994 (EVD-2146). Caveat: CLM-1438 and the full-suite count rest on the author's logs at 644d7c2, which I read and did not rerun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2146"
+          ],
+          "recorded_at": "2026-11-25T13:42:55.085832088Z",
+          "seal": {
+            "by": "server",
+            "mac": "5574bb17261a7f705100736f41c5b81e3c7065740af9a3f0209c18d94c156fe0"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:05:30.301802504Z",
+      "updated_at": "2026-11-25T13:42:55.085832088Z",
       "seal": {
         "by": "server",
-        "mac": "69a79c8ea8eb8bb10a3ca6cc020d5e7307568cc7974a70931425e720cd94a4c6"
+        "mac": "66ccbd3f1381b1f931357a2c750da34552bc95f083f22e6bddc73c3cb6e45b04"
       }
     },
     {
@@ -115487,6 +115535,28 @@
             "by": "server",
             "mac": "44ac9e7254c3be5a978a72d9f94811dfd69f4e5a9986ba375416d5c732025e3e"
           }
+        },
+        {
+          "id": "EVD-2134",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people store::users http::api::browse mcp::reference investigator (221 passed, 0 failed) at 644d7c2",
+          "summary": "The updated test deleting_the_user_keeps_the_record... passes: after deletion history shows user == \"deleted:<uuid>\" and null user_label, the stored column is still the bare uuid, recent_changes with user=deleted:<uuid> finds the revision and user=carol finds nothing. The contract changed since my first audit: the shown value now carries the prefix, so the claim's wording \"shows the stored id as user\" is now \"deleted:<id>\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 173,
+                "end": 218
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:17.653822775Z",
+          "seal": {
+            "by": "server",
+            "mac": "c256c6ae381f35f4cee9cc12b8d002de08129f72cf7bacd565d7f174d8e26619"
+          }
         }
       ],
       "verdicts": [
@@ -115502,13 +115572,26 @@
             "by": "server",
             "mac": "7e479d3bcdec8faac633cde50a7a40eed7202fc1ef8d67efa4dfc83e0b4c305c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: the test passes with the new contract (deleted:<uuid> shown, null label, stored column unchanged, filter by that value finds it, old name does not). The claim's phrase \"shows the stored id\" now means deleted:<id>.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2134"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.178696074Z",
+          "seal": {
+            "by": "server",
+            "mac": "60292df738d363547468488f5e8be5ed97055bcf0b29d2e20477f1c522e0a881"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:43.637755203Z",
+      "updated_at": "2026-11-25T13:38:53.178696074Z",
       "seal": {
         "by": "server",
-        "mac": "da5814d6b61c945f8f70bc10ccdd775d3ae9f58518ec292b811b36beeb48ac70"
+        "mac": "00f7974fda036e2e97f21d301406a0676c0415a78119f1fec0c7c71a286b8fc1"
       }
     },
     {
@@ -115620,6 +115703,28 @@
             "by": "server",
             "mac": "21bffa5d730301dd8f7e809cecb03d132d2b419af74224d1c49ff055aa2c713e"
           }
+        },
+        {
+          "id": "EVD-2136",
+          "kind": "test",
+          "locator": "same narrow run (221 passed) at 644d7c2: a_key_with_no_user_and_an_import_record_no_person, a_publish_records_the_publishing_users_beside_the_actor",
+          "summary": "Unchanged behavior: no person gives user and user_label None (Persons::show returns (None, None) before the new deleted: branch); a live user shows name and label. The new prefix only applies when the stored id has no user row.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 160,
+                "end": 186
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:17.888893682Z",
+          "seal": {
+            "by": "server",
+            "mac": "6843651fab6ca72e68bd64f92175d4f149079014210bc3f4f528e7fd38879c5b"
+          }
         }
       ],
       "verdicts": [
@@ -115635,13 +115740,26 @@
             "by": "server",
             "mac": "65d8dc8b449c4f97e763f0f50181dd8b1e4a7635ed1bed3cce962cf29e189b0c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: no-person and live-user behavior unchanged (EVD-2136).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2136"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.368739478Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e77136959454b53ec3d57f358ee7ee8936ccf567ea9b30a5f021cc88d6eab8a"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:43.789264297Z",
+      "updated_at": "2026-11-25T13:38:53.368739478Z",
       "seal": {
         "by": "server",
-        "mac": "6b0bb6cfc10960d6fb455767e809000043b9bca335fd60b0efd1b2f9784a220e"
+        "mac": "afd187b033633ad488ea8200a6f2b7a8e06e22208a0f3d38f4b9a7a82289beff"
       }
     },
     {
@@ -115867,6 +115985,28 @@
             "by": "server",
             "mac": "8d1f4ea3e259f5b5b5b8497ab4a2e42e3818bd8a2986965f383c75ae746c0054"
           }
+        },
+        {
+          "id": "EVD-2137",
+          "kind": "test",
+          "locator": "same narrow run (221 passed) at 644d7c2: history_and_recent_changes_filter_by_user_and_since_newest_first, store::history tests",
+          "summary": "History filters by a user name and since, newest first, with an excluded path answering an empty list, still pass after the filter_id change; an unknown name now filters to nothing instead of being read as an id.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 270,
+                "end": 335
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:17.970516115Z",
+          "seal": {
+            "by": "server",
+            "mac": "31c14343e7fe1b46dfd7242e4514e917579119dfa244d51b256206b874af125f"
+          }
         }
       ],
       "verdicts": [
@@ -115882,13 +116022,26 @@
             "by": "server",
             "mac": "19c2f279b30e5df766ed686f137d1bd3207d9242a6e83f25973e192207e03a26"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: filter tests still pass (EVD-2137).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2137"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.444271074Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcb0e85ccb638eab5b04bebfccc5d1afa460e7814bd67e1090f468395e39785c"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:43.938678862Z",
+      "updated_at": "2026-11-25T13:38:53.444271074Z",
       "seal": {
         "by": "server",
-        "mac": "ceb27ba975f124e319eb211290575e704ffb7117a0b240bc96c76b3f7b9933da"
+        "mac": "0fa203978c42b446e0209d12978e1fd8946a3735c1e18c9087ba27456f83a197"
       }
     },
     {
@@ -115934,6 +116087,28 @@
             "by": "server",
             "mac": "a9a49d86c4887061fc62182256ffdb38ddd29a871a7a1fa7ab70389553e6675a"
           }
+        },
+        {
+          "id": "EVD-2138",
+          "kind": "test",
+          "locator": "same narrow run (221 passed) at 644d7c2: recent_changes_pages_by_cursor_within_the_caps_and_refuses_a_bad_since",
+          "summary": "Order, filters, cursor paging and the bad-since refusal still pass; the tool description now says user takes a name or deleted:<id>. The 50 default and 200 cap are still asserted only by code constants, as before.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 330,
+                "end": 380
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:18.051466947Z",
+          "seal": {
+            "by": "server",
+            "mac": "9ba27b872af5a7a64336ab8b7c4a5e7fa7d2cd8d180405ed04351cb9b0fe7a35"
+          }
         }
       ],
       "verdicts": [
@@ -115949,13 +116124,26 @@
             "by": "server",
             "mac": "81efa75a312e4580673e709e2e0e704eeef37107025cca02c8e41c723ece3848"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: recent_changes tests still pass (EVD-2138); the default 50 and cap 200 still lack a tool-level test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2138"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.521091474Z",
+          "seal": {
+            "by": "server",
+            "mac": "23bb4e4bd67219b39de7ba8a094805f210a5c75467c052b30e0958fd25124b3c"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:44.012911708Z",
+      "updated_at": "2026-11-25T13:38:53.521091474Z",
       "seal": {
         "by": "server",
-        "mac": "899f2fe6c0332874d93b123ff4b3aede4fd7132cc214a7306fb49fdd6d824200"
+        "mac": "8b1ac54479be1194f5f0fcd1292d5d202056f8fbb79f25293be25ce7a64cb692"
       }
     },
     {
@@ -116067,6 +116255,28 @@
             "by": "server",
             "mac": "edff6b37994943eec8ffce4efcf3213afa81d39d09197b60fd6e63853568d78d"
           }
+        },
+        {
+          "id": "EVD-2139",
+          "kind": "test",
+          "locator": "same narrow run (221 passed) at 644d7c2 incl. http::api::browse::tests::recent_changes_and_history_take_user_and_since_and_show_the_person",
+          "summary": "The HTTP route test still passes; the route builds its filter through the same Selection and filter_id, and its doc comments were updated to deleted:<id>.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 163,
+                "end": 200
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:18.133763793Z",
+          "seal": {
+            "by": "server",
+            "mac": "9af5bc86c958175026c8fbdf45963a9a9bdcb5865b935230e3fceb69c77912ee"
+          }
         }
       ],
       "verdicts": [
@@ -116082,13 +116292,26 @@
             "by": "server",
             "mac": "2cce3022e65635b6ec7b6d043593856bc749b898766eee1e47bd9499921deeeb"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: HTTP route test passes and shares the same filter (EVD-2139).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2139"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.598067565Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fe56b8aff06be88006b7980fd66aa61a3e8cf8f41a572d619178dd02c393ac8"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:44.162208643Z",
+      "updated_at": "2026-11-25T13:38:53.598067565Z",
       "seal": {
         "by": "server",
-        "mac": "0b1317a53c313a2ad45dac63463afc03554a02c3e785a9247857c131682ee8cf"
+        "mac": "3c6cff63a2311ff0220be4553e6df65afd6ec9cf08ac0d32b09c8b0cbc742528"
       }
     },
     {
@@ -116135,6 +116358,28 @@
             "by": "server",
             "mac": "0fc26baedff28e98f7285565ff670fe5b1c9619646bd5dee99f40e8258af8d34"
           }
+        },
+        {
+          "id": "EVD-2140",
+          "kind": "test",
+          "locator": "same narrow run (221 passed) at 644d7c2 incl. mcp::reference and the investigator contract tests",
+          "summary": "docs/reference/tools.md and src/investigator/contract_tools.json were updated together with the tool descriptions (user takes a name or deleted:<id>); the reference-pin and investigator tests pass, so the docs equal the tool definitions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 150,
+                "end": 160
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:18.213801881Z",
+          "seal": {
+            "by": "server",
+            "mac": "895e0bbb7b73322965430dd75bc96bbe24e4571b376f7b50ecd81db92134f595"
+          }
         }
       ],
       "verdicts": [
@@ -116150,13 +116395,26 @@
             "by": "server",
             "mac": "8472d7df8c0c53cdeb8b113a2ea48d0cf2e292512faa34babe93fcb1445abd9b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: the reference and investigator contract were updated together and their tests pass (EVD-2140).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2140"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.686114357Z",
+          "seal": {
+            "by": "server",
+            "mac": "3fd43fdc50c2848585de6e83fbd53ba38d1bf54255d04f4873a62bee9d2d6a73"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:44.237386932Z",
+      "updated_at": "2026-11-25T13:38:53.686114357Z",
       "seal": {
         "by": "server",
-        "mac": "f4e710628a063ef09e6d1bf9c697cca2663f177109fccc205a15d1e98b5db0fb"
+        "mac": "d985de62b624300d0501b103bea8277ec39511e7fd46471b82efa8615f6735b6"
       }
     },
     {
@@ -116651,6 +116909,30 @@
             "by": "server",
             "mac": "41fc4d1c21911e170301e116c92e64973501bfd26377d9488ae8625c8372a490"
           }
+        },
+        {
+          "id": "EVD-2142",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_name_equal_to_a_deleted (1 passed; 3111 filtered out) at 644d7c2; target/i986-logs/test4.log (3110 passed; 2 ignored); target/i986-logs/pr-986-body.md:33",
+          "summary": "At 644d7c2 the lib suite holds 3112 tests (3110 run plus 2 ignored): my narrow run counted 1 selected plus 3111 filtered out, and the author's full run printed 3110 passed. The PR body line 33 still says 3109 lib tests.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T13:38:31.654583811Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fec25a4d17cf75068441bf97172dc6999335a2c8e0a8a44c143376874f56b18"
+          }
+        },
+        {
+          "id": "EVD-2145",
+          "kind": "test",
+          "locator": "target/i986-logs/test4.log (3110 passed; 2 ignored) at 644d7c2; git diff 644d7c2..71aa994 -- src (7 added assertion lines in history_people_tests.rs, no new test); target/i986-logs/pr-986-body.md:33",
+          "summary": "Between the full run and the final head only one assertion was added inside an existing test, so the test count stays 3110 run plus 2 ignored; the history_people tests (8) pass at head in my run. The PR body line 33 now says 3110 lib tests. I did not rerun the whole suite at 71aa994; the full run is the author's log at 644d7c2.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T13:42:46.566097409Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2b73922ef8f177a7b4ab43da9c4208dbbd21bb8a7270ad0793c6f07e123e751"
+          }
         }
       ],
       "verdicts": [
@@ -116666,13 +116948,39 @@
             "by": "server",
             "mac": "8e9e7e65e2f05fb655b6247691cbed71737d0c18abc129ccaea06cfb5019e11c"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The new regression test makes the lib suite 3110 passed, 2 ignored, but the PR body still says 3109 (EVD-2142). It passed at 5c08f34 with 3109. Fix: change the count at pr-986-body.md line 33 from 3109 to 3110.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2142"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.998610267Z",
+          "seal": {
+            "by": "server",
+            "mac": "445611c25204440e8957e5fd934e7917f5d03c5b41c8f19689bd5f3e27544d2c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The claim's text (3109) is stale but the PR statement is now 3110 and matches the author's full run plus a diff that adds no test (EVD-2145). The full run at the final head is not mine.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2145"
+          ],
+          "recorded_at": "2026-11-25T13:42:52.417662727Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc2d3355e231cc47d7eadec4c36284e4f68b45d8976b4de68afcc8ab9fb700eb"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:00:44.763375008Z",
+      "updated_at": "2026-11-25T13:42:52.417662727Z",
       "seal": {
         "by": "server",
-        "mac": "96f701e5018be4e95addca3193bd5225fe1cbb7ed9224811abf4f2ba2726ad96"
+        "mac": "d4ca4f4fa9a6b4bdc1bd93a452e6caa177e3aa9b789666160cd6af51ba024000"
       }
     },
     {
@@ -116719,6 +117027,18 @@
             "by": "server",
             "mac": "20e19de61903caf5a2463f12bc5fe1618cc6608bf5acdb36c61eb76d2262bb0f"
           }
+        },
+        {
+          "id": "EVD-2141",
+          "kind": "inspection",
+          "locator": "target/i986-logs/fl4.log, dy4.log, test4.log, ui4.log (author's logs at 644d7c2)",
+          "summary": "I read the logs, I did not rerun the gates (my earlier attempt was denied). fl4.log (clippy -D warnings, cargo doc) exit 0; dy4.log (dylint) exit 0; test4.log 3110 lib passed, 0 failed, 2 ignored plus 58 test-result lines ok with no failures; ui4.log test-ui 284 passed, 0 failed, exit 0. Timestamps 08:13-08:34, ending just before commit 644d7c2 at 08:34:24. These are the author's results.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T13:38:23.948715480Z",
+          "seal": {
+            "by": "server",
+            "mac": "d80931e2f3f71077f59a899c11b719fb13669450213cbdb5ad9fe0ec16b171da"
+          }
         }
       ],
       "verdicts": [
@@ -116743,13 +117063,26 @@
             "by": "server",
             "mac": "dd302871e7fb3108724e60675673bcf17c8139ac13d25d6a251bc719eada147a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "At 644d7c2 the author's logs show lint, dylint, test-ui (284) and the full test gate green (EVD-2141). These are the author's logs, which I read but did not rerun; the caller allowed marking this on them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2141"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.921225035Z",
+          "seal": {
+            "by": "server",
+            "mac": "db0a89db9480c15231280905e1da56ab930e126cd23fa7f3452f6f2a64fb705f"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-25T13:05:26.490643618Z",
+      "updated_at": "2026-11-25T13:38:53.921225035Z",
       "seal": {
         "by": "server",
-        "mac": "4715209311c1ad97113744ef9b326cbb82951e13d6508bce4c3c18f03ba7310a"
+        "mac": "c389035644f61722fa33186d60d843a47b4f99482f54e62a8d0779269e5bb7b2"
       }
     },
     {
@@ -116881,6 +117214,28 @@
             "by": "server",
             "mac": "42da17c0eb7718bb7cab667487c755340c9e8f8caac7fa5a898b57a1ee2567b8"
           }
+        },
+        {
+          "id": "EVD-2135",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2409-2445 at 644d7c2; src/mcp/history.rs Persons::show",
+          "summary": "The section still says `user` is the name and users.id is stored; for a deleted user it now says history shows `deleted:<users.id>` and the filter takes that exact value, which matches Persons::show (format!(\"{DELETED_USER_PREFIX}{id}\")) and the passing tests. The claim text says the stored id is shown for a deleted user; the current contract is deleted:<id>.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2409,
+                "end": 2432
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:17.805857043Z",
+          "seal": {
+            "by": "server",
+            "mac": "99055d47ce56782a13a3c32869dcf75b246c22631cbcad1c9a7c8f84e10fb7f4"
+          }
         }
       ],
       "verdicts": [
@@ -116909,13 +117264,26 @@
             "by": "server",
             "mac": "fddd69c23f56fd8df4a8b630017549861bb92112118127c0646b16ada4bb7195"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 644d7c2: operations.md matches Persons::show and the tests, including the deleted:<id> form (EVD-2135).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2135"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.293187062Z",
+          "seal": {
+            "by": "server",
+            "mac": "034ad71eb6e29c200c4e52513f51c7c5340055b9d59ad944e2fb4231d3fea4b2"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:31.046018736Z",
-      "updated_at": "2026-11-25T13:05:26.328413235Z",
+      "updated_at": "2026-11-25T13:38:53.293187062Z",
       "seal": {
         "by": "server",
-        "mac": "1736ba8c245cbf22f07e0e76381e53f85075352a46a62477ace4b849a1ecaa1e"
+        "mac": "1bbc3f8edb1451f7a858f0ec590b65ade66abfe6a923a707132555cd7c5b502c"
       }
     },
     {
@@ -117064,6 +117432,174 @@
       "seal": {
         "by": "server",
         "mac": "5a1a1607c4a8f3359cfa298e8c0b996c8496dbcdc24dcdea29cb2f27958fd99c"
+      }
+    },
+    {
+      "id": "CLM-1443",
+      "statement": "The `user` filter of `history`, `recent_changes` and the HTTP routes reads `deleted:<id>` as a stored id and any bare value as a user name, so a user whose name equals a deleted user's stored id gets only their own revisions and cannot take over the deleted user's.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review fix for issue #986 (PR body: \"the `user` filter takes that same form, and a bare value is always a name\")",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/mcp/history.rs",
+        "src/mcp/history_people_tests.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2132",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_name_equal_to_a_deleted (1 passed) at 644d7c2; src/mcp/history_people_tests.rs a_name_equal_to_a_deleted_users_id_does_not_take_over_their_revisions",
+          "summary": "Test: user A publishes carols.md and is deleted; user B, named with A's uuid, publishes theirs.md. Reads show carols.md's user as deleted:<uuid> and theirs.md's as the bare name; filter by the bare value returns only /theirs.md, filter by deleted:<uuid> returns only /carols.md. filter_id (src/store/users.rs) strips the prefix to an id and otherwise looks the value up as a name; names are [a-z0-9-] (catalogs::is_valid_name), so none has a colon. The same filter_id is used by history and recent_changes (history.rs:223).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 219,
+                "end": 270
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:00.104967890Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e861ba4d491d7d14331bb78cc4d8365823d61156241bc38cd36bb93ea7a670e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The regression test asserts the bare name returns only the new user's revision and deleted:<id> only the deleted user's; names cannot contain a colon (EVD-2132). The author reports it fails without the prefix; I did not mutate that part.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2132"
+          ],
+          "recorded_at": "2026-11-25T13:38:53.763688710Z",
+          "seal": {
+            "by": "server",
+            "mac": "f9b6795fd96ff9c520aa030c980c3f5dd40c820088cfd80c6ca8f31880b0db12"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T13:37:52.558315971Z",
+      "updated_at": "2026-11-25T13:38:53.763688710Z",
+      "seal": {
+        "by": "server",
+        "mac": "abc28f9d8d53a46a374ece864d43846a73f40898b70c6fe10c51ba23e8770371"
+      }
+    },
+    {
+      "id": "CLM-1444",
+      "statement": "A bare `user` filter value that no user has as a name, including a deleted user's own stored id given without the `deleted:` prefix, matches no revision.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "docs/operations.md \"Who made a revision\": \"A bare value no user has as a name matches nothing.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2133",
+          "kind": "inspection",
+          "locator": "src/store/users.rs filter_id (after the NUL check, ~lines 454-472); mutation run of a_name_equal_to_a_deleted_users_id... with the final fallback changed back to the old `unwrap_or_else(|| user.to_string())`",
+          "summary": "The code returns NO_USER_ID (empty string) for a bare value that names no user, and for a malformed name. But I changed that fallback to the old read-as-an-id behavior and the new regression test still passed (1 passed), then restored the file with git checkout. The test's \"none\" assertion uses a mangled string, not a deleted user's real id given bare with no same-named user, so no test pins this behavior.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 454,
+                "end": 472
+              },
+              "commit": "644d7c2a7dc824bfe2535fc0ad886283bb18050a"
+            }
+          },
+          "recorded_at": "2026-11-25T13:38:00.197358323Z",
+          "seal": {
+            "by": "server",
+            "mac": "9bc06480f8847d8c8f2f41d8154dc2c5d37ca653629e088e55511d0581bbd9d4"
+          }
+        },
+        {
+          "id": "EVD-2144",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people at 71aa994: 8 passed; same run with filter_id's fallback mutated to the old read-as-an-id: 1 failed (deleting_the_user_keeps_the_record_and_history_shows_the_id, history_people_tests.rs:220), 7 passed; file restored with git checkout",
+          "summary": "The new assertion filters by the deleted user's real uuid, bare, with no user of that name, and expects no changes. It passes at head and fails when the fallback is reverted, so the test now pins the behavior.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 205,
+                "end": 232
+              },
+              "commit": "71aa9941ddeeca2999373097b6a46dec5e973cde"
+            }
+          },
+          "recorded_at": "2026-11-25T13:42:46.469526028Z",
+          "seal": {
+            "by": "server",
+            "mac": "50036f36b819b39502162db924e29288d6879adadc8cfc96b970c942f5f816f9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The code returns an empty id for such a value, but a mutation restoring the old read-as-an-id fallback left the test green, so no test pins it (EVD-2133). Fix: add an assertion to a_name_equal_to_a_deleted_users_id_does_not_take_over_their_revisions that filtering by the deleted user's real uuid, bare, when no user has that name, returns no changes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T13:38:53.841291523Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ce2b182ced7e8e59d7a06c9d45e86fbb8f7b6e4948bb77ccb1675f874cf5962"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The new assertion passes at head and fails under mutation (EVD-2144).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2144"
+          ],
+          "recorded_at": "2026-11-25T13:42:52.309589858Z",
+          "seal": {
+            "by": "server",
+            "mac": "7dabec02b43f131a39e11b1922cac99f7dbed6ad2d1bb4a0286e4bcf739a8796"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T13:37:52.558315971Z",
+      "updated_at": "2026-11-25T13:42:52.309589858Z",
+      "seal": {
+        "by": "server",
+        "mac": "e6c8cc940b1254a04e17c34e2413328670b9c1c323b8b0b7a38d8338345f9c5d"
       }
     }
   ]

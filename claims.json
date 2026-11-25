@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1341,
+  "next_claim_seq": 1354,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "5e195b49967239f495c6f9a7ae5e2f30731acf2781ef2ce5609a7d0c417ea0c1"
+    "mac": "0928394bb8925a3a6c09e13c20561fd10325ad99ee0932bfc8791d12014167bf"
   },
-  "next_evidence_seq": 1978,
+  "next_evidence_seq": 1993,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "d29b6656c7a91eeb4c42a1e1457b057722356029bc458cc20e28d5a32a1ac198"
+    "mac": "2f0b62d58f2c9d4836a7f6d0499a9f11c95eb625fa5afefa5022d3adbc31b960"
   },
   "claims": [
     {
@@ -78779,7 +78779,7 @@
     },
     {
       "id": "CLM-0963",
-      "statement": "The new tests are deterministic: no test in the change races a real sleep against an event; the keeper's timers are tested on a paused clock and the registry tests wait on a refresh counter.",
+      "statement": "The new tests are deterministic: no test in the change races a real sleep against an event; the keeper's timers are tested on a paused clock, and the registry tests wait on a refresh counter or poll a read with a bounded retry (until_ok, 60 s deadline) rather than a fixed sleep.",
       "kind": "non_functional",
       "level": "artifact",
       "integrity_level": 2,
@@ -78832,6 +78832,50 @@
             "by": "server",
             "mac": "c19dcbeb64618b8406ec78ee203bb15682ac3e26f294126e78694cf0016b4f2f"
           }
+        },
+        {
+          "id": "EVD-1991",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1617-1633 (until_ok); git grep -nE 'sleep\\(' src/stores/registry.rs",
+          "summary": "Recheck reports the zero-hit sleep search overturned. origin/main already had one sleep( in registry.rs tests (a bounded 100 ms poll at main:1885, so main was already overturned); this change adds a second, in until_ok (line 1630), a bounded 100 ms retry poll under a 60 s deadline. Neither races a sleep against an event; waits for refreshes use the watch counter. The claim's literal 'no sleep' anchor no longer holds, but its intent (no racing sleeps) does.",
+          "stance": "neutral",
+          "anchor": {
+            "search": {
+              "pattern": "sleep\\(",
+              "scope": [
+                "src/stores/registry.rs"
+              ],
+              "hits": 2,
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:39:57.790336722Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4acf3bc33afd8dc84d30b5cfb4aed50aa78b6580da0097c07502c48072cae4e"
+          }
+        },
+        {
+          "id": "EVD-1992",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1594-1640 (a_refresh_is_applied, until_ok)",
+          "summary": "Registry rotation tests wait on the refresh watch counter (a_refresh_is_applied, one tokio timeout of 60 s) or poll a read with a bounded retry (until_ok: a 100 ms pause between attempts, the whole loop under one 60 s timeout). The 100 ms pause paces retries of a read; it is not raced against an event, and the loop is bounded. Keeper timers stay on a paused clock.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1594,
+                "end": 1640
+              },
+              "commit": "eaafa954150ea86d7266670b4d62ed9a917db150"
+            }
+          },
+          "recorded_at": "2026-11-25T04:54:55.691200605Z",
+          "seal": {
+            "by": "server",
+            "mac": "df7fd83eca44c11b41d336056a392f151224b4f56c00a77307f69952a3910e8f"
+          }
         }
       ],
       "verdicts": [
@@ -78860,13 +78904,39 @@
             "by": "server",
             "mac": "c3f2ea4a5ef9f2a7e8d0ae1a9812aee5e98490b1f31a78acfe23d61f18fa05eb"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The claim's 'registry tests contain no sleep' basis is overturned (already on main, now two sleep( calls, both bounded poll loops); whether a polling retry counts as a racing sleep is the claim owner's call. Fix: update the claim's evidence to state that registry tests poll with a bounded 100 ms retry (until_ok) and wait on counters, with the anchor changed from zero sleep( hits to the until_ok helper.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1991"
+          ],
+          "recorded_at": "2026-11-25T04:40:01.480676297Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec389c33c463c406d29345da214adce1285f34c11b9f78dfc9ec93f733f637e9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Statement now says counter waits or a bounded retry; EVD-1992 shows both are bounded and neither races a sleep against an event.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1992"
+          ],
+          "recorded_at": "2026-11-25T04:55:03.738017771Z",
+          "seal": {
+            "by": "server",
+            "mac": "a4dc1bf5f1ce35bd281d1cd35d6afefdff8f4b35d9666f03ca934771ea74e9ba"
+          }
         }
       ],
       "created_at": "2026-11-23T18:57:17.254708565Z",
-      "updated_at": "2026-11-23T19:28:07.416085115Z",
+      "updated_at": "2026-11-25T04:55:03.738017771Z",
       "seal": {
         "by": "server",
-        "mac": "760a0301685fb19bb7ba40f1fca3ad25d856a24d2ab4295f2c2dedc02564e043"
+        "mac": "99357bf15b6ec16fed10eb89a054043c8819af23129145a28c951bfa7274f458"
       }
     },
     {
@@ -108981,6 +109051,829 @@
       "seal": {
         "by": "server",
         "mac": "d70209edeff9404fa1e074caba6eabc9140b7726fed2eabd242b6d48233f7c03"
+      }
+    },
+    {
+      "id": "CLM-1341",
+      "statement": "Issue #1002: the store credential rotation tests in src/stores/registry.rs no longer fail intermittently with 28P01 under load.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1002",
+      "derived_from": [],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1990",
+          "kind": "analysis",
+          "locator": "children of CLM-1341",
+          "summary": "Children show the mechanism is real and the new ordering and bounded waits tolerate a stray refresh. Whether the flake is gone under load is a probabilistic outcome that code reading cannot establish; narrow.log is a single 23-pass run and the full-suite gate log (test-dylint.log) is incomplete (125 lines, no test result).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T04:39:15.245295611Z",
+          "seal": {
+            "by": "server",
+            "mac": "e321c159153443080043d8c22a0ce23629f70f928b382e232d52e10f5ab38a46"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Design is sound but flake absence is probabilistic and unmeasured; the full-suite gate log is incomplete. Fix: repeat the five rotation tests in a full gate.sh test run (both OKF_TEST_STORE modes) several times without added load and record zero failures.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1990"
+          ],
+          "recorded_at": "2026-11-25T04:39:35.354333958Z",
+          "seal": {
+            "by": "server",
+            "mac": "feb93e09d2d43fbc804d2da686843257dc1ae0da688d1ee953b6220b5d88f0e5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:35.354333958Z",
+      "seal": {
+        "by": "server",
+        "mac": "a2539120119c5bec6fdbe6d6056ec1d65c5cb360bf06d850dc6a196013cb2c26"
+      }
+    },
+    {
+      "id": "CLM-1342",
+      "statement": "The rotation tests wait on explicit signals (the credential task's refresh counter) or a bounded retry rather than assuming exactly one refresh, and every wait or retry is bounded in time.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1002 requirements: wait on explicit signals or bounded retries",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1978",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1592-1633",
+          "summary": "REFRESH_DEADLINE (60 s) bounds both a_refresh_is_applied (timeout around watch wait_for count>=1) and until_ok (deadline loop panicking after 60 s). The five rotation tests call them at 1834/1838, 1889/1893, 2018/2022.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1592,
+                "end": 1633
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:51.666034770Z",
+          "seal": {
+            "by": "server",
+            "mac": "49d9fe451af97d716002b63cd985a893ca600b668405a2b8c8d269682944c64b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both helpers are bounded by a 60 s deadline and used in all five tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1978"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.217043179Z",
+          "seal": {
+            "by": "server",
+            "mac": "204dcfca3966b60c2d9f35de57e10693ef32557f8002071c42db3edbd19017fb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.217043179Z",
+      "seal": {
+        "by": "server",
+        "mac": "435f2091272ed93a54250c3a4fbd62576c4323e272c4412e261f66bedffb81af"
+      }
+    },
+    {
+      "id": "CLM-1343",
+      "statement": "No rotation test is marked #[ignore] by the change, and each test keeps its assertion intent (refused read is asserted, the next read is asserted to work as the role).",
+      "kind": "constraint",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1002: keep every assertion's intent; do not #[ignore] any test",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1979",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/stores/registry.rs; src/stores/registry.rs:1834-1846,1889-1895,2018-2024",
+          "summary": "No #[ignore] added anywhere in the diff (grep of diff for ignore: 0 hits). Each test still asserts StoreUnavailable/Database on the refused attempt, then asserts current_user == role / plain_read == 1 after refresh. Counter wait still present, now bounded; the counter can be satisfied by a stray refresh, a small weakening the changelog states for call counts only.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "#\\[ignore",
+              "scope": [
+                "src/stores/registry.rs"
+              ],
+              "hits": 0,
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:51.799251569Z",
+          "seal": {
+            "by": "server",
+            "mac": "5197ab697e77d5a73c91ec4bed9af782599a3d524f54e410afc6ce184e886a4f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero #[ignore] in registry.rs; the refusal and post-refresh assertions remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1979"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.326167724Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fe47598f8730a6d0b5c7e4e59fc2eb0746386d4dea169c5d1ed6edbaae4c2d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.326167724Z",
+      "seal": {
+        "by": "server",
+        "mac": "ed91b4f3b65132486ac1b7a10596fd1c3a730e1dd3c598d56e72d6ddfb80c9ff"
+      }
+    },
+    {
+      "id": "CLM-1344",
+      "statement": "The change modifies no production code: the only files changed are src/stores/registry.rs (its tests module), a changelog entry and the claims.json ledger, so production retry behaviour (#998) is unchanged.",
+      "kind": "constraint",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "Issue #1002: do not change production retry behaviour (#998); PR body: 'No production code changes.'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "changelog/",
+        "claims.json"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1980",
+          "kind": "inspection",
+          "locator": "git diff --name-status origin/main..HEAD; src/stores/registry.rs:1589 (mod tests starts earlier)",
+          "summary": "Only two paths changed: A changelog/2026-11-25T04-26-46Z-issue-1002-rotation-test-flake.md, M src/stores/registry.rs. All registry.rs hunks begin at line 1589 or later, inside the cfg(test) mod tests (starts at 1026 region; helpers at 1592-1633 are doc'd test helpers). src/stores/credentials.rs is untouched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1592,
+                "end": 1633
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.100435793Z",
+          "seal": {
+            "by": "server",
+            "mac": "07beffcdc87252d49a57c49ac823d8e376f32ffdc28185b517beaacb193aa2aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "name-status shows only the test file and a changelog; credentials.rs untouched. Level 3 claim by inspection of the diff, which is the direct method for a diff-scope fact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1980"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.454449198Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbf1edacf85ec79e606223eefcc07211182aa87b646f58a2f67c87d736077a06"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:54:48.859204966Z",
+      "seal": {
+        "by": "server",
+        "mac": "3e304a4565fa5dc1e71ab729c9b327a3a8fdeab406bf10214e9bf1b5046bc4d2"
+      }
+    },
+    {
+      "id": "CLM-1345",
+      "statement": "A changelog entry for the change exists under changelog/ with a date-and-time stamped file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Repo rule: changelog/ entry required",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "changelog/2026-11-25T04-26-46Z-issue-1002-rotation-test-flake.md"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1981",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-25T04-26-46Z-issue-1002-rotation-test-flake.md",
+          "summary": "File exists, tracked, date-time stamped name, describes added helpers, changed tests, cause and notes. Minor inaccuracy: it says \"Four rotation tests\" but names five tests (two direct plus three via the shared body).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T04-26-46Z-issue-1002-rotation-test-flake.md",
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.268406928Z",
+          "seal": {
+            "by": "server",
+            "mac": "71f4e7fd2fc8104cf7a8559bfd881daddb95349b779afbcd91e09fcf69d0d6ec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Entry exists and is stamped. It miscounts \"Four\" tests while naming five; cosmetic.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1981"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.564284054Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a9630cb64deb88c41a164a1f39ed06cbebf3a19394473213ffb609fbe879f99"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.564284054Z",
+      "seal": {
+        "by": "server",
+        "mac": "90066916fb824dac8ba101a2d9bbd054be63b8308760b518eff68ae458676913"
+      }
+    },
+    {
+      "id": "CLM-1346",
+      "statement": "LOGINS_REFUSED in src/stores/credentials.rs is a process-wide broadcast channel, and a refusal whose message names no single role wakes every credential task.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'The refusal channel (LOGINS_REFUSED, src/stores/credentials.rs) is process-wide. A refusal whose message names no single role ... wakes every credential task.'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/credentials.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1982",
+          "kind": "inspection",
+          "locator": "src/stores/credentials.rs:468-512",
+          "summary": "LOGINS_REFUSED is a static LazyLock broadcast::Sender; signal_auth_refused sends role_in(message) (None when the message does not have exactly two quotes around a non-empty name); doc comment states a None message wakes every task. next_refusal (from doc at 458-467) answers only if role is the pool's login or None.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/credentials.rs",
+              "lines": {
+                "start": 458,
+                "end": 512
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.423596074Z",
+          "seal": {
+            "by": "server",
+            "mac": "46bdedeb4a26b7e15bccac198834904883919c66cb51c0ae1013b69b0959c405"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Static broadcast channel; None role wakes all tasks per code and doc.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1982"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.665735396Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d12384264c643e49e77d02f66d43f327c4bdc8579f13ead458b3127027040be"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.665735396Z",
+      "seal": {
+        "by": "server",
+        "mac": "983ed9f54b35f294983ffd3b8fec7666c8d493d9eba9b67dbcc12b36131a2f17"
+      }
+    },
+    {
+      "id": "CLM-1347",
+      "statement": "The two quotation-mark tests (a_role_with_a_quotation_mark_..., a_role_with_two_adjacent_quotation_marks_...) produce a refusal naming no single role, via the shared body a_plain_read_after_a_rotation_refreshes whose role name carries the prefix.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'the two quotation-mark tests produce one'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "src/stores/credentials.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1983",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1980,2037,2042; src/stores/credentials.rs:491-496",
+          "summary": "Role is format!(\"{prefix}{database}\") with prefix app\\\" and app\\\"\\\" for the two tests, so Postgres's message has 3 or 4+ quote marks beyond the pair, role_in's 4-piece split fails and returns None, which wakes every task.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2030,
+                "end": 2043
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.561585627Z",
+          "seal": {
+            "by": "server",
+            "mac": "3dacac564c9634052257a0aa74350485fedf79e80d9dc99a50d1a470ca0ddc5b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Role names with one or two embedded quotes make role_in return None.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1983"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.760677447Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f93c99c86d5f680fd870db193fc9ab2803729948fbf5465dbc52e56d1ef0df7"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.760677447Z",
+      "seal": {
+        "by": "server",
+        "mac": "89253c6859f562bdd0ed215651d9523f9d6a53607d0780b0f108409344cb5a6d"
+      }
+    },
+    {
+      "id": "CLM-1348",
+      "statement": "Before the change, the secrets tests called set_password before secrets.set, so a stray refresh between them fetched the old secret, bumped the refresh counter early, and the next read used the old login (the :1836 and :1958 sightings).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'A stray refresh between a test's set_password and its secrets.set fetched the old secret, so the refresh counter reached 1 early...'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1984",
+          "kind": "analysis",
+          "locator": "git show origin/main:src/stores/registry.rs (secrets-manager test and shared body); src/stores/credentials.rs:640-680",
+          "summary": "On main both tests ran set_password(pw-2) then secrets.set(pw-2) with a wait_for(count>=1). A wake between them makes keep_current fetch the still-old secret, apply it and bump the counter, satisfying the wait early while the pool holds the old password (28P01 on next read). Mechanism consistent with the code; the stray wake source is the process-wide channel. Not reproduced here (no cargo runs).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/credentials.rs",
+              "lines": {
+                "start": 640,
+                "end": 680
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.718142597Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2a6577727a7887ac83dcfa2c6b50633d36544bc3c652285edac2a8c9e611928"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The old ordering admits the described interleaving; consistent with the code, not reproduced (no runs allowed).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1984"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.847885234Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e9f14f02cab905a04b19cdb12377727f696e2e6de882123dba10062c44c3ab7"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.847885234Z",
+      "seal": {
+        "by": "server",
+        "mac": "87164472feb25580364170f7fa0699411fc6603eb526b913f5bc0afe79ac9f3e"
+      }
+    },
+    {
+      "id": "CLM-1349",
+      "statement": "Before the change, in the signer test the clock moved before set_password, so a stray refresh between them gave the pool the new token before the database wanted it, making the begin() that should be refused succeed (the :1781 sighting).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'A stray refresh between the clock moving and set_password gave the pool the new token before the database wanted it...'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1985",
+          "kind": "analysis",
+          "locator": "git show origin/main:src/stores/registry.rs (signer test: now.store(900) then set_password token-1); src/stores/registry.rs:1822-1832",
+          "summary": "On main the clock was moved (now=900) before set_password(token-1). A stray refresh in between signs token-1 into the pool; once the database then takes token-1 the new connection authenticates, so the begin() asserted to be refused succeeds. Matches the :1781 symptom described in the issue.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1817,
+                "end": 1832
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:52.884396077Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd965fa71262d5bb02b6a02d73f230c8b726553400799038800fe1ea8b0a8dd5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The old ordering admits the described interleaving and matches the :1781 symptom.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1985"
+          ],
+          "recorded_at": "2026-11-25T04:39:34.937713440Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4d7bb4d5f4d94fb9c92dc76f438958691b22d393a35a446715d4cc3c526f8ec"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:34.937713440Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa9aa3b3cf21fd003055ca7782e7d5f9108d2be1ed7eb853c9eeb9d05b0e5cdc"
+      }
+    },
+    {
+      "id": "CLM-1350",
+      "statement": "The five rotation tests (the signer/open-pool test, the secrets-manager test, and the three sharing a_plain_read_after_a_rotation_refreshes) now move the source first, set the role's password to a value matching neither login, assert the refusal, wait for the refresh counter with a 60 s bound, set the new password, and confirm the next read with a bounded 60 s retry (until_ok).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body Changes bullet 1",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1986",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1822-1846, 1878-1895, 2003-2024",
+          "summary": "All five tests follow the order: now.store(900)/secrets.set first, set_password to token-rotating/pw-rotating, assert refusal, a_refresh_is_applied (60 s), set_password to the new login, until_ok (60 s) then assert user. Three share the body at 1977-2025. The statement says the PR body counts five; the changelog says four (inconsistency, minor).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1817,
+                "end": 1846
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:53.027126715Z",
+          "seal": {
+            "by": "server",
+            "mac": "e181c3d94eaf9c58c9f1c17ab1c2d0a43d0a87e31cc1cb2e2593b4864f904c51"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All five tests follow the described sequence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1986"
+          ],
+          "recorded_at": "2026-11-25T04:39:35.034565537Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3f1cb813b51aa32bb301fe3bf7d2a44013bd042a7b4709564b5dd9dbdd00682"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:35.034565537Z",
+      "seal": {
+        "by": "server",
+        "mac": "5de37b2c0fe2524c3e62138729a2e59ae9693a4220d476a5b7435a8c137d9b3b"
+      }
+    },
+    {
+      "id": "CLM-1351",
+      "statement": "secrets.calls and signer.calls are asserted >= 2 instead of == 2 in the changed rotation tests, and no == 2 assertion on them remains.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes bullet 2",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Over-broad: second conjunct (no == 2 remains in the file) is about unrelated open-time retry tests at registry.rs:1746 and 1799; replaced by a claim scoped to the changed rotation tests.",
+        "retired_at": "2026-11-25T04:39:06.579169021Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1987",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1846,1895,2024; search for 'calls.load.*== 2'",
+          "summary": "Three assertions use >= 2. A search for calls...== 2 in registry.rs finds nothing (0 hits).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "calls\\.load\\([^)]*\\), 2\\)|calls\\.load.*== 2",
+              "scope": [
+                "src/stores/registry.rs"
+              ],
+              "hits": 2,
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:38:53.167137964Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6964ff9c65430132d23fe6c2a2ecfbe07a10672e9f2ac7a17b03d87d3d0962e"
+          }
+        }
+      ],
+      "verdicts": [],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:06.579169021Z",
+      "seal": {
+        "by": "server",
+        "mac": "cc78d7e63d738c60f0eb8a3498e9fa48460d5fc22cf71e70a0e08a1f1125b4e3"
+      }
+    },
+    {
+      "id": "CLM-1352",
+      "statement": "gate.sh fmt and gate.sh lint pass, and gate.sh narrow --lib stores::registry reports 23 passed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation: 'gate.sh fmt, gate.sh lint: pass. gate.sh narrow --lib stores::registry: 23 passed.'",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "target/i1002-logs/"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1988",
+          "kind": "log",
+          "locator": "target/i1002-logs/fmtlint.log (fmt --check, clippy -D warnings, doc -D warnings: all Finished, no errors); target/i1002-logs/narrow.log",
+          "summary": "fmtlint.log shows cargo fmt --check, clippy --all-targets -D warnings and cargo doc each finishing with no error or warning lines. narrow.log ends 'test result: ok. 23 passed; 0 failed' and lists the four named rotation tests as ok. I did not rerun (instructed no cargo). The log's commit is not recorded, only matches head by timing.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T04:38:53.362403663Z",
+          "seal": {
+            "by": "server",
+            "mac": "c57e1e66024ce9687f3b9ae7dfda8b20045770e2603271e9572d2680e1e0f5d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Logs agree (fmt, clippy, doc clean; 23 passed) but I was told not to rerun, and the logs do not record which commit they ran on. Fix: rerun gate.sh fmt, gate.sh lint and gate.sh narrow --lib stores::registry on commit 07096c2 and record the printed counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1988"
+          ],
+          "recorded_at": "2026-11-25T04:39:35.251415092Z",
+          "seal": {
+            "by": "server",
+            "mac": "8896e98e1be55b18f93ee52d0c423b3b7fb9bb5e153d8d3d8e34ecf35cf93dfa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:38:20.413874924Z",
+      "updated_at": "2026-11-25T04:39:35.251415092Z",
+      "seal": {
+        "by": "server",
+        "mac": "d063f76ddff9b9f8ab3098d78e405037cb0463353da275bcfb3191a42d455927"
+      }
+    },
+    {
+      "id": "CLM-1353",
+      "statement": "In the five changed rotation tests, secrets.calls and signer.calls are asserted >= 2 instead of == 2.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes bullet 2",
+      "derived_from": [
+        "CLM-1341"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:1002"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1989",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1846,1895,2024",
+          "summary": "Three assert!(... >= 2) lines cover the five tests (the third is the shared body). The two remaining assert_eq!(signer.calls, 2) at 1746 and 1799 belong to other, unchanged open-time retry tests (iam_auth_failure_refreshes_once_and_retries and a_login_that_stays_refused_is_tried_twice_and_no_more), not rotation tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1846,
+                "end": 1846
+              },
+              "commit": "07096c27e35f60e449f29798cef7513921b5d79d"
+            }
+          },
+          "recorded_at": "2026-11-25T04:39:15.103324075Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c906fdbc1f09a6b1f819fb68cdb13457745b5a4f22583c60afdf2a2fb523366"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Three >= 2 assertions cover the five tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1989"
+          ],
+          "recorded_at": "2026-11-25T04:39:35.149945781Z",
+          "seal": {
+            "by": "server",
+            "mac": "177e90702537f4165b3f74dd08e6858e04db9df3488cc9af3b9bfcac802f9664"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T04:39:06.705690229Z",
+      "updated_at": "2026-11-25T04:39:35.149945781Z",
+      "seal": {
+        "by": "server",
+        "mac": "3673a196ab18cd23f861b90e9a6262f351b723d1e926ca25fa3ed8020f3f1eb4"
       }
     }
   ]

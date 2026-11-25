@@ -1589,6 +1589,55 @@ mod tests {
             .unwrap();
     }
 
+    /// How long a rotation test waits for a refresh, or for a login to work
+    /// under it. A refresh can wait out the keeper's gap between refreshes
+    /// (`MIN_REFRESH_GAP`, 10 s) when another test's refusal woke it first, so
+    /// this is an upper bound, never a pace.
+    const REFRESH_DEADLINE: Duration = Duration::from_secs(60);
+
+    /// Waits until the credential task has applied a refresh.
+    ///
+    /// The refusal that wakes the task is process-wide (`LOGINS_REFUSED`), and
+    /// a refusal naming no single role wakes every task, so a refresh can come
+    /// from another test's refusal. A caller must make every login the task
+    /// can apply from now on the right one (change the source first), and
+    /// confirm the result with [`until_ok`].
+    async fn a_refresh_is_applied(refreshes: &mut tokio::sync::watch::Receiver<u64>) {
+        tokio::time::timeout(REFRESH_DEADLINE, refreshes.wait_for(|count| *count >= 1))
+            .await
+            .expect("the credential task applied a refresh in time")
+            .expect("the credential task is still running");
+    }
+
+    /// Repeats `attempt` until it succeeds, for up to [`REFRESH_DEADLINE`].
+    ///
+    /// Each refused attempt is itself a refusal that wakes the credential
+    /// task, so this is how production reaches a refreshed login too: the
+    /// read that overlaps a refresh may still use the old login (#998).
+    async fn until_ok<T, E, F, Fut>(what: &str, mut attempt: F) -> T
+    where
+        E: std::fmt::Debug,
+        F: FnMut() -> Fut,
+        Fut: std::future::Future<Output = Result<T, E>>,
+    {
+        let mut last_error = String::new();
+        // The timeout covers the whole loop, so an attempt still in flight
+        // when the deadline passes is cancelled, and a late `Ok` is not taken.
+        let retrying = async {
+            loop {
+                match attempt().await {
+                    Ok(done) => return done,
+                    Err(error) => last_error = format!("{error:?}"),
+                }
+                tokio::time::sleep(Duration::from_millis(100)).await;
+            }
+        };
+        match tokio::time::timeout(REFRESH_DEADLINE, retrying).await {
+            Ok(done) => done,
+            Err(_) => panic!("no success for {what} within {REFRESH_DEADLINE:?}: {last_error}"),
+        }
+    }
+
     fn no_secrets() -> Arc<MockSecrets> {
         MockSecrets::holding("")
     }
@@ -1774,8 +1823,13 @@ mod tests {
         let _held = store.executor().acquire().await.unwrap();
         let mut refreshes = stores.credential_task(&name).await.unwrap();
 
+        // The clock moves first, so every token the signer gives from now on
+        // is the new one. The database then refuses both the old token and
+        // the new one (`token-rotating` is neither), so the refusal below
+        // holds whether or not a refresh from another test's refusal lands
+        // in between.
         now.store(900, Ordering::SeqCst);
-        set_password(&db.pool, &role, "token-1").await;
+        set_password(&db.pool, &role, "token-rotating").await;
         // A new physical connection is refused: the caller sees an
         // unavailable store, not a database error.
         let refused = store.begin().await.unwrap_err();
@@ -1783,16 +1837,19 @@ mod tests {
             matches!(refused, OkfError::StoreUnavailable { .. }),
             "{refused:?}"
         );
-        refreshes.wait_for(|count| *count >= 1).await.unwrap();
+        a_refresh_is_applied(&mut refreshes).await;
+        // The database now accepts the new token, which the pool holds.
+        set_password(&db.pool, &role, "token-1").await;
 
-        let mut tx = store.begin().await.unwrap();
+        let mut tx = until_ok("a connection under the refreshed token", || store.begin()).await;
         let user: String = sqlx::query_scalar("SELECT current_user::text")
             .fetch_one(&mut *tx)
             .await
             .unwrap();
         assert_eq!(user, role);
-        // The refused attempt and nothing else caused the second signature.
-        assert_eq!(signer.calls.load(Ordering::SeqCst), 2);
+        // A second signature was made: the first was at open, and a refresh
+        // woken by a refusal gave the token the database accepts.
+        assert!(signer.calls.load(Ordering::SeqCst) >= 2);
 
         drop(tx);
         stores.forget_all().await;
@@ -1823,19 +1880,25 @@ mod tests {
         assert_eq!(current_user(&store, &mut first).await, role);
         assert_eq!(secrets.calls.load(Ordering::SeqCst), 1);
 
-        // The secret is rotated: the database and the secret change.
-        set_password(&db.pool, &role, "pw-2").await;
+        // The secret is rotated. It changes first, so every login the task
+        // fetches from now on is the new one; the database then takes a
+        // password that is neither, so the refusal below holds whether or
+        // not a refresh from another test's refusal lands in between.
         secrets.set(Ok(format!(r#"{{"username":"{role}","password":"pw-2"}}"#)));
         let mut refreshes = stores.credential_task(&name).await.unwrap();
+        set_password(&db.pool, &role, "pw-rotating").await;
         let refused = store.begin().await.unwrap_err();
         assert!(
             matches!(refused, OkfError::StoreUnavailable { .. }),
             "{refused:?}"
         );
-        refreshes.wait_for(|count| *count >= 1).await.unwrap();
-        let mut second = store.executor().acquire().await.unwrap();
+        a_refresh_is_applied(&mut refreshes).await;
+        // The database now accepts the new password, which the pool holds.
+        set_password(&db.pool, &role, "pw-2").await;
+        let mut second =
+            until_ok("a connection under the refreshed secret", || store.begin()).await;
         assert_eq!(current_user(&store, &mut second).await, role);
-        assert_eq!(secrets.calls.load(Ordering::SeqCst), 2);
+        assert!(secrets.calls.load(Ordering::SeqCst) >= 2);
 
         drop((first, second));
         stores.forget_all().await;
@@ -1941,8 +2004,13 @@ mod tests {
         let _held = store.executor().acquire().await.unwrap();
         let mut refreshes = stores.credential_task(&name).await.unwrap();
 
-        set_password(&db.pool, &role, "pw-2").await;
+        // The secret changes first, so every login the task fetches from now
+        // on is the new one; the database then takes a password that is
+        // neither, so the refusal below holds whether or not a refresh from
+        // another test's refusal (a role with quotation marks names no single
+        // role, so it wakes every task) lands in between.
         secrets.set(Ok(secret("pw-2")));
+        set_password(&db.pool, &role, "pw-rotating").await;
         // A read that goes straight to the pool and propagates with `?`,
         // never through `CatalogDb::classify` (the shape of the store
         // layer's functions).
@@ -1953,10 +2021,13 @@ mod tests {
         }
         let refused = plain_read(&store).await.unwrap_err();
         assert!(matches!(refused, OkfError::Database { .. }), "{refused:?}");
-        refreshes.wait_for(|count| *count >= 1).await.unwrap();
+        a_refresh_is_applied(&mut refreshes).await;
+        // The database now accepts the new password, which the pool holds.
+        set_password(&db.pool, &role, "pw-2").await;
 
-        assert_eq!(plain_read(&store).await.unwrap(), 1);
-        assert_eq!(secrets.calls.load(Ordering::SeqCst), 2);
+        let one = until_ok("a read under the refreshed login", || plain_read(&store)).await;
+        assert_eq!(one, 1);
+        assert!(secrets.calls.load(Ordering::SeqCst) >= 2);
 
         stores.forget_all().await;
         drop_role(&db.pool, &role).await;

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1354,
+  "next_claim_seq": 1370,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "0928394bb8925a3a6c09e13c20561fd10325ad99ee0932bfc8791d12014167bf"
+    "mac": "be069a2bed2350ad9cb0e1895c6e3606df1354a08e240e6eac870ca37f62fa6b"
   },
-  "next_evidence_seq": 1993,
+  "next_evidence_seq": 2018,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "2f0b62d58f2c9d4836a7f6d0499a9f11c95eb625fa5afefa5022d3adbc31b960"
+    "mac": "6a66bab62f8720fbcd04c439c6c93e2b31706e2d787146e07276265a2fe00a29"
   },
   "claims": [
     {
@@ -29778,6 +29778,28 @@
             "by": "server",
             "mac": "12ae0116f44d6c708d646178d95b783015af727b2ba1fe8eceb54eabe40663cb"
           }
+        },
+        {
+          "id": "EVD-2012",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:64 and :17; tools/agentic/README.md:10",
+          "summary": "Worker gate arm still reads limit=${AGENTIC_TIMEOUT_WORKER:-5m}, cmd=(just test-worker); README gate row still lists `worker` (the reader's Node tests). The diff did not change those parts.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 64,
+                "end": 64
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:37:02.703740872Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e91b47e8dce861bfffa5d1d9fded2340860ae03c86fdaa69c5b34fe8cf83cb6"
+          }
         }
       ],
       "verdicts": [
@@ -29793,13 +29815,26 @@
             "by": "server",
             "mac": "08f976584e426a3c918bb27ac15f57b9b7e051c9c031e65104fe08fc383fd292"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the worker gate arm and README row are unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2012"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.396912316Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e496474bcd9b4f8896f2d133cd0b8a422918c863ec0c72afaf556a253c93898"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-21T21:31:33.862588469Z",
+      "updated_at": "2026-11-25T05:37:28.396912316Z",
       "seal": {
         "by": "server",
-        "mac": "9784866612fa698ff72462676e3422a0e64834defe69d092bcd106dd399dd4ab"
+        "mac": "8129b2b3fb2da017d77ccebee05256c5f5a31b9e62321746a7e051730bb60cf1"
       }
     },
     {
@@ -29929,6 +29964,28 @@
             "by": "server",
             "mac": "b3274f17ca7c224f200d318aef58c4aa26d838b37d522ae53e856e335657300d"
           }
+        },
+        {
+          "id": "EVD-2013",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:9-17 and :64",
+          "summary": "The header table still lists 'worker   just test-worker  5m (no lock ...)' and the case arm still has limit 5m, locked=0, just test-worker; usage line (:46) names worker. Diff only adds header lines at ~:30-33 and rewords the exit-code text.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 9,
+                "end": 17
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:37:02.776704230Z",
+          "seal": {
+            "by": "server",
+            "mac": "d00ebdd4e02f4dc3f16ab67b38c21aa4d69093c4394760e79c1e9cda00642f48"
+          }
         }
       ],
       "verdicts": [
@@ -29944,13 +30001,26 @@
             "by": "server",
             "mac": "84e287c9cd1a4f7a8f20b59d33fa74cc335529cd9d507b17b66a10b9f3251cf5"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the header worker line and case arm are unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2013"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.471058088Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ccd9e8938654cb5b0b3d6e9cd6a3eca417da3c4dc3391bb9a88ceb7f1860298"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-21T21:31:33.925564480Z",
+      "updated_at": "2026-11-25T05:37:28.471058088Z",
       "seal": {
         "by": "server",
-        "mac": "dd20b3f96a9df1114844043f8517eb5da135663d2486b40ce1fa979ab531d080"
+        "mac": "b3a05d40fe6355bc4bdfc2b433253e52fb49b47dd1dec6b5a9abbb6ce74f3b38"
       }
     },
     {
@@ -55978,7 +56048,9 @@
         "from-issue:675"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #948 (PR #1041): it described the unbounded pgrep -c -g call at lib.sh:56, which that PR removed. The leftover check now uses kill -0 -- -pgid (see CLM-1356).",
+        "retired_at": "2026-11-25T06:00:45.488489454Z"
       },
       "evidence": [
         {
@@ -56046,6 +56118,34 @@
             "by": "server",
             "mac": "48bf737f52154224eac83c5b3ab60870e12052e8a63f60548ebba6b093693315"
           }
+        },
+        {
+          "id": "EVD-2010",
+          "kind": "analysis",
+          "locator": "git grep -nE '\\bpgrep\\b' -- tools/agentic/*.sh at 33790d6",
+          "summary": "At head there is no pgrep in any tools/agentic script; lib.sh:56 is no longer a pgrep line. The statement that 'the only unbounded one is pgrep -c -g in lib.sh:56' no longer holds because #948 removed it (the watchdog's ps calls are still all in bounded_capture).",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "\\bpgrep\\b",
+              "scope": [
+                "tools/agentic/expect.sh",
+                "tools/agentic/gate.sh",
+                "tools/agentic/lib.sh",
+                "tools/agentic/merge-reviewed.sh",
+                "tools/agentic/remove-worktree.sh",
+                "tools/agentic/watch-review.sh",
+                "tools/agentic/watchdog.sh"
+              ],
+              "hits": 0,
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:37:02.549288878Z",
+          "seal": {
+            "by": "server",
+            "mac": "2002e562e3ed1e493b2901ca69417ef6ec2d8b52f934edb50f9e4fc76e5fd936"
+          }
         }
       ],
       "verdicts": [
@@ -56087,13 +56187,26 @@
             "by": "server",
             "mac": "fdc9450335167162e2d06f171d4baee1b60db58dd922a32bbbb21e020c9d1875"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This diff removed the pgrep -c -g at lib.sh:56, so the statement that it is the only unbounded process-table command is no longer true at head (zero pgrep hits). It was true for the older commit it was audited at, so this is expected supersession, not a defect in #948. Fix: retire CLM-0700 as superseded by #948 and, if wanted, add a claim that no pgrep remains in tools/agentic/*.sh.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2010"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.246964366Z",
+          "seal": {
+            "by": "server",
+            "mac": "50e16734bc807c37ff7a8ca3b5675185b1df088fa40ea2361c8f607f1acc8c65"
+          }
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-23T09:35:16.922925580Z",
+      "updated_at": "2026-11-25T06:00:45.488489454Z",
       "seal": {
         "by": "server",
-        "mac": "9a9754c9f8c1368ca0ef1208302b1b030bb56dd5cf91b1b686f87c4158fe753b"
+        "mac": "ff53a9e2ae9a5b01f11b419ead81845d397206556dfde03fa5e15b60dc8676c5"
       }
     },
     {
@@ -56160,6 +56273,28 @@
             "by": "server",
             "mac": "ab069e44121ef11e94056cb808723a475d202162e8cf68dc7a026c1e8cc351ab"
           }
+        },
+        {
+          "id": "EVD-2011",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:55 (AGENTIC_CALL_TIMEOUT row) and :14 (watchdog row)",
+          "summary": "The claim concerns the watchdog's bounded calls; those README texts are unchanged by the diff (it edits only the gate.sh row at line 10 and the lib.sh row), so the claim still holds at head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 14,
+                "end": 14
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:37:02.628912468Z",
+          "seal": {
+            "by": "server",
+            "mac": "7841925d795563187ea895de4c7687f6fadb45985d83919ca26b26590e569e91"
+          }
         }
       ],
       "verdicts": [
@@ -56188,13 +56323,26 @@
             "by": "server",
             "mac": "597a4a7271dbaa53d610eb32dac2ae2638c5916306a11cee627d7e1127e30de6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the README text the claim covers is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2011"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.321960651Z",
+          "seal": {
+            "by": "server",
+            "mac": "c8577a48a0604d474775fa4c9fb1d83e129ad02b48dd62f6c5817fc54ac30fcd"
+          }
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-23T09:35:16.970427472Z",
+      "updated_at": "2026-11-25T05:37:28.321960651Z",
       "seal": {
         "by": "server",
-        "mac": "bc8c99eb1f74fe6888dec449ff572a527666b7fe9301eb5fa1e46a4235864bbb"
+        "mac": "5889c36d2bafca4d89b0d3903e513dbb7c582275b75789e5b08dcf99255c2c0c"
       }
     },
     {
@@ -109874,6 +110022,1152 @@
       "seal": {
         "by": "server",
         "mac": "3673a196ab18cd23f861b90e9a6262f351b723d1e926ca25fa3ed8020f3f1eb4"
+      }
+    },
+    {
+      "id": "CLM-1354",
+      "statement": "Issue #948 is resolved: agentic_run_bounded (and so gate.sh) can no longer block on a leader or leftover process that survives KILL, the abandonment is reported on stderr, the lock is still released, the exit status keeps the existing contract, tests cover it with stubs, and the README states the exception to its promise.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/948",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh",
+        "tools/agentic/README.md",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2014",
+          "kind": "analysis",
+          "locator": "children of CLM-1354",
+          "summary": "The children cover each requirement: leader disowned after KILL (1355), pgrep replaced (1356), 124 kept (1357), stderr report (1358), normal-exit leftover (1359), lock freed (1360), stub tests (1361) and README exception (1362). Gaps that do not refute: no committed test of the lock after an abandonment, and the dead-leader-with-surviving-member branch (lib.sh:90-93) is untested.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T05:37:32.091448026Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a4698315f914619c736b283ed449956a313362b04b1c5e340f21e4a9e4d2319"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported; see EVD-2014.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2014"
+          ],
+          "recorded_at": "2026-11-25T05:37:34.859710563Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7b82eac50499a5b4ec499d63e6dc603134709ca27cc1f9065d41d73725a59d9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:34.859710563Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f4c0f9545e8cb5f3b2981a3d87fdb2425303290ac36066ae04ff41314135861"
+      }
+    },
+    {
+      "id": "CLM-1355",
+      "statement": "After a timeout, agentic_run_bounded stops the group, then checks the leader with kill -0 and, if it is still alive, disowns it instead of calling wait; wait runs only when the leader is already dead.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #948: \"after KILL, poll kill -0 ... then disown the leader instead of an unconditional wait\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1993",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:79-94",
+          "summary": "After agentic_stop_group, `kill -0 \"$pgid\"` decides: alive leader is disowned (no wait); the wait at line 89 sits only in the dead-leader branch. The old unconditional `wait \"$pgid\"` is removed (diff).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 79,
+                "end": 94
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:33.567657905Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd27c69fe54c3ab8f045867b3a08df66fa2c6d8d37a7c6e9fdf89cb2ad00d8c1"
+          }
+        },
+        {
+          "id": "EVD-1994",
+          "kind": "test",
+          "locator": "test_run_bounded_abandons_a_leader_that_survives_kill_after_a_timeout (tools/agentic/tests/run.sh:1559), run via a copy of run.sh filtered to ^test_(run_bounded|gate_)",
+          "summary": "Passed (3043 ms; 16 passed, 0 failed in the subset). The test shadows kill so TERM/KILL do nothing to the leader, asserts rc=124 timed_out=1, 'survived KILL', 'abandoned', elapsed <= 10 s and that the leader is still alive afterwards.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1559,
+                "end": 1571
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:33.647221715Z",
+          "seal": {
+            "by": "server",
+            "mac": "0638092d087b994de2f0cac2a244905fe116adb0fb6c5c82590500b2b9e18d68"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code (lib.sh:79-94) and the passing stub test show an alive leader is disowned with no wait.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1993",
+            "EVD-1994"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.274222991Z",
+          "seal": {
+            "by": "server",
+            "mac": "298832689d216b29422a7376bdab5e7f513e97a917445d164b0f6d779852946a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.274222991Z",
+      "seal": {
+        "by": "server",
+        "mac": "62b5991fc764bf04ec40e163c92fdd23a6115fc3c757d8e214c4b8435cca2a22"
+      }
+    },
+    {
+      "id": "CLM-1356",
+      "statement": "agentic_run_bounded's leftover check no longer runs pgrep: the leftover is detected with kill -0 -- -pgid, so no unbounded /proc scan remains in tools/agentic/lib.sh (git grep for pgrep in tools/agentic/*.sh finds none).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #948: \"replace the unbounded pgrep -c -g count with a kill -0 liveness check or bound it\"; PR: \"the leftover check uses `kill -0 -- -pgid` instead of the unbounded `pgrep -c -g`\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1995",
+          "kind": "inspection",
+          "locator": "git grep -nE '\\bpgrep\\b' -- tools/agentic/lib.sh tools/agentic/gate.sh tools/agentic/watchdog.sh; tools/agentic/lib.sh:62-75",
+          "summary": "Search finds no pgrep in any tools/agentic/*.sh (only in tests/run.sh as a stub); the leftover check is `kill -0 -- \"-$pgid\"` at lib.sh:66 and :68.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\\bpgrep\\b",
+              "scope": [
+                "tools/agentic/expect.sh",
+                "tools/agentic/gate.sh",
+                "tools/agentic/lib.sh",
+                "tools/agentic/merge-reviewed.sh",
+                "tools/agentic/remove-worktree.sh",
+                "tools/agentic/watch-review.sh",
+                "tools/agentic/watchdog.sh"
+              ],
+              "hits": 0,
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:33.736138194Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5df938a2b8179acec0835329a114b4eac0aa01c34df2d74869de89e9a6011e6"
+          }
+        },
+        {
+          "id": "EVD-1996",
+          "kind": "test",
+          "locator": "test_run_bounded_does_not_use_pgrep_for_the_leftover_check (tools/agentic/tests/run.sh:1588)",
+          "summary": "Passed (1025 ms). A pgrep stub earlier on PATH touches a marker and sleeps 60 s; the test asserts rc=0, 'leaving processes behind; stopped them' and that the marker was never created, so a TERM-ignoring leftover is found without pgrep.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1588,
+                "end": 1601
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:33.820950820Z",
+          "seal": {
+            "by": "server",
+            "mac": "20848d06eff3b07a8cadd5d9e9f7a1542fd98ace0e19d5f2d08bed6cb51041b0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero pgrep hits in the scripts and a stub test proving pgrep is never called while a leftover is still found and stopped.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1995",
+            "EVD-1996"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.350311699Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf07558b80f6bc48f7e2347d0b49533530845b4004c02def46f2723efc2c1e37"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.350311699Z",
+      "seal": {
+        "by": "server",
+        "mac": "67d0b4a0d587f91e3bacc2206a140f3ecbce8a79efb75d3acc79f8175487501c"
+      }
+    },
+    {
+      "id": "CLM-1357",
+      "statement": "When the leader survives KILL after a timeout, agentic_run_bounded returns 124 with agentic_timed_out=1 within a bounded time (about kill_after plus reap_after seconds), and gate.sh then exits 124.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #948: \"exit status consistent with the existing contract (124 after timeout)\"; PR: \"Exit status: 124 after a timeout\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1997",
+          "kind": "demonstration",
+          "locator": "scratch: real gate.sh lint with fake just (leader records pid, then exec sleep 60), exported kill function swallowing TERM/KILL to that pid, AGENTIC_TIMEOUT_LINT=1s AGENTIC_GATE_KILL_AFTER=1 agentic_reap_after=1",
+          "summary": "gate.sh returned rc=124 after 3 s, stderr 'agentic: warning: 'just' timed out and its process survived KILL (uninterruptible wait?); abandoned, not waited for' plus the HANG hint; the leader was still alive afterwards.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T05:36:33.896747337Z",
+          "seal": {
+            "by": "server",
+            "mac": "f0e4095b529dfe7640743916a66bbcfd7518346239037f28fe3d4fbf0149d896"
+          }
+        },
+        {
+          "id": "EVD-1998",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:76-81 and tools/agentic/gate.sh:100-122",
+          "summary": "The timeout branch sets agentic_timed_out=1 and status=124 before the leader check, so the abandon branch cannot change it; gate.sh turns status 124 into exit 124 with the HANG hint.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 76,
+                "end": 94
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:33.975865075Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1db24cf820757c99caba1cbc75f575e3c6b2f10288472565ec93e75ec9bbc9b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A real gate.sh run with an immortal leader returned 124 in 3 s with the warning; code sets status=124 before the abandon branch.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1997",
+            "EVD-1998"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.428155383Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b542cf49c1fa825c81dd36e72b3b2ff115060134776a55d65c9b42c47cdf79e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.428155383Z",
+      "seal": {
+        "by": "server",
+        "mac": "116f15824dfdf6b40f89e413c38ac47f939d31379fa671fb1ddfd812e05cef6e"
+      }
+    },
+    {
+      "id": "CLM-1358",
+      "statement": "When a process survives KILL (leader after a timeout, or a leftover after the command exited), agentic_run_bounded prints a warning on stderr containing 'survived KILL' and 'abandoned', naming only the command word ($2), never its arguments or output.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #948: \"abandonment reported on stderr\"; PR: \"a stderr warning (\\\"survived KILL ... abandoned, not waited for\\\", naming the command only)\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1999",
+          "kind": "test",
+          "locator": "tests/run.sh:1559 and :1573 (both new abandon tests, passed)",
+          "summary": "Leader case asserts 'survived KILL' and 'abandoned'; leftover case asserts 'some survived KILL and were abandoned'. Warnings at lib.sh:69,85,91 interpolate only '$2' (the command word), never args or output.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 66,
+                "end": 94
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:34.055954556Z",
+          "seal": {
+            "by": "server",
+            "mac": "510e8f33c16dec53481782b7ef7020c08f931f153c8c5b03d37cbacfe632758a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both abandon paths warn with the required words in passing tests, and the warnings interpolate only $2.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1999"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.501494163Z",
+          "seal": {
+            "by": "server",
+            "mac": "783b35cfe1aeb574fd07ff26908eaff861339c055d078596941de1fe81c1cb8f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.501494163Z",
+      "seal": {
+        "by": "server",
+        "mac": "13d25777b82b7a8eb34cd934bb92a933cb78d7456a4350d143b782f32cf3f428"
+      }
+    },
+    {
+      "id": "CLM-1359",
+      "statement": "When the command exits by itself but a leftover survives KILL, agentic_run_bounded keeps the command's own exit status, returns within a bounded time, and warns 'some survived KILL and were abandoned'.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR: \"the gate's own status after a normal exit\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2000",
+          "kind": "test",
+          "locator": "test_run_bounded_abandons_a_leftover_that_survives_kill_after_a_normal_exit (tools/agentic/tests/run.sh:1573)",
+          "summary": "Passed (2046 ms). Command exits 3 leaving an immortal member; asserts 'rc=3', 'some survived KILL and were abandoned', elapsed <= 10 s and that the member is still alive.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1573,
+                "end": 1586
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:34.136322618Z",
+          "seal": {
+            "by": "server",
+            "mac": "62539d820bccdde73eee844670ca163c4be670c954e5a41f0c7e7adfafbbf5b1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The passing test asserts rc=3, the warning, and a bounded runtime for a leftover that survives KILL.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2000"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.576367717Z",
+          "seal": {
+            "by": "server",
+            "mac": "10224266318dcfa19666436ddaed699679e628a6fc548bba1af1858d481ea88c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.576367717Z",
+      "seal": {
+        "by": "server",
+        "mac": "da2bca91f374ee2f5199395e126321f65c0222f5132eaaf521dadafdb2706716"
+      }
+    },
+    {
+      "id": "CLM-1360",
+      "statement": "The lock is still freed when gate.sh abandons a process that survived KILL: gate.sh holds the lock on its own fd 9, closes it for the gate with 9>&-, and so neither the abandoned process nor gate.sh's exit leaves gates.lock held.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "PR: \"The lock is still freed (gate.sh holds it on its own fd 9, which the gate never inherits).\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2001",
+          "kind": "demonstration",
+          "locator": "scratch: real gate.sh lint with an immortal leader (kill shadowed), then `flock -n .git/agentic/gates.lock true`",
+          "summary": "With the leader still alive after gate.sh returned rc=124, flock -n on gates.lock succeeded ('lock free'). Code: gate.sh:93 exec 9>>lock, :100 runs the gate with 9>&-.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 87,
+                "end": 101
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:34.217396113Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c2764d430feef035fc90664f1c550a301367db926870d1c229ba9345df73eac"
+          }
+        },
+        {
+          "id": "EVD-2002",
+          "kind": "analysis",
+          "locator": "tools/agentic/tests/run.sh (search: lock in new #948 tests)",
+          "summary": "No new test asserts the lock is free after an abandonment (the three new tests call agentic_run_bounded directly, not gate.sh); the lock-free assertions are in the older gate tests, which use killable processes. My demonstration is not committed. The behaviour holds but is not regression-tested.",
+          "stance": "neutral",
+          "anchor": {
+            "search": {
+              "pattern": "gates\\.lock",
+              "scope": [
+                "tools/agentic/tests/run.sh"
+              ],
+              "hits": 5,
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:34.304039564Z",
+          "seal": {
+            "by": "server",
+            "mac": "b4dd48ae7ad8a35fae1a71c77dbe739cb5d06feb021af8555144b31df8d73463"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A real gate.sh run that abandoned its leader left gates.lock free (flock -n succeeded), consistent with the fd 9 handling in gate.sh. The behaviour is not covered by a committed test (neutral EVD-2002); that is a weakness, not a refutation.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2001"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.650931341Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fb2323d49239630bd50d34758999d03e81188e5be0f316c2ed2d2a875e1869c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.650931341Z",
+      "seal": {
+        "by": "server",
+        "mac": "7323109e09043b052c1993ade5fa8691c7f60c3ca47b493726fdeaef939321db"
+      }
+    },
+    {
+      "id": "CLM-1361",
+      "statement": "tests/run.sh has three stub tests (leader survives KILL after a timeout; leftover survives KILL after a normal exit; no pgrep call) that simulate a surviving process by shadowing kill, and they pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #948: \"test the bounded leftover check and KILL-then-poll path with stubs\"; PR: \"Tests: three stub tests (a leader and a leftover that survive KILL, simulated by shadowing `kill`; no `pgrep` call).\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2003",
+          "kind": "test",
+          "locator": "bash <copy of tools/agentic/tests/run.sh filtered to ^test_(run_bounded|gate_)> in the worktree",
+          "summary": "16 passed, 0 failed: the three test_run_bounded_* tests (3043, 2046, 1025 ms) and 13 gate tests. immortal_harness shadows kill (tests/run.sh:1536). Not covered: the branch where the leader is dead but a group member survives KILL after a timeout (lib.sh:90-93).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1528,
+                "end": 1601
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:49.980863149Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3a45bb4b03a5b20ace179b2de36447d2b96b8ee74cbe28654649ad6fa6cd657"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The three tests exist, shadow kill as described, and pass (16 of 16 in the subset).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2003"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.725676045Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8a6e0cf9fe4fb8f734eef3805bfa2a8d0c96f32ad5d452d13aee70d03eaa787"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.725676045Z",
+      "seal": {
+        "by": "server",
+        "mac": "b6a415c18aec6274c239f660950b37df08875073d3a9a76cc404e85f48854cc3"
+      }
+    },
+    {
+      "id": "CLM-1362",
+      "statement": "tools/agentic/README.md states the exception to 'returns only once every process the gate started is gone and the lock is free' precisely: what is abandoned (a process that survives KILL, in D state), that it is waited 5 s after KILL then abandoned with a stderr warning naming the command, that it stays in the process table, that the lock is still freed, and the exit status (124 after a timeout, the gate's own status otherwise).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #948 requirement; PR: \"That now has one stated exception\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2004",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:10 (gate.sh row); tools/agentic/gate.sh:26-37",
+          "summary": "README row keeps the promise and adds 'with one exception (#948)': names the abandoned thing (a process surviving KILL, D state), 5 s wait after KILL, stderr warning naming the command and never its output, stays in the process table until the kernel releases it, 'The lock is still freed' (own fd, never inherited), exit 124 on timeout / gate's own status otherwise, and the leftover-after-normal-exit case. gate.sh header says the same more briefly.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 10,
+                "end": 10
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:50.061381122Z",
+          "seal": {
+            "by": "server",
+            "mac": "01c7718c86c3efa71dddc689e7ef90c67d45488424fa4a3691ca7b127f80e6ac"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README.md:10 names every element the issue asked for: what is abandoned, the warning, the lock and the exit status.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2004"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.797535959Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d1784d0df9bad0ddf6cb211bda83f5a95c6c257b78e5dd2b71aea8c1c8f73d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.797535959Z",
+      "seal": {
+        "by": "server",
+        "mac": "33a2730100556e9ba59107152b53f41257969094c4be553fb5fc035c0684748a"
+      }
+    },
+    {
+      "id": "CLM-1363",
+      "statement": "The leftover warning no longer gives a process count: the old text 'leaving N process(es) behind' is gone from lib.sh, README.md, gate.sh and the tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR: \"The warning no longer gives a process count\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/README.md",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2005",
+          "kind": "analysis",
+          "locator": "git grep -nE 'process\\(es\\)' -- tools/agentic",
+          "summary": "Zero hits at head; the three warning texts in lib.sh:69-73,85,91 carry no count; README and gate.sh header now say 'a warning says so'.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "process\\(es\\)",
+              "scope": [
+                "tools/agentic"
+              ],
+              "hits": 0,
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:50.145445176Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0b7f2febf46c6ddb7bf2dc98816b118d57932634d263a2be9cbd4a81af4249a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search for the old count text finds nothing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2005"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.874623471Z",
+          "seal": {
+            "by": "server",
+            "mac": "458203b27287da03aad9dd1b50c9dd4d1e86cc5b1e7eb024a7491026332a52f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.874623471Z",
+      "seal": {
+        "by": "server",
+        "mac": "27f2257f8916f2185d55587159c332197885a79410df351370e6e5937362aefd"
+      }
+    },
+    {
+      "id": "CLM-1364",
+      "statement": "agentic_reap_after defaults to 5 seconds, the same as the old hard-coded post-KILL wait (50 ticks of 0.1 s), so default behaviour of agentic_stop_group is unchanged.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR: \"new `agentic_reap_after` (default 5 s, the old hard-coded post-KILL wait) so tests can shorten it\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2006",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:13 and :32",
+          "summary": "agentic_reap_after=${agentic_reap_after:-5}; loop runs tick < agentic_reap_after*10 with sleep 0.1 = 5 s, replacing the old tick < 50 loop (diff).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 11,
+                "end": 36
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:50.230232073Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7a3c423ca4a95915dfd4d55a675358ffafa05e576d567153b1b8e11136eecd6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Default 5 and 5*10 ticks of 0.1 s equals the old 50 ticks.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2006"
+          ],
+          "recorded_at": "2026-11-25T05:37:27.949201204Z",
+          "seal": {
+            "by": "server",
+            "mac": "e75bf5da5f9b44d8d2569d8bdae00d812669c077d1c72b8dbb4d913c9cf369fe"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:27.949201204Z",
+      "seal": {
+        "by": "server",
+        "mac": "338e95d38eecc8f0a70c871a2c6a97d99682d063f485868eb53e6dd812c1cbfa"
+      }
+    },
+    {
+      "id": "CLM-1365",
+      "statement": "Two existing gate tests raced against a cleanup that used to be slowed by the pgrep fork: without the added 0.3 s sleeps in the fake gates, the existing gate tests that use them fail on the new lib.sh, and they pass reliably on the old lib.sh.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR: \"Two existing gate tests got a 0.3 s sleep in the fake gate: they raced against a cleanup that used to be slowed by the pgrep fork.\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded in PR #1041 after review: the 0.3 s sleeps it describes were replaced by readiness markers (see the replacement claim derived from CLM-1354).",
+        "retired_at": "2026-11-25T06:18:52.207784318Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2007",
+          "kind": "test",
+          "locator": "scratch copies of run.sh: new lib.sh with the two `sleep 0.3` lines deleted, vs origin/main tools unchanged; tests test_gate_passing_leader..., test_gate_daemon_that_escapes..., test_gate_holds_the_lock_until_its_cleanup_ends; 6 runs each",
+          "summary": "Old lib.sh (origin/main) with its own tests: 3 passed in 6 of 6 runs. New lib.sh with the sleeps removed: daemon_that_escapes_the_group and holds_the_lock_until_its_cleanup_ends failed in 6 of 6 runs. So the sleeps are needed on the new code only. Imprecision: the added sleeps are in two fake gates (leaky_gate, shared by 4 tests, and the daemon test), so 'two tests' undercounts the tests that depend on them; the two failing here are the daemon test and holds_the_lock.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1056,
+                "end": 1064
+              },
+              "commit": "33790d630224bb67a00113217b4146727175c931"
+            }
+          },
+          "recorded_at": "2026-11-25T05:36:50.310493245Z",
+          "seal": {
+            "by": "server",
+            "mac": "a00f9cb8d315b80d91b2fc031ae81c335310a19efc1eb1e29ded8adafc89e787"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Without the sleeps the daemon and holds_the_lock tests failed 6 of 6 on the new lib.sh, while the old lib.sh passed 6 of 6, so the pgrep fork was masking the race. Wording caveat: the sleeps are in two fake gates, one of which (leaky_gate) serves four tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2007"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.024134679Z",
+          "seal": {
+            "by": "server",
+            "mac": "b765fec5a2aacf6b5284a946c29fecb6bfb25122446c5621c0b35434f2b67ce5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T06:18:52.207784318Z",
+      "seal": {
+        "by": "server",
+        "mac": "43184fbad54ba7b7305c0de82195eaf941ac92797a448055dbdcae968a2b5385"
+      }
+    },
+    {
+      "id": "CLM-1366",
+      "statement": "watchdog.sh is not changed by the PR.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"watchdog.sh is not changed\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/watchdog.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2008",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD | grep -c watchdog",
+          "summary": "Prints 0; the diff touches only the changelog, README.md, gate.sh, lib.sh and tests/run.sh.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T05:36:50.381660068Z",
+          "seal": {
+            "by": "server",
+            "mac": "ccd9210d21fa3d787a9fa13a948a20b912fd253145c1cc05c5b4b97ee893baf8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff's file list has no watchdog.sh.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2008"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.098312731Z",
+          "seal": {
+            "by": "server",
+            "mac": "01ed29ccc5b43feb13f1d35005331e3841254442faa76d363be96f95916e04aa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:28.098312731Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee18685acb2c94264c88d164f7350bb171c644df56896bdd2079f75ca33b57ca"
+      }
+    },
+    {
+      "id": "CLM-1367",
+      "statement": "shellcheck on tools/agentic/lib.sh and tools/agentic/gate.sh is clean.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR: \"shellcheck on lib.sh and gate.sh: clean.\"",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2009",
+          "kind": "test",
+          "locator": "shellcheck tools/agentic/lib.sh tools/agentic/gate.sh",
+          "summary": "No output, exit 0, at HEAD 33790d6.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T05:36:50.459339471Z",
+          "seal": {
+            "by": "server",
+            "mac": "ca78b2dbac842ea3b0aaa0127aa0ba6526665dab9b9df59f90cd9c3d728d9255"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "shellcheck exited 0 with no output on both files.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2009"
+          ],
+          "recorded_at": "2026-11-25T05:37:28.172885744Z",
+          "seal": {
+            "by": "server",
+            "mac": "258d80f70a8eae8ec1b0907d22ecf0ba878b77bb3214ba97e2ba9c4ac2587aac"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T05:36:00.054387141Z",
+      "updated_at": "2026-11-25T05:37:28.172885744Z",
+      "seal": {
+        "by": "server",
+        "mac": "f0898a1956d0ae3ede04b7c22a59e0031976eda8b57071c46fb28559c473ee0c"
+      }
+    },
+    {
+      "id": "CLM-1368",
+      "statement": "The fake gates in tools/agentic/tests/run.sh synchronize on readiness markers, not on a delay: the leaky_gate child writes child.ready after installing its TERM trap, the daemon fixture's shell writes daemon.ready after setsid has completed, and the fake gate's leader waits (at most 10 s) for the marker before it ends; no `sleep 0.3` delay remains in either fake gate.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #1041 review comment 4691048183",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "False at 5ad4862: the daemon fixture's wait tested a literal $GH_FIXTURES path (a backslash kept inside single quotes), so it always ran its full 10 s. Replaced by a claim audited at the fixed head (PR #1041 review round 2).",
+        "retired_at": "2026-11-25T06:26:11.963095684Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2015",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:1056-1073 and :1118-1124 at 5ad4862; tests/run.sh x3 (107 passed, 0 failed each)",
+          "summary": "fake_gate_wait_for polls up to 100 x 0.1 s for a marker file. leaky_gate's child writes child.ready after `trap \"\" TERM` and the leader calls the wait before $1; the daemon fixture's setsid'd shell writes daemon.ready and the leader waits for it. Three plain repeats of the suite passed (107/0).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1056,
+                "end": 1073
+              },
+              "commit": "5ad4862c471b67ba3f874d847338771ec113aa10"
+            }
+          },
+          "recorded_at": "2026-11-25T06:18:57.562738454Z",
+          "seal": {
+            "by": "server",
+            "mac": "4baa1b29dd378339ef40782f50e823ee364e21c6fd1e821845c6d51465d7e16f"
+          }
+        },
+        {
+          "id": "EVD-2016",
+          "kind": "analysis",
+          "locator": "git grep -nE 'sleep 0\\.3 # let' -- tools/agentic/tests/run.sh",
+          "summary": "No delay-based wait comment/line remains in the fake gates: zero hits.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "sleep 0\\.3 # let",
+              "scope": [
+                "tools/agentic/tests/run.sh"
+              ],
+              "hits": 0,
+              "commit": "5ad4862c471b67ba3f874d847338771ec113aa10"
+            }
+          },
+          "recorded_at": "2026-11-25T06:18:57.643473498Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b1aa354bafdb4c0439ece49c8e131bdd01080d4c1b773b60d2888a612512806"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both fake gates write a readiness marker after their setup and the leader waits on it with a bounded poll; no delay remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2015",
+            "EVD-2016"
+          ],
+          "recorded_at": "2026-11-25T06:19:01.168034032Z",
+          "seal": {
+            "by": "server",
+            "mac": "01d0802cd80d13711e2ca4407d62ba5f9b3aaf2d88d3f7cf8a5e7d1c2c3677a5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T06:18:52.281722351Z",
+      "updated_at": "2026-11-25T06:26:11.963095684Z",
+      "seal": {
+        "by": "server",
+        "mac": "bbfbec7a8f769a89de9aac239ef9c6da65a6e6e96a282adc2b881b07fdd69e0d"
+      }
+    },
+    {
+      "id": "CLM-1369",
+      "statement": "The fake gates in tools/agentic/tests/run.sh synchronize on readiness markers, not on a delay: the leaky_gate child writes child.ready after installing its TERM trap, the daemon fixture's shell writes daemon.ready after setsid has completed, each fake-gate leader waits for the marker's real path (expanded by the fake gate) and returns as soon as it exists, and a marker that never appears fails the fake gate with exit 97 and a message instead of proceeding.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #1041 review comments 4691048183 and 4691158256",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2017",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:1056-1080 and :1115-1155 at f6fdc2d; filtered run of the gate tests",
+          "summary": "fake_gate_wait_for emits a poll plus `[ -e M ] || { echo ...; exit 97; }`. Both callers pass $GH_FIXTURES/<marker> with no backslash. Timed: test_gate_daemon_that_escapes... 113 ms (it ran the full 10 s when the path was literal); test_fake_gate_wait_fails_loudly... (marker never created) rc 97 with 'never.ready never appeared' in 517 ms; test_fake_gate_wait_returns_as_soon... 10 ms. Mutation: reintroducing the backslash for daemon.ready made the daemon test fail with 'exit 97 ... marker $GH_FIXTURES/daemon.ready never appeared'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1056,
+                "end": 1080
+              },
+              "commit": "f6fdc2d00d9a0b61ceb885fd5c3dd801ad5fe613"
+            }
+          },
+          "recorded_at": "2026-11-25T06:26:16.749342632Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f976afa93791ff71a054f8a4fc92f0480742be80b9404ddae61cef2a40c89fa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timed runs show the waits return in milliseconds, a missing marker fails with exit 97, and a mutant with the backslash is caught by the daemon test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2017"
+          ],
+          "recorded_at": "2026-11-25T06:26:20.796565752Z",
+          "seal": {
+            "by": "server",
+            "mac": "af180299d73d43235e6e349edc6dd39ecc6affc639cb90929cc74ab8dc86e0fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T06:26:12.041292428Z",
+      "updated_at": "2026-11-25T06:26:20.796565752Z",
+      "seal": {
+        "by": "server",
+        "mac": "7fe36f396c6cbcb98da95df5647983a632790f1d83d126c912a8195f66c77024"
       }
     }
   ]

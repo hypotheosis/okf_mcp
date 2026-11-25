@@ -27,10 +27,14 @@
 # so nothing it started (a test that ignores TERM, a stray background job)
 # outlives it. gate.sh holds the lock until then, and the gate's children
 # never inherit it, so a daemon that leaves the group (setsid) cannot keep it.
+# One exception to "the group is empty" (#948): a process that survives KILL (an
+# uninterruptible kernel wait) is abandoned 5 s after KILL,
+# with a warning on stderr, so it can't hang gate.sh; the lock is
+# still freed.
 #
 # Exit codes:
 #   the gate's own, when it exits by itself; if it left processes behind they
-#     are stopped and a warning on stderr says how many;
+#     are stopped and a warning on stderr says so;
 #   124 on timeout, or when the gate was killed (137), with a hint on stderr;
 #   130 or 143 when gate.sh itself gets INT or TERM (it stops the gate, then
 #     dies of the same signal).

@@ -1053,12 +1053,27 @@ test_gate_returns_the_gate_exit_status() {
     want_rc 3; want_no_out "HANG"
 }
 
+# fake_gate_wait_for <marker> [ticks]: shell text for a fake gate that waits
+# (at most <ticks> x 0.1 s, default 100) for the marker file a helper writes
+# once it is set up, so the test synchronizes on observed state, not on a delay.
+# <marker> is shell text the fake gate expands itself (pass "$GH_FIXTURES/x"
+# with the dollar sign kept, no backslash). A marker that never appears fails
+# the fake gate with exit 97 and a message, so the test fails; it never goes on.
+fake_gate_wait_for() {
+    # shellcheck disable=SC2016 # the text is for the fake gate's shell to expand
+    printf 'for _ in $(seq %s); do [ -e "%s" ] && break; sleep 0.1; done\n[ -e "%s" ] || { echo "marker %s never appeared" >&2; exit 97; }\n' "${2:-100}" "$1" "$1" "$1"
+}
+
 # leaky_gate <then>: a fake gate that starts a child which ignores TERM and
 # runs in the gate's process group, then runs <then> (wait, exit 0, kill itself...).
 # The child's output goes to /dev/null so it can't hold the test's pipe open.
 leaky_gate() {
-    fake_just "bash -c 'trap \"\" TERM; exec sleep 30' >/dev/null 2>&1 &
+    # The child writes child.ready after it installs its trap; the leader waits
+    # for it, so no TERM can arrive before the trap exists.
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
+    fake_just "bash -c 'trap \"\" TERM; : >\"\$GH_FIXTURES/child.ready\"; exec sleep 30' >/dev/null 2>&1 &
 echo \$! >\"\$GH_FIXTURES/child.pid\"
+$(fake_gate_wait_for '$GH_FIXTURES/child.ready')
 $1"
     trap '[ -s "$fx/child.pid" ] && kill -KILL "$(cat "$fx/child.pid")" 2>/dev/null' EXIT
 }
@@ -1096,7 +1111,30 @@ test_gate_killed_leader_stops_child_and_frees_lock() {
 test_gate_passing_leader_stops_leftover_child_and_frees_lock() {
     new_fixtures; leaky_gate 'exit 0'
     run_leaky_gate
-    want_rc 0; want_out "leaving 1 process(es) behind"; want_no_out "HANG"; want_nothing_left
+    want_rc 0; want_out "leaving processes behind; stopped them"; want_no_out "HANG"; want_nothing_left
+}
+
+test_fake_gate_wait_fails_loudly_when_its_marker_never_appears() {
+    new_fixtures
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
+    fake_just "$(fake_gate_wait_for '$GH_FIXTURES/never.ready' 5)
+exit 0"
+    started=$SECONDS
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 97; want_out "never.ready never appeared"
+    [ $((SECONDS - started)) -le 5 ] || die "took $((SECONDS - started)) s"
+}
+
+test_fake_gate_wait_returns_as_soon_as_the_marker_exists() {
+    new_fixtures
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
+    fake_just ': >"$GH_FIXTURES/up.ready"
+'"$(fake_gate_wait_for '$GH_FIXTURES/up.ready' 5)"'
+exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0; want_no_out "never appeared"
 }
 
 # A daemon the gate starts (sccache's server, say) leaves the gate's process
@@ -1104,9 +1142,12 @@ test_gate_passing_leader_stops_leftover_child_and_frees_lock() {
 # lock with it: flock -o keeps the lock's fd out of the gate's children.
 test_gate_daemon_that_escapes_the_group_does_not_keep_the_lock() {
     new_fixtures
+    # The daemon's shell runs only after setsid has left the group, and writes
+    # daemon.ready then; the leader waits for it before it ends.
     # shellcheck disable=SC2016 # $! and $GH_FIXTURES are expanded by the fake just
-    fake_just 'setsid bash -c "exec sleep 30" </dev/null >/dev/null 2>&1 &
+    fake_just 'setsid bash -c ": >\"$GH_FIXTURES/daemon.ready\"; exec sleep 30" </dev/null >/dev/null 2>&1 &
 echo $! >"$GH_FIXTURES/daemon.pid"
+'"$(fake_gate_wait_for '$GH_FIXTURES/daemon.ready')"'
 exit 0'
     trap '[ -s "$fx/daemon.pid" ] && kill -KILL "$(cat "$fx/daemon.pid")" 2>/dev/null' EXIT
     out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
@@ -1135,7 +1176,7 @@ test_gate_holds_the_lock_until_its_cleanup_ends() {
     wait "$gate_pid"
     rc=$?
     out=$(cat "$fx/out")
-    want_rc 0; want_out "leaving 1 process(es) behind"
+    want_rc 0; want_out "leaving processes behind; stopped them"
     ! kill -0 "$(cat "$fx/child.pid")" 2>/dev/null || die "the leftover outlived the gate"
     flock -n "$repo/.git/agentic/gates.lock" true || die "gates.lock is still held"
 }
@@ -1521,6 +1562,129 @@ test_watchdog_stops_alerting_once_the_report_is_done() {
     (cd "$repo" && "$tools/expect.sh" done "$work/ex-done") >/dev/null
     expect_watchdog 1400
     want_rc 0
+}
+
+# --- agentic_run_bounded: processes that survive KILL (#948) ---
+# A real process in an uninterruptible wait can't be made in a test, so the
+# harness shadows `kill` with a function that swallows TERM and KILL aimed at
+# the command's group (its leader's pid, which the command records) (the process then stays alive, as one in D
+# state would) and passes every other call, `kill -0` included, to the builtin.
+
+# write_kill_shim: writes $fx/shim.sh, which shadows `kill`. TERM or KILL aimed
+# at the group whose leader pid is in $fx/leader.pid has no effect, except that
+# when $fx/leader_dies exists the leader itself is really killed. Everything
+# else, `kill -0` included, goes to the builtin.
+write_kill_shim() {
+    cat >"$fx/shim.sh" <<'SHIM'
+kill() {
+    local immortal
+    immortal=$(cat "$GH_FIXTURES/leader.pid" 2>/dev/null)
+    case "$1" in
+        -TERM | -KILL)
+            case "${3:-$2}" in
+                "-$immortal" | "$immortal")
+                    [ ! -e "$GH_FIXTURES/leader_dies" ] || builtin kill -KILL "$immortal" 2>/dev/null
+                    return 0 ;;
+            esac ;;
+    esac
+    builtin kill "$@"
+}
+SHIM
+}
+
+# immortal_harness <body>: writes $fx/harness.sh, which sources lib.sh and the
+# shim and then runs <body>.
+immortal_harness() {
+    write_kill_shim
+    cat >"$fx/harness.sh" <<HARNESS
+source "$tools/lib.sh"
+source "$fx/shim.sh"
+agentic_kill_after=1
+agentic_reap_after=1
+$1
+HARNESS
+}
+
+# stop_survivors: stop what the harness made immortal (the test's own cleanup).
+stop_survivors() {
+    cat "$fx/leader.pid" "$fx/member.pid" 2>/dev/null | xargs -r kill -KILL 2>/dev/null
+}
+
+test_run_bounded_abandons_a_leader_that_survives_kill_after_a_timeout() {
+    new_fixtures
+    trap stop_survivors EXIT
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    immortal_harness 'agentic_run_bounded 1 bash -c "echo \$\$ >\"$GH_FIXTURES/leader.pid\"; exec sleep 60 >/dev/null 2>&1"
+echo "rc=$? timed_out=$agentic_timed_out"'
+    started=$SECONDS
+    out=$(cd "$work" && timeout 30 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=124 timed_out=1"; want_out "survived KILL"; want_out "abandoned"
+    [ $((SECONDS - started)) -le 10 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/leader.pid")" 2>/dev/null || die "the leader was not left running"
+}
+
+test_run_bounded_abandons_a_leftover_that_survives_kill_after_a_normal_exit() {
+    new_fixtures
+    trap stop_survivors EXIT
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    immortal_harness 'cmd='\''(exec sleep 60) </dev/null >/dev/null 2>&1 & echo $! >"$GH_FIXTURES/member.pid"; echo $$ >"$GH_FIXTURES/leader.pid"; exit 3'\''
+agentic_run_bounded 5 bash -c "$cmd"
+echo "rc=$?"'
+    started=$SECONDS
+    out=$(cd "$work" && timeout 30 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=3"; want_out "some survived KILL and were abandoned"
+    [ $((SECONDS - started)) -le 10 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/member.pid")" 2>/dev/null || die "the leftover was not left running"
+}
+
+test_run_bounded_abandons_a_group_member_that_survives_kill_after_a_timeout() {
+    # The leader dies (bash reaps it); a member of its group survives KILL.
+    new_fixtures
+    trap stop_survivors EXIT
+    touch "$fx/leader_dies"
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    immortal_harness 'agentic_run_bounded 1 bash -c "(exec sleep 60 </dev/null >/dev/null 2>&1) & echo \$! >\"$GH_FIXTURES/member.pid\"; echo \$\$ >\"$GH_FIXTURES/leader.pid\"; exec sleep 60 >/dev/null 2>&1"
+echo "rc=$?"'
+    started=$SECONDS
+    out=$(cd "$work" && timeout 30 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=124"; want_out "processes of its group survived KILL"
+    [ $((SECONDS - started)) -le 10 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/member.pid")" 2>/dev/null || die "the member was not left running"
+    ! kill -0 "$(cat "$fx/leader.pid")" 2>/dev/null || die "the leader should be dead"
+}
+
+test_gate_frees_the_lock_when_it_abandons_a_process_that_survives_kill() {
+    new_fixtures
+    trap stop_survivors EXIT
+    write_kill_shim
+    # shellcheck disable=SC2016 # $$ and $GH_FIXTURES are expanded by the fake just
+    fake_just 'echo $$ >"$GH_FIXTURES/leader.pid"; exec sleep 60 >/dev/null 2>&1'
+    started=$SECONDS
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" BASH_ENV="$fx/shim.sh" AGENTIC_TIMEOUT_LINT=1s \
+        AGENTIC_GATE_KILL_AFTER=1 timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 124; want_out "survived KILL"; want_out "abandoned"
+    [ $((SECONDS - started)) -le 15 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/leader.pid")" 2>/dev/null || die "the leader was not left running"
+    flock -n "$repo/.git/agentic/gates.lock" true || die "gates.lock is still held"
+}
+
+test_run_bounded_does_not_use_pgrep_for_the_leftover_check() {
+    # pgrep scans /proc like ps and can stall the same way, so it must not run.
+    new_fixtures
+    mkdir "$fx/bin"
+    printf '#!/bin/sh\ntouch "%s/pgrep.called"\nexec sleep 60\n' "$fx" >"$fx/bin/pgrep"
+    chmod +x "$fx/bin/pgrep"
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    immortal_harness 'agentic_run_bounded 5 bash -c "(exec sleep 60) </dev/null >/dev/null 2>&1 & exit 0"
+echo "rc=$?"'
+    out=$(cd "$work" && PATH="$fx/bin:$PATH" timeout 30 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=0"; want_out "leaving processes behind; stopped them"
+    [ ! -e "$fx/pgrep.called" ] || die "pgrep was called"
 }
 
 # --- runner ---

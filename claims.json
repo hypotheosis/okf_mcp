@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1369,
+  "next_claim_seq": 1370,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "92a4b7931a55787fef7ea0d46d861adbd986aa99ee72d0cf856a9a61f05c7225"
+    "mac": "be069a2bed2350ad9cb0e1895c6e3606df1354a08e240e6eac870ca37f62fa6b"
   },
-  "next_evidence_seq": 2017,
+  "next_evidence_seq": 2018,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c7b4675b8e05b1aeb152fc9c27221693ce45ac147e7cc8cadec82e2d7eafd97d"
+    "mac": "6a66bab62f8720fbcd04c439c6c93e2b31706e2d787146e07276265a2fe00a29"
   },
   "claims": [
     {
@@ -111031,7 +111031,9 @@
         "from-issue:948"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "False at 5ad4862: the daemon fixture's wait tested a literal $GH_FIXTURES path (a backslash kept inside single quotes), so it always ran its full 10 s. Replaced by a claim audited at the fixed head (PR #1041 review round 2).",
+        "retired_at": "2026-11-25T06:26:11.963095684Z"
       },
       "evidence": [
         {
@@ -111096,10 +111098,76 @@
         }
       ],
       "created_at": "2026-11-25T06:18:52.281722351Z",
-      "updated_at": "2026-11-25T06:19:01.168034032Z",
+      "updated_at": "2026-11-25T06:26:11.963095684Z",
       "seal": {
         "by": "server",
-        "mac": "9cc223990ab3bec9b067f7a4d4cbcf4cfab210d3cd0b6719e6dc3085dc9d09be"
+        "mac": "bbfbec7a8f769a89de9aac239ef9c6da65a6e6e96a282adc2b881b07fdd69e0d"
+      }
+    },
+    {
+      "id": "CLM-1369",
+      "statement": "The fake gates in tools/agentic/tests/run.sh synchronize on readiness markers, not on a delay: the leaky_gate child writes child.ready after installing its TERM trap, the daemon fixture's shell writes daemon.ready after setsid has completed, each fake-gate leader waits for the marker's real path (expanded by the fake gate) and returns as soon as it exists, and a marker that never appears fails the fake gate with exit 97 and a message instead of proceeding.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #1041 review comments 4691048183 and 4691158256",
+      "derived_from": [
+        "CLM-1354"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:948"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2017",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:1056-1080 and :1115-1155 at f6fdc2d; filtered run of the gate tests",
+          "summary": "fake_gate_wait_for emits a poll plus `[ -e M ] || { echo ...; exit 97; }`. Both callers pass $GH_FIXTURES/<marker> with no backslash. Timed: test_gate_daemon_that_escapes... 113 ms (it ran the full 10 s when the path was literal); test_fake_gate_wait_fails_loudly... (marker never created) rc 97 with 'never.ready never appeared' in 517 ms; test_fake_gate_wait_returns_as_soon... 10 ms. Mutation: reintroducing the backslash for daemon.ready made the daemon test fail with 'exit 97 ... marker $GH_FIXTURES/daemon.ready never appeared'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1056,
+                "end": 1080
+              },
+              "commit": "f6fdc2d00d9a0b61ceb885fd5c3dd801ad5fe613"
+            }
+          },
+          "recorded_at": "2026-11-25T06:26:16.749342632Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f976afa93791ff71a054f8a4fc92f0480742be80b9404ddae61cef2a40c89fa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timed runs show the waits return in milliseconds, a missing marker fails with exit 97, and a mutant with the backslash is caught by the daemon test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2017"
+          ],
+          "recorded_at": "2026-11-25T06:26:20.796565752Z",
+          "seal": {
+            "by": "server",
+            "mac": "af180299d73d43235e6e349edc6dd39ecc6affc639cb90929cc74ab8dc86e0fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T06:26:12.041292428Z",
+      "updated_at": "2026-11-25T06:26:20.796565752Z",
+      "seal": {
+        "by": "server",
+        "mac": "7fe36f396c6cbcb98da95df5647983a632790f1d83d126c912a8195f66c77024"
       }
     }
   ]

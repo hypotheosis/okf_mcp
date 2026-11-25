@@ -6,7 +6,7 @@
   bounded retry of a read until it connects under the refreshed login.
 
 ## Changed
-- Four rotation tests (`a_refused_login_on_an_open_pool_fetches_a_fresh_one_...`,
+- Five rotation tests (`a_refused_login_on_an_open_pool_fetches_a_fresh_one_...`,
   `a_secrets_manager_store_opens_and_follows_a_rotated_secret`, and the shared
   body of `a_plain_read_refused_after_a_rotation_...`,
   `a_role_with_a_quotation_mark_...`, `a_role_with_two_adjacent_...`) now

@@ -18,5 +18,6 @@
 - The flake (two red runs on 2026-11-20, PRs #840 and #847) did not reproduce
   in plain repeat runs, so the cause of the foreign spans is not proven. The
   scope makes the test independent of it.
-- Other `Observer::start` tests assert on spans with unique names (a route, an
-  `okf.*` name) rather than exact lists of common names; none was changed.
+- No other test was changed. Candidates not shown to be affected:
+  `src/store/sign_in_events.rs` asserts exactly one span named `record`, and
+  `src/http/telemetry_tests.rs` asserts exact counts of `GET /healthz` spans.

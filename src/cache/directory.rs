@@ -1026,8 +1026,12 @@ mod tests {
         );
         assert!(directory.resolve("x").await.unwrap().is_none());
         seed(&db.pool, "x").await;
-        assert!(directory.resolve("x").await.unwrap().is_none());
 
+        // That the absence is remembered is proved with a long lifetime by
+        // `an_unknown_name_is_remembered_briefly_and_forgotten_by_create`.
+        // It is not asserted here: with a 100 ms lifetime, a loaded machine
+        // can expire the entry before any such check (issue #921). Only the
+        // expiry is checked, and a late wake-up cannot fail it.
         // moka reads the real clock, so this waits in real time.
         tokio::time::sleep(Duration::from_millis(300)).await;
 

@@ -1147,19 +1147,80 @@ pub fn owner_scope() -> Option<String> {
     ))
 }
 
-/// Whether a process with this pid exists in this process's pid namespace.
+/// Whether the process with this pid might still be alive: `false` only when
+/// the kernel says there is no such process (`ESRCH`).
 ///
-/// Only meaningful when [`liveness_is_reliable`] holds; a zombie counts as
-/// alive, which errs toward keeping its containers.
-pub fn process_exists(pid: u32) -> bool {
-    std::path::Path::new(&format!("/proc/{pid}")).exists()
+/// This sends signal 0 with `kill(2)`, which checks existence and permission
+/// without delivering anything. Unlike a look in `/proc`, it does not depend on
+/// what the mount hides (`hidepid`) or on a file lookup that can fail. A
+/// process of another user answers `EPERM` (alive), and any other answer
+/// (an invalid pid, an unexpected error) is uncertain, so it counts as alive:
+/// a wrong "alive" keeps a container, a wrong "dead" would remove a live
+/// test's. A zombie counts as alive.
+pub fn process_may_be_alive(pid: u32) -> bool {
+    // Pid 0 and values above `i32::MAX` are not process ids; `kill` would
+    // treat 0 (or a negative number) as a process group.
+    let Some(pid) = i32::try_from(pid).ok().filter(|pid| *pid > 0) else {
+        return true;
+    };
+    // SAFETY: `kill` takes two integers and reads no memory of ours. Signal 0
+    // delivers nothing, so the call cannot affect the target process.
+    let result = unsafe { libc::kill(pid, 0) };
+    if result == 0 {
+        return true;
+    }
+    signal_error_means_alive(std::io::Error::last_os_error().raw_os_error())
 }
 
-/// Whether [`process_exists`] can be trusted here: `/proc` lists this
-/// namespace's processes (pid 1 is always there) and the namespace is known.
-/// With `hidepid` mounted, or no `/proc`, every process would look dead.
+/// What a failed `kill(pid, 0)` says: dead only for `ESRCH`; `EPERM`, any other
+/// error and an unreadable error code all mean alive or unknown.
+pub fn signal_error_means_alive(errno: Option<i32>) -> bool {
+    errno != Some(libc::ESRCH)
+}
+
+/// Whether `mountinfo` (the text of `/proc/self/mountinfo`) shows `/proc`
+/// mounted with restricted process visibility (`hidepid=1`/`2`, or
+/// `subset=pid`), or does not show a `/proc` mount at all.
+///
+/// The liveness probe does not depend on `/proc`, so this is a second guard:
+/// where the process table is restricted, nobody can say what a test run is
+/// allowed to see, and the sweep stays off.
+pub fn proc_mount_is_restricted(mountinfo: &str) -> bool {
+    let mut found = false;
+    for line in mountinfo.lines() {
+        let Some((before, after)) = line.split_once(" - ") else {
+            continue;
+        };
+        let before: Vec<&str> = before.split_whitespace().collect();
+        let after: Vec<&str> = after.split_whitespace().collect();
+        // before: id parent major:minor root mount-point options ...;
+        // after: fstype source super-options.
+        if before.get(4) != Some(&"/proc") || after.first() != Some(&"proc") {
+            continue;
+        }
+        found = true;
+        let options = before
+            .get(5)
+            .into_iter()
+            .chain(after.get(2))
+            .flat_map(|options| options.split(','));
+        for option in options {
+            match option.split_once('=') {
+                Some(("hidepid", "0" | "off")) => {}
+                Some(("hidepid", _)) | Some(("subset", "pid")) => return true,
+                _ => {}
+            }
+        }
+    }
+    !found
+}
+
+/// Whether the sweep may run here: the owner scope is known and `/proc` is not
+/// restricted. An unreadable `/proc/self/mountinfo` counts as restricted.
 pub fn liveness_is_reliable() -> bool {
-    owner_scope().is_some() && std::path::Path::new("/proc/1").exists()
+    owner_scope().is_some()
+        && std::fs::read_to_string("/proc/self/mountinfo")
+            .is_ok_and(|mountinfo| !proc_mount_is_restricted(&mountinfo))
 }
 
 /// One container that carries a [`START_LABEL`], as the sweep sees it.
@@ -1197,17 +1258,18 @@ pub fn owner_pid(start_label: &str) -> Option<u32> {
 /// # Arguments
 /// * `containers` - every container carrying [`START_LABEL`].
 /// * `own_scope` - [`owner_scope`] of the sweeper.
-/// * `is_alive` - whether a pid exists in `own_scope`.
+/// * `may_be_alive` - `false` only for a pid known to be dead; anything
+///   uncertain is `true`, which keeps the container.
 pub fn stale_container_ids(
     containers: &[LabelledContainer],
     own_scope: &str,
-    is_alive: impl Fn(u32) -> bool,
+    may_be_alive: impl Fn(u32) -> bool,
 ) -> Vec<String> {
     containers
         .iter()
         .filter(|container| container.owner_scope.as_deref() == Some(own_scope))
         .filter_map(|container| Some((container, owner_pid(&container.start_label)?)))
-        .filter(|(_, pid)| !is_alive(*pid))
+        .filter(|(_, pid)| !may_be_alive(*pid))
         .map(|(container, _)| container.id.clone())
         .collect()
 }
@@ -1254,20 +1316,20 @@ pub async fn sweep_stale_containers() -> Result<usize, DockerError> {
     let Some(scope) = owner_scope().filter(|_| liveness_is_reliable()) else {
         return Ok(0);
     };
-    sweep_stale_containers_of(&scope, process_exists).await
+    sweep_stale_containers_of(&scope, process_may_be_alive).await
 }
 
 /// [`sweep_stale_containers`] for an explicit scope and liveness check: removes
-/// the containers labelled with `own_scope` whose owner pid `is_alive` denies.
+/// the containers labelled with `own_scope` whose owner pid `may_be_alive` rules out.
 /// A test passes a scope of its own, so the sweep can only match its containers.
 ///
 /// # Errors
 /// As [`sweep_stale_containers`].
 pub async fn sweep_stale_containers_of(
     own_scope: &str,
-    is_alive: impl Fn(u32) -> bool,
+    may_be_alive: impl Fn(u32) -> bool,
 ) -> Result<usize, DockerError> {
-    let stale = stale_container_ids(&all_labelled_containers().await?, own_scope, is_alive);
+    let stale = stale_container_ids(&all_labelled_containers().await?, own_scope, may_be_alive);
     let mut removed = 0;
     for id in stale {
         if remove_container_by_id(&id).await? {

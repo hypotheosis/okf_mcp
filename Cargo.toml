@@ -202,6 +202,9 @@ webauthn-rs = { version = "0.6.2", features = ["conditional-ui", "danger-allow-s
 webauthn-rs-proto = "=0.6.2"
 
 [dev-dependencies]
+# `kill(pid, 0)`, the sweep's liveness probe (tests/support/pg.rs). Already in
+# the tree through other crates.
+libc = "0.2.191"
 # Decodes the password of the test server's URL (tests/support/pg.rs).
 percent-encoding = "2.3.2"
 # The in-memory span, log and metric exporters the telemetry tests read back.

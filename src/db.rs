@@ -2344,10 +2344,9 @@ mod tests {
     /// The scope names the boot as well as the namespace.
     #[test]
     fn the_owner_scope_names_the_boot_and_the_namespace() {
-        if !pg_support::liveness_is_reliable() {
+        let Some(scope) = pg_support::owner_scope() else {
             return;
-        }
-        let scope = pg_support::owner_scope().unwrap();
+        };
         let (boot, namespace) = scope.split_once('/').unwrap();
         assert!(!boot.is_empty() && namespace.starts_with("pid:["));
     }
@@ -2431,14 +2430,84 @@ mod tests {
         assert_eq!(pg_support::owner_pid("-1"), None);
     }
 
-    /// This process is alive in its own namespace, so its own label is kept.
+    /// The liveness probe is `kill(pid, 0)`, which `hidepid` does not affect:
+    /// this process and pid 1 (visible or not, a live process of another user
+    /// answers `EPERM`) are alive, and values that are no process id are
+    /// uncertain, which counts as alive.
     #[test]
-    fn this_process_exists_and_an_impossible_pid_does_not() {
-        if !pg_support::liveness_is_reliable() {
-            return;
-        }
-        assert!(pg_support::process_exists(std::process::id()));
-        assert!(!pg_support::process_exists(u32::MAX));
+    fn the_liveness_probe_calls_live_and_unknown_pids_alive() {
+        assert!(pg_support::process_may_be_alive(std::process::id()));
+        assert!(pg_support::process_may_be_alive(1));
+        assert!(pg_support::process_may_be_alive(0));
+        assert!(pg_support::process_may_be_alive(u32::MAX));
+    }
+
+    /// Only `ESRCH` permits a removal. `EPERM` is a live process of another
+    /// user, which a restricted `/proc` would hide: the case where pid 1 is
+    /// visible and the owner is not.
+    #[test]
+    fn only_esrch_means_dead() {
+        assert!(!pg_support::signal_error_means_alive(Some(libc::ESRCH)));
+        assert!(pg_support::signal_error_means_alive(Some(libc::EPERM)));
+        assert!(pg_support::signal_error_means_alive(Some(libc::EINVAL)));
+        assert!(pg_support::signal_error_means_alive(None));
+    }
+
+    /// With pid 1 visible but the live owner (pid 500, another user's) not
+    /// listed, a `/proc` look would call the owner dead. The probe answers
+    /// `EPERM` for it, and the sweep keeps its container.
+    #[test]
+    fn a_live_owner_hidden_from_proc_is_kept() {
+        let ours = "boot-a/pid:[1]";
+        let containers = [labelled("hidden-owner", "500-0", Some(ours))];
+        let visible_in_proc = |pid: u32| pid == 1;
+        let signal_answer = |pid: u32| {
+            // pid 500 answers EPERM, anything else ESRCH.
+            let errno = if pid == 500 { libc::EPERM } else { libc::ESRCH };
+            pg_support::signal_error_means_alive(Some(errno))
+        };
+
+        assert_eq!(
+            pg_support::stale_container_ids(&containers, ours, visible_in_proc),
+            ["hidden-owner"],
+            "the /proc look this replaced would have removed it"
+        );
+        assert!(pg_support::stale_container_ids(&containers, ours, signal_answer).is_empty());
+    }
+
+    #[test]
+    fn a_restricted_or_missing_proc_mount_turns_the_sweep_off() {
+        let line = |options: &str, super_options: &str| {
+            format!("30 22 0:25 / /proc {options} shared:5 - proc proc {super_options}\n")
+        };
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw,nosuid",
+            "rw"
+        )));
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=off"
+        )));
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=0"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=2"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw,hidepid=1",
+            "rw"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,subset=pid"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(
+            "36 35 98:0 / /mnt rw - ext4 /dev/root rw\n"
+        ));
+        assert!(pg_support::proc_mount_is_restricted(""));
     }
 
     /// A zero timeout can end the start in any stage; whichever it was, the

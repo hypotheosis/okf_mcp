@@ -225,6 +225,11 @@ pub struct AuthConfig {
     /// The default `https://` URL of the console's "Documentation" link;
     /// `None` shows no link.
     pub docs_url: Option<String>,
+    /// The default `https://` URL of the console's "Billing" link: the
+    /// start page of an external billing service, which signs the person
+    /// in through this server's OAuth. Never a customer-specific session
+    /// URL or a secret; `None` shows no link.
+    pub billing_url: Option<String>,
     /// The default `https://` URL a first password setup redirects to (a
     /// getting-started guide); `None` goes to the console.
     pub onboarding_url: Option<String>,
@@ -319,6 +324,7 @@ impl Default for AuthConfig {
             support_contact: None,
             feedback_url: None,
             docs_url: None,
+            billing_url: None,
             onboarding_url: None,
             mcp_server_name: DEFAULT_MCP_SERVER_NAME.to_string(),
         }
@@ -406,6 +412,7 @@ impl AuthConfig {
             support_contact: self.support_contact.clone(),
             feedback_url: self.feedback_url.clone(),
             docs_url: self.docs_url.clone(),
+            billing_url: self.billing_url.clone(),
         }
     }
 }
@@ -2150,6 +2157,7 @@ mod tests {
                     support_contact = \"help@example.com\"\n\
                     feedback_url = \"https://example.com/feedback\"\n\
                     docs_url = \"https://docs.example.com\"\n\
+                    billing_url = \"https://billing.example.com/login\"\n\
                     onboarding_url = \"https://docs.example.com/start/\"\n";
 
         let config = Config::from_toml(text).unwrap();
@@ -2162,6 +2170,7 @@ mod tests {
                 support_contact: Some("help@example.com".to_string()),
                 feedback_url: Some("https://example.com/feedback".to_string()),
                 docs_url: Some("https://docs.example.com".to_string()),
+                billing_url: Some("https://billing.example.com/login".to_string()),
             }
         );
         // Not part of the brand: only the setup redirect reads it.
@@ -2210,6 +2219,7 @@ mod tests {
             "[auth]\nsupport_contact = \"http://example.com\"\n",
             "[auth]\nfeedback_url = \"help@example.com\"\n",
             "[auth]\ndocs_url = \"http://docs.example.com\"\n",
+            "[auth]\nbilling_url = \"http://billing.example.com\"\n",
             "[auth]\nonboarding_url = \"/ui/\"\n",
         ];
 

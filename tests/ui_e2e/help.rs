@@ -2,7 +2,8 @@
 //! (`docs_url`) for everyone signed in, admin or not, by key or account;
 //! and the feedback entry, which is the in-console form (with `[feedback]`)
 //! for someone signed in with an account, else the external "Send
-//! feedback" link (`feedback_url`), and never both.
+//! feedback" link (`feedback_url`), and never both. The "Billing" link
+//! (`billing_url`, issue #988) is for people signed in with an account only.
 
 use chrono::Utc;
 use okf_mcp::config::{AuthConfig, Config, FeedbackConfig};
@@ -21,11 +22,15 @@ const DOCS: &str = "https://docs.example.com/";
 /// The external feedback page the journeys with both entries configure.
 const FEEDBACK_PAGE: &str = "https://example.com/feedback";
 
-/// The `[auth]` branding these journeys use: a documentation link and an
-/// external feedback page.
+/// The billing service start page every journey with the billing link configures.
+const BILLING: &str = "https://billing.example.com/login";
+
+/// The `[auth]` branding these journeys use: a documentation link, a
+/// billing link and an external feedback page.
 fn branded() -> AuthConfig {
     AuthConfig {
         docs_url: Some(DOCS.to_string()),
+        billing_url: Some(BILLING.to_string()),
         feedback_url: Some(FEEDBACK_PAGE.to_string()),
         ..AuthConfig::default()
     }
@@ -63,6 +68,61 @@ fn docs_link(ui: &Ui) -> serde_json::Value {
          return [a.getAttribute('href'), a.target, a.rel]; }",
         json!(null),
     )
+}
+
+/// The billing link's `[href, target, rel]`.
+fn billing_link(ui: &Ui) -> serde_json::Value {
+    ui.eval(
+        "() => { const a = document.getElementById('billing-link'); \
+         return [a.getAttribute('href'), a.target, a.rel]; }",
+        json!(null),
+    )
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_billing_link_shows_for_a_member_and_not_for_a_key() {
+    let server = feedback_server().await;
+    member(&server, Access::Read).await;
+    let key = server
+        .key("console-reader", Access::Read, &["main"], Some("main"))
+        .await;
+
+    drive(console_base(&server), |ui| {
+        // An ordinary member: no Administer group, but the link, safe to open.
+        ui.sign_in_password(EMAIL, PASSWORD);
+        wait_settled(ui);
+        ui.wait_hidden("[data-need=admin]");
+        ui.wait_visible("#billing-link");
+        ui.wait_text("#billing-link", "Billing");
+        assert_eq!(
+            billing_link(ui),
+            json!([BILLING, "_blank", "noopener noreferrer"])
+        );
+        // It sits in "Your account" and stays on every page.
+        ui.click("a[data-nav=account]");
+        ui.wait_visible("#main .view[data-loaded=true]");
+        ui.wait_visible("#billing-link");
+        ui.click("#signout");
+        ui.wait_visible("#login");
+        // Signed out: no stale link.
+        ui.wait_hidden("#billing-link");
+    })
+    .await;
+    drive(console_base(&server), move |ui| {
+        // An API key alone has no account: no link, and no href kept.
+        ui.login(&key);
+        wait_settled(ui);
+        ui.wait_visible("#docs-link");
+        ui.wait_hidden("#billing-link");
+        assert_eq!(
+            ui.eval(
+                "() => document.getElementById('billing-link').hasAttribute('href')",
+                json!(null)
+            ),
+            json!(false)
+        );
+    })
+    .await;
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -135,14 +195,16 @@ async fn with_no_help_configured_neither_entry_shows() {
         ui.sign_in_password(EMAIL, PASSWORD);
         wait_settled(ui);
         ui.wait_hidden("#docs-link");
+        ui.wait_hidden("#billing-link");
         ui.wait_hidden("#feedback-open");
         ui.wait_hidden("#feedback-link");
         assert_eq!(
             ui.eval(
-                "() => document.getElementById('docs-link').hasAttribute('href')",
+                "() => ['docs-link', 'billing-link'] \
+                 .map(id => document.getElementById(id).hasAttribute('href'))",
                 json!(null)
             ),
-            json!(false)
+            json!([false, false])
         );
     })
     .await;

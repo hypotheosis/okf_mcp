@@ -290,7 +290,8 @@ async fn redis_health(app: &App) -> Option<&'static str> {
 /// top level, and the feedback form.
 #[derive(Debug, serde::Serialize)]
 struct ConsoleBrand {
-    /// `product_name`, `support_contact`, `feedback_url` and `docs_url`.
+    /// `product_name`, `support_contact`, `feedback_url`, `docs_url` and
+    /// `billing_url`.
     // `flatten`: the brand's fields sit beside `feedback_form`, not under
     // a `brand` key.
     #[serde(flatten)]
@@ -299,9 +300,10 @@ struct ConsoleBrand {
     feedback_form: Option<api::feedback::FeedbackForm>,
 }
 
-/// `GET /ui/brand.json`: the product name, support contact, feedback URL and
-/// documentation URL (`{"product_name": ..., "support_contact": ... or null,
-/// "feedback_url": ... or null, "docs_url": ... or null}`), plus
+/// `GET /ui/brand.json`: the product name, support contact, feedback URL,
+/// documentation URL and billing URL (`{"product_name": ...,
+/// "support_contact": ... or null, "feedback_url": ... or null, "docs_url":
+/// ... or null, "billing_url": ... or null}`), plus
 /// `feedback_form` (`{"disclosure", "max_message_chars", "kinds"}`, or
 /// `null` without a `[feedback]` table), for the console shell before
 /// anyone signs in. Public: the sign-in page shows the first two anyway,
@@ -1499,6 +1501,15 @@ mod tests {
             )
             .await
             .unwrap();
+            settings::set(
+                test.app.accounts().executor(),
+                SettingKey::BillingUrl,
+                "https://billing.example.com/login",
+                &AuditActor::cli(),
+                chrono::Utc::now(),
+            )
+            .await
+            .unwrap();
             // Not in the brand: only the setup redirect reads it.
             settings::set(
                 test.app.accounts().executor(),
@@ -1526,6 +1537,7 @@ mod tests {
                 "support_contact": null,
                 "feedback_url": null,
                 "docs_url": null,
+                "billing_url": null,
                 "feedback_form": null
             })
         );
@@ -1536,6 +1548,7 @@ mod tests {
                 "support_contact": "help@example.com",
                 "feedback_url": "https://example.com/feedback",
                 "docs_url": "https://docs.example.com",
+                "billing_url": "https://billing.example.com/login",
                 "feedback_form": null
             })
         );

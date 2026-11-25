@@ -41,6 +41,7 @@ const MEANING = {
     support_contact: 'Email address or https:// URL shown as "Questions? Contact ..." ("none": no line)',
     feedback_url: 'https:// URL the console\'s "Send feedback" link opens ("none": no link)',
     docs_url: 'https:// URL the console\'s "Documentation" link opens ("none": no link)',
+    billing_url: 'https:// URL the console\'s "Billing" link opens for people signed in with an account: the start page of an external billing service that signs them in through this server\'s OAuth ("none": no link)',
     onboarding_url: 'https:// URL a new user is sent to after setting their first password, such as a getting-started guide ("none": the console)',
     audit_retention_days: 'Days audit entries are kept before the daily prune deletes them (30 to 3650)',
     require_unlock: 'Make operator staff unlock a customer\'s catalog, with a reason and a time limit, before opening it',
@@ -50,7 +51,7 @@ const MEANING = {
 // The settings that are on or off, chosen from true and false.
 const BOOLEAN_SETTINGS = new Set(['password_sign_in', 'require_unlock', 'unlock_notify_owners']);
 // The settings whose change shows in this console's own shell.
-const BRANDING = new Set(['product_name', 'feedback_url', 'docs_url']);
+const BRANDING = new Set(['product_name', 'feedback_url', 'docs_url', 'billing_url']);
 // GET /mail/queue's statuses, as pill kinds.
 const MAIL_STATUS_KIND = { pending: 'info', sending: 'info', retrying: 'warn', failed: 'error' };
 // The statuses a mail may be retried from (queue::retry takes Failed and

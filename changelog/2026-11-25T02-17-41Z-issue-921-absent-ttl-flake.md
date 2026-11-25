@@ -14,8 +14,11 @@ Nothing.
   `an_unknown_name_is_remembered_briefly_and_forgotten_by_create`.
 - Sibling tests: in src/cache/bounded.rs, `entries_expire_after_the_ttl` now
   proves reuse with a long lifetime and expiry with a short one, and
-  `an_idle_entry_expires_but_a_used_one_stays` uses a 2 s idle time against
-  150 ms sleeps, so a late wake-up cannot idle the read entry.
+  `an_idle_entry_expires_but_a_used_one_stays` uses an 800 ms idle time with
+  eight 150 ms sleeps (1.2 s of reads, longer than one idle lifetime, so it
+  still proves reads refresh the idle timer). It still reads the real clock,
+  so a scheduler stall of 800 ms or more between reads can fail it; the margin
+  is wider than before (400 ms), not unlimited. moka offers no mock clock here.
 - Left as is: the 200 ms join delay in
   `a_reader_that_joins_an_overtaken_read_...` (src/cache/directory.rs). It is
   also load-sensitive (too short a delay lets the follower miss the shared

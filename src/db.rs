@@ -2306,6 +2306,71 @@ mod tests {
             .is_empty());
     }
 
+    fn labelled(
+        id: &str,
+        start_label: &str,
+        namespace: Option<&str>,
+    ) -> pg_support::LabelledContainer {
+        pg_support::LabelledContainer {
+            id: id.to_string(),
+            start_label: start_label.to_string(),
+            pid_namespace: namespace.map(str::to_string),
+        }
+    }
+
+    /// Issue #784: only a dead owner in our own pid namespace gets swept.
+    #[test]
+    fn the_sweep_picks_only_containers_of_dead_owners_in_this_namespace() {
+        let containers = [
+            labelled("dead", "100-3", Some("pid:[1]")),
+            labelled("alive", "200-0", Some("pid:[1]")),
+            labelled("other-namespace", "100-4", Some("pid:[2]")),
+            labelled("no-namespace", "100-5", None),
+            labelled(
+                "shared-server",
+                "server-okf-mcp-test-pg-100",
+                Some("pid:[1]"),
+            ),
+            labelled("malformed", "100", Some("pid:[1]")),
+            labelled("bad-counter", "100-x", Some("pid:[1]")),
+            labelled("dead-too", "300-12", Some("pid:[1]")),
+        ];
+
+        let stale = pg_support::stale_container_ids(&containers, "pid:[1]", |pid| pid == 200);
+
+        assert_eq!(stale, ["dead", "dead-too"]);
+    }
+
+    /// With every owner alive nothing is picked, and an empty list is fine.
+    #[test]
+    fn the_sweep_keeps_everything_when_all_owners_are_alive() {
+        let containers = [
+            labelled("a", "1-0", Some("ns")),
+            labelled("b", "2-0", Some("ns")),
+        ];
+
+        assert!(pg_support::stale_container_ids(&containers, "ns", |_| true).is_empty());
+        assert!(pg_support::stale_container_ids(&[], "ns", |_| false).is_empty());
+    }
+
+    #[test]
+    fn owner_pid_reads_only_pid_and_counter_labels() {
+        assert_eq!(pg_support::owner_pid("4242-17"), Some(4242));
+        assert_eq!(pg_support::owner_pid("server-x"), None);
+        assert_eq!(pg_support::owner_pid("4242"), None);
+        assert_eq!(pg_support::owner_pid("-1"), None);
+    }
+
+    /// This process is alive in its own namespace, so its own label is kept.
+    #[test]
+    fn this_process_exists_and_an_impossible_pid_does_not() {
+        if !pg_support::liveness_is_reliable() {
+            return;
+        }
+        assert!(pg_support::process_exists(std::process::id()));
+        assert!(!pg_support::process_exists(u32::MAX));
+    }
+
     /// A zero timeout can end the start in any stage; whichever it was, the
     /// labelled start leaves no container (issue #500: it asserted the wait
     /// stage's `StartupTimeout` alone, which a loaded Docker does not reach).

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1445,
+  "next_claim_seq": 1474,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "fc02e1a2c3419994f41867cfa8b0cccfc693f770a133cf5e819bdab91c69379d"
+    "mac": "85d77be29279bc4bf0f6d997a4195f875c8ae5f9a61e8a3a7029a27546229e92"
   },
-  "next_evidence_seq": 2147,
+  "next_evidence_seq": 2180,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "81f3da66a115a3584422b8107a633e7cdc3a4431420236b60ed8f1f9570fc075"
+    "mac": "6d7734430d071a4cb9ba123c74053fa60b71659d84ca9d6d315af6083bd8ffa5"
   },
   "claims": [
     {
@@ -11964,6 +11964,28 @@
             "by": "server",
             "mac": "b1616cd7ad3011e7bcceccca951b62261b211beceb5494831e2b59c1b4ff7ea3"
           }
+        },
+        {
+          "id": "EVD-2178",
+          "kind": "inspection",
+          "locator": "src/store/settings.rs:9-25 at HEAD f95901158",
+          "summary": "Re-audit after #988 added a billing_url row to the module-doc settings table. The max_keys_per_user 0-1000, audit_retention_days 30-3650 and unlock_max_hours 1-72 rows and the defaults are unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 9,
+                "end": 26
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:26:39.255992114Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3b0d59859e389c09e106f3537f2d88b3d69eb1cff1c8cbf2e5ff1e12f1f2cec"
+          }
         }
       ],
       "verdicts": [
@@ -11979,13 +12001,26 @@
             "by": "server",
             "mac": "25d2a2d10986e1103be4526efec7c08b58942fce5a1c4ce5395c9cc0a375bcfc"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit: #988 only inserted a billing_url row in the settings.rs doc table (lines 8-21 shifted); the cited defaults and ranges are unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2178"
+          ],
+          "recorded_at": "2026-11-25T14:26:44.757467636Z",
+          "seal": {
+            "by": "server",
+            "mac": "256e95c296161610e6cd7e4fca9a140c89f0a40071e4647c878ef8ff37c1617e"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:57.634988013Z",
-      "updated_at": "2026-11-21T19:10:26.234612002Z",
+      "updated_at": "2026-11-25T14:26:44.757467636Z",
       "seal": {
         "by": "server",
-        "mac": "bf9b9f814810f1b0abb1ac40d725eb0f3b5fb2c4e385d7dba8e98b4acfd98b7b"
+        "mac": "035f53207ac524c76e501d03b50816ee9eedd24ce9a682457f8d66e23d41aa01"
       }
     },
     {
@@ -117600,6 +117635,1911 @@
       "seal": {
         "by": "server",
         "mac": "e6c8cc940b1254a04e17c34e2413328670b9c1c323b8b0b7a38d8338345f9c5d"
+      }
+    },
+    {
+      "id": "CLM-1445",
+      "statement": "Issue #988 is delivered: the console has a configurable, off-by-default Billing link to an external billing entry point for account-session users.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/988",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2179",
+          "kind": "analysis",
+          "locator": "children of CLM-1445",
+          "summary": "All issue-requirement children except CLM-1447 (production destination, elsewhere) are supported, so the code, docs and tests deliver the feature. Four PR-description validation claims (fmt, lint, test-ui, test binaries) are not_enough_info, so the parent cannot be rolled up as fully supported.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:26:39.345140436Z",
+          "seal": {
+            "by": "server",
+            "mac": "6faf133f6ee239e9cc092acac0aef431c70bd0d4aa041e7b141d6bfcb544f1f4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The feature itself is delivered (all issue-requirement children supported except the out-of-repo production destination), but the roll-up is blocked by the open production-destination claim and four unverified validation statements. Fix: after the production destination is verified live and the PR's fmt, lint, test-ui and test-binary statements are rerun on HEAD or reworded, re-record this roll-up.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2179"
+          ],
+          "recorded_at": "2026-11-25T14:26:44.887387300Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b8db93c34a1cfbbf2d633bc0f64626d7a9f756e6c1dcf03a5efe873909b7b42"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:44.887387300Z",
+      "seal": {
+        "by": "server",
+        "mac": "eae7a06833ecde8f854421d37e585382c57699d16338d8839276a2afc146580c"
+      }
+    },
+    {
+      "id": "CLM-1446",
+      "statement": "With billing_url set to a valid https URL, an account-session user sees a link labeled Billing whose href is that URL.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC1: 'an ordinary account-session user sees a clearly labeled Billing link and can follow it to the configured external billing entry point'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "src/http/ui/index.html",
+        "tests/ui_e2e/help.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2147",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/shell.js:140-150",
+          "summary": "drawHelp's setLink assigns el.href = brand.billing_url when store.session is set and unhides the link; index.html:53 labels it 'Billing'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 140,
+                "end": 150
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.452465676Z",
+          "seal": {
+            "by": "server",
+            "mac": "b375046ae80e081e055cf0932de69dba3d342c457c4d0d1490efdab444c3fd06"
+          }
+        },
+        {
+          "id": "EVD-2148",
+          "kind": "test",
+          "locator": "help::the_billing_link_shows_for_a_member_and_not_for_a_key (tests/ui_e2e/help.rs:83-124); target/i988-logs/test.log:3769",
+          "summary": "Member signs in, link visible with text Billing, [href,target,rel] equals [BILLING, _blank, noopener noreferrer]; test passed in the same-store ui_e2e run (test.log:3769, built after the last source edit, ui_e2e 286 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/help.rs",
+              "lines": {
+                "start": 82,
+                "end": 124
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.534302069Z",
+          "seal": {
+            "by": "server",
+            "mac": "047155dd70ab8b9e62b695ae2420bf058c587df8c5ec6ee34b47dab4fb245fe4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "shell.js sets the href from brand.billing_url for an account session and the e2e asserts the visible 'Billing' link and exact href; the test passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2147",
+            "EVD-2148"
+          ],
+          "recorded_at": "2026-11-25T14:26:11.639069255Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e6416ad4a57c60ec86be3d875366de848a4b3e007086c776981638d6fb17b7a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:11.639069255Z",
+      "seal": {
+        "by": "server",
+        "mac": "73ed379336f7a13a6587b872d864a341c1286839bfa67fcffd289f724064fe46"
+      }
+    },
+    {
+      "id": "CLM-1447",
+      "statement": "The configured production billing destination supports viewing the customer's own subscription after the billing provider's authentication (not a generic Stripe homepage).",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "Issue #988 AC2 (deployment step outside this repo)",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "elsewhere"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2149",
+          "kind": "analysis",
+          "locator": "issue #988 AC2 and 'Proposed approach' bullet 5; git grep -niE stripe -- src tests docs changelog",
+          "summary": "The destination is a deployment step outside this repo (per the audit brief); the repo names no production destination, so nothing here can decide whether it supports viewing one's own subscription.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:24:41.616810964Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f3c68d11f98482eadbf1b101c87dc7b68260eeea46a4b95480f8ca101811585"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Elsewhere: configuring and verifying the production billing destination is a deployment step outside this repository, so no repository evidence can decide it. Fix: after the deployment sets billing_url, sign in as a customer through the live console, follow the Billing link, authenticate with the provider and record that the customer's own subscription is shown.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T14:26:11.736283506Z",
+          "seal": {
+            "by": "server",
+            "mac": "7cff8e57a893edb1c455bf9f792e431b69952beaa41bcba01035003dcc3b0194"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:11.736283506Z",
+      "seal": {
+        "by": "server",
+        "mac": "15f2525094e7232de8950f1457f31052b37c2d31da364c829f2e05cb44fc0f2a"
+      }
+    },
+    {
+      "id": "CLM-1448",
+      "statement": "The Billing link is not restricted to operator administrators: it sits in the 'Your account' group (data-need=session), not the 'Administer' group, and an ordinary non-admin member sees it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC3 first half",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "tests/ui_e2e/help.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2150",
+          "kind": "inspection",
+          "locator": "src/http/ui/index.html:48-53",
+          "summary": "#billing-link is inside the nav-group data-need=session labelled 'Your account'; the data-need=admin group 'Administer' starts at line 55 and does not contain it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/index.html",
+              "lines": {
+                "start": 48,
+                "end": 55
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.697909734Z",
+          "seal": {
+            "by": "server",
+            "mac": "7fc7331c39f74f441157556c360d8a628929369f196dc8d37b63dd5c29bd64c7"
+          }
+        },
+        {
+          "id": "EVD-2151",
+          "kind": "test",
+          "locator": "tests/ui_e2e/help.rs:92-96 (test.log:3769)",
+          "summary": "After sign_in_password the test asserts [data-need=admin] is hidden (non-admin member) and then #billing-link is visible; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/help.rs",
+              "lines": {
+                "start": 92,
+                "end": 97
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.784763515Z",
+          "seal": {
+            "by": "server",
+            "mac": "58c651b306a3469914c90e1efbc8f9fcf9e5c5072cbcd9d9ce47a3f447ec97be"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The anchor sits in the data-need=session group, not Administer, and the e2e checks a non-admin member (admin group hidden) sees it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2150",
+            "EVD-2151"
+          ],
+          "recorded_at": "2026-11-25T14:26:11.814228461Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9d3339ea0ac1971e3e5bb164210e1a7ac56331856e7dcbbaa0e7d4e9b585933"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:11.814228461Z",
+      "seal": {
+        "by": "server",
+        "mac": "10908651cc9949a1688568bd28927bd1bce4a6259614b5e7b732eb0f883def1b"
+      }
+    },
+    {
+      "id": "CLM-1449",
+      "statement": "The Billing link is hidden when signed out and when signed in with an API key alone (no account session).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC3 second half",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "tests/ui_e2e/help.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2152",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/shell.js:150",
+          "summary": "The target is url(brand?.billing_url) only when store.session (set only for an account session, store.js:34) is truthy, else null, which hides the link and removes href; no session after sign-out.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 150,
+                "end": 150
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.865871425Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a80ef2a7af3f84ac59fd8177874e8520eab8e61e757f5c58732e64fd7a47994"
+          }
+        },
+        {
+          "id": "EVD-2153",
+          "kind": "test",
+          "locator": "tests/ui_e2e/help.rs:104-122 (test.log:3769)",
+          "summary": "After #signout the test waits for #billing-link hidden; a second journey logs in with an API key alone, waits for #docs-link visible, then #billing-link hidden with no href attribute; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/help.rs",
+              "lines": {
+                "start": 104,
+                "end": 122
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:41.948560311Z",
+          "seal": {
+            "by": "server",
+            "mac": "adb0dfae3513012f9de61cb0e16ceaaae8216acc455fa0fd7fb82b4e5be7c55a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The target is null without an account session; the e2e covers sign-out and an API-key-only login, both hidden with no href.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2152",
+            "EVD-2153"
+          ],
+          "recorded_at": "2026-11-25T14:26:11.894964042Z",
+          "seal": {
+            "by": "server",
+            "mac": "7271332f60d9fd9c8da2918f3d112784f684344071a39345ff129ff73de65923"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:11.894964042Z",
+      "seal": {
+        "by": "server",
+        "mac": "7f782e01a54a44916703ce71f7ac9d50becc645e4af5334f3d367e5f41703ea8"
+      }
+    },
+    {
+      "id": "CLM-1450",
+      "statement": "With billing_url unset or set to none, the Billing link is hidden and carries no href attribute (no stale destination).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC4",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "tests/ui_e2e/help.rs",
+        "tests/ui_e2e/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2154",
+          "kind": "test",
+          "locator": "help::with_no_help_configured_neither_entry_shows (tests/ui_e2e/help.rs:190-210); settings::the_billing_url_set_on_the_settings_page_shows_and_hides_the_billing_link (tests/ui_e2e/settings.rs:469-480)",
+          "summary": "With nothing configured an account session sees #billing-link hidden with hasAttribute('href') false; after saving 'none' on the Settings page the link hides and has no href; both passed (test.log:3900, 7778).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/settings.rs",
+              "lines": {
+                "start": 466,
+                "end": 480
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:59.593224186Z",
+          "seal": {
+            "by": "server",
+            "mac": "83c4bf3e5ba2a99eb5c438191b01352500c8238a48c70b5366c5642ba6737c4b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Two e2e journeys (unset default, and saving none) assert hidden and no href attribute; both passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2154"
+          ],
+          "recorded_at": "2026-11-25T14:26:11.972954047Z",
+          "seal": {
+            "by": "server",
+            "mac": "114e5f4851914ff57d6e1c294687ebb9e4f946eb6ca3b9e1d9ad965337b3e0d9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:11.972954047Z",
+      "seal": {
+        "by": "server",
+        "mac": "db4757abeb8407ee9f62766ed5a10d61b3d10a6bc0236f4c84e7506d416dc9d1"
+      }
+    },
+    {
+      "id": "CLM-1451",
+      "statement": "[auth] config has an optional billing_url that defaults to unset (None).",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #988 'Proposed approach' bullet 1 and AC5 (config defaults)",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/config.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2155",
+          "kind": "test",
+          "locator": "src/config.rs:228-231,326; config::tests::the_branding_defaults_read_from_the_auth_table (src/config.rs:2153-2175, test.log:388)",
+          "summary": "AuthConfig.billing_url: Option<String> with Default None (config.rs:326); the test reads billing_url from [auth] and asserts it reaches default_brand(); passed. Default None is also asserted via the unset-key cases in settings tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/config.rs",
+              "lines": {
+                "start": 2153,
+                "end": 2175
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:59.754822723Z",
+          "seal": {
+            "by": "server",
+            "mac": "62ae9cee7d275873f8ea22d79ae1a2cf9077637f03e1f4b8f97226ae17bc3eeb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "AuthConfig has the Option field defaulting to None and the config test reads it from [auth] into the brand.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2155"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.049780910Z",
+          "seal": {
+            "by": "server",
+            "mac": "674db5900bd59ff807d87f94d3789557f6e8b136f3682daf149555d03c527f6e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.049780910Z",
+      "seal": {
+        "by": "server",
+        "mac": "ef6b16ffc7df056889d560afdc1ea121d7d470959915b7d4e9572f4d1bdf4f0e"
+      }
+    },
+    {
+      "id": "CLM-1452",
+      "statement": "The billing_url setting follows docs_url's persisted-override behavior: a stored override beats the config default, 'none' stores null and clears it, and reset returns to the config default.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC5 (persisted overrides, reset)",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2156",
+          "kind": "test",
+          "locator": "store::settings::tests::the_billing_url_is_validated_stored_cleared_by_none_and_reset (src/store/settings.rs:2161-2239; test.log:2909)",
+          "summary": "Test sets a valid URL and loads it, sets none and asserts None, asserts an explicit none beats a configured default, then reset returns Some(default). parse_value (settings.rs:568-585) gives BillingUrl the same arms as DocsUrl. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 2161,
+                "end": 2239
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:59.837000857Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d414feac62dbbd379d650dc7abd417017ce1fd36017f7635d95a4534f3fa8c4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The unit test exercises set, none, override-beats-default and reset, and parse_value shares docs_url's arms.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2156"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.126545282Z",
+          "seal": {
+            "by": "server",
+            "mac": "df15907887bcb0d4e19c65da23bc17da18a7ce75750fcc2b7e9edf5ffda3bd96"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.126545282Z",
+      "seal": {
+        "by": "server",
+        "mac": "5df5fb5b4705fbc5df6d699ecf46475fe96a889c2990ac2c1fa9f00afbaa9dde"
+      }
+    },
+    {
+      "id": "CLM-1453",
+      "statement": "A non-HTTPS or malformed billing_url (http://, relative, protocol-relative, javascript:, email, containing whitespace) is rejected both by the settings setter and by the [auth] config check.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC5 (invalid/non-HTTPS URL rejection)",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/store/settings.rs",
+        "src/config.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2157",
+          "kind": "test",
+          "locator": "src/store/settings.rs:2171-2186 (same test); config::tests::branding_defaults_the_settings_would_refuse_are_refused (src/config.rs:2214-2225); settings::tests::branding_defaults_the_settings_would_refuse_are_refused (src/store/settings.rs:1555-1590)",
+          "summary": "Setter rejects http://, /ui/, //host, javascript:, email and a value with a space, each with a LimitExceeded 'billing_url...' reason; config and settings default-check cases now include billing_url = http://billing.example.com, via check_branding_defaults (settings.rs:432-440). Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 2170,
+                "end": 2187
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:24:59.919111221Z",
+          "seal": {
+            "by": "server",
+            "mac": "e07f978b059c4910982731abf36628b944623511047ef450b5312298562f976d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The setter test asserts six bad inputs are refused with a billing_url reason and the config and settings default-check tests include an http billing_url.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2157"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.203645165Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8b12cf9d67689a7afffcd1e46346a0c988a4988eb0928852c92870d64eb53f3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.203645165Z",
+      "seal": {
+        "by": "server",
+        "mac": "767726ad2fac7cffe27628451d9a430bb69c2280c213bc5995bdfc9ad5de9beb"
+      }
+    },
+    {
+      "id": "CLM-1454",
+      "statement": "Saving, disabling or resetting billing_url on the Settings page redraws the current console shell without a reload.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 AC5 last sentence",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/settings.js",
+        "tests/ui_e2e/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2158",
+          "kind": "test",
+          "locator": "tests/ui_e2e/settings.rs:446-471 (test.log:3900); src/http/ui/js/pages/settings.js:85-93,107-112",
+          "summary": "Browser test: saving https URL shows the link without reload (wait_visible), saving none hides it; passed. Reset is not exercised in the browser, but settings.js's reset button (line 112) goes through the same act(row.key, ...) that calls applyBrand() for BRANDING keys (line 92), and billing_url is in BRANDING (line 54).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/settings.js",
+              "lines": {
+                "start": 85,
+                "end": 93
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:00.000851733Z",
+          "seal": {
+            "by": "server",
+            "mac": "885d9e014ea51e6c3284266a1fdbc6587e5fe63c8df5976477ef96399d43ae1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Save and disable are proven in the browser; reset uses the same act() path that calls applyBrand for BRANDING keys, shown by code reading (not browser-tested).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2158"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.280264557Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b66560a4be6e9fed4fe358119a164b66dc60e90f392abdd0871468b503a1a1c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.280264557Z",
+      "seal": {
+        "by": "server",
+        "mac": "762840150948dbb76171aba1b4470a2ffebeb274bc7d98a31c285247956c1602"
+      }
+    },
+    {
+      "id": "CLM-1455",
+      "statement": "The Billing anchor opens in a new tab with rel='noopener noreferrer', and its href is assigned as a DOM property (not built into an HTML string).",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 'use safe external-link attributes and DOM property assignment'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/index.html",
+        "src/http/ui/js/core/shell.js"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2159",
+          "kind": "test",
+          "locator": "tests/ui_e2e/help.rs:97-100; src/http/ui/index.html:53; src/http/ui/js/core/shell.js:145-148",
+          "summary": "index.html has target=_blank rel='noopener noreferrer'; shell.js sets el.href = target (DOM property) and the e2e asserts [href,target,rel] = [BILLING,'_blank','noopener noreferrer']; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 145,
+                "end": 148
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:00.098101433Z",
+          "seal": {
+            "by": "server",
+            "mac": "174ab3183a0696744f47ca8e93310b4b630f5908363229159d211f4626e0fd97"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "index.html carries target and rel, shell.js assigns href as a property, and the e2e asserts all three.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2159"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.363009123Z",
+          "seal": {
+            "by": "server",
+            "mac": "9c31765860b53251fe7e06814c1eca24e6ed34a673f498b6bfa85ad07acb8bb5"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.363009123Z",
+      "seal": {
+        "by": "server",
+        "mac": "2de671cbdfd77868e8f1bab371ba27265484e922c95fef76e630126cfa9edeed"
+      }
+    },
+    {
+      "id": "CLM-1456",
+      "statement": "GET /ui/brand.json serializes billing_url (null when unset, the URL when set).",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #988 'Expose this non-secret destination through Brand and /ui/brand.json'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2160",
+          "kind": "test",
+          "locator": "http::tests::brand_json_is_public_and_follows_the_settings (src/http/mod.rs:1453-1555; test.log:1042)",
+          "summary": "Asserts brand.json has billing_url null before and the stored URL after settings::set(BillingUrl); Brand derives Serialize with the new field; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1535,
+                "end": 1553
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:00.189822242Z",
+          "seal": {
+            "by": "server",
+            "mac": "db8cadeacbf903e324498301ce715e44f7302bc521a9d4946ec0a8c3a76bbd56"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The brand.json test asserts billing_url null then the stored URL.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2160"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.484084671Z",
+          "seal": {
+            "by": "server",
+            "mac": "0964d6b186c907e4e7ffe755b9b1182d0f039ef66e60257ac282fbbf1e7cb7eb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.484084671Z",
+      "seal": {
+        "by": "server",
+        "mac": "0e24ee3293796ea746dbfb793c698721a63f7a324a3b81f2997dcbaee4adc3b8"
+      }
+    },
+    {
+      "id": "CLM-1457",
+      "statement": "Automated tests cover configuration/validation, brand serialization, member visibility, disabled behavior, safe link attributes, and update/reset behavior.",
+      "kind": "non_functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #988 AC6",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/config.rs",
+        "src/store/settings.rs",
+        "src/http/mod.rs",
+        "tests/ui_e2e/help.rs",
+        "tests/ui_e2e/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2161",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- tests src (test hunks); test.log:388,1042,2909,3769,3900",
+          "summary": "Config/validation: config.rs:2153-2225, settings.rs:1535-1590,2161-2239. Brand serialization: http/mod.rs:1535-1553. Member visibility, disabled behavior, safe attributes: help.rs:83-124,190-210. Update/none: ui_e2e settings.rs:406-488. Reset: store test settings.rs:2227-2238 only (no browser reset). All listed tests passed in the same-store run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/settings.rs",
+              "lines": {
+                "start": 404,
+                "end": 489
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:23.804820953Z",
+          "seal": {
+            "by": "server",
+            "mac": "439c9b4b477829b4ed43d843e0c35a84831efaabdc0e2df61bc9f73df3dc8fc2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each listed area has a passing test; reset is covered at store level only, which matches 'update/reset behavior'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2161"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.564291041Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc8a3cdc8871280e1537fe810867ba2b36317136e07fa0f01b99481e0eb4b186"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.564291041Z",
+      "seal": {
+        "by": "server",
+        "mac": "5f1fe6754a9270b512173b84b4c1e41dc8c05514a1456b032e0fa17f77876ade"
+      }
+    },
+    {
+      "id": "CLM-1458",
+      "statement": "docs/operations.md documents billing_url's configuration (config example, settings table row, settings set example, brand.json fields) and its disabled-by-default behavior.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #988 'Document configuration and disabled-by-default behavior in docs/operations.md'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2162",
+          "kind": "inspection",
+          "locator": "docs/operations.md:3202,3210,3249,3264,3272,3931",
+          "summary": "Config example has billing_url; settings table row at 3249 says https only, public in brand.json, Billing link under Your account for account sessions, new tab, noopener, 'none (the default) shows no link', updates open console without reload; settings set example at 3264; brand.json row at 3931 lists billing_url.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3249,
+                "end": 3249
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:23.926836314Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7b7ec782cf6593174d51a6d86f587e3d800f63f4af1e32663b3aed82cd7068a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The doc has the config example, table row with disabled-by-default text, set example and brand.json field.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2162"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.657016271Z",
+          "seal": {
+            "by": "server",
+            "mac": "9c248e50bdb8ad84dc79688166b6d04b1af74e375d6fb127628879f0d9dbd4f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.657016271Z",
+      "seal": {
+        "by": "server",
+        "mac": "7dcc00f11db10bab292a8dc7791c2565c0630f0cee33475978042a64929c329c"
+      }
+    },
+    {
+      "id": "CLM-1459",
+      "statement": "The Billing link's href is exactly the configured URL: the console appends no credentials or personal information to it.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #988 Out of scope: 'Passing console credentials or personal information in the external link'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js"
+      ],
+      "tags": [
+        "from-issue:988"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2163",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/core/shell.js:143-150; git grep -n \"billing\" -- src/http/ui/js",
+          "summary": "The only code touching the link is setLink's el.href = target with target = url(brand.billing_url) (a non-empty string from brand.json); no query string, token, whoami or email is appended; the e2e asserts the href equals the configured URL exactly (help.rs:98-100).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 143,
+                "end": 150
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.010808585Z",
+          "seal": {
+            "by": "server",
+            "mac": "e35abd92657fbe6111833bdd81c2a3b45a92e5710ffca6fcfc63c2946e51bd97"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The href is assigned verbatim from brand.billing_url with nothing appended, and the e2e asserts equality.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2163"
+          ],
+          "recorded_at": "2026-11-25T14:26:12.735620218Z",
+          "seal": {
+            "by": "server",
+            "mac": "209913f981877f6d4c7e44b636552dcb42babed0642431b9301c95bc4a09ed35"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:12.735620218Z",
+      "seal": {
+        "by": "server",
+        "mac": "b800113ae25c4c08ef5c02a4b3d9c1777cc39f2be4e0ae9fb7857575d5ad4b64"
+      }
+    },
+    {
+      "id": "CLM-1460",
+      "statement": "PR body: billing_url's audit entry records its value (it is in the audited_value arm with the other https URL settings).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'billing_url follows docs_url end to end: ... audit entry, settings list'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2164",
+          "kind": "inspection",
+          "locator": "src/store/settings.rs:905-915",
+          "summary": "audited_value's exhaustive match lists SettingKey::BillingUrl in the arm with FeedbackUrl, DocsUrl and OnboardingUrl that returns Some(value); an exhaustive match forces every key to pick an arm. No billing-specific entry test exists (the feedback one is a_feedback_url_entry_records_the_url).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 905,
+                "end": 915
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.093180310Z",
+          "seal": {
+            "by": "server",
+            "mac": "762de0d3d382c6b8cbc4a08dd8842c7ea2c116ee632214e738d1984db0cb74da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "BillingUrl is in the recorded-value arm of the exhaustive match (no billing-specific test, but the compiler enforces the arm).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2164"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.093173180Z",
+          "seal": {
+            "by": "server",
+            "mac": "b24b2b49119a02679bdeaf6ccfae61073be2a0a29ddab5d1f2f14c673d583df6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.093173180Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe2c81170177614dd6368c1ea15173fce820c480d6bdb967af59d37cd5fa04d6"
+      }
+    },
+    {
+      "id": "CLM-1461",
+      "statement": "PR body: `settings list` shows billing_url (SettingKey::ALL includes BillingUrl).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'billing_url follows docs_url end to end: ... settings list'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2165",
+          "kind": "inspection",
+          "locator": "src/store/settings.rs:295-312,1090",
+          "summary": "SettingKey::ALL is now [SettingKey; 17] and lists BillingUrl after DocsUrl; list iterates SettingKey::ALL (settings.rs:1090) and display() has a BillingUrl arm (744-747).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 295,
+                "end": 312
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.177146320Z",
+          "seal": {
+            "by": "server",
+            "mac": "778e95084ce8bccc7c4acd30964992ac783b1aac6e9e157fdd49f97a21baa5ce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "SettingKey::ALL, which list iterates, includes BillingUrl and display() handles it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2165"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.172076934Z",
+          "seal": {
+            "by": "server",
+            "mac": "c9829f15dda60dda4e12a84df15df465cd03fd8981dfc9eb94d14eee3c14ebbf"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.172076934Z",
+      "seal": {
+        "by": "server",
+        "mac": "68a9797feb587430cd7ec86a4678a41bc9762990de4e8f09710cf2d6473f2c06"
+      }
+    },
+    {
+      "id": "CLM-1462",
+      "statement": "PR body: brand_in reads the billing_url row too, so a queued mail's brand carries it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: '`brand_in` reads its row too'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/store/settings.rs"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2166",
+          "kind": "test",
+          "locator": "src/store/settings.rs:819-835 and the test at 2203-2210 (test.log:2909)",
+          "summary": "brand_in's SQL key list now includes 'billing_url' and the fallback Settings seeds billing_url from defaults; the billing test asserts brand_in(...) equals loaded.brand() after the URL is set; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 819,
+                "end": 835
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.257949119Z",
+          "seal": {
+            "by": "server",
+            "mac": "ca929768813036c97059ba25565f7aed18a962a7af8585926f8c0dc1e9d5df7b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The SQL key list and fallback were extended and the test compares brand_in to the loaded brand.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2166"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.249777684Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc97a7bc0ab04cd5f2b7845b161d6136c192e6f08d14394ff2e74eb7a5686144"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.249777684Z",
+      "seal": {
+        "by": "server",
+        "mac": "dbd1f8b11cd52fdba2da269f50aaf79be842aa1eb273e148c076ad0c8abe01aa"
+      }
+    },
+    {
+      "id": "CLM-1463",
+      "statement": "PR body: the router no longer hides a .nav-link that has no data-nav (an external link).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'The router no longer hides a `.nav-link` that has no `data-nav` (external link).'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/router.js"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2167",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/router.js:67-71",
+          "summary": "The hide loop now sets link.hidden only when link.dataset.nav is truthy and not in the manifest, so the data-nav-less #billing-link is left alone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/router.js",
+              "lines": {
+                "start": 67,
+                "end": 71
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.345337882Z",
+          "seal": {
+            "by": "server",
+            "mac": "b768f864028a611c7d5e210779ddbdc66beef201a3f6d49ab67a11c310849492"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "router.js now guards the hide with link.dataset.nav.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2167"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.343182732Z",
+          "seal": {
+            "by": "server",
+            "mac": "905604f1e843e8472712daa9b8d5dea0e7110da326ffd9c15ed2b21e4121a50c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.343182732Z",
+      "seal": {
+        "by": "server",
+        "mac": "9a5ed4aa53034f676a57ceb1be76686aeb15c9c4a6ca4e4e96aae2a4a2369fc1"
+      }
+    },
+    {
+      "id": "CLM-1464",
+      "statement": "PR body: settings.js describes billing_url and redraws the shell on save, disable and reset.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'settings.js describes the setting and redraws the shell on save, disable and reset.'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/settings.js"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2168",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/settings.js:44,54,90-93,107-112",
+          "summary": "MEANING has a billing_url description (44); billing_url is in BRANDING (54); act() calls applyBrand() on success for BRANDING keys (92) and both the save (107) and reset (112) buttons go through act. Browser tests cover save and none (ui_e2e settings.rs:446-471); reset has no browser test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/settings.js",
+              "lines": {
+                "start": 41,
+                "end": 55
+              },
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.434904753Z",
+          "seal": {
+            "by": "server",
+            "mac": "046bb914640d4482666b4c0473243d12640db5ea7ba7b61dd2aebff257e6c265"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Description, BRANDING membership and the shared act() redraw cover save, disable and reset by code; browser tests cover save and disable only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2168"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.422069336Z",
+          "seal": {
+            "by": "server",
+            "mac": "adb729b25c2a03f3dae07fa3adce63fdd8d493758fabddb52243d1a235c6dc14"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.422069336Z",
+      "seal": {
+        "by": "server",
+        "mac": "893850bd58fa9d09f0220e765432ad64ba9273494e93a8bf72c70ea76220aede"
+      }
+    },
+    {
+      "id": "CLM-1465",
+      "statement": "PR body: a changelog entry for this change is added under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'docs/operations.md documents it; changelog entry added.'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [
+        "changelog/2026-11-25T13-50-01Z-issue-988-billing-link.md"
+      ],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2169",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-25T13-50-01Z-issue-988-billing-link.md",
+          "summary": "The file exists, is added in the commit (git diff --stat), and describes the setting, brand.json field, link, router change and tests. Its sentence 'Saving, disabling or resetting the setting redraws the shell' matches the code path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T13-50-01Z-issue-988-billing-link.md",
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.519963528Z",
+          "seal": {
+            "by": "server",
+            "mac": "07c42e8f1079cda3aabafde5567ecf408813c0acb418e798af73000e4ffc3e48"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file is in the commit and describes the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2169"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.506046109Z",
+          "seal": {
+            "by": "server",
+            "mac": "9a5fdcc7b004a92dec13d08b998b60d186e1f4868dd18c8f9dcd96b4fb4b6608"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.506046109Z",
+      "seal": {
+        "by": "server",
+        "mac": "cb3c3571a5e69f49f2579a8a94475da7cc4afda86433919ef5a5100d4b55b222"
+      }
+    },
+    {
+      "id": "CLM-1466",
+      "statement": "PR body: no production billing-portal URL is invented or named anywhere in the repository (only billing.example.com placeholders).",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'no URL is invented here.'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2170",
+          "kind": "analysis",
+          "locator": "git grep -nE \"billing\\.[a-z.-]+|stripe\\.com\" -- src tests docs changelog ':!src/http/ui/vendor' | grep -v billing.example.com",
+          "summary": "Every billing host in src, tests, docs and changelog is billing.example.com; zero other hits, and no stripe.com URL anywhere.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "stripe\\.com|billing\\.(stripe|[a-z0-9-]+\\.(com|io|net|org))",
+              "case_insensitive": true,
+              "scope": [
+                "changelog",
+                "docs/operations.md",
+                "src/config.rs",
+                "src/http/mod.rs",
+                "src/http/ui/index.html",
+                "src/http/ui/js",
+                "src/store",
+                "tests/ui_e2e"
+              ],
+              "hits": 21,
+              "commit": "f95901158aeb5754eecfbe05273bbe2a13874c64"
+            }
+          },
+          "recorded_at": "2026-11-25T14:25:24.643262943Z",
+          "seal": {
+            "by": "server",
+            "mac": "31057c3b7cf664277c49b23e40e84df9797479836104850dca7947fd90fbf1d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The search anchor's 21 hits are all billing.example.com (confirmed by the grep -v run); no other host or stripe.com appears.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2170"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.584187530Z",
+          "seal": {
+            "by": "server",
+            "mac": "2174b31549cf278a494f3d04dc9bd64a58f8e51d17ac0d715d4e807d25c43cf6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.584187530Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f902fb9c87b4d694d99a7ad63ab51f460182c8324c2356877e87e6f4ba99836"
+      }
+    },
+    {
+      "id": "CLM-1467",
+      "statement": "PR body: `fmt` is green on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'fmt, lint, test-ui (286 passed), dylint: green.'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2171",
+          "kind": "analysis",
+          "locator": "ls /home/pgrace/repos/okf_mcp/.worktrees/okf-mcp-988/target/i988-logs; grep -n fmt target/i988-logs/*.log",
+          "summary": "The log directory holds only ui.log, test.log, lint.log and dylint.log; none contains a cargo fmt run (grep for fmt finds only the powerfmt crate). The auditor was told not to run gates, so fmt on HEAD is unchecked.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:25:48.496704267Z",
+          "seal": {
+            "by": "server",
+            "mac": "47bedb425796b88843f88d56f8f7cdd8e21597482cabf776194e9df218d847d2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No log records a cargo fmt run on HEAD, and gates were not to be rerun here. Fix: run `cargo fmt --check` on HEAD, or run `just fmt` and confirm it changes nothing, and record the result in the PR.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2171"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.674919388Z",
+          "seal": {
+            "by": "server",
+            "mac": "8cdcef4843a8913dbcd721f1e3e6209a60e2374847aef7fff69ef0f3de48bd73"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.674919388Z",
+      "seal": {
+        "by": "server",
+        "mac": "14a326897fa8f2ba90dc2e8b376c2cacbaf47d070078cb94cb2afd2364efcb1b"
+      }
+    },
+    {
+      "id": "CLM-1468",
+      "statement": "PR body: `lint` (clippy -D warnings and rustdoc -D warnings) is green on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'fmt, lint, test-ui (286 passed), dylint: green.'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2172",
+          "kind": "log",
+          "locator": "target/i988-logs/lint.log (written 08:54:05); mtime of tests/ui_e2e/help.rs 09:08:17",
+          "summary": "lint.log shows clippy --all-targets -D warnings and rustdoc -D warnings both Finished with no warning lines, but it was written at 08:54, before tests/ui_e2e/help.rs was last modified (09:08), so clippy never saw HEAD's help.rs.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:25:48.654165579Z",
+          "seal": {
+            "by": "server",
+            "mac": "78dca9191e7aae563bccce40e5d91d2467f7c01c5ade657964ae0a6190724953"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "lint.log is clean but predates the last edit to tests/ui_e2e/help.rs, so clippy never checked HEAD's help.rs (dylint does not run clippy). Fix: rerun `just lint` (clippy --all-targets -D warnings plus rustdoc) on HEAD and cite that log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2172"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.752539437Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6ff6dde34ee9cc603e5ba2eebc1234c4b7c03939f7f556f080b857636209276"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.752539437Z",
+      "seal": {
+        "by": "server",
+        "mac": "422c299fee1bd0779bafd7b7ba78c61578a25c9bb245c6ea764b1e6a8fa479ad"
+      }
+    },
+    {
+      "id": "CLM-1469",
+      "statement": "PR body: test-ui passed 286 tests on the head commit's tests.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'test-ui (286 passed)'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2173",
+          "kind": "log",
+          "locator": "target/i988-logs/ui.log:532,~end (written 09:08:03); test.log:3957",
+          "summary": "ui.log ends 'test result: ok. 286 passed; 0 failed; 1 ignored' but was written at 09:08:03, before help.rs was last edited (09:08:17); it still lists the old test name the_billing_link_shows_for_a_member_not_an_admin_only_and_not_for_a_key (ui.log:532), which HEAD renamed. The ui_e2e binary run inside the later `test` gate (test.log:3957, same-store) also passed 286 on HEAD's tests, but that is the test gate, not test-ui.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:25:48.735178658Z",
+          "seal": {
+            "by": "server",
+            "mac": "2aadbb7ba4d948acb3d441a7290fa54290e7784411f9ea7c8803bbd24a4e41cb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The 286-passed test-ui log predates the final help.rs edit (it runs the old test name), so it does not describe HEAD's tests; HEAD's ui_e2e did pass 286 in the same-store test gate. Fix: rerun `just test-ui` on HEAD, or reword the PR to 'ui_e2e: 286 passed in the same-store test run'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2173"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.853731674Z",
+          "seal": {
+            "by": "server",
+            "mac": "063e88103dbfb5ac6127a5919009470110bdc0bb53af549d7adbd0826d4d3aee"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.853731674Z",
+      "seal": {
+        "by": "server",
+        "mac": "80c459eefd5a60d39c5568f46a200999fbe9a928d6ab82b1bdbbf6e14b0f9fce"
+      }
+    },
+    {
+      "id": "CLM-1470",
+      "statement": "PR body: dylint is green on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'dylint: green'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2174",
+          "kind": "log",
+          "locator": "target/i988-logs/dylint.log (written 09:21:43)",
+          "summary": "cargo dylint --all with -D uninstrumented_fn ends with 'Finished dev profile'; no error or warning line. Written at 09:21:43, after the last source edit (09:08:17), on the commit's content.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T14:25:48.815139984Z",
+          "seal": {
+            "by": "server",
+            "mac": "8df3afce628c7203d040ee30ef9e98ebda4a36df51a91178b5d48910f9f42708"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "dylint.log was written after the last edit and ends Finished with no errors.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2174"
+          ],
+          "recorded_at": "2026-11-25T14:26:38.932748649Z",
+          "seal": {
+            "by": "server",
+            "mac": "95fd6e2e5b367be61c859fdf207063b53f89cfad3bcb0885c52dcff28820e889"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:38.932748649Z",
+      "seal": {
+        "by": "server",
+        "mac": "528d20bcfd0ef55ae7d74e2946784e8e2e4973202acc7a1aca7746345bfa291e"
+      }
+    },
+    {
+      "id": "CLM-1471",
+      "statement": "PR body: in the `test` gate all non-ui_e2e binaries are green.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'test: all non-ui_e2e binaries green'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2175",
+          "kind": "log",
+          "locator": "target/i988-logs/test.log:124 (recipe runs same-store then separate-store), :3246-4009, :7131-7868",
+          "summary": "Same-store run: every binary through ui_e2e, tests/writes.rs (3972, 9 passed) and doc-tests (4009, 30 passed) is ok. Separate-store run: binaries through tls ok, then ui_e2e FAILED (7868); `cargo test` stops there, so tests/writes.rs and doc-tests never ran in that mode (no 'Running tests/writes.rs' after line 7551).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T14:25:48.894664768Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc417c44e0b1004546dc5e49258739aaa37a5eac3d940e90a7b9df5ca3901b14"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All non-ui_e2e binaries are green in the same-store run, but in the separate-store run cargo stopped at the ui_e2e failure, so tests/writes.rs and doc-tests never ran in that mode. Fix: run `OKF_TEST_STORE=separate cargo test --test writes` and `cargo test --doc` and cite them, or reword to 'all non-ui_e2e binaries green in the same-store run; the separate-store run stopped at ui_e2e'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2175"
+          ],
+          "recorded_at": "2026-11-25T14:26:39.010532829Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0edda84305b433cb8ff44227dd4f2974e8acabc23c48467e4371971063f5b92"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:39.010532829Z",
+      "seal": {
+        "by": "server",
+        "mac": "de745104b9166828372395207769da28a267c3ab5bb9671faf8e7471da85d314"
+      }
+    },
+    {
+      "id": "CLM-1472",
+      "statement": "PR body: in the `test` gate ui_e2e failed only on 2 account:: tests, with the known 'timed out waiting for #app' flake (#898).",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'ui_e2e red only on 2 account:: tests with the known `timed out waiting for #app` flake (#898)'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2176",
+          "kind": "log",
+          "locator": "target/i988-logs/test.log:7868 and the failures list above it; gh issue view 898 -R hypotheosis/okf_mcp",
+          "summary": "Separate-store ui_e2e: 'FAILED. 284 passed; 2 failed' with failures account::a_member_deletes_their_account_with_their_password_and_is_signed_out and account::no_deletion_control_shows_before_the_account_read_answers, both panicking 'timed out waiting for #app'. #898 (body and comment) records 'timed out waiting for #app' right after password sign-in under gate load. The same-store ui_e2e run had 286 passed, so those were the only failures.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T14:25:48.974307933Z",
+          "seal": {
+            "by": "server",
+            "mac": "8187fd269d2cc588f0c176c7abbd72ac3c0d6f66fa1f107e64f3370a3374ea22"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The log shows exactly two account:: failures with 'timed out waiting for #app', a symptom #898 records; same-store ui_e2e was fully green.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2176"
+          ],
+          "recorded_at": "2026-11-25T14:26:39.087006124Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1e3133a08735c6dbc3fa15e895901db2ed9de192e7afdb908716a968d3e7bc3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:39.087006124Z",
+      "seal": {
+        "by": "server",
+        "mac": "3dc33e4e82d87998eb8ee122882244d66b18e8d310d7a806d57eca3470332212"
+      }
+    },
+    {
+      "id": "CLM-1473",
+      "statement": "PR body: both failing account:: tests passed in the test-ui run.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: 'both of which passed in the test-ui run'",
+      "derived_from": [
+        "CLM-1445"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:988",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2177",
+          "kind": "log",
+          "locator": "target/i988-logs/ui.log:459,474; test.log:3696-3697",
+          "summary": "Both account:: tests are 'ok' in ui.log and in the same-store ui_e2e run of the test gate; the diff touches no account test or account page code.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T14:25:49.053128534Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfa7ea146a87764a79420e57b50b78c4ec828880c3f79d9bfbdbb561abdd9e79"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both tests are ok in ui.log and in the same-store run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2177"
+          ],
+          "recorded_at": "2026-11-25T14:26:39.174856801Z",
+          "seal": {
+            "by": "server",
+            "mac": "e694844ca5cfb3874141f99745060662b480c3cbed29ae89538e024410629f97"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T14:24:09.837491541Z",
+      "updated_at": "2026-11-25T14:26:39.174856801Z",
+      "seal": {
+        "by": "server",
+        "mac": "3a4d89f144c9fb8b2220344333320d4ce1bb5c0534e5dfa07b57266500507e26"
       }
     }
   ]

@@ -1450,29 +1450,39 @@ mod tests {
     #[tokio::test]
     async fn entries_expire_after_the_ttl() {
         // moka reads the real clock, so this test cannot pause tokio's.
-        let cache = Bounded::<i64, i64>::new(
-            CacheName::Directory,
-            Limit::Entries(10),
-            Duration::from_millis(100),
-        );
+        // Reuse is proved with a long lifetime and expiry with a short one,
+        // so no step has to land inside the short lifetime (issue #921).
         let loads = AtomicUsize::new(0);
         let load = || async {
             loads.fetch_add(1, Ordering::SeqCst);
             Ok::<_, OkfError>(1)
         };
-        cache.get_or_load(1, load).await.unwrap();
-        cache.get_or_load(1, load).await.unwrap();
+        let reused = Bounded::<i64, i64>::new(CacheName::Directory, Limit::Entries(10), TTL);
+        reused.get_or_load(1, load).await.unwrap();
+        reused.get_or_load(1, load).await.unwrap();
         assert_eq!(loads.load(Ordering::SeqCst), 1);
+
+        let expiring = Bounded::<i64, i64>::new(
+            CacheName::Directory,
+            Limit::Entries(10),
+            Duration::from_millis(100),
+        );
+        expiring.get_or_load(1, load).await.unwrap();
         tokio::time::sleep(Duration::from_millis(300)).await;
-        cache.get_or_load(1, load).await.unwrap();
-        assert_eq!(loads.load(Ordering::SeqCst), 2, "an expired entry reloads");
+        expiring.get_or_load(1, load).await.unwrap();
+        assert_eq!(loads.load(Ordering::SeqCst), 3, "an expired entry reloads");
     }
 
     #[tokio::test]
     async fn an_idle_entry_expires_but_a_used_one_stays() {
         // moka reads the real clock, so this test cannot pause tokio's.
+        // The reads span 1.2 s against a 0.8 s idle time, so the read entry
+        // outlives a whole idle lifetime only if reads refresh it. Each read
+        // still has to land within 0.8 s of the last, so a scheduler stall of
+        // that length can fail the test; the margin is wider than the
+        // original 400 ms against 150 ms sleeps, not unlimited (issue #921).
         let cache = Bounded::<i64, i64>::new(CacheName::Overlay, Limit::Entries(10), TTL)
-            .with_idle(Duration::from_millis(400));
+            .with_idle(Duration::from_millis(800));
         cache
             .build(1, || async { Ok(10) }, |_, _| true)
             .await
@@ -1482,12 +1492,13 @@ mod tests {
             .await
             .unwrap();
 
-        for _ in 0..4 {
+        for _ in 0..8 {
             tokio::time::sleep(Duration::from_millis(150)).await;
             assert_eq!(cache.peek(&1).await, Some(10), "a read keeps it alive");
         }
 
         assert_eq!(cache.peek(&2).await, None, "the unread entry went idle");
+        assert_eq!(cache.peek(&1).await, Some(10), "the read entry stayed");
     }
 
     #[tokio::test]

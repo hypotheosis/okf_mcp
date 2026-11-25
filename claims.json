@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1316,
+  "next_claim_seq": 1328,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c53abf3417ff157475fa4f50eba965820e9b612b6ffa673e0b02b18091063e44"
+    "mac": "9f80875dab6ca5d31b46012079385b5e72df4a14c02ff5068cc228290bed29e3"
   },
-  "next_evidence_seq": 1944,
+  "next_evidence_seq": 1963,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "10c6092ba5b629c778187545d4078e996828ac5b05ef9ed218f8658bb2af7f66"
+    "mac": "cf3981a1f1cf348893f045a4fe1ef79f289346a1219588722992543f01545895"
   },
   "claims": [
     {
@@ -107131,6 +107131,978 @@
       "seal": {
         "by": "server",
         "mac": "fd0098745e093568b273a34519020ed8188d147b2b29c92cbb800a723feae8b5"
+      }
+    },
+    {
+      "id": "CLM-1316",
+      "statement": "Issue #921 is resolved: an_absent_name_is_forgotten_after_its_lifetime no longer races its 100 ms absent-name TTL under load",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/921",
+      "derived_from": [],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1961",
+          "kind": "analysis",
+          "locator": "claims CLM-1317..1324, 1326, 1327",
+          "summary": "Roll-up: every active child claim is supported; CLM-1325 retired and replaced by CLM-1327; gates green on head 2a0a1de.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T03:07:29.041453899Z",
+          "seal": {
+            "by": "server",
+            "mac": "201375550ad1fb22ff7f4309608144e31898697a9d4dae5bf1ba2a5cfe9383cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Parent roll-up is not computed: children CLM-1320 and CLM-1325 are refuted and CLM-1326 is undecided. The target test itself no longer has the race. Fix: resolve the refuted children (bounded.rs siblings and the PR/changelog wording), then re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T02:56:03.504927900Z",
+          "seal": {
+            "by": "server",
+            "mac": "220e2b196629297c35646ad6d6b2e64ebec4513ae6e9a52d384c96437c4aaaca"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every active child is supported except CLM-1326 (the \"3077 passed, 2 ignored\" count), which is undecided and was skipped at the author's request. The roll-up cannot be completed until it is decided. Fix: record the gate.sh test log with the printed \"3077 passed; 2 ignored\" line as evidence on CLM-1326 and give it a verdict, then record a children-of-CLM-1316 roll-up as supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T02:59:16.706654244Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba72b8657fff15d4aabb853b80d6961c34e39b7616a4e39a3b2a95782f098abf"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All active children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1961"
+          ],
+          "recorded_at": "2026-11-25T03:07:32.514467290Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b009e5dceb756ebec7ac1233c95661700046c9dd223faac35dd427897a6a8cb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T03:07:32.514467290Z",
+      "seal": {
+        "by": "server",
+        "mac": "ca00f09872697fe9ba70770033ff54e6ee72824dda9040a5de09ed631143770b"
+      }
+    },
+    {
+      "id": "CLM-1317",
+      "statement": "The test an_absent_name_is_forgotten_after_its_lifetime contains no assertion that needs a step to finish inside its 100 ms lifetime",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #921 requirement: the test must stop racing the 100 ms TTL",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1944",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:1013-1041",
+          "summary": "Test body now: resolve (none, remembers absence), seed, sleep 300 ms, assert resolve is Some. The only assertion after a step inside the 100 ms window was removed; the first assertion is evaluated before the seed with nothing timed against the TTL.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1013,
+                "end": 1041
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:20.415516849Z",
+          "seal": {
+            "by": "server",
+            "mac": "01aac4542ab1f35346a0faac3fd95c17482f00b6ca4ee11723aedb03a29bc042"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the test at head: the post-seed assertion is gone; only a 300 ms sleep then an assertion that is more true the later it runs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1944"
+          ],
+          "recorded_at": "2026-11-25T02:46:17.947328020Z",
+          "seal": {
+            "by": "server",
+            "mac": "e37a2150a78c96cc8f10990247e7d7d61c7f8fa9ba2674dac6498cffb61c290f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:17.947328020Z",
+      "seal": {
+        "by": "server",
+        "mac": "26fe4e958359b5f277a7a0802a2e60bfffcc0cbd709243727d9ba8d3a81c049a"
+      }
+    },
+    {
+      "id": "CLM-1318",
+      "statement": "The expiry assertion (resolve(\"x\") is Some after the sleep past the lifetime) is kept in an_absent_name_is_forgotten_after_its_lifetime and still fails if an absent entry never expires",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #921 requirement: the expiry assertion must be kept",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1945",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:1036-1038",
+          "summary": "After sleeping 300 ms (3x the 100 ms lifetime) the test asserts resolve(\\\"x\\\") is Some. A late wake-up only makes the entry more expired.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1036,
+                "end": 1038
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:20.537041749Z",
+          "seal": {
+            "by": "server",
+            "mac": "aba13cdd42c9fc2ea93d6e5c78886d6680c4cbfe3cd6442ace7676f6e49cf1c0"
+          }
+        },
+        {
+          "id": "EVD-1946",
+          "kind": "test",
+          "locator": "mutation: early-return in remember_absent (src/cache/directory.rs:~486), cargo test --lib cache::directory::tests::",
+          "summary": "With remember_absent made a no-op (so the None stays in the row cache for LONG), an_absent_name_is_forgotten_after_its_lifetime FAILED (1 failed, 14 passed): the retained assertion detects an absence that never expires. Mutation reverted (git checkout).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T02:42:20.664263070Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7d09415c8b8a7a0384b18a22d3b5f8a42efdfbe6e2cbc8524746f3655eef2b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The Some assertion after a 300 ms sleep remains, and a mutation that leaves the absence cached made the test fail, so it detects non-expiry. Caveat: it no longer proves the absence was remembered in the first place (a no-cache implementation would pass); that is left to the sibling test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1945",
+            "EVD-1946"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.059049776Z",
+          "seal": {
+            "by": "server",
+            "mac": "39c61c323dbf4f91a6458884563045f471775c19bf10c7a7a483d200d46191dd"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.059049776Z",
+      "seal": {
+        "by": "server",
+        "mac": "e97936481376d7a65c769ed38b8495a8613182cfe1b265bd73dc450c6131f5b6"
+      }
+    },
+    {
+      "id": "CLM-1319",
+      "statement": "an_absent_name_is_forgotten_after_its_lifetime is not #[ignore]d and passes",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #921 requirement: the test must not be #[ignore]d",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1947",
+          "kind": "test",
+          "locator": "cargo test --lib cache::directory",
+          "summary": "22 passed, 0 failed, 0 ignored in the module, including an_absent_name_is_forgotten_after_its_lifetime; its attribute is only #[tokio::test(flavor = \\\"multi_thread\\\")] (line 1013).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1013,
+                "end": 1014
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:20.780837352Z",
+          "seal": {
+            "by": "server",
+            "mac": "e522643bdb5ee082d703cfaf2d06426001faaa2625358a1b92f8e8936d3b2701"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No ignore attribute; ran with the module, 22 passed 0 ignored. Single run only; flake rate under load was not measured.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1947"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.146215189Z",
+          "seal": {
+            "by": "server",
+            "mac": "08eb62ee99d866a3c16116b137d4c8f8b1b55b539ed9871372de1ab445c3099f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.146215189Z",
+      "seal": {
+        "by": "server",
+        "mac": "f1f76e8c25cc56cb8769c86b008bea694b3389deeb6a67af33e5a0758309a222"
+      }
+    },
+    {
+      "id": "CLM-1320",
+      "statement": "Every sibling test with the same fixed-wall-clock pattern (a short real-time TTL asserted against with real sleeps) is fixed or checked",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #921 requirement: sibling tests with the same fixed-wall-clock pattern must be fixed or checked",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1953",
+          "kind": "analysis",
+          "locator": "src/cache/bounded.rs:1452-1471 (entries_expire_after_the_ttl)",
+          "summary": "Same pattern outside directory.rs: 100 ms TTL, then two get_or_load calls and assert loads == 1 (the second must land inside 100 ms), then sleep 300 ms. Not fixed and not mentioned in the PR or changelog (both only checked src/cache/directory.rs). The 200 ms join delay in directory.rs is a related load-sensitive wait (see its own claim).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1452,
+                "end": 1471
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:34.504638503Z",
+          "seal": {
+            "by": "server",
+            "mac": "8abae88f7e48f5da4cf9e204183ee26a5d04816231f46ba423374a46bf89bdde"
+          }
+        },
+        {
+          "id": "EVD-1954",
+          "kind": "analysis",
+          "locator": "src/cache/bounded.rs:1474-1490 (an_idle_entry_expires_but_a_used_one_stays)",
+          "summary": "400 ms idle time with four 150 ms sleeps asserting the entry is still resident: a stall over 400 ms between reads expires it. Same real-clock pattern, unchecked by the PR.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1474,
+                "end": 1490
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:34.610207825Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a3cc0225210ac7e85700712de69861e6a207c2cd455487cad7db3007069968f"
+          }
+        },
+        {
+          "id": "EVD-1956",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs:1450-1498 at 2a0a1de",
+          "summary": "entries_expire_after_the_ttl now proves reuse with a 3600 s cache (loads==1) and expiry with a separate 100 ms cache loaded once, slept 300 ms, reloaded (loads==3); no step must land inside 100 ms. The idle test uses 2000 ms idle with 150 ms sleeps, then sleeps 2100 ms before asserting the unread entry is gone, so a late wake-up only helps. Other sleeps in the file (MS_50 at 1018, 1036, 1608) are load durations inside joined futures, not wall-clock TTL races.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1450,
+                "end": 1498
+              },
+              "commit": "2a0a1dee71707ec04a7307a66e20a347cb7815b2"
+            }
+          },
+          "recorded_at": "2026-11-25T02:58:21.955305393Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7344569462b2c78f78c266be73a64867cf27e9dd57566cb5cc3dfadcb2c9af5"
+          }
+        },
+        {
+          "id": "EVD-1957",
+          "kind": "test",
+          "locator": "cargo test --lib cache::bounded",
+          "summary": "27 passed, 0 failed, 0 ignored; both edited tests ok.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T02:58:22.038967138Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb856ba9e75bc4e53ff4c6292e1d975d5312cc4afbfb312ef31cbb944af08dd2"
+          }
+        },
+        {
+          "id": "EVD-1962",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs an_idle_entry_expires_but_a_used_one_stays",
+          "summary": "After review round 1: idle time 800 ms, eight 150 ms reads (1.2 s, longer than one idle lifetime), asserts unread entry gone and read entry present; comment and changelog state the residual stall sensitivity and that moka's clock() is pub(crate).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "with_idle\\(Duration::from_millis\\(800\\)\\)",
+              "scope": [
+                "src/cache/bounded.rs"
+              ],
+              "hits": 1,
+              "commit": "2379e0ea3ec8e33d406b529cc16405c288618c66"
+            }
+          },
+          "recorded_at": "2026-11-25T03:09:16.796615811Z",
+          "seal": {
+            "by": "server",
+            "mac": "3454f7dc8e1d32ecb47ce6284c17965cbfe77ba7d8108ac5a054ed0f7af4b359"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The PR checked only src/cache/directory.rs. src/cache/bounded.rs has entries_expire_after_the_ttl (100 ms TTL, second load must land inside it) and an_idle_entry_expires_but_a_used_one_stays (400 ms idle, 150 ms sleeps), the same real-clock pattern, neither fixed nor mentioned. The directory.rs 200 ms join delay is also load-sensitive (see the separate claim). Fix: in entries_expire_after_the_ttl use a long TTL for the reuse check and a second short-TTL cache (or only the expiry step) for expiry, widen the idle margins in the idle test, and name them in the changelog; or state in the changelog why each is safe.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1953",
+            "EVD-1954"
+          ],
+          "recorded_at": "2026-11-25T02:46:19.282850788Z",
+          "seal": {
+            "by": "server",
+            "mac": "292c93227b09550ebc60c83a9f1a9b635224ba713c10f51f13fd18eeae5bcc91"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The two bounded.rs siblings are fixed so no step lands inside a short real-time window, and the changelog names them and the left-as-is directory.rs join delay (checked, documented). Narrow run passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1956",
+            "EVD-1957"
+          ],
+          "recorded_at": "2026-11-25T02:58:29.999760035Z",
+          "seal": {
+            "by": "server",
+            "mac": "dddaf0862062b9c5747de7bc52679ef3ef3210cb1f8bc4fa3159808dfb5025aa"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Siblings in bounded.rs fixed or qualified; idle test keeps proving reads refresh the timer.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1962"
+          ],
+          "recorded_at": "2026-11-25T03:09:21.080226766Z",
+          "seal": {
+            "by": "server",
+            "mac": "273e108676621d2409dc330d623209c41bd9cffada2f746d35255fcf2ac95407"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T03:09:21.080226766Z",
+      "seal": {
+        "by": "server",
+        "mac": "67c44a6291a2b8261aaa4b1ec62889a9bc229b5c913837e281d2a862c7bac341"
+      }
+    },
+    {
+      "id": "CLM-1321",
+      "statement": "A changelog entry for the change is added under changelog/",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #921 requirement: a changelog entry is added",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "changelog/2026-11-25T02-17-41Z-issue-921-absent-ttl-flake.md"
+      ],
+      "tags": [
+        "from-issue:921"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1948",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-25T02-17-41Z-issue-921-absent-ttl-flake.md",
+          "summary": "New dated changelog file in the repo's timestamped naming, describing the change and the sibling check.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T02-17-41Z-issue-921-absent-ttl-flake.md",
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:20.909805039Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a1c7a2f313eaf037ff3969fabd03a10350d0ba57743a1dbace77306468ba9ce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The file exists in changelog/ in the repo's naming and describes the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1948"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.284293464Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa3ea21d7a61385ec14ba6986a3666ce3228341055c956eacf0d583d4218b02d"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.284293464Z",
+      "seal": {
+        "by": "server",
+        "mac": "a139674d1e4c7af0671a4a67da060fad0531c8e5fd7be6c99396387af5249093"
+      }
+    },
+    {
+      "id": "CLM-1322",
+      "statement": "The PR removes the 'still absent' assertion from the 100 ms-lifetime test and adds a comment pointing at an_unknown_name_is_remembered_briefly_and_forgotten_by_create",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"remove the \\\"still absent\\\" assertion from the 100 ms-lifetime test, with a comment pointing at the test that covers it with a long lifetime (`an_unknown_name_is_remembered_briefly_and_forgotten_by_create`)\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1949",
+          "kind": "inspection",
+          "locator": "git show 8f20244 -- src/cache/directory.rs; src/cache/directory.rs:1029-1035",
+          "summary": "Diff deletes the line asserting resolve(\\\"x\\\") is_none after seed and adds a comment naming an_unknown_name_is_remembered_briefly_and_forgotten_by_create.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1029,
+                "end": 1035
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:21.044653058Z",
+          "seal": {
+            "by": "server",
+            "mac": "f787bd38f1f3f48668be5aee737765f88f285ef692ca0a0a07d95caa0194ac95"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff shows the deletion and the comment naming the covering test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1949"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.420324122Z",
+          "seal": {
+            "by": "server",
+            "mac": "69ac1447099c2293c8d78d9eeee6acaa5cba6cb88587eb7a007c45a1b1384331"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.420324122Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f6d88293dd8ddeeba6d19736c2f8c63462a013b34e1909d1cc20fd1ae37857c"
+      }
+    },
+    {
+      "id": "CLM-1323",
+      "statement": "an_unknown_name_is_remembered_briefly_and_forgotten_by_create asserts the absence is remembered after a seed, using the long default absent-name lifetime rather than 100 ms",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"the test that covers it with a long lifetime\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1950",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:969-984, 236, 44",
+          "summary": "The test builds the directory with for_tests, which uses ABSENT_TTL (5 s, line 44/236), resolves x (none), seeds, and asserts resolve(x) is still none (line 977-978). cargo test ran it: ok. Note the lifetime is 5 s, not LONG (3600 s), so it is a 50x margin, not unbounded.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 969,
+                "end": 984
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:34.174791848Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c28742f2b2c8944762da41a44eb3d68f82d04067749fef4fa8f9f8c3282da5d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The covering test asserts the absence is still remembered after a seed, with a 5 s absent lifetime (50x the 100 ms one); passes. PR wording \"long lifetime\" is accurate relative to 100 ms, though it is 5 s, not the 3600 s LONG.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1950"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.593618594Z",
+          "seal": {
+            "by": "server",
+            "mac": "712db2ed8edbd6bc87a314b4c6f9ec7d9b33576620dc22712da9d1052480687b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.593618594Z",
+      "seal": {
+        "by": "server",
+        "mac": "b63c4b76b9bf9bdf65ebc20e2fe9298df262b3f591235ac7ce9799baeb9e734a"
+      }
+    },
+    {
+      "id": "CLM-1324",
+      "statement": "The only other real-time wait in src/cache/directory.rs tests is the 200 ms join delay",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"the only other real-time wait in the module is a 200 ms join delay\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1951",
+          "kind": "analysis",
+          "locator": "git grep -En 'sleep\\(|from_millis' src/cache/directory.rs",
+          "summary": "Only two sleeps exist in the file: 300 ms in the audited test (line 1036) and 200 ms join delay (line 1123).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "tokio::time::sleep|thread::sleep",
+              "scope": [
+                "src/cache/directory.rs"
+              ],
+              "hits": 2,
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:34.283192931Z",
+          "seal": {
+            "by": "server",
+            "mac": "7aec3f4c2718ba5e0f3691c2fb868b59c6ce9301b8a446240cf9ba6ac9958c0d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A zero-extra search shows exactly two sleeps in the file, one the audited test's 300 ms, the other the 200 ms join delay.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1951"
+          ],
+          "recorded_at": "2026-11-25T02:46:18.689064242Z",
+          "seal": {
+            "by": "server",
+            "mac": "ef9ec786aa5171bb60c9843a03bd3b6cae4fd14a3a89378322296f81ebdb08c6"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:46:18.689064242Z",
+      "seal": {
+        "by": "server",
+        "mac": "5f57eae7186d9cf55965ffedad294b68ec8f2c673327a339b6c0b43113d8cb66"
+      }
+    },
+    {
+      "id": "CLM-1325",
+      "statement": "The 200 ms join delay in a_reader_that_joins_an_overtaken_read_does_not_remember_its_absence can only fail by being too short, not under load",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"which can only fail by being too short, not under load\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Refuted PR-description statement, withdrawn: the PR body and changelog at 2a0a1de no longer say the join delay cannot fail under load. Replaced by a claim for the corrected wording. The refuting verdict stays in the history.",
+        "retired_at": "2026-11-25T02:59:00.491489389Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1952",
+          "kind": "analysis",
+          "locator": "src/cache/directory.rs:1118-1135",
+          "summary": "The 200 ms sleep is the only thing that lets follower B join A's in-flight read before release.send. On a loaded machine B may not have reached the shared read in 200 ms; it then runs after release, reads the database fresh, finds the seeded row, and the assert at line 1131 (answered is none) fails. So the delay can fail under load, by being too short for a slow machine; the PR statement separates the two and is wrong.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1118,
+                "end": 1135
+              },
+              "commit": "8f20244108d5b694dafd85cbd867a7ad45daa957"
+            }
+          },
+          "recorded_at": "2026-11-25T02:42:34.391733544Z",
+          "seal": {
+            "by": "server",
+            "mac": "7ef3e985a7279f20506da258feeb80350b4e7840bf0806996c3f9d0d4b648a67"
+          }
+        },
+        {
+          "id": "EVD-1958",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-25T02-17-41Z-issue-921-absent-ttl-flake.md Notes at 2a0a1de",
+          "summary": "The \"can only fail by being too short, not under load\" wording is removed from the changelog; it now says the 200 ms join delay is also load-sensitive and left as is, as a follow-up candidate. The delay itself is unchanged. The draft PR body still has the old wording until the author rewrites it (not re-read by me at this commit).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-25T02-17-41Z-issue-921-absent-ttl-flake.md",
+              "commit": "2a0a1dee71707ec04a7307a66e20a347cb7815b2"
+            }
+          },
+          "recorded_at": "2026-11-25T02:58:22.117312203Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4eda1d81b16812129e4c8d90a3898f9bed72a658a22b9edd32c77fe3dbe9464"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The 200 ms delay is what lets the follower join the in-flight read; a loaded machine can delay the follower past it, and then the assertion at line 1131 fails. Too-short is the load failure, so the statement is wrong (it also appears in the changelog Notes). Fix: reword the PR body and the changelog Notes to say the join delay is load-sensitive and left as is, or replace the sleep with a poll bounded by BOUND until the cache counts the waiter.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1952"
+          ],
+          "recorded_at": "2026-11-25T02:46:19.113336341Z",
+          "seal": {
+            "by": "server",
+            "mac": "6de7072210f0f701f64550336e7b83a3cb38a1a87500941a2ea5479463ccca08"
+          }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The changelog is corrected (EVD-1958 shows the new wording), but the claim as written in the draft PR body (target/pr-921-body.md line 7) still says the delay \"can only fail by being too short, not under load\", and the code is unchanged and load-sensitive. Fix: replace line 7 of the PR body with the changelog's wording: the 200 ms join delay in directory.rs is load-sensitive, left as is, and a follow-up candidate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1952"
+          ],
+          "recorded_at": "2026-11-25T02:58:30.114089859Z",
+          "seal": {
+            "by": "server",
+            "mac": "437cd35676373236905374eb4e762db358d3b46ddbf9f2f5f36c8611041f8a13"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T02:59:00.491489389Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d6fec0a2ed69ce6da89674e0470f066d2ac511c5b93a89cc7b505a1be51b87c"
+      }
+    },
+    {
+      "id": "CLM-1326",
+      "statement": "3077 lib tests pass with 2 ignored at the head commit",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"3077 lib tests passed, 2 ignored\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1955",
+          "kind": "log",
+          "locator": "cargo test --lib (580 s timeout); cargo test --lib -- --list",
+          "summary": "The listing shows 3079 lib tests, matching 3077 + 2 ignored. A full run was cut off by my 580 s timeout after 2922 ok and 0 FAILED lines, with no final result line, so the pass count was not confirmed. The module run (22 passed) did complete.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T02:55:58.792198958Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ec768c33cb10a1e680bb3266344eb27c16ebf8b2eecda5759e990459e0d7db5"
+          }
+        },
+        {
+          "id": "EVD-1960",
+          "kind": "log",
+          "locator": "target/i921-logs/test.log (tools/agentic/gate.sh test on head 2a0a1de)",
+          "summary": "Full gate test run exit 0; lib result line: 3077 passed; 0 failed; 2 ignored.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T03:07:19.687634155Z",
+          "seal": {
+            "by": "server",
+            "mac": "468e3b5687a03729387b2563a4397a536c1f67ee0272bb20252140b11de2831b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Test count matches the listing (3079) and 2922 passed with no failure before my timeout, but the run did not finish, so \"3077 passed, 2 ignored\" is unconfirmed. Fix: run tools/agentic/gate.sh test on head (long timeout) and record the printed \"3077 passed; 2 ignored\" line.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1955"
+          ],
+          "recorded_at": "2026-11-25T02:56:03.417709027Z",
+          "seal": {
+            "by": "server",
+            "mac": "51dfa7b99977dd6ca51552febeb13c3a91addc8129d0a0fedb2c4c9bbd550ecb"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Own gate log shows the stated counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1960"
+          ],
+          "recorded_at": "2026-11-25T03:07:25.347761432Z",
+          "seal": {
+            "by": "server",
+            "mac": "86a983e128eb69fbb153e597d08f3a276463b314d841be54de9e649ee333226b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:42:07.974210452Z",
+      "updated_at": "2026-11-25T03:07:25.347761432Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe0fa481532424eaff415dd11af8839aa20e7b4f0a4ded3e84a13880c3295607"
+      }
+    },
+    {
+      "id": "CLM-1327",
+      "statement": "The 200 ms join delay in a_reader_that_joins_an_overtaken_read_does_not_remember_its_absence is load-sensitive (a follower that misses the shared read fails the test) and was left unchanged",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Left as is: the 200 ms join delay in `a_reader_that_joins_an_overtaken_read_...` (src/cache/directory.rs) is also load-sensitive but has no signal to wait on; a candidate follow-up.\"",
+      "derived_from": [
+        "CLM-1316"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:921",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1959",
+          "kind": "analysis",
+          "locator": "src/cache/directory.rs:1118-1135 at 2a0a1de",
+          "summary": "The 200 ms sleep and the assertion at line 1131 are unchanged by 2a0a1de (git diff 8f20244..HEAD shows no change in directory.rs). A follower delayed past the sleep reads fresh after release and finds the seeded row, failing the test. This matches the PR body line and the changelog Notes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1118,
+                "end": 1135
+              },
+              "commit": "2a0a1dee71707ec04a7307a66e20a347cb7815b2"
+            }
+          },
+          "recorded_at": "2026-11-25T02:59:10.631661688Z",
+          "seal": {
+            "by": "server",
+            "mac": "07a68f249ce56f328b9fdc4fc9b081d90c09a7c4ba19ad58c869700de8d75c89"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The corrected PR body and changelog say what the code does: the delay is load-sensitive and unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1959"
+          ],
+          "recorded_at": "2026-11-25T02:59:16.165682271Z",
+          "seal": {
+            "by": "server",
+            "mac": "674fb1f864166ff1565103187deb2b0f68f818d17533f6dce9dcc3329aed4956"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T02:59:06.526953201Z",
+      "updated_at": "2026-11-25T02:59:16.165682271Z",
+      "seal": {
+        "by": "server",
+        "mac": "9d072ca40c68b3fc5a1477943dd214b7e9a4f339d31fbd6faa6dd85c53314f6b"
       }
     }
   ]

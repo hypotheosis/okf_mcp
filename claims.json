@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "85d77be29279bc4bf0f6d997a4195f875c8ae5f9a61e8a3a7029a27546229e92"
   },
-  "next_evidence_seq": 2183,
+  "next_evidence_seq": 2185,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "f4dae96d50650181437abecfbb2a007b906558b8397dc06c19d395132ff25f89"
+    "mac": "52cb660aa505e235abe0109988ebb113f76754bb25196880fe161e232691b2a5"
   },
   "claims": [
     {
@@ -118361,6 +118361,28 @@
             "by": "server",
             "mac": "885d9e014ea51e6c3284266a1fdbc6587e5fe63c8df5976477ef96399d43ae1c"
           }
+        },
+        {
+          "id": "EVD-2184",
+          "kind": "test",
+          "locator": "tests/ui_e2e/settings.rs the_billing_url_set_on_the_settings_page_shows_and_hides_the_billing_link (test-ui 286 passed at fa06f20)",
+          "summary": "The journey saves a valid billing_url and the link appears without a reload, then none hides it; it now also waits for the refusal reason before the next save. Passes at the final head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/settings.rs",
+              "lines": {
+                "start": 420,
+                "end": 485
+              },
+              "commit": "fa06f207b417cd4330b4bab3a5972b28a223929a"
+            }
+          },
+          "recorded_at": "2026-11-25T15:09:22.676661259Z",
+          "seal": {
+            "by": "server",
+            "mac": "75b0b17348995af76f2719d39297d72e6265f13729696030bca8b6a0cea957df"
+          }
         }
       ],
       "verdicts": [
@@ -118376,13 +118398,26 @@
             "by": "server",
             "mac": "4b66560a4be6e9fed4fe358119a164b66dc60e90f392abdd0871468b503a1a1c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The save and disable journey passes at the final head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2184"
+          ],
+          "recorded_at": "2026-11-25T15:09:27.027599201Z",
+          "seal": {
+            "by": "server",
+            "mac": "4ea49c90f6d36e5f1f28ea4572482d1534bde6501a4574d5e3bae1b819957cc6"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:26:12.280264557Z",
+      "updated_at": "2026-11-25T15:09:27.027599201Z",
       "seal": {
         "by": "server",
-        "mac": "762840150948dbb76171aba1b4470a2ffebeb274bc7d98a31c285247956c1602"
+        "mac": "9437beb5e29589ab1992efa99468759801b95e8106ccd3c6984849b96d502f35"
       }
     },
     {
@@ -119089,6 +119124,28 @@
             "by": "server",
             "mac": "667bd6f7b9ab140faf2527e1f149720f6f3f7c614180fd3c85ef34dd4cc4119a"
           }
+        },
+        {
+          "id": "EVD-2183",
+          "kind": "test",
+          "locator": "src/http/ui/js/pages/settings.js:44; tools/agentic/gate.sh test-ui (286 passed at fa06f20)",
+          "summary": "The billing_url description's apostrophe is now escaped (node --check passes on every console module), and the Settings browser journeys, including the billing save and disable journey and the every-page smoke test, pass at the final head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/settings.js",
+              "lines": {
+                "start": 44,
+                "end": 44
+              },
+              "commit": "fa06f207b417cd4330b4bab3a5972b28a223929a"
+            }
+          },
+          "recorded_at": "2026-11-25T15:09:22.559807464Z",
+          "seal": {
+            "by": "server",
+            "mac": "67b2ca189130b29536ba4cbf0ba027e19b8267e5db8fe698b662daf1035b8fec"
+          }
         }
       ],
       "verdicts": [
@@ -119117,13 +119174,26 @@
             "by": "server",
             "mac": "c443650486efb988c6131369f69199bbed2c30b53a9ec5e9db6e44bab99911bf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "After the review fix, settings.js parses and the Settings journeys pass at the final head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2183"
+          ],
+          "recorded_at": "2026-11-25T15:09:26.941541271Z",
+          "seal": {
+            "by": "server",
+            "mac": "c19701c660f2c555af71d621ad4754a2913e02548fe4487581bc8a90e65ce321"
+          }
         }
       ],
       "created_at": "2026-11-25T14:24:09.837491541Z",
-      "updated_at": "2026-11-25T14:40:45.120573888Z",
+      "updated_at": "2026-11-25T15:09:26.941541271Z",
       "seal": {
         "by": "server",
-        "mac": "f630819aaea2813856c4f27bce42e2e4e73147b7b5caca9a67e5c5f822e277cd"
+        "mac": "1ad2e635063a059a1e37fb108ece20e01e6cd637e671a9ab63caeceed2069c46"
       }
     },
     {

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1340,
+  "next_claim_seq": 1341,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "707fcadf0ee737b3da78fce83c3327dbb079fde055171934322ed892d689fb07"
+    "mac": "5e195b49967239f495c6f9a7ae5e2f30731acf2781ef2ce5609a7d0c417ea0c1"
   },
-  "next_evidence_seq": 1976,
+  "next_evidence_seq": 1977,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c4da2e79724031deffa66b88d0a61765fa6014ca25c3fe1a958f447c8b1b530f"
+    "mac": "a7bd896710921f3c14995194a9c17511abcfc13e6518e98aa9057a3d0e116269"
   },
   "claims": [
     {
@@ -108877,6 +108877,75 @@
       "seal": {
         "by": "server",
         "mac": "6dfef7e7dfb4190d7c37e73a16e78b7eb7af5f9203ff185d982bad1bd6992068"
+      }
+    },
+    {
+      "id": "CLM-1340",
+      "statement": "The sign-in span test also signs in under a second caller trace in the same observer, and its exact audit and start_in lists still hold only its own requests' spans",
+      "kind": "functional",
+      "level": "unit",
+      "verification_method": "test",
+      "source_anchor": {
+        "path": "src/http/signin.rs",
+        "lines": {
+          "start": 1368,
+          "end": 1384
+        },
+        "commit": "fffe1e906d0ae46b9368df15d0601953f6bd40ec"
+      },
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [
+        "from-issue:848",
+        "review-round-1"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-1976",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::signin::tests::sign_in_spans",
+          "summary": "Passes; the test asserts the decoy caller's one audit and one start_in span were captured (two audit spans in all) while its own audit list stays one entry.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 1368,
+                "end": 1384
+              },
+              "commit": "fffe1e906d0ae46b9368df15d0601953f6bd40ec"
+            }
+          },
+          "recorded_at": "2026-11-25T03:51:35.185239603Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3ca7ba4a8d9754ee50fdacdbc8b15362631cc907c16b7439c26a68e02350dcf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The narrow run passes with decoy-capture assertions; without the trace filter the own audit list would hold two entries.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1976"
+          ],
+          "recorded_at": "2026-11-25T03:51:45.058983701Z",
+          "seal": {
+            "by": "server",
+            "mac": "4053982e41d372402b6c87738a3e58a6a4b101c025ec32f810c6b73bb1d27abe"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T03:51:32.090493846Z",
+      "updated_at": "2026-11-25T03:51:45.058983701Z",
+      "seal": {
+        "by": "server",
+        "mac": "27c86a1a383ca3ca59f3c392baccedb18245e3ea46613cb614456999cb5d0285"
       }
     }
   ]

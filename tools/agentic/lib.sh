@@ -8,12 +8,18 @@
 
 # How long agentic_stop_group waits between TERM and KILL, in seconds.
 agentic_kill_after=${agentic_kill_after:-5}
+# How long agentic_stop_group waits after KILL for the dead to be reaped, in
+# seconds. What is still there after that survived KILL.
+agentic_reap_after=${agentic_reap_after:-5}
 # Set by agentic_run_bounded: 1 when its last command ran out of time.
 agentic_timed_out=0
 
 # agentic_stop_group <pgid>: TERM what is left of the process group, KILL it
 # after $agentic_kill_after seconds, and return once it is empty (at once when
-# it already is).
+# it already is) or, when something survives KILL, $agentic_reap_after seconds
+# after the KILL. A process that survives KILL is in an uninterruptible kernel
+# wait (D state, for example reading a hung mount); callers must check the
+# group again and never wait for it.
 agentic_stop_group() {
     local tick
     kill -TERM -- "-$1" 2>/dev/null || return 0
@@ -23,7 +29,7 @@ agentic_stop_group() {
     done
     kill -KILL -- "-$1" 2>/dev/null || return 0
     # KILL can't be ignored; allow a few seconds for the dead to be reaped.
-    for ((tick = 0; tick < 50; tick++)); do
+    for ((tick = 0; tick < agentic_reap_after * 10; tick++)); do
         kill -0 -- "-$1" 2>/dev/null || return 0
         sleep 0.1
     done
@@ -32,12 +38,16 @@ agentic_stop_group() {
 # agentic_run_bounded <seconds> <cmd...>: runs cmd in its own session and
 # process group with at most <seconds> to finish. When time runs out the group
 # is stopped (agentic_stop_group). However cmd ends, anything still left in its
-# group is stopped too, with a warning naming how many processes that was, and
-# this returns only once the group is empty. An INT or TERM meanwhile stops the
-# group and then kills this shell with the same signal.
+# group is stopped too, with a warning on stderr, and this returns once the
+# group is empty. The one exception (#948): a process that survives KILL (an
+# uninterruptible kernel wait) is ABANDONED, never waited for, so it can't
+# block the caller; a warning on stderr says so (naming the command, never its
+# output). A leader that survives KILL after a timeout is disowned. The status
+# is unchanged by an abandoned leftover. An INT or TERM meanwhile stops the group
+# and then kills this shell with the same signal.
 # Returns cmd's status, or 124 when it ran out of time (agentic_timed_out=1).
 agentic_run_bounded() {
-    local pgid timer finished="" status=0 leftover
+    local pgid timer finished="" status=0
     agentic_timed_out=0
     # A background job of a non-interactive shell is not a group leader, so
     # setsid makes the job itself the leader of a new session: pid = group id.
@@ -52,18 +62,36 @@ agentic_run_bounded() {
     if [ "$finished" = "$pgid" ]; then
         kill "$timer" 2>/dev/null || true
         wait "$timer" 2>/dev/null || true
+        # The leader is reaped, so a live group is made of leftovers.
         if kill -0 -- "-$pgid" 2>/dev/null; then
-            leftover=$(pgrep -c -g "$pgid" || true)
             agentic_stop_group "$pgid"
-            echo "agentic: warning: '$2' exited (status $status) leaving $leftover" \
-                "process(es) behind; stopped them" >&2
+            if kill -0 -- "-$pgid" 2>/dev/null; then
+                echo "agentic: warning: '$2' exited (status $status) leaving processes" \
+                    "behind; some survived KILL and were abandoned" >&2
+            else
+                echo "agentic: warning: '$2' exited (status $status) leaving processes" \
+                    "behind; stopped them" >&2
+            fi
         fi
     else
         # shellcheck disable=SC2034 # read by the scripts that source this file
         agentic_timed_out=1
         agentic_stop_group "$pgid"
-        wait "$pgid" 2>/dev/null || true
         status=124
+        if kill -0 "$pgid" 2>/dev/null; then
+            # The leader survived KILL: stop tracking it, never wait for it
+            # (bash still reaps it whenever it dies).
+            disown "$pgid" 2>/dev/null
+            echo "agentic: warning: '$2' timed out and its process survived KILL" \
+                "(uninterruptible wait?); abandoned, not waited for" >&2
+        else
+            # Dead, and bash has reaped it, so this returns at once.
+            wait "$pgid" 2>/dev/null || true
+            if kill -0 -- "-$pgid" 2>/dev/null; then
+                echo "agentic: warning: '$2' timed out and processes of its group survived" \
+                    "KILL (uninterruptible wait?); abandoned, not waited for" >&2
+            fi
+        fi
     fi
     trap - INT TERM
     return "$status"

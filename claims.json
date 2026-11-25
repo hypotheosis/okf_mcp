@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1383,
+  "next_claim_seq": 1390,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "4fa148d77ed557c7cd0d7abe4143194efc384d5957745e16293fe945935d1f37"
+    "mac": "45ef1c74801886a4080dfe7e8bc21d807e16f96bdf76cab7c824932619cceba0"
   },
-  "next_evidence_seq": 2035,
+  "next_evidence_seq": 2046,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "afd8735489ad6e3fb5657e1bd34eae4f36c3d8756068b6ef76c0ae313db7cb56"
+    "mac": "7ed5d8d61f96df3043da90f896931961f938482cbc383f043da16b37878194f5"
   },
   "claims": [
     {
@@ -45344,6 +45344,40 @@
             "by": "server",
             "mac": "5e5be76f4d5bdaf4e22f5a0433f76a32793b0f4cfc0b562def453f3d16b42063"
           }
+        },
+        {
+          "id": "EVD-2044",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib --jobs 4 shared::announce::catalog_tests (head dcb106d)",
+          "summary": "Reran at head after the refactor: a_publish_during_a_resubscribe_window_is_seen_once_the_subscriber_returns ... ok within a 13 passed; 0 failed run.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:30:24.038320165Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d520bfedb48f7285db98b19382f6bebdecf52916e64cd8b462be36682a240e7"
+          }
+        },
+        {
+          "id": "EVD-2045",
+          "kind": "inspection",
+          "locator": "src/shared/announce/catalog_tests.rs:298-360",
+          "summary": "Test body now starts with pair_with(never_expiring()) (line 303): catalog_ttl 3600 s, same as before; the replaced inline setup was equivalent (same files, config, 120 s start timeout). The rest of the test (grace injection, publish while parked, stale-before and fresh-after assertions) is untouched by the diff (hunks end at line 300).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce/catalog_tests.rs",
+              "lines": {
+                "start": 298,
+                "end": 360
+              },
+              "commit": "dcb106df634b3b40ae5aa61f754f2108d2f1e6c1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:30:24.117657790Z",
+          "seal": {
+            "by": "server",
+            "mac": "54a51250a4736f219c9af27afd1ebb147ccf050ba4cd5f0bf838a3987c03f664"
+          }
         }
       ],
       "verdicts": [
@@ -45360,13 +45394,27 @@
             "by": "server",
             "mac": "877c0aac70eff58138ff39d3dbfbdc2758f465dfbcddea994ee91714317dce47"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head dcb106d after the diff changed the test's setup: the test passes and still uses a 3600 s ttl via never_expiring(); body unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2044",
+            "EVD-2045"
+          ],
+          "recorded_at": "2026-11-25T09:30:27.493537648Z",
+          "seal": {
+            "by": "server",
+            "mac": "248a53e904325e4ebe92c7e8c34b2d0fdffd7e7282670434044a982749d9b285"
+          }
         }
       ],
       "created_at": "2026-11-23T01:42:34.725422747Z",
-      "updated_at": "2026-11-23T01:43:56.775320224Z",
+      "updated_at": "2026-11-25T09:30:27.493537648Z",
       "seal": {
         "by": "server",
-        "mac": "2a33877a198d68b350a3f82b1fbe65adfcb9c21ef2c07ceae9b4dd342082d642"
+        "mac": "44678f7ac5251e52343f44cf7bb424e30935c9d2e59533c0cac3c694cba4ebf1"
       }
     },
     {
@@ -112083,6 +112131,460 @@
       "seal": {
         "by": "server",
         "mac": "396bd5107b962c7b3818162cf466b1a18ba372549e54d8ca76f2d05b999e41a8"
+      }
+    },
+    {
+      "id": "CLM-1383",
+      "statement": "Issue #928 is delivered: the subscribe catch-up test uses a long catalog_ttl and fails when the subscribed() catch-up in run is removed.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/928",
+      "derived_from": [],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2041",
+          "kind": "analysis",
+          "locator": "children of CLM-1383",
+          "summary": "The long-ttl and reverts-fail children together cover both issue requirements; the remaining children verify the PR description's statements.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T09:15:35.685390326Z",
+          "seal": {
+            "by": "server",
+            "mac": "6bc5ef76b413ba5111e37f6725bbca7dc3710a6327592c415d9f8760f2bf8911"
+          }
+        },
+        {
+          "id": "EVD-2043",
+          "kind": "analysis",
+          "locator": "children of CLM-1383",
+          "summary": "CLM-1384 shows the test uses a one-hour ttl and CLM-1385 shows it fails when the subscribed() catch-up is removed: both issue requirements. The other children confirm the PR description's statements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:30:15.641195862Z",
+          "seal": {
+            "by": "server",
+            "mac": "d77a766a229d13443780f1a2f75b6d79276691ef6d35a712366c5166b413f700"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both requirements are met by supported children.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2043"
+          ],
+          "recorded_at": "2026-11-25T09:30:24.265975388Z",
+          "seal": {
+            "by": "server",
+            "mac": "9840126968b847189dea2513d5ab8c6fba32dcaa4e987c851893800bb9d2bd46"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:30:24.265975388Z",
+      "seal": {
+        "by": "server",
+        "mac": "1204b8d9b054794476352e8ba7873c04d5c440fba610026e45b5d0765567e8e3"
+      }
+    },
+    {
+      "id": "CLM-1384",
+      "statement": "a_subscriber_catches_up_on_a_missed_publish_when_it_subscribes starts its replicas with a catalog_ttl of one hour (far above the test's 10 s wait), not the default.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"It now uses a one-hour `catalog_ttl`\"; issue #928 requirement: the test must use a long catalog_ttl",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2035",
+          "kind": "inspection",
+          "locator": "src/shared/announce/catalog_tests.rs:44-49,231-233",
+          "summary": "never_expiring() sets catalog_ttl to 3600 s; the test calls pair_with(never_expiring()). Default DEFAULT_CATALOG_TTL is 10 s (src/config.rs:75) and the test's WAIT is 10 s (catalog_tests.rs:31), so the old default could expire inside the wait; 3600 s cannot.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce/catalog_tests.rs",
+              "lines": {
+                "start": 43,
+                "end": 49
+              },
+              "commit": "dcb106df634b3b40ae5aa61f754f2108d2f1e6c1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:15:34.953810998Z",
+          "seal": {
+            "by": "server",
+            "mac": "b292846d04a8c8fb8e2b466678447d4233060584b2233e4b4b15748e058b8bc8"
+          }
+        },
+        {
+          "id": "EVD-2036",
+          "kind": "inspection",
+          "locator": "src/shared/announce/catalog_tests.rs:228-247",
+          "summary": "The test body calls pair_with(never_expiring()) at line 233.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce/catalog_tests.rs",
+              "lines": {
+                "start": 228,
+                "end": 247
+              },
+              "commit": "dcb106df634b3b40ae5aa61f754f2108d2f1e6c1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:15:35.087578249Z",
+          "seal": {
+            "by": "server",
+            "mac": "155df1e0607aa6f04ccdfecc6432e7fa391522934ae47a247ed04e5530f1e0a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test uses 3600 s ttl vs a 10 s wait.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2035",
+            "EVD-2036"
+          ],
+          "recorded_at": "2026-11-25T09:15:43.527936889Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7258390a63b0bd86ba3c2e2c9c40bdff6fafdc837ea7afc743bcbaf76157674"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:15:43.527936889Z",
+      "seal": {
+        "by": "server",
+        "mac": "e22cb85adcdfeae8929f2d1c49a8738471d4d2b54ea9609593418bf32f0416fb"
+      }
+    },
+    {
+      "id": "CLM-1385",
+      "statement": "With the handler.subscribed().await call removed from run in src/shared/announce.rs, a_subscriber_catches_up_on_a_missed_publish_when_it_subscribes fails, panicking at \"B caught up on subscribing\"; with it restored the test passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"with `handler.subscribed().await` removed from `run`, the test fails (panics at \\\"B caught up on subscribing\\\"); restored, it passes\"",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs",
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2037",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib --jobs 4 shared::announce::catalog_tests::a_subscriber_catches_up (with src/shared/announce.rs:488 handler.subscribed().await commented out, then restored with git checkout)",
+          "summary": "Reverted: 0 passed; 1 failed, panicking at catalog_tests.rs:245:5 \\\"B caught up on subscribing\\\". Tree restored and clean afterwards. Unreverted, the same test passed in the 13-test narrow run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 485,
+                "end": 489
+              },
+              "commit": "dcb106df634b3b40ae5aa61f754f2108d2f1e6c1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:15:35.213931004Z",
+          "seal": {
+            "by": "server",
+            "mac": "1702fea52ab17f97da63fb184674ebf9b81c637f0d4c0c55857fdce73174023d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rerun myself: fails at the \"B caught up on subscribing\" assertion with the call disabled; the unreverted test passed in the 13-test run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2037"
+          ],
+          "recorded_at": "2026-11-25T09:15:48.378729354Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b8b46bf38c2d8cd72128571b472c730477df7cf53458c4f48101e118995a7fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:15:48.378729354Z",
+      "seal": {
+        "by": "server",
+        "mac": "7a4e42f2ab130389d7c59a365aaa5403eb4e8db98a5b4ea1acb2856cbacc4939"
+      }
+    },
+    {
+      "id": "CLM-1386",
+      "statement": "The change adds never_expiring() and pair_with(config) to catalog_tests.rs, makes pair() delegate to pair_with(Config::default()), and both the #928 test and the resubscribe-window test use never_expiring() through pair_with, the latter dropping its copied setup.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"new `never_expiring()` config and `pair_with(config)`; `pair()` delegates to it. The issue's test and the #927 resubscribe-window test both use them (the latter drops its copied setup).\"",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2038",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/shared/announce/catalog_tests.rs; catalog_tests.rs:37-62,303",
+          "summary": "pair() is now pair_with(Config::default()); never_expiring() and pair_with(config) are added; the resubscribe-window test replaces its inline files/config/timeout/replica_pair setup with pair_with(never_expiring()) (line 303); the #928 test uses it at line 233.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce/catalog_tests.rs",
+              "lines": {
+                "start": 37,
+                "end": 62
+              },
+              "commit": "dcb106df634b3b40ae5aa61f754f2108d2f1e6c1"
+            }
+          },
+          "recorded_at": "2026-11-25T09:15:35.329386831Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2b46e1b14ea8ee01b4652aa5a31b5a1edecbd789d4d5aefac2c6769744c9b1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff shows every listed change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2038"
+          ],
+          "recorded_at": "2026-11-25T09:15:43.733451282Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b6e323948b0cc3101ee12fce53f0c6383552dafda479b399851f8c834b1cdae"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:15:43.733451282Z",
+      "seal": {
+        "by": "server",
+        "mac": "21afbb131f91d113be9946bde3f7e0ffe7355ce37cb50f6c357dd22403142aba"
+      }
+    },
+    {
+      "id": "CLM-1387",
+      "statement": "The change is test-only: no file under src/ other than src/shared/announce/catalog_tests.rs changes, and the other file added is the changelog entry for issue 928.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Test-only change.\" and \"Changelog entry for issue 928.\"",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2039",
+          "kind": "analysis",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "Diff touches exactly two files: changelog/2026-11-25T09-00-00Z-issue-928-subscribe-catchup-test-ttl.md (new) and src/shared/announce/catalog_tests.rs (a #[cfg(test)] test module). No production src file is changed. claims.json not yet changed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:15:35.446398084Z",
+          "seal": {
+            "by": "server",
+            "mac": "2be4fb433397ae333dd223f0a6b610ec0b336d95dd243cb56b4a17c0e9e90b42"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff stat lists only the changelog and the test module.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2039"
+          ],
+          "recorded_at": "2026-11-25T09:15:43.878135292Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd2aacf5692759fbd81eeabf8800d650af9d61431da0fa326f77ba3753b6f1fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:15:43.878135292Z",
+      "seal": {
+        "by": "server",
+        "mac": "967c3e8ec6ab7ea3971ff2afb8c8749669227a1f7b127040c6e1a7e9ca99511a"
+      }
+    },
+    {
+      "id": "CLM-1388",
+      "statement": "The narrow run of shared::announce::catalog_tests at head passes 13 tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Narrow run of `shared::announce::catalog_tests`: 13 passed.\"",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [
+        "src/shared/announce/catalog_tests.rs"
+      ],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2040",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib --jobs 4 shared::announce::catalog_tests",
+          "summary": "test result: ok. 13 passed; 0 failed; 0 ignored; 3075 filtered out, at head dcb106d.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:15:35.582844563Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6d58fb3e20ef9feaa53c514b6d2ec938eb9679a853aec1ff26dac61fffbd8b7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rerun shows 13 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2040"
+          ],
+          "recorded_at": "2026-11-25T09:15:43.998053526Z",
+          "seal": {
+            "by": "server",
+            "mac": "7210ec927cd17c15087491bf54c7b926cc767138b3c0bdd8650007da608e5887"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:15:43.998053526Z",
+      "seal": {
+        "by": "server",
+        "mac": "a523422adc1be298ec02ce5e5a038deb1b0286582d565e463ee67e385fec538c"
+      }
+    },
+    {
+      "id": "CLM-1389",
+      "statement": "gate.sh fmt, lint and dylint are green at head.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"fmt, lint, dylint: green.\"",
+      "derived_from": [
+        "CLM-1383"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:928"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2042",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt; tools/agentic/gate.sh lint; tools/agentic/gate.sh dylint (head dcb106d)",
+          "summary": "All three gates exited 0 (fmt: cargo fmt --all --check clean; lint finished dev profile with no errors; dylint finished, exit 0).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T09:30:15.565321528Z",
+          "seal": {
+            "by": "server",
+            "mac": "941ed7f4d9e671abc2937a3683084a364b432bf5565ca3fa8212af90782d02eb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran the three gates at head; all exit 0.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2042"
+          ],
+          "recorded_at": "2026-11-25T09:30:24.192968952Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c64f7962d4d9da3fc0ab0763d9e7416ddbb2c4e6031bd42671dbe5d84fd1021"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T09:12:19.324435173Z",
+      "updated_at": "2026-11-25T09:30:24.192968952Z",
+      "seal": {
+        "by": "server",
+        "mac": "11e4f2eb590fdd395f5fae818dbedbe11a497cee928577196228b35e338e3ed5"
       }
     }
   ]

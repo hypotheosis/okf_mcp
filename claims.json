@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1415,
+  "next_claim_seq": 1443,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "ec57d8a9d352be84d4032cfec55fe82e0b12cd92698094282c835d8256882b4d"
+    "mac": "513909a17409df2a39e43b575ba806e6822081e175cbdb6cee2a71437f1c5270"
   },
-  "next_evidence_seq": 2079,
+  "next_evidence_seq": 2132,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "432a6c292b17c72001914390fff7324ed46343a378b73a2ae63ca7a0c1a8f072"
+    "mac": "e9cffd7c5d55a4fb08ed5d9f76485a96ddf13d380da137d0dde737dd4b29dbd0"
   },
   "claims": [
     {
@@ -16439,6 +16439,28 @@
             "by": "server",
             "mac": "e211a68c03ca97bb717ebe28ac591edee1bc3748f2542030ee176c37bd645700"
           }
+        },
+        {
+          "id": "EVD-2123",
+          "kind": "inspection",
+          "locator": "src/mcp/annotations.rs READS (20 entries at head, 19 at origin/main); README.md:317 \"The 17 read tools\"",
+          "summary": "The READS list has 20 tools at head (this diff added recent_changes); README line 317 still says 17. The README was already off at origin/main (19 entries), so the diff widens an existing mismatch and does not fix it.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 317,
+                "end": 318
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T13:01:47.389696106Z",
+          "seal": {
+            "by": "server",
+            "mac": "9dab3daa33f4bba373c79b959dc12d212f384fdedbec5ac2ad74300e00fdc6a9"
+          }
         }
       ],
       "verdicts": [
@@ -16454,13 +16476,26 @@
             "by": "server",
             "mac": "fef9246735f16297790ff2a436cea4c67f43aaac3c2267f80572d646abd1cc1e"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "README.md:317 says 17 read tools; annotations.rs READS holds 20 at head (EVD-2123), 19 before this diff, so it was already stale and recent_changes widens it. Fix: change README.md:317 to say 20 read tools (or drop the number) and add recent_changes to the README tool table.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2123"
+          ],
+          "recorded_at": "2026-11-25T13:01:53.483111258Z",
+          "seal": {
+            "by": "server",
+            "mac": "34d61ed0a2b8b49f99c081c1f1d8061a1353477f0564a03af56aa625d81203df"
+          }
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-21T20:02:54.712470287Z",
+      "updated_at": "2026-11-25T13:01:53.483111258Z",
       "seal": {
         "by": "server",
-        "mac": "75cf53fabfdd08c0d0f3d49f57588a34c442e577e0c7927f37e9930bc2f8df8a"
+        "mac": "bd16e3c68fa581cdf74b9fa75e2fce5b1fd8a376d2d66810a2f2baf20b368b49"
       }
     },
     {
@@ -22335,6 +22370,28 @@
             "by": "server",
             "mac": "8f13f7f1cf1fb8783690967cdafe8c4435bf556f64e5ceffe83543bcc2c83c71"
           }
+        },
+        {
+          "id": "EVD-2128",
+          "kind": "inspection",
+          "locator": "migrations/accounts/0010_user_login.sql; src/db.rs:170-221 (migrate)",
+          "summary": "Re-audit at head: citext is still created in migrations/accounts/0010; migrate still runs the okf migrations, then apalis_postgres setup (schema apalis, own history), and its doc names pgcrypto and hstore. The diff moved the lines and added lock_migrations; nothing about extensions changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 170,
+                "end": 183
+              },
+              "commit": "b6497783027cc91ad2780e03934a658ee65c87de"
+            }
+          },
+          "recorded_at": "2026-11-25T13:05:12.408974183Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfb123d3451467ef811c1ef3a1210b945ead32263a97eb68a011f277306f4914"
+          }
         }
       ],
       "verdicts": [
@@ -22363,13 +22420,26 @@
             "by": "server",
             "mac": "1540960172b76fd1df4d785ad637e022e97cd71c782ace14ed039c8861b795a9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: extensions and apalis setup unchanged (EVD-2128).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2128"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.565579224Z",
+          "seal": {
+            "by": "server",
+            "mac": "caa137353bc6bd9d47ac7e30bb1b5a7b17509889ebaa37f35a2e2de1c246789c"
+          }
         }
       ],
       "created_at": "2026-11-21T19:07:50.360239770Z",
-      "updated_at": "2026-11-24T04:47:02.038689031Z",
+      "updated_at": "2026-11-25T13:05:26.565579224Z",
       "seal": {
         "by": "server",
-        "mac": "25c9c4ccbcbf49c67156c4409212fdb6d6bed65b4d55f76323180ec15eaee5c5"
+        "mac": "d6690b2ca4bc1a57684af5c0183daa1ae75e0745dcbe67581394667f48bdc76b"
       }
     },
     {
@@ -23792,6 +23862,28 @@
             "by": "server",
             "mac": "90835a19de4c373acd9c2502fefc46b470c6efb2553aedf5de5188cb852e3f57"
           }
+        },
+        {
+          "id": "EVD-2107",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:111-119 (revision_limit); docs/reference/tools.md history `limit` row",
+          "summary": "Re-audit at head: revision_limit still returns DEFAULT_LIMIT (20) for None and clamps to 1..=MAX_LIMIT (200), unchanged by this diff (the lines only moved); the history section's `limit` row still reads \"default 20, at most 200; 0 counts as 1\" next to the new user and since rows.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 111,
+                "end": 119
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:22.030722523Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fc1d492301390176361763e98cff1488d5067195a0a6714121e508481066b2e"
+          }
         }
       ],
       "verdicts": [
@@ -23807,13 +23899,26 @@
             "by": "server",
             "mac": "e2f143dee948aeb15b16c83511e30910826a376a09282d87c19380e7ec65f4a0"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: default 20, cap 200 unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2107"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.395686972Z",
+          "seal": {
+            "by": "server",
+            "mac": "93163a471f7f9ba68d6227603df96c75c41569b32ebc41610a1823905a516d42"
+          }
         }
       ],
       "created_at": "2026-11-21T19:08:08.066114433Z",
-      "updated_at": "2026-11-21T19:10:02.061370956Z",
+      "updated_at": "2026-11-25T13:01:06.395686972Z",
       "seal": {
         "by": "server",
-        "mac": "a70a24e92176d73c8b3caa026875891fa87103d8ebd6d6d49a2d423930a81c7b"
+        "mac": "c3ac38ec159e9c36f8751160758f30ba7dea545548fc6d520e0b4cae26ca1dbd"
       }
     },
     {
@@ -25517,7 +25622,9 @@
         "area:tools-ref"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by CLM-1436 (46 tools after recent_changes).",
+        "retired_at": "2026-11-25T13:01:06.308170709Z"
       },
       "evidence": [
         {
@@ -25541,6 +25648,28 @@
             "by": "server",
             "mac": "643e6ec47cdbe26cc19567f0f99003578b80b76b01b9d0ad8de4ecb76691e845"
           }
+        },
+        {
+          "id": "EVD-2106",
+          "kind": "inspection",
+          "locator": "docs/reference/tools.md:34-81 (grep -c '^| \\[`' = 46); src/mcp/reference.rs:401 and src/mcp/annotations.rs:155 now assert 46",
+          "summary": "At head the reference table has 46 tool rows and 46 headings (recent_changes added; origin/main had 45), and the two pin tests were changed from 45 to 46. The claim's number is out of date.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 34,
+                "end": 81
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:21.687258918Z",
+          "seal": {
+            "by": "server",
+            "mac": "04c4a571241895d792f3927e59312e699fa5059449355aa1d39dbea83dec614b"
+          }
         }
       ],
       "verdicts": [
@@ -25556,13 +25685,26 @@
             "by": "server",
             "mac": "937df80be29a9ceb5ccec1d77979958db09c3af7b72a14e093cd37c296759c3e"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This diff added recent_changes, so the reference now lists 46 tools, not 45 (EVD-2106). Fix: retire this claim; CLM-1436 states the new count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2106"
+          ],
+          "recorded_at": "2026-11-25T13:00:45.220329530Z",
+          "seal": {
+            "by": "server",
+            "mac": "d62e1943ac2bb631cc4cf44f7549a5c69e7f2026757de10b74f3ab807607aedd"
+          }
         }
       ],
       "created_at": "2026-11-21T19:08:08.066114433Z",
-      "updated_at": "2026-11-21T19:10:02.448891888Z",
+      "updated_at": "2026-11-25T13:01:06.308170709Z",
       "seal": {
         "by": "server",
-        "mac": "ea6d0ed33828697f75b5a653fa7f220eadb0d94588e743e3a1a129d733ca3411"
+        "mac": "d436cec3762d1e6f3ae6b90318bb121a089153128d33688e3e5fee9ede693183"
       }
     },
     {
@@ -29397,6 +29539,28 @@
             "by": "server",
             "mac": "56cde52588f737b545e4827039631e915ca46528c7ac0804e36e4361e4d59f96"
           }
+        },
+        {
+          "id": "EVD-2110",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- recent_changes_carry_titles (http::api::browse::tests::recent_changes_carry_titles_and_descriptions_from_the_snapshot ok); src/http/api/browse.rs:560-600",
+          "summary": "Re-audit at head: the test still passes and the route still takes title and description from the snapshot read now (snapshot.get(&row.path)); this diff only added user, user_label and the filters to the same map.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 560,
+                "end": 600
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:22.575533145Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f1a0e500c198734d405463fb86ed745938215533fb135588d10ad4b2d725ef1"
+          }
         }
       ],
       "verdicts": [
@@ -29412,13 +29576,26 @@
             "by": "server",
             "mac": "e379e128e0aba96daeca7e6aee32955a4e817c71026e1d5a84cb28f8acfa77de"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: test passes, titles still read from the snapshot.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2110"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.625539386Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d9822ad1f63b1544a23389e10dfbc20398ebd714c445bdc686ff61098f9ed4f"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-21T21:35:30.395400410Z",
+      "updated_at": "2026-11-25T13:01:06.625539386Z",
       "seal": {
         "by": "server",
-        "mac": "3a03db56c3b3b82e04bdbf0e8c0a356ccbf8ed751ea7e38efd148fd187d5181b"
+        "mac": "2725bde33b81f766642d6df8a3e86d3368465b7c9c385bdbea4f2a8b1eff75e6"
       }
     },
     {
@@ -29473,6 +29650,28 @@
             "by": "server",
             "mac": "6da97f0986c78c9b3fa36cf43a951018688ed4e674a26490e0a2b20aabc88dd7"
           }
+        },
+        {
+          "id": "EVD-2111",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- recent_changes_carry_titles (ok); src/http/api/browse.rs:575-585",
+          "summary": "Re-audit at head: a delete gets doc = None and a document gone since is absent from the snapshot, so title and description stay null; the test still passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 572,
+                "end": 586
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:22.689890483Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5d75a73b5703d7fd1bd8475d3eeff3919431f970fc3eae802a3500fc0affd32"
+          }
         }
       ],
       "verdicts": [
@@ -29488,13 +29687,26 @@
             "by": "server",
             "mac": "7b142a69da181f60743c6880bed1b96fda76bd0027ec806706266f4ac654aefd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: deleted docs still get null title and description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2111"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.700369306Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b7c4f5f4155575f40d47970e2c65b051725e1def5faf2bfcd43726509273394"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-21T21:35:30.434893663Z",
+      "updated_at": "2026-11-25T13:01:06.700369306Z",
       "seal": {
         "by": "server",
-        "mac": "ddfb6f31606807b5eee7802ecb2f92ad90b69630c50450380f99d1f3cd687762"
+        "mac": "a7cc3b071d8971e34f873a6904652a0e8fb74d993800b2b734fbcfcb8c108b58"
       }
     },
     {
@@ -62278,6 +62490,28 @@
             "by": "server",
             "mac": "8b440ed4f40e5e4af0e09bb7adf5b62177656e61d7b4eefda9fe775db6443a1b"
           }
+        },
+        {
+          "id": "EVD-2108",
+          "kind": "inspection",
+          "locator": "src/store/history.rs:39-98",
+          "summary": "Re-audit at head: revisions(db: &CatalogDb, ..) now delegates to revisions_by(db: &CatalogDb, ..), which runs on db.executor(); content_at and recent(db: &CatalogDb, ..) (recent delegates to recent_by) are unchanged in signature; export is untouched by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 39,
+                "end": 100
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:22.276053523Z",
+          "seal": {
+            "by": "server",
+            "mac": "4438ffefed08e4806476622b1b481f00337efb64dc70a19822f89b7b90497407"
+          }
         }
       ],
       "verdicts": [
@@ -62294,13 +62528,26 @@
             "by": "server",
             "mac": "5d952db5e30cbae184e9d3a25dc8890580b3c978f47e5a79e27858ba37f8a38c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: signatures still take &CatalogDb.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2108"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.473578736Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b560c8b018d84d7875e23624e61bcb2118d10914128ecb8902fbe707fa1221b"
+          }
         }
       ],
       "created_at": "2026-11-23T13:52:22.270219644Z",
-      "updated_at": "2026-11-23T13:54:31.279515345Z",
+      "updated_at": "2026-11-25T13:01:06.473578736Z",
       "seal": {
         "by": "server",
-        "mac": "5215ececde169b6d42691b6fa166fabd1fde2a01b7f2243efb2da7e24ea26a99"
+        "mac": "30607244e8d1fba0847fda4cf6051829f876eb1e49a22b7a96d1abcc5320eaf4"
       }
     },
     {
@@ -65906,6 +66153,28 @@
             "by": "server",
             "mac": "11e1aaa33221e6912a9f594122375a31ffe603477edcb5b1ff08434ff083527c"
           }
+        },
+        {
+          "id": "EVD-2129",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- changeset_listing unavailable_tests (18 passed, 0 failed); src/store/changesets.rs:737-800",
+          "summary": "Re-audit at head: the listing still skips a changeset whose catalog row is gone, and a gone key gives key_name None. The diff added only an opener_users lookup beside key_names; the changeset listing tests pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/changesets.rs",
+              "lines": {
+                "start": 737,
+                "end": 800
+              },
+              "commit": "b6497783027cc91ad2780e03934a658ee65c87de"
+            }
+          },
+          "recorded_at": "2026-11-25T13:05:12.490097089Z",
+          "seal": {
+            "by": "server",
+            "mac": "434ecab6bad6b0a9711e0db7c9663aad985a6e9e7f63034a0e13617b6f8fbe99"
+          }
         }
       ],
       "verdicts": [
@@ -65922,13 +66191,26 @@
             "by": "server",
             "mac": "bfd07f1fa30a01d119ff387b8c490b522137d5f742e34756315ed805631783c1"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: listing behavior unchanged and its tests pass (EVD-2129).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2129"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.640700009Z",
+          "seal": {
+            "by": "server",
+            "mac": "c34730d0e7a605807df99ffcf53a84fee56008d3f25fe2b00a263b2e26063e20"
+          }
         }
       ],
       "created_at": "2026-11-23T14:50:53.138363942Z",
-      "updated_at": "2026-11-23T14:52:23.837778466Z",
+      "updated_at": "2026-11-25T13:05:26.640700009Z",
       "seal": {
         "by": "server",
-        "mac": "893f15c024f39adee6f78c8a1d091a7c276691a77e5ac676646e68f1350b2841"
+        "mac": "2c27f774ef911b0b8901303de952340f71d6b8cf6e730d4a966b3498ce024771"
       }
     },
     {
@@ -71310,6 +71592,28 @@
             "by": "server",
             "mac": "1f7673ca0895fb49028c327adb4b57edc8a49c563daac4403233104279383998"
           }
+        },
+        {
+          "id": "EVD-2118",
+          "kind": "analysis",
+          "locator": "git grep -nE 'migrations/' -- src build.rs tests README.md | grep -v 'migrations/accounts|migrations/catalog'",
+          "summary": "Re-audit at head: the grep hit count rose from 48 to 51 because the diff adds comments naming `migrations/catalog/`; the only bare `migrations/` left is the deliberate test comment about the old folder at src/db.rs:3026.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 3024,
+                "end": 3028
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:41.044619979Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4c2177a20bcd79ba43fbb22db7223a4be1d3b675515d6a1d589b2936cd18c31"
+          }
         }
       ],
       "verdicts": [
@@ -71364,13 +71668,26 @@
             "by": "server",
             "mac": "9eb76f68bdb30621d44d7f312873920b51130245f82df879fdc55cdce1e092d2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: only the deliberate old-folder test comment mentions bare migrations/.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2118"
+          ],
+          "recorded_at": "2026-11-25T13:01:07.232938826Z",
+          "seal": {
+            "by": "server",
+            "mac": "04045528f6ddad8b4ebfaff7a2419b11aa1561a0b6adbfcbc913025279b0e19c"
+          }
         }
       ],
       "created_at": "2026-11-23T16:24:37.683722557Z",
-      "updated_at": "2026-11-24T04:47:01.968884657Z",
+      "updated_at": "2026-11-25T13:01:07.232938826Z",
       "seal": {
         "by": "server",
-        "mac": "168d97000d94c86f6bc36d8245612c0140a043c0d772c1c572e4dc93ccb1a692"
+        "mac": "e27c9761cecf6c4b92b53bfd3fbf3d6f3021aa48406524e5486b9297c0c60053"
       }
     },
     {
@@ -90327,6 +90644,28 @@
             "by": "server",
             "mac": "9f5297d0e18562454896dc4a44cfac9437b22a97336f84febdaf92b278cf4da9"
           }
+        },
+        {
+          "id": "EVD-2115",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- db::tests (adopted_schema_equals_a_fresh_store_schema ok; 47 passed)",
+          "summary": "Re-audit at head with five catalog migrations (0001-0005), not two: the test, whose account-layout helper now also drops revisions.user_id and its index before adoption, still finds the adopted and the fresh catalog schemas equal. The claim text \"(0001 baseline, then 0002)\" is stale wording; the property holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2866,
+                "end": 2916
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.666005711Z",
+          "seal": {
+            "by": "server",
+            "mac": "9918d17d5c2a660561273cfc1e288449dc8fb2366025226deb283032f57e69ea"
+          }
         }
       ],
       "verdicts": [
@@ -90342,13 +90681,26 @@
             "by": "server",
             "mac": "29d8be6f187fdf24b9991e3058b3a781b5f23cddecf6168fe4957d9cf205f6ae"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head with five migrations: adopted and fresh schemas still equal. Claim wording \"(0001 baseline, then 0002)\" is stale.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2115"
+          ],
+          "recorded_at": "2026-11-25T13:01:07.006770428Z",
+          "seal": {
+            "by": "server",
+            "mac": "b078db48f802afffce314ebd71c3fb762c70d60a7162e844c2faf9ecc8eb5072"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-24T04:45:27.008000440Z",
+      "updated_at": "2026-11-25T13:01:07.006770428Z",
       "seal": {
         "by": "server",
-        "mac": "6ace9aef923d35dbe17fa53babcc8bd4788562a69f23a93d5dc27b1fa3d1b4e8"
+        "mac": "265172deecf1b64d288b8ac1714a68a583178e01fc88ef51fb3e70da7eae1fb1"
       }
     },
     {
@@ -90459,6 +90811,28 @@
             "by": "server",
             "mac": "1c1615cc4396681a92bb5541fed407e4b674509cbbcc43a51c3fdc2153e2e4e3"
           }
+        },
+        {
+          "id": "EVD-2116",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- adoption_runs_once_under_concurrent_starts (ok at head)",
+          "summary": "Re-audit at head: four concurrent migrate_store calls still yield exactly one adopted outcome, history equal to the embedded versions and one identity row naming main, now with the polled lock and five embedded versions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2917,
+                "end": 2960
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.787545073Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba51b303d52f25108b171dc54020f96d3ffb881705329618d3669366bd4794e8"
+          }
         }
       ],
       "verdicts": [
@@ -90474,13 +90848,26 @@
             "by": "server",
             "mac": "395b0386501d40f9b8f6b39f2a8332f91d4841c541d1d8457f3f8573013d3864"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: concurrent-start test passes with the polled lock.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2116"
+          ],
+          "recorded_at": "2026-11-25T13:01:07.081537148Z",
+          "seal": {
+            "by": "server",
+            "mac": "d28d6103394e9ad172d21d7eb8c4af871477df79c05a073d94eac98d1757d463"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-24T04:45:27.186534360Z",
+      "updated_at": "2026-11-25T13:01:07.081537148Z",
       "seal": {
         "by": "server",
-        "mac": "5179333ad3688bfd5027077c23d1ca86183894ed599871625d36fba066c8f48d"
+        "mac": "d82feeceb0bedfd3c420e3340fbb5ffa26143b1aec1fa4a5c598fee8f861a8ba"
       }
     },
     {
@@ -90591,6 +90978,28 @@
             "by": "server",
             "mac": "dcf5df23760a88d550f1ba4c0f45891a6817bd1d9c8347ddbe786efef42219c0"
           }
+        },
+        {
+          "id": "EVD-2112",
+          "kind": "inspection",
+          "locator": "src/db.rs:276-293 (migrate_store), src/db.rs:295-340 (store_is_current)",
+          "summary": "Re-audit at head (anchors changed because lock_migrations replaced the blocking lock): migrate_store still returns StoreMigration::default() when store_is_current is true, before lock_migrations is called; store_is_current is reads only. db::tests, 47 passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 276,
+                "end": 293
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.232337951Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc820b82d508921465204ee55261ba3beb35a112cc7bc8d502e093f474731500"
+          }
         }
       ],
       "verdicts": [
@@ -90606,13 +91015,26 @@
             "by": "server",
             "mac": "b587ce092e7e2b24ae7218ccd9c9ad8603894ce520956fc964223c0e6afa3bee"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: migrate_store still short-circuits before locking.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2112"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.774657655Z",
+          "seal": {
+            "by": "server",
+            "mac": "750d1fb14747ca11b9dbe5f2508ab2c13c42c6c856c7e93911e6ff19668ba6af"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-24T04:45:27.368183233Z",
+      "updated_at": "2026-11-25T13:01:06.774657655Z",
       "seal": {
         "by": "server",
-        "mac": "fda275ce64df0e0597ae58c257a934a07adb89af8246bbe4e4a32fdfbb5a5d2e"
+        "mac": "7bdf51898ef33bc7eee4d5872b3fdb73fe6156d71fcd90105bfffb1e6378a2d5"
       }
     },
     {
@@ -90657,6 +91079,28 @@
             "by": "server",
             "mac": "3b422d35d6cb030f1c7fc2c3bdb238f864d99e1e4bce99aef93a64ea6c177df3"
           }
+        },
+        {
+          "id": "EVD-2113",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- db::tests (47 passed, incl. a_store_opened_under_another_name_is_refused_and_keeps_its_identity, adoption_runs_once_under_concurrent_starts)",
+          "summary": "Re-audit at head: migrate_store still locks (now by polling lock_migrations on the same connection), then runs migrate_store_locked: schema, adopt, remaining migrations, identity; a new step (drop_invalid_indexes for catalog) runs before adoption and does nothing when no index is invalid. The existing fresh-store and refusal tests still pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 352,
+                "end": 420
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.351729774Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e670cca10d2937545277b9f074973899552f3b08611a247f8773d99a164732d"
+          }
         }
       ],
       "verdicts": [
@@ -90672,13 +91116,26 @@
             "by": "server",
             "mac": "7a0af6ec3569354ea7d9c057425703cd6a4e7f01da014d9f51fd92514a4fabbf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: lock then migrate_store_locked flow intact; db tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2113"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.849274914Z",
+          "seal": {
+            "by": "server",
+            "mac": "372437237c16ab4ca7abe0fe32400989cac7f9f18c8a55010c180d05004f0b30"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-24T04:45:27.465491944Z",
+      "updated_at": "2026-11-25T13:01:06.849274914Z",
       "seal": {
         "by": "server",
-        "mac": "b9eaf33a3f37e5d67f0e6cb24f0efe547ddeab970ed11c9e7068cdf94eb5d935"
+        "mac": "3b7842422d7aa35ee5369d00a29088cd4f0e6866d115f9a624def13fa4251883"
       }
     },
     {
@@ -90723,6 +91180,28 @@
             "by": "server",
             "mac": "d09fa69cef40e47fbd0596d61e2bf7e181e8e207acb8f22a63993f6e61a4ad03"
           }
+        },
+        {
+          "id": "EVD-2114",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- db::tests (migrate_needs_only_one_connection ok); src/db.rs:186-216",
+          "summary": "Re-audit at head: migrate takes the lock via lock_migrations on one acquired connection, runs the account MIGRATOR and then migrate_store_locked(main) on that connection, unlocks on every path. A pool of one still works: the pool-of-one test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 186,
+                "end": 216
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.499191670Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd14965a9ed9d13f9c71d04f60b890b8d0ba9750be7d9060b6e8cd06f2b3114d"
+          }
         }
       ],
       "verdicts": [
@@ -90738,13 +91217,26 @@
             "by": "server",
             "mac": "310d0e624ae78c6b453728c21afa0db992b293bbbc82b39173ed60ccd5e527e5"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: one-connection migrate still works (test passes).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2114"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.925071229Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ba5981f578ef0d5c6f40630eb105d3d6cec3aa318b4aa3be4bb88b53f4a230e"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-24T04:45:27.556074845Z",
+      "updated_at": "2026-11-25T13:01:06.925071229Z",
       "seal": {
         "by": "server",
-        "mac": "1bd32b1eeb776d2730efa1ab0a4c421a4fb0ff8173988ade5ec35feec23c9f65"
+        "mac": "0a5fea75d4d1f73823397ae03a6e0fde2d3aac66a6200d7f6d66c792fac7876e"
       }
     },
     {
@@ -98035,6 +98527,28 @@
             "by": "server",
             "mac": "b584e9c9624f64080b48393a6c4db5cb628bf975055eaba76873a3bab1c5a061"
           }
+        },
+        {
+          "id": "EVD-2130",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- changeset_listing unavailable_tests (18 passed, 0 failed)",
+          "summary": "Re-audit at head: the unavailable_tests, including get_concept_fails_when_an_earlier_catalogs_store_is_unavailable and the history one, pass; the diff only changed their line positions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 149,
+                "end": 199
+              },
+              "commit": "b6497783027cc91ad2780e03934a658ee65c87de"
+            }
+          },
+          "recorded_at": "2026-11-25T13:05:12.570968803Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3d18248a0bcc5f2b6d8ea46d90199a7d40530cce48e93ff7991068407a8a97e"
+          }
         }
       ],
       "verdicts": [
@@ -98050,13 +98564,26 @@
             "by": "server",
             "mac": "1c4422440e9cf1e0b714a39078cfc9868f6d4c608836f319020eec78c4099861"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: the unavailable tests pass (EVD-2130).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2130"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.718551968Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfcc51f2f76818ccd8269671cb6cb75c6e5ba48d7992c1e4fdf3e702e64e5a75"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-24T14:30:23.083412462Z",
+      "updated_at": "2026-11-25T13:05:26.718551968Z",
       "seal": {
         "by": "server",
-        "mac": "6330fabbc665645e522cc3a4b7dfbdfb5da62c7b2e1c259c5637a6739b461ff9"
+        "mac": "db2d865f40e35862bb87a98cb8f0b54ccf28de6965d5d4b2f6c90149d6f112b3"
       }
     },
     {
@@ -101957,6 +102484,28 @@
             "by": "server",
             "mac": "957bb91979bb9105bc30cf9852ddbf8f1e10439ce3b4e4664a2b79d6082bd3db"
           }
+        },
+        {
+          "id": "EVD-2117",
+          "kind": "inspection",
+          "locator": "src/db.rs:186-216, src/db.rs:352-420",
+          "summary": "Re-audit at head: migrate still runs the account migrations then migrate_store_locked(main) (adopting the baseline unrun, then running 0002-0005 and writing main's identity row), so a following store migrate finds the store current; the db::tests that cover it pass (47 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 186,
+                "end": 216
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:40.899522234Z",
+          "seal": {
+            "by": "server",
+            "mac": "40167fe800a34e72c469826ff9c61e248c7733cd3b4fbf7c49b1cdb2de48eed1"
+          }
         }
       ],
       "verdicts": [
@@ -101972,13 +102521,26 @@
             "by": "server",
             "mac": "929dbec7838ca80d30bb818c91f59f42fc24a563d6aee813c98fdb3613fd7968"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: migrate still adopts main then store migrate finds it current.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2117"
+          ],
+          "recorded_at": "2026-11-25T13:01:07.157078431Z",
+          "seal": {
+            "by": "server",
+            "mac": "6314dcd7d5fb2a9fcc13a11c03f0c3ec4709b8cbbaa211c41f5542083869e667"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-24T16:26:04.787473636Z",
+      "updated_at": "2026-11-25T13:01:07.157078431Z",
       "seal": {
         "by": "server",
-        "mac": "08474c0bd7867fb5085713d06fad788742935f9616c8c69e1decc0afbe244285"
+        "mac": "305512891247673021cc6cfb9acada97b05d36e4dd2f0dc096137d27c4049029"
       }
     },
     {
@@ -102834,6 +103396,28 @@
             "by": "server",
             "mac": "e508b989caa4a42b59b798cfa1547b3ba72fa4f97b9c029e307c35e55ca31280"
           }
+        },
+        {
+          "id": "EVD-2109",
+          "kind": "inspection",
+          "locator": "src/store/history.rs:79-100; gh issue view 995 and 1017 (both OPEN)",
+          "summary": "Re-audit at head: revisions_by still runs fetch_all(db.executor()).await? with a bare `?`, so a pool timeout is still OkfError::Database; the new recent_by queries do the same. Issues #995 and #1017 are still OPEN.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 79,
+                "end": 100
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:57:22.417516447Z",
+          "seal": {
+            "by": "server",
+            "mac": "943d6e36fb782bcdd2e87a6d9c266dedf61b869d03231023b06e5160cc55917b"
+          }
         }
       ],
       "verdicts": [
@@ -102849,13 +103433,26 @@
             "by": "server",
             "mac": "1800baee865f88f4771b8ff2d245a904d4767f5054115f91e3d95f93fbaf108e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: bare ? on fetch_all unchanged; issues still open.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2109"
+          ],
+          "recorded_at": "2026-11-25T13:01:06.550064933Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c0db2d69a11c4eb95166752a5d867bf31cbe1f5d334a02be7ffe8505b90fec5"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-24T16:26:05.682019894Z",
+      "updated_at": "2026-11-25T13:01:06.550064933Z",
       "seal": {
         "by": "server",
-        "mac": "48b3bf91133631db428b792cdb8d0f296dfc577e8eb684798c8b362ff86b7c84"
+        "mac": "e35601cb0e6e0d5826db7d4baad2324c364787ffd5795cfcd9d3b7380976b973"
       }
     },
     {
@@ -114445,6 +115042,2028 @@
       "seal": {
         "by": "server",
         "mac": "5c16c330a413e8cea4eab8bb3199846c1f2f307568edf3e9286e64528b9446c7"
+      }
+    },
+    {
+      "id": "CLM-1415",
+      "statement": "Issue #986 is delivered: each revision records the person behind it at publish time, history and the changeset reads show that person, and history and a catalog-wide recent-changes read filter by person and time.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/986",
+      "derived_from": [],
+      "artifacts": [
+        "src/store/history.rs",
+        "src/mcp/history.rs",
+        "migrations/catalog/0003_revisions_user_id.sql"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2122",
+          "kind": "analysis",
+          "locator": "children of CLM-1415",
+          "summary": "Behavior children (recording, backfill, history and recent_changes filters, indexes, lock polling) are supported by tests I ran. Refuted children: CLM-1424 (HTTP actor_label doc not updated), CLM-1440 (operations.md says user is users.id; response shows the name while the user exists), CLM-1442 (PR body omits that open-changeset user is read live). CLM-1438 (lint, dylint, test-ui, integration) is not_enough_info because I did not run those heavy gates.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T13:01:11.195681387Z",
+          "seal": {
+            "by": "server",
+            "mac": "52780dbc4646ec906f1ba26d6af988b1a69c9f4328ab2cab29c1bf7eed7aa101"
+          }
+        },
+        {
+          "id": "EVD-2131",
+          "kind": "analysis",
+          "locator": "children of CLM-1415",
+          "summary": "After the fixes at b649778, every child I judged is supported (CLM-1424, 1440 and 1442 now included) except CLM-1438, which is not_enough_info because I could not rerun the lint, dylint, test-ui and integration gates. The parent cannot be called supported until that child is decided.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T13:05:26.794202654Z",
+          "seal": {
+            "by": "server",
+            "mac": "74a084861af23b2673f313335f6ac8b1be3d6525191ea9383929f39ce62d52c7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behavior is delivered, but child claims CLM-1424, CLM-1440 and CLM-1442 are refuted and CLM-1438 is undecided (EVD-2122). Fix: update the browse.rs actor_label doc, reconcile docs/operations.md with what `user` shows, add the open-changeset note to the PR body, and run the lint, dylint, test-ui and integration gates.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2122"
+          ],
+          "recorded_at": "2026-11-25T13:01:53.592886263Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fc2a10c6ec32528c41aa1d67233c66f4d0472236db248ed6e4bf88e65b03ed6"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All behavior and the three earlier refutations are now supported, but child CLM-1438 (lint, dylint, test-ui, integration) rests on the author's logs only (EVD-2131). Fix: rerun tools/agentic/gate.sh lint, dylint and test-ui at the final head from a session allowed to run them, record the counts, then record CLM-1438 and this claim as supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T13:05:30.301802504Z",
+          "seal": {
+            "by": "server",
+            "mac": "643b57d9396e1b235b4a609f9e718d695ca58c52bc0e3032ebd004f0806450ef"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:05:30.301802504Z",
+      "seal": {
+        "by": "server",
+        "mac": "69a79c8ea8eb8bb10a3ca6cc020d5e7307568cc7974a70931425e720cd94a4c6"
+      }
+    },
+    {
+      "id": "CLM-1416",
+      "statement": "Catalog migration 0003 adds a nullable `user_id text` column to catalog.revisions with no foreign key and no default, so deleting a user cannot cascade or null it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #986 scope 1 and 2: \"Add a nullable `revisions.user_id`\"; \"no `ON DELETE CASCADE` or `SET NULL` to `users`\"",
+      "source_anchor": {
+        "path": "migrations/catalog/0003_revisions_user_id.sql",
+        "lines": {
+          "start": 21,
+          "end": 21
+        },
+        "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+      },
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "migrations/catalog/0003_revisions_user_id.sql"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2079",
+          "kind": "inspection",
+          "locator": "migrations/catalog/0003_revisions_user_id.sql:21",
+          "summary": "The file's only statement is ALTER TABLE catalog.revisions ADD COLUMN IF NOT EXISTS user_id text: nullable, no default, no REFERENCES clause.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "migrations/catalog/0003_revisions_user_id.sql",
+              "lines": {
+                "start": 21,
+                "end": 21
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:54.334582804Z",
+          "seal": {
+            "by": "server",
+            "mac": "412be1b6e57974ab145f99d625ff3445f9d940a47458d7fe0acadc7c3cc673af"
+          }
+        },
+        {
+          "id": "EVD-2080",
+          "kind": "analysis",
+          "locator": "git grep -iE 'user_id[^;]*REFERENCES|FOREIGN KEY[^;]*user_id' -- migrations/catalog",
+          "summary": "No foreign key on revisions.user_id exists in any catalog migration (0 hits), so no ON DELETE action can fire.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "user_id[^;]*REFERENCES|FOREIGN KEY[^;]*user_id",
+              "case_insensitive": true,
+              "scope": [
+                "migrations/catalog"
+              ],
+              "hits": 0,
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:54.448147258Z",
+          "seal": {
+            "by": "server",
+            "mac": "59da349a894b4819b26113e6c19602fa1e6178fccd07102313ff32c4b1cecb68"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Migration 0003 and the tests cited show a nullable text column with no FK or default.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2079",
+            "EVD-2080"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.331633113Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ccc889c20a2faf8217819c0a99bbcd5f482fa2620696a712a170df28e2d72cd"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.331633113Z",
+      "seal": {
+        "by": "server",
+        "mac": "1325e826f110085d9d47b913d9dec25a01967942b1b92695558ba42738276157"
+      }
+    },
+    {
+      "id": "CLM-1417",
+      "statement": "A publish writes the publishing principal's `users.id` into `revisions.user_id` on every revision it writes, and leaves `actor` as the credential's actor.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 acceptance: \"history shows `actor: \\\"Claude Code\\\"`, `user`, and `user_label`\"; PR body: \"`publish` stores the publisher's user id.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/publish.rs",
+        "src/store/documents.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2081",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (a_publish_records_the_publishing_users_beside_the_actor ok)",
+          "summary": "Test publishes through a key owned by TEST_USER and reads history: actor is the key's actor \"claude-code\", actor_label None, user == TEST_USER, user_label set; the stored revisions.user_id is read back as Some. Passed in my run (7 history_people tests passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 117,
+                "end": 137
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:54.556929265Z",
+          "seal": {
+            "by": "server",
+            "mac": "5569a5df341b6389cfd4927e3f27d4a4963b6930f4bf4b836bf5d8835f12b550"
+          }
+        },
+        {
+          "id": "EVD-2082",
+          "kind": "inspection",
+          "locator": "src/store/publish.rs:275,777; src/store/documents.rs:328-345",
+          "summary": "publish_locked sets Publication.user_id from audit.user_id; write_all puts it in every RevisionRecord; record_revision inserts it as the 11th bind into revisions.user_id. The actor binding is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/publish.rs",
+              "lines": {
+                "start": 270,
+                "end": 278
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:54.691286205Z",
+          "seal": {
+            "by": "server",
+            "mac": "c492907fb367959ad38b4f9f05aa9943cbfea9f348cfa18664996e5266385134"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Publish binds user_id beside actor at publish.rs:275 and :777; tests cited pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2081",
+            "EVD-2082"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.406883442Z",
+          "seal": {
+            "by": "server",
+            "mac": "85422a6efacdcb2ffa61289eab81a3ca9eaf477a89b96344447fe6b3507b9674"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.406883442Z",
+      "seal": {
+        "by": "server",
+        "mac": "ef9245655aadc395924d04b6e4c0b129297d19204d591e07e627cd0d0d31cd5a"
+      }
+    },
+    {
+      "id": "CLM-1418",
+      "statement": "The user id the publish records comes from the principal for all three credential kinds: an API key's and an OAuth grant's `api_keys.user_id` (auth.rs Principal::from(KeyRecord)) and a console session's user (Principal for a session).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #986 scope 1: \"the grant's or key's `user_id`, or the console session's user\"",
+      "derived_from": [
+        "CLM-1417"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/store/audit.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2083",
+          "kind": "analysis",
+          "locator": "src/auth.rs:855-862; src/auth.rs:604-616; src/store/audit.rs:170-182",
+          "summary": "Principal::from(KeyRecord) copies record.user_id for both KeyKind::Key and KeyKind::OAuth (a grant is an api_keys row); the session principal sets user_id to the signed-in user's id; AuditActor::of copies principal.user_id, which publish reads. The tests build a key principal with user_id directly, so no test runs a real OAuth grant or console-session publish end to end.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 836,
+                "end": 866
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:55.174110717Z",
+          "seal": {
+            "by": "server",
+            "mac": "760dfb9ec018678c8b27182cd9042bf17debea3422654e66359853a649d51ce1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Principal construction carries user_id for key, grant and session. Note: no end-to-end publish test for grant or session credentials; code reading only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2083"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.481835501Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d8a2bd33ecb48f507091525e635564d7b839db747e70e46f6d000ee206870a2"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.481835501Z",
+      "seal": {
+        "by": "server",
+        "mac": "b925e4e0b7feb6ef38f7296cbf118107b81dda88f3687926f593fb7e28511fd0"
+      }
+    },
+    {
+      "id": "CLM-1419",
+      "statement": "Reassigning a key to another user after a publish does not change the `user` that history shows for the earlier revisions.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 acceptance: \"Reassigning the key afterwards does not change who earlier revisions credit (test).\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history_people_tests.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2084",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (reassigning_the_key_does_not_change_who_earlier_revisions_credit ok)",
+          "summary": "Publishes, reassigns the key's user, reads history again and asserts user is still TEST_USER (src/mcp/history_people_tests.rs:170). Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 155,
+                "end": 171
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:55.290853593Z",
+          "seal": {
+            "by": "server",
+            "mac": "400f26de8113f0094a3edeaf52fa99c58eaeeb97009fab1779b3e96bf798cace"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A test reassigns the key and history still shows the earlier user.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2084"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.556943270Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b9127c8ca8a54f3a8eb88ca4f27e596ca7fae63d13150c9ea5651dc7d24b845"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.556943270Z",
+      "seal": {
+        "by": "server",
+        "mac": "99b54e2be9bce7723543f19da272ede3a81c2fb511edb0ad4dd7a25dff853989"
+      }
+    },
+    {
+      "id": "CLM-1420",
+      "statement": "Deleting a user leaves `revisions.user_id` in place, history then shows the stored id as `user` with a null `user_label`, and the `user` filter given that id still finds the revisions while the deleted user's old name does not.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 acceptance: \"Deleting the user leaves `revisions.user_id` in place, and history shows the id (test).\"; PR body: \"For a deleted user `user` is the stored id and `user_label` is null.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history_people_tests.rs",
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2085",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (deleting_the_user_keeps_the_record_and_history_shows_the_id ok)",
+          "summary": "After users::delete: history user == the uuid and user_label None; the stored column is still the uuid; recent_changes with user=<uuid> returns /n.md and user=<old name> returns no changes (lines 199-215). Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 173,
+                "end": 216
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:55.401868178Z",
+          "seal": {
+            "by": "server",
+            "mac": "44ac9e7254c3be5a978a72d9f94811dfd69f4e5a9986ba375416d5c732025e3e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test deletes the user and asserts stored id shown, null label, id filter still finds it, old name does not.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2085"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.637755203Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e479d3bcdec8faac633cde50a7a40eed7202fc1ef8d67efa4dfc83e0b4c305c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.637755203Z",
+      "seal": {
+        "by": "server",
+        "mac": "da5814d6b61c945f8f70bc10ccdd775d3ae9f58518ec292b811b36beeb48ac70"
+      }
+    },
+    {
+      "id": "CLM-1421",
+      "statement": "Catalog migration 0004 sets `revisions.user_id` through revision -> changeset -> key -> `api_keys.user_id` where each link resolves, leaves a revision with no changeset, a gone key or an unowned key null, keeps a person already recorded, and a rerun changes nothing.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 acceptance: \"The backfill sets `user_id` where the join resolves (migration test).\"; PR body: \"0004 (backfill revision -> changeset -> key -> `api_keys.user_id` where it resolves, null otherwise)\" and \"Idempotent.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "migrations/catalog/0004_revisions_user_backfill.sql",
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2086",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- db::tests (the_user_backfill_follows_revision_changeset_key_to_user_where_it_resolves ok; 47 passed)",
+          "summary": "Runs 0004 from include_str! on five rows: owned key -> user id; unowned key, gone key and no changeset stay null; a row that already had a person keeps it; a second run leaves the table equal. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2655,
+                "end": 2770
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:52:55.504066971Z",
+          "seal": {
+            "by": "server",
+            "mac": "28fe2560345a007a8a60ab4bd94cdbae37ca707037d90d7be95292cff35e70e3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The backfill test covers each link, the keep-existing case and the rerun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2086"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.714240098Z",
+          "seal": {
+            "by": "server",
+            "mac": "236ae294693fad42cea07bb2e016bd178829451a013caeea78b1fcc577745fe9"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.714240098Z",
+      "seal": {
+        "by": "server",
+        "mac": "c75c18984c1c603e70d6329d704e9048adb2fbac2267455f8b26b10047f4571b"
+      }
+    },
+    {
+      "id": "CLM-1422",
+      "statement": "`history` revisions carry `user` and `user_label`, both null when no person is recorded.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 scope 3: \"`history` revisions gain `user` and `user_label` (null when unknown).\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2087",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (a_key_with_no_user_and_an_import_record_no_person ok; a_publish_records... ok)",
+          "summary": "A key with no user and an imported revision both show user None and user_label None; a key owned by a user shows both set. Revision struct has user and user_label fields (src/mcp/history.rs, built in history() via Persons::show).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 139,
+                "end": 153
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:13.958148318Z",
+          "seal": {
+            "by": "server",
+            "mac": "21bffa5d730301dd8f7e809cecb03d132d2b419af74224d1c49ff055aa2c713e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests show user and user_label present with a person and null without.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2087"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.789264297Z",
+          "seal": {
+            "by": "server",
+            "mac": "65d8dc8b449c4f97e763f0f50181dd8b1e4a7635ed1bed3cce962cf29e189b0c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.789264297Z",
+      "seal": {
+        "by": "server",
+        "mac": "6b0bb6cfc10960d6fb455767e809000043b9bca335fd60b0efd1b2f9784a220e"
+      }
+    },
+    {
+      "id": "CLM-1423",
+      "statement": "`list_changesets` and `pending_changes` show `user` and `user_label` for the person who opened a changeset, only for changesets the caller may already see, and the PR describes this as a read from the key at read time.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #986 scope 3: \"Do the same for `pending_changes`, and for the changeset listings\"; PR body: \"`list_changesets` and `pending_changes` show it only for changesets the caller may already see.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "src/store/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Compound: it also asserted what the PR text says. Split into the behavior claim and a separate PR-text claim.",
+        "retired_at": "2026-11-25T12:56:41.889310225Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2088",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (open_changesets_show_the_person_who_opened_them ok)",
+          "summary": "list_changesets lists the one open changeset with user == TEST_USER and a user_label; pending_changes shows the same. list_changesets applies the existing offers/check_not_suspended/check_contents filters before attaching persons (src/mcp/changesets.rs:195-215), and opener_users reads api_keys now (src/store/changesets.rs opener_users), matching the PR's description.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 324,
+                "end": 361
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:14.098777171Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cb55994e249c88358f7385ede06fd39451bc4d473479f5dcb4dff01983cd727"
+          }
+        }
+      ],
+      "verdicts": [],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T12:56:41.889310225Z",
+      "seal": {
+        "by": "server",
+        "mac": "dbe21a9681251138ed0739d6e08efb1989bea5022f9b0e7a0338eabf11a4cc6c"
+      }
+    },
+    {
+      "id": "CLM-1424",
+      "statement": "The `actor_label` field descriptions on history, recent_changes, list_changesets and the HTTP changes say it is the label of a user actor and point to `user_label` for the person.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #986 scope 3: \"Make the `actor_label` description say it is the label of a user *actor*, and point to `user_label` for the person.\"; PR body: \"The `actor_label` descriptions now say it labels a user actor and point to `user_label`.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/mcp/changesets.rs",
+        "src/http/api/browse.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2089",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:60-70; src/mcp/changesets.rs:65-72; tools/agentic/gate.sh narrow --lib -- mcp::reference (the_checked_in_tool_reference_matches_the_tool_list ok)",
+          "summary": "Revision, RecentChange and ListedChangeset doc comments for actor_label read \"The label of the actor when the actor is itself a user (a console session); null for a key or OAuth actor. The person behind any credential is `user_label`.\" The browse.rs recent-changes change struct reuses the same wording per the diff; the generated reference test passes. Wording checked by reading the diff.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "The person behind any credential is `user_label`",
+              "scope": [
+                "src"
+              ],
+              "hits": 4,
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:14.242215774Z",
+          "seal": {
+            "by": "server",
+            "mac": "31759ff4e55418621f7539ec299cc4254a5fe8c90f678fefffd77ca8f977422d"
+          }
+        },
+        {
+          "id": "EVD-2090",
+          "kind": "inspection",
+          "locator": "src/http/api/browse.rs:191-192",
+          "summary": "CORRECTS EVD-2089, whose claim that browse.rs reuses the new wording is wrong: the HTTP recent-changes change struct still documents actor_label as \"The actor's display label, when the directory knows one.\" with no mention of user actors or user_label. The MCP descriptions (history.rs:60,357, changesets.rs:68, whoami.rs:50) and operations.md carry the new wording; this one field does not.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 189,
+                "end": 193
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.365980102Z",
+          "seal": {
+            "by": "server",
+            "mac": "7494ca6ff95732dfd2c33ba9763b4a61bc37c2e8a9c277f17102755c43d87495"
+          }
+        },
+        {
+          "id": "EVD-2124",
+          "kind": "inspection",
+          "locator": "src/http/api/browse.rs:190-194 at b649778",
+          "summary": "The HTTP recent-changes actor_label doc now reads \"The label of the actor when the actor is itself a user (a console session); None for a key or OAuth actor. The person behind any credential is user_label.\" The MCP descriptions already had this wording.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 190,
+                "end": 194
+              },
+              "commit": "b6497783027cc91ad2780e03934a658ee65c87de"
+            }
+          },
+          "recorded_at": "2026-11-25T13:05:12.084065339Z",
+          "seal": {
+            "by": "server",
+            "mac": "87f1835e44b50c3d7ad20c638c80f850914d92682ad4a206f9b9e1278a98fa9b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The MCP descriptions were updated, but the HTTP changes field doc at src/http/api/browse.rs:191-192 still has the old wording and does not point to user_label (EVD-2090).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2090"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.864169615Z",
+          "seal": {
+            "by": "server",
+            "mac": "7194364d4d5a8ebfdffc59c4c00a555978ce561438a254d59a13de71d59252f9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at b649778: the HTTP field doc now has the user-actor wording and points to user_label (EVD-2124), like the MCP descriptions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2124"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.251886058Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b10bf86c930ab9915bd768270b3fd7073954c660accce46cc50ce42771d4832"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:05:26.251886058Z",
+      "seal": {
+        "by": "server",
+        "mac": "8eccc5394eda0ffa2674c736fa9154a38d1bf3a5566d5645f9c22cf09762ee1d"
+      }
+    },
+    {
+      "id": "CLM-1425",
+      "statement": "`history` takes optional `user` and `since` (RFC 3339, inclusive), returns only matching revisions newest first within the 200 cap, and a path whose revisions the filters exclude answers an empty list, not NotFound.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 scope 4; PR body: \"a path whose revisions the filters exclude answers an empty list.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/store/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2091",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people store::history::tests (history_and_recent_changes_filter_by_user_and_since_newest_first, filters_keep_one_persons_revisions_and_those_since_a_time_and_page_through_them ok)",
+          "summary": "history user=ann returns 1 revision, user=bob none for one.md, since=middle none; a filtered-out existing path gives an empty list while nowhere.md is NotFound; store test revisions_by with user/since returns [3,1], [3], and unfiltered [3,2,1] newest first. The limit clamp(1,200) is unchanged (revision_limit).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 218,
+                "end": 275
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.490154659Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d1f4ea3e259f5b5b5b8497ab4a2e42e3818bd8a2986965f383c75ae746c0054"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Store and tool tests cover filters, order, cap and the empty-not-NotFound case.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2091"
+          ],
+          "recorded_at": "2026-11-25T13:00:43.938678862Z",
+          "seal": {
+            "by": "server",
+            "mac": "19c2f279b30e5df766ed686f137d1bd3207d9242a6e83f25973e192207e03a26"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:43.938678862Z",
+      "seal": {
+        "by": "server",
+        "mac": "ceb27ba975f124e319eb211290575e704ffb7117a0b240bc96c76b3f7b9933da"
+      }
+    },
+    {
+      "id": "CLM-1426",
+      "statement": "The new `recent_changes` tool lists a catalog's revisions across all paths newest first, filters by `user` and `since`, pages by a `next_after` cursor, defaults to 50 and caps a page at 200, and refuses a `since` that is not RFC 3339.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #986 scope 4: \"a catalog-wide recent-changes query ... paginated and capped like `history`\"; PR body: \"It is capped at 200 per page (default 50)\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/store/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2092",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people store::history::tests (recent_changes_pages_by_cursor_within_the_caps_and_refuses_a_bad_since ok)",
+          "summary": "Newest-first order and user/since filters asserted; paging 2+1 by next_after with next_after None on the last page; limit 0 gives 1 row; limit u32::MAX succeeds (clamped, since the store refuses >200); since=\"yesterday\" is OkfError::Refused. Gap: no tool-level test asserts the default of 50 (RECENT_DEFAULT at history.rs:385, used at :417) or returns more than 3 rows under the cap; the 200 limit is asserted only in store::history (RECENT_MAX refusal at RECENT_MAX+1).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 277,
+                "end": 322
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.620068637Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9a49d86c4887061fc62182256ffdb38ddd29a871a7a1fa7ab70389553e6675a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests cover order, filters, paging cursor and the bad since; default 50 and cap 200 are set in code (RECENT_DEFAULT, RECENT_MAX) but no tool-level test asserts them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2092"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.012911708Z",
+          "seal": {
+            "by": "server",
+            "mac": "81efa75a312e4580673e709e2e0e704eeef37107025cca02c8e41c723ece3848"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.012911708Z",
+      "seal": {
+        "by": "server",
+        "mac": "899f2fe6c0332874d93b123ff4b3aede4fd7132cc214a7306fb49fdd6d824200"
+      }
+    },
+    {
+      "id": "CLM-1427",
+      "statement": "The unfiltered, `since` and `user` pages of the recent-changes query read their index backwards with no Sort node and no Seq Scan (revisions_catalog_recent or revisions_catalog_user_recent), checked by plan tests on the first and later page statements.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"has four statements so each of the unfiltered, `since`, and `user` pages walks `revisions_catalog_recent` or `revisions_catalog_user_recent` backwards with no sort (plan tests assert this).\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/history.rs",
+        "migrations/catalog/0005_revisions_user_recent_index.sql"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2093",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- store::history::tests (a_persons_page_and_a_since_page_read_the_indexes_not_the_whole_catalog, recent_reads_one_page_through_the_catalog_time_index ok)",
+          "summary": "On 40000 revisions in two catalogs, EXPLAIN of RECENT_USER_SQL and RECENT_USER_AFTER_SQL contains \"Index Scan Backward using revisions_catalog_user_recent\" with no Sort and no Seq Scan; RECENT_SQL with a since bound uses revisions_catalog_recent with an Index Cond on created_at >=; the pre-existing test plans RECENT_SQL and RECENT_AFTER_SQL unfiltered. RECENT_AFTER_SQL with a non-null since is not planned by any test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 1034,
+                "end": 1112
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.719377690Z",
+          "seal": {
+            "by": "server",
+            "mac": "641d89f680755633bc282616daf82fd95820441aad259af696989f91b9a04f5c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Plan tests assert no Sort or Seq Scan on the cited statements. Gap: the later-page since statement (RECENT_AFTER_SQL with since) has no plan test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2093"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.087740416Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c1bfe690b6857caba44a76cebc97b7772cee7e39b275ea55d5e0b82739b7c35"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.087740416Z",
+      "seal": {
+        "by": "server",
+        "mac": "9d27a2c5d1e809f86b3fce9396ca5e3949a02000f3dc980216cfc6ab444c9dbb"
+      }
+    },
+    {
+      "id": "CLM-1428",
+      "statement": "The HTTP history and recent-changes routes accept `user` and `since`, show `user` and `user_label`, and answer a `since` that is not RFC 3339 with 409.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #986 scope 4: \"Add the same fields and filters to the HTTP history and browse routes\"; PR body: \"the HTTP history and recent-changes routes gain `user` and `user_label`\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/http/api/browse.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2094",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::api::browse::tests::recent_changes_and_history_take_user_and_since_and_show_the_person ok",
+          "summary": "Recent-changes rows carry user and user_label keys; user=nobody-at-all and a future since give empty changes and next_after null; a 2000 since equals the unfiltered list; since=yesterday is 409; history route with user=nobody is 200 with no revisions. Note this test does not assert a non-null user on any row, nor a matching user filter returning rows (the MCP tests cover that through the same Selection and recent_by).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 1432,
+                "end": 1465
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.815281090Z",
+          "seal": {
+            "by": "server",
+            "mac": "edff6b37994943eec8ffce4efcf3213afa81d39d09197b60fd6e63853568d78d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The browse.rs route test passes for user/since and the 409. The test does not assert a non-null user value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2094"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.162208643Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cce3022e65635b6ec7b6d043593856bc749b898766eee1e47bd9499921deeeb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.162208643Z",
+      "seal": {
+        "by": "server",
+        "mac": "0b1317a53c313a2ad45dac63463afc03554a02c3e785a9247857c131682ee8cf"
+      }
+    },
+    {
+      "id": "CLM-1429",
+      "statement": "docs/reference/tools.md lists and describes `recent_changes` and the new `history` parameters and fields exactly as the tool definitions state them, and docs/operations.md has a \"Who made a revision\" section.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #986 acceptance: \"`docs/reference/tools.md` and `docs/operations.md` are updated.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "docs/operations.md",
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2095",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::reference (4 passed incl. the_checked_in_tool_reference_matches_the_tool_list); grep -c '^| \\[`' docs/reference/tools.md = 46",
+          "summary": "The pin test compares the checked-in reference with the one generated from the tool list, so the recent_changes section and the history user/since rows must equal the tool definitions; it passes. docs/operations.md gains \"### Who made a revision\" at line 2409 and updated route rows.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2409,
+                "end": 2416
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:53:44.929691990Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fc26baedff28e98f7285565ff670fe5b1c9619646bd5dee99f40e8258af8d34"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The generated-page pin test passes and operations.md gains the section at line 2409.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2095"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.237386932Z",
+          "seal": {
+            "by": "server",
+            "mac": "8472d7df8c0c53cdeb8b113a2ea48d0cf2e292512faa34babe93fcb1445abd9b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.237386932Z",
+      "seal": {
+        "by": "server",
+        "mac": "f4e710628a063ef09e6d1bf9c697cca2663f177109fccc205a15d1e98b5db0fb"
+      }
+    },
+    {
+      "id": "CLM-1430",
+      "statement": "The change leaves `actor` as it was: no code that derives a grant's or key's actor or the `generated.by` default is modified, so no personal name is written into document content.",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #986 out of scope: \"Changing a grant's actor to the user\"; \"The `generated.by` frontmatter default.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/oauth/grants.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2096",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD --stat; git grep -nE 'actor_for|fn resolve_actor|generated' on the diff",
+          "summary": "The diff touches no file under src/store/oauth, src/auth.rs, src/store/audit.rs or any frontmatter-default code; its added lines contain no actor_for, resolve_actor or generated.by change. Publish still binds the same actor column; only user_id is added beside it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/oauth/grants.rs",
+              "lines": {
+                "start": 100,
+                "end": 115
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:05.654835946Z",
+          "seal": {
+            "by": "server",
+            "mac": "58c1dfc73c34e97ac1ede8026b22222eb4fe658792774e73eddfa67a065ebd39"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches none of the actor-deriving or generated.by code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2096"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.312253640Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d32f2d8e44b12e479bb569eb642ad920fbccabdbe9ad9437a08cd1edf4beee3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.312253640Z",
+      "seal": {
+        "by": "server",
+        "mac": "dd66fdc9881716889e00cc38b45a20c2ccda06c720db5685fdf9d5892fc71001"
+      }
+    },
+    {
+      "id": "CLM-1431",
+      "statement": "An import, `repair-indexes` and a catalog's starter files record no person: each builds its RevisionRecord with `user_id: None`.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Imports, `repair-indexes` and starter files store none.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/store/documents.rs",
+        "src/store/repair.rs",
+        "src/store/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2097",
+          "kind": "inspection",
+          "locator": "src/store/documents.rs:233; src/store/repair.rs:269; src/store/catalogs.rs:736",
+          "summary": "RevisionRecord::import sets user_id: None; repair's write_files and the catalog starter files write_starter_files build RevisionRecord with user_id: None. The migration-0004 test and a_key_with_no_user_and_an_import_record_no_person (imported revision shows no user) pass. No test covers repair or starter revisions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/repair.rs",
+              "lines": {
+                "start": 262,
+                "end": 272
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:05.758591085Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ab54a91ce299420470ffa3cf8019d349bbbd32a60c7535992b1a6c96c37cbf1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three construction sites set user_id None. Gap: no test covers repair or starter revisions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2097"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.388606635Z",
+          "seal": {
+            "by": "server",
+            "mac": "21ac45d3914d8b5d8364e985255b74a83ee39bc61eefc68e3fe443d66f7984bd"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.388606635Z",
+      "seal": {
+        "by": "server",
+        "mac": "710abbeb015af0c25242d38cfc77855b1a98227566c635f6705c20b0bb2db02a"
+      }
+    },
+    {
+      "id": "CLM-1432",
+      "statement": "Migration 0004 runs only where `public.api_keys` exists, is one UPDATE statement taking only row locks, and does not backfill console-session changesets.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"0004: one `UPDATE` taking ROW EXCLUSIVE only ... It runs only where `public.api_keys` exists ... Console-session changesets are not backfilled.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "migrations/catalog/0004_revisions_user_backfill.sql"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2102",
+          "kind": "inspection",
+          "locator": "migrations/catalog/0004_revisions_user_backfill.sql:19-31",
+          "summary": "The file is one DO block guarded by IF to_regclass('public.api_keys') IS NOT NULL containing a single UPDATE catalog.revisions ... FROM catalog.changesets JOIN public.api_keys; an UPDATE takes ROW EXCLUSIVE on the table. The join goes through changesets.key_id = api_keys.id, so a session:<name> changeset (no api_keys row) never matches and stays null; the header comment says so.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "migrations/catalog/0004_revisions_user_backfill.sql",
+              "lines": {
+                "start": 19,
+                "end": 31
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:56:24.529817451Z",
+          "seal": {
+            "by": "server",
+            "mac": "690877ee99d14692c13222c48a184dfb18c2835ef653561e92ffa68e255f13e4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The migration file shows the guard, a single UPDATE and the key_id join that skips session changesets.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2102"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.463142212Z",
+          "seal": {
+            "by": "server",
+            "mac": "b252e3cee347f8fce37eb70f17aebff02140b48c91dffc6bd1da7e5068d6a53c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.463142212Z",
+      "seal": {
+        "by": "server",
+        "mac": "0fc59da0d678151bad7998bbd8c9ecc88a33f3fee0663d007cdb2e90e0c1c82a"
+      }
+    },
+    {
+      "id": "CLM-1433",
+      "statement": "Migration 0005 is a no-transaction single-statement `CREATE INDEX CONCURRENTLY IF NOT EXISTS` partial index `revisions_catalog_user_recent`, and migrate_store_locked drops an invalid copy of it before migrating, so a failed build is rebuilt.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"0005: `CREATE INDEX CONCURRENTLY`, no blocking lock. A failed build leaves an invalid index; `migrate_store_locked` now drops it before migrating, as `migrate` does for the account indexes.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "migrations/catalog/0005_revisions_user_recent_index.sql",
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2098",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- db::tests (a_failed_build_of_the_catalog_user_index_is_rebuilt_by_the_next_migrate ok; 47 passed)",
+          "summary": "Marks revisions_catalog_user_recent INVALID and removes its history row, runs migrate, and asserts the index is valid again and migration 5 recorded. Migration 0005 starts with \"-- no-transaction\", holds one CREATE INDEX CONCURRENTLY IF NOT EXISTS ... WHERE user_id IS NOT NULL; migrate_store_locked calls drop_invalid_indexes(conn, \\\"catalog\\\", &CATALOG_CONCURRENT_INDEXES) at src/db.rs:370.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2619,
+                "end": 2655
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:06.226029391Z",
+          "seal": {
+            "by": "server",
+            "mac": "91bdbabd16594a818ebc42c53fa99c71862ab65cafdfe408ec19ceddc8e78a92"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Migration file shape plus the invalid-index rebuild test passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2098"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.537951410Z",
+          "seal": {
+            "by": "server",
+            "mac": "65651f5e36b04b67c0a3940e045fd9ba6893a83ed44e2dd7f110d924bdbed724"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.537951410Z",
+      "seal": {
+        "by": "server",
+        "mac": "75c4c4a56b2c7c739bb409cb092c5bb6bd935abbc5e997a6f111b2ecbfe5a1c6"
+      }
+    },
+    {
+      "id": "CLM-1434",
+      "statement": "`migrate` and `migrate_store` take the migration advisory lock by polling `pg_try_advisory_lock` (lock_migrations) instead of blocking in `pg_advisory_lock`, and `adoption_runs_once_under_concurrent_starts` passes with it but fails when lock_migrations blocks in `pg_advisory_lock`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR body: \"The advisory lock around `migrate` and `migrate_store` is now polled with `pg_try_advisory_lock`: a replica blocked in `pg_advisory_lock` is an open transaction, which the holder's `CREATE INDEX CONCURRENTLY` waits for, so concurrent starts deadlocked and aborted the build (found by `adoption_runs_once_under_concurrent_starts`).\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2099",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- adoption_runs_once_under_concurrent_starts (head: ok); same test with lock_migrations temporarily reverted to blocking pg_advisory_lock: FAILED at src/db.rs:2929 in 3.41s (worktree restored with git checkout)",
+          "summary": "I mutated lock_migrations to the old blocking SELECT pg_advisory_lock and reran the one test: it panicked (unwrap at src/db.rs:2929) and failed; at head with the try-lock poll it passes. lock_migrations is called by both migrate (db.rs:192) and migrate_store (db.rs:283) and no pg_advisory_lock call remains in src/db.rs outside the unlock path. I did not reproduce the exact PostgreSQL deadlock-detector message, only that the blocking form fails this test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 100,
+                "end": 122
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:06.354585834Z",
+          "seal": {
+            "by": "server",
+            "mac": "29017b3eb324f61e61cba52a5519ddc716aef2cbe3199ffa5872306810e3d365"
+          }
+        },
+        {
+          "id": "EVD-2103",
+          "kind": "demonstration",
+          "locator": "temporary scratch test in src/db.rs (reverted): hold the STORE_ADD_LOCK_KEY advisory lock on one connection, park a second connection in blocking pg_advisory_lock on it, run migrate_store on the holder's connection against a fresh database",
+          "summary": "I probed whether the other blocking pg_advisory_lock use (store add lock, src/stores/registry.rs:976, held across migrate_store at :996) can hang against the new CREATE INDEX CONCURRENTLY of migration 0005. With a waiter parked on the lock, migrate_store returned Ok(applied: 5) within the 40 s bound: no hang or deadlock was observed in this setup. Not a refutation; no evidence either way for other timings.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T12:56:24.651743882Z",
+          "seal": {
+            "by": "server",
+            "mac": "51a68c64d64fbce7d5a22de344325692ab905e13c4af990308213dd6bc1f57a3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passes at head and fails when the lock blocks (mutation, failed at db.rs:2929). Other blocking pg_advisory_lock uses (store add lock) did not hang in a probe (EVD-2103, neutral).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2099"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.612887828Z",
+          "seal": {
+            "by": "server",
+            "mac": "de3f80da5e74b532a8acc0641798b243786c777bea20228bc59572a6b505e6b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.612887828Z",
+      "seal": {
+        "by": "server",
+        "mac": "7737f33eb4a046fd38ecb7b8bb69895dd0b1877997f5684cddde0651d9974875"
+      }
+    },
+    {
+      "id": "CLM-1435",
+      "statement": "docs/operations.md \"Who made a revision\" says `user` is `users.id`, but `history`, `recent_changes` and the HTTP routes show the user's name for a user that still exists and the stored id only for a deleted user.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "docs/operations.md \"Who made a revision\": \"`user` is the person: the `users.id` of the user whose credential published the revision\"",
+      "source_anchor": {
+        "path": "docs/operations.md",
+        "lines": {
+          "start": 2414,
+          "end": 2416
+        },
+        "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+      },
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Phrased as the defect rather than the property; replaced by a claim stating what the docs promise.",
+        "retired_at": "2026-11-25T12:52:30.932682532Z"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T12:52:30.932682532Z",
+      "seal": {
+        "by": "server",
+        "mac": "e73402b302764106ff674cdb1f674ebafbf7cc171e7218bd4b06eee4fe22f615"
+      }
+    },
+    {
+      "id": "CLM-1436",
+      "statement": "Reference docs list exactly 46 tools, one section each, after `recent_changes` is added.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "Replaces CLM-0304 (exactly 45 tools), whose anchor this diff changed",
+      "source_anchor": {
+        "path": "docs/reference/tools.md",
+        "lines": {
+          "start": 34,
+          "end": 81
+        },
+        "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+      },
+      "derived_from": [
+        "CLM-0004"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2100",
+          "kind": "test",
+          "locator": "grep -c '^| \\[`' docs/reference/tools.md (46); src/mcp/reference.rs:401 assert_eq!(tools.len(), 46); tools/agentic/gate.sh narrow --lib -- mcp::reference (4 passed)",
+          "summary": "The table has 46 rows (45 at origin/main plus recent_changes) and 46 level-2 tool headings; the reference tests assert 46 registered tools, a heading per tool and equality with the generated page, and pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 34,
+                "end": 81
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:06.473781782Z",
+          "seal": {
+            "by": "server",
+            "mac": "15f4043580526b4f6194cdeb0d002eb214178dc7422a7c08220f510674e983f8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "46 rows and headings; reference tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2100"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.688581210Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c702bf893a06a583c485ef4c156e7cdb3b8841a51f399c9bf753c56049db1e4"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.688581210Z",
+      "seal": {
+        "by": "server",
+        "mac": "a99eef9cf16004ac6d464d065ebc724e87c07fdc106e39e25edb8ff7c74be235"
+      }
+    },
+    {
+      "id": "CLM-1437",
+      "statement": "The full lib test suite passes at head (3109 passed, 2 ignored).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`test` (3109 lib tests plus the integration binaries) ... pass\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2119",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib (HEAD 5c08f34): test result: ok. 3109 passed; 0 failed; 2 ignored; finished in 575.93s",
+          "summary": "I ran the whole lib suite through the gate script at head; it printed exactly the counts the PR states.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T12:59:58.198975304Z",
+          "seal": {
+            "by": "server",
+            "mac": "41fc4d1c21911e170301e116c92e64973501bfd26377d9488ae8625c8372a490"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I ran the full lib suite at head: 3109 passed, 0 failed, 2 ignored.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2119"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.763375008Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e9e7e65e2f05fb655b6247691cbed71737d0c18abc129ccaea06cfb5019e11c"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.763375008Z",
+      "seal": {
+        "by": "server",
+        "mac": "96f701e5018be4e95addca3193bd5225fe1cbb7ed9224811abf4f2ba2726ad96"
+      }
+    },
+    {
+      "id": "CLM-1438",
+      "statement": "`tools/agentic/gate.sh` lint, dylint and test-ui (284 passed) and the integration binaries pass at head.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh fmt` and `lint`: pass.\" and \"`dylint` and `test-ui` (284 passed): pass.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2121",
+          "kind": "analysis",
+          "locator": "not rerun: gate.sh lint, dylint, test-ui and the integration binaries (heavy gates, excluded from this audit)",
+          "summary": "I did not run these gates, so I have only the author's report of them. The lib suite and fmt I did run (CLM-1437, CLM-1439).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T13:00:05.752062434Z",
+          "seal": {
+            "by": "server",
+            "mac": "974066a9fbf32b841f625b92e5ed4016fef4fcd592190ed01b5e45da8c0beddf"
+          }
+        },
+        {
+          "id": "EVD-2127",
+          "kind": "inspection",
+          "locator": "target/i986-logs/fl3.log, dy3.log, testui.log, test3.log (author's logs, 07:29-07:42, before commit 5c08f34 at 07:42:56)",
+          "summary": "The logs show clippy -D warnings, cargo doc, dylint exit 0; test-ui 284 passed 0 failed 1 ignored; the test gate 3109 lib passed plus integration binaries all ok. I did not rerun them: my attempt to run lint, dylint and test-ui was denied by the permission classifier. These are the author's logs, not evidence I gathered. I did rerun the 3109-test lib suite (CLM-1437) and fmt (CLM-1439) at 5c08f34.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T13:05:12.328134889Z",
+          "seal": {
+            "by": "server",
+            "mac": "20e19de61903caf5a2463f12bc5fe1618cc6608bf5acdb36c61eb76d2262bb0f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Lint, dylint, test-ui and the integration binaries are heavy gates this audit was told not to run, so only the author's report exists. Fix: run tools/agentic/gate.sh lint, dylint and test-ui and the integration test gate at head under the shared lock and record the printed counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T13:00:44.838335777Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e56c512b8b5a563b6dfef99ea2941249e0a2aebaac4f08277f8387d1f8f5652"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the author's logs show lint, dylint, test-ui and integration green (EVD-2127); my rerun of those gates was denied by the permission classifier. Fix: have the user or a session allowed to run them run tools/agentic/gate.sh lint, dylint and test-ui at the final head, and record the printed counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-25T13:05:26.490643618Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd302871e7fb3108724e60675673bcf17c8139ac13d25d6a251bc719eada147a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:05:26.490643618Z",
+      "seal": {
+        "by": "server",
+        "mac": "4715209311c1ad97113744ef9b326cbb82951e13d6508bce4c3c18f03ba7310a"
+      }
+    },
+    {
+      "id": "CLM-1439",
+      "statement": "`tools/agentic/gate.sh fmt` passes at head.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh fmt` and `lint`: pass.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2120",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt (runs cargo fmt --all --check; no diff output, exit 0)",
+          "summary": "The fmt gate printed only the command line and exited 0 at head.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T13:00:05.672338561Z",
+          "seal": {
+            "by": "server",
+            "mac": "38f92f18fc9ccd4ab7ad0e8b865278b631570382342c5b4ab8518e89dc0088c9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "gate.sh fmt exited 0 with no diff at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2120"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.912785823Z",
+          "seal": {
+            "by": "server",
+            "mac": "a083a2a51f1a9362a69cb0494797fbbfb8f1e78c46f168d6217a43fdb1ddc387"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:23.376028669Z",
+      "updated_at": "2026-11-25T13:00:44.912785823Z",
+      "seal": {
+        "by": "server",
+        "mac": "cda1ba054f650e93df458899890e5fca1e83b1e00d29ac7e139ee0c4fd99fd4c"
+      }
+    },
+    {
+      "id": "CLM-1440",
+      "statement": "docs/operations.md \"Who made a revision\" accurately says what the response field `user` holds: the id the revision stores (`users.id`) is what the response shows as `user`.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "docs/operations.md \"Who made a revision\": \"`user` is the person: the `users.id` of the user whose credential published the revision\"",
+      "source_anchor": {
+        "path": "docs/operations.md",
+        "lines": {
+          "start": 2414,
+          "end": 2416
+        },
+        "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+      },
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2101",
+          "kind": "test",
+          "locator": "src/mcp/history.rs Persons::show (lines ~190-205); src/mcp/history_people_tests.rs:129,180,199",
+          "summary": "Persons::show returns names.get(id) = the user's NAME for a user that still exists and the stored id only when the user row is gone; tests assert user == \"carol\"/TEST_USER (a name) before deletion and the uuid after. docs/operations.md line 2414 says \"`user` is the person: the `users.id` of the user whose credential published the revision\", which reads as the response value being the id; the response shows the name while the user exists. The MCP field docs say \"a user's id (the `name` `whoami` shows as `user`)\", so the project uses id for name, but the operations text and the stored uuid differ.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2414,
+                "end": 2417
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:54:07.312902744Z",
+          "seal": {
+            "by": "server",
+            "mac": "5139d47335eecf7f1084b15521141a30076cc7309b80a4c094c6ec8ae803ccab"
+          }
+        },
+        {
+          "id": "EVD-2125",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2411-2431 at b649778; src/mcp/history.rs Persons::show",
+          "summary": "The section now says `user` is the name (the id the API uses, as whoami shows), that users.id is what is stored, that reads resolve it to the name, and that a deleted user's stored users.id (a uuid) is shown with a null user_label. This matches Persons::show and the history_people tests (name while the user exists, uuid after deletion). Code unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2411,
+                "end": 2431
+              },
+              "commit": "b6497783027cc91ad2780e03934a658ee65c87de"
+            }
+          },
+          "recorded_at": "2026-11-25T13:05:12.177514341Z",
+          "seal": {
+            "by": "server",
+            "mac": "42da17c0eb7718bb7cab667487c755340c9e8f8caac7fa5a898b57a1ee2567b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Persons::show returns the user's name while the user exists and the stored id only after deletion, but docs/operations.md:2414-2416 says `user` is the users.id (EVD-2101). Which side is right is pgrace's call (docs define the tool). Fix: decide the intended contract, then reword docs/operations.md lines 2414-2416 to say `user` shows the user's name while the user exists and the stored users.id once the user is deleted (or change the code).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2101"
+          ],
+          "recorded_at": "2026-11-25T13:00:44.987395361Z",
+          "seal": {
+            "by": "server",
+            "mac": "7347afe22ead87b377e8ff61d926d068a6584170d03d9c5193d95c89c55a3a98"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at b649778: operations.md now says `user` is the name, users.id is stored, and the stored id shows after deletion, matching Persons::show and its tests (EVD-2125).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2125"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.328413235Z",
+          "seal": {
+            "by": "server",
+            "mac": "fddd69c23f56fd8df4a8b630017549861bb92112118127c0646b16ada4bb7195"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:52:31.046018736Z",
+      "updated_at": "2026-11-25T13:05:26.328413235Z",
+      "seal": {
+        "by": "server",
+        "mac": "1736ba8c245cbf22f07e0e76381e53f85075352a46a62477ace4b849a1ecaa1e"
+      }
+    },
+    {
+      "id": "CLM-1441",
+      "statement": "`list_changesets` and `pending_changes` show `user` and `user_label` for the person who opened a changeset, only for changesets the caller may already see.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #986 scope 3: \"Do the same for `pending_changes`, and for the changeset listings\"; PR body: \"`list_changesets` and `pending_changes` show it only for changesets the caller may already see.\"",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "src/store/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2104",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- history_people (open_changesets_show_the_person_who_opened_them ok)",
+          "summary": "list_changesets lists the one open changeset with user == TEST_USER and a user_label; pending_changes shows the same. list_changesets attaches persons only to rows that passed the existing offers / not-suspended / read-access checks (src/mcp/changesets.rs:195-215); pending_changes resolves the opener only for the changeset it already returns. The test does not exercise a caller who may not see a changeset.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_people_tests.rs",
+              "lines": {
+                "start": 324,
+                "end": 361
+              },
+              "commit": "5c08f34ac4580e8c3b7cf37e011802c9eac57be5"
+            }
+          },
+          "recorded_at": "2026-11-25T12:56:49.415976095Z",
+          "seal": {
+            "by": "server",
+            "mac": "85356f3a9762b3df9f09aea985d4df1c7e629b9865008870a5e03ba8916642da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test shows both reads carry the person; persons attach only after existing visibility checks.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2104"
+          ],
+          "recorded_at": "2026-11-25T13:00:45.063090032Z",
+          "seal": {
+            "by": "server",
+            "mac": "4016a185651e7ed6ba48440a4dfc5cd62ad0672794f928637e97611ad17d763f"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:56:42.131778194Z",
+      "updated_at": "2026-11-25T13:00:45.063090032Z",
+      "seal": {
+        "by": "server",
+        "mac": "4ba7c23404a10e7fa3f3e45c52d36168f0b98851e011e46c4fc1a23a4fed1cfd"
+      }
+    },
+    {
+      "id": "CLM-1442",
+      "statement": "The PR description tells the reader that `user` on an open changeset (`list_changesets`, `pending_changes`) is read from the key at read time, so reassigning the key changes it, unlike `user` on a published revision.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body \"Who sees `user` and `user_label`\" and \"Changes\" sections",
+      "derived_from": [
+        "CLM-1415"
+      ],
+      "artifacts": [
+        "target/i986-logs/pr-986-body.md"
+      ],
+      "tags": [
+        "from-issue:986"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2105",
+          "kind": "inspection",
+          "locator": "grep -inE 'read from|at read time|reassign|opener|opened' target/i986-logs/pr-986-body.md (no match about open changesets)",
+          "summary": "The PR body says list_changesets and pending_changes show user and user_label \"only for changesets the caller may already see\" and that the stored value is users.id, but never says an open changeset's user is read from its key now (not recorded), so reassigning the key changes it. The code comments (src/mcp/changesets.rs ListedChangeset.user, \"Read from the key now, so reassigning the key changes it\"), src/store/changesets.rs opener_users and docs/operations.md (Who made a revision, \"read from its key now\") do say it. A reader of the PR alone would assume the acceptance property (reassigning does not change credit) holds there too.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-25T12:56:49.522211561Z",
+          "seal": {
+            "by": "server",
+            "mac": "583f30b7b00056cf1cfbd8e2869b70fc5d34bb27e075374e05a0e48736b4bdc2"
+          }
+        },
+        {
+          "id": "EVD-2126",
+          "kind": "inspection",
+          "locator": "target/i986-logs/pr-986-body.md:12",
+          "summary": "The draft now says: on a published revision user is fixed at publish time; on list_changesets and pending_changes it is read from the opening key now, so reassigning the key changes it there.",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T13:05:12.251014128Z",
+          "seal": {
+            "by": "server",
+            "mac": "1dc3c3e18404a02effec92fc44f09c1ef2e118ef4569dcf1e4bc48190e03f24e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The PR body never says an open changeset's user is read from its key at read time (EVD-2105). Fix: add a sentence to pr-986-body.md saying user on list_changesets and pending_changes is read from the key now, so reassigning the key changes it, unlike a published revision.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2105"
+          ],
+          "recorded_at": "2026-11-25T13:00:45.141514155Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e9ba6482b031b1549061fec0873bd92e68a8668fcd3c10d811f41a533a06c7e"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit: the draft PR body line 12 now states that an open changeset's user is read from the key now (EVD-2126).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2126"
+          ],
+          "recorded_at": "2026-11-25T13:05:26.404698802Z",
+          "seal": {
+            "by": "server",
+            "mac": "5dd7c79eccc38a78481327f28cfcf7ab0e99366626a07f18d4ecc1183c36f239"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T12:56:42.131778194Z",
+      "updated_at": "2026-11-25T13:05:26.404698802Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a1a1607c4a8f3359cfa298e8c0b996c8496dbcdc24dcdea29cb2f27958fd99c"
       }
     }
   ]

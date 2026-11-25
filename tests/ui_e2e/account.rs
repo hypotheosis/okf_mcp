@@ -1071,8 +1071,8 @@ async fn a_failed_account_read_draws_no_deletion_control() {
     let ran = drive(console_base(&server), |ui| {
         ui.sign_in_password(EMAIL, PASSWORD);
         ui.fail_next("GET", "/api/v1/me", 503, "the account could not be read");
-        // raw-open: the failed read means the page is never fully loaded.
-        ui.open("/account");
+        // A failed read still settles, so the page does set its marker.
+        open_account(ui);
         ui.wait_visible("[data-test=passkey-laptop]");
         assert!(
             !ui.present("#account-delete-passkey"),

@@ -2306,6 +2306,210 @@ mod tests {
             .is_empty());
     }
 
+    fn labelled(
+        id: &str,
+        start_label: &str,
+        namespace: Option<&str>,
+    ) -> pg_support::LabelledContainer {
+        pg_support::LabelledContainer {
+            id: id.to_string(),
+            start_label: start_label.to_string(),
+            owner_scope: namespace.map(str::to_string),
+        }
+    }
+
+    /// Issue #784: only a dead owner in our own scope (boot and pid namespace)
+    /// gets swept. Two machines report the same namespace id, so the same
+    /// namespace on another boot or machine is kept.
+    #[test]
+    fn the_sweep_picks_only_containers_of_dead_owners_in_this_scope() {
+        let ours = "boot-a/pid:[1]";
+        let containers = [
+            labelled("dead", "100-3", Some(ours)),
+            labelled("alive", "200-0", Some(ours)),
+            labelled("other-namespace", "100-4", Some("boot-a/pid:[2]")),
+            labelled("other-machine", "100-6", Some("boot-b/pid:[1]")),
+            labelled("no-scope", "100-5", None),
+            labelled("shared-server", "server-okf-mcp-test-pg-100", Some(ours)),
+            labelled("malformed", "100", Some(ours)),
+            labelled("bad-counter", "100-x", Some(ours)),
+            labelled("dead-too", "300-12", Some(ours)),
+        ];
+
+        let stale = pg_support::stale_container_ids(&containers, ours, |pid| pid == 200);
+
+        assert_eq!(stale, ["dead", "dead-too"]);
+    }
+
+    /// The scope names the boot as well as the namespace.
+    #[test]
+    fn the_owner_scope_names_the_boot_and_the_namespace() {
+        let Some(scope) = pg_support::owner_scope() else {
+            return;
+        };
+        let (boot, namespace) = scope.split_once('/').unwrap();
+        assert!(!boot.is_empty() && namespace.starts_with("pid:["));
+    }
+
+    /// Issue #784, review of PR #1043: the whole path, with Docker: labelled
+    /// containers are listed and exactly the dead owner's is removed. The
+    /// sweep gets a scope of its own and a stub liveness check, so it can
+    /// match nothing but the containers this test creates (other sessions'
+    /// real containers carry the real scope).
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_sweep_removes_only_the_dead_owners_container() {
+        use testcontainers_modules::testcontainers::runners::AsyncRunner;
+        use testcontainers_modules::testcontainers::ImageExt;
+
+        let scope = format!("test-scope-{}", pg_support::unique_start_label());
+        let dead_pid = 4_000_001_u32;
+        let live_pid = 4_000_002_u32;
+        let request = |start: String, owner_scope: Option<&str>| {
+            let request = pg_support::postgres_17().with_label(pg_support::START_LABEL, start);
+            match owner_scope {
+                Some(scope) => request.with_label(pg_support::OWNER_SCOPE_LABEL, scope),
+                None => request,
+            }
+        };
+        let mut started = Vec::new();
+        for (name, start, owner_scope) in [
+            ("dead", format!("{dead_pid}-0"), Some(scope.as_str())),
+            ("live", format!("{live_pid}-0"), Some(scope.as_str())),
+            ("no-scope", format!("{dead_pid}-1"), None),
+            (
+                "shared-server",
+                format!("server-test-{live_pid}"),
+                Some(scope.as_str()),
+            ),
+            (
+                "other-machine",
+                format!("{dead_pid}-2"),
+                Some("another-boot/pid:[1]"),
+            ),
+        ] {
+            let container = request(start, owner_scope)
+                .with_startup_timeout(pg_support::STARTUP_TIMEOUT)
+                .start()
+                .await
+                .unwrap_or_else(|error| panic!("start the {name} container: {error}"));
+            started.push((name, container));
+        }
+
+        let removed = pg_support::sweep_stale_containers_of(&scope, |pid| pid == live_pid).await;
+
+        let remaining = pg_support::all_labelled_containers().await;
+        // Remove every container this test created before any assertion.
+        for (_, container) in &started {
+            let _ = pg_support::remove_container_by_id(container.id()).await;
+        }
+        assert_eq!(removed.unwrap(), 1);
+        let remaining = remaining.unwrap();
+        for (name, container) in &started {
+            let present = remaining.iter().any(|found| found.id == container.id());
+            assert_eq!(present, *name != "dead", "{name} container");
+        }
+    }
+
+    /// With every owner alive nothing is picked, and an empty list is fine.
+    #[test]
+    fn the_sweep_keeps_everything_when_all_owners_are_alive() {
+        let containers = [
+            labelled("a", "1-0", Some("ns")),
+            labelled("b", "2-0", Some("ns")),
+        ];
+
+        assert!(pg_support::stale_container_ids(&containers, "ns", |_| true).is_empty());
+        assert!(pg_support::stale_container_ids(&[], "ns", |_| false).is_empty());
+    }
+
+    #[test]
+    fn owner_pid_reads_only_pid_and_counter_labels() {
+        assert_eq!(pg_support::owner_pid("4242-17"), Some(4242));
+        assert_eq!(pg_support::owner_pid("server-x"), None);
+        assert_eq!(pg_support::owner_pid("4242"), None);
+        assert_eq!(pg_support::owner_pid("-1"), None);
+    }
+
+    /// The liveness probe is `kill(pid, 0)`, which `hidepid` does not affect:
+    /// this process and pid 1 (visible or not, a live process of another user
+    /// answers `EPERM`) are alive, and values that are no process id are
+    /// uncertain, which counts as alive.
+    #[test]
+    fn the_liveness_probe_calls_live_and_unknown_pids_alive() {
+        assert!(pg_support::process_may_be_alive(std::process::id()));
+        assert!(pg_support::process_may_be_alive(1));
+        assert!(pg_support::process_may_be_alive(0));
+        assert!(pg_support::process_may_be_alive(u32::MAX));
+    }
+
+    /// Only `ESRCH` permits a removal. `EPERM` is a live process of another
+    /// user, which a restricted `/proc` would hide: the case where pid 1 is
+    /// visible and the owner is not.
+    #[test]
+    fn only_esrch_means_dead() {
+        assert!(!pg_support::signal_error_means_alive(Some(libc::ESRCH)));
+        assert!(pg_support::signal_error_means_alive(Some(libc::EPERM)));
+        assert!(pg_support::signal_error_means_alive(Some(libc::EINVAL)));
+        assert!(pg_support::signal_error_means_alive(None));
+    }
+
+    /// With pid 1 visible but the live owner (pid 500, another user's) not
+    /// listed, a `/proc` look would call the owner dead. The probe answers
+    /// `EPERM` for it, and the sweep keeps its container.
+    #[test]
+    fn a_live_owner_hidden_from_proc_is_kept() {
+        let ours = "boot-a/pid:[1]";
+        let containers = [labelled("hidden-owner", "500-0", Some(ours))];
+        let visible_in_proc = |pid: u32| pid == 1;
+        let signal_answer = |pid: u32| {
+            // pid 500 answers EPERM, anything else ESRCH.
+            let errno = if pid == 500 { libc::EPERM } else { libc::ESRCH };
+            pg_support::signal_error_means_alive(Some(errno))
+        };
+
+        assert_eq!(
+            pg_support::stale_container_ids(&containers, ours, visible_in_proc),
+            ["hidden-owner"],
+            "the /proc look this replaced would have removed it"
+        );
+        assert!(pg_support::stale_container_ids(&containers, ours, signal_answer).is_empty());
+    }
+
+    #[test]
+    fn a_restricted_or_missing_proc_mount_turns_the_sweep_off() {
+        let line = |options: &str, super_options: &str| {
+            format!("30 22 0:25 / /proc {options} shared:5 - proc proc {super_options}\n")
+        };
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw,nosuid",
+            "rw"
+        )));
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=off"
+        )));
+        assert!(!pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=0"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,hidepid=2"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw,hidepid=1",
+            "rw"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(&line(
+            "rw",
+            "rw,subset=pid"
+        )));
+        assert!(pg_support::proc_mount_is_restricted(
+            "36 35 98:0 / /mnt rw - ext4 /dev/root rw\n"
+        ));
+        assert!(pg_support::proc_mount_is_restricted(""));
+    }
+
     /// A zero timeout can end the start in any stage; whichever it was, the
     /// labelled start leaves no container (issue #500: it asserted the wait
     /// stage's `StartupTimeout` alone, which a loaded Docker does not reach).

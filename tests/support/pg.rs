@@ -32,6 +32,11 @@
 //! [`start_labelled`] removes whatever has that label when the start fails.
 //! Tests that need a customized container (`tests/tls.rs`) start it through
 //! [`start_with_retry`] too.
+//!
+//! A killed process runs no `Drop` and no start cleanup, so its containers
+//! stay. The first start in each process therefore sweeps
+//! ([`sweep_stale_containers`]): it removes the labelled containers whose
+//! owner process (the pid in the label) no longer exists, and only those.
 
 // Each crate that includes this file uses a different part of it (the CLI
 // tests need `url`, the unit tests only `pool`).
@@ -60,6 +65,13 @@ use tokio::sync::OnceCell;
 
 /// The label key whose value identifies one start of a test container.
 pub const START_LABEL: &str = "okf-mcp.test-start";
+
+/// The label key that names where the [`START_LABEL`] pid is meaningful: the
+/// machine's boot id and the pid namespace ([`owner_scope`]). A pid means
+/// nothing in another namespace (a test run inside a container sees its own
+/// pids) or on another machine sharing the Docker daemon (two hosts report the
+/// same namespace id), so the sweep removes only containers of its own scope.
+pub const OWNER_SCOPE_LABEL: &str = "okf-mcp.test-owner-scope";
 
 /// How long one start may take before it counts as failed (testcontainers'
 /// own default).
@@ -1020,7 +1032,13 @@ pub async fn start_labelled<I: Image>(
     request: ContainerRequest<I>,
     label: &str,
 ) -> Result<ContainerAsync<I>, TestcontainersError> {
-    let start_error = match request.with_label(START_LABEL, label).start().await {
+    sweep_stale_containers_once().await;
+    let request = request.with_label(START_LABEL, label);
+    let request = match owner_scope() {
+        Some(namespace) => request.with_label(OWNER_SCOPE_LABEL, namespace),
+        None => request,
+    };
+    let start_error = match request.start().await {
         Ok(container) => return Ok(container),
         Err(error) => error,
     };
@@ -1109,4 +1127,259 @@ pub async fn remove_labelled(label: &str) -> Result<usize, DockerError> {
         }
     }
     Ok(removed)
+}
+
+/// Where this process's pid is meaningful (Linux): the kernel's boot id, which
+/// differs between machines and between boots, and the pid namespace (the
+/// target of `/proc/self/ns/pid`, such as `pid:[4026531836]`), as
+/// `<boot id>/<namespace>`.
+///
+/// # Returns
+/// `None` where either cannot be read (not Linux); the container then carries
+/// no scope label and no sweep removes it.
+pub fn owner_scope() -> Option<String> {
+    let boot_id = std::fs::read_to_string("/proc/sys/kernel/random/boot_id").ok()?;
+    let namespace = std::fs::read_link("/proc/self/ns/pid").ok()?;
+    Some(format!(
+        "{}/{}",
+        boot_id.trim(),
+        namespace.to_string_lossy()
+    ))
+}
+
+/// Whether the process with this pid might still be alive: `false` only when
+/// the kernel says there is no such process (`ESRCH`).
+///
+/// This sends signal 0 with `kill(2)`, which checks existence and permission
+/// without delivering anything. Unlike a look in `/proc`, it does not depend on
+/// what the mount hides (`hidepid`) or on a file lookup that can fail. A
+/// process of another user answers `EPERM` (alive), and any other answer
+/// (an invalid pid, an unexpected error) is uncertain, so it counts as alive:
+/// a wrong "alive" keeps a container, a wrong "dead" would remove a live
+/// test's. A zombie counts as alive.
+pub fn process_may_be_alive(pid: u32) -> bool {
+    // Pid 0 and values above `i32::MAX` are not process ids; `kill` would
+    // treat 0 (or a negative number) as a process group.
+    let Some(pid) = i32::try_from(pid).ok().filter(|pid| *pid > 0) else {
+        return true;
+    };
+    // SAFETY: `kill` takes two integers and reads no memory of ours. Signal 0
+    // delivers nothing, so the call cannot affect the target process.
+    let result = unsafe { libc::kill(pid, 0) };
+    if result == 0 {
+        return true;
+    }
+    signal_error_means_alive(std::io::Error::last_os_error().raw_os_error())
+}
+
+/// What a failed `kill(pid, 0)` says: dead only for `ESRCH`; `EPERM`, any other
+/// error and an unreadable error code all mean alive or unknown.
+pub fn signal_error_means_alive(errno: Option<i32>) -> bool {
+    errno != Some(libc::ESRCH)
+}
+
+/// Whether `mountinfo` (the text of `/proc/self/mountinfo`) shows `/proc`
+/// mounted with restricted process visibility (`hidepid=1`/`2`, or
+/// `subset=pid`), or does not show a `/proc` mount at all.
+///
+/// The liveness probe does not depend on `/proc`, so this is a second guard:
+/// where the process table is restricted, nobody can say what a test run is
+/// allowed to see, and the sweep stays off.
+pub fn proc_mount_is_restricted(mountinfo: &str) -> bool {
+    let mut found = false;
+    for line in mountinfo.lines() {
+        let Some((before, after)) = line.split_once(" - ") else {
+            continue;
+        };
+        let before: Vec<&str> = before.split_whitespace().collect();
+        let after: Vec<&str> = after.split_whitespace().collect();
+        // before: id parent major:minor root mount-point options ...;
+        // after: fstype source super-options.
+        if before.get(4) != Some(&"/proc") || after.first() != Some(&"proc") {
+            continue;
+        }
+        found = true;
+        let options = before
+            .get(5)
+            .into_iter()
+            .chain(after.get(2))
+            .flat_map(|options| options.split(','));
+        for option in options {
+            match option.split_once('=') {
+                Some(("hidepid", "0" | "off")) => {}
+                Some(("hidepid", _)) | Some(("subset", "pid")) => return true,
+                _ => {}
+            }
+        }
+    }
+    !found
+}
+
+/// Whether the sweep may run here: the owner scope is known and `/proc` is not
+/// restricted. An unreadable `/proc/self/mountinfo` counts as restricted.
+pub fn liveness_is_reliable() -> bool {
+    owner_scope().is_some()
+        && std::fs::read_to_string("/proc/self/mountinfo")
+            .is_ok_and(|mountinfo| !proc_mount_is_restricted(&mountinfo))
+}
+
+/// One container that carries a [`START_LABEL`], as the sweep sees it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LabelledContainer {
+    /// The container id.
+    pub id: String,
+    /// The value of [`START_LABEL`] (`<pid>-<counter>` for a test start).
+    pub start_label: String,
+    /// The value of [`OWNER_SCOPE_LABEL`], if the container has one.
+    pub owner_scope: Option<String>,
+}
+
+/// The owner pid in a start label (`<pid>-<counter>`).
+///
+/// # Returns
+/// `None` for any other shape, such as the shared server's `server-<name>`
+/// label, which no test process owns.
+pub fn owner_pid(start_label: &str) -> Option<u32> {
+    let (pid, counter) = start_label.split_once('-')?;
+    counter.parse::<u64>().ok()?;
+    pid.parse().ok()
+}
+
+/// The ids of the containers that are safe to remove: those labelled with this
+/// process's own [`owner_scope`] (same machine boot and pid namespace), whose
+/// owner pid is not alive there.
+///
+/// A container is kept when anything is uncertain: no scope label (an
+/// older start, or a platform without one), another scope (namespace or
+/// machine), a label that is not `<pid>-<counter>`, or an owner that is alive.
+/// A dead pid that was reused by another process keeps its container until
+/// that process exits.
+///
+/// # Arguments
+/// * `containers` - every container carrying [`START_LABEL`].
+/// * `own_scope` - [`owner_scope`] of the sweeper.
+/// * `may_be_alive` - `false` only for a pid known to be dead; anything
+///   uncertain is `true`, which keeps the container.
+pub fn stale_container_ids(
+    containers: &[LabelledContainer],
+    own_scope: &str,
+    may_be_alive: impl Fn(u32) -> bool,
+) -> Vec<String> {
+    containers
+        .iter()
+        .filter(|container| container.owner_scope.as_deref() == Some(own_scope))
+        .filter_map(|container| Some((container, owner_pid(&container.start_label)?)))
+        .filter(|(_, pid)| !may_be_alive(*pid))
+        .map(|(container, _)| container.id.clone())
+        .collect()
+}
+
+/// Every container (running or not) that carries a [`START_LABEL`].
+///
+/// # Errors
+/// If Docker is unreachable or refuses the listing.
+pub async fn all_labelled_containers() -> Result<Vec<LabelledContainer>, DockerError> {
+    let docker = Docker::connect_with_defaults()?;
+    let filters = HashMap::from([("label".to_string(), vec![START_LABEL.to_string()])]);
+    let containers = docker
+        .list_containers(Some(ListContainersOptions {
+            all: true,
+            filters: Some(filters),
+            ..Default::default()
+        }))
+        .await?;
+    Ok(containers
+        .into_iter()
+        .filter_map(|summary| {
+            let labels = summary.labels?;
+            Some(LabelledContainer {
+                id: summary.id?,
+                start_label: labels.get(START_LABEL)?.clone(),
+                owner_scope: labels.get(OWNER_SCOPE_LABEL).cloned(),
+            })
+        })
+        .collect())
+}
+
+/// Force-removes the containers [`stale_container_ids`] picks, with their
+/// anonymous volumes.
+///
+/// # Returns
+/// How many containers this call removed; 0 where liveness cannot be trusted
+/// ([`liveness_is_reliable`]).
+///
+/// # Errors
+/// If Docker is unreachable, or refuses a removal for a reason other than the
+/// container being gone already (404) or already being removed (409), as when
+/// another process's sweep got there first.
+pub async fn sweep_stale_containers() -> Result<usize, DockerError> {
+    let Some(scope) = owner_scope().filter(|_| liveness_is_reliable()) else {
+        return Ok(0);
+    };
+    sweep_stale_containers_of(&scope, process_may_be_alive).await
+}
+
+/// [`sweep_stale_containers`] for an explicit scope and liveness check: removes
+/// the containers labelled with `own_scope` whose owner pid `may_be_alive` rules out.
+/// A test passes a scope of its own, so the sweep can only match its containers.
+///
+/// # Errors
+/// As [`sweep_stale_containers`].
+pub async fn sweep_stale_containers_of(
+    own_scope: &str,
+    may_be_alive: impl Fn(u32) -> bool,
+) -> Result<usize, DockerError> {
+    let stale = stale_container_ids(&all_labelled_containers().await?, own_scope, may_be_alive);
+    let mut removed = 0;
+    for id in stale {
+        if remove_container_by_id(&id).await? {
+            removed += 1;
+        }
+    }
+    Ok(removed)
+}
+
+/// Force-removes one container with its anonymous volumes.
+///
+/// # Returns
+/// Whether this call removed it; `false` when it was gone already (404) or
+/// already being removed (409).
+///
+/// # Errors
+/// If Docker is unreachable or refuses the removal for another reason.
+pub async fn remove_container_by_id(id: &str) -> Result<bool, DockerError> {
+    let docker = Docker::connect_with_defaults()?;
+    let options = RemoveContainerOptions {
+        force: true,
+        v: true,
+        ..Default::default()
+    };
+    match docker.remove_container(id, Some(options)).await {
+        Ok(()) => Ok(true),
+        Err(DockerError::DockerResponseServerError {
+            status_code: 404 | 409,
+            ..
+        }) => Ok(false),
+        Err(error) => Err(error),
+    }
+}
+
+/// Runs [`sweep_stale_containers`] on the first call in this process and
+/// reports how many containers it removed. A failure is only logged: the
+/// sweep is housekeeping and must not fail the test that happened to start
+/// first.
+async fn sweep_stale_containers_once() {
+    static SWEPT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    if SWEPT.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    match sweep_stale_containers().await {
+        Ok(0) => {}
+        Ok(removed) => {
+            // Printed too: the test harness hides a passing test's tracing.
+            eprintln!("swept {removed} stale test container(s) left by exited processes");
+            tracing::info!(removed, "swept stale test containers");
+        }
+        Err(error) => tracing::warn!("sweep stale test containers: {error}"),
+    }
 }

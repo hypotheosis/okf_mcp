@@ -396,7 +396,7 @@ async fn breadcrumbs_take_the_catalog_label_when_the_list_answers_late() {
         // Boot reads the catalog list before any page-side override could
         // be installed, so the answer is held in the worker (DevTools
         // pauses survive the reload) rather than with `hold_next`.
-        let mut paused = ui.pause_worker_responses("*/api/v1/catalogs");
+        let mut paused = ui.pause_worker_responses("*/api/v1/catalogs?readable=true");
         ui.reload_reader();
         let held = paused.next_paused();
         // The tree draws without waiting for the list: its crumb names the catalog.

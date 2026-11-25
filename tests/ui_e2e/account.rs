@@ -140,6 +140,7 @@ fn wait_loaded(ui: &Ui) {
 /// # Panics
 /// When the page is not fully drawn within the harness's wait.
 fn open_account(ui: &Ui) {
+    // raw-open: this is the helper itself.
     ui.open("/account");
     wait_loaded(ui);
 }
@@ -553,6 +554,7 @@ async fn the_account_page_marks_itself_loaded_after_its_slowest_section() {
         ui.sign_in_password(EMAIL, PASSWORD);
         // The session list is held back; every other section draws.
         ui.hold_next("GET", "/me/sessions");
+        // raw-open: the held read keeps the page unloaded on purpose.
         ui.open("/account");
         ui.wait_text("#passkey-list", "No passkeys yet");
         ui.wait_visible("#sign-in-table");
@@ -672,6 +674,7 @@ async fn my_grants_and_account_say_so_to_a_key() {
         assert!(!ui.page.is_visible("a[data-nav=account]").expect("visible"));
         ui.open("/my-grants");
         ui.wait_text("#my-grants-denied", "signed in with their account");
+        // raw-open: a key's session is refused the page; it never loads.
         ui.open("/account");
         ui.wait_text("#account-denied", "signed in with their account");
         assert!(!ui.page.is_visible("#password-form").expect("visible"));
@@ -1032,6 +1035,7 @@ async fn no_deletion_control_shows_before_the_account_read_answers() {
         ui.sign_in_password(EMAIL, PASSWORD);
         // The account read is held; the passkey list answers first.
         ui.hold_next("GET", "/api/v1/me");
+        // raw-open: the held read keeps the page unloaded on purpose.
         ui.open("/account");
         ui.wait_visible("[data-test=passkey-laptop]");
         assert!(
@@ -1067,6 +1071,7 @@ async fn a_failed_account_read_draws_no_deletion_control() {
     let ran = drive(console_base(&server), |ui| {
         ui.sign_in_password(EMAIL, PASSWORD);
         ui.fail_next("GET", "/api/v1/me", 503, "the account could not be read");
+        // raw-open: the failed read means the page is never fully loaded.
         ui.open("/account");
         ui.wait_visible("[data-test=passkey-laptop]");
         assert!(
@@ -1081,4 +1086,33 @@ async fn a_failed_account_read_draws_no_deletion_control() {
         return;
     }
     assert_eq!(alices(&server.db.pool).await, 1, "nothing was deleted");
+}
+
+/// The journeys' own source, for the guard below.
+const THIS_FILE: &str = include_str!("account.rs");
+
+/// A journey opens the Account page through `open_account`, which waits for
+/// the whole page; a raw `ui.open("/account")` is for a page that must not
+/// be loaded, and says why in a `// raw-open:` comment on the line before.
+/// This keeps a new journey from acting on a half-drawn page (issue #785).
+#[test]
+fn every_raw_open_of_the_account_page_says_why_it_skips_the_wait() {
+    // Whole-line match, so this guard's own text never counts.
+    let call = r#"ui.open("/account");"#;
+    let lines: Vec<&str> = THIS_FILE.lines().collect();
+    let bare: Vec<usize> = lines
+        .iter()
+        .enumerate()
+        .filter(|(index, line)| {
+            line.trim() == call
+                && !lines[index.saturating_sub(1)]
+                    .trim_start()
+                    .starts_with("// raw-open:")
+        })
+        .map(|(index, _)| index + 1)
+        .collect();
+    assert!(
+        bare.is_empty(),
+        "use open_account, or explain with a `// raw-open:` comment; lines {bare:?}"
+    );
 }

@@ -1061,7 +1061,7 @@ async fn dispatch(
             let ran = run_catalog(&pool, &stores, command, clock.as_ref(), &mut changed).await;
             if ran.is_err() {
                 // What it committed before failing is announced all the same.
-                announce_from_cli(&config, env, &Metrics::global(), &changed, false).await;
+                announce_from_cli(&config, env, &Metrics::global(), &changed).await;
             }
             ran?;
         }
@@ -1191,10 +1191,8 @@ async fn dispatch(
             eprintln!("exported catalog {catalog:?} at generation {generation}");
         }
     }
-    // Every command that got here succeeded. Read-only ones announce too: it
-    // costs each instance one row read, and a list of the mutating commands
-    // would go stale.
-    announce_from_cli(&config, env, &Metrics::global(), &changed, true).await;
+    // Every command that got here succeeded; what it committed is announced.
+    announce_from_cli(&config, env, &Metrics::global(), &changed).await;
     Ok(())
 }
 
@@ -3696,17 +3694,21 @@ mod tests {
         )
     }
 
-    /// Runs `key revoke` with `[redis]` on `server` and checks one M16
-    /// bridge message reaches a subscriber.
-    async fn revoke_announces(server: crate::db::redis_support::TestRedis) {
-        use crate::shared::{announce::CHANNEL, SubscriptionEvent};
+    /// Runs `key revoke` with `[redis]` on `server` and checks nothing is
+    /// published on the catalog channel: an administrative change reaches
+    /// the serving instances through the change feed, not through Redis.
+    async fn revoke_announces_nothing(server: crate::db::redis_support::TestRedis) {
+        use crate::shared::{announce::CATALOG_CHANNEL, SubscriptionEvent};
         const WAIT: Duration = Duration::from_secs(10);
 
         let db = crate::db::test_db().await;
         let clock = fixed_now();
         created_key_config(&db, &clock).await;
         let redis = crate::shared::testing::connect(&server).await;
-        let mut subscription = redis.subscribe(&redis.channel(CHANNEL)).await.unwrap();
+        let mut subscription = redis
+            .subscribe(&redis.channel(CATALOG_CHANNEL))
+            .await
+            .unwrap();
         let first = tokio::time::timeout(WAIT, subscription.next())
             .await
             .expect("the subscription confirms");
@@ -3718,15 +3720,8 @@ mod tests {
             .await
             .unwrap();
 
-        let message = tokio::time::timeout(WAIT, subscription.next())
-            .await
-            .expect("an announcement arrives");
-        assert!(
-            matches!(message, Some(SubscriptionEvent::Message(ref payload)) if payload == crate::shared::announce::BRIDGE_PAYLOAD.as_bytes())
-        );
-        // One message only: the next wait finds nothing.
         let more = tokio::time::timeout(Duration::from_millis(300), subscription.next()).await;
-        assert!(more.is_err(), "a second announcement arrived");
+        assert!(more.is_err(), "an announcement arrived");
     }
 
     /// `okf-mcp import` on a database two replicas serve announces the
@@ -3806,50 +3801,26 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn key_revoke_announces_to_a_standalone_redis() {
-        revoke_announces(crate::db::redis_support::TestRedis::start().await).await;
+    async fn key_revoke_announces_nothing_to_a_standalone_redis() {
+        revoke_announces_nothing(crate::db::redis_support::TestRedis::start().await).await;
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn key_revoke_announces_to_a_cluster() {
-        revoke_announces(crate::db::redis_support::TestRedis::start_cluster().await).await;
+    async fn key_revoke_announces_nothing_to_a_cluster() {
+        revoke_announces_nothing(crate::db::redis_support::TestRedis::start_cluster().await).await;
     }
 
-    #[tokio::test(flavor = "multi_thread")]
-    async fn a_read_only_command_announces_too() {
-        use crate::shared::{announce::CHANNEL, SubscriptionEvent};
-        const WAIT: Duration = Duration::from_secs(10);
-
-        let server = crate::db::redis_support::TestRedis::start().await;
-        let db = crate::db::test_db().await;
-        let redis = crate::shared::testing::connect(&server).await;
-        let mut subscription = redis.subscribe(&redis.channel(CHANNEL)).await.unwrap();
-        tokio::time::timeout(WAIT, subscription.next())
-            .await
-            .expect("the subscription confirms");
-        let mut config = Config::default();
-        config.redis = Some(crate::shared::testing::config(&server));
-        let list = cli(Some(db.url.clone()), Command::Key(KeyCommand::List));
-
-        dispatch(list, config, None, fixed_now(), &server.env())
-            .await
-            .unwrap();
-
-        let message = tokio::time::timeout(WAIT, subscription.next())
-            .await
-            .expect("an announcement arrives");
-        assert!(
-            matches!(message, Some(SubscriptionEvent::Message(ref payload)) if payload == crate::shared::announce::BRIDGE_PAYLOAD.as_bytes())
-        );
-    }
+    /// A catalog change a command committed, to announce.
+    const COMMITTED: crate::store::catalogs::CatalogGeneration =
+        crate::store::catalogs::CatalogGeneration {
+            catalog_id: 1,
+            generation: 1,
+        };
 
     // A current-thread runtime, so the thread-local subscriber sees the
     // warning `dispatch` logs.
     #[tokio::test]
-    async fn an_unset_variable_warns_and_the_command_still_succeeds() {
-        let db = crate::db::test_db().await;
-        let clock = fixed_now();
-        created_key_config(&db, &clock).await;
+    async fn an_unset_variable_only_warns() {
         let mut config = Config::default();
         config.redis = Some(crate::config::RedisConfig {
             url_env: "OKF_TEST_UNSET_REDIS_URL".to_string(),
@@ -3863,10 +3834,9 @@ mod tests {
             .finish();
         let guard = crate::test_tracing::set_default(subscriber);
 
-        let result = dispatch(revoke_cli(&db), config, None, clock, &|_| None).await;
+        announce_from_cli(&config, &|_| None, &Metrics::global(), &[COMMITTED]).await;
 
         drop(guard);
-        result.unwrap();
         let logged = capture.text();
         assert!(logged.contains("WARN"), "{logged}");
         assert!(logged.contains("announcement skipped"), "{logged}");
@@ -3874,10 +3844,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn an_unreachable_redis_warns_and_the_command_still_succeeds() {
-        let db = crate::db::test_db().await;
-        let clock = fixed_now();
-        created_key_config(&db, &clock).await;
+    async fn an_unreachable_redis_only_warns() {
         let mut config = Config::default();
         config.redis = Some(crate::config::RedisConfig {
             url_env: "OKF_TEST_DEAD_REDIS_URL".to_string(),
@@ -3893,10 +3860,9 @@ mod tests {
             .finish();
         let guard = crate::test_tracing::set_default(subscriber);
 
-        let result = dispatch(revoke_cli(&db), config, None, clock, &env).await;
+        announce_from_cli(&config, &env, &Metrics::global(), &[COMMITTED]).await;
 
         drop(guard);
-        result.unwrap();
         let logged = capture.text();
         assert!(logged.contains("announcement skipped"), "{logged}");
         assert!(!logged.contains("sekrit-7f3a"), "{logged}");

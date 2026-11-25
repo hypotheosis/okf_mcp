@@ -344,8 +344,6 @@ async fn create_catalog(
         { key = %principal.key_id, actor = %principal.actor, },
         "catalog created"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     // The owner may be a suspended team: read the new row's access facts
     // from the database (one query), not from the directory, which may
     // still remember the name as absent until the create's message lands.
@@ -497,8 +495,6 @@ async fn update_catalog(
         { key = %principal.key_id, actor = %principal.actor, },
         "catalog details changed"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     let description = change
         .description
         .unwrap_or_else(|| previous.description.clone());
@@ -547,8 +543,6 @@ async fn set_owner(
         { key = %principal.key_id, actor = %principal.actor, },
         "catalog owner changed"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(OwnerChanged {
         name: catalog,
         previous,
@@ -623,8 +617,6 @@ async fn set_maintenance(
         { key = %principal.key_id, actor = %principal.actor, },
         "catalog maintenance set"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(MaintenanceChanged {
         name: catalog,
         previous,
@@ -785,8 +777,6 @@ async fn set_member_access(
         { key = %principal.key_id, actor = %principal.actor, },
         "member access set"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(MemberAccessChanged {
         name: catalog,
         previous: previous.as_str(),
@@ -967,8 +957,6 @@ async fn delete_catalog(
         { key = %principal.key_id, actor = %principal.actor, },
         "catalog deleted"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(CatalogDeleted { name: catalog }))
 }
 

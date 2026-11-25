@@ -388,8 +388,6 @@ async fn managed(app: &App, principal: &Principal, id: &str) -> Result<KeyRecord
 /// As [`managed`].
 #[tracing::instrument(level = "debug", skip_all)]
 async fn changed(app: &App, principal: &Principal, id: &str) -> Result<Json<KeyView>, AppError> {
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(managed(app, principal, id).await?.into()))
 }
 

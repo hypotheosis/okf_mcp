@@ -214,8 +214,6 @@ async fn set_setting(
         { value = %body.value, key_id = %principal.key_id, actor = %principal.actor, },
         "setting changed"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(current(&app, key).await?))
 }
 
@@ -240,8 +238,6 @@ async fn reset_setting(
         { key_id = %principal.key_id, actor = %principal.actor, },
         "setting reset"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(current(&app, key).await?))
 }
 

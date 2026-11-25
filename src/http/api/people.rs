@@ -614,8 +614,6 @@ async fn create_user(
         display_name: &display_name,
     };
     let created = users::create(app.accounts().executor(), &new, &actor, app.clock().now()).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok((StatusCode::CREATED, Json(created.into())))
 }
 
@@ -744,8 +742,6 @@ async fn set_admin(
         { user = %name, key = %principal.key_id, actor = %principal.actor, },
         "admin flag set"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(AdminChanged {
         name,
         previous,
@@ -784,8 +780,6 @@ async fn set_email(
         { user = %name, key = %principal.key_id, actor = %principal.actor, },
         "email set"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(
         users::find(app.accounts().executor(), &name).await?.into(),
     ))
@@ -908,8 +902,6 @@ async fn entitle(
         { user = %name, key = %principal.key_id, actor = %principal.actor, },
         "entitlement set"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(entitlements_answer(&app, name, &catalog, owner).await?)
 }
 
@@ -947,8 +939,6 @@ async fn unentitle(
         { user = %name, key = %principal.key_id, actor = %principal.actor, },
         "entitlement removed"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(entitlements_answer(&app, name, &catalog, owner).await?)
 }
 
@@ -1085,8 +1075,6 @@ async fn delete_user(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -1130,8 +1118,6 @@ async fn create_team(
         owner: &body.owner,
     };
     let created = teams::create(app.accounts().executor(), &new, &actor, app.clock().now()).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok((
         StatusCode::CREATED,
         Json(TeamView::one(&app, created).await?),
@@ -1171,8 +1157,6 @@ async fn delete_team(
 ) -> Result<StatusCode, AppError> {
     require_manager(&principal)?;
     teams::delete(app.accounts().executor(), &name, &actor, app.clock().now()).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -1205,8 +1189,6 @@ async fn set_member(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(MembershipChanged {
         change: change_name(change),
         team: TeamView::one(&app, teams::find(app.accounts().executor(), &team).await?).await?,
@@ -1238,8 +1220,6 @@ async fn remove_member(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     let record = teams::find(app.accounts().executor(), &team).await?;
     Ok(Json(TeamView::one(&app, record).await?))
 }
@@ -1281,8 +1261,6 @@ async fn set_suspension(
     } else {
         teams::unsuspend(app.accounts().executor(), &name, &actor, now).await?
     };
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(TeamView::one(&app, team).await?))
 }
 
@@ -1324,8 +1302,6 @@ async fn update_user(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(
         users::find(app.accounts().executor(), &name).await?.into(),
     ))
@@ -1374,8 +1350,6 @@ async fn update_team(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     let record = teams::find(app.accounts().executor(), &name).await?;
     Ok(Json(TeamView::one(&app, record).await?))
 }

@@ -164,7 +164,7 @@ async fn stored_generation(app: &App, name: &str) -> CatalogGeneration {
 }
 
 /// The acceptance criterion: a publish on A propagates to B well within
-/// `poll_interval`, with no poll (a bounded wait, not a first-read
+/// `catalog_ttl`, with no poll (a bounded wait, not a first-read
 /// guarantee). The first publish lets B's subscriber finish its catch-up on
 /// subscribing, so the second can reach B only through its announcement.
 #[tokio::test(flavor = "multi_thread")]

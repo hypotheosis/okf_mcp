@@ -1053,13 +1053,23 @@ test_gate_returns_the_gate_exit_status() {
     want_rc 3; want_no_out "HANG"
 }
 
+# fake_gate_wait_for <marker>: shell text for a fake gate that waits (at most
+# 10 s) for the marker file a helper writes once it is set up, so the test
+# synchronizes on observed state, not on a delay.
+fake_gate_wait_for() {
+    # shellcheck disable=SC2016 # the text is for the fake gate's shell to expand
+    printf 'for _ in $(seq 100); do [ -e "%s" ] && break; sleep 0.1; done\n' "$1"
+}
+
 # leaky_gate <then>: a fake gate that starts a child which ignores TERM and
 # runs in the gate's process group, then runs <then> (wait, exit 0, kill itself...).
 # The child's output goes to /dev/null so it can't hold the test's pipe open.
 leaky_gate() {
-    fake_just "bash -c 'trap \"\" TERM; exec sleep 30' >/dev/null 2>&1 &
+    # The child writes child.ready after it installs its trap; the leader waits
+    # for it, so no TERM can arrive before the trap exists.
+    fake_just "bash -c 'trap \"\" TERM; : >\"\$GH_FIXTURES/child.ready\"; exec sleep 30' >/dev/null 2>&1 &
 echo \$! >\"\$GH_FIXTURES/child.pid\"
-sleep 0.3 # let the child install its trap before the leader ends (nothing slows the cleanup's first check)
+$(fake_gate_wait_for "\$GH_FIXTURES/child.ready")
 $1"
     trap '[ -s "$fx/child.pid" ] && kill -KILL "$(cat "$fx/child.pid")" 2>/dev/null' EXIT
 }
@@ -1106,9 +1116,11 @@ test_gate_passing_leader_stops_leftover_child_and_frees_lock() {
 test_gate_daemon_that_escapes_the_group_does_not_keep_the_lock() {
     new_fixtures
     # shellcheck disable=SC2016 # $! and $GH_FIXTURES are expanded by the fake just
-    fake_just 'setsid bash -c "exec sleep 30" </dev/null >/dev/null 2>&1 &
+    # The daemon's shell runs only after setsid has left the group, and writes
+    # daemon.ready then; the leader waits for it before it ends.
+    fake_just 'setsid bash -c ": >\"$GH_FIXTURES/daemon.ready\"; exec sleep 30" </dev/null >/dev/null 2>&1 &
 echo $! >"$GH_FIXTURES/daemon.pid"
-sleep 0.3 # let setsid leave the group before the leader ends
+'"$(fake_gate_wait_for '\$GH_FIXTURES/daemon.ready')"'
 exit 0'
     trap '[ -s "$fx/daemon.pid" ] && kill -KILL "$(cat "$fx/daemon.pid")" 2>/dev/null' EXIT
     out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
@@ -1640,7 +1652,7 @@ test_run_bounded_does_not_use_pgrep_for_the_leftover_check() {
     printf '#!/bin/sh\ntouch "%s/pgrep.called"\nexec sleep 60\n' "$fx" >"$fx/bin/pgrep"
     chmod +x "$fx/bin/pgrep"
     # shellcheck disable=SC2016 # expanded by the harness, not here
-    immortal_harness 'agentic_run_bounded 5 bash -c "(trap \"\" TERM; exec sleep 60) </dev/null >/dev/null 2>&1 & exit 0"
+    immortal_harness 'agentic_run_bounded 5 bash -c "(exec sleep 60) </dev/null >/dev/null 2>&1 & exit 0"
 echo "rc=$?"'
     out=$(cd "$work" && PATH="$fx/bin:$PATH" timeout 30 bash "$fx/harness.sh" 2>&1)
     rc=$?

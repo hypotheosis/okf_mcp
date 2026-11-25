@@ -21,3 +21,11 @@
 - No other test was changed. Candidates not shown to be affected:
   `src/store/sign_in_events.rs` asserts exactly one span named `record`, and
   `src/http/telemetry_tests.rs` asserts exact counts of `GET /healthz` spans.
+
+## Review round 1
+- The test now also sends two sign-ins (wrong and right password) under a second
+  caller trace id in the same observer, asserts those spans were captured
+  (two `audit` spans in all, one `audit` and one `start_in` for the decoy), and
+  only then asserts the exact lists for its own requests. Without the
+  filter, the exact `audit` list would hold two entries and fail, so the
+  isolation is exercised on every run.

@@ -1354,6 +1354,8 @@ mod tests {
         const WRONG: &str = "zq-wrong-password-5d1c";
         // Only this test sends this trace id.
         const CALLER_TRACE: &str = "3c1d0e5a7b9f4a2d8e6f1b0c9d8a7e65";
+        // A second caller, whose spans the test must not count.
+        const OTHER_TRACE: &str = "9e2b4f6a1c3d4857a0b1c2d3e4f50617";
         let test = login_app().await;
         user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
         let mut browser = Browser::default();
@@ -1365,7 +1367,17 @@ mod tests {
         browser.traceparent = Some(format!("00-{CALLER_TRACE}-b7ad6b7169203331-01"));
         let refused = post_sign_in(&mut browser, &test, "alice@example.com", WRONG).await;
         let signed_in = post_sign_in(&mut browser, &test, "alice@example.com", PASSWORD).await;
+        // Two more sign-ins under the same observer, from another caller:
+        // their `audit` and `start_in` spans are in the capture and must not
+        // be in the lists below.
+        browser.traceparent = Some(format!("00-{OTHER_TRACE}-b7ad6b7169203331-01"));
+        post_sign_in(&mut browser, &test, "alice@example.com", WRONG).await;
+        post_sign_in(&mut browser, &test, "alice@example.com", PASSWORD).await;
         let observed = observer.finish();
+        let decoys = observed.spans_of_requests_from(OTHER_TRACE);
+        let decoy_count = |name: &str| decoys.iter().filter(|span| span.name == name).count();
+        assert_eq!((decoy_count("audit"), decoy_count("start_in")), (1, 1));
+        assert_eq!(observed.spans_named("audit").len(), 2, "all were captured");
         let own_spans = observed.spans_of_requests_from(CALLER_TRACE);
 
         assert_eq!(refused.status, StatusCode::UNAUTHORIZED);

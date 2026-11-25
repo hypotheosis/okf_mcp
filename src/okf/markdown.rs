@@ -42,6 +42,17 @@ use crate::okf::pystr::py_unquote;
 use crate::okf::pystr::{is_py_word, py_rstrip, py_strip};
 use crate::okf::workspace::Workspace;
 
+/// The text of a CommonMark angle-bracket link destination, between `<` and
+/// `>`: anything except a line break, `<`, `>` or the `\x1c-\x1f` control
+/// bytes, so it may hold spaces and `)`. A macro, not a `const`, because
+/// `concat!` takes only literals. Shared by [`LINK`] and [`SLUG_LINK`] so the
+/// two cannot disagree about where a destination ends.
+macro_rules! angle_destination {
+    () => {
+        r"[^<>\n\r\x1c-\x1f]+"
+    };
+}
+
 /// A markdown link `[text](target "title")` or `[text](<target> "title")`,
 /// not an image (`![...]`). Group 3 is a plain destination (no whitespace, no
 /// `)`); group 4 is an angle-bracket destination (CommonMark): anything
@@ -49,9 +60,11 @@ use crate::okf::workspace::Workspace;
 /// control bytes, so it may hold spaces and `)`. The two are plain
 /// alternatives of the linear-time `regex` crate.
 static LINK: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?:\A|[^!])(\[((?:[^\]\\]|\\.)*)\]\((?:<([^<>\n\r\x1c-\x1f]+)>|([^)\s\x1c-\x1f]+))(?:[\s\x1c-\x1f]+"[^"]*")?\))"#,
-    )
+    Regex::new(concat!(
+        r#"(?:\A|[^!])(\[((?:[^\]\\]|\\.)*)\]\((?:<("#,
+        angle_destination!(),
+        r#")>|([^)\s\x1c-\x1f]+))(?:[\s\x1c-\x1f]+"[^"]*")?\))"#,
+    ))
     .expect("LINK regex is valid")
 });
 static HEADING: LazyLock<Regex> = LazyLock::new(|| {
@@ -73,8 +86,16 @@ static URI_SCHEME: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)^[a-zA-Z\u{130}\u{131}][a-zA-Z0-9+.\-\u{130}\u{131}]*:")
         .expect("URI_SCHEME regex is valid")
 });
+/// A link or image whose text `slugify` keeps. Group 1 is the text. The
+/// destination is an angle-bracket one (as in [`LINK`], with an optional
+/// title) or, failing that, anything up to the first `)`.
 static SLUG_LINK: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"!?\[((?:[^\]\\]|\\.)*)\]\([^)]*\)").expect("SLUG_LINK regex is valid")
+    Regex::new(concat!(
+        r#"!?\[((?:[^\]\\]|\\.)*)\]\((?:<"#,
+        angle_destination!(),
+        r#">(?:[\s\x1c-\x1f]+"[^"]*")?|[^)]*)\)"#,
+    ))
+    .expect("SLUG_LINK regex is valid")
 });
 static SLUG_TAG: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"<[^>]+>").expect("SLUG_TAG regex is valid"));
@@ -752,6 +773,23 @@ mod tests {
         assert_eq!(slugify("<em>Tagged</em> heading"), "tagged-heading");
         assert_eq!(slugify("__dunder__ name"), "dunder-name");
         assert_eq!(slugify("Ünïcode Wörds"), "ünïcode-wörds");
+    }
+
+    #[test]
+    fn slugify_strips_angle_bracket_destinations() {
+        // GitHub renders each heading below as the text "See x" (CommonMark
+        // angle-bracket destinations), so the slug is "see-x".
+        for heading in [
+            "See [x](<a)b.md>)",
+            "See [x](<a b.md> \"t\")",
+            "See [x](<a)b.md> \"t)\")",
+            "See ![x](<a)b.png>)",
+            "See ![x](<a b.png> \"t\")",
+        ] {
+            assert_eq!(slugify(heading), "see-x", "{heading:?}");
+        }
+        // Unterminated angle destinations fall back to the plain rule.
+        assert_eq!(slugify("See [x](<a b) end"), "see-x-end");
     }
 
     #[test]

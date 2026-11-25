@@ -614,3 +614,52 @@ async fn the_catalog_listing_route_spends_one_load_bound_on_a_store_that_stalls(
     );
     lock.rollback().await.unwrap();
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_readable_listing_over_several_scan_pages_spends_one_load_bound_on_a_stalled_store() {
+    let connect = Duration::from_millis(300);
+    let test = app_with(
+        &[("main", &[("note.md", HOME_NOTE)])],
+        Config {
+            store_connect_timeout: connect,
+            ..Config::default()
+        },
+    )
+    .await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote-1", &[("note.md", REMOTE_NOTE)])
+        .await;
+    for name in ["remote-2", "remote-3"] {
+        test.catalog_on_store(&store, name, &[("note.md", REMOTE_NOTE)])
+            .await;
+    }
+    // The generations query is the probe a listing makes: lock its table.
+    let db = test.app.stores().get(&store).await.unwrap();
+    let mut lock = db.executor().begin().await.unwrap();
+    sqlx::query("LOCK TABLE catalog_state IN ACCESS EXCLUSIVE MODE")
+        .execute(&mut *lock)
+        .await
+        .unwrap();
+    let started = std::time::Instant::now();
+
+    // One catalog per scan page: four scan pages, three of them on the store
+    // that stalls, and every catalog readable so the scan reaches the end.
+    let page = bounded(test.app.directory().readable_page_by(
+        &principal(&[], None),
+        None,
+        10,
+        chrono::Utc::now(),
+        1,
+    ))
+    .await
+    .expect("a stalled store is named, not a failure");
+
+    assert_eq!(page.items.len(), 4);
+    assert_eq!(page.unavailable, ["remote-1", "remote-2", "remote-3"]);
+    assert!(
+        started.elapsed() < connect * 2,
+        "took {:?} for a store-load bound of {connect:?}",
+        started.elapsed()
+    );
+    lock.rollback().await.unwrap();
+}

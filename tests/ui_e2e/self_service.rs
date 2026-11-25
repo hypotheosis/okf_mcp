@@ -523,7 +523,7 @@ async fn a_ceiling_lowered_during_the_session_shows_on_my_keys_without_a_reload(
             })
             .await;
         });
-        ui.click("a[data-nav=health]");
+        ui.click("a[data-nav=recent]");
         ui.wait_hidden("#my-keys-table");
         ui.click("a[data-nav=my-keys]");
         ui.wait_text(cell, "(outside your ceiling now)");

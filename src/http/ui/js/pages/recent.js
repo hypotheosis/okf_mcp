@@ -1,4 +1,5 @@
-// Recent changes: the revisions published in the selected catalog, every
+// Recent changes: the catalog's Health (components/health.js), then the
+// revisions published in the selected catalog, every
 // document's, newest first (#/recent). A row opens that revision's diff and
 // text in the drawer, a deleted document's too. Refresh reads the newest
 // page again; Load older continues from the last row.
@@ -10,6 +11,7 @@ import { closeDrawer } from '../core/drawer.js';
 import { ago } from '../core/format.js';
 import { listTable } from '../components/list-table.js';
 import { openRevision } from '../components/revision.js';
+import { renderHealth } from '../components/health.js';
 
 const OP_KIND = { create: 'ok', update: 'info', delete: 'error', import: 'muted' };
 let pageSize = 50;
@@ -53,6 +55,9 @@ export async function render(main) {
                 catalog ? `Published changes in ${catalogLabel(catalog)}, newest first.` : 'No catalog selected.')),
         catalog ? h('div', { class: 'actions' }, refreshButton) : null));
     if (!catalog) return;
+    // Health first; its reads and the revision list's fail independently.
+    const health = h('section', { id: 'health' });
+    const healthLoaded = renderHealth(health, catalog);
     const status = h('p', { class: 'muted', id: 'recent-status', role: 'status' }, 'Loading...');
     const table = listTable(columns(), [], {
         onRow: row => openRevision(main, catalog, row.path, row),
@@ -61,7 +66,7 @@ export async function render(main) {
     table.id = 'recent-table';
     table.hidden = true;
     const older = h('button', { type: 'button', id: 'recent-older', class: 'secondary', hidden: true, onclick: () => loadOlder() }, 'Load older');
-    main.append(status, table, older);
+    main.append(health, h('h2', { class: 'history-head' }, 'Revision history'), status, table, older);
 
     // The rows drawn and the cursor that continues them are one committed
     // state: a first page replaces both, a continuation appends to both,
@@ -139,5 +144,5 @@ export async function render(main) {
         settle();
     }
 
-    await refresh();
+    await Promise.all([healthLoaded, refresh()]);
 }

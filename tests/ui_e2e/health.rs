@@ -1,5 +1,7 @@
-//! The Health page: its tiles equal the API's counts, the Links report lists
-//! an orphan, and a report row opens its concept in Browse.
+//! Health, inside Recent changes: its tiles equal the API's counts, the Links
+//! report lists an orphan, a report row opens its concept in Browse, the old
+//! `#/health` link lands on Recent changes, Health comes before the revision
+//! list, and a failed Health read leaves the list working.
 
 use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
@@ -55,8 +57,30 @@ async fn health_tiles_match_the_api_and_a_row_opens_its_concept() {
     };
     drive(server.base.clone(), move |ui| {
         ui.login(&key);
+        // The old standalone address lands on Recent changes.
         ui.open("/health");
         ui.wait_visible("#n-lint");
+        assert_eq!(
+            ui.eval("() => location.hash", json!(null)),
+            json!("#/recent")
+        );
+        assert_eq!(
+            ui.eval(
+                "() => document.querySelector('a[data-nav=recent]').classList.contains('active')",
+                json!(null)
+            ),
+            json!(true)
+        );
+        // Health comes before the revision history.
+        assert_eq!(
+            ui.eval(
+                "() => !!(document.getElementById('health').compareDocumentPosition(\
+                 document.getElementById('recent-table')) & Node.DOCUMENT_POSITION_FOLLOWING)",
+                json!(null)
+            ),
+            json!(true)
+        );
+        ui.wait_text("#recent-table tbody", "/systems/");
         for (tile, field) in [
             ("lint", "lint_errors"),
             ("sprawl", "sprawl"),
@@ -85,6 +109,35 @@ async fn health_tiles_match_the_api_and_a_row_opens_its_concept() {
             ui.eval("() => location.hash", json!(null)),
             json!("#/browse/main/systems/gamma.md")
         );
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_failed_health_read_leaves_the_revision_list_working_and_refresh_recovers() {
+    let server = TestServer::start(
+        vec![(
+            "main",
+            files(&[("index.md", INDEX), ("systems/alpha.md", ALPHA)]),
+        )],
+        Config::default(),
+    )
+    .await;
+    let key = server
+        .key("console-health-fail", Access::Read, &["main"], Some("main"))
+        .await;
+    drive(server.base.clone(), move |ui| {
+        ui.login(&key);
+        ui.open("");
+        ui.fail_next("GET", "/health", 503, "unavailable");
+        ui.click("a[data-nav=recent]");
+        ui.wait_text("#health-tiles", "The counts could not be loaded.");
+        // The revisions are listed all the same.
+        ui.wait_text("#recent-table tbody", "/systems/alpha.md");
+        // Refresh on the Health section reads the counts again.
+        ui.click("#health-refresh");
+        ui.wait_visible("#n-lint");
+        ui.wait_visible("#recent-table");
     })
     .await;
 }

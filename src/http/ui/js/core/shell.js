@@ -48,20 +48,22 @@ export async function refreshIdentity() {
 }
 
 // Whether an element marked data-need="<need>" shows: "session" for the
-// account pages (signed in with an account, not a key), "audit", "records"
-// and "owner" (below), else an access level.
+// account pages (signed in with an account, not a key), "audit", "records",
+// "account" (below), else an access level.
 // "audit" for the Audit link: an admin that reaches every catalog, or anyone
 // signed in with an account (every user owns at least its personal team, and
-// the page lists the teams it owns). "records" for the Records group and its
-// Unlocks link: those, and any admin credential (a scoped admin reads the
-// unlocks of the catalogs it administers). "owner" for the Catalogs link of someone signed in with an account who is
-// not an admin (the Administer group has it for admins): its drawer holds
-// the maintenance switch of the catalogs their teams own.
+// the page lists the teams it owns). "records" for the Unlocks link: those,
+// and any admin credential (a scoped admin reads the unlocks of the
+// catalogs it administers). "account" for the Your account group, which
+// holds the Catalogs link: an admin credential (key or account) or anyone
+// signed in with an account (a member's Catalogs drawer holds the
+// maintenance switch of the catalogs their teams own). An admin by key sees
+// that link alone, as the Administer group had it.
 function shows(need) {
     if (need === 'session') return !!store.session;
     if (need === 'audit') return canAdministerPeople() || !!store.session;
     if (need === 'records') return shows('audit') || store.whoami?.access === 'admin';
-    if (need === 'owner') return !!store.session && !store.session.admin;
+    if (need === 'account') return !!store.session || store.can('admin');
     return store.can(need);
 }
 

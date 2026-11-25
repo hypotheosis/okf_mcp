@@ -34,7 +34,8 @@ async fn an_admin_visits_every_page_without_a_console_error() {
     drive(server.base.clone(), move |ui| {
         ui.login(&key);
 
-        ui.click("a[data-nav=health]");
+        // Health is part of Recent changes, which comes first here.
+        ui.click("a[data-nav=recent]");
         ui.wait_visible("#n-lint");
         ui.wait_visible("#n-oldest");
 
@@ -44,9 +45,11 @@ async fn an_admin_visits_every_page_without_a_console_error() {
         ui.wait_text("#concept-title", "Alpha");
         ui.wait_text("#markdown-body", "Alpha runs.");
 
-        ui.click("a[data-nav=search]");
-        ui.fill("#search-query", "alpha");
-        ui.click("#search-form button[type=submit]");
+        // The sidebar's search box: Enter shows the results in the panel.
+        ui.fill("#sidebar-search-input", "alpha");
+        ui.page
+            .press_key(Some("#sidebar-search-input"), "Enter")
+            .expect("press Enter");
         ui.wait_text("#search-count", "hit");
         assert!(ui
             .text("#search-results")
@@ -61,8 +64,8 @@ async fn an_admin_visits_every_page_without_a_console_error() {
         ui.click("a[data-nav=changesets]");
         ui.wait_text("#changesets-table", "No open changesets.");
 
-        // The Administer group's; "Your teams" has one for owners too.
-        ui.click("[data-need=admin] a[data-nav=catalogs]");
+        // The Your account group's, for admins and owners alike.
+        ui.click("[data-need=account] a[data-nav=catalogs]");
         ui.wait_visible("[data-catalog=main]");
 
         ui.click("a[data-nav=transfer]");

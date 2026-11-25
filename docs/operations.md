@@ -3988,14 +3988,19 @@ account" (My keys, My grants, Account), and Administer only to an admin
 user; hiding it is a convenience, since the API refuses a member's session on
 admin routes (403).
 
-Two more groups follow. **Records** holds Audit, for an admin that reaches
+The sidebar begins with a search box (Enter shows the results in the main
+panel, at the linkable `#/search/<query>`; a blank box sends nothing), then
+the groups **Catalogs** (Browse, Recent changes, Import & export, and the
+catalog selector), **Records**, Administer and Your account. **Records**
+holds Findings, Runs and Changesets, then Audit, for an admin that reaches
 every catalog and for anyone signed in with an account (every user owns
 at least its personal team; an owner picks one of the teams they own), and
 Unlocks, for those and for any admin credential (a scoped admin sees the
-unlocks of the catalogs it administers). **Your teams** shows to someone
-signed in with an account who is not an admin: its Catalogs link lists the
-catalogs the user reaches, and a catalog's drawer holds only the
-Maintenance switch, enabled for an owner of the catalog's owner team. Where a
+unlocks of the catalogs it administers). **Your account** also holds the
+Catalogs link, which shows to an admin credential and to anyone signed in
+with an account: it lists the catalogs the user reaches, and a catalog's
+drawer for a member holds only the Maintenance switch, enabled for an owner
+of the catalog's owner team. Where a
 locked catalog is refused (`UnlockRequired`), the console offers Unlock,
 to an admin credential whose user is an admin user (`whoami`'s
 `user_admin`), with a short form for the category,
@@ -4406,7 +4411,8 @@ curl -s -H "Authorization: Bearer $OKF_MCP_KEY" \
     "https://okf-mcp.example.com/api/v1/catalogs/main/reports/oldest?n=10"
 ```
 
-The Health page is the console's landing page. Its five tiles are these
+Health is the top section of Recent changes (`#/health` still works and
+lands there); the console opens on Browse. Its five tiles are these
 counts for the selected catalog (lint errors with the warning count, sprawling
 concepts, orphans with the broken-link count, the oldest stamp, open
 questions). The switcher below them shows one report at a time as a sortable

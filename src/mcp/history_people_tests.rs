@@ -212,8 +212,15 @@ async fn deleting_the_user_keeps_the_record_and_history_shows_the_id() {
     let by_name = recent_changes(&reader, recent_of(Some("carol")))
         .await
         .unwrap();
+    let bare_id = recent_changes(&reader, recent_of(Some(&carol)))
+        .await
+        .unwrap();
     assert_eq!(paths(&by_id), ["/n.md"]);
     assert!(by_name.changes.is_empty());
+    assert!(
+        bare_id.changes.is_empty(),
+        "a bare value is a name, never read as a stored id"
+    );
 }
 
 /// A user name may equal a deleted user's stored id (both are `[a-z0-9-]+`

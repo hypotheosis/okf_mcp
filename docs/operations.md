@@ -2411,9 +2411,12 @@ controls disabled, or the Unassigned view a note, saying why.
 Every revision keeps two names for who made it. `actor` is the credential's
 actor: a key's actor, the OAuth client's name (a self-issued grant's actor is
 the client's name, so every Claude Code user's edits share one), or a console
-session's user name. It never changes. `user` is the person: the `users.id` of
-the user whose credential published the revision, recorded at publish time
-(`revisions.user_id`, a catalog-store column, null when no person is known).
+session's user name. It never changes. `user` is the person: the name (the id
+the API uses, as `whoami` shows) of the user whose credential published the
+revision. What is stored, at publish time, is that user's `users.id`
+(`revisions.user_id`, a catalog-store column, null when no person is known),
+and each read resolves it to the name, so a renamed or reused name never
+misattributes an old revision.
 
 - **Recorded once.** A publish records the publishing credential's user: a
   key's or grant's user, or the signed-in person of a console session. It is
@@ -2422,7 +2425,7 @@ the user whose credential published the revision, recorded at publish time
   key to another user afterwards changes nothing already recorded.
 - **Deleting a user keeps it.** There is no foreign key: deleting a user
   leaves `revisions.user_id` as it was, so the revision still names that user.
-  The user's name and label no longer resolve, so history shows the stored id
+  The user's name and label no longer resolve, so history shows the stored `users.id`
   (a uuid) as `user` and `null` as `user_label`. Giving a deleted user's id to
   the `user` filter still finds their revisions; their old name does not. This
   may be revisited for privacy.

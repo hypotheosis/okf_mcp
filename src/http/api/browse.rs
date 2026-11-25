@@ -188,7 +188,9 @@ pub(crate) struct RecentChange {
     pub op: String,
     /// Who published it.
     pub actor: String,
-    /// The actor's display label, when the directory knows one.
+    /// The label of the actor when the actor is itself a user (a console
+    /// session); `None` for a key or OAuth actor. The person behind any
+    /// credential is `user_label`.
     pub actor_label: Option<String>,
     /// The person whose credential published it: their user id, or the
     /// stored id of a deleted user; `None` when no person is recorded.

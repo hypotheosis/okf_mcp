@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "0928394bb8925a3a6c09e13c20561fd10325ad99ee0932bfc8791d12014167bf"
   },
-  "next_evidence_seq": 1992,
+  "next_evidence_seq": 1993,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7269f300d93a096ab0a517e0cfdb55e2f442b2dae0b94055b47b9c86106a7196"
+    "mac": "2f0b62d58f2c9d4836a7f6d0499a9f11c95eb625fa5afefa5022d3adbc31b960"
   },
   "claims": [
     {
@@ -78779,7 +78779,7 @@
     },
     {
       "id": "CLM-0963",
-      "statement": "The new tests are deterministic: no test in the change races a real sleep against an event; the keeper's timers are tested on a paused clock and the registry tests wait on a refresh counter.",
+      "statement": "The new tests are deterministic: no test in the change races a real sleep against an event; the keeper's timers are tested on a paused clock, and the registry tests wait on a refresh counter or poll a read with a bounded retry (until_ok, 60 s deadline) rather than a fixed sleep.",
       "kind": "non_functional",
       "level": "artifact",
       "integrity_level": 2,
@@ -78854,6 +78854,28 @@
             "by": "server",
             "mac": "d4acf3bc33afd8dc84d30b5cfb4aed50aa78b6580da0097c07502c48072cae4e"
           }
+        },
+        {
+          "id": "EVD-1992",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1594-1640 (a_refresh_is_applied, until_ok)",
+          "summary": "Registry rotation tests wait on the refresh watch counter (a_refresh_is_applied, one tokio timeout of 60 s) or poll a read with a bounded retry (until_ok: a 100 ms pause between attempts, the whole loop under one 60 s timeout). The 100 ms pause paces retries of a read; it is not raced against an event, and the loop is bounded. Keeper timers stay on a paused clock.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1594,
+                "end": 1640
+              },
+              "commit": "eaafa954150ea86d7266670b4d62ed9a917db150"
+            }
+          },
+          "recorded_at": "2026-11-25T04:54:55.691200605Z",
+          "seal": {
+            "by": "server",
+            "mac": "df7fd83eca44c11b41d336056a392f151224b4f56c00a77307f69952a3910e8f"
+          }
         }
       ],
       "verdicts": [
@@ -78895,13 +78917,26 @@
             "by": "server",
             "mac": "ec389c33c463c406d29345da214adce1285f34c11b9f78dfc9ec93f733f637e9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Statement now says counter waits or a bounded retry; EVD-1992 shows both are bounded and neither races a sleep against an event.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-1992"
+          ],
+          "recorded_at": "2026-11-25T04:55:03.738017771Z",
+          "seal": {
+            "by": "server",
+            "mac": "a4dc1bf5f1ce35bd281d1cd35d6afefdff8f4b35d9666f03ca934771ea74e9ba"
+          }
         }
       ],
       "created_at": "2026-11-23T18:57:17.254708565Z",
-      "updated_at": "2026-11-25T04:40:01.480676297Z",
+      "updated_at": "2026-11-25T04:55:03.738017771Z",
       "seal": {
         "by": "server",
-        "mac": "b509d115de8bdf867ca5e09f9775e182d94937c69381ffef9c3200f6c1b59bf7"
+        "mac": "99357bf15b6ec16fed10eb89a054043c8819af23129145a28c951bfa7274f458"
       }
     },
     {
@@ -109206,7 +109241,7 @@
     },
     {
       "id": "CLM-1344",
-      "statement": "The change modifies no production code: the only files changed are src/stores/registry.rs (its tests module) and a changelog entry, so production retry behaviour (#998) is unchanged.",
+      "statement": "The change modifies no production code: the only files changed are src/stores/registry.rs (its tests module), a changelog entry and the claims.json ledger, so production retry behaviour (#998) is unchanged.",
       "kind": "constraint",
       "level": "software",
       "integrity_level": 3,
@@ -109217,7 +109252,8 @@
       ],
       "artifacts": [
         "src/stores/registry.rs",
-        "changelog/"
+        "changelog/",
+        "claims.json"
       ],
       "tags": [
         "from-issue:1002"
@@ -109265,10 +109301,10 @@
         }
       ],
       "created_at": "2026-11-25T04:38:20.413874924Z",
-      "updated_at": "2026-11-25T04:39:34.454449198Z",
+      "updated_at": "2026-11-25T04:54:48.859204966Z",
       "seal": {
         "by": "server",
-        "mac": "7ad38505173b8de0ccf16da76e3717cb13703282cfdb90f7d3022e570d314a7b"
+        "mac": "3e304a4565fa5dc1e71ab729c9b327a3a8fdeab406bf10214e9bf1b5046bc4d2"
       }
     },
     {

@@ -1531,22 +1531,37 @@ test_watchdog_stops_alerting_once_the_report_is_done() {
 # the command's group (its leader's pid, which the command records) (the process then stays alive, as one in D
 # state would) and passes every other call, `kill -0` included, to the builtin.
 
-# immortal_harness <body>: writes $fx/harness.sh, which sources lib.sh, makes
-# the command's signals ineffective and then runs <body>.
-immortal_harness() {
-    cat >"$fx/harness.sh" <<HARNESS
-source "$tools/lib.sh"
-agentic_kill_after=1
-agentic_reap_after=1
+# write_kill_shim: writes $fx/shim.sh, which shadows `kill`. TERM or KILL aimed
+# at the group whose leader pid is in $fx/leader.pid has no effect, except that
+# when $fx/leader_dies exists the leader itself is really killed. Everything
+# else, `kill -0` included, goes to the builtin.
+write_kill_shim() {
+    cat >"$fx/shim.sh" <<'SHIM'
 kill() {
     local immortal
-    immortal=\$(cat "\$GH_FIXTURES/leader.pid" 2>/dev/null)
-    case "\$1" in
+    immortal=$(cat "$GH_FIXTURES/leader.pid" 2>/dev/null)
+    case "$1" in
         -TERM | -KILL)
-            case "\${3:-\$2}" in "-\$immortal" | "\$immortal") return 0 ;; esac ;;
+            case "${3:-$2}" in
+                "-$immortal" | "$immortal")
+                    [ ! -e "$GH_FIXTURES/leader_dies" ] || builtin kill -KILL "$immortal" 2>/dev/null
+                    return 0 ;;
+            esac ;;
     esac
-    builtin kill "\$@"
+    builtin kill "$@"
 }
+SHIM
+}
+
+# immortal_harness <body>: writes $fx/harness.sh, which sources lib.sh and the
+# shim and then runs <body>.
+immortal_harness() {
+    write_kill_shim
+    cat >"$fx/harness.sh" <<HARNESS
+source "$tools/lib.sh"
+source "$fx/shim.sh"
+agentic_kill_after=1
+agentic_reap_after=1
 $1
 HARNESS
 }
@@ -1583,6 +1598,39 @@ echo "rc=$?"'
     want_rc 0; want_out "rc=3"; want_out "some survived KILL and were abandoned"
     [ $((SECONDS - started)) -le 10 ] || die "took $((SECONDS - started)) s"
     kill -0 "$(cat "$fx/member.pid")" 2>/dev/null || die "the leftover was not left running"
+}
+
+test_run_bounded_abandons_a_group_member_that_survives_kill_after_a_timeout() {
+    # The leader dies (bash reaps it); a member of its group survives KILL.
+    new_fixtures
+    trap stop_survivors EXIT
+    touch "$fx/leader_dies"
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    immortal_harness 'agentic_run_bounded 1 bash -c "(exec sleep 60 </dev/null >/dev/null 2>&1) & echo \$! >\"$GH_FIXTURES/member.pid\"; echo \$\$ >\"$GH_FIXTURES/leader.pid\"; exec sleep 60 >/dev/null 2>&1"
+echo "rc=$?"'
+    started=$SECONDS
+    out=$(cd "$work" && timeout 30 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=124"; want_out "processes of its group survived KILL"
+    [ $((SECONDS - started)) -le 10 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/member.pid")" 2>/dev/null || die "the member was not left running"
+    ! kill -0 "$(cat "$fx/leader.pid")" 2>/dev/null || die "the leader should be dead"
+}
+
+test_gate_frees_the_lock_when_it_abandons_a_process_that_survives_kill() {
+    new_fixtures
+    trap stop_survivors EXIT
+    write_kill_shim
+    # shellcheck disable=SC2016 # $$ and $GH_FIXTURES are expanded by the fake just
+    fake_just 'echo $$ >"$GH_FIXTURES/leader.pid"; exec sleep 60 >/dev/null 2>&1'
+    started=$SECONDS
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" BASH_ENV="$fx/shim.sh" AGENTIC_TIMEOUT_LINT=1s \
+        AGENTIC_GATE_KILL_AFTER=1 timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 124; want_out "survived KILL"; want_out "abandoned"
+    [ $((SECONDS - started)) -le 15 ] || die "took $((SECONDS - started)) s"
+    kill -0 "$(cat "$fx/leader.pid")" 2>/dev/null || die "the leader was not left running"
+    flock -n "$repo/.git/agentic/gates.lock" true || die "gates.lock is still held"
 }
 
 test_run_bounded_does_not_use_pgrep_for_the_leftover_check() {

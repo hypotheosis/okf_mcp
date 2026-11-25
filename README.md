@@ -323,7 +323,7 @@ additive updates, whether or not its change is staged. Of the 46 tools:
   `add_source`, `question`, `log` and the maintenance lease, report and
   disposition steps `maintenance_claim`, `maintenance_renew`,
   `maintenance_submit` and `maintenance_dispose`.
-- 17 destructive (`destructiveHint: true`): 12 staged ones that can overwrite
+- 16 destructive (`destructiveHint: true`): 12 staged ones that can overwrite
   or remove existing content (`edit_document`, `replace_body`,
   `set_frontmatter`, `stamp`, `review`, `index`, `repair_indexes`,
   `remove_source`, `unquestion`, `revert`, `move_concept`, `split_concept`;

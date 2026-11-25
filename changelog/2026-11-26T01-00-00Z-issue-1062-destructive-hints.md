@@ -17,6 +17,6 @@ and `set_frontmatter` now say they are staged and that `discard` drops the edit.
 The generated kind in `docs/reference/tools.md` is renamed `staged` to
 `additive`, and `destructive` is defined as "may overwrite or remove existing
 content, staged or not". The README counts are rewritten from the code (20 reads,
-9 additive, 17 destructive, `send_feedback`).
+9 additive, 16 destructive, `send_feedback`).
 
 Not done here: re-submitting to the ChatGPT directory.

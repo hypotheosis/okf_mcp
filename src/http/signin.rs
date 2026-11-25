@@ -1377,7 +1377,6 @@ mod tests {
         let decoys = observed.spans_of_requests_from(OTHER_TRACE);
         let decoy_count = |name: &str| decoys.iter().filter(|span| span.name == name).count();
         assert_eq!((decoy_count("audit"), decoy_count("start_in")), (1, 1));
-        assert_eq!(observed.spans_named("audit").len(), 2, "all were captured");
         let own_spans = observed.spans_of_requests_from(CALLER_TRACE);
 
         assert_eq!(refused.status, StatusCode::UNAUTHORIZED);

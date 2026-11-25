@@ -22,10 +22,12 @@
   `src/store/sign_in_events.rs` asserts exactly one span named `record`, and
   `src/http/telemetry_tests.rs` asserts exact counts of `GET /healthz` spans.
 
-## Review round 1
-- The test now also sends two sign-ins (wrong and right password) under a second
-  caller trace id in the same observer, asserts those spans were captured
-  (two `audit` spans in all, one `audit` and one `start_in` for the decoy), and
-  only then asserts the exact lists for its own requests. Without the
-  filter, the exact `audit` list would hold two entries and fail, so the
-  isolation is exercised on every run.
+## Review rounds
+- Round 1: the test also sends two sign-ins (wrong and right password) under a
+  second caller trace id in the same observer, and asserts that second
+  caller's own spans (one `audit`, one `start_in`) were captured, so the
+  exclusion is exercised on every run.
+- Round 2: removed an equality on the unfiltered `audit` count (it counted
+  every span in the observer, so a foreign span would fail it, which is the
+  original flake). Every assertion now reads spans selected by one of the two
+  caller trace ids, and the test tolerates unrelated traces in the observer.

@@ -56048,7 +56048,9 @@
         "from-issue:675"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #948 (PR #1041): it described the unbounded pgrep -c -g call at lib.sh:56, which that PR removed. The leftover check now uses kill -0 -- -pgid (see CLM-1356).",
+        "retired_at": "2026-11-25T06:00:45.488489454Z"
       },
       "evidence": [
         {
@@ -56201,10 +56203,10 @@
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-25T05:37:28.246964366Z",
+      "updated_at": "2026-11-25T06:00:45.488489454Z",
       "seal": {
         "by": "server",
-        "mac": "8b40aadd1335210d2f23ae72379a36d0864fd0c19aec2233ef3e920edd76858d"
+        "mac": "ff53a9e2ae9a5b01f11b419ead81845d397206556dfde03fa5e15b60dc8676c5"
       }
     },
     {

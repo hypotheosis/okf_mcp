@@ -17,7 +17,7 @@ use crate::app::App;
 use crate::cache::bounded::{CacheName, CacheSize, Eviction, Lookup};
 use crate::config::MailProvider;
 use crate::housekeeping::Task;
-use crate::mcp::annotations::{DESTRUCTIVE, EXTERNAL, READS, STAGED};
+use crate::mcp::annotations::{ADDITIVE, DESTRUCTIVE, EXTERNAL, READS, STAGED_DESTRUCTIVE};
 use crate::store::sign_in_events::{Method, Outcome as SignInOutcome};
 
 /// Seconds-histogram boundaries: 1 ms to 60 s. The SDK's defaults are
@@ -1266,7 +1266,8 @@ pub fn seconds_histogram(
 pub fn tool_label(name: &str) -> &'static str {
     READS
         .iter()
-        .chain(STAGED)
+        .chain(ADDITIVE)
+        .chain(STAGED_DESTRUCTIVE)
         .chain(DESTRUCTIVE)
         .chain(EXTERNAL)
         .find(|known| **known == name)

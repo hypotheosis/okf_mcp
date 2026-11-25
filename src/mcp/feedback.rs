@@ -185,7 +185,7 @@ impl OkfServer {
         annotations(
             title = "Send Feedback",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = true
         )
@@ -310,7 +310,7 @@ mod tests {
                 hints.idempotent_hint,
                 hints.open_world_hint
             ),
-            (Some(false), Some(false), Some(false), Some(true))
+            (Some(false), Some(true), Some(false), Some(true))
         );
     }
 

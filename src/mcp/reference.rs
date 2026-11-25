@@ -59,12 +59,19 @@ How a session usually goes:
 A tool is one of five kinds:
 
 - read-only: it changes nothing.
-- staged: it adds an entry to a changeset, which `discard` drops and `publish` applies.
+- additive: it only adds (a changeset, a concept, a source, a question, a log entry) and never
+  overwrites or removes existing content. What it stages stays in the changeset until `publish`.
 - maintenance: a step in a maintenance run (claim, renew, submit, dispose). It takes no
   changeset and is saved at once, so `discard` does not undo it; it never touches a concept.
-- destructive: it deletes, or cannot be undone from inside the server.
+- destructive: it can overwrite or remove existing content, or it cannot be undone from inside
+  the server, whether or not it is staged. A staged one (`edit_document`, `replace_body`,
+  `set_frontmatter`, `stamp`, `review`, `index`, `repair_indexes`, `remove_source`, `unquestion`,
+  `revert`, `move_concept`, `split_concept`) changes nothing until `publish`, and `discard` drops
+  it. This follows the MCP spec: `destructiveHint: false` means the tool performs only additive
+  updates.
 - external: it sends something to a service outside the server (`send_feedback`, offered
-  only when the operator configured it). It changes no catalog.
+  only when the operator configured it). It changes no catalog, but it cannot be called back,
+  so its `destructiveHint` is true.
 
 ";
 
@@ -172,7 +179,7 @@ fn cell(text: &str) -> String {
 /// * `tool` - a tool from the router.
 ///
 /// # Returns
-/// `read-only`, `staged`, `maintenance`, `destructive` or `external`.
+/// `read-only`, `additive`, `maintenance`, `destructive` or `external`.
 fn class(tool: &Tool) -> &'static str {
     let hints = tool.annotations.as_ref();
     if hints.and_then(|h| h.open_world_hint) == Some(true) {
@@ -182,10 +189,10 @@ fn class(tool: &Tool) -> &'static str {
     } else if hints.and_then(|h| h.destructive_hint) == Some(true) {
         "destructive"
     } else if tool.name.starts_with("maintenance_") {
-        // Run steps persist at once and take no changeset handle, so they are not "staged".
+        // Run steps persist at once and take no changeset handle, so they are not "additive".
         "maintenance"
     } else {
-        "staged"
+        "additive"
     }
 }
 

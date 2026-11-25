@@ -604,7 +604,7 @@ async fn a_maintenance_mutation_records_no_read_and_a_revision_read_records_one(
 // ---- M14 Task 9b: the unlock check and the maintenance exemption ----
 
 /// Makes user `staff` (from [`staff_root`]) an admin user, as unlocks need.
-async fn make_staff_admin(test: &TestApp) {
+pub(super) async fn make_staff_admin(test: &TestApp) {
     let change = crate::store::users::AdminChange {
         on: true,
         allow_last: false,
@@ -624,12 +624,22 @@ async fn make_staff_admin(test: &TestApp) {
 ///
 /// # Returns
 /// The unlock's id.
-async fn unlock(test: &TestApp, catalog: &str) -> i64 {
+pub(super) async fn unlock(test: &TestApp, catalog: &str) -> i64 {
     crate::invalidate::testing::applied(&test.app, create_unlock(test, catalog)).await
 }
 
 /// [`unlock`] without the poll.
 async fn create_unlock(test: &TestApp, catalog: &str) -> i64 {
+    create_unlock_at(test, catalog, Utc::now()).await
+}
+
+/// [`create_unlock`] made at `now` (an unlock made two hours ago has
+/// expired), its change message not applied.
+pub(super) async fn create_unlock_at(
+    test: &TestApp,
+    catalog: &str,
+    now: chrono::DateTime<Utc>,
+) -> i64 {
     use crate::store::unlocks::{self, Category, NewUnlock, UnlockPolicy};
     let new = NewUnlock {
         catalog,
@@ -648,7 +658,7 @@ async fn create_unlock(test: &TestApp, catalog: &str) -> i64 {
         &new,
         &policy,
         &AuditActor::cli(),
-        Utc::now(),
+        now,
     )
     .await
     .unwrap();

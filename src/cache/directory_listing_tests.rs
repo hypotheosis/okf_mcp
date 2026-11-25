@@ -196,3 +196,151 @@ fn the_page_size_defaults_to_100_and_is_capped_at_1000() {
     assert_eq!(page_size(Some(1000)), 1000);
     assert_eq!(page_size(Some(u32::MAX)), 1000);
 }
+
+// ---- Issue #955: the readable listing ----
+
+/// An admin key of a user with live unlocks on `unlocked` (names among `a`
+/// to `g`), `require_unlock` on: it reaches every catalog and may read only
+/// those.
+async fn locked_admin(
+    directory: &CatalogDirectory,
+    unlocked: &[&str],
+    now: chrono::DateTime<Utc>,
+) -> Principal {
+    let every = principal(&[], None);
+    let all = directory
+        .reachable_page(&every, None, DEFAULT_PAGE)
+        .await
+        .unwrap();
+    let unlocks = all
+        .items
+        .iter()
+        .filter(|row| unlocked.contains(&row.name.as_str()))
+        .map(|row| crate::store::gates::UserUnlock {
+            id: row.id,
+            catalog_id: row.id,
+            expires_at: now + chrono::TimeDelta::hours(1),
+        })
+        .collect();
+    let gates = crate::store::gates::UserGates {
+        is_admin: true,
+        unlocks,
+        ..Default::default()
+    };
+    Principal {
+        access: crate::store::keys::Access::Admin,
+        facts: Arc::new(crate::auth::AccessFacts {
+            user: Some(Arc::new(gates)),
+            credential: None,
+            require_unlock: true,
+        }),
+        ..Arc::unwrap_or_clone(every)
+    }
+}
+
+/// Every page of the readable listing, `limit` at a time, reading the reach
+/// list two catalogs at a time so a run of locked catalogs crosses scans.
+async fn walk_readable(
+    directory: &CatalogDirectory,
+    principal: &Principal,
+    limit: u32,
+    now: chrono::DateTime<Utc>,
+) -> Vec<(Vec<String>, bool)> {
+    let mut pages = Vec::new();
+    let mut after: Option<String> = None;
+    loop {
+        let page = directory
+            .readable_page_by(principal, after.as_deref(), limit, now, 2)
+            .await
+            .unwrap();
+        let names = page.items.iter().map(|row| row.name.clone()).collect();
+        pages.push((names, page.next.is_some()));
+        match page.next {
+            Some(next) => after = Some(next),
+            None => return pages,
+        }
+        assert!(pages.len() < 20, "the pages never end");
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn the_readable_listing_pages_through_locked_catalogs_without_gaps() {
+    let (_db, directory) = seven().await;
+    let now = Utc::now();
+    let staff = locked_admin(&directory, &["b", "e", "g"], now).await;
+
+    let by_two = walk_readable(&directory, &staff, 2, now).await;
+    let by_one = walk_readable(&directory, &staff, 1, now).await;
+
+    assert_eq!(by_two, [(names(&["b", "e"]), true), (names(&["g"]), false)]);
+    assert_eq!(
+        by_one,
+        [
+            (names(&["b"]), true),
+            (names(&["e"]), true),
+            (names(&["g"]), false)
+        ]
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_page_of_only_locked_catalogs_is_skipped_and_none_readable_is_empty() {
+    let (_db, directory) = seven().await;
+    let now = Utc::now();
+    // `a` to `f` are locked: three scans of two hold nothing readable.
+    let one = locked_admin(&directory, &["g"], now).await;
+    let none = locked_admin(&directory, &[], now).await;
+    let every = locked_admin(&directory, &["a", "b", "c", "d", "e", "f", "g"], now).await;
+
+    assert_eq!(
+        walk_readable(&directory, &one, 2, now).await,
+        [(names(&["g"]), false)]
+    );
+    assert_eq!(
+        walk_readable(&directory, &none, 2, now).await,
+        [(Vec::<String>::new(), false)]
+    );
+    assert_eq!(
+        walk_readable(&directory, &every, 3, now).await,
+        [
+            (names(&["a", "b", "c"]), true),
+            (names(&["d", "e", "f"]), true),
+            (names(&["g"]), false)
+        ]
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn an_unlock_that_expired_by_the_server_clock_is_not_readable() {
+    let (_db, directory) = seven().await;
+    let now = Utc::now();
+    let staff = locked_admin(&directory, &["c"], now).await;
+
+    let live = walk_readable(&directory, &staff, 5, now).await;
+    let later = walk_readable(&directory, &staff, 5, now + chrono::TimeDelta::hours(2)).await;
+
+    assert_eq!(live, [(names(&["c"]), false)]);
+    assert_eq!(later, [(Vec::<String>::new(), false)]);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn without_require_unlock_the_readable_listing_is_the_reach_listing() {
+    let (_db, directory) = seven().await;
+    let now = Utc::now();
+    let mut staff = locked_admin(&directory, &[], now).await;
+    staff.facts = Arc::new(crate::auth::AccessFacts {
+        require_unlock: false,
+        ..(*staff.facts).clone()
+    });
+
+    let readable = walk_readable(&directory, &staff, 3, now).await;
+
+    assert_eq!(
+        readable,
+        [
+            (names(&["a", "b", "c"]), true),
+            (names(&["d", "e", "f"]), true),
+            (names(&["g"]), false)
+        ]
+    );
+}

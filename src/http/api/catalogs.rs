@@ -12,7 +12,7 @@ use axum::routing::{get, patch, put};
 use axum::{Extension, Json, Router};
 use serde::{Deserialize, Serialize};
 
-use super::{owner_session, reachable_page, require_every_catalog, PageQuery};
+use super::{navigable_page, owner_session, require_every_catalog, PageQuery};
 use crate::app::App;
 use crate::auth::{CredentialKind, Principal};
 use crate::catalog::CatalogState;
@@ -242,6 +242,9 @@ pub(crate) struct CatalogDeleted {
 /// `GET /catalogs?after=&limit=`: one page of the catalogs the key reaches,
 /// any access level (M18 spec Decision 7).
 ///
+/// With `readable=true` (issue #955) only the catalogs the key may also read
+/// now (`require_unlock`: unlocked ones, and the team's own) are listed.
+///
 /// # Returns
 /// The page, by name, with `next` while more follow. Each listed catalog's
 /// snapshot fields (files, concepts, last change) come from the catalog
@@ -263,7 +266,7 @@ async fn list_catalogs(
     // The call's context remembers which stores are down, so a store that
     // fails once costs this request one bound, not one per catalog on it.
     let ctx = context(&app, Arc::clone(&principal), requester);
-    let page = reachable_page(&app, &principal, &query).await?;
+    let page = navigable_page(&app, &principal, &query).await?;
     let mut wanted = Wanted::default();
     for row in &page.items {
         if let Some(team) = row.owner_team.as_deref() {

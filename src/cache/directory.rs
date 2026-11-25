@@ -29,6 +29,7 @@ use std::time::Duration;
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine as _;
+use chrono::{DateTime, Utc};
 use futures_util::StreamExt as _;
 use sqlx::PgPool;
 
@@ -37,6 +38,7 @@ use crate::cache::{Bounded, CacheName, Limit};
 use crate::error::OkfError;
 use crate::invalidate::Invalidation;
 use crate::store::catalogs::{self, CatalogRow};
+use crate::store::keys::Access;
 use crate::stores::{StoreName, Stores, READ_CONCURRENCY};
 use crate::telemetry::metrics::Metrics;
 
@@ -564,6 +566,92 @@ impl CatalogDirectory {
         limit: u32,
     ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
         self.offered_page(principal, None, after, limit).await
+    }
+
+    /// The catalogs `principal` reaches and may read now, one page at a time
+    /// (issue #955): [`CatalogDirectory::reachable_page`] followed by the
+    /// content admission ([`Principal::admission`] for a read), so a catalog
+    /// an administrator reaches but has no live unlock for is left out. The
+    /// admission is pure: nothing is recorded, so listing counts as no read.
+    ///
+    /// Reach pages are read until `limit + 1` readable rows are found or the
+    /// reach list ends, so a page is full whenever more readable catalogs
+    /// follow (a run of locked catalogs, even a whole reach page of them, is
+    /// skipped) and `next` is set only when a readable row follows.
+    ///
+    /// # Arguments
+    /// * `principal` - the caller.
+    /// * `after` - as for [`CatalogDirectory::reachable_page`].
+    /// * `limit` - as for [`CatalogDirectory::reachable_page`].
+    /// * `now` - the server clock, against which unlocks expire.
+    ///
+    /// # Returns
+    /// The page's rows, ordered by name, and the cursor of the page after.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::offered_page`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn readable_page(
+        &self,
+        principal: &Principal,
+        after: Option<&str>,
+        limit: u32,
+        now: DateTime<Utc>,
+    ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+        // A scan page at least as large as the answer, so a run of readable
+        // catalogs takes one read; the cursor still only moves forward.
+        let scan = limit.clamp(1, MAX_PAGE).max(DEFAULT_PAGE);
+        self.readable_page_by(principal, after, limit, now, scan)
+            .await
+    }
+
+    /// [`CatalogDirectory::readable_page`] reading the reach list `scan`
+    /// catalogs at a time (the tests use a small `scan` to cross scan pages).
+    ///
+    /// # Arguments
+    /// * `scan` - how many reachable catalogs one read looks at.
+    ///
+    /// # Errors
+    /// As [`CatalogDirectory::readable_page`].
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub(crate) async fn readable_page_by(
+        &self,
+        principal: &Principal,
+        after: Option<&str>,
+        limit: u32,
+        now: DateTime<Utc>,
+        scan: u32,
+    ) -> Result<Page<Arc<CatalogRow>>, OkfError> {
+        let limit = limit.clamp(1, MAX_PAGE);
+        let mut readable: Vec<Arc<CatalogRow>> = Vec::new();
+        let mut down: HashSet<String> = HashSet::new();
+        let mut cursor = after.map(str::to_owned);
+        loop {
+            let page = self
+                .reachable_page(principal, cursor.as_deref(), scan)
+                .await?;
+            down.extend(page.unavailable);
+            readable.extend(
+                page.items
+                    .into_iter()
+                    .filter(|row| principal.admission(row, Access::Read, now).is_ok()),
+            );
+            cursor = page.next;
+            // `limit + 1`: the extra row tells `cut` that a page follows.
+            if cursor.is_none() || readable.len() > limit as usize {
+                break;
+            }
+        }
+        let mut page = Page::cut(readable, limit as usize);
+        let mut unavailable: Vec<String> = page
+            .items
+            .iter()
+            .filter(|row| down.contains(&row.name))
+            .map(|row| row.name.clone())
+            .collect();
+        unavailable.sort();
+        page.unavailable = unavailable;
+        Ok(page)
     }
 
     /// [`CatalogDirectory::reachable_page`] narrowed to an MCP connection's

@@ -12,6 +12,7 @@ use okf_mcp::store::keys::{self, Access, Grants, NewKey};
 use okf_mcp::store::settings::{self, SettingKey};
 use okf_mcp::store::users::{self, AdminChange, NewUser};
 
+use crate::catalogs::switcher;
 use crate::harness::{drive, Ui};
 use crate::self_service::{console_base, login_server};
 use crate::support::server::TestServer;
@@ -390,6 +391,64 @@ async fn an_admin_reads_another_staff_members_unlock_by_label() {
         ui.open("/unlocks");
         ui.wait_text("#unlocks-table", "ticket 7");
         ui.wait_text("#unlocks-table", "Staff Member");
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_switcher_offers_a_catalog_only_while_it_is_unlocked_and_unlock_still_finds_it() {
+    // Issue #955: an admin reaches `main` and `other` but may read neither
+    // until an unlock. The shell's switcher lists what may be read; the
+    // Catalogs page and the Unlock form still list everything, to unlock it.
+    let server = locked_server().await;
+    drive(console_base(&server), move |ui| {
+        ui.sign_in_password(STAFF_EMAIL, PASSWORD);
+        assert!(switcher(ui).is_empty(), "locked catalogs are offered");
+        ui.open("/catalogs");
+        ui.wait_visible("[data-catalog=main]");
+        ui.wait_visible("[data-catalog=other]");
+        ui.open("/unlocks");
+        ui.click("#unlocks-new");
+        // The form's picker finds the locked catalog.
+        ui.select("#unlock-form select[name=catalog]", "main");
+        fill_unlock(ui, "ticket 955");
+        ui.click("#unlock-form button[type=submit]");
+        ui.wait_text("#toasts", "Unlocked main");
+        // The identity is read again: the switcher offers `main` only.
+        ui.poll_eval(
+            "() => JSON.stringify([...document.querySelectorAll('#catalog-select option')] \
+             .map(option => option.value)) === '[\"main\"]'",
+        );
+        ui.wait_text("#unlocks-table", "ticket 955");
+        ui.click("[data-test=unlock-end-main]");
+        ui.click("#confirm-ok");
+        ui.wait_text("#toasts", "Ended the unlock of");
+        // Ending it takes the catalog out of the switcher again.
+        ui.poll_eval("() => document.querySelectorAll('#catalog-select option').length === 0");
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_readers_picker_lists_only_the_catalogs_an_admin_may_read() {
+    let server = locked_server().await;
+    drive(console_base(&server), move |ui| {
+        ui.sign_in_password(STAFF_EMAIL, PASSWORD);
+        // Nothing is unlocked: the reader has no catalog to offer.
+        ui.open_reader("/c");
+        ui.wait_visible("#no-catalogs");
+        assert!(!ui.present("#catalog-list"), "a locked catalog is listed");
+        ui.open("/unlocks");
+        ui.click("#unlocks-new");
+        ui.select("#unlock-form select[name=catalog]", "main");
+        fill_unlock(ui, "ticket 956");
+        ui.click("#unlock-form button[type=submit]");
+        ui.wait_text("#toasts", "Unlocked main");
+        // `main` is the only readable catalog, so the picker takes it and
+        // goes home; with `other` listed it would draw a choice instead.
+        ui.open_reader("/c");
+        ui.wait_visible("#screen-home");
+        assert!(!ui.present("#no-catalogs"));
     })
     .await;
 }

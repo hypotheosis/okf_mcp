@@ -141,12 +141,12 @@ function freshness(result) {
     banner.hidden = false;
 }
 
-// The catalogs the account reaches, by name, read once per page load (the
+// The catalogs the account may read now, by name, read once per page load (the
 // worker keeps a copy for offline). A refused read gives an empty map and
 // is tried again next time: the header then shows the catalog's name, and
 // each screen's own reads decide what the refusal means.
 function catalogList() {
-    catalogRead ??= readAll('/catalogs', 'catalogs').then(result => {
+    catalogRead ??= readAll('/catalogs?readable=true', 'catalogs').then(result => {
         state.known = new Map(result.data.map(found => [found.name, found]));
         relabel();
         return state.known;

@@ -16,9 +16,11 @@ export async function refreshIdentity() {
     // rather than failing the whole identity.
     const [session, me, labels] = await Promise.all([
         store.session ? api.get('/session') : null,
-        // Every page: the switcher offers every catalog, and the labels
-        // table names every catalog the key reaches.
-        api.pages('/whoami', 'catalogs'),
+        // Every page: the switcher offers every catalog this identity may
+        // read now (`readable`: an admin's locked catalogs are left out; the
+        // Catalogs page and the Unlock drawer still list them), and the
+        // labels table names every catalog the key reaches.
+        api.pages('/whoami?readable=true', 'catalogs'),
         api.pages('/labels', 'catalogs', { quiet: true }).catch(() => null),
     ]);
     if (session) {

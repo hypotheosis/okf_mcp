@@ -23,7 +23,7 @@ import { when } from '../core/format.js';
 import { listTable } from '../components/list-table.js';
 import { confirmDialog } from '../components/confirm.js';
 import { CATEGORY_LABEL, canUnlock, openUnlock } from '../components/unlock.js';
-import { freshAccount } from '../core/shell.js';
+import { freshAccount, refreshIdentity } from '../core/shell.js';
 import { guard, once } from '../core/pending.js';
 
 const STATE_KIND = { live: 'warn', expired: 'muted', ended: 'muted' };
@@ -80,6 +80,8 @@ export async function render(main) {
                 // The answer is drawn even when the reload after it fails.
                 rows = rows.map(shown => (shown.id === ended.id ? ended : shown));
                 toast(`Ended the unlock of ${catalogLabel(ended.catalog)}.`, 'ok');
+                // The catalog may no longer be readable: the switcher drops it.
+                await refreshIdentity().catch(() => {});
             } catch (error) {
                 refusals.set(row.id, error.message);   // already toasted
             }

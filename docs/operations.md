@@ -4750,11 +4750,13 @@ client's host over HTTPS. The fetch ignores `HTTP_PROXY` and the other proxy
 variables, so a network policy that blocks the pod's direct outbound HTTPS
 breaks such clients. A fetched document is cached (5 minutes to 24 hours, from
 its `Cache-Control`). If a refetch fails in transport (timeout, refused
-connection, no DNS answer, a non-200 status), the cached copy keeps working
-for up to 24 hours after it was fetched. If the refetch delivers an invalid
+connection, no DNS answer, a non-200 status other than 404 and 410), the
+cached copy keeps working for up to 24 hours after it was fetched. If the
+host answers 404 Not Found or 410 Gone, the document has been deleted, and
+that authorization fails at once. If the refetch delivers an invalid
 document (not JSON, too large, a changed `client_id`, invalid
-`redirect_uris`), that authorization fails at once. The cached copy is left
-in place, not replaced or evicted, so a later refetch that fails in transport
+`redirect_uris`), that authorization fails at once too. The cached copy is left
+in place, not replaced or evicted (also after a 404 or 410), so a later refetch that fails in transport
 can still use it within the 24 hours, and the next valid document replaces it. Clients that register
 themselves (dynamic client registration) need no egress.
 

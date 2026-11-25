@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1499,
+  "next_claim_seq": 1511,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c5e5be03322eb4a9faea34db38cc9905c12d616475021f1bcef9f0d6630aab8c"
+    "mac": "c1516004be25a98b49b2d376c0c5bc319fc30795867cdf3df4fbe71144b830a5"
   },
-  "next_evidence_seq": 2228,
+  "next_evidence_seq": 2241,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "f9ae57bb1a07beb4c55f48aa48b946ef16372e13561084166c1257ed0e0b06f7"
+    "mac": "d35ea8b3da588925591d81932887fcb36b645137aece2b87aeaf414f49868011"
   },
   "claims": [
     {
@@ -8960,6 +8960,28 @@
             "by": "server",
             "mac": "91f1517ce3df2e7f4bbab57eeb0fcc0414ae0f2e7a669658b8a0e6cbd9ef9204"
           }
+        },
+        {
+          "id": "EVD-2240",
+          "kind": "test",
+          "locator": "cargo test --lib oauth::clients (44 passed): a_transport_failure_serves_stale_within_the_ceiling_only; src/oauth/clients.rs:2098-2146",
+          "summary": "At head 6f98d6e a 5xx and a refused connection still serve the cached copy within 24 hours and fail past 25 hours; a 403 also serves it. The claim is about transport failures, which this change did not alter; only 404/410 statuses now fail closed (neutral to this claim's wording).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2098,
+                "end": 2146
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:38:13.853676976Z",
+          "seal": {
+            "by": "server",
+            "mac": "d574abb5ccd426e9a40cd51f59d26115b96d874551c100caf81efbea5654913b"
+          }
         }
       ],
       "verdicts": [
@@ -8975,13 +8997,26 @@
             "by": "server",
             "mac": "88344629e8aff8f4e0535853d323a05bde5aff9ea34384b2d5d70213c6db2d4e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head after the change: transport failures still serve stale within 24 hours and not past it. The 404/410 carve-out concerns statuses, not transport failures, so the statement holds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2240"
+          ],
+          "recorded_at": "2026-11-25T22:38:17.198804048Z",
+          "seal": {
+            "by": "server",
+            "mac": "9560c502ecf69a951bd3c78178764b2b716c449522be5ff35e11e85af168d70b"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-21T19:10:45.838933085Z",
+      "updated_at": "2026-11-25T22:38:17.198804048Z",
       "seal": {
         "by": "server",
-        "mac": "fdf0337ec9987874378b9c2658e44a0a720e1e1679ed06f9a882ded25280b956"
+        "mac": "59b3634218a56ff7a852be699fc2a369eec058c9e20c2f11e3c019a6f78702ff"
       }
     },
     {
@@ -121761,6 +121796,796 @@
       "seal": {
         "by": "server",
         "mac": "ae9fa4f295dadb326535a9c8e0831c7b2bb8b6e635057739dcc97da3b55f37f2"
+      }
+    },
+    {
+      "id": "CLM-1499",
+      "statement": "Issue #656 is delivered as decided (option b): a 404 or 410 on a CIMD URL fails closed instead of serving the cached document, with code, tests and docs.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/656 (decision comment, option b)",
+      "derived_from": [],
+      "artifacts": [
+        "src/oauth/clients.rs",
+        "docs/operations.md",
+        "docs/superpowers/specs/2026-11-11-okf-oauth-design.md"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:04.304107521Z",
+      "seal": {
+        "by": "server",
+        "mac": "a62b1d95e8aa9c6da28621a1cfb0755e500731e20a35dfef4c58f17893541452"
+      }
+    },
+    {
+      "id": "CLM-1500",
+      "statement": "When the host of a Client ID Metadata Document URL answers a refetch with 404 Not Found or 410 Gone, resolving the client fails with InvalidClient even when a cached copy within the 24-hour ceiling exists.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #656: 'when the host returns 404 Not Found or 410 Gone ... fail closed and do not serve the cached copy'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2228",
+          "kind": "test",
+          "locator": "cargo test --lib oauth::clients (44 passed); src/oauth/clients.rs:2156-2193 and :954-962",
+          "summary": "resolve() maps a fetch error to InvalidClient unless allows_stale_fallback() holds; the e2e test seeds a usable cached row under /not-found.json and /gone.json (host answers 404/410) and asserts Err(InvalidClient). Test passed on head 6f98d6e.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2156,
+                "end": 2193
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:31.514048753Z",
+          "seal": {
+            "by": "server",
+            "mac": "37a39fb48a91224c0fa54b7a7a5b8c16c4daf1bd7f3b551be0111453868159c9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The e2e test asserts InvalidClient for 404 and 410 with a usable cached row, and passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2228"
+          ],
+          "recorded_at": "2026-11-25T22:37:51.580297854Z",
+          "seal": {
+            "by": "server",
+            "mac": "f39f4b1280629111712e8054715c414dd8dbecad299c4ad27bd8dd515e9c4027"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:51.580297854Z",
+      "seal": {
+        "by": "server",
+        "mac": "a7be0bed112beb1c26ae2c45ac2e7e74892274ae8590d23c2672f2b1f8b97856"
+      }
+    },
+    {
+      "id": "CLM-1501",
+      "statement": "Every other 4xx status, every 5xx status and every network error on a CIMD refetch still serves the cached document within the 24-hour ceiling.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #656: 'Every other 4xx, every 5xx and every network error keeps the stale fallback within the 24-hour ceiling'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2229",
+          "kind": "test",
+          "locator": "cargo test --lib oauth::clients (44 passed): a_missing_document..., a_transport_failure_serves_stale_within_the_ceiling_only, only_failures_without_a_document_allow_the_stale_fallback",
+          "summary": "E2E: 403 serves the cached row (assert_eq stale == seeded), host 5xx serves stale (line 2098ff), a refused connection serves stale; table test asserts fallback for Status 403/429/500/503, Unresolvable, PrivateAddress, Timeout, Transport. All passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2096,
+                "end": 2146
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:31.702206365Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1d883bacd2eb3df534e072fdbe90b8d5c7bbec0d6a04d9fcbc0c0355aa2f795"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "E2E tests cover 403, 5xx and refused connection serving stale; the table covers 429 and 503. Passed at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2229"
+          ],
+          "recorded_at": "2026-11-25T22:37:51.682947493Z",
+          "seal": {
+            "by": "server",
+            "mac": "51a71affad9b608e8d44a08539bf6c1d3b55706c459a750e26dfd6bc3826c078"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:51.682947493Z",
+      "seal": {
+        "by": "server",
+        "mac": "60e879448f0f0a1573b1981088c478e7314c571d54b648ee92f214a63b588eed"
+      }
+    },
+    {
+      "id": "CLM-1502",
+      "statement": "CimdError::allows_stale_fallback in src/oauth/clients.rs returns false for Status(404) and Status(410) and true for every other Status value and for Unresolvable, PrivateAddress, Timeout and Transport.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #656: 'change CimdError::allows_stale_fallback in src/oauth/clients.rs'",
+      "derived_from": [
+        "CLM-1500",
+        "CLM-1501"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2230",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:562-568",
+          "summary": "Unresolvable|PrivateAddress|Timeout|Transport => true; Status(s) => !matches!(*s, 404|410); TooLarge|NotJson => false. Exhaustive match, no wildcard.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 562,
+                "end": 568
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:31.845982154Z",
+          "seal": {
+            "by": "server",
+            "mac": "169707616987339e812eed7d246211bae37b82803f04f60a559b0b4eec7e917b"
+          }
+        },
+        {
+          "id": "EVD-2231",
+          "kind": "test",
+          "locator": "cargo test --lib oauth::clients (44 passed): only_failures_without_a_document_allow_the_stale_fallback",
+          "summary": "Table test passes on head and covers the true and false sides including 404 and 410.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2198,
+                "end": 2220
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:31.970407488Z",
+          "seal": {
+            "by": "server",
+            "mac": "d943848e2d63827ac3768e71ac7f0d6de25359b2b53a1e2789d4b3762b1c9cc5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads exactly as claimed and the table test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2230",
+            "EVD-2231"
+          ],
+          "recorded_at": "2026-11-25T22:37:51.767390482Z",
+          "seal": {
+            "by": "server",
+            "mac": "8468c7bf5bb750b40195374b1929f5581ecdd89c02814d71accd5a59e09dd97e"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:51.767390482Z",
+      "seal": {
+        "by": "server",
+        "mac": "707f04a139e33707309d91e72813aa0710f04ced09fa2438cdc893d5f7ffac84"
+      }
+    },
+    {
+      "id": "CLM-1503",
+      "statement": "The table test only_failures_without_a_document_allow_the_stale_fallback asserts false for Status(404) and Status(410) and true for Status(403), 429, 500 and 503.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #656: 'extend its table test'; PR: 'Table test extended (404 and 410 fail closed; 403, 429, 500, 503 fall back)'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2232",
+          "kind": "test",
+          "locator": "src/oauth/clients.rs:2198-2220; cargo test --lib oauth::clients (44 passed)",
+          "summary": "Fallback list: Unresolvable, PrivateAddress, Timeout, Transport, Status 500/503/403/429; fail-closed list: TooLarge, NotJson, Status 404, 410. Read the assertions; test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2198,
+                "end": 2220
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:32.153157329Z",
+          "seal": {
+            "by": "server",
+            "mac": "a121571da0d6b5a0f4a590f7ee8908c0a2dc046299da4fdec6c0af7e1bf4cb9e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions read directly; matches the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2232"
+          ],
+          "recorded_at": "2026-11-25T22:37:51.848207866Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b13c140b7ebe998e4d0e8e0d2354a4a936a91dd5c8e1a5377b0acf53b7059fb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:51.848207866Z",
+      "seal": {
+        "by": "server",
+        "mac": "b1175f4bad4e3faf9fdcc193d0946a0670077cf53e8951f58738951b75ae0dbf"
+      }
+    },
+    {
+      "id": "CLM-1504",
+      "statement": "The end-to-end test a_missing_document_fails_closed_and_keeps_the_cached_row seeds an expired but usable cached document and asserts that a 404 and a 410 from the host make resolve return InvalidClient, while a 403 serves the cached document.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #656: 'add or extend an end-to-end test proving a 404 or 410 with a cached document refuses the client'; PR: 'new end-to-end test a_missing_document_fails_closed_and_keeps_the_cached_row'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2233",
+          "kind": "test",
+          "locator": "cargo test --lib oauth::clients a_missing_document_fails_closed_and_keeps_the_cached_row (ok)",
+          "summary": "Test seeds cached_but_expired row per path, asserts InvalidClient for not-found.json and gone.json, and assert_eq!(result, seeded) for forbidden.json (403). Routes at 1709-1711 answer 404/410/403. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2155,
+                "end": 2194
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:32.308025541Z",
+          "seal": {
+            "by": "server",
+            "mac": "48ef636d352409a8d9fa37ab89fae4625b47d6a748d575e8a08ce23427b0185c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test body read; it does what the statement says and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2233"
+          ],
+          "recorded_at": "2026-11-25T22:37:51.929610923Z",
+          "seal": {
+            "by": "server",
+            "mac": "cc30d42817cd78c2b655957096d1de7a54151c52245ea24e2956bdb59498f477"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:51.929610923Z",
+      "seal": {
+        "by": "server",
+        "mac": "130a8157be8d11a7be7cd29ef9df27a5c0595fcf97c3eb9932b2cf500156011d"
+      }
+    },
+    {
+      "id": "CLM-1505",
+      "statement": "A fail-closed 404 or 410 leaves the cached oauth_clients row in place (not evicted, not replaced), the same as the existing fail-closed path for NotJson and TooLarge.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: 'Eviction: the cached row is NOT evicted, matching the existing fail-closed path (not JSON, too large)'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2234",
+          "kind": "test",
+          "locator": "src/oauth/clients.rs:2185-2191 (find after resolve, assert_eq kept == Some(seeded)); src/oauth/clients.rs:953-966",
+          "summary": "After a 404/410 resolve the row is re-read and equals the seeded record; the error branch in resolve returns before any upsert or delete, as for NotJson/TooLarge (test an_invalid_refetch_fails_closed_and_keeps_the_cached_row exists for those). Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 950,
+                "end": 966
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:32.448466908Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd76cfa27d759b4845767395a0c121fec1ba08a6ae70448f0374c890cd3b49b3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test asserts the row equals the seeded one after each fail-closed resolve; code returns before any write.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2234"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.009944495Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fe977ff717f817f45365660e56fdec0a3e4b8b03128d1d7462958bc7941a52a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.009944495Z",
+      "seal": {
+        "by": "server",
+        "mac": "a373f0ed285940df67051fa4ad918acdbc9e1992bd72ad7062e159a4a319045c"
+      }
+    },
+    {
+      "id": "CLM-1506",
+      "statement": "The Cache bullet under 'Client ID Metadata Documents' in the OAuth design spec states that a 404 or 410 fails the authorization at once with a cached copy while every other 4xx and all 5xx keep the fallback.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #656: 'state the rule in the spec's Client ID Metadata Documents Cache bullet'",
+      "source_anchor": {
+        "path": "docs/superpowers/specs/2026-11-11-okf-oauth-design.md",
+        "lines": {
+          "start": 283,
+          "end": 299
+        },
+        "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+      },
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "docs/superpowers/specs/2026-11-11-okf-oauth-design.md"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2235",
+          "kind": "inspection",
+          "locator": "docs/superpowers/specs/2026-11-11-okf-oauth-design.md:283-299",
+          "summary": "Bullet: transport failure or answer 'but HTTP 200, 404 or 410' keeps the cache; 'answered 404 Not Found or 410 Gone fails the authorization at once, even with a cached copy'; 'Every other 4xx and all 5xx keep the fallback'; row left in place.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/superpowers/specs/2026-11-11-okf-oauth-design.md",
+              "lines": {
+                "start": 283,
+                "end": 299
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:32.605266007Z",
+          "seal": {
+            "by": "server",
+            "mac": "a094b6848233c48aac8973cb36631eac753a05175bb00ae80dd5212cbbbf6282"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Spec bullet states the rule.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2235"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.089992456Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a8aa6da4347ac30e29a388f50424fe5f3ded96ac2e00d864e18b671cdbb0876"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.089992456Z",
+      "seal": {
+        "by": "server",
+        "mac": "acebc3f8a17b0a28a2e81e115b67f59b283d99042d4aa665db5d0b4e3fbc4980"
+      }
+    },
+    {
+      "id": "CLM-1507",
+      "statement": "docs/operations.md states that a 404 or 410 on a CIMD refetch fails the authorization at once while other non-200 statuses and transport failures keep the cached copy usable for up to 24 hours.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #656: 'state the rule ... in docs/operations.md'",
+      "source_anchor": {
+        "path": "docs/operations.md",
+        "lines": {
+          "start": 4750,
+          "end": 4761
+        },
+        "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+      },
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2236",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4750-4761",
+          "summary": "Text: transport failure incl. 'a non-200 status other than 404 and 410' keeps the cache up to 24 hours; 'If the host answers 404 Not Found or 410 Gone ... that authorization fails at once'; row not evicted also after 404/410.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4750,
+                "end": 4761
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:32.756038154Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8d13a54be09c0e8a3190557ccca67e3483b13b1b5aac871944c2b12113aa345"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "operations.md states the rule.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2236"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.171716794Z",
+          "seal": {
+            "by": "server",
+            "mac": "65257bd7f6d98f35651cf7449d08d36b24f365f16767775fd6a499c327a0d2bb"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.171716794Z",
+      "seal": {
+        "by": "server",
+        "mac": "8984ca77732d5704add0a8f3bc1891f1a7ab01e835f811672aa11a18f209649b"
+      }
+    },
+    {
+      "id": "CLM-1508",
+      "statement": "No other text in the repository at head (outside changelog/ and historical plans) still says a 404 or any non-200 answer keeps the cached CIMD document in use.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "Universal check implied by issue #656 doc requirement",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "docs",
+        "src"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2237",
+          "kind": "analysis",
+          "locator": "git grep -niE 'non-200|any answer but|stale fallback|allows_stale' -- src docs README.md (excluding changelog and plans)",
+          "summary": "Only hits in non-historical text are clients.rs docs/code, docs/operations.md:4753 and the spec :286, all updated. Historical plan docs/superpowers/plans/2026-11-11-okf-mcp-m10-oauth.md holds old code and is a record, not current rules. Repo-wide search by me found no stale statement.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "any answer but HTTP 200[^,]|non-200 status\\)",
+              "case_insensitive": true,
+              "scope": [
+                "README.md",
+                "docs/operations.md",
+                "docs/superpowers/specs",
+                "src"
+              ],
+              "hits": 0,
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:33.022254059Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ae8041c5b7ca6f0b7bb76be7974d95b779f193a883b8aa3d09d98d8b485fafb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide grep found no remaining stale statement outside the historical M10 plan.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2237"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.257174467Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e7f4397a67400630cfc1902184177f103a4503da27ec09a06cc9ac870424c3b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.257174467Z",
+      "seal": {
+        "by": "server",
+        "mac": "1962142bc80c33e0129a156a50e637ee0712ea53401fb45aa534fa268103c28e"
+      }
+    },
+    {
+      "id": "CLM-1509",
+      "statement": "The change to production code is confined to the OAuth client resolver: the only non-test hunk is in CimdError::allows_stale_fallback in src/oauth/clients.rs.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR: 'the change is confined to the OAuth client resolver'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2238",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src; src/oauth/clients.rs:543-568",
+          "summary": "Diff touches 4 files: changelog, docs/operations.md, the spec, src/oauth/clients.rs. In clients.rs the non-test hunks are the doc comment and match arms of allows_stale_fallback; the rest is in mod tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 543,
+                "end": 568
+              },
+              "commit": "6f98d6e1f84f855f7192412b5b22874aa50d3492"
+            }
+          },
+          "recorded_at": "2026-11-25T22:37:33.151046670Z",
+          "seal": {
+            "by": "server",
+            "mac": "455956fb1ceb4542f0ffe4e656bdc8d1f945eaa06926501e152f4341b81ccf69"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff read; only one non-test code hunk.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2238"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.337368889Z",
+          "seal": {
+            "by": "server",
+            "mac": "bad3bb71c64789519befe58c47f2b3b132a5d2f4f72d18bbe2927de8d9ddeec2"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.337368889Z",
+      "seal": {
+        "by": "server",
+        "mac": "5f1d5caf67461d090972095eb5957cd3b3d457f98acea802db5206fabaedef28"
+      }
+    },
+    {
+      "id": "CLM-1510",
+      "statement": "fmt, lint and dylint gates via tools/agentic/gate.sh pass, and --lib oauth (279 tests), --test server_oauth and --test cimd_no_proxy pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: '- fmt, lint, dylint via tools/agentic/gate.sh: pass; --lib oauth (279 tests), --test server_oauth, --test cimd_no_proxy: pass'",
+      "derived_from": [
+        "CLM-1499"
+      ],
+      "artifacts": [
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:656"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2239",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib oauth::clients (44 passed, 0 failed)",
+          "summary": "Only the narrow oauth::clients subset was rerun (permitted); it passes. fmt, lint, dylint, the 279-test --lib oauth run, server_oauth and cimd_no_proxy were not rerun, so the author-run claim is undecided.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-25T22:37:33.299619278Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e3944c75576b72f55577b584070a18e0b47e7a4b5fa41125ddd964bdd155650"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The author-run gates were not rerun by instruction; only oauth::clients (44 passed) was. Fix: rerun fmt, lint, dylint, `--lib oauth`, `--test server_oauth` and `--test cimd_no_proxy` through tools/agentic/gate.sh and record the counts, or accept the author's gate output.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2239"
+          ],
+          "recorded_at": "2026-11-25T22:37:52.433030441Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c732b98537a2ee1afadee083d185e8fcd323d4f06e4aa90b11008ed07b3345a"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T22:37:04.304107521Z",
+      "updated_at": "2026-11-25T22:37:52.433030441Z",
+      "seal": {
+        "by": "server",
+        "mac": "2fba299106eb29cade6e389b7f6ba0ffe8f455891ad72d181c9c492dd464e8c3"
       }
     }
   ]

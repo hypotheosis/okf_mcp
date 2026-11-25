@@ -1053,12 +1053,15 @@ test_gate_returns_the_gate_exit_status() {
     want_rc 3; want_no_out "HANG"
 }
 
-# fake_gate_wait_for <marker>: shell text for a fake gate that waits (at most
-# 10 s) for the marker file a helper writes once it is set up, so the test
-# synchronizes on observed state, not on a delay.
+# fake_gate_wait_for <marker> [ticks]: shell text for a fake gate that waits
+# (at most <ticks> x 0.1 s, default 100) for the marker file a helper writes
+# once it is set up, so the test synchronizes on observed state, not on a delay.
+# <marker> is shell text the fake gate expands itself (pass "$GH_FIXTURES/x"
+# with the dollar sign kept, no backslash). A marker that never appears fails
+# the fake gate with exit 97 and a message, so the test fails; it never goes on.
 fake_gate_wait_for() {
     # shellcheck disable=SC2016 # the text is for the fake gate's shell to expand
-    printf 'for _ in $(seq 100); do [ -e "%s" ] && break; sleep 0.1; done\n' "$1"
+    printf 'for _ in $(seq %s); do [ -e "%s" ] && break; sleep 0.1; done\n[ -e "%s" ] || { echo "marker %s never appeared" >&2; exit 97; }\n' "${2:-100}" "$1" "$1" "$1"
 }
 
 # leaky_gate <then>: a fake gate that starts a child which ignores TERM and
@@ -1067,9 +1070,10 @@ fake_gate_wait_for() {
 leaky_gate() {
     # The child writes child.ready after it installs its trap; the leader waits
     # for it, so no TERM can arrive before the trap exists.
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
     fake_just "bash -c 'trap \"\" TERM; : >\"\$GH_FIXTURES/child.ready\"; exec sleep 30' >/dev/null 2>&1 &
 echo \$! >\"\$GH_FIXTURES/child.pid\"
-$(fake_gate_wait_for "\$GH_FIXTURES/child.ready")
+$(fake_gate_wait_for '$GH_FIXTURES/child.ready')
 $1"
     trap '[ -s "$fx/child.pid" ] && kill -KILL "$(cat "$fx/child.pid")" 2>/dev/null' EXIT
 }
@@ -1110,17 +1114,40 @@ test_gate_passing_leader_stops_leftover_child_and_frees_lock() {
     want_rc 0; want_out "leaving processes behind; stopped them"; want_no_out "HANG"; want_nothing_left
 }
 
+test_fake_gate_wait_fails_loudly_when_its_marker_never_appears() {
+    new_fixtures
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
+    fake_just "$(fake_gate_wait_for '$GH_FIXTURES/never.ready' 5)
+exit 0"
+    started=$SECONDS
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 97; want_out "never.ready never appeared"
+    [ $((SECONDS - started)) -le 5 ] || die "took $((SECONDS - started)) s"
+}
+
+test_fake_gate_wait_returns_as_soon_as_the_marker_exists() {
+    new_fixtures
+    # shellcheck disable=SC2016 # the marker path is expanded by the fake just
+    fake_just ': >"$GH_FIXTURES/up.ready"
+'"$(fake_gate_wait_for '$GH_FIXTURES/up.ready' 5)"'
+exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" timeout 30 "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0; want_no_out "never appeared"
+}
+
 # A daemon the gate starts (sccache's server, say) leaves the gate's process
 # group with setsid, so the group cleanup never stops it. It must not take the
 # lock with it: flock -o keeps the lock's fd out of the gate's children.
 test_gate_daemon_that_escapes_the_group_does_not_keep_the_lock() {
     new_fixtures
-    # shellcheck disable=SC2016 # $! and $GH_FIXTURES are expanded by the fake just
     # The daemon's shell runs only after setsid has left the group, and writes
     # daemon.ready then; the leader waits for it before it ends.
+    # shellcheck disable=SC2016 # $! and $GH_FIXTURES are expanded by the fake just
     fake_just 'setsid bash -c ": >\"$GH_FIXTURES/daemon.ready\"; exec sleep 30" </dev/null >/dev/null 2>&1 &
 echo $! >"$GH_FIXTURES/daemon.pid"
-'"$(fake_gate_wait_for '\$GH_FIXTURES/daemon.ready')"'
+'"$(fake_gate_wait_for '$GH_FIXTURES/daemon.ready')"'
 exit 0'
     trap '[ -s "$fx/daemon.pid" ] && kill -KILL "$(cat "$fx/daemon.pid")" 2>/dev/null' EXIT
     out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)

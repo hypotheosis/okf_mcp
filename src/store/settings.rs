@@ -91,7 +91,8 @@ pub struct Brand {
     pub feedback_url: Option<String>,
     /// The `https://` URL the console's "Documentation" link opens, if set.
     pub docs_url: Option<String>,
-    /// The `https://` URL the console's "Billing" link opens, if set.
+    /// The `https://` start page of an external billing service the
+    /// console's "Billing" link opens, if set.
     pub billing_url: Option<String>,
 }
 
@@ -144,8 +145,9 @@ pub struct Settings {
     /// An `https://` URL the console's "Documentation" link opens; `None`
     /// shows no link.
     pub docs_url: Option<String>,
-    /// An `https://` URL the console's "Billing" link opens; `None` shows
-    /// no link.
+    /// An `https://` start page of an external billing service the
+    /// console's "Billing" link opens (it signs the person in through
+    /// this server's OAuth); `None` shows no link.
     pub billing_url: Option<String>,
     /// An `https://` URL a successful first password setup redirects to
     /// (a getting-started guide); `None` goes to the console as before.

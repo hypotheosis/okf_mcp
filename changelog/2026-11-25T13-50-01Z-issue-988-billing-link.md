@@ -20,6 +20,9 @@
 - `brand_in` reads the `billing_url` row too, so a queued mail's brand matches.
 
 ## Notes
-- The destination is a reusable portal login, not a customer-specific session
-  URL; it is public. Choosing the production destination is a deployment step
-  outside this repository.
+- The destination is the start page of an external billing service, which should
+  sign the person in through this server's OAuth (as a registered client) and
+  send them to their own billing. It is never a customer-specific session URL or
+  a secret: it is public in `/ui/brand.json`, and no credentials or personal
+  information are passed in it. This server holds no billing-provider code.
+  Choosing the deployment's destination is outside this repository.

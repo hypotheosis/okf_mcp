@@ -22,7 +22,7 @@ const DOCS: &str = "https://docs.example.com/";
 /// The external feedback page the journeys with both entries configure.
 const FEEDBACK_PAGE: &str = "https://example.com/feedback";
 
-/// The billing portal login every journey with the billing link configures.
+/// The billing service start page every journey with the billing link configures.
 const BILLING: &str = "https://billing.example.com/login";
 
 /// The `[auth]` branding these journeys use: a documentation link, a

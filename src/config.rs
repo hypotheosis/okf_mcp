@@ -225,9 +225,10 @@ pub struct AuthConfig {
     /// The default `https://` URL of the console's "Documentation" link;
     /// `None` shows no link.
     pub docs_url: Option<String>,
-    /// The default `https://` URL of the console's "Billing" link (a
-    /// reusable billing-portal login, never a customer-specific URL);
-    /// `None` shows no link.
+    /// The default `https://` URL of the console's "Billing" link: the
+    /// start page of an external billing service, which signs the person
+    /// in through this server's OAuth. Never a customer-specific session
+    /// URL or a secret; `None` shows no link.
     pub billing_url: Option<String>,
     /// The default `https://` URL a first password setup redirects to (a
     /// getting-started guide); `None` goes to the console.

@@ -313,13 +313,24 @@ same JSON as the text block); errors are results with `isError: true` and
 `{"error": ..., "message": ...}`.
 
 Every tool also has a `title` and the hints `readOnlyHint`,
-`destructiveHint`, `idempotentHint` and `openWorldHint` (false everywhere:
-every tool acts only on this server's catalogs). The 17 read tools are
-read-only and idempotent. 20 non-destructive tools: changeset staging edits
-(undone by `discard`; `revert` among them) plus maintenance lease, report
-and disposition operations (`maintenance_claim`, `maintenance_renew`,
-`maintenance_submit`, `maintenance_dispose`). `publish`, `discard`,
-`delete_concept` and `maintenance_close` are destructive.
+`destructiveHint`, `idempotentHint` and `openWorldHint`. `idempotentHint` is
+true only for the 20 read tools, and `openWorldHint` only for `send_feedback`.
+Following the MCP spec, `destructiveHint: false` means the tool performs only
+additive updates, whether or not its change is staged. Of the 46 tools:
+
+- 20 read-only: they change nothing.
+- 9 additive (`destructiveHint: false`): `open_changeset`, `create_concept`,
+  `add_source`, `question`, `log` and the maintenance lease, report and
+  disposition steps `maintenance_claim`, `maintenance_renew`,
+  `maintenance_submit` and `maintenance_dispose`.
+- 17 destructive (`destructiveHint: true`): 12 staged ones that can overwrite
+  or remove existing content (`edit_document`, `replace_body`,
+  `set_frontmatter`, `stamp`, `review`, `index`, `repair_indexes`,
+  `remove_source`, `unquestion`, `revert`, `move_concept`, `split_concept`;
+  nothing changes until `publish`, and `discard` drops them), and `publish`,
+  `discard`, `delete_concept` and `maintenance_close`.
+- `send_feedback`: open-world and destructive, because what it sends cannot be
+  called back.
 
 Every catalog path in an error body (`path`, `files[].path`,
 `links[].source`, `errors[].file`, `warnings[].file`) has a leading `/`

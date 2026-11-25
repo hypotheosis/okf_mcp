@@ -40,29 +40,36 @@ How a session usually goes:
 A tool is one of five kinds:
 
 - read-only: it changes nothing.
-- staged: it adds an entry to a changeset, which `discard` drops and `publish` applies.
+- additive: it only adds (a changeset, a concept, a source, a question, a log entry) and never
+  overwrites or removes existing content. What it stages stays in the changeset until `publish`.
 - maintenance: a step in a maintenance run (claim, renew, submit, dispose). It takes no
   changeset and is saved at once, so `discard` does not undo it; it never touches a concept.
-- destructive: it deletes, or cannot be undone from inside the server.
+- destructive: it can overwrite or remove existing content, or it cannot be undone from inside
+  the server, whether or not it is staged. A staged one (`edit_document`, `replace_body`,
+  `set_frontmatter`, `stamp`, `review`, `index`, `repair_indexes`, `remove_source`, `unquestion`,
+  `revert`, `move_concept`, `split_concept`) changes nothing until `publish`, and `discard` drops
+  it. This follows the MCP spec: `destructiveHint: false` means the tool performs only additive
+  updates.
 - external: it sends something to a service outside the server (`send_feedback`, offered
-  only when the operator configured it). It changes no catalog.
+  only when the operator configured it). It changes no catalog, but it cannot be called back,
+  so its `destructiveHint` is true.
 
 | Tool | Title | Kind |
 |---|---|---|
-| [`add_source`](#add_source) | Add Source | staged |
+| [`add_source`](#add_source) | Add Source | additive |
 | [`cited_by`](#cited_by) | Find Citations | read-only |
-| [`create_concept`](#create_concept) | Create Concept | staged |
+| [`create_concept`](#create_concept) | Create Concept | additive |
 | [`delete_concept`](#delete_concept) | Delete Concept | destructive |
 | [`discard`](#discard) | Discard Changeset Entries | destructive |
-| [`edit_document`](#edit_document) | Edit Document | staged |
+| [`edit_document`](#edit_document) | Edit Document | destructive |
 | [`get_concept`](#get_concept) | Get Concept | read-only |
 | [`history`](#history) | Document History | read-only |
-| [`index`](#index) | Add Index Entry | staged |
+| [`index`](#index) | Add Index Entry | destructive |
 | [`links_report`](#links_report) | Links Report | read-only |
 | [`lint`](#lint) | Lint Catalog | read-only |
 | [`list_catalogs`](#list_catalogs) | List Catalogs | read-only |
 | [`list_changesets`](#list_changesets) | List Changesets | read-only |
-| [`log`](#log) | Add Log Entry | staged |
+| [`log`](#log) | Add Log Entry | additive |
 | [`maintenance_claim`](#maintenance_claim) | Claim Maintenance Batch | maintenance |
 | [`maintenance_close`](#maintenance_close) | Close Maintenance Run | destructive |
 | [`maintenance_dispose`](#maintenance_dispose) | Dispose Maintenance Finding | maintenance |
@@ -73,32 +80,32 @@ A tool is one of five kinds:
 | [`maintenance_read_revision`](#maintenance_read_revision) | Read Maintenance Revision | read-only |
 | [`maintenance_renew`](#maintenance_renew) | Renew Maintenance Lease | maintenance |
 | [`maintenance_submit`](#maintenance_submit) | Submit Maintenance Report | maintenance |
-| [`move_concept`](#move_concept) | Move Concept | staged |
+| [`move_concept`](#move_concept) | Move Concept | destructive |
 | [`oldest`](#oldest) | Oldest Concepts | read-only |
-| [`open_changeset`](#open_changeset) | Open Changeset | staged |
+| [`open_changeset`](#open_changeset) | Open Changeset | additive |
 | [`open_questions`](#open_questions) | List Open Questions | read-only |
 | [`pending_changes`](#pending_changes) | Show Pending Changes | read-only |
 | [`publish`](#publish) | Publish Changeset | destructive |
-| [`question`](#question) | Add Question | staged |
+| [`question`](#question) | Add Question | additive |
 | [`read_document`](#read_document) | Read Document | read-only |
 | [`recent_changes`](#recent_changes) | Recent Changes | read-only |
-| [`remove_source`](#remove_source) | Remove Source | staged |
-| [`repair_indexes`](#repair_indexes) | Repair Indexes | staged |
-| [`replace_body`](#replace_body) | Replace Concept Body | staged |
-| [`revert`](#revert) | Revert Document | staged |
-| [`review`](#review) | Record Review | staged |
+| [`remove_source`](#remove_source) | Remove Source | destructive |
+| [`repair_indexes`](#repair_indexes) | Repair Indexes | destructive |
+| [`replace_body`](#replace_body) | Replace Concept Body | destructive |
+| [`revert`](#revert) | Revert Document | destructive |
+| [`review`](#review) | Record Review | destructive |
 | [`search`](#search) | Search Concepts | read-only |
 | [`send_feedback`](#send_feedback) | Send Feedback | external |
-| [`set_frontmatter`](#set_frontmatter) | Set Frontmatter | staged |
-| [`split_concept`](#split_concept) | Split Concept | staged |
+| [`set_frontmatter`](#set_frontmatter) | Set Frontmatter | destructive |
+| [`split_concept`](#split_concept) | Split Concept | destructive |
 | [`sprawl`](#sprawl) | Sprawl Report | read-only |
-| [`stamp`](#stamp) | Stamp Concept | staged |
-| [`unquestion`](#unquestion) | Resolve Question | staged |
+| [`stamp`](#stamp) | Stamp Concept | destructive |
+| [`unquestion`](#unquestion) | Resolve Question | destructive |
 | [`whoami`](#whoami) | Who Am I | read-only |
 
 ## `add_source`
 
-**Add Source** (staged)
+**Add Source** (additive)
 
 Append an entry (id, resource, title, author) to a concept's `sources`, refusing a duplicate id, in the changeset `changeset` names (open one with open_changeset); `cited_by` finds a source's citations. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). Write access.
 
@@ -127,7 +134,7 @@ List the concepts that cite a source, exactly: `source_id` (case-insensitive) an
 
 ## `create_concept`
 
-**Create Concept** (staged)
+**Create Concept** (additive)
 
 Create a concept in the changeset `changeset` names (open one with open_changeset); nothing is visible to others until `publish`. `path` is the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in `frontmatter`; the server writes `generated: { by, at }` itself. With `index_summary`, also lists it in its folder's index.md (creating folder indexes as needed); `folder_summary` describes a new folder there. Write access.
 
@@ -166,9 +173,9 @@ Drop entries from the changeset `changeset` names: the named `paths`, or every e
 
 ## `edit_document`
 
-**Edit Document** (staged)
+**Edit Document** (destructive)
 
-Replace exact text in a concept or an index.md, in the changeset `changeset` names (open one with open_changeset). `path` is a full path with .md (e.g. /infra/ntp.md or /infra/index.md). `old_str` must occur exactly once unless `replace_all`; the edit may not add or change frontmatter. log.md and machinery are refused (use `log`). Write access.
+Replace exact text in a concept or an index.md, in the changeset `changeset` names (open one with open_changeset). `path` is a full path with .md (e.g. /infra/ntp.md or /infra/index.md). `old_str` must occur exactly once unless `replace_all`; the edit may not add or change frontmatter. log.md and machinery are refused (use `log`). Staged in the changeset: nothing changes until `publish`, and `discard` drops it. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -210,7 +217,7 @@ A document's revisions, newest first: revision, op (create, update, delete, impo
 
 ## `index`
 
-**Add Index Entry** (staged)
+**Add Index Entry** (destructive)
 
 List a concept in its folder's index.md as `* [Title](name.md) - summary`, in the changeset `changeset` names (open one with open_changeset); nothing happens if it is already linked (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at publish onto an index.md that changed meanwhile, unless a free edit of that index.md follows. With a folder `path` (`/infra/`), sets the summary of its listing in the parent's index.md instead, replayed the same way. Write access.
 
@@ -267,7 +274,7 @@ List the open changesets this key may use (an admin: every key's, in the catalog
 
 ## `log`
 
-**Add Log Entry** (staged)
+**Add Log Entry** (additive)
 
 Add `* **<kind>:** <text>` under today's UTC date in log.md, the only way to write log.md, in the changeset `changeset` names (open one with open_changeset). Replayed at publish onto a log.md that changed meanwhile, so concurrent entries never conflict. Write access.
 
@@ -416,7 +423,7 @@ Fields of `submission`:
 
 ## `move_concept`
 
-**Move Concept** (staged)
+**Move Concept** (destructive)
 
 Move or rename a concept in the changeset `changeset` names (open one with open_changeset): its folder listing moves with it (creating folder indexes as needed) and every link to it is rewritten, keeping each link's style and anchor. `old` and `new` are concept paths, .md optional. Publish replays the index.md and log.md edits onto newer text; any other file it changed conflicts if someone changed it meanwhile. Write access.
 
@@ -442,7 +449,7 @@ The stalest concepts: last stamp, by whom, age in days, stale flag and queued qu
 
 ## `open_changeset`
 
-**Open Changeset** (staged)
+**Open Changeset** (additive)
 
 Open a changeset in a catalog and return its handle. Every edit, publish, discard, revert and pending_changes needs a handle, and the reads take one to see its drafts. Nothing is visible to anyone else until publish. Several changesets may be open at once. A changeset with no edits is discarded after 24 hours. Write access.
 
@@ -484,7 +491,7 @@ Publish the changeset `changeset` names: its edits become the published document
 
 ## `question`
 
-**Add Question** (staged)
+**Add Question** (additive)
 
 Queue one question in a concept's open_questions without recording a review, in the changeset `changeset` names (open one with open_changeset). Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). Write access.
 
@@ -522,7 +529,7 @@ A catalog's published revisions across every document, newest first: path, revis
 
 ## `remove_source`
 
-**Remove Source** (staged)
+**Remove Source** (destructive)
 
 Remove the entry with `id` from a concept's `sources`, deleting the key when none are left, in the changeset `changeset` names (open one with open_changeset). Refused while a footnote in the body still cites it (its label is the id, or its definition names the id, title or resource): remove the citation first. `cited_by` finds a source's citations. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). Write access.
 
@@ -534,7 +541,7 @@ Remove the entry with `id` from a concept's `sources`, deleting the key when non
 
 ## `repair_indexes`
 
-**Repair Indexes** (staged)
+**Repair Indexes** (destructive)
 
 Create whatever bookkeeping the catalog is missing, in the changeset `changeset` names (open one with open_changeset): the root index.md and log.md, an index.md for every folder holding concepts, each folder's listing in its parent's # Sections, and each concept's listing in its folder's index.md (its title and description; TODO placeholders where they are missing, each named in `notes`). Existing text, listings and summaries are kept, except an old raw (unencoded) concept or folder listing whose link never resolves, such as `[A](a b.md)` or `[My docs](my docs/)`: its destination is percent-encoded in place, or the bullet removed beside a working one, and `notes` quotes each. A second run changes nothing. A file or folder no markdown link can list (a `]` in a folder name) is not listed; `notes` names it. Review the result with pending_changes before publishing. Write access.
 
@@ -544,9 +551,9 @@ Create whatever bookkeeping the catalog is missing, in the changeset `changeset`
 
 ## `replace_body`
 
-**Replace Concept Body** (staged)
+**Replace Concept Body** (destructive)
 
-Replace a concept's body, keeping its frontmatter byte for byte, in the changeset `changeset` names (open one with open_changeset). `path` is a concept reference, .md optional (/infra/ntp or /infra/ntp.md). Write access.
+Replace a concept's body, keeping its frontmatter byte for byte, in the changeset `changeset` names (open one with open_changeset). `path` is a concept reference, .md optional (/infra/ntp or /infra/ntp.md). Staged in the changeset: nothing changes until `publish`, and `discard` drops it. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -556,7 +563,7 @@ Replace a concept's body, keeping its frontmatter byte for byte, in the changese
 
 ## `revert`
 
-**Revert Document** (staged)
+**Revert Document** (destructive)
 
 Add a document's content at an earlier revision (from `history`), or its deletion for a `delete` revision, to the changeset `changeset` names, for review and publish like any other edit. Every write rule applies, so machinery cannot be reverted. The revert is based on the revision published now, even if this changeset edited the document before, so publish conflicts only if the document is published again after it. Reverting a file this changeset created to a `delete` revision drops it from the changeset. Write access.
 
@@ -568,7 +575,7 @@ Add a document's content at an earlier revision (from `history`), or its deletio
 
 ## `review`
 
-**Record Review** (staged)
+**Record Review** (destructive)
 
 Replace a concept's `reviewed` with { by, at: now, outcome, note } and queue any `questions` in open_questions, in the changeset `changeset` names (open one with open_changeset). `by` defaults to the key's actor. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). Write access.
 
@@ -613,9 +620,9 @@ Send feedback about using this server (something confusing, broken, missing or g
 
 ## `set_frontmatter`
 
-**Set Frontmatter** (staged)
+**Set Frontmatter** (destructive)
 
-Set (or, with a null value, delete) one descriptive frontmatter key of a concept, in the changeset `changeset` names (open one with open_changeset). `path` is a concept reference, .md optional (/infra/ntp or /infra/ntp.md). The stamps, open_questions and sources have their own tools; `type` cannot be deleted. Write access.
+Set (or, with a null value, delete) one descriptive frontmatter key of a concept, in the changeset `changeset` names (open one with open_changeset). `path` is a concept reference, .md optional (/infra/ntp or /infra/ntp.md). The stamps, open_questions and sources have their own tools; `type` cannot be deleted. Staged in the changeset: nothing changes until `publish`, and `discard` drops it. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -626,7 +633,7 @@ Set (or, with a null value, delete) one descriptive frontmatter key of a concept
 
 ## `split_concept`
 
-**Split Concept** (staged)
+**Split Concept** (destructive)
 
 Carve a section (and its subsections) out of a concept into a new concept, in the changeset `changeset` names (open one with open_changeset); the new concept gets type, title, description, the parent's status, generated, and the sources the section's footnotes cite (or `sources`); the parent keeps the heading with a stub linking to it; links to the section follow it; it is listed in its folder's index.md. Returns notes on the write. Write access.
 
@@ -659,7 +666,7 @@ Sprawl scores: which concepts have grown too long or volatile, with sections and
 
 ## `stamp`
 
-**Stamp Concept** (staged)
+**Stamp Concept** (destructive)
 
 Set a concept's `generated` (content written) or append to its `verified` (checked against the real system) with { by, at: now }, in the changeset `changeset` names (open one with open_changeset). `by` defaults to the key's actor. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). Write access.
 
@@ -672,7 +679,7 @@ Set a concept's `generated` (content written) or append to its `verified` (check
 
 ## `unquestion`
 
-**Resolve Question** (staged)
+**Resolve Question** (destructive)
 
 Remove one queued question, by its 1-based number in open_questions or its exact text, deleting the key when none are left, in the changeset `changeset` names (open one with open_changeset). Write access. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result).
 

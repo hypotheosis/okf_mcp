@@ -261,11 +261,13 @@ impl OkfServer {
                        `changeset` names (open one with open_changeset). `path` is a full path \
                        with .md (e.g. /infra/ntp.md or /infra/index.md). `old_str` must occur \
                        exactly once unless `replace_all`; the edit may not add or change \
-                       frontmatter. log.md and machinery are refused (use `log`). Write access.",
+                       frontmatter. log.md and machinery are refused (use `log`). Staged in the \
+                       changeset: nothing changes until `publish`, and `discard` drops it. Write \
+                       access.",
         annotations(
             title = "Edit Document",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -284,12 +286,13 @@ impl OkfServer {
         title = "Replace Concept Body",
         description = "Replace a concept's body, keeping its frontmatter byte for byte, in the \
                        changeset `changeset` names (open one with open_changeset). `path` is a \
-                       concept reference, .md optional (/infra/ntp or /infra/ntp.md). Write \
-                       access.",
+                       concept reference, .md optional (/infra/ntp or /infra/ntp.md). Staged in \
+                       the changeset: nothing changes until `publish`, and `discard` drops it. \
+                       Write access.",
         annotations(
             title = "Replace Concept Body",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -310,11 +313,12 @@ impl OkfServer {
                        concept, in the changeset `changeset` names (open one with \
                        open_changeset). `path` is a concept reference, .md optional (/infra/ntp \
                        or /infra/ntp.md). The stamps, open_questions and sources have their own \
-                       tools; `type` cannot be deleted. Write access.",
+                       tools; `type` cannot be deleted. Staged in the changeset: nothing \
+                       changes until `publish`, and `discard` drops it. Write access.",
         annotations(
             title = "Set Frontmatter",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -759,7 +763,7 @@ impl OkfServer {
         annotations(
             title = "Stamp Concept",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -784,7 +788,7 @@ impl OkfServer {
         annotations(
             title = "Record Review",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -832,7 +836,7 @@ impl OkfServer {
         annotations(
             title = "Resolve Question",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -882,7 +886,7 @@ impl OkfServer {
         annotations(
             title = "Remove Source",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -933,7 +937,7 @@ impl OkfServer {
         annotations(
             title = "Add Index Entry",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )
@@ -967,7 +971,7 @@ impl OkfServer {
         annotations(
             title = "Repair Indexes",
             read_only_hint = false,
-            destructive_hint = false,
+            destructive_hint = true,
             idempotent_hint = false,
             open_world_hint = false
         )

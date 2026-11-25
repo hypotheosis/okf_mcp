@@ -36,20 +36,29 @@ pub(crate) const READS: &[&str] = &[
 ];
 
 /// Tools whose effect stays unpublished (a changeset entry, a maintenance
-/// lease or report) and can be undone by `discard` or by letting it lapse.
-pub(crate) const STAGED: &[&str] = &[
+/// lease or report) and that only add: they never overwrite or remove
+/// existing content, so they are `destructiveHint: false` (the MCP spec's
+/// "only additive updates").
+pub(crate) const ADDITIVE: &[&str] = &[
     "add_source",
     "create_concept",
-    "edit_document",
-    "index",
     "log",
     "maintenance_claim",
     "maintenance_dispose",
     "maintenance_renew",
     "maintenance_submit",
-    "move_concept",
     "open_changeset",
     "question",
+];
+
+/// Tools whose effect is staged in a changeset (`discard` drops it) but that
+/// can overwrite or remove existing content. The MCP spec defines
+/// `destructiveHint` by what the tool does, not by whether it can be undone,
+/// so these are destructive too (issue #1062).
+pub(crate) const STAGED_DESTRUCTIVE: &[&str] = &[
+    "edit_document",
+    "index",
+    "move_concept",
     "remove_source",
     "repair_indexes",
     "replace_body",
@@ -61,12 +70,14 @@ pub(crate) const STAGED: &[&str] = &[
     "unquestion",
 ];
 
-/// Tools that cannot be undone from inside the server, or that delete.
+/// Tools that act at once and cannot be undone from inside the server, or
+/// that delete.
 pub(crate) const DESTRUCTIVE: &[&str] =
     &["delete_concept", "discard", "maintenance_close", "publish"];
 
 /// Tools that reach a service outside this server (open-world): they change
-/// no catalog, but what they send cannot be called back.
+/// no catalog, but what they send cannot be called back, so they are
+/// destructive too.
 pub(crate) const EXTERNAL: &[&str] = &["send_feedback"];
 
 /// The hints a tool's class implies (`open_world` is true only for
@@ -91,14 +102,14 @@ fn expected(name: &str) -> Option<Hints> {
             idempotent: true,
             open_world: false,
         })
-    } else if STAGED.contains(&name) {
+    } else if ADDITIVE.contains(&name) {
         Some(Hints {
             read_only: false,
             destructive: false,
             idempotent: false,
             open_world: false,
         })
-    } else if DESTRUCTIVE.contains(&name) {
+    } else if STAGED_DESTRUCTIVE.contains(&name) || DESTRUCTIVE.contains(&name) {
         Some(Hints {
             read_only: false,
             destructive: true,
@@ -108,7 +119,7 @@ fn expected(name: &str) -> Option<Hints> {
     } else if EXTERNAL.contains(&name) {
         Some(Hints {
             read_only: false,
-            destructive: false,
+            destructive: true,
             idempotent: false,
             open_world: true,
         })
@@ -138,7 +149,8 @@ fn every_tool_is_classified_exactly_once() {
 
     for name in READS
         .iter()
-        .chain(STAGED)
+        .chain(ADDITIVE)
+        .chain(STAGED_DESTRUCTIVE)
         .chain(DESTRUCTIVE)
         .chain(EXTERNAL)
     {

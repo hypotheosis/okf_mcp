@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1414,
+  "next_claim_seq": 1415,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "e939cccb326073d2d3780d24e15309b0666567a68542b0a4b0d9db7a187b87f4"
+    "mac": "ec57d8a9d352be84d4032cfec55fe82e0b12cd92698094282c835d8256882b4d"
   },
-  "next_evidence_seq": 2074,
+  "next_evidence_seq": 2079,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e298929ea85cc7df15f98ec0f31c883b31871052f1924f0000c1906c9cda0115"
+    "mac": "432a6c292b17c72001914390fff7324ed46343a378b73a2ae63ca7a0c1a8f072"
   },
   "claims": [
     {
@@ -113763,6 +113763,28 @@
             "by": "server",
             "mac": "c5c799aecab0160d0c7bdfbf63cbd2523cc4e51d849d44682f9b5c26fefbcd41"
           }
+        },
+        {
+          "id": "EVD-2078",
+          "kind": "test",
+          "locator": "cargo test --lib -- the_readable_listing_pages_through_locked_catalogs_without_gaps a_page_of_only_locked_catalogs_is_skipped the_readable_list_pages_through_the_catalogs_left_out (at ff544b6)",
+          "summary": "Rerun at head ff544b6 after the known-down-set change: 3 passed, 0 failed. The loop's break condition (cursor None or readable.len() > limit) and Page::cut are unchanged; the new down_stores set only affects probing, not row selection.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 648,
+                "end": 690
+              },
+              "commit": "ff544b635e8cc129be179455780364ef56a7556b"
+            }
+          },
+          "recorded_at": "2026-11-25T11:19:49.729203704Z",
+          "seal": {
+            "by": "server",
+            "mac": "abb04fee10ef297af5c101520defb731f4f949a6f464c78604fa4ccae666e7e9"
+          }
         }
       ],
       "verdicts": [
@@ -113778,13 +113800,26 @@
             "by": "server",
             "mac": "1540465e56f4f185b219b1b8b38396c009de6ecf4e37d4fbec0afc7a4cbdba43"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-verified at ff544b6: scan loop break condition and Page::cut are unchanged by the known-down change, and the three pagination tests pass on the new code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2078"
+          ],
+          "recorded_at": "2026-11-25T11:19:53.077418322Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b7607ea3c3a85a82ff11711dd8026c264d2ea6163988a46c2905786006952ed"
+          }
         }
       ],
       "created_at": "2026-11-25T10:19:06.728801431Z",
-      "updated_at": "2026-11-25T10:20:25.314344135Z",
+      "updated_at": "2026-11-25T11:19:53.077418322Z",
       "seal": {
         "by": "server",
-        "mac": "3567cc40af443683a47cbb714cf6d1c283ddb4bb81bd26ccf3304b2ce4db2fae"
+        "mac": "496b0f2f7fa66c876a62f2e5a8730c5aa25d425823b1010e5c820b8c6ad73b4d"
       }
     },
     {
@@ -114284,6 +114319,132 @@
       "seal": {
         "by": "server",
         "mac": "cf1c8069ef334ed74d293cbb45bb78e8e9c997fd8330a9692d9884fd4d6b43f6"
+      }
+    },
+    {
+      "id": "CLM-1414",
+      "statement": "CatalogDirectory::readable_page keeps the stores it found unreachable across its scan pages (offered_page_skipping / resolve_many_skipping / fill_generations take the request's known-down set), so a stalled store costs one store-load bound per request, not one per scan page, and its catalogs are still named in `unavailable`; offered_page and resolve_many behave as before.",
+      "kind": "performance",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #955 review follow-up; changelog/2026-11-25T10-57-47Z-issue-955-readable-scan-probes-a-stalled-store-once.md",
+      "derived_from": [
+        "CLM-1398"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs",
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:955"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2074",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:648-690 (readable_page_by), 747-840 (offered_page_skipping), 301-362 (fill_generations)",
+          "summary": "readable_page_by holds one down_stores set across the scan loop and passes it to offered_page_skipping each page; offered_page_skipping passes it to resolve_many_skipping / fill_generations and extends it with newly found down stores; fill_generations returns known-down stores as down without probing. Page.unavailable is computed per page from the returned down set, so known-down stores' catalogs are still named; readable_page_by merges them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 648,
+                "end": 690
+              },
+              "commit": "ff544b635e8cc129be179455780364ef56a7556b"
+            }
+          },
+          "recorded_at": "2026-11-25T11:19:44.813222373Z",
+          "seal": {
+            "by": "server",
+            "mac": "789a8a2f6644206c9674cb64f29939e8d09d61eb20ab6943017d6bfdff616e78"
+          }
+        },
+        {
+          "id": "EVD-2075",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:532-537 (resolve_many), 724-733 (offered_page)",
+          "summary": "resolve_many and offered_page keep their signatures and delegate to the skipping variants with a fresh empty HashSet, so their per-call behavior is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 724,
+                "end": 733
+              },
+              "commit": "ff544b635e8cc129be179455780364ef56a7556b"
+            }
+          },
+          "recorded_at": "2026-11-25T11:19:44.892865068Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ac0e128c391d53d7d6744151291c89863c204d317e7f53e5794e62b2554a3aa"
+          }
+        },
+        {
+          "id": "EVD-2076",
+          "kind": "test",
+          "locator": "src/mcp/unavailable_tests.rs:619-665 a_readable_listing_over_several_scan_pages_spends_one_load_bound_on_a_stalled_store; log target/i955-logs/narrow-r3.log",
+          "summary": "Test locks catalog_state on store-b (3 catalogs), reads 4 one-catalog scan pages with a 300ms bound; asserts 4 items, unavailable == [remote-1, remote-2, remote-3], and elapsed < 600ms. Log narrow-r3.log shows it ok (1 passed; 0 failed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 619,
+                "end": 665
+              },
+              "commit": "ff544b635e8cc129be179455780364ef56a7556b"
+            }
+          },
+          "recorded_at": "2026-11-25T11:19:44.972149772Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0692c6a05efaecd695b1e28e9faeb93a7ebd5f8de90ae6a86fcde283e9262fd"
+          }
+        },
+        {
+          "id": "EVD-2077",
+          "kind": "log",
+          "locator": "target/i955-logs/narrow-revert.log line 33 and 40",
+          "summary": "The revert run (set not carried) failed the same test: 'took 1.208163737s for a store-load bound of 300ms', test result FAILED (1 failed), so the test detects the defect. The log still holds that line (not overwritten).",
+          "stance": "supports",
+          "recorded_at": "2026-11-25T11:19:45.046658671Z",
+          "seal": {
+            "by": "server",
+            "mac": "75fb9f71bbb045ed9a5c1f3f1ee3799f5ba6062dbed52ad339de1baf37af1ea5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code carries one known-down set through every scan page and skips probing it; the wrappers pass an empty set; the test asserts both the bounded time and the unavailable names, and fails without the fix (1.208s vs 300ms).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2074",
+            "EVD-2075",
+            "EVD-2076",
+            "EVD-2077"
+          ],
+          "recorded_at": "2026-11-25T11:19:49.653740232Z",
+          "seal": {
+            "by": "server",
+            "mac": "b7565c86e3cef25a67af34f547f120c8b5ab4754d6d8ed2e14bdf1d21211cc0b"
+          }
+        }
+      ],
+      "created_at": "2026-11-25T11:19:36.211278982Z",
+      "updated_at": "2026-11-25T11:19:49.653740232Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c16c330a413e8cea4eab8bb3199846c1f2f307568edf3e9286e64528b9446c7"
       }
     }
   ]

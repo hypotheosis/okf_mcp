@@ -1,7 +1,8 @@
 # Builds the server image and publishes it to GHCR (M7). Not CI: no gates
 # run here; they run locally before each merge (design "Milestones").
 # Every push to main gets a `sha-<full commit sha>` tag; `v*` tags also get
-# the version. image-cleanup.yml ages out the sha-only images.
+# the version, re-tagging the image main already built for that commit when
+# there is one. image-cleanup.yml ages out the sha-only images.
 name: image
 
 on:
@@ -13,6 +14,13 @@ on:
 permissions:
   contents: read
   packages: write
+
+# A release tag points at a commit that was just merged to main, and both
+# pushes land within seconds. One run per commit at a time: the second waits
+# in the queue (no runner) and re-tags the image the first one built.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   image:
@@ -36,7 +44,33 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=sha,format=long
+      # On a push, reuse an image already built for this commit instead of
+      # compiling it again: point the missing tags at its `sha-` image, so a
+      # release is the same digest that main built. The labels stay the ones
+      # that build wrote. A manual dispatch always rebuilds, and so does a
+      # run that finds no image (or cannot read the registry).
+      - id: existing
+        if: github.event_name == 'push'
+        env:
+          SOURCE: ghcr.io/hypotheosis/okf-mcp:sha-${{ github.sha }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          if ! docker buildx imagetools inspect "$SOURCE" > /dev/null 2>&1; then
+            echo "No $SOURCE yet; building."
+            exit 0
+          fi
+          args=()
+          while IFS= read -r tag; do
+            if [ -n "$tag" ] && [ "$tag" != "$SOURCE" ]; then
+              args+=(--tag "$tag")
+            fi
+          done <<< "$TAGS"
+          if [ "${#args[@]}" -gt 0 ]; then
+            docker buildx imagetools create "${args[@]}" "$SOURCE"
+          fi
+          echo "found=true" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        if: steps.existing.outputs.found != 'true'
         with:
           context: .
           push: true

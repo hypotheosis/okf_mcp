@@ -1,15 +1,26 @@
 # syntax=docker/dockerfile:1
 # Separate runner image; the server image and release recipes stay unchanged.
 # Like Dockerfile, base tags intentionally receive Debian security updates.
-FROM rust:1.99.1-slim-bookworm AS build
+# Dependencies are cooked in their own cached layer with cargo-chef; see the
+# build stages in Dockerfile for why (same version, no cache mounts).
+FROM rust:1.99.1-slim-bookworm AS chef
+RUN cargo install cargo-chef --locked --version 0.1.78
 WORKDIR /build
+
+FROM chef AS planner
+COPY Cargo.toml Cargo.lock build.rs ./
+COPY src ./src
+COPY migrations ./migrations
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS build
+COPY --from=planner /build/recipe.json recipe.json
+RUN cargo chef cook --release --locked --bin okf-maintenance --recipe-path recipe.json
 # build.rs embeds the web console (src/http/ui) that the library includes.
 COPY Cargo.toml Cargo.lock build.rs ./
 COPY src ./src
 COPY migrations ./migrations
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/build/target \
-    cargo build --release --locked --bin okf-maintenance \
+RUN cargo build --release --locked --bin okf-maintenance \
     && cp target/release/okf-maintenance /usr/local/bin/okf-maintenance
 
 FROM debian:bookworm-slim AS native

@@ -10,8 +10,14 @@ overturned, 18 unpinned). The migrations had moved to `migrations/accounts/` and
 - Re-audited every claim with a changed, missing, overturned or unpinned anchor, plus the stale
   and dangling ones: 461 claims in 8 batches. The auditors were Sonnet subagents and are
   independent of the code's authors. Each claim got fresh evidence pinned to b342157 and a new
-  verdict. Test evidence comes from one full `tools/agentic/gate.sh test` run at b342157 (3,659
-  tests in each store mode).
+  verdict. Test evidence comes from three runs at b342157:
+  - one full `tools/agentic/gate.sh test` run (3,659 tests in each store mode), cited by most
+    test evidence;
+  - one `node --test tests/read_worker/*.test.mjs` run by an auditor (115 passed, 0 failed),
+    cited by the reader claims, for example EVD-3004 and EVD-3008 on CLM-0075, and CLM-1413;
+  - one `bash tools/agentic/tests/run.sh` run by an auditor (109 passed, 0 failed), cited by the
+    watchdog, lib.sh and gate.sh claims, for example EVD-3240 to EVD-3250 on CLM-0696, CLM-0697,
+    CLM-0703, CLM-1356, CLM-1360 and CLM-1361. The gate does not run the shell suite.
 - Retired 51 claims that described a past moment rather than the product: one PR's diff or run,
   interim task shims later removed by design (for example `refuse_host_stores_until_task_20`),
   plan-document edits, and a `.pyc` anchor. Where the lasting intent still mattered, a

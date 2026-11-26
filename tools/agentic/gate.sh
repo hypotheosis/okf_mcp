@@ -15,6 +15,7 @@
 #   narrow   cargo test <args...>         15m  (no lock; for iterating)
 #   dylint   just dylint                  45m  (the first run builds the lint library)
 #   worker   just test-worker             5m   (no lock; the reader's Node tests, also run by test)
+#   mcpjam   just test-mcpjam             20m  (the MCPJam scenarios against a local server, tests/mcpjam/)
 #
 # The limit counts time spent waiting for the lock (flock -w), so a gate stuck
 # behind a hung holder also fails instead of waiting forever.
@@ -43,7 +44,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source-path=SCRIPTDIR source=lib.sh
 source "$here/lib.sh"
 
-gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|narrow [args...]}
+gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|mcpjam|narrow [args...]}
 shift
 
 # Build against the committed sqlx query data, as the justfile does, so a
@@ -62,6 +63,14 @@ case "$gate" in
     test-ui) limit=${AGENTIC_TIMEOUT_TEST_UI:-60m}; locked=1; cmd=(just test-ui "$@") ;;
     dylint)  limit=${AGENTIC_TIMEOUT_DYLINT:-45m};  locked=1; cmd=(just dylint "$@") ;;
     worker)  limit=${AGENTIC_TIMEOUT_WORKER:-5m};  locked=0; cmd=(just test-worker "$@") ;;
+    # Always the local server built from this checkout, on a throwaway
+    # Postgres: a remote target (OKF_MCP_URL) would test what is deployed,
+    # not this change; OKF_MCP_BIN would test another build; and the suite
+    # prefers DATABASE_URL over the test server's TEST_PG_URL, so a real
+    # database must never reach it.
+    mcpjam)  limit=${AGENTIC_TIMEOUT_MCPJAM:-20m}; locked=1
+             cmd=(env -u OKF_MCP_URL -u OKF_MCP_KEY -u OKF_MCP_API_URL -u OKF_MCP_ISOLATION
+                  -u OKF_MCP_CATALOG -u OKF_MCP_BIN -u DATABASE_URL just test-mcpjam "$@") ;;
     narrow)  limit=${AGENTIC_TIMEOUT_NARROW:-15m}; locked=0; cmd=(cargo test "$@") ;;
     *) echo "gate.sh: unknown gate '$gate'" >&2; exit 2 ;;
 esac

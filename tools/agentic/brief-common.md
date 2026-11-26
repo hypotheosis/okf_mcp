@@ -28,11 +28,13 @@ tools/agentic/gate.sh lint
 tools/agentic/gate.sh test
 tools/agentic/gate.sh test-ui              # if you touch the console or tests/ui_e2e/
 tools/agentic/gate.sh dylint               # required before every push (the lint is at deny)
+tools/agentic/gate.sh mcpjam               # required before every push (the MCPJam scenarios, tests/mcpjam/)
 tools/agentic/gate.sh worker               # the reader's Node tests (tests/read_worker/), while iterating
 tools/agentic/gate.sh narrow --lib -- <filter>   # while iterating
 ```
 
 - **`dylint`** runs the `uninstrumented_fn` policy lint (`docs/contributing/policy-lints.md`). The lint is at deny: a new function needs `#[instrument]` or a reason-bearing exemption, and the gate must exit 0 before you push. The first run builds the lint library (minutes).
+- **`mcpjam`** replays the MCPJam swarm goals as fixed MCP tool calls (`tests/mcpjam/README.md`) against a server built from your checkout, on a throwaway Postgres. It needs Docker and Node 22+, and must exit 0 before you push. A red scenario is a change in what the server stores or answers: fix the server, or, if the change is intended, the scenario.
 - **Exit 124 means a test hung.** It is neither a pass nor an ordinary failure, so find the stuck test before anything else (the script prints how).
 - **Bound every wait.** Never run tests outside `gate.sh`, and never wait on a background job without a bound.
 - **Tests you write that hold a lock or wait on another task** wrap the wait in `tokio::time::timeout`.

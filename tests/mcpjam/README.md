@@ -38,6 +38,12 @@ Local, on a throwaway Postgres (needs Docker and Node 22+), from the repo root:
 
     just test-mcpjam
 
+Before a PR is pushed, agents run it as a gate, `tools/agentic/gate.sh mcpjam`
+(shared gate lock, 20-minute limit; see `tools/agentic/README.md`). The gate is
+always local mode: it drops `OKF_MCP_URL`, `OKF_MCP_KEY`, `OKF_MCP_BIN`,
+`DATABASE_URL` and the other target variables, so it tests the checkout's own
+build.
+
 Against a remote server, such as staging:
 
     export OKF_MCP_URL=https://<staging host>/mcp

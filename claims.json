@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "6566ed6d2c95cbe22a55a94d59d0592645d04fe2becc4785ef3183472ea984c8"
   },
-  "next_evidence_seq": 2533,
+  "next_evidence_seq": 2541,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e779b023303294f1ad4995c6bea4d57761924814c35e71b45b5999fee779834d"
+    "mac": "c7e518547d635a395b538711834b601b7533a9380f15154fd471f81a3ada282a"
   },
   "claims": [
     {
@@ -9004,6 +9004,28 @@
             "by": "server",
             "mac": "86b4c9973cd23857916b1d02dc4e44ca8261a813bc0f684a2843d758d5b0768c"
           }
+        },
+        {
+          "id": "EVD-2538",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at b51a4a6",
+          "summary": "Second commit only changed a bounded() label string in this test; stale-within-ceiling and 25-hour assertions unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.563870431Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f7e4bc524364a37c154dcb2403aacdde3f3176d974b8851b49eca500bc59b63"
+          }
         }
       ],
       "verdicts": [
@@ -9045,13 +9067,26 @@
             "by": "server",
             "mac": "f4ef68fcdb4838cfa53d192fb91a1040ba3fc08c0bfa50e31219ef6635ce1c45"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: only a label string changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2538"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.892981978Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa4212b5b9be1efa9b160c1b9f426c8249c56cac8390291b8c88b328223416b6"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-26T10:37:57.493535484Z",
+      "updated_at": "2026-11-26T10:39:36.892981978Z",
       "seal": {
         "by": "server",
-        "mac": "46c058d58b87ba98529c28fac6aef752ec11913c2907e520380a0f729dfae0c0"
+        "mac": "8cb9798587cf4f4071cff87c3586edeb5d641432db8e014633fd65e4d624d427"
       }
     },
     {
@@ -122634,6 +122669,28 @@
             "by": "server",
             "mac": "5e81820a9d56b3603c7fcfe716abc137cc4b9bb52c245c4c1bad496c056b66f5"
           }
+        },
+        {
+          "id": "EVD-2537",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at b51a4a6",
+          "summary": "Second commit only changed a bounded() label string in this test (2140-2144); stale-serving and 25-hour assertions unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.467628649Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2e1fe88a9b13485bcce1c94fe98273c158e5e7320b4460afe5fad539c7692c7"
+          }
         }
       ],
       "verdicts": [
@@ -122662,13 +122719,26 @@
             "by": "server",
             "mac": "a841651c1478f55fabe21257abbf35328de5ea3d44df8051fda69fc20ce4973d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: only a label string changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2537"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.803036322Z",
+          "seal": {
+            "by": "server",
+            "mac": "8939aa9fda6366fa0315d409c5c304b473f031edba292bed5dbbb84fdd1c80ac"
+          }
         }
       ],
       "created_at": "2026-11-25T22:37:04.304107521Z",
-      "updated_at": "2026-11-26T10:37:57.372406925Z",
+      "updated_at": "2026-11-26T10:39:36.803036322Z",
       "seal": {
         "by": "server",
-        "mac": "ebd6a79212ba22b4437bbc328577ba5067fa686b0ff45b02f6a4bc6af1cde465"
+        "mac": "814bb9d5ce5e0aebaaaaa323a31e15bf3b76ab54b595fb113a7e6933c6831efb"
       }
     },
     {
@@ -137610,6 +137680,18 @@
             "by": "server",
             "mac": "55b0a1d0a4810d46fb9143090c2d9878e7f200ff00a29b2d722cb3821f15fe48"
           }
+        },
+        {
+          "id": "EVD-2539",
+          "kind": "analysis",
+          "locator": "children of CLM-1710",
+          "summary": "After b51a4a6 the two refuted children (CLM-1719 make_unreachable site, CLM-1721 unbounded TLS calls) are fixed and re-audited supported; the other children were supported and their code is unchanged except the changelog and a label string. Together they cover the four sites, the helper, the extra sites, the search for the rest and the bounding.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:39:24.659813802Z",
+          "seal": {
+            "by": "server",
+            "mac": "407b80d4bb235e168dbed5a843fb4ac60dd7204ca64e7e4444fe891de1aaef37"
+          }
         }
       ],
       "verdicts": [
@@ -137625,13 +137707,26 @@
             "by": "server",
             "mac": "876a4a515bdd8e203f8a6c3806dd097b5817876d7d61fc75731a02cd0a3c0d0a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children now supported at b51a4a6 except CLM-1722 (not_enough_info, run result not an audit-decidable code property).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2539"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.983285275Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a53b9675ff870a500b732f0a56d01288a2bcd16d57e47133f08c84482b0331e"
+          }
         }
       ],
       "created_at": "2026-11-26T10:36:09.925628722Z",
-      "updated_at": "2026-11-26T10:37:24.381278129Z",
+      "updated_at": "2026-11-26T10:39:36.983285275Z",
       "seal": {
         "by": "server",
-        "mac": "d980513a4e268ff6ca1369c26fa03a922cb48f92b9519b3469d435b10e0785e8"
+        "mac": "a3f725792e35101a16c9fa04f836364faf6d8ec3bf325a9687749055855f327e"
       }
     },
     {
@@ -138168,6 +138263,28 @@
             "by": "server",
             "mac": "5b39c54504c7edd68d0e5028f298a5bdf0b7dce6b77b354ae752eb77e3ba8c1d"
           }
+        },
+        {
+          "id": "EVD-2536",
+          "kind": "analysis",
+          "locator": "git grep -n 'test_net::Refused::new' -- src at b51a4a6",
+          "summary": "Still used at every named module (store/stores.rs, cli/stores.rs x2, http/api/stores.rs, stores/registry.rs, oauth/clients.rs) plus the issue's three sites and now mcp/testing.rs; the one-line label change in oauth/clients.rs does not touch it.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "test_net::Refused::new",
+              "scope": [
+                "src"
+              ],
+              "hits": 10,
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.315692615Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd94ca87a91938a46e07df77641ebc25f837e8ab481d246bde86870e98881551"
+          }
         }
       ],
       "verdicts": [
@@ -138183,13 +138300,26 @@
             "by": "server",
             "mac": "1e9816be7ecbfda066845c2a010bd1e03e5d40f313223130a273e46816a145e3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: all named modules still use Refused.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2536"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.711309409Z",
+          "seal": {
+            "by": "server",
+            "mac": "c456446396e2082f9c0e1f1cfd917a3800ebe0b25a5413d789cf199b8bf86926"
+          }
         }
       ],
       "created_at": "2026-11-26T10:36:09.925628722Z",
-      "updated_at": "2026-11-26T10:37:19.330738046Z",
+      "updated_at": "2026-11-26T10:39:36.711309409Z",
       "seal": {
         "by": "server",
-        "mac": "79b8c0e5a1fc19a1b3c91e971615185f4fd31cf92363ab549422c52069f96229"
+        "mac": "39c60188489f8840091e8d71c58f3adbad666918565c2978f771325812ec1832"
       }
     },
     {
@@ -138246,6 +138376,40 @@
             "by": "server",
             "mac": "863a787b58d16fccc89cf9abaf0f63839bbbe9e73d2bcf931e691a2e8a4ac595"
           }
+        },
+        {
+          "id": "EVD-2533",
+          "kind": "inspection",
+          "locator": "src/mcp/testing.rs:31-36,178-192 at b51a4a6",
+          "summary": "make_unreachable now creates a Refused, reads its port, and pushes it into TestApp.refusing so it lives as long as the app; all four TestApp struct literals (testing.rs:456, 590, 668, 704) initialise the field. No other TestApp literal exists (grep).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/testing.rs",
+              "lines": {
+                "start": 178,
+                "end": 192
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.005795981Z",
+          "seal": {
+            "by": "server",
+            "mac": "28d4b41b1c57853399b00f166cf15190628f7a2b00354075ca4c9cd6a2d136bc"
+          }
+        },
+        {
+          "id": "EVD-2534",
+          "kind": "analysis",
+          "locator": "grep -rnE 'TcpListener::bind|UdpSocket::bind|free_port|drop\\((listener|socket|reservation|silent)\\)' src tests, reviewed at b51a4a6",
+          "summary": "Re-grep: every remaining bind keeps its listener/socket alive (servers, proxies, held silent UDP sockets, stalled store, ui_e2e squatter; cimd_no_proxy drops accepted connections, not the port). Only tests/support/redis.rs::free_port still reserves-and-drops, named in the PR body and retried by start_pinned. No unmentioned site left.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:39:24.113874302Z",
+          "seal": {
+            "by": "server",
+            "mac": "d107cee88d93381db0ae6524da9610d14338f47e1b2e27b13966d640e60ef86f"
+          }
         }
       ],
       "verdicts": [
@@ -138261,13 +138425,27 @@
             "by": "server",
             "mac": "423a83c88fd3134d2d0e286fc37acb1380c9d4e032d01879beb5573fd24b6e5c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: make_unreachable holds its port and a fresh grep finds no unmentioned bind-then-drop site.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2533",
+            "EVD-2534"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.529187409Z",
+          "seal": {
+            "by": "server",
+            "mac": "65cf3d91211414e72ca5a9b9b81a8af5aada632eb8193b6041d22d55b0d8b935"
+          }
         }
       ],
       "created_at": "2026-11-26T10:36:09.925628722Z",
-      "updated_at": "2026-11-26T10:37:19.483180169Z",
+      "updated_at": "2026-11-26T10:39:36.529187409Z",
       "seal": {
         "by": "server",
-        "mac": "01b91d4bcc99767d4ff172d127b74d8a367fdfd36ff8b309fac1d1fd95c0403a"
+        "mac": "1d1988230a10e944b63bbc0127ff5a66e82ab467fcc8afed2fb1f683d66a03db"
       }
     },
     {
@@ -138401,6 +138579,28 @@
             "by": "server",
             "mac": "2e924c4863102b590675b0775ba242b8e6491e979cc91931e8e133400646b5e0"
           }
+        },
+        {
+          "id": "EVD-2535",
+          "kind": "inspection",
+          "locator": "src/investigator/client_tests.rs:586-645 at b51a4a6",
+          "summary": "The port read, the GET send and McpClient::open in the HTTPS test are each wrapped in crate::test_net::bounded; the is_connect, UnknownIssuer and is_err assertions are kept. Other touched sites were already bounded (registry has its own 60 s timeout).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/client_tests.rs",
+              "lines": {
+                "start": 586,
+                "end": 645
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.211635670Z",
+          "seal": {
+            "by": "server",
+            "mac": "a052e4a5be7c25c4d5f22da5b86b21b7859facb6e5a0a9196b53df11fdf68aa2"
+          }
         }
       ],
       "verdicts": [
@@ -138416,13 +138616,26 @@
             "by": "server",
             "mac": "c53dd0899fc9ec0cbee5042ec86ae5515834fd3520d95b6b65634005626c8afb"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: the TLS GET and open are now bounded.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2535"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.619860908Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3824d4e542472e059d222a145f3d7136d0a1f393c94e3491363fc18c529075c"
+          }
         }
       ],
       "created_at": "2026-11-26T10:36:09.925628722Z",
-      "updated_at": "2026-11-26T10:37:19.755231624Z",
+      "updated_at": "2026-11-26T10:39:36.619860908Z",
       "seal": {
         "by": "server",
-        "mac": "cbc9fd4e377914dc8cb5e5f63e3488532299f4b2878cd8e4fb3154e14538d24f"
+        "mac": "97eb2d30d48b0aae14fd66fd242a0a0c9ffe0e4b4c88b323f1a7fad8c2604fae"
       }
     },
     {
@@ -138519,6 +138732,28 @@
             "by": "server",
             "mac": "5dc0d97b24e948a0559ff764f392d5098f1308f5c461a8d2f4944bd231c57eca"
           }
+        },
+        {
+          "id": "EVD-2540",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md at b51a4a6",
+          "summary": "Changelog gained a bullet for TestApp::make_unreachable holding a Refused; earlier content (helper, sites, s_server, redis free_port) unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md",
+              "lines": {
+                "start": 1,
+                "end": 19
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:36.243860078Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bd37d77a8e900bf0de57f396788146bcc20ff14b3fb979ed648dbf3be3ca664"
+          }
         }
       ],
       "verdicts": [
@@ -138534,13 +138769,26 @@
             "by": "server",
             "mac": "dc0789f8b5f38096e6827488c49348a994fa060b8877c0c176a017520935599f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: file present with the stated content plus the make_unreachable bullet.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2540"
+          ],
+          "recorded_at": "2026-11-26T10:39:45.683517694Z",
+          "seal": {
+            "by": "server",
+            "mac": "72ce747807e0261b6e49e328747c157a784372715a677a10d25873217192006c"
+          }
         }
       ],
       "created_at": "2026-11-26T10:36:09.925628722Z",
-      "updated_at": "2026-11-26T10:37:20.036226130Z",
+      "updated_at": "2026-11-26T10:39:45.683517694Z",
       "seal": {
         "by": "server",
-        "mac": "43db1b7ac55128ace682bea8ef93ac2cf58c609c08a84827604df5500f84cc4e"
+        "mac": "8872d48bd43c4c1d8bbec51e33af9b3d2a2c052bc9c668063e8d2b02db30f57e"
       }
     }
   ]

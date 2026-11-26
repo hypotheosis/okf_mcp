@@ -2447,6 +2447,92 @@ mod tests {
         }
     }
 
+    /// Issue #1044: the shared server `scripts/test-pg.sh run` starts carries
+    /// its run shell's `<pid>-<counter>` and the owner scope, so the sweep
+    /// removes it once that shell is gone (a run killed with KILL never runs
+    /// its EXIT trap), and keeps one whose shell is alive. A server started
+    /// without an owner keeps its `server-<name>` label and is never swept.
+    /// The owners are real, live `sleep` children (unique pids, so concurrent
+    /// runs of this test never share labels, and an ordinary sweep from another
+    /// test process finds them alive and leaves the servers alone). Only this
+    /// test's own sweep, through a liveness stub that calls every pid but one
+    /// of them alive, treats the "dead" owner as dead.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_shared_server_of_a_dead_run_is_swept() {
+        let Some(scope) = pg_support::owner_scope() else {
+            return;
+        };
+        // `kill_on_drop` ends a child even if an assertion panics first.
+        let spawn_owner = || {
+            tokio::process::Command::new("sleep")
+                .arg("600")
+                .kill_on_drop(true)
+                .spawn()
+                .expect("spawn an owner process")
+        };
+        let mut dead_owner = spawn_owner();
+        let mut live_owner = spawn_owner();
+        let dead_pid = dead_owner.id().expect("the dead owner has a pid");
+        let live_pid = live_owner.id().expect("the live owner has a pid");
+        let tag = pg_support::unique_start_label();
+        let script = concat!(env!("CARGO_MANIFEST_DIR"), "/scripts/test-pg.sh");
+        let mut names = Vec::new();
+        for (kind, owner) in [
+            ("dead", Some(dead_pid)),
+            ("live", Some(live_pid)),
+            ("unowned", None),
+        ] {
+            let name = format!("okf-mcp-test-pg-1044-{kind}-{tag}");
+            let mut command = tokio::process::Command::new(script);
+            command.arg("up").arg(&name).env("TEST_PG_JOBS", "1");
+            if let Some(owner) = owner {
+                command.arg(owner.to_string());
+            }
+            let output = command.output().await.expect("run scripts/test-pg.sh up");
+            names.push((kind, name));
+            assert!(
+                output.status.success(),
+                "up {kind}: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+
+        let found = pg_support::all_labelled_containers().await;
+        let removed = pg_support::sweep_stale_containers_of(&scope, |pid| pid != dead_pid).await;
+        let remaining = pg_support::all_labelled_containers().await;
+        // Remove every server this test started before any assertion.
+        for (_, name) in &names {
+            let _ = tokio::process::Command::new(script)
+                .args(["down", name])
+                .status()
+                .await;
+        }
+
+        // Stop and reap both owners, so no process outlives the test.
+        for owner in [&mut dead_owner, &mut live_owner] {
+            let _ = owner.kill().await;
+        }
+
+        let found = found.unwrap();
+        let ours = |start: String| {
+            found
+                .iter()
+                .filter(|container| container.start_label == start)
+                .collect::<Vec<_>>()
+        };
+        let dead = ours(format!("{dead_pid}-0"));
+        assert_eq!(dead.len(), 1, "the dead run's server has its owner label");
+        assert_eq!(dead[0].owner_scope.as_deref(), Some(scope.as_str()));
+        assert_eq!(ours(format!("{live_pid}-0")).len(), 1);
+        assert_eq!(removed.unwrap(), 1, "only the dead run's server is swept");
+        let remaining = remaining.unwrap();
+        let present = |start: String| remaining.iter().any(|c| c.start_label == start);
+        assert!(!present(format!("{dead_pid}-0")));
+        assert!(present(format!("{live_pid}-0")));
+        let unowned = names.iter().find(|(kind, _)| *kind == "unowned").unwrap();
+        assert!(present(format!("server-{}", unowned.1)));
+    }
+
     /// With every owner alive nothing is picked, and an empty list is fine.
     #[test]
     fn the_sweep_keeps_everything_when_all_owners_are_alive() {

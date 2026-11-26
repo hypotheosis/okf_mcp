@@ -1237,8 +1237,9 @@ pub struct LabelledContainer {
 /// The owner pid in a start label (`<pid>-<counter>`).
 ///
 /// # Returns
-/// `None` for any other shape, such as the shared server's `server-<name>`
-/// label, which no test process owns.
+/// `None` for any other shape, such as the `server-<name>` label of a server
+/// started with `scripts/test-pg.sh up NAME` and no owner pid, which no
+/// process owns (a server kept across runs).
 pub fn owner_pid(start_label: &str) -> Option<u32> {
     let (pid, counter) = start_label.split_once('-')?;
     counter.parse::<u64>().ok()?;

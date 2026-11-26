@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1592,
+  "next_claim_seq": 1606,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "8b790a68a96cd2731840321d03b2c0f0f292da3ec2b08b8896c502a076e00254"
+    "mac": "c1db56b3fecb54314b872d12657fb1c1e0330c97bb5bfd8fbbba94a1d2c70acb"
   },
-  "next_evidence_seq": 2370,
+  "next_evidence_seq": 2386,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7f4dee726bb0f04e9324a8ee91022fc43dd59ff21e057eb5495bb6e832baa6c0"
+    "mac": "b36c97dd493f015f7ec1e26a3eb22a7b501a29dd05610a850c7cf2574e43ce76"
   },
   "claims": [
     {
@@ -42276,6 +42276,28 @@
             "by": "server",
             "mac": "648f6d1b1ff6be462ad061d8c26f17d5deeac16388198d7246c1cb7782769023"
           }
+        },
+        {
+          "id": "EVD-2385",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:123-125",
+          "summary": "At f6b1574 LaunchOptions::default().headless(true).arg(LOCALHOST_IS_IPV4) is still built and passed to launch; the diff only added user_data_dir and executable_path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 121,
+                "end": 128
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:48.172090059Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d7437d6531241af337fb252ce3d2f8d6f4d25e87dc9c113466f16517693d691"
+          }
         }
       ],
       "verdicts": [
@@ -42291,13 +42313,26 @@
             "by": "server",
             "mac": "428a0d699fbdf8908e1dc7e07febf991e507fa86b333e55402bd0f8167efb73e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The flag is still passed after the refactor of the launch call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2385"
+          ],
+          "recorded_at": "2026-11-26T06:24:50.549811933Z",
+          "seal": {
+            "by": "server",
+            "mac": "12b0ef2b176bed35336e4138f9a8f38dceb8b740ce9b158242fa12b7bf297c1e"
+          }
         }
       ],
       "created_at": "2026-11-22T23:04:49.663095956Z",
-      "updated_at": "2026-11-22T23:05:58.428485641Z",
+      "updated_at": "2026-11-26T06:24:50.549811933Z",
       "seal": {
         "by": "server",
-        "mac": "ba31cccd1c2a25b6545f7973083a61c2ec0eef847059d1ec2190c321151e8411"
+        "mac": "8174171b42c842ac2ceb5390350cb325a4dceeda545c1de24250f22825cab558"
       }
     },
     {
@@ -129230,6 +129265,901 @@
       "seal": {
         "by": "server",
         "mac": "5c40043e1b551fff124e1d0ad18fbda6c7da872cb8597262ef34d4f3d54b435b"
+      }
+    },
+    {
+      "id": "CLM-1592",
+      "statement": "Issue #1070 is resolved: browser journeys leak neither Chromium processes nor /tmp profile folders.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1070",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2384",
+          "kind": "analysis",
+          "locator": "children of CLM-1592",
+          "summary": "Requirements 1-3 are supported by code and passing tests. Requirement 4 and the measurements could not be fully decided (not_enough_info), so the parent is not rolled up as supported.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T06:24:07.696538887Z",
+          "seal": {
+            "by": "server",
+            "mac": "10296aeb6062e3863e6c43db652e1d0a5267da717bd3e64c0e7921b4055abd59"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Requirements 1-3 hold, but the parent's measurement and requirement-4 children are undecided.  Fix: decide the measurement and not-filed claims, then roll up.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T06:24:29.854584983Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4d20d7e24bb8a5751814e5e9b89e8ac86b2710357cadfbf1c6dbfab7f7948ed"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.854584983Z",
+      "seal": {
+        "by": "server",
+        "mac": "37e4bd775b6f55be847b50e0d8f7545f5fa11f7af4a1c6cf577e972a0a9c81c5"
+      }
+    },
+    {
+      "id": "CLM-1593",
+      "statement": "A journey run through harness::drive uses a harness-owned --user-data-dir (BrowserHome profile) so rustwright creates no rustwright-profile-* folder, and the folder is deleted after the journey.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1070 requirement 1",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs",
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2370",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test ui_e2e -- leaks:: browser_home::",
+          "summary": "5 passed, 0 failed on f6b1574, including the journey test (not skipped: no 'skipping' output with --nocapture). The journey asserts its home folder is gone afterwards. /tmp rustwright-profile-* count was 23345 before and 23345 after the run (no new folder); no okf-ui-browser-* left.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 120,
+                "end": 128
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:23:59.846857877Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e4a9a876f33cde8067ee2e91ca502354443dc7c3a92279bc3834fa06fdef2f8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code passes a harness-owned user_data_dir (rustwright only makes rustwright-profile-* when none is given, lib.rs:49105); the journey test passed with the folder gone and the /tmp count unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2370"
+          ],
+          "recorded_at": "2026-11-26T06:24:37.439099059Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9d6f9d199396aa82a109e0b621f615dd90bcb22a46263b245f096f5e7e573ad"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:37.439099059Z",
+      "seal": {
+        "by": "server",
+        "mac": "afaf303e433295ff8a99b8bc68f75813892ab351b6fc432eb2f7e9ac40d07484"
+      }
+    },
+    {
+      "id": "CLM-1594",
+      "statement": "The browser is launched through a launcher script using setpriv --pdeathsig KILL (exec), so the kernel kills the browser when the test process dies before Drop.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1070 requirement 2",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2371",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:106-120; tests/ui_e2e/harness.rs:127",
+          "summary": "launcher_script emits 'exec setpriv --pdeathsig KILL -- <browser> \"$@\"' when setpriv exists; drive sets executable_path to that launcher. setpriv is at /usr/bin/setpriv here. The signal is tied to the spawning thread (the journey's spawn_blocking thread, which lives for the whole journey), so it matches the journey lifetime. Real Chromium killed by SIGKILL of the test binary was not rerun by me; the proxy test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 106,
+                "end": 120
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:23:59.997056862Z",
+          "seal": {
+            "by": "server",
+            "mac": "e52df9b1135822c3d1ec6c6a14eee5041e65f2fda51051842f8aa11a63c9ca75"
+          }
+        },
+        {
+          "id": "EVD-2383",
+          "kind": "test",
+          "locator": "leaks::a_browser_dies_with_the_process_that_started_it: ok",
+          "summary": "Test passes: a process started through the launcher (stand-in sleep) dies after its parent is SIGKILLed, showing the setpriv --pdeathsig mechanism works in this environment. Real Chromium not exercised.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/leaks.rs",
+              "lines": {
+                "start": 75,
+                "end": 108
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:07.545416170Z",
+          "seal": {
+            "by": "server",
+            "mac": "e94c0364fc38f69bae79ea2c88e6bccebcefa92d466047094fe9201c84e3e574"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Launcher script and wiring read correctly; the stand-in process dies with its parent in the passing test. Real Chromium not killed by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2371",
+            "EVD-2383"
+          ],
+          "recorded_at": "2026-11-26T06:24:28.525176324Z",
+          "seal": {
+            "by": "server",
+            "mac": "eaf5379da2c286f88a139b41147c86c5dfc8f0cae4a69f8d12c5f360ed0b4d09"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:28.525176324Z",
+      "seal": {
+        "by": "server",
+        "mac": "d59f5b3a9d57437397ee066a92d282a69f9dd10011177977041f0f23be79d87d"
+      }
+    },
+    {
+      "id": "CLM-1595",
+      "statement": "Test leaks::a_journey_leaves_no_profile_folder_and_no_browser_behind runs a journey and asserts the browser's folder no longer exists and no process uses its profile afterwards.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1070 requirement 3",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/leaks.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2372",
+          "kind": "test",
+          "locator": "cargo test (via gate.sh narrow) leaks::a_journey_leaves_no_profile_folder_and_no_browser_behind: ok; tests/ui_e2e/leaks.rs:37-73",
+          "summary": "Test passed. It asserts mid-journey that a profile dir exists and a process uses it, then after drive returns asserts !folder.exists() and processes_using(profile) is empty. Assertions read, not just the name. Note: processes_using matches by command-line --user-data-dir, so it catches Chromium children (all carry the flag) but not a differently-launched process.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/leaks.rs",
+              "lines": {
+                "start": 37,
+                "end": 73
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.117480462Z",
+          "seal": {
+            "by": "server",
+            "mac": "e77ccec239f4384361ee11a9e9958ccaef081740c9b3aaefc2ffba987ecb3380"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test ran (not skipped) and passed; assertions check folder absence and no process using the profile.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2372"
+          ],
+          "recorded_at": "2026-11-26T06:24:28.640150317Z",
+          "seal": {
+            "by": "server",
+            "mac": "74ecca0953e7f17d46c1de60021036ac395d0a078229da040768d775deb86e32"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:28.640150317Z",
+      "seal": {
+        "by": "server",
+        "mac": "aadf683ab15c0c4708717a628b5416ade0f71ab55ec4277cb97159f5d81b554a"
+      }
+    },
+    {
+      "id": "CLM-1596",
+      "statement": "Test leaks::a_browser_dies_with_the_process_that_started_it kills the parent of a launcher-started process and asserts the child dies.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1070 requirement 3; PR body: 'a launched process dies with its parent (sleep stands in for Chromium)'",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/leaks.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2373",
+          "kind": "test",
+          "locator": "leaks::a_browser_dies_with_the_process_that_started_it: ok; tests/ui_e2e/leaks.rs:75-108",
+          "summary": "Passed. Starts launcher (BrowserHome::create(\"/bin/sleep\")) from a sh parent, waits until comm is sleep, kills the parent, asserts the sleeper is gone (zombie counts as gone). Skips (returns early) if setpriv is missing, so on such a host the test passes vacuously; the stand-in is sleep, not Chromium.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/leaks.rs",
+              "lines": {
+                "start": 75,
+                "end": 108
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.249155068Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9746a00a594f176f5aed2f826af32c49d191ec1806144dd4667a7122bde52f7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passes and asserts the child is gone after the parent is killed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2373"
+          ],
+          "recorded_at": "2026-11-26T06:24:28.740065243Z",
+          "seal": {
+            "by": "server",
+            "mac": "632c9ed306e6daac79871675252e8d188a9f1654377f305ba95c36ca5bea5380"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:28.740065243Z",
+      "seal": {
+        "by": "server",
+        "mac": "121c8f05dd5cc18342dc003873c475c5ad0c1519fe1501689124e7134973da23"
+      }
+    },
+    {
+      "id": "CLM-1597",
+      "statement": "Dropping a BrowserHome waits for every process whose --user-data-dir is its profile to exit (SIGKILL after 10 s) and then deletes the folder; test leaks::a_home_waits_for_the_processes_using_its_profile_before_deleting_it covers the kill path.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'Dropping the home waits for every process whose --user-data-dir is its profile to exit (SIGKILL after 10 s), then deletes the folder.'",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs",
+        "tests/ui_e2e/leaks.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2374",
+          "kind": "test",
+          "locator": "tests/ui_e2e/browser_home.rs:86-102 and leaks::a_home_waits_for_the_processes_using_its_profile_before_deleting_it: ok",
+          "summary": "Drop polls processes_using with GRACE=10s, then SIGKILLs each pid, waits AFTER_KILL=10s; TempDir field removes the folder after Drop body. The test holds a straggler (sh read) naming the profile, drops the home, asserts folder gone and straggler exit not successful (killed). Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 86,
+                "end": 102
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.378507236Z",
+          "seal": {
+            "by": "server",
+            "mac": "707d6448a9dbad70fcb18a364f6596f2db4c34af11711808797334a43ebdce11"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Drop code matches the statement (10 s grace, SIGKILL, folder removed after) and the straggler test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2374"
+          ],
+          "recorded_at": "2026-11-26T06:24:28.838538234Z",
+          "seal": {
+            "by": "server",
+            "mac": "74652c5ce18cf3f198e1bf632e2f13750c21b4984774e8bc873b94810d4e69bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:28.838538234Z",
+      "seal": {
+        "by": "server",
+        "mac": "d6571bb53fd7011b79d12b012f211ffdd1b037a209c3e25018534e326dd70600"
+      }
+    },
+    {
+      "id": "CLM-1598",
+      "statement": "BrowserHome reads /proc/<pid>/cmdline in memory only and never prints it.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'It reads /proc/<pid>/cmdline in memory only and never prints it.'",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2375",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:141-157",
+          "summary": "processes_using does fs::read of /proc/<pid>/cmdline and a byte-window compare; no print/log of the bytes. grep for println!/eprintln!/tracing in browser_home.rs gives 0 hits.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "println!|eprintln!|tracing|dbg!",
+              "scope": [
+                "tests/ui_e2e/browser_home.rs"
+              ],
+              "hits": 0,
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.493994151Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cd54fc5ab35b7789d7e838ce3ea4776b4633f6fdcaf4fa74709e76b6a775131"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reads in memory, zero print/log statements in the file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2375"
+          ],
+          "recorded_at": "2026-11-26T06:24:28.933287713Z",
+          "seal": {
+            "by": "server",
+            "mac": "95ae45de3d0e0db579bdbda2b86e5abf2c7f33168d7197f0f1ef433fc7ee0dc7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:28.933287713Z",
+      "seal": {
+        "by": "server",
+        "mac": "15b40e9d6625ab93f03b80793013b64f977cd97649f8ca894880b71cdaeebab7"
+      }
+    },
+    {
+      "id": "CLM-1599",
+      "statement": "Without setpriv the launcher starts the browser as before (no parent-death protection).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'Without setpriv it starts the browser as before.'",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2376",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:110-121",
+          "summary": "The script is 'if command -v setpriv ... exec setpriv ...; fi; exec <browser> \"$@\"': the fallback execs the browser directly with the same args. No test covers the fallback branch (the one test of the script checks quoting only).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 110,
+                "end": 121
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.614244981Z",
+          "seal": {
+            "by": "server",
+            "mac": "216091d3aeb794aeb935126c0f365b2b1a675e52b0149534e562454477750bdf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The script's fallback execs the browser with the same arguments.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2376"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.031267732Z",
+          "seal": {
+            "by": "server",
+            "mac": "edebcd84b22aba475e89111d4cf22bcd0506ca0513fe608c8bd91c28ab373af1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.031267732Z",
+      "seal": {
+        "by": "server",
+        "mac": "c0e6b57d42b62f981e281f9102da698178aae5b09c2b5aaebfec8a5c4c5e1eb7"
+      }
+    },
+    {
+      "id": "CLM-1600",
+      "statement": "harness::Ui holds the home after the browser, so the folder is removed last; drive passes the home's profile as user_data_dir and its launcher as executable_path.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'drive passes the home's profile as user_data_dir and its launcher as executable_path; Ui holds the home after the browser, so the folder goes last.'",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2377",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:94-135",
+          "summary": "Ui fields ordered page, browser, home (home last, so dropped last); drive sets options.user_data_dir to home.profile() and options.executable_path to home.launcher().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 94,
+                "end": 135
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.760767373Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2e74f216f8a8b810988c2c9e06b96d65775cbe15492a37d837fc80496aeca15"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Field order and option wiring match the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2377"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.163193979Z",
+          "seal": {
+            "by": "server",
+            "mac": "b13d7eb16300c5c06f19504e5a8c2d9adbe558fa45d56392cc77897d19c760cd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.163193979Z",
+      "seal": {
+        "by": "server",
+        "mac": "d58b680536afaa05d05aeb5cb889338c42b7fa1422af2dca46851a21da2ad7db"
+      }
+    },
+    {
+      "id": "CLM-1601",
+      "statement": "The PR adds a lessons.md rule and a changelog file changelog/2026-11-26T06-04-25Z-issue-1070-browser-leaks.md.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes section",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tools/agentic/lessons.md",
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2378",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD --stat; tools/agentic/lessons.md:65",
+          "summary": "Diff includes changelog/2026-11-26T06-04-25Z-issue-1070-browser-leaks.md (28 lines) and a new lessons.md bullet about browser journeys (issue #1070).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 65,
+                "end": 65
+              },
+              "commit": "f6b1574bf1fa389bd74f52309c3ff1d68ba51ec2"
+            }
+          },
+          "recorded_at": "2026-11-26T06:24:00.888747778Z",
+          "seal": {
+            "by": "server",
+            "mac": "47f14168558db03705a6c218e4b3e2761fa7f4b4ff88460eb157a049809ba9ea"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both files are in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2378"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.285187794Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ff980a4542999b5553b2ff82f537563f5694edc9be99e01110703364162ca98"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.285187794Z",
+      "seal": {
+        "by": "server",
+        "mac": "32ad0b49084d0b589a1eb75ec387dbc17b6c8894fef545b306cecbaca7429392"
+      }
+    },
+    {
+      "id": "CLM-1602",
+      "statement": "Upstream description: rustwright 0.3.0 close_browser_cleanup sends Browser.close, waits up to 3 s for the main process, then drops the temporary profile folder, without waiting for child processes.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body upstream report item 1",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "rustwright-core-0.3.0/src/lib.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2379",
+          "kind": "inspection",
+          "locator": "~/.cargo/registry/src/*/rustwright-core-0.3.0/src/lib.rs:26037-26073,49105-49110",
+          "summary": "close_browser_cleanup sends Browser.close (3 s), polls child.try_wait up to 3 s (kill if not exited), then takes profile_dir (dropping the TempDir) with no wait for child processes. The prefix rustwright-profile- is used only when user_data_dir is None. Matches the description. Whether a child recreates the folder is a runtime claim, see the measurements claim.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T06:24:01.011466555Z",
+          "seal": {
+            "by": "server",
+            "mac": "a51b2547cdcec3e9b0bf351fadfbd82ee28e7df5b21125aa6185c187516111bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "rustwright 0.3.0 source matches each step described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2379"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.387708318Z",
+          "seal": {
+            "by": "server",
+            "mac": "617db89d9e3267221a153091d8e144ac0215a0e28ed11ffdaca24e3921017b32"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.387708318Z",
+      "seal": {
+        "by": "server",
+        "mac": "e49e8d2c24d953727bea59332d758f1dbc1065e6d15f3880314d2f91adb4e092"
+      }
+    },
+    {
+      "id": "CLM-1603",
+      "statement": "Upstream description: rustwright 0.3.0 does not set PR_SET_PDEATHSIG for a browser it spawns (its pre_exec only installs pipe fds).",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body upstream report item 2",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "rustwright-core-0.3.0/src/lib.rs"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2380",
+          "kind": "inspection",
+          "locator": "rustwright-core-0.3.0/src/lib.rs:49243-49247; grep PR_SET|prctl|pdeathsig in src/lib.rs: 0 hits",
+          "summary": "The only pre_exec in the launch path calls install_chromium_pipe_fds (and only when pipe transport is used); grep for PR_SET, prctl, pdeathsig (case-insensitive for the first run) finds nothing in the crate's lib.rs.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T06:24:01.132603688Z",
+          "seal": {
+            "by": "server",
+            "mac": "51e0769173fe679bfb71d13fb961a9a2e6a573cd8b7bc44c7bb0502f53be65d7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No PDEATHSIG anywhere in the crate; the pre_exec only installs pipe fds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2380"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.501945519Z",
+          "seal": {
+            "by": "server",
+            "mac": "40464497ce42dd394f38b5f5abc599e58055524632e945f30e375971956adf4a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.501945519Z",
+      "seal": {
+        "by": "server",
+        "mac": "46ac0463e930eb596780b7ac0d6ea914ea5d4d90b3e5874339c14eb140a122c9"
+      }
+    },
+    {
+      "id": "CLM-1604",
+      "statement": "Measurements: before the change gate.sh test-ui left +193 rustwright-profile-* folders and 0 browsers, after it 0 new folders; SIGKILL of a test binary left 7 browsers before and 0 after; nextest run of 32 journeys left +25 folders; the upstream flush recreates Default/Cache/Cache_Data/index-dir/the-real-index.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body 'What was measured' and upstream report item 1",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2381",
+          "kind": "analysis",
+          "locator": "PR body 'What was measured'; /tmp listing",
+          "summary": "Not reproducible cheaply: before-change numbers need the old code and full gates or kills of real browsers. What I could observe: after the new journey test, /tmp rustwright-profile-* count is unchanged (23345 to 23345), which agrees with the 'after' claim for one journey; the host holds 23345 older folders, consistent with the leak. The recreated index-dir/the-real-index path was not checked.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T06:24:01.250621571Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f8bcc3eb92223bf68e69741ec60d04d348168d1d1bf1078a7e496cc95cf458f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The before/after counts, the 7 surviving browsers and the recreated index-dir path need the old code or killing real browsers; only the after-state for one journey was observed.  Fix: have the author keep the measurement commands and outputs (before/after counts) in the changelog, or rerun the SIGKILL experiment on the old and new head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2381"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.625583359Z",
+          "seal": {
+            "by": "server",
+            "mac": "36b1ff448ef2330e0ad488083f540518bccc31f049104e28529d00561a35d5a7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.625583359Z",
+      "seal": {
+        "by": "server",
+        "mac": "528950c98342d69033a0b820962e20cf25f0ab6e59b0319b94e6c6e36d55df88"
+      }
+    },
+    {
+      "id": "CLM-1605",
+      "statement": "Issue requirement 4: the rustwright upstream bug is only drafted in the PR body, not filed (no change in the repo files an issue).",
+      "kind": "constraint",
+      "level": "system",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1070 requirement 4",
+      "derived_from": [
+        "CLM-1592"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1070"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2382",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD --stat; pr-1070-body.md 'Draft upstream report ... (not filed)'",
+          "summary": "The diff touches only tests/ui_e2e, a changelog and lessons.md; the report exists only as PR-body text. Whether an upstream issue was filed on GitHub elsewhere could not be checked (gh issue/search returned nothing here).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T06:24:01.369174145Z",
+          "seal": {
+            "by": "server",
+            "mac": "044acdb02cf24b5382857fa15c4750169f2185460e7769001c784f84aebaea40"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The repo diff files nothing, but I could not query GitHub for an existing upstream issue (gh returned no output).  Fix: confirm with a search of the rustwright tracker that no issue was filed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2382"
+          ],
+          "recorded_at": "2026-11-26T06:24:29.747951026Z",
+          "seal": {
+            "by": "server",
+            "mac": "ab04f7337e4afc3d2c2b453abd2a9b8e6c3f69f943e8db1b235d1954286ff803"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T06:23:23.110746589Z",
+      "updated_at": "2026-11-26T06:24:29.747951026Z",
+      "seal": {
+        "by": "server",
+        "mac": "9e685e528e4a9daacbbfffe2fa1f0854c0ea967f55e95fb91ba4e59a8923e3dd"
       }
     }
   ]

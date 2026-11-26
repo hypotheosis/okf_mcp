@@ -665,3 +665,106 @@ async fn a_readable_listing_over_several_scan_pages_spends_one_load_bound_on_a_s
     );
     lock.rollback().await.unwrap();
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn listed_states_answers_in_page_order_across_stores() {
+    // Arrange: rows on two stores, interleaved, so the first row of each store
+    // loads in a different wave from the rest.
+    let test = app_with(&[("home", &[("note.md", HOME_NOTE)])], Config::default()).await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote-1", &[("note.md", REMOTE_NOTE)])
+        .await;
+    test.catalog_on_store(&store, "remote-2", &[("note.md", REMOTE_NOTE)])
+        .await;
+    let ctx = context(&test, principal(&[], None), None);
+    let mut rows = Vec::new();
+    for name in ["remote-1", "home", "remote-2"] {
+        rows.push(test.app.catalog_row(name).await.unwrap().unwrap());
+    }
+    let page: Vec<_> = rows.iter().collect();
+
+    // Act
+    let states = bounded(ctx.listed_states(&page)).await;
+
+    // Assert
+    let names: Vec<_> = states
+        .into_iter()
+        .map(|state| state.unwrap().unwrap().name().to_string())
+        .collect();
+    assert_eq!(names, ["remote-1", "home", "remote-2"]);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_cached_first_row_does_not_let_the_cold_rows_stall_together() {
+    // Arrange: three catalogs on one store, only the first cached; the store
+    // answers the directory's probe but its documents are locked, so each
+    // cold load waits on the lock.
+    let test = app_with(
+        &[("home", &[("note.md", HOME_NOTE)])],
+        Config {
+            store_connect_timeout: Duration::from_secs(2),
+            ..Config::default()
+        },
+    )
+    .await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote-1", &[("note.md", REMOTE_NOTE)])
+        .await;
+    for name in ["remote-2", "remote-3"] {
+        test.catalog_on_store(&store, name, &[("note.md", REMOTE_NOTE)])
+            .await;
+    }
+    let mut rows = Vec::new();
+    for name in ["remote-1", "remote-2", "remote-3"] {
+        rows.push(test.app.catalog_row(name).await.unwrap().unwrap());
+    }
+    test.app.catalog_state(&rows[0]).await.unwrap();
+    let db = test.app.stores().get(&store).await.unwrap();
+    let mut lock = db.executor().begin().await.unwrap();
+    sqlx::query("LOCK TABLE documents IN ACCESS EXCLUSIVE MODE")
+        .execute(&mut *lock)
+        .await
+        .unwrap();
+    let ctx = std::sync::Arc::new(context(&test, principal(&[], None), None));
+    let loading = {
+        let ctx = std::sync::Arc::clone(&ctx);
+        let rows = rows.clone();
+        tokio::spawn(async move {
+            let page: Vec<_> = rows.iter().collect();
+            ctx.listed_states(&page).await
+        })
+    };
+
+    // Act: count the queries waiting on the lock once loading has begun.
+    let waiting = || async {
+        sqlx::query_scalar::<_, i64>(
+            "SELECT count(*) FROM pg_stat_activity \
+             WHERE wait_event_type = 'Lock' AND datname = current_database() \
+             AND pid <> pg_backend_pid()",
+        )
+        .fetch_one(db.executor())
+        .await
+        .unwrap()
+    };
+    let deadline = std::time::Instant::now() + Duration::from_secs(10);
+    while waiting().await == 0 {
+        assert!(std::time::Instant::now() < deadline, "no load ever waited");
+        tokio::time::sleep(Duration::from_millis(20)).await;
+    }
+    // Long enough for a second, overlapping load to have started.
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    let attempts = waiting().await;
+    let results = bounded(loading).await.unwrap();
+    lock.rollback().await.unwrap();
+
+    // Assert: one cold load attempted the store; the other was refused from
+    // the down set.
+    assert_eq!(attempts, 1, "cold rows on a stalled store overlapped");
+    assert!(matches!(results[0], Ok(Some(_))), "the cached row answers");
+    assert!(
+        results[1..]
+            .iter()
+            .all(|result| matches!(result, Err(OkfError::StoreUnavailable { .. }))),
+        "{results:?}"
+    );
+}

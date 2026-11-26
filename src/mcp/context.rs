@@ -1311,6 +1311,78 @@ impl ToolContext {
         }
     }
 
+    /// [`ToolContext::listed_state`] for a page's rows, loading up to
+    /// [`LISTING_LOAD_CONCURRENCY`] at once.
+    ///
+    /// The first row of each store that needs the store (not held by this
+    /// call, not cached at its generation) loads first, the stores
+    /// concurrently, then the rest: a store that is lost is marked down by
+    /// that row, so the others on it are refused from the down set without a
+    /// connect attempt each, as a call probes a lost store once. A row
+    /// already cached is no probe: it loads in the first wave too, so a lost
+    /// store never hides it.
+    ///
+    /// # Arguments
+    /// * `rows` - the listed catalogs' rows, in page order.
+    ///
+    /// # Returns
+    /// One result per row, in the order of `rows`: as `listed_state` gives
+    /// it, so a caller handles a broken or unreachable catalog as before.
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub(crate) async fn listed_states(
+        &self,
+        rows: &[&Arc<CatalogRow>],
+    ) -> Vec<Result<Option<Arc<CatalogState>>, OkfError>> {
+        let mut seen = std::collections::HashSet::new();
+        let mut heads = Vec::new();
+        let mut tails = Vec::new();
+        for (at, row) in rows.iter().enumerate() {
+            // A cached row costs no probe: it answers in the first wave, before
+            // a lost store is marked down, as it would in a serial walk.
+            if !self.needs_store(row).await || seen.insert(row.store.as_str()) {
+                heads.push(at);
+            } else {
+                tails.push(at);
+            }
+        }
+        // Loops, not `iter().map(..)`: a closure returning a borrowing
+        // future makes the handlers' futures fail Axum's `Send` check.
+        let mut results: Vec<Option<Result<Option<Arc<CatalogState>>, OkfError>>> =
+            std::iter::repeat_with(|| None).take(rows.len()).collect();
+        for wave in [heads, tails] {
+            let mut loads = Vec::with_capacity(wave.len());
+            for &at in &wave {
+                loads.push(self.listed_state(rows[at]));
+            }
+            for (at, result) in wave
+                .into_iter()
+                .zip(buffered_in_order(loads, LISTING_LOAD_CONCURRENCY).await)
+            {
+                results[at] = Some(result);
+            }
+        }
+        results
+            .into_iter()
+            .map(|result| result.expect("every row is in the heads or the tails"))
+            .collect()
+    }
+
+    /// Whether loading `row`'s state would contact its store: it is neither
+    /// held by this call nor cached at the row's generation.
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn needs_store(&self, row: &CatalogRow) -> bool {
+        let held = locked(&self.held)
+            .get(&row.name)
+            .is_some_and(|held| held.state.id() == row.id);
+        if held {
+            return false;
+        }
+        match self.app.catalog_cache().resident(row.id).await {
+            Some(state) => state.current().generation() < row.generation,
+            None => true,
+        }
+    }
+
     /// The state of `row`'s catalog for this call, resolved and held (with
     /// its snapshot) on first use. A state already held under the name is
     /// kept only if it is the same incarnation.
@@ -1349,6 +1421,37 @@ impl ToolContext {
         }
         Ok(state)
     }
+}
+
+/// How many snapshots of one listing page load at once. Bounded so a page of
+/// uncached catalogs cannot take more than this many pool connections.
+const LISTING_LOAD_CONCURRENCY: usize = 8;
+
+/// Polls `loads` at most `limit` at a time and returns their outputs in the
+/// order of `loads`.
+///
+/// # Arguments
+/// * `loads` - the futures to run, not yet started (the iterator is pulled
+///   as slots free up).
+/// * `limit` - the most in flight at once (at least 1).
+///
+/// # Returns
+/// Each output, in input order (a stream's `buffered`, not
+/// `buffer_unordered`, so the page keeps its order).
+#[tracing::instrument(level = "trace", skip_all)]
+async fn buffered_in_order<I>(
+    loads: I,
+    limit: usize,
+) -> Vec<<I::Item as std::future::Future>::Output>
+where
+    I: IntoIterator,
+    I::Item: std::future::Future,
+{
+    use futures_util::StreamExt;
+    futures_util::stream::iter(loads)
+        .buffered(limit.max(1))
+        .collect()
+        .await
 }
 
 /// An admission and the incarnation it was decided for
@@ -1396,7 +1499,7 @@ pub fn require_selected(
 mod tests {
     use chrono::Utc;
 
-    use super::{require_selected, ToolContext};
+    use super::{buffered_in_order, require_selected, ToolContext};
     use crate::config::Config;
     use crate::mcp::changesets::{open_changeset, OpenParams};
     use crate::mcp::testing::{
@@ -1838,5 +1941,84 @@ mod tests {
         assert_eq!((actor.ip, actor.source), (Some(ip), Source::Console));
         let actor = bare.audit_actor();
         assert_eq!((actor.ip, actor.source), (None, Source::Api));
+    }
+
+    #[tokio::test]
+    async fn buffered_in_order_keeps_input_order_when_loads_finish_out_of_order() {
+        // Arrange: earlier items sleep longer, so they finish last.
+        let items = vec![30_u64, 20, 10, 0];
+
+        // Act
+        let out = buffered_in_order(
+            items.into_iter().map(|delay| async move {
+                tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
+                delay
+            }),
+            4,
+        )
+        .await;
+
+        // Assert
+        assert_eq!(out, vec![30, 20, 10, 0]);
+    }
+
+    #[tokio::test]
+    async fn buffered_in_order_never_runs_more_than_the_limit_at_once() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        // Arrange: a loader that counts the loads in flight.
+        let running = AtomicUsize::new(0);
+        let peak = AtomicUsize::new(0);
+
+        // Act
+        let out = buffered_in_order(
+            (0..20_usize).map(|item| {
+                let (running, peak) = (&running, &peak);
+                async move {
+                    let now = running.fetch_add(1, Ordering::SeqCst) + 1;
+                    peak.fetch_max(now, Ordering::SeqCst);
+                    tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+                    running.fetch_sub(1, Ordering::SeqCst);
+                    item
+                }
+            }),
+            3,
+        )
+        .await;
+
+        // Assert: all ran, the bound held, and it was actually used.
+        assert_eq!(out, (0..20).collect::<Vec<_>>());
+        assert_eq!(peak.load(Ordering::SeqCst), 3);
+    }
+
+    #[tokio::test]
+    async fn buffered_in_order_returns_each_error_at_its_place() {
+        let out = buffered_in_order(
+            (0..4_u32).map(|item| async move {
+                if item % 2 == 1 {
+                    Err(format!("item {item} failed"))
+                } else {
+                    Ok(item)
+                }
+            }),
+            2,
+        )
+        .await;
+
+        assert_eq!(
+            out,
+            vec![
+                Ok(0),
+                Err("item 1 failed".to_string()),
+                Ok(2),
+                Err("item 3 failed".to_string())
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn buffered_in_order_treats_a_zero_limit_as_one() {
+        let out = buffered_in_order((0..3_u32).map(|item| async move { item }), 0).await;
+
+        assert_eq!(out, vec![0, 1, 2]);
     }
 }

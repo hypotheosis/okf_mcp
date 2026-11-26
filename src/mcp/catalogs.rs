@@ -126,6 +126,9 @@ pub(crate) async fn list(ctx: &ToolContext, after: Option<&str>) -> Result<Catal
     let mut catalogs = Vec::with_capacity(page.items.len());
     // Only rows of this page, so only catalogs the key reaches are named.
     let mut unavailable = page.unavailable;
+    // Rows on a store the page found down are left unloaded; the rest load
+    // concurrently, and the results come back in page order.
+    let mut loadable = Vec::with_capacity(page.items.len());
     for row in &page.items {
         if unavailable.contains(&row.name) {
             // The page spent a timeout on this store: the selection below
@@ -133,9 +136,13 @@ pub(crate) async fn list(ctx: &ToolContext, after: Option<&str>) -> Result<Catal
             ctx.mark_down(row);
             continue;
         }
-        // A listing's snapshot fields; a catalog whose data does not build
-        // is left out of its page.
-        let state = match ctx.listed_state(row).await {
+        loadable.push(row);
+    }
+    // A listing's snapshot fields; a catalog whose data does not build
+    // is left out of its page.
+    let states = ctx.listed_states(&loadable).await;
+    for (row, state) in loadable.into_iter().zip(states) {
+        let state = match state {
             Ok(Some(state)) => state,
             Ok(None) => continue,
             // The store went away since the page was read.

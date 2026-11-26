@@ -276,12 +276,19 @@ async fn list_catalogs(
     let labels = app.labels().labels_for(&wanted).await?;
     let mut catalogs = Vec::with_capacity(page.items.len());
     let mut unavailable = page.unavailable;
+    // Rows on a store the page found down stay unloaded; the rest load
+    // concurrently, and the results come back in page order.
+    let mut loadable = Vec::with_capacity(page.items.len());
     for row in &page.items {
         if unavailable.contains(&row.name) {
             ctx.mark_down(row);
             continue;
         }
-        match ctx.listed_state(row).await {
+        loadable.push(row);
+    }
+    let states = ctx.listed_states(&loadable).await;
+    for (row, state) in loadable.into_iter().zip(states) {
+        match state {
             Ok(Some(state)) => catalogs.push(CatalogSummary::of(row, &state, &principal, &labels)),
             Ok(None) => {}
             // The store went away since the page was read.

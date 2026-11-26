@@ -505,8 +505,38 @@ pub fn router(app: Arc<App>, shutdown: &CancellationToken) -> Router {
                 .make_span_with(request_span)
                 .on_response(record_response),
         )
+        // Outermost, so the fallback 404, a 405, an auth 401, a redirect, a
+        // timeout and a static file all carry it (issue #1115).
+        .layer(middleware::map_response(no_index))
         // Hands `app` to every handler that asks for `State<Arc<App>>`.
         .with_state(app)
+}
+
+/// The `X-Robots-Tag` value on every response: no page of this server
+/// belongs in a search index (issue #1115). A `robots.txt` `Disallow` is not
+/// used for this, since a crawler must fetch a page to see it is marked.
+pub const ROBOTS_TAG: &str = "noindex, nofollow";
+
+/// Adds `X-Robots-Tag: noindex, nofollow` to a response, whatever its status.
+///
+/// # Arguments
+/// * `response` - the response the router produced.
+///
+/// # Returns
+/// The same response with the header set.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "response mapper around every request: sets one header, no work worth a span"
+    )
+)]
+async fn no_index(mut response: Response) -> Response {
+    response.headers_mut().insert(
+        HeaderName::from_static("x-robots-tag"),
+        HeaderValue::from_static(ROBOTS_TAG),
+    );
+    response
 }
 
 /// Checks the settings before the request goes on ([`App::fresh_settings`]):
@@ -1808,6 +1838,48 @@ mod tests {
             after["clock"],
             serde_json::json!({"ok": false, "checked_at": "2026-11-03T12:00:00Z"})
         );
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn every_response_says_noindex_whatever_its_status() {
+        let test = app_with(
+            &[("main", &[])],
+            crate::store::oauth::testing::oauth_config("https://okf.example.com"),
+        )
+        .await;
+        let router = router(Arc::clone(&test.app), &CancellationToken::new());
+        let cases = [
+            ("GET", "/ui/", StatusCode::OK),
+            ("GET", "/signin", StatusCode::OK),
+            ("GET", "/oauth/authorize", StatusCode::BAD_REQUEST),
+            (
+                "GET",
+                "/.well-known/oauth-protected-resource",
+                StatusCode::OK,
+            ),
+            ("GET", "/mcp", StatusCode::UNAUTHORIZED),
+            ("GET", "/api/v1/whoami", StatusCode::UNAUTHORIZED),
+            ("GET", "/read", StatusCode::PERMANENT_REDIRECT),
+            ("GET", "/no/such/route", StatusCode::NOT_FOUND),
+            ("POST", "/healthz", StatusCode::METHOD_NOT_ALLOWED),
+        ];
+
+        for (method, uri, status) in cases {
+            let request = Request::builder()
+                .method(method)
+                .uri(uri)
+                .header("host", "okf.example.com")
+                .body(Body::empty())
+                .expect("request");
+            let response = router.clone().oneshot(request).await.unwrap();
+
+            assert_eq!(response.status(), status, "{method} {uri}");
+            assert_eq!(
+                response.headers().get("x-robots-tag").map(|v| v.as_bytes()),
+                Some(&b"noindex, nofollow"[..]),
+                "{method} {uri}"
+            );
+        }
     }
 
     #[tokio::test(flavor = "multi_thread")]

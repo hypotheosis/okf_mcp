@@ -1001,14 +1001,18 @@ impl SourceTally {
                     text("id").map(str::to_lowercase),
                     text("resource").map(str::to_string),
                 );
-                if key == (None, None) || seen.contains(&key) {
+                if key == (None, None) {
                     continue;
                 }
                 let group = self.groups.entry(key.clone()).or_default();
-                group.2 += 1;
+                // Every entry may supply the spelling and title, so the choice does
+                // not depend on entry order; only the first one per concept counts.
                 keep_smaller(&mut group.0, text("id"));
                 keep_smaller(&mut group.1, text("title"));
-                seen.push(key);
+                if !seen.contains(&key) {
+                    group.2 += 1;
+                    seen.push(key);
+                }
             }
         }
     }

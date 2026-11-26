@@ -416,6 +416,23 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
+    async fn the_chosen_spelling_and_title_do_not_depend_on_entry_order() {
+        // The smaller spelling and title come second within the concept.
+        let text = "---\ntype: Note\nsources:\n  - id: d1\n    resource: Diary\n    title: Z\n  \
+                    - id: D1\n    resource: Diary\n    title: A\n---\nBody.\n";
+        let test = app_with(&[("pg", &[("a.md", text)])], Config::default()).await;
+        let ctx = context(&test, principal(&[], Some("pg")), None);
+
+        let found = run(&ctx, params(None, None)).await.unwrap();
+
+        let sources = found.sources.unwrap();
+        assert_eq!(sources.len(), 1);
+        assert_eq!(sources[0].source_id.as_deref(), Some("D1"));
+        assert_eq!(sources[0].title.as_deref(), Some("A"));
+        assert_eq!(sources[0].cited_by, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
     async fn no_filter_respects_the_limit_and_says_truncated() {
         let text = citing(&[("s0", "r0"), ("s1", "r1"), ("s2", "r2")]);
         let extra = citing(&[("s2", "r2")]);

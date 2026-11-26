@@ -263,11 +263,8 @@ async fn a_grant_revoked_on_one_replica_is_refused_on_the_other() {
 async fn a_handle_survives_a_restart(redis: &TestRedis) {
     let handle = support::server::redis_connect(redis).await;
     let url_before = redis.url.clone();
-    if redis.stop().await.is_none() {
-        // A shared server: it cannot be stopped for one test.
-        return;
-    }
-    redis.start_again().await.expect("a container to start");
+    redis.stop().await;
+    redis.start_again().await;
 
     assert_eq!(redis.url, url_before, "the URL is the one the handle uses");
     let mut connection = handle.connection();
@@ -296,13 +293,13 @@ async fn a_handle_survives_a_restart(redis: &TestRedis) {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn a_handle_built_before_a_restart_reaches_redis_afterwards() {
-    let redis = TestRedis::start().await;
+    let redis = TestRedis::start().await.dedicated().await;
     a_handle_survives_a_restart(&redis).await;
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn a_handle_built_before_a_restart_reaches_the_cluster_afterwards() {
-    let redis = TestRedis::start_cluster().await;
+    let redis = TestRedis::start_cluster().await.dedicated().await;
     a_handle_survives_a_restart(&redis).await;
 }
 
@@ -574,13 +571,10 @@ async fn delete_ends_the_session_everywhere() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn redis_down_answers_503_not_a_fallback() {
-    let redis = TestRedis::start().await;
+    let redis = TestRedis::start().await.dedicated().await;
     let (a, _b, key) = session_pair(&redis, Config::default()).await;
     let session = open_ready(&a.mcp_url(), &key).await;
-    if redis.stop().await.is_none() {
-        // A shared server: it cannot be stopped for one test.
-        return;
-    }
+    redis.stop().await;
 
     // A holds the session locally, but the binding check is authoritative.
     let status = tokio::time::timeout(
@@ -659,17 +653,8 @@ async fn default_user_may(redis: &TestRedis, rule: &str) {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn a_redis_failure_after_admission_answers_503_not_404() {
-    let shared_server = [
-        support::redis::SERVER_URL_VAR,
-        support::redis::CLUSTER_URL_VAR,
-    ]
-    .iter()
-    .any(|var| std::env::var(var).is_ok_and(|url| !url.is_empty()));
-    if shared_server {
-        // Changing the default user would break every test sharing it.
-        return;
-    }
-    let redis = TestRedis::start().await;
+    // Changing the default user would break every test sharing it.
+    let redis = TestRedis::start().await.dedicated().await;
     let (a, b, key) = session_pair(&redis, Config::default()).await;
     let session = open_ready(&a.mcp_url(), &key).await;
 

@@ -533,16 +533,14 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn a_redis_failure_is_never_an_error_to_rmcp_and_is_busy_to_the_middleware() {
         tokio::time::timeout(BOUND, async {
-            let server = TestRedis::start().await;
+            // A shared server cannot be stopped for everyone.
+            let server = TestRedis::start().await.dedicated().await;
             let (_provider, metrics, registry) = crate::mcp::testing::local_metrics();
             let redis = Redis::connect(&testing::config(&server), &server.env(), &metrics)
                 .await
                 .expect("connect");
             let sessions = RedisSessions::new(redis, IDLE);
-            if server.stop().await.is_none() {
-                // A shared server: it cannot be stopped for one test.
-                return;
-            }
+            server.stop().await;
 
             let (loaded, restore_failed) = watch_restore(sessions.load("s5")).await;
             assert!(loaded.expect("load").is_none());

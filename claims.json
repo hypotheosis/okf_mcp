@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1566,
+  "next_claim_seq": 1592,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f0c714d1dcdee0c753eea2af41835a1f1cf19b76119f7a70bba7b250095b22fd"
+    "mac": "8b790a68a96cd2731840321d03b2c0f0f292da3ec2b08b8896c502a076e00254"
   },
-  "next_evidence_seq": 2336,
+  "next_evidence_seq": 2370,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "f7001e2f1dce86dfbe976d07ba8daa281f4aa947bbf4262003dee2e382b64eb5"
+    "mac": "7f4dee726bb0f04e9324a8ee91022fc43dd59ff21e057eb5495bb6e832baa6c0"
   },
   "claims": [
     {
@@ -126904,6 +126904,28 @@
             "by": "server",
             "mac": "775ed15c01456cceab3547ef5275489d4d11bce7f7c6418c5f69e44fdc8b8f94"
           }
+        },
+        {
+          "id": "EVD-2360",
+          "kind": "demonstration",
+          "locator": "scripts/test-server-lib.sh:14-30 owner_labels (moved from test-pg.sh); scripts/test-redis.sh up probe",
+          "summary": "At head owner_labels lives in scripts/test-server-lib.sh with an identical body; test-pg.sh sources it and still calls up with $$. A probe `test-redis.sh up NAME <pid>` produced start label <pid>-0 and the scope label through the same function.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-server-lib.sh",
+              "lines": {
+                "start": 14,
+                "end": 30
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:24:57.880372193Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6d3e38d2a9067ecb90ae4b8d234a9d514561e4ca23a11aed2ac1d743ef354aa"
+          }
         }
       ],
       "verdicts": [
@@ -126921,13 +126943,26 @@
             "by": "server",
             "mac": "fdcf09c1896af02b47a67b18b8e6d2f2fa74bd0a9e96799c97cd0c95273e04ea"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the helper moved: same body, same labels, test-pg.sh still passes $$ to up.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2360"
+          ],
+          "recorded_at": "2026-11-26T05:25:02.109450278Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5138dfb5c52642e0e8b3df6b5cb97039f2e7669b810b4405958dce27980f33d"
+          }
         }
       ],
       "created_at": "2026-11-26T04:23:15.541180497Z",
-      "updated_at": "2026-11-26T04:23:56.751458314Z",
+      "updated_at": "2026-11-26T05:25:02.109450278Z",
       "seal": {
         "by": "server",
-        "mac": "2bb8f8970cf0f265c4b14c3b4c59e846181c359e25cd915031c2a20ec13fe6b4"
+        "mac": "cd15eb489a29274b58d41a034f0fa7296372d0d218a813bdcd9c0cbd1e101e61"
       }
     },
     {
@@ -126995,6 +127030,28 @@
             "by": "server",
             "mac": "38ae36f7fe0c82e96d4da69a0ea107420186ae9bdf7f27a1af82bd9da2292cbd"
           }
+        },
+        {
+          "id": "EVD-2361",
+          "kind": "inspection",
+          "locator": "scripts/test-server-lib.sh:20-30 (else branch)",
+          "summary": "At head the no-owner / unreadable-scope branch is unchanged: only --label okf-mcp.test-start=server-<name>.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-server-lib.sh",
+              "lines": {
+                "start": 14,
+                "end": 30
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:24:57.966681022Z",
+          "seal": {
+            "by": "server",
+            "mac": "58214d29d422f9bac50a3644d23b2b0a244741d2980a68b9e070203c9629d2b6"
+          }
         }
       ],
       "verdicts": [
@@ -127011,13 +127068,26 @@
             "by": "server",
             "mac": "11e3687b79c2541015f7f61fe49410d9a308c52491641e339e8eb446c2e2de38"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the move: the else branch is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2361"
+          ],
+          "recorded_at": "2026-11-26T05:25:02.188779460Z",
+          "seal": {
+            "by": "server",
+            "mac": "af1eb74085701cbba0bdd160be3833112a72c6f40202ac539b20a4c3574d50af"
+          }
         }
       ],
       "created_at": "2026-11-26T04:23:15.541180497Z",
-      "updated_at": "2026-11-26T04:23:56.849177892Z",
+      "updated_at": "2026-11-26T05:25:02.188779460Z",
       "seal": {
         "by": "server",
-        "mac": "fe43c29f6daf704f737d42d19276e9c57b63670b78ff0c8361f115bf4e77893f"
+        "mac": "93d44f6ce9f116c43ab1aa2a6a1037b6d6b3db7ba78c3112fec71dd19445763d"
       }
     },
     {
@@ -127351,6 +127421,1815 @@
       "seal": {
         "by": "server",
         "mac": "1b4efbf0274f27961c1bd348d91afb19b965edc258362a2e501f2ec45e7e7aef"
+      }
+    },
+    {
+      "id": "CLM-1566",
+      "statement": "Issue #1045 is delivered: Redis and Valkey tests share one server per run when TEST_REDIS_URL / TEST_REDIS_CLUSTER_URL are set, tests needing a whole server keep a container of their own, and the per-test container start remains the fallback.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1045 (Tests: one shared Redis/Valkey server per run instead of a container per test)",
+      "derived_from": [],
+      "artifacts": [
+        "scripts/test-redis.sh",
+        "tests/support/redis.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2359",
+          "kind": "analysis",
+          "locator": "children of CLM-1566",
+          "summary": "The delivery children (script, labels, run, TestRedis, dedicated tests, fallback, measurement, gates) are all supported. Two are refuted: CLM-1575 (an inaccurate sentence in the PR body, no functional effect) and CLM-1586 (a compiled .pyc committed). Neither affects the behavior the issue asked for.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-26T05:24:35.504799939Z",
+          "seal": {
+            "by": "server",
+            "mac": "427ba9056710841509458f98de74350283e39b75e85582032c8d3342e81c6ca7"
+          }
+        },
+        {
+          "id": "EVD-2364",
+          "kind": "analysis",
+          "locator": "children of CLM-1566",
+          "summary": "Every active child is now supported: start script, labels, run, helper move, justfile, TestRedis, dedicated tests, whole-server audit, KEYS (revised wording), channels, ACL, dedicated list, measurement, fallback, gates, release-script count, docs, and no stray binary at head. Together they cover shared servers, dedicated containers for whole-server tests, and the kept fallback.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:26:05.935116868Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4ce386b14f5444f0c94c3d27d169a1a1e58857a40269a79dca2156edbf87471"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Roll-up per rule: two children refuted (CLM-1575 description wording, CLM-1586 committed .pyc); the functional delivery children are supported. Fix: remove the committed .pyc and correct the KEYS sentence in the PR body, then re-audit these two children.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2359"
+          ],
+          "recorded_at": "2026-11-26T05:24:42.039168326Z",
+          "seal": {
+            "by": "server",
+            "mac": "02385c5462a2976f8c7641642d804149582562b2a84d070f48308298b03b2cee"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported, including the two re-audited ones.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2364"
+          ],
+          "recorded_at": "2026-11-26T05:26:09.111940756Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d9419a698983186cb67013b87267e8545801fb5b2611709c110b8017881404a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:26:09.111940756Z",
+      "seal": {
+        "by": "server",
+        "mac": "16bd55489d4088d318fc941d27d800199bb0b573c3a3c55533471bdabf00ba2e"
+      }
+    },
+    {
+      "id": "CLM-1567",
+      "statement": "scripts/test-redis.sh starts one redis:7.4-alpine container and one one-node Valkey cluster container per invocation, prints TEST_REDIS_URL and TEST_REDIS_CLUSTER_URL, and the cluster reports cluster_state:ok.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "PR body: \"`scripts/test-redis.sh up` run by hand: both containers start, carry the owner labels, and the cluster reports `cluster_state:ok`.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2336",
+          "kind": "demonstration",
+          "locator": "scripts/test-redis.sh up audit-1045-probe $$ (then down)",
+          "summary": "Ran up by hand: printed TEST_REDIS_URL and TEST_REDIS_CLUSTER_URL; containers were redis:7.4-alpine and valkey/valkey:8.1-alpine; valkey-cli cluster info showed cluster_state:ok; down removed both (0 left).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 67,
+                "end": 105
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:13.815599136Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1baa79bb6cb84160c91ab7ebc0a3acb3a8dfe589ed7f4ec1cb2af4e88d49270"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ran up by hand and observed both containers, the images and cluster_state:ok.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2336"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.476941939Z",
+          "seal": {
+            "by": "server",
+            "mac": "97d90a57cb092f6a9e9f3e72b9849ba3ecb6a17b8120407656e9af2183c2a8f1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.476941939Z",
+      "seal": {
+        "by": "server",
+        "mac": "2cc4e3d7eb4978e3beb0eb4d583eb25494af3be6bc8b5db8ef4e0fc3dd37ee25"
+      }
+    },
+    {
+      "id": "CLM-1568",
+      "statement": "Containers started by `test-redis.sh up NAME OWNER_PID` carry okf-mcp.test-start=<pid>-0 and okf-mcp.test-owner-scope labels in the form the stale-container sweep (stale_container_ids) reads, so the sweep reclaims them once the owner is gone.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "PR body: \"starts both servers with the owner labels from #1044, so the stale-container sweep reclaims them once the run is gone\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh",
+        "scripts/test-server-lib.sh",
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2337",
+          "kind": "demonstration",
+          "locator": "docker inspect of both containers started by `test-redis.sh up audit-1045-probe <pid>`",
+          "summary": "Both containers had okf-mcp.test-start=<pid>-0 and okf-mcp.test-owner-scope set.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-server-lib.sh",
+              "lines": {
+                "start": 14,
+                "end": 30
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:13.904356001Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb6082bbb74b58d697726eba5dfe08298d6b9bdaccf72e158ba8bf75bca4a70d"
+          }
+        },
+        {
+          "id": "EVD-2338",
+          "kind": "inspection",
+          "locator": "tests/support/pg.rs:1264-1277 stale_container_ids",
+          "summary": "The sweep filters by owner scope and the <pid>-<counter> start label only, not by image, so a labelled Redis/Valkey container is reclaimed once its owner pid is dead.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1264,
+                "end": 1277
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:13.993060397Z",
+          "seal": {
+            "by": "server",
+            "mac": "c656cc18a32d1ad6be0364bfda28336ce3c64414bfbbb7e66662d8b093e1fbee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Observed labels on both containers; the sweep keys on labels only, not image.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2337",
+            "EVD-2338"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.561940880Z",
+          "seal": {
+            "by": "server",
+            "mac": "60fb658c88063d03fd8a0598da0153b24b7a689bdde8bcdcb2948ec797a2c0c2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.561940880Z",
+      "seal": {
+        "by": "server",
+        "mac": "423923daf84d43d9b98ed8137ed455e58856f423758730e5fd733aec22981869"
+      }
+    },
+    {
+      "id": "CLM-1569",
+      "statement": "`test-redis.sh run` reuses servers already named by the two variables (exec of the command when both are set), otherwise starts them and removes its own containers on exit, even on failure.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`run` reuses servers already named by the variables and removes its own on exit.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2339",
+          "kind": "inspection",
+          "locator": "scripts/test-redis.sh:118-146 run()",
+          "summary": "When both variables are set it execs the command; otherwise it sets trap down on EXIT before up, starts both servers with owner $$, exports only variables not already set, runs the command and the EXIT trap removes both containers.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 118,
+                "end": 146
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:14.079118087Z",
+          "seal": {
+            "by": "server",
+            "mac": "f92efa1fbe1a524b2926aea1b86a6cac68cd19cbcc52963e2e15c87f7688ea80"
+          }
+        },
+        {
+          "id": "EVD-2369",
+          "kind": "demonstration",
+          "locator": "scripts/test-redis.sh:118-150 run() at 4aefa4d; real `test-redis.sh run bash -c ...`",
+          "summary": "After the line move and `$(set -e; up ...)` change, run() still execs when both variables are set, sets the EXIT trap before up, exports unset variables only and removes both containers on exit. A real run started both containers, exposed both URLs to the command and left no container behind (count back to 31).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 118,
+                "end": 150
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:31.980626797Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa3d827fe579a9d14cfe42096d40c3114dea386ec7483586c36ce4c3bbdee74e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The run() code does exactly this (reuse by exec, trap-on-EXIT removal set before up). Read, not executed end to end.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2339"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.646244020Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ffb34642f88855ba8b71f18c79a93a6f2bf9b7e52ea99e1aaf525ed0cae4843"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the anchor changed: run() behaves as stated, now also verified by a real run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2369"
+          ],
+          "recorded_at": "2026-11-26T05:40:39.142842835Z",
+          "seal": {
+            "by": "server",
+            "mac": "badcba5eabdfadb68f749b8b401167d60fbfe0a2a8786672f01320e5687fdcee"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:40:39.142842835Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf8228d6b7a331b89a7033f070e7fef4e5750773eff00a5d1610eed2349ca7c4"
+      }
+    },
+    {
+      "id": "CLM-1570",
+      "statement": "The owner-label helper (owner_labels) was moved out of scripts/test-pg.sh into scripts/test-server-lib.sh, which both scripts source.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`scripts/test-server-lib.sh`: the owner-label helper, moved out of `test-pg.sh` and shared.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-server-lib.sh",
+        "scripts/test-pg.sh"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2340",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- scripts/test-pg.sh scripts/test-server-lib.sh",
+          "summary": "test-pg.sh loses LABEL, SCOPE_LABEL and owner_labels and sources test-server-lib.sh; test-redis.sh sources it too; the function body is identical.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-server-lib.sh",
+              "lines": {
+                "start": 1,
+                "end": 30
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:14.168776904Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8ef09b1259f6293c75cf67f9b235c514076d8524f38fc2d7d9d31295d583972"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff shows the helper moved verbatim and both scripts source it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2340"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.728808426Z",
+          "seal": {
+            "by": "server",
+            "mac": "7809e260034c9b1d642c7b196ead0130393c153ba99bb5d1f0e805134f41d34b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.728808426Z",
+      "seal": {
+        "by": "server",
+        "mac": "011d5b6be9d3ea65f3bb1d51763c0a74d243e84c86d5c623e82d7191af83dd8c"
+      }
+    },
+    {
+      "id": "CLM-1571",
+      "statement": "`just test` runs through `test-pg.sh run` then `test-redis.sh run`, and scripts/test_release.py stubs both scripts.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"`just test` runs through `test-pg.sh run` then `test-redis.sh run`. `scripts/test_release.py` stubs both.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "justfile",
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2341",
+          "kind": "inspection",
+          "locator": "justfile:32; scripts/test_release.py:106-111",
+          "summary": "The test recipe runs `scripts/test-pg.sh run scripts/test-redis.sh run bash -c ...`; test_release.py writes stubs for both test-pg.sh and test-redis.sh. Note the new justfile comment line is 106 chars.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 16,
+                "end": 32
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:14.252848481Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd4de3110fbb5d982d6b56dc3509afced3a8439073480c5e7e758af154dc8247"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "justfile and test_release.py diffs show both.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2341"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.811040511Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e455cba0d1077e86c907b109d19b1f4f37d7bef89ffa447ad230bc8286954bd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.811040511Z",
+      "seal": {
+        "by": "server",
+        "mac": "f73d8beb7c79160d3ae86087562fa1cbc2c028792cd40a225041283c32b94534"
+      }
+    },
+    {
+      "id": "CLM-1572",
+      "statement": "TestRedis already gave each instance a random key prefix and used no SELECT; new TestRedis::dedicated() returns a container of its own when the server is shared; stop and start_again panic on a shared server instead of returning None.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`tests/support/redis.rs` already honoured the two variables and gave each `TestRedis` a random key prefix (isolation by prefix; no `SELECT`, since the cluster forbids it). New: `TestRedis::dedicated()`, which returns a container of its own when the server is shared. `stop` and `start_again` now panic on a shared server instead of returning `None`.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "tests/support/redis.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2342",
+          "kind": "inspection",
+          "locator": "tests/support/redis.rs:37-42,104-170,271-312",
+          "summary": "random_prefix pre-exists (unchanged context in diff); no SELECT call anywhere; dedicated() returns self when port is Some, else starts a container of the same kind; stop and start_again return () and panic in the (None, None) arm.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/redis.rs",
+              "lines": {
+                "start": 104,
+                "end": 170
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:14.334267301Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9dc31e91bd3ab27d448561291dd5a021453c89371e06d5bb5915686913b8aaf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff of tests/support/redis.rs matches each statement; the gate test run exercised the panics' absence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2342"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.892857656Z",
+          "seal": {
+            "by": "server",
+            "mac": "93821bbb9913eb2cd0517f18d8734d6f67cb2248e9282f799e8279fa27bd6b8c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.892857656Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1278e9a13ac6f0498a622f7569933919a9a2371ecd72d0a6881fc27a93a4832"
+      }
+    },
+    {
+      "id": "CLM-1573",
+      "statement": "Tests that used to skip themselves on a shared server (outages, default-user changes) now call dedicated() and always run; no skip-on-shared branch remains.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Tests that used to skip themselves on a shared server (outages, `default`-user changes) now call `dedicated()` and always run.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs",
+        "src/oauth/authorize.rs",
+        "src/oauth/token.rs",
+        "src/oauth/access.rs",
+        "src/shared/limits.rs",
+        "src/shared/sessions.rs",
+        "src/shared/ephemeral.rs",
+        "src/http/passkeys.rs",
+        "src/http/mod.rs",
+        "tests/multi_replica.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2343",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD (removed skip branches); git grep for skip messages",
+          "summary": "The diff removes every shared-server early return and the \"skipped: a shared Redis\" messages; no remaining message of that kind; 21 dedicated() call sites replace them.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "skipped: a shared|outage half of this test is skipped|cannot be restricted",
+              "case_insensitive": true,
+              "scope": [
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:30.636368519Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a54a65b37b370ac3ea9319fdd02fa7ae2672cbaf97fda7bb613d00242de0f84"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Removed lines are all skip branches; zero hits for the old skip messages at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2343"
+          ],
+          "recorded_at": "2026-11-26T05:24:29.974680680Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e62c4b9ff5f6c7733dd540b1368d90c6c3eae0574d40f8a91017f90b1b49353"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:29.974680680Z",
+      "seal": {
+        "by": "server",
+        "mac": "b3c3fdbbe1504a9215a6a8848b80b64349355162d2668910c231cbb0dc3d880e"
+      }
+    },
+    {
+      "id": "CLM-1574",
+      "statement": "No Redis/Valkey test in src/ or tests/ issues FLUSHALL, FLUSHDB, DBSIZE, RANDOMKEY, SCAN, PSUBSCRIBE, CONFIG SET, SELECT or keyspace-event configuration.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Searched every Redis/Valkey test for FLUSHALL/FLUSHDB, DBSIZE, RANDOMKEY, unprefixed KEYS/SCAN, CONFIG SET, CLIENT KILL, PSUBSCRIBE and keyspace events, ACL changes, stops and restarts.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src",
+        "tests"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Worded too broadly: tests/support/redis.rs has a CONFIG SET helper (own containers only). Replaced by a claim scoped to what a shared server sees.",
+        "retired_at": "2026-11-26T05:22:57.033358637Z"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:22:57.033358637Z",
+      "seal": {
+        "by": "server",
+        "mac": "691a74447ff21530a314ab6e26a2db3e5133dc152633de433fa1a89df884a240"
+      }
+    },
+    {
+      "id": "CLM-1575",
+      "statement": "Every KEYS pattern used by Redis tests carries the test's own prefix.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"KEYS patterns all carry the test's prefix\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs",
+        "src/http/oidc.rs",
+        "src/http/passkeys.rs",
+        "src/http/sessions.rs",
+        "src/shared/ephemeral.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "The PR body sentence was corrected to name the exception; replaced by a claim quoting the revised sentence.",
+        "retired_at": "2026-11-26T05:25:54.362933048Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2346",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:4145-4152",
+          "summary": "The stored_codes helper runs KEYS \"*oauth:code:*\", not under the test prefix. It is used only by a_failed_removal_answers_the_busy_page, which is on a dedicated() server, so it is harmless, but the PR sentence \"KEYS patterns all carry the test's prefix\" is literally false.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 4145,
+                "end": 4152
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:30.918227086Z",
+          "seal": {
+            "by": "server",
+            "mac": "0eed827e3cc406d595677c14550bdf6815635e83d27e46646e566fd6bfb7c4a9"
+          }
+        },
+        {
+          "id": "EVD-2347",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:1621, src/http/passkeys.rs:2677, src/http/sessions.rs:480, src/shared/ephemeral.rs:937-939",
+          "summary": "The other four KEYS calls use the test's prefix ({prefix}*, redis.channel(\"*\"), redis.key(\"mcp:bind\",\"*\"), {server.prefix}*).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/shared/ephemeral.rs",
+              "lines": {
+                "start": 937,
+                "end": 940
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:31.005280928Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a1db23dd9423c957be45e59571b8dcd428167fbf7f2530ae0e439195fe2d0aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "src/oauth/authorize.rs:4146 runs KEYS \"*oauth:code:*\", which has no test prefix, so \"all carry the test's prefix\" is false. The test uses a dedicated server, so there is no isolation hole; only the description is wrong. Fix: reword the PR body to say every KEYS pattern is prefixed except the one in a_failed_removal_answers_the_busy_page, which runs on a dedicated server.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2346"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.145795414Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5f333b5add6ed2e592a063aeaf4beb6b89450042355f8f28b22b22cc88954c2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:25:54.362933048Z",
+      "seal": {
+        "by": "server",
+        "mac": "ed42797e0eb102b8fcdb205438699108cedf810de1a381e42932d48385daeeda"
+      }
+    },
+    {
+      "id": "CLM-1576",
+      "statement": "Pub/sub channel names used by Redis tests are under the test's prefix (redis.channel), including the PUBSUB NUMSUB helper.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"pub/sub channel names are prefixed (`redis.channel`)\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src/shared/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2348",
+          "kind": "inspection",
+          "locator": "src/shared/mod.rs:281-300 (Redis::channel), :526-535 (subscribers), :911-912, :1-5 subscription tests",
+          "summary": "Redis::channel builds {<prefix>}<name>; subscribe takes a name from channel(); the NUMSUB helper and the PUBLISH in tests use redis.channel(...). No PSUBSCRIBE exists.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/mod.rs",
+              "lines": {
+                "start": 281,
+                "end": 300
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:31.094197394Z",
+          "seal": {
+            "by": "server",
+            "mac": "ca324932d77c666c81a7835e9b1fcc3268664bee9df837cbddbf32185b9ee586"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Channels are built by Redis::channel under the prefix; no pattern subscription exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2348"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.226867987Z",
+          "seal": {
+            "by": "server",
+            "mac": "352406f0ce6d83438bce8cc2a5ffae4536b6699fca1ae5812e73773fcd61d749"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.226867987Z",
+      "seal": {
+        "by": "server",
+        "mac": "2661b08d6bac5c24bc8e7bddff219fd47b1ccc2a87864a55f961304f69736726"
+      }
+    },
+    {
+      "id": "CLM-1577",
+      "statement": "ACL SETUSER on a shared server is harmless: TestRedis::url_for_user uses random per-test user names, and every other ACL SETUSER (including the fixed okf-test-admin and the default user) runs only on a dedicated server; CONFIG GET cluster-announce-port is read-only.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`ACL SETUSER` with random per-test user names is harmless on a shared server; `CONFIG GET cluster-announce-port` is read-only.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "tests/support/redis.rs",
+        "src/http/oidc.rs",
+        "src/oauth/authorize.rs",
+        "tests/multi_replica.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2349",
+          "kind": "inspection",
+          "locator": "tests/support/redis.rs:236-262 url_for_user; ACL call sites src/http/oidc.rs:1876-1986, src/oauth/authorize.rs:4018-4049, tests/multi_replica.rs:628-650",
+          "summary": "url_for_user makes a random user name per call. The other 8 ACL SETUSER calls (fixed okf-test-admin and the default user) are reached only from tests that call dedicated() (oidc 1887/1957, authorize 4078, multi_replica 657). multi_replica.rs:284 CONFIG GET is read-only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/redis.rs",
+              "lines": {
+                "start": 236,
+                "end": 262
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:31.182247778Z",
+          "seal": {
+            "by": "server",
+            "mac": "daca5a28fa791a9f46a895f033b9b7e4aa1a9e152f0984d42cae2b5ab6409ecd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "url_for_user names are random; every fixed-name or default-user ACL call is on a dedicated server; CONFIG GET is read-only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2349"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.310517706Z",
+          "seal": {
+            "by": "server",
+            "mac": "781db8715cbc86d9c0ae4bc65679357cf7d4c2f2e4d4de5cdb3d34c7556a0198"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.310517706Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee5a30063fb351b1c2e094f3988a5d40abf1e4f48c2ecd9f3f9cf479b78be11b"
+      }
+    },
+    {
+      "id": "CLM-1578",
+      "statement": "Every test that stops or restarts a TestRedis server, changes or revokes the default user, or runs CLIENT KILL TYPE pubsub calls dedicated() first, and the PR body's list of named tests matches functions that do.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"The tests that keep a per-test container (via `dedicated()`): - stop the server: ... - change or revoke the `default` user: ... - `CLIENT KILL TYPE pubsub` ...: `subscription_survives_a_killed_connection` (standalone and cluster, src/shared/mod.rs).\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src",
+        "tests/multi_replica.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2358",
+          "kind": "analysis",
+          "locator": "git grep -n 'stop().await|start_again()' src tests vs git grep -n 'dedicated()' src tests",
+          "summary": "All 13 TestRedis stop/start_again sites (mod.rs:1703, oidc.rs:1848, passkeys.rs:3125, access.rs:784, authorize.rs:3991, token.rs:1667/1715, ephemeral.rs:1012, limits.rs:638, sessions.rs:543, multi_replica.rs:266/577) are in tests with dedicated(); the default-user tests (oidc 1887/1957, authorize 4078, multi_replica 657) and the CLIENT KILL test (shared/mod.rs:909) do too. Every test name in the PR list exists (git grep \"fn <name>\"). tests/telemetry_privacy.rs:715 stops a telemetry server, not Redis.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "dedicated\\(\\)\\.await",
+              "scope": [
+                "src",
+                "tests/multi_replica.rs"
+              ],
+              "hits": 19,
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:57.383830048Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a3d867a4e11742685282d3ca6882a3fb33a31ff1244b9c88a1e5120383fe331"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each stop, restart, default-user and CLIENT KILL site was matched to a dedicated() call, and the named tests exist.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2358"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.395478496Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d0b44859af92a29dcf82645f54b1468e64d98634e9fb176bad6fb701836d805"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.395478496Z",
+      "seal": {
+        "by": "server",
+        "mac": "a4745bf0ebae8a1e9f594cc50b0903a5df246669c61dd938bf9d57496c5071b5"
+      }
+    },
+    {
+      "id": "CLM-1579",
+      "statement": "For the 190 Redis-using tests, nextest run time fell from 20.4 s with per-test containers to 10.0 s with shared servers, wall time including server start from 23 s to 15 s, and the peak count of labelled test containers from 63 to 47.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Measurement table (20.4 s / 10.0 s; 23 s / 15 s; 63 / 47; 190 tests)",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2350",
+          "kind": "log",
+          "locator": "target/i1045-logs/before.log, after.log (Summary lines, exit= lines), before-count.txt, after-count.txt",
+          "summary": "before.log: \"190 tests run: 190 passed\" Summary [20.416s], exit=0 seconds=23; after.log: Summary [9.983s], seconds=15; max of sampled labelled-container counts 63 before, 47 after. Run conditions (\"quiet machine\", single run each) cannot be checked from the logs.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:23:52.458831736Z",
+          "seal": {
+            "by": "server",
+            "mac": "60ba910503e16587e65e4739ff9b5d5efa4612e27db72b08b739b6a308f6dcce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every number matches the logs. \"Quiet machine, one run each\" is the author's account; the logs do not show it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2350"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.478216673Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e0c1ad7a4fa1de02de6720d9df9f31985201870d9cef77598a2556a3c74ace5"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.478216673Z",
+      "seal": {
+        "by": "server",
+        "mac": "3d38d5986c0c5389b04e69096f22667be23d92b1718b20f2405f58b5173a8c52"
+      }
+    },
+    {
+      "id": "CLM-1580",
+      "statement": "31 labelled containers from other, dead runs were on the machine during and after both measurement runs, so both peaks are inflated equally and the difference is 16.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The peak counts include 31 containers left over from other, dead runs (they were still on the machine afterwards), so both peaks are inflated by the same amount; the difference is 16.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2351",
+          "kind": "log",
+          "locator": "target/i1045-logs/before-count.txt, after-count.txt; docker ps -a --filter label=okf-mcp.test-start -q | wc -l",
+          "summary": "Both count series start at 31; with no test running, docker ps now shows 31 labelled containers, so 31 pre-existing containers persist. 63-47 = 16. Whether all 31 are from dead runs was not individually checked (the sweep reclaims only containers whose owner pid is dead in this scope).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:23:52.543104623Z",
+          "seal": {
+            "by": "server",
+            "mac": "889bf68c7994b54a14cf6926e13d8b2f81725cb661dd3b27a27cc96d238bc7fe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both series start at 31 and docker shows 31 labelled containers now. \"Dead runs\" was not verified per container.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2351"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.561160859Z",
+          "seal": {
+            "by": "server",
+            "mac": "48cb70601ae87fdf5ffd8f012cb635fffe3bc8deeb1cc9639797b91fd20c6408"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.561160859Z",
+      "seal": {
+        "by": "server",
+        "mac": "d529028410cad052ec3eb8e83e826551aa4867250a9e7b351351036ef22e72e6"
+      }
+    },
+    {
+      "id": "CLM-1581",
+      "statement": "With TEST_REDIS_URL and TEST_REDIS_CLUSTER_URL unset, every test still starts its own container (the per-test fallback is kept) and the 190 Redis-using tests pass that way.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue/task requirement: keep the per-test container start as fallback when the variables are unset; PR body Measurement column \"per-test containers (variables unset)\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "tests/support/redis.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2352",
+          "kind": "log",
+          "locator": "target/i1045-logs/before.log; target/i1045-logs/measure.sh (WITH_REDIS=0 runs scripts/test-pg.sh run cargo nextest run ...)",
+          "summary": "The \"before\" run, with test-redis.sh absent, passed 190/190 with up to 63 labelled containers; code: start() and start_cluster() fall back to start_container()/start_cluster_container() when the variable is unset or empty (tests/support/redis.rs:130-150).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/redis.rs",
+              "lines": {
+                "start": 130,
+                "end": 152
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:52.629912300Z",
+          "seal": {
+            "by": "server",
+            "mac": "844361ac87869830f677cca7839fe4c1842ebe654a70078402f520885cb45914"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code falls back to a container when the variable is unset; the before run passed 190/190 that way.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2352"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.644618977Z",
+          "seal": {
+            "by": "server",
+            "mac": "72ef2d9d9c029cc40806f55828098973eebc3dfc4c49846adca8f985dd1eeaf9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.644618977Z",
+      "seal": {
+        "by": "server",
+        "mac": "a1bddcf23d698e6274e11de66e5eff9e776805ef95c9a06c750cc55436999511"
+      }
+    },
+    {
+      "id": "CLM-1582",
+      "statement": "tools/agentic/gate.sh fmt, lint and dylint pass on the change, the lint and dylint runs having been followed only by a rustfmt-only line wrap.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh fmt`, `lint`, `dylint`: pass (lint and dylint ran just before a rustfmt-only line wrap).\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2353",
+          "kind": "log",
+          "locator": "target/i1045-logs/gates.txt, gate-fmt.log, gate-fmt2.log, gate-lint.log, gate-dylint.log",
+          "summary": "gates.txt: lint exit=0, dylint exit=0 (fmt exit=1 first, with a rustfmt-only wrap of one use line in src/oauth/access.rs); gate-fmt2.log (00:13, after the wrap) shows `cargo fmt --all --check` with no diff. Not rerun by the auditor (gates were off limits).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:23:52.714032876Z",
+          "seal": {
+            "by": "server",
+            "mac": "486d7475cad5e860c62328504c193272318c73c21d76c26ae9e7c24bef4d1574"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Logs show lint and dylint exit 0 and fmt clean after the wrap, with timestamps in the stated order. Checked from logs only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2353"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.728304965Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c3757d8d017a8b0a418d5ae4a416d7e1f90e289e024cec9fc44806b26d11114"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.728304965Z",
+      "seal": {
+        "by": "server",
+        "mac": "b2ceba1cafd55b78574c6612d41ccb5d3947bb5cd3ab5861e97a0b3022cdf514"
+      }
+    },
+    {
+      "id": "CLM-1583",
+      "statement": "tools/agentic/gate.sh test passed with 3601 tests passed and 20 skipped in each store mode; an earlier run failed one test (ui_e2e browse::the_suspended_view_names_the_catalog_and_its_team_by_label, no Redis involved) in one mode.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh test`: 3601 passed, 20 skipped in each store mode. An earlier run failed one browser test (...no Redis involved) in one mode; the re-run was fully green.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2354",
+          "kind": "log",
+          "locator": "target/i1045-logs/gate-test.log, gate-test2.log (Summary lines)",
+          "summary": "gate-test2.log: two \"Summary ... 3601 tests run: 3601 passed, 20 skipped\" and two doctest \"30 passed\". gate-test.log: one mode \"3600 passed, 1 failed\", FAIL ui_e2e browse::the_suspended_view_names_the_catalog_and_its_team_by_label, other mode green. git grep -il redis over tests/ui_e2e* has no hits. gate-test2 finished 00:18:54, HEAD committed 00:18:57. Not rerun by the auditor.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:23:52.797371399Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ae3100abb7442edd7b334e3090a3dc22ed2fb3006472588197a86504cab0ada"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Logs show 3601 passed/20 skipped in both modes on the re-run, and the earlier single browser failure. Checked from logs only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2354"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.810545261Z",
+          "seal": {
+            "by": "server",
+            "mac": "81ff1b8c6997a914614550ea36304bec2c3df326cdbbe90822471d7989cff5a6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.810545261Z",
+      "seal": {
+        "by": "server",
+        "mac": "8989780ab1d96a1f08d629449f5c07b6b4d450a957cfe583f4609634c063cb53"
+      }
+    },
+    {
+      "id": "CLM-1584",
+      "statement": "scripts/test_release.py has 16 failures and errors with or without this change.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`scripts/test_release.py` has 16 failures and errors with or without this change\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2355",
+          "kind": "test",
+          "locator": "PYTHONDONTWRITEBYTECODE=1 python3 -I scripts/test_release.py at HEAD, and the same in a git-archive of origin/main",
+          "summary": "HEAD: \"Ran 35 tests ... FAILED (failures=9, errors=7)\" = 16. origin/main export: \"Ran 35 tests ... FAILED (failures=9, errors=7)\" = 16. Same count with and without the change.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:23:52.880106639Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c7b0a1cffd346fe9143e81cb36f71a5fd54d6e9035fe5d9e910ecd3771580fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran the suite at HEAD and on a base export: 9 failures and 7 errors both times.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2355"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.892881546Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4908a80032327ee50597a4b97103bcdd26c1d916445c129678821c12cc83dc4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.892881546Z",
+      "seal": {
+        "by": "server",
+        "mac": "31f3df2829a769fc04c3fa7e940e9400592fc8e9db4939eb405cbdfed467a36c"
+      }
+    },
+    {
+      "id": "CLM-1585",
+      "statement": "The README documents the shared servers and a changelog entry for issue 1045 exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"README and a changelog entry.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "README.md"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2356",
+          "kind": "inspection",
+          "locator": "README.md:770-785; changelog/*issue-1045-shared-redis-servers.md",
+          "summary": "README adds a 15-line section naming scripts/test-redis.sh and TEST_REDIS_URL / TEST_REDIS_CLUSTER_URL; the changelog file lists Added/Changed/Notes for the issue.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 770,
+                "end": 785
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:52.968048732Z",
+          "seal": {
+            "by": "server",
+            "mac": "084586f218e8cc503efbe7a6d5ac366456c807f8638b434d2d49c35354375bc1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both exist in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2356"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.975546582Z",
+          "seal": {
+            "by": "server",
+            "mac": "f79b047342aafd52cbdd16c13995711445fc1bb10dec291e0836bb799dd6f1a9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:24:30.975546582Z",
+      "seal": {
+        "by": "server",
+        "mac": "37af9e4347f41ba018bb99105dd48b0fad2618509ee33e60963e75d6fe063695"
+      }
+    },
+    {
+      "id": "CLM-1586",
+      "statement": "The commit adds only the files the PR describes: no generated or binary files.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes list (scripts, justfile, tests/support/redis.rs, tests, README, changelog)",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2357",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD; git ls-files scripts/__pycache__",
+          "summary": "The commit adds scripts/__pycache__/test_release.cpython-315.pyc (36141 bytes, binary). It is not in the PR description, and .gitignore has no __pycache__ entry.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "scripts/__pycache__/test_release.cpython-315.pyc",
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:53.057033278Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fb688b7d79ee69d896e15c0eb61ca406226a5a5821872718888f66beadf45a5"
+          }
+        },
+        {
+          "id": "EVD-2362",
+          "kind": "inspection",
+          "locator": "git log origin/main..HEAD (57c81e9 drops the .pyc); git diff --name-status origin/main..HEAD | grep -i pyc; git ls-files scripts | grep -c pycache",
+          "summary": "At head 57c81e9, the net range diff lists no .pyc or __pycache__ path and git ls-files shows 0 tracked pycache files. The first commit still contains it in history, so the claim holds for the net change (a squash or merge diff), not per-commit.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:25:54.536035114Z",
+          "seal": {
+            "by": "server",
+            "mac": "999dae5e1162c8486566ebdc3b2cad1490006106839aacc28b7bd6c41f30856c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The commit includes the compiled scripts/__pycache__/test_release.cpython-315.pyc, a generated binary the PR does not mention. Fix: run `git rm --cached scripts/__pycache__/test_release.cpython-315.pyc`, delete the file, and amend the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2357"
+          ],
+          "recorded_at": "2026-11-26T05:24:31.057240317Z",
+          "seal": {
+            "by": "server",
+            "mac": "39a2905d53b337f7d265ea151ee3a3da67983aa50e79805be83d57ab541b8ef0"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 57c81e9: the net origin/main..HEAD diff has no .pyc and none is tracked. Per-commit history still holds it in ba8af93, so merge with a merge commit is fine but the first commit alone is not clean.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2362"
+          ],
+          "recorded_at": "2026-11-26T05:26:05.851600126Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8d82203737e9555acc7d689c7b54bc37bd9bafe0fa8d3fe27540e877324eec8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:38.816624754Z",
+      "updated_at": "2026-11-26T05:26:05.851600126Z",
+      "seal": {
+        "by": "server",
+        "mac": "efdc55fb7cce51ae586ca5b7f0e9b93d002cbff50f73c614ab8deb41a94b7499"
+      }
+    },
+    {
+      "id": "CLM-1587",
+      "statement": "No Redis/Valkey test in src/ or tests/ issues FLUSHALL, FLUSHDB, DBSIZE, RANDOMKEY, SCAN, PSUBSCRIBE, SELECT or keyspace-event configuration, and CONFIG SET is issued only against a container the test started itself.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Searched every Redis/Valkey test for FLUSHALL/FLUSHDB, DBSIZE, RANDOMKEY, unprefixed KEYS/SCAN, CONFIG SET, CLIENT KILL, PSUBSCRIBE and keyspace events, ACL changes, stops and restarts.\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src",
+        "tests/support/redis.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2344",
+          "kind": "analysis",
+          "locator": "git grep over src tests for whole-server commands",
+          "summary": "Zero hits for FLUSHALL, FLUSHDB, DBSIZE, RANDOMKEY, PSUBSCRIBE, SWAPDB, notify-keyspace.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "FLUSH(ALL|DB)|DBSIZE|RANDOMKEY|PSUBSCRIBE|SWAPDB|notify-keyspace",
+              "case_insensitive": true,
+              "scope": [
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:30.741454767Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e0081d4641b4f151ddd5a91806d23d14a579d1492766fc8a3fb6ddf31352667"
+          }
+        },
+        {
+          "id": "EVD-2345",
+          "kind": "inspection",
+          "locator": "tests/support/redis.rs:343-395 config_set / announce / form_cluster; git grep 'cmd(\"SCAN\"|cmd(\"SELECT\"'",
+          "summary": "The only CONFIG SET is the config_set helper, called by announce/form_cluster in code paths for containers the test started itself (form_cluster from start_cluster_container; start_again on own container). The redis::cmd listing over src/tests shows no SCAN or SELECT command.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/redis.rs",
+              "lines": {
+                "start": 343,
+                "end": 395
+              },
+              "commit": "ba8af934c8544cac15e26f1ea9b89d33183527ba"
+            }
+          },
+          "recorded_at": "2026-11-26T05:23:30.829188980Z",
+          "seal": {
+            "by": "server",
+            "mac": "dcc789d5bbcd5297b4d396f0d86a3b9375101546a0b5dd3ad673d24df71850bd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero hits for the whole-server commands; the only CONFIG SET is on containers the tests start themselves.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2344",
+            "EVD-2345"
+          ],
+          "recorded_at": "2026-11-26T05:24:30.060996144Z",
+          "seal": {
+            "by": "server",
+            "mac": "1bc33aa2bb2a5fc5264715adccd3e3a81e76ed6a53397c2fd6dcd8042184b03f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:22:57.116522812Z",
+      "updated_at": "2026-11-26T05:24:30.060996144Z",
+      "seal": {
+        "by": "server",
+        "mac": "282afc47809b14017801e27543cb33e55a2a679e42fdc7932194de74b991a7e2"
+      }
+    },
+    {
+      "id": "CLM-1588",
+      "statement": "Every KEYS pattern used by Redis tests carries the test's prefix except the one in a_failed_removal_answers_the_busy_page, which runs on a dedicated server.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Revised PR body: \"every KEYS pattern carries the test's prefix except the one in `a_failed_removal_answers_the_busy_page`, which runs on a dedicated server\"",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs",
+        "src/http/oidc.rs",
+        "src/http/passkeys.rs",
+        "src/http/sessions.rs",
+        "src/shared/ephemeral.rs"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2363",
+          "kind": "inspection",
+          "locator": "git grep 'redis::cmd(\"KEYS\")' src tests: oidc.rs:1621, passkeys.rs:2677, sessions.rs:480, ephemeral.rs:939 prefixed; authorize.rs:4146 \"*oauth:code:*\" unprefixed",
+          "summary": "Exactly five KEYS calls; four carry the test prefix; the fifth (authorize.rs:4146) is unprefixed and used only by a_failed_removal_answers_the_busy_page, which calls dedicated() at line 4078. Matches the revised sentence.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 4145,
+                "end": 4152
+              },
+              "commit": "57c81e93747980c9f582fdda61773ee80dd29a5d"
+            }
+          },
+          "recorded_at": "2026-11-26T05:25:58.771830094Z",
+          "seal": {
+            "by": "server",
+            "mac": "ae7f4b0ff9d0004c593d23e8fb55b3ead357a7b93b7d81d198770d80b4b9720f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Five KEYS calls: four prefixed, one unprefixed on a dedicated server, exactly as the revised body says.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2363"
+          ],
+          "recorded_at": "2026-11-26T05:26:05.768572865Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8800602a84770c10db13c0cc6269b69e1151518494de05f34949114fcb2c1e0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:25:54.452464031Z",
+      "updated_at": "2026-11-26T05:26:05.768572865Z",
+      "seal": {
+        "by": "server",
+        "mac": "e6ccb29b4dd79fe66cf0212bc53adf9e50867c57d30f89601acd64ec5f90ee37"
+      }
+    },
+    {
+      "id": "CLM-1589",
+      "statement": "test-redis.sh run exits nonzero, never runs CMD and removes both containers when the standalone Redis never answers PONG.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: `run` starts `up` as `$(set -e; up ...)` so a failed startup step stops the run",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh",
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2365",
+          "kind": "test",
+          "locator": "python3 -m unittest -v scripts.test_test_servers (test_redis_not_ready_while_the_cluster_is_ready_stops_the_run)",
+          "summary": "Ran at 4aefa4d: \"Ran 2 tests ... OK\". The test asserts a nonzero exit, that the marker CMD did not run, that rm was called for both the standalone and the -cluster container, and that the stub's state is empty afterwards. Read the assertions in scripts/test_test_servers.py:77-98. The stub is a fake docker, so this is the script logic only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_test_servers.py",
+              "lines": {
+                "start": 77,
+                "end": 98
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:26.216612569Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c368bb997c5c7fb9c79999e151152c115e51d6f9ebce1c50a26072d8433294e"
+          }
+        },
+        {
+          "id": "EVD-2366",
+          "kind": "demonstration",
+          "locator": "scripts/test-redis.sh run bash -c 'echo ...' against real docker at 4aefa4d",
+          "summary": "The happy path still works: both URLs set, one redis:7.4-alpine and one valkey/valkey:8.1-alpine container were running during the command, and the labelled container count returned to 31 afterwards.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 118,
+                "end": 150
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:26.303907256Z",
+          "seal": {
+            "by": "server",
+            "mac": "965f6cc437276623263a55e4381095153ede1ac30e7ddfe980c9d61efe936124"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The stub test passes and asserts all four parts; the real happy path still works.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2365"
+          ],
+          "recorded_at": "2026-11-26T05:40:38.892770981Z",
+          "seal": {
+            "by": "server",
+            "mac": "e524ff37cab1707b05e60e95c5968b92d8628b2ca42b817b83e4cf219d87f2b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:38.892770981Z",
+      "seal": {
+        "by": "server",
+        "mac": "d44e6978fa5c3524e25017e4cd627e381a5d4e60af5ab0c94468fcfd4ae7af17"
+      }
+    },
+    {
+      "id": "CLM-1590",
+      "statement": "test-pg.sh run exits nonzero and never runs CMD when `docker run` for Postgres fails.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: `TEST_PG_URL=$(set -e; up ...)` in test-pg.sh run",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-pg.sh",
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2368",
+          "kind": "test",
+          "locator": "python3 -m unittest -v scripts.test_test_servers (test_a_failed_postgres_start_stops_the_run)",
+          "summary": "Passed at 4aefa4d: with the stub failing `docker run` for postgres, test-pg.sh run exits nonzero and the marker CMD does not run. The test does not check container removal (nothing was started).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_test_servers.py",
+              "lines": {
+                "start": 92,
+                "end": 97
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:31.890649697Z",
+          "seal": {
+            "by": "server",
+            "mac": "43088441ff75f444c7645ebdfd86d883c4b28e38aca7a564c72d1ddfb851c536"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test passes: nonzero exit and CMD not run when docker run fails.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2368"
+          ],
+          "recorded_at": "2026-11-26T05:40:38.976320990Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c928c6d1325e8c22bbdc8cd7d007d069504d74e8a826a9712f8ebd0d8eef963"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:38.976320990Z",
+      "seal": {
+        "by": "server",
+        "mac": "33cf2165266eaf1b4b415c416bd32f0ae46a2e14967e3f4f2500abd66a4bf976"
+      }
+    },
+    {
+      "id": "CLM-1591",
+      "statement": "Both tests in scripts/test_test_servers.py fail when the `set -e;` is removed from the two `up` command substitutions, and pass with it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: new regression tests whose revert-check shows 2 failures",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2367",
+          "kind": "test",
+          "locator": "scratch copy in the scratchpad: sed 's/$(set -e; up /$(up /' on both scripts, then python3 -m unittest -v scripts.test_test_servers",
+          "summary": "With the `set -e;` removed (both lines confirmed reverted by grep), both tests FAIL (\"0 == 0\": exit status 0 despite the failure; the redis case also printed \"redis-cli ... not ready after 1s\"). With it, both pass in the repo. The repo tree was not changed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:40:26.436665570Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c53b192f41097257a4c70345ef0e1a5431104f26a6fe867c94460d96818826f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Redid the revert on a scratch copy: both tests fail without `set -e;` and pass with it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2367"
+          ],
+          "recorded_at": "2026-11-26T05:40:39.059670978Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9afe4fe0437a6c9077a127543910b0a7d946e2b91ea774006d7127e7bb4f5d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:39.059670978Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c40043e1b551fff124e1d0ad18fbda6c7da872cb8597262ef34d4f3d54b435b"
       }
     }
   ]

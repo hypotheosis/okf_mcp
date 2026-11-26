@@ -1658,15 +1658,13 @@ mod tests {
         }
 
         async fn a_redis_outage_fails_closed(server: TestRedis) {
-            let (a, b, server) = oauth_replica_pair_on(server).await;
+            // A shared server cannot be stopped for everyone.
+            let (a, b, server) = oauth_replica_pair_on(server.dedicated().await).await;
             let code = authorization_code(&a).await;
             // Pending authorizations live in Redis too (Task 8), so the
             // consent is walked up to Approve before Redis stops.
             let approval = approval_form(&a, &authorize_query()).await;
-            if server.stop().await.is_none() {
-                eprintln!("skipped: a shared Redis (TEST_REDIS_URL) cannot be stopped");
-                return;
-            }
+            server.stop().await;
 
             let (status, body) = exchange_on(&b, &code).await;
             let (approve_status, _, page) =
@@ -1684,7 +1682,8 @@ mod tests {
         }
 
         async fn a_redis_failure_after_the_commit_revokes_and_answers_503(server: TestRedis) {
-            let (a, b, server) = oauth_replica_pair_on(server).await;
+            // A shared server cannot be stopped for everyone.
+            let (a, b, server) = oauth_replica_pair_on(server.dedicated().await).await;
             let code = authorization_code(&a).await;
             let family = stored_on(&a.app, &code)
                 .await
@@ -1713,12 +1712,7 @@ mod tests {
             crate::http::api::testing::wait_for_lock_waiters(a.app.accounts().executor(), 1).await;
             let marked = stored_on(&a.app, &code).await.expect("still stored");
             assert!(marked.used, "B marked the code used before the lock");
-            if server.stop().await.is_none() {
-                drop(holder);
-                let _ = exchanging.await;
-                eprintln!("skipped: a shared Redis (TEST_REDIS_URL) cannot be stopped");
-                return;
-            }
+            server.stop().await;
 
             holder.rollback().await.expect("release the family's lock");
             let (status, body) = tokio::time::timeout(BOUND, exchanging)

@@ -25,37 +25,13 @@
 set -euo pipefail
 
 readonly IMAGE=postgres:17-alpine
-# The labels every test container carries (tests/support/pg.rs START_LABEL and
-# OWNER_SCOPE_LABEL), so `docker ps --filter label=okf-mcp.test-start` counts
-# this one too.
-readonly LABEL=okf-mcp.test-start
-readonly SCOPE_LABEL=okf-mcp.test-owner-scope
 readonly READY_TIMEOUT_SECONDS=60
+# shellcheck source=scripts/test-server-lib.sh
+source "$(dirname "${BASH_SOURCE[0]}")/test-server-lib.sh"
 
 usage() {
     echo "usage: $0 up NAME [OWNER_PID] | down NAME | run CMD..." >&2
     exit 2
-}
-
-# Prints the `--label` arguments, one per line, that mark a container as owned
-# by process $2, in the form the sweep reads (tests/support/pg.rs): the start
-# label `<pid>-<counter>` and the owner scope `<boot id>/<pid namespace>`.
-# Without an owner, or where the scope cannot be read, the start label is
-# `server-<name>` and no scope is set, so the sweep never removes it.
-owner_labels() {
-    local name=$1 owner=${2:-}
-    local boot_id namespace
-    if [[ -n $owner ]] &&
-        boot_id=$(cat /proc/sys/kernel/random/boot_id 2>/dev/null) &&
-        namespace=$(readlink /proc/self/ns/pid 2>/dev/null); then
-        echo "--label"
-        echo "$LABEL=$owner-0"
-        echo "--label"
-        echo "$SCOPE_LABEL=$boot_id/$namespace"
-    else
-        echo "--label"
-        echo "$LABEL=server-$name"
-    fi
 }
 
 up() {
@@ -104,7 +80,9 @@ run() {
     local name="okf-mcp-test-pg-$$"
     # Set before `up`, so a server that fails to become ready is removed too.
     trap "down '$name'" EXIT
-    TEST_PG_URL=$(up "$name" "$$")
+    # `set -e` inside the substitution: Bash clears errexit there, so without it
+    # a failed `docker run` would not stop `up`.
+    TEST_PG_URL=$(set -e; up "$name" "$$")
     export TEST_PG_URL
     # The command runs in the background so a signal sent to this script
     # alone (`kill`, a timeout) is handled at once: bash defers traps while a

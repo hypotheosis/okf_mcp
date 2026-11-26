@@ -626,7 +626,8 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn a_stopped_redis_falls_back_to_this_replicas_own_bucket() {
         tokio::time::timeout(BOUND, async {
-            let server = TestRedis::start().await;
+            // A shared server cannot be stopped for everyone.
+            let server = TestRedis::start().await.dedicated().await;
             let redis =
                 Redis::connect(&testing::config(&server), &server.env(), &Metrics::global())
                     .await
@@ -634,10 +635,7 @@ mod tests {
             let limit = GlobalLimit::new(Limiter::OauthConsent, 2, 1.0, Some(&redis));
             // One token taken in Redis before the outage.
             assert!(limit.try_take(Instant::now()).await);
-            if server.stop().await.is_none() {
-                // A shared server cannot be stopped for everyone.
-                return;
-            }
+            server.stop().await;
 
             let start = Instant::now();
             let mut taken = Vec::new();

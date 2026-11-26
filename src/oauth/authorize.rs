@@ -3726,7 +3726,7 @@ mod tests {
 
         use super::super::{consent_change, ConsentForm, BAD_CODE, BUSY, EXPIRED};
         use super::{oauth_grants, param, signed_in, user_page, TestApp, READ_MAIN};
-        use crate::db::redis_support::{TestRedis, CLUSTER_URL_VAR, SERVER_URL_VAR};
+        use crate::db::redis_support::TestRedis;
         use crate::oauth::state::MAX_FAILED_ATTEMPTS;
         use crate::oauth::testing::{
             authorize_query, exchange_for_tokens, form, forwarded, hidden, oauth_replica_pair_on,
@@ -3977,7 +3977,8 @@ mod tests {
         }
 
         async fn a_redis_outage_answers_the_busy_page(server: TestRedis) {
-            let (a, b, server) = oauth_replica_pair_on(server).await;
+            // A shared server cannot be stopped for everyone.
+            let (a, b, server) = oauth_replica_pair_on(server.dedicated().await).await;
             let code = sign_in_code(&a, Access::Read).await;
             let (_, _, page) = send(
                 &a,
@@ -3987,10 +3988,7 @@ mod tests {
             )
             .await;
             let (pending, csrf) = (hidden(&page, "pending"), hidden(&page, "csrf"));
-            if server.stop().await.is_none() {
-                eprintln!("skipped: a shared Redis (TEST_REDIS_URL) cannot be stopped");
-                return;
-            }
+            server.stop().await;
 
             let (started, _, start_page) = send(
                 &a,
@@ -4028,14 +4026,9 @@ mod tests {
 
         /// A connection to `server` as an admin user of its own, so a test can
         /// take commands from the `default` user (the apps') and give them
-        /// back; `None` on a shared server, whose other tests use `default`.
-        async fn admin_of(server: &TestRedis) -> Option<redis::aio::MultiplexedConnection> {
-            let shared = [SERVER_URL_VAR, CLUSTER_URL_VAR]
-                .iter()
-                .any(|var| std::env::var(var).is_ok_and(|url| !url.is_empty()));
-            if shared {
-                return None;
-            }
+        /// back. `server` must be dedicated: a shared server's other tests
+        /// use `default`.
+        async fn admin_of(server: &TestRedis) -> redis::aio::MultiplexedConnection {
             // A plain connection: the container has one node in either mode.
             let client = redis::Client::open(server.url.as_str()).expect("the test redis URL");
             let mut admin = client
@@ -4059,7 +4052,7 @@ mod tests {
                 .query_async(&mut admin)
                 .await
                 .expect("authenticate as the admin user");
-            Some(admin)
+            admin
         }
 
         /// The ids of the OAuth grants that are not revoked: the user's grant
@@ -4081,10 +4074,9 @@ mod tests {
         /// failed approval created is revoked (issue #589), and a grant made
         /// by an earlier, completed consent is left as it was.
         async fn a_failed_removal_answers_the_busy_page(server: TestRedis) {
-            let Some(mut admin) = admin_of(&server).await else {
-                eprintln!("skipped: a shared Redis's default user cannot be restricted");
-                return;
-            };
+            // Restricting the default user would break every test sharing it.
+            let server = server.dedicated().await;
+            let mut admin = admin_of(&server).await;
             let (a, b, _server) = oauth_replica_pair_on(server).await;
             let start = || async {
                 let (_, _, page) = send(

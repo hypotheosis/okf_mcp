@@ -1002,15 +1002,14 @@ mod tests {
     }
 
     async fn a_redis_outage_is_busy_and_counted(server: TestRedis) {
+        // A shared server cannot be stopped for everyone.
+        let server = server.dedicated().await;
         let (_provider, metrics, registry) = crate::mcp::testing::local_metrics();
         let redis = Redis::connect(&testing::config(&server), &server.env(), &metrics)
             .await
             .expect("connect to the test redis");
         let store = Ephemeral::<Sample>::new(Some(&redis), Keyspace::OauthCode, TTL, 10);
-        if server.stop().await.is_none() {
-            // A shared server cannot be stopped for everyone.
-            return;
-        }
+        server.stop().await;
         let error = store.insert("k", ONE, Instant::now()).await.unwrap_err();
         assert!(matches!(error, OkfError::Busy { .. }), "{error:?}");
         let rendered = crate::mcp::testing::render(&registry);

@@ -189,7 +189,20 @@ impl IntoResponse for AppError {
         } else {
             tracing::debug!(kind = self.0.kind(), "request refused");
         }
-        (self.status(), Json(self.0.to_json())).into_response()
+        let mut body = self.0.to_json();
+        if self.0.is_internal() {
+            // The request span names the trace an operator can open; it never
+            // carries the detail. Left out when there is no valid trace
+            // (issue #1093).
+            let trace_id = REQUEST_SPAN
+                .try_with(crate::telemetry::propagation::trace_id_of)
+                .ok()
+                .flatten();
+            if let Some(trace_id) = trace_id {
+                body["trace_id"] = trace_id.into();
+            }
+        }
+        (self.status(), Json(body)).into_response()
     }
 }
 
@@ -530,6 +543,14 @@ async fn check_settings(
     next.run(request).await
 }
 
+tokio::task_local! {
+    /// The request span, for [`AppError::into_response`], which has no
+    /// request to read [`RequestSpan`] from and cannot trust
+    /// `Span::current()`: a helper span a handler left current may exist for
+    /// one layer only and carry no trace context (issue #1093).
+    static REQUEST_SPAN: tracing::Span;
+}
+
 /// The request span `TraceLayer` opened, for code deeper in the stack that
 /// records the request's root fields (the principal's ids). Recording on a
 /// handle, not on `Span::current()`, is what keeps the fields on the root
@@ -699,7 +720,11 @@ async fn request_telemetry(
     // this future) still balances the counter.
     let _in_flight = app.metrics().http_in_flight(method, &route);
     let started = std::time::Instant::now();
-    let mut response = next.run(request).await;
+    // `scope` makes the span reachable from `AppError::into_response`, which
+    // runs inside `next`.
+    let mut response = REQUEST_SPAN
+        .scope(tracing::Span::current(), next.run(request))
+        .await;
     app.metrics().http_request(
         method,
         &route,

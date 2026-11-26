@@ -77,7 +77,7 @@ const FAIL_NEXT: &str = "(arg) => {
         if (!used && method === arg.method && String(input).endsWith(arg.suffix)) {
             used = true;
             return Promise.resolve(new Response(
-                JSON.stringify({ error: arg.kind ?? 'test', message: arg.message }),
+                JSON.stringify({ error: arg.kind ?? 'test', message: arg.message, trace_id: arg.trace_id }),
                 { status: arg.status, headers: { 'Content-Type': 'application/json' } }));
         }
         return original(input, init);
@@ -605,6 +605,26 @@ impl Ui {
                 "method": method, "suffix": suffix, "status": status, "message": message,
             }),
         );
+    }
+
+    /// As [`Ui::fail_next`], with the error body's `trace_id` set, as an
+    /// internal error's is (issue #1093).
+    ///
+    /// # Arguments
+    /// * `method` - the HTTP method, upper case.
+    /// * `suffix` - the end of the request's URL.
+    /// * `status` - the status to answer.
+    /// * `trace_id` - the error body's `trace_id`.
+    pub fn fail_next_traced(&self, method: &str, suffix: &str, status: u16, trace_id: &str) {
+        let armed = self.eval(
+            FAIL_NEXT,
+            serde_json::json!({
+                "method": method, "suffix": suffix, "status": status,
+                "message": "internal error; the server log has the details",
+                "trace_id": trace_id,
+            }),
+        );
+        assert_eq!(armed, serde_json::json!(true));
     }
 
     /// As [`Ui::fail_next`], with the error body's `error` kind set to

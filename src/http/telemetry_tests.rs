@@ -146,6 +146,87 @@ async fn a_5xx_is_an_error_and_a_4xx_is_not() {
     }
 }
 
+/// Issue #1093: an internal API error's `trace_id` is the request span's
+/// OpenTelemetry trace id (the one the exported span carries), the detail
+/// stays out of the body, and a refusal (4xx) has no `trace_id`.
+#[tokio::test]
+async fn an_internal_api_error_carries_the_request_spans_trace_id() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    crate::http::api::testing::fail_on(
+        test.app.accounts().executor(),
+        "BEFORE INSERT ON audit_entries FOR EACH ROW",
+    )
+    .await;
+    for filter in FILTERS {
+        let mut answers = Vec::new();
+        let observed = observed(filter, async {
+            answers.push(
+                send(
+                    &test,
+                    "GET",
+                    "/api/v1/catalogs/main/export",
+                    Some(&key),
+                    None,
+                )
+                .await,
+            );
+            answers.push(
+                send(
+                    &test,
+                    "GET",
+                    "/api/v1/catalogs/nope/health",
+                    Some(&key),
+                    None,
+                )
+                .await,
+            );
+        })
+        .await;
+        let [(failed, body), (missing, refusal)] = &answers[..] else {
+            panic!("two answers");
+        };
+
+        assert_eq!(*failed, StatusCode::INTERNAL_SERVER_ERROR, "{filter}");
+        let span = &observed.spans_named("GET /api/v1/catalogs/{catalog}/export")[0];
+        assert_eq!(
+            body["trace_id"],
+            span.span_context.trace_id().to_string(),
+            "{filter}"
+        );
+        assert_ne!(body["trace_id"], "0".repeat(32), "{filter}");
+        assert!(!body.to_string().contains("injected failure"), "{filter}");
+        assert_eq!(*missing, StatusCode::NOT_FOUND, "{filter}");
+        assert!(refusal.get("trace_id").is_none(), "{filter}: {refusal}");
+    }
+    crate::http::api::testing::allow(test.app.accounts().executor(), "audit_entries").await;
+}
+
+/// Issue #1093: with no trace exported the id is left out, never zeros.
+#[tokio::test]
+async fn an_internal_api_error_omits_trace_id_without_a_trace() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    crate::http::api::testing::fail_on(
+        test.app.accounts().executor(),
+        "BEFORE INSERT ON audit_entries FOR EACH ROW",
+    )
+    .await;
+
+    let (status, body) = send(
+        &test,
+        "GET",
+        "/api/v1/catalogs/main/export",
+        Some(&key),
+        None,
+    )
+    .await;
+
+    crate::http::api::testing::allow(test.app.accounts().executor(), "audit_entries").await;
+    assert_eq!(status, StatusCode::INTERNAL_SERVER_ERROR);
+    assert!(body.get("trace_id").is_none(), "{body}");
+}
+
 #[tokio::test]
 async fn an_unmatched_path_makes_no_span() {
     let test = app().await;

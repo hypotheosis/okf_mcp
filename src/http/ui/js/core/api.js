@@ -42,6 +42,10 @@ const OWN_MESSAGE = new Set(['Suspended', 'UnlockRequired']);
 // a credential that may ask for one, an Unlock action that opens the form.
 function refusalMessage(error) {
     const catalog = error.body?.catalog;
+    // An internal error (a 500) carries the request's trace id: show it so the
+    // person can quote it in a report (issue #1093).
+    const traceId = error.body?.trace_id;
+    if (traceId) return [error.message, ' Trace id: ', h('code', { class: 'trace-id' }, traceId)];
     if (error.body?.error !== 'UnlockRequired' || !catalog || !canUnlock()) return error.message;
     return [error.message, ' ',
         h('button', { type: 'button', class: 'text-btn', onclick: () => openUnlock(catalog) }, 'Unlock')];
@@ -73,7 +77,7 @@ async function request(method, path, { body, raw = false, quiet = false, key } =
         // runner on a catalog whose owners turned maintenance off.
         const generic = response.status === 403
             && !OWN_MESSAGE.has(errorBody?.error) && errorBody?.maintenance !== 'off';
-        if (!quiet) toast(generic ? denied : refusalMessage(error), 'error');
+        if (!quiet) toast(generic ? denied : refusalMessage(error), 'error', error.body?.trace_id ? 30000 : undefined);
         throw error;
     }
     if (raw) return response;

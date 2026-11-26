@@ -440,17 +440,8 @@ pub fn tool_error(error: &OkfError) -> CallToolResult {
 /// id would be all zeros, which names nothing).
 #[tracing::instrument(level = "trace", skip_all)]
 fn current_trace_id() -> Option<String> {
-    use opentelemetry::trace::TraceContextExt;
-    use tracing_opentelemetry::OpenTelemetrySpanExt;
-
     TOOL_SPAN
-        .try_with(|span| {
-            let context = span.context();
-            let span_context = context.span().span_context().clone();
-            span_context
-                .is_valid()
-                .then(|| span_context.trace_id().to_string())
-        })
+        .try_with(crate::telemetry::propagation::trace_id_of)
         .ok()
         .flatten()
 }

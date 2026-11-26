@@ -45,6 +45,28 @@ pub fn link_from(headers: &HeaderMap) -> Option<SpanContext> {
     })
 }
 
+/// The OpenTelemetry trace id of `span`, for quoting to a person who can
+/// give it to the operator (an internal error's `trace_id`, issues #766 and
+/// #1093).
+///
+/// # Arguments
+/// * `span` - the tracing span to name (a handle: it need not be current).
+///
+/// # Returns
+/// 32 lower-case hex digits, or `None` when the span has no valid trace
+/// context (telemetry off, or the span filtered out: its id would be all
+/// zeros, which names nothing).
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(uninstrumented_fn, reason = "a pure read of the span it is given")
+)]
+pub fn trace_id_of(span: &tracing::Span) -> Option<String> {
+    let span_context = span.context().span().span_context().clone();
+    span_context
+        .is_valid()
+        .then(|| span_context.trace_id().to_string())
+}
+
 /// Adds a `traceparent` for the span the request is made under to an
 /// outbound request's headers, so the callee can join the trace. Nothing is
 /// added when that span is not exported (no trace layer, or filtered out).

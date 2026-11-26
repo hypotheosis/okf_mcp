@@ -71,5 +71,7 @@ pub mod telemetry;
 #[cfg(test)]
 pub(crate) mod test_locks;
 #[cfg(test)]
+pub(crate) mod test_net;
+#[cfg(test)]
 pub(crate) mod test_tracing;
 pub mod write;

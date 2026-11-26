@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1710,
+  "next_claim_seq": 1724,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "15e0e24d5601e31ebf3f39341152f4a7d3c1d68c95199f246fe27ac8dc7eb229"
+    "mac": "6566ed6d2c95cbe22a55a94d59d0592645d04fe2becc4785ef3183472ea984c8"
   },
-  "next_evidence_seq": 2513,
+  "next_evidence_seq": 2541,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e62043e7f5f08b4815954b6cd241dffc4fd5613e6ec6346e0378bd52babd0ec3"
+    "mac": "c7e518547d635a395b538711834b601b7533a9380f15154fd471f81a3ada282a"
   },
   "claims": [
     {
@@ -8982,6 +8982,50 @@
             "by": "server",
             "mac": "d574abb5ccd426e9a40cd51f59d26115b96d874551c100caf81efbea5654913b"
           }
+        },
+        {
+          "id": "EVD-2532",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at 1eb2744",
+          "summary": "Re-read after #769: a_transport_failure_serves_stale_within_the_ceiling_only keeps its stale-within-ceiling and fail-at-25-hours assertions; only the refused port is now held and calls are bounded. Test not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:37:52.602275725Z",
+          "seal": {
+            "by": "server",
+            "mac": "86b4c9973cd23857916b1d02dc4e44ca8261a813bc0f684a2843d758d5b0768c"
+          }
+        },
+        {
+          "id": "EVD-2538",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at b51a4a6",
+          "summary": "Second commit only changed a bounded() label string in this test; stale-within-ceiling and 25-hour assertions unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.563870431Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f7e4bc524364a37c154dcb2403aacdde3f3176d974b8851b49eca500bc59b63"
+          }
         }
       ],
       "verdicts": [
@@ -9010,13 +9054,39 @@
             "by": "server",
             "mac": "9560c502ecf69a951bd3c78178764b2b716c449522be5ff35e11e85af168d70b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 1eb2744: assertions unchanged by #769.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2532"
+          ],
+          "recorded_at": "2026-11-26T10:37:57.493535484Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4ef68fcdb4838cfa53d192fb91a1040ba3fc08c0bfa50e31219ef6635ce1c45"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: only a label string changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2538"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.892981978Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa4212b5b9be1efa9b160c1b9f426c8249c56cac8390291b8c88b328223416b6"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-25T22:38:17.198804048Z",
+      "updated_at": "2026-11-26T10:39:36.892981978Z",
       "seal": {
         "by": "server",
-        "mac": "59b3634218a56ff7a852be699fc2a369eec058c9e20c2f11e3c019a6f78702ff"
+        "mac": "8cb9798587cf4f4071cff87c3586edeb5d641432db8e014633fd65e4d624d427"
       }
     },
     {
@@ -122577,6 +122647,50 @@
             "by": "server",
             "mac": "b1d883bacd2eb3df534e072fdbe90b8d5c7bbec0d6a04d9fcbc0c0355aa2f795"
           }
+        },
+        {
+          "id": "EVD-2531",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at 1eb2744",
+          "summary": "Re-read after #769: 5xx stale, refused-connection stale (assert_eq served.client_id == dead_id) and the 25-hour InvalidClient assertions are unchanged; only the port source (held Refused) and bounded wrappers changed. Test not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:37:52.468652774Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e81820a9d56b3603c7fcfe716abc137cc4b9bb52c245c4c1bad496c056b66f5"
+          }
+        },
+        {
+          "id": "EVD-2537",
+          "kind": "inspection",
+          "locator": "src/oauth/clients.rs:2095-2150 at b51a4a6",
+          "summary": "Second commit only changed a bounded() label string in this test (2140-2144); stale-serving and 25-hour assertions unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/clients.rs",
+              "lines": {
+                "start": 2095,
+                "end": 2150
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.467628649Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2e1fe88a9b13485bcce1c94fe98273c158e5e7320b4460afe5fad539c7692c7"
+          }
         }
       ],
       "verdicts": [
@@ -122592,13 +122706,39 @@
             "by": "server",
             "mac": "51a71affad9b608e8d44a08539bf6c1d3b55706c459a750e26dfd6bc3826c078"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 1eb2744: assertions unchanged by #769.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2531"
+          ],
+          "recorded_at": "2026-11-26T10:37:57.372406925Z",
+          "seal": {
+            "by": "server",
+            "mac": "a841651c1478f55fabe21257abbf35328de5ea3d44df8051fda69fc20ce4973d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: only a label string changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2537"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.803036322Z",
+          "seal": {
+            "by": "server",
+            "mac": "8939aa9fda6366fa0315d409c5c304b473f031edba292bed5dbbb84fdd1c80ac"
+          }
         }
       ],
       "created_at": "2026-11-25T22:37:04.304107521Z",
-      "updated_at": "2026-11-25T22:37:51.682947493Z",
+      "updated_at": "2026-11-26T10:39:36.803036322Z",
       "seal": {
         "by": "server",
-        "mac": "60e879448f0f0a1573b1981088c478e7314c571d54b648ee92f214a63b588eed"
+        "mac": "814bb9d5ce5e0aebaaaaa323a31e15bf3b76ab54b595fb113a7e6933c6831efb"
       }
     },
     {
@@ -137505,6 +137645,1150 @@
       "seal": {
         "by": "server",
         "mac": "2d02329b9bace7ae0484ecc6c6e9a6ba7df5d05000767d2cbba64339fa7b55b6"
+      }
+    },
+    {
+      "id": "CLM-1710",
+      "statement": "Issue #769 is delivered: no test in src/ or tests/ makes an unreachable address by binding a port, reading it and dropping the listener, and each connecting call in the fixed tests is bounded by tokio::time::timeout.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/769",
+      "derived_from": [],
+      "artifacts": [
+        "src/test_net.rs",
+        "src/investigator/client_tests.rs",
+        "src/mail/postmark.rs",
+        "src/mail/ses.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2530",
+          "kind": "analysis",
+          "locator": "children of CLM-1710",
+          "summary": "Refuted children CLM-1719 (src/mcp/testing.rs make_unreachable still drops its port) and CLM-1721 (HTTPS test's send/open unbounded) mean the issue's \"fix all, search the rest, bound each call\" is not fully delivered; the four named sites and the helper are fine.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-26T10:37:20.153444064Z",
+          "seal": {
+            "by": "server",
+            "mac": "55b0a1d0a4810d46fb9143090c2d9878e7f200ff00a29b2d722cb3821f15fe48"
+          }
+        },
+        {
+          "id": "EVD-2539",
+          "kind": "analysis",
+          "locator": "children of CLM-1710",
+          "summary": "After b51a4a6 the two refuted children (CLM-1719 make_unreachable site, CLM-1721 unbounded TLS calls) are fixed and re-audited supported; the other children were supported and their code is unchanged except the changelog and a label string. Together they cover the four sites, the helper, the extra sites, the search for the rest and the bounding.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:39:24.659813802Z",
+          "seal": {
+            "by": "server",
+            "mac": "407b80d4bb235e168dbed5a843fb4ac60dd7204ca64e7e4444fe891de1aaef37"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Children CLM-1719 and CLM-1721 are refuted. Fix: fix both (hold a Refused in src/mcp/testing.rs make_unreachable; bound the HTTPS test's send and McpClient::open), then re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2530"
+          ],
+          "recorded_at": "2026-11-26T10:37:24.381278129Z",
+          "seal": {
+            "by": "server",
+            "mac": "876a4a515bdd8e203f8a6c3806dd097b5817876d7d61fc75731a02cd0a3c0d0a"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children now supported at b51a4a6 except CLM-1722 (not_enough_info, run result not an audit-decidable code property).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2539"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.983285275Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a53b9675ff870a500b732f0a56d01288a2bcd16d57e47133f08c84482b0331e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:39:36.983285275Z",
+      "seal": {
+        "by": "server",
+        "mac": "a3f725792e35101a16c9fa04f836364faf6d8ec3bf325a9687749055855f327e"
+      }
+    },
+    {
+      "id": "CLM-1711",
+      "statement": "investigator_client_init_refusal_is_transport connects to a held, never-listening address (test_net::Refused) through test_net::bounded and still asserts RunnerError::Transport.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #769 site (1); PR body: \"Each test still asserts what it did before (`Transport`, `Retryable`, ...)\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/investigator/client_tests.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2513",
+          "kind": "inspection",
+          "locator": "src/investigator/client_tests.rs:318-332",
+          "summary": "Test builds Refused, wraps McpClient::loopback in bounded, asserts matches!(opened, Err(RunnerError::Transport)); no listener bind/drop remains.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/client_tests.rs",
+              "lines": {
+                "start": 318,
+                "end": 332
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:30.982458287Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7d182a933d602e891c159198e32bd12f54fc3d70093cd5f76c02d7b19bd8926"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code read shows Refused + bounded and the Transport assertion intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2513"
+          ],
+          "recorded_at": "2026-11-26T10:37:18.376968517Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed7de3436f342ede01e0c5b121236c36211ed55d80cb99597f21de635fc9523c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:18.376968517Z",
+      "seal": {
+        "by": "server",
+        "mac": "3c2b21554803797fc4a3ac03eb960e79c4d88b1b146c881c001eec9aa1e9486c"
+      }
+    },
+    {
+      "id": "CLM-1712",
+      "statement": "The unreachable case of the Postmark retryable-status test connects to a test_net::Refused address through test_net::bounded and still asserts MailError::Retryable.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #769 site (2)",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/mail/postmark.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2514",
+          "kind": "inspection",
+          "locator": "src/mail/postmark.rs:282-294",
+          "summary": "Unreachable case uses Refused + bounded around mailer(&closed).send(&mail()) and asserts Err(MailError::Retryable(_)).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mail/postmark.rs",
+              "lines": {
+                "start": 282,
+                "end": 294
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:31.369576061Z",
+          "seal": {
+            "by": "server",
+            "mac": "f95a52cedd9fcfceaabd0b0714278725afaadbfbe58c6d07bdd1f4cfa1190c3a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code read shows Refused + bounded and the Retryable assertion intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2514"
+          ],
+          "recorded_at": "2026-11-26T10:37:18.536871435Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac5516b10796cece6dd30e9c73a73ba6f7e9b1098d82d37e716c7fff85f2751b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:18.536871435Z",
+      "seal": {
+        "by": "server",
+        "mac": "a2e3324311eddc1e4b3fcd6209822a47dc0b4614e73327f018e43f718b82b058"
+      }
+    },
+    {
+      "id": "CLM-1713",
+      "statement": "SES unreachable_endpoints_are_retryable connects to a test_net::Refused address through test_net::bounded and still asserts MailError::Retryable (and assert_clean).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #769 site (3)",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/mail/ses.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2515",
+          "kind": "inspection",
+          "locator": "src/mail/ses.rs:563-580",
+          "summary": "Test uses Refused + bounded around send, unwrap_err, asserts MailError::Retryable and assert_clean as before.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mail/ses.rs",
+              "lines": {
+                "start": 563,
+                "end": 580
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:31.654625364Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b1c27522683cd22284d5705a32b1c51e5fe0f7938cdbbca9d5d8a1cabd2c1da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code read shows Refused + bounded and Retryable/assert_clean intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2515"
+          ],
+          "recorded_at": "2026-11-26T10:37:18.669595221Z",
+          "seal": {
+            "by": "server",
+            "mac": "89eb32a7fa22a42f5eb5212dacd9d7b617dfa69bd49375a5aced1133b062743f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:18.669595221Z",
+      "seal": {
+        "by": "server",
+        "mac": "a368f54626f395e7d8f397263f8ff9f834292f746ae31390b64de73da0157814"
+      }
+    },
+    {
+      "id": "CLM-1714",
+      "statement": "The investigator HTTPS test starts `openssl s_server -accept 127.0.0.1:0`, reads the chosen port from its ACCEPT stdout line under a bounded wait, and no longer reserves a port and drops it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "Issue #769 site (4); PR body: \"The `openssl s_server` test lets the server pick its port and reads it from its output.\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/investigator/client_tests.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2516",
+          "kind": "inspection",
+          "locator": "src/investigator/client_tests.rs:586-624",
+          "summary": "s_server is started with -accept 127.0.0.1:0, stdout piped (no -quiet), and the port is parsed from the ACCEPT line inside bounded(); the reserve-then-drop TcpListener is gone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/client_tests.rs",
+              "lines": {
+                "start": 586,
+                "end": 624
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:31.846747987Z",
+          "seal": {
+            "by": "server",
+            "mac": "49a9a3b0d805ff20ac8165fde398b4a5c8b2142fbc10eb06861d3b4de6de6804"
+          }
+        },
+        {
+          "id": "EVD-2517",
+          "kind": "demonstration",
+          "locator": "timeout 3 openssl s_server -accept 127.0.0.1:0 -cert c.pem -key k.pem -www | head -3",
+          "summary": "Ran the same invocation (no -quiet) with stdout piped: it printed \"ACCEPT 127.0.0.1:44083\" on stdout, so the line the test parses is produced and flushed through a pipe.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:36:32.130735427Z",
+          "seal": {
+            "by": "server",
+            "mac": "d32742fb4120de5bdbba5c2dab7435d952ced01ee51a86e3b6a9ba10478b355c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads the ACCEPT line from piped stdout under bounded; running the same openssl invocation produced that line. The test itself was not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2516",
+            "EVD-2517"
+          ],
+          "recorded_at": "2026-11-26T10:37:18.793925820Z",
+          "seal": {
+            "by": "server",
+            "mac": "050bf66fb0fbfbe1199c489eedff5f46b412da0d2072a1bd435a78cb114a904c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:18.793925820Z",
+      "seal": {
+        "by": "server",
+        "mac": "46f56512e466858b64fcfc8fe78bbe34b870d7ab632632d725b9106677c359bc"
+      }
+    },
+    {
+      "id": "CLM-1715",
+      "statement": "All fixed sites share one helper: Refused and bounded are each defined once, in src/test_net.rs, with no per-site copy.",
+      "kind": "constraint",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Requester: share one helper across sites; no copy of the helper per site",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/test_net.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2521",
+          "kind": "analysis",
+          "locator": "git grep -nE 'pub\\(crate\\) struct Refused|pub\\(crate\\) async fn bounded' -- src",
+          "summary": "Refused and test_net::bounded are each defined exactly once (src/test_net.rs); every touched site calls crate::test_net::*. Other fns named bounded elsewhere are unrelated or pre-existing.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "pub\\(crate\\) struct Refused|pub\\(crate\\) async fn bounded",
+              "scope": [
+                "src"
+              ],
+              "hits": 2,
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:53.505338663Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ec76dc598fb8748e4b29aed5bfcd26fcd36652ad82668c942174b30f461b057"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search shows exactly one definition each; sites call crate::test_net.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2521"
+          ],
+          "recorded_at": "2026-11-26T10:37:18.924469059Z",
+          "seal": {
+            "by": "server",
+            "mac": "68ecb85f87358e4e8bde1f46820755e52026250cca26bfd52afa386887b4cc1a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:18.924469059Z",
+      "seal": {
+        "by": "server",
+        "mac": "34bdf7567213953f9782d563c052e5c1dcc0565c3f94ce37765b39142b0a36fc"
+      }
+    },
+    {
+      "id": "CLM-1716",
+      "statement": "test_net::Refused holds a bound, never-listening loopback socket: a TCP connect to it is refused (ECONNREFUSED) on Linux, and another bind of the same address fails while it is held; test_net has tests asserting both.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`Refused` (bound, not listening, connect gives `ECONNREFUSED`) ... which no other bind can take while held\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/test_net.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2518",
+          "kind": "inspection",
+          "locator": "src/test_net.rs:22-107",
+          "summary": "Refused binds a TcpSocket and never listens; tests a_held_unlistened_port_refuses_every_connect (3 connects assert ConnectionRefused) and the_held_port_is_not_given_to_another_bind (second bind is_err) exist. Not run (no cargo allowed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_net.rs",
+              "lines": {
+                "start": 22,
+                "end": 107
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:32.675113310Z",
+          "seal": {
+            "by": "server",
+            "mac": "229d7a0c7c3a82c002e6b7db1f7567ba7cf9a522e622a60e9f8f245dc302f806"
+          }
+        },
+        {
+          "id": "EVD-2519",
+          "kind": "demonstration",
+          "locator": "python3 socket: bind 127.0.0.1:0 without listen(); connect(); second bind(same addr)",
+          "summary": "On this Linux host (6.18) connecting to a bound, unlistened loopback socket raised ConnectionRefusedError [Errno 111]; a second bind of the same address raised EADDRINUSE [Errno 98]. Same kernel semantics as Refused.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:36:33.003122733Z",
+          "seal": {
+            "by": "server",
+            "mac": "f347319390d19e2198352fa84f58bb3f8903bffdc87f777492fcea9cdecbdbe7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Implementation never listens; kernel behaviour reproduced on this host (ECONNREFUSED, EADDRINUSE); the covering tests exist but were not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2518",
+            "EVD-2519"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.061154489Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ed1580f06c9f250355f5032daee1b76889b87c9f57154e23835edea7471e737"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:19.061154489Z",
+      "seal": {
+        "by": "server",
+        "mac": "562fbf69cac5830e5301e3a385f14444431249f49b11665b5b23cced5e6ee865"
+      }
+    },
+    {
+      "id": "CLM-1717",
+      "statement": "test_net::bounded wraps a future in tokio::time::timeout of 30 s and panics with a message naming what it waited for.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #769: bound each call with tokio::time::timeout so a bad case fails fast with a clear message",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/test_net.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2520",
+          "kind": "inspection",
+          "locator": "src/test_net.rs:22-69",
+          "summary": "STEP = 30 s; bounded calls tokio::time::timeout(STEP, step) and panics \"timed out after {STEP:?} waiting for {what}\"; a should_panic test with paused time covers it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_net.rs",
+              "lines": {
+                "start": 22,
+                "end": 69
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:33.377059144Z",
+          "seal": {
+            "by": "server",
+            "mac": "45cd0c96e9f3cfc2c289d436d9fe74189cf47040ba502ca4a424511d021687fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "bounded uses tokio::time::timeout with the named panic message.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2520"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.192254440Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5baa431631b967c5f4ee521687dce6941dd062cbbee956cd65f2a9e67b902f6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:19.192254440Z",
+      "seal": {
+        "by": "server",
+        "mac": "3322baa726fe3b891bb1ca2eba61f1badcd08d48bedbdabae7eb694b7c2de39b"
+      }
+    },
+    {
+      "id": "CLM-1718",
+      "statement": "The bind-then-drop pattern in store::stores (adding an unreachable store), cli::stores (add, and migrate), http::api::stores, stores::registry and oauth::clients (refused CIMD fetch) was replaced with test_net::Refused.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Same bind-then-drop pattern found and fixed in: `store::stores` ..., `cli::stores` ..., `http::api::stores`, `stores::registry` ... and `oauth::clients`\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/store/stores.rs",
+        "src/cli/stores.rs",
+        "src/http/api/stores.rs",
+        "src/stores/registry.rs",
+        "src/oauth/clients.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2522",
+          "kind": "analysis",
+          "locator": "git grep -n 'test_net::Refused::new' -- src",
+          "summary": "Refused::new() is used at src/store/stores.rs:756, src/cli/stores.rs:224 and :279, src/http/api/stores.rs:450, src/stores/registry.rs:1226 and src/oauth/clients.rs:2111 (plus the three of the issue); the diff removes each TcpListener::bind/drop there.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "test_net::Refused::new",
+              "scope": [
+                "src"
+              ],
+              "hits": 9,
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:53.635512491Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b39c54504c7edd68d0e5028f298a5bdf0b7dce6b77b354ae752eb77e3ba8c1d"
+          }
+        },
+        {
+          "id": "EVD-2536",
+          "kind": "analysis",
+          "locator": "git grep -n 'test_net::Refused::new' -- src at b51a4a6",
+          "summary": "Still used at every named module (store/stores.rs, cli/stores.rs x2, http/api/stores.rs, stores/registry.rs, oauth/clients.rs) plus the issue's three sites and now mcp/testing.rs; the one-line label change in oauth/clients.rs does not touch it.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "test_net::Refused::new",
+              "scope": [
+                "src"
+              ],
+              "hits": 10,
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.315692615Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd94ca87a91938a46e07df77641ebc25f837e8ab481d246bde86870e98881551"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Six uses of Refused in the named modules and the diff removes each old bind/drop; assertions untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2522"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.330738046Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e9816be7ecbfda066845c2a010bd1e03e5d40f313223130a273e46816a145e3"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: all named modules still use Refused.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2536"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.711309409Z",
+          "seal": {
+            "by": "server",
+            "mac": "c456446396e2082f9c0e1f1cfd917a3800ebe0b25a5413d789cf199b8bf86926"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:39:36.711309409Z",
+      "seal": {
+        "by": "server",
+        "mac": "39c60188489f8840091e8d71c58f3adbad666918565c2978f771325812ec1832"
+      }
+    },
+    {
+      "id": "CLM-1719",
+      "statement": "No other bind-then-drop site (bind a TcpListener or UdpSocket, read its port, drop it, reuse the port as an unreachable or free address) remains in src/ or tests/ except tests/support/redis.rs::free_port.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Requester: search the rest of the tests for the same bind-then-drop pattern and fix any found; PR body lists the sites found and `free_port` as left alone",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/mcp/testing.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2523",
+          "kind": "inspection",
+          "locator": "src/mcp/testing.rs:178-190",
+          "summary": "make_unreachable still does std::net::TcpListener::bind(\"127.0.0.1:0\").local_addr().port() on a temporary that is dropped at end of statement, then repoints a store at that port and expects connects to be refused: the exact bind-then-drop pattern. Used by src/mcp/unavailable_tests.rs:37 and :238. Not changed by the PR and not named in the PR body or changelog.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/testing.rs",
+              "lines": {
+                "start": 178,
+                "end": 190
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:53.805477393Z",
+          "seal": {
+            "by": "server",
+            "mac": "224ee1f2b18775e5fa828ab359b674527cfe4d64b2e58db8d14b5d5ca15e67e1"
+          }
+        },
+        {
+          "id": "EVD-2524",
+          "kind": "analysis",
+          "locator": "git grep -nE 'TcpListener::bind|UdpSocket::bind' -- src tests (reviewed each of ~60 hits)",
+          "summary": "Other hits keep the listener/socket alive (servers, proxies, held silent UDP sockets in ntp.rs/clock_check.rs, stalled store in mcp/testing.rs:209) or are the redis free_port the PR names; only mcp/testing.rs:180 drops the port. tests/ui_e2e/smoke.rs squatter is held. Not exhaustive for non-bind forms but no other drop pattern found by grep for free_port/drop(listener|socket).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T10:36:53.932609480Z",
+          "seal": {
+            "by": "server",
+            "mac": "863a787b58d16fccc89cf9abaf0f63839bbbe9e73d2bcf931e691a2e8a4ac595"
+          }
+        },
+        {
+          "id": "EVD-2533",
+          "kind": "inspection",
+          "locator": "src/mcp/testing.rs:31-36,178-192 at b51a4a6",
+          "summary": "make_unreachable now creates a Refused, reads its port, and pushes it into TestApp.refusing so it lives as long as the app; all four TestApp struct literals (testing.rs:456, 590, 668, 704) initialise the field. No other TestApp literal exists (grep).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/testing.rs",
+              "lines": {
+                "start": 178,
+                "end": 192
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.005795981Z",
+          "seal": {
+            "by": "server",
+            "mac": "28d4b41b1c57853399b00f166cf15190628f7a2b00354075ca4c9cd6a2d136bc"
+          }
+        },
+        {
+          "id": "EVD-2534",
+          "kind": "analysis",
+          "locator": "grep -rnE 'TcpListener::bind|UdpSocket::bind|free_port|drop\\((listener|socket|reservation|silent)\\)' src tests, reviewed at b51a4a6",
+          "summary": "Re-grep: every remaining bind keeps its listener/socket alive (servers, proxies, held silent UDP sockets, stalled store, ui_e2e squatter; cimd_no_proxy drops accepted connections, not the port). Only tests/support/redis.rs::free_port still reserves-and-drops, named in the PR body and retried by start_pinned. No unmentioned site left.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:39:24.113874302Z",
+          "seal": {
+            "by": "server",
+            "mac": "d107cee88d93381db0ae6524da9610d14338f47e1b2e27b13966d640e60ef86f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "src/mcp/testing.rs:180 (make_unreachable, used by src/mcp/unavailable_tests.rs) drops the port it read and then expects connects to be refused, the same race, and the PR neither fixes nor mentions it. Fix: change TestApp::make_unreachable in src/mcp/testing.rs to hold a crate::test_net::Refused for the test's lifetime (return it or store it on TestApp so it lives as long as the app), update the two callers in src/mcp/unavailable_tests.rs, and add the site to the PR body and changelog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2523"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.483180169Z",
+          "seal": {
+            "by": "server",
+            "mac": "423a83c88fd3134d2d0e286fc37acb1380c9d4e032d01879beb5573fd24b6e5c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: make_unreachable holds its port and a fresh grep finds no unmentioned bind-then-drop site.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2533",
+            "EVD-2534"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.529187409Z",
+          "seal": {
+            "by": "server",
+            "mac": "65cf3d91211414e72ca5a9b9b81a8af5aada632eb8193b6041d22d55b0d8b935"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:39:36.529187409Z",
+      "seal": {
+        "by": "server",
+        "mac": "1d1988230a10e944b63bbc0127ff5a66e82ab467fcc8afed2fb1f683d66a03db"
+      }
+    },
+    {
+      "id": "CLM-1720",
+      "statement": "tests/support/redis.rs::free_port reserves a host port for a container and the caller already retries a failed start with a new port (PORT_ATTEMPTS), so leaving it alone is consistent with the PR body.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Left alone: `tests/support/redis.rs::free_port` reserves a host port for a container and already retries a failed start with a new port.\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "tests/support/redis.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2525",
+          "kind": "inspection",
+          "locator": "tests/support/redis.rs:60-80",
+          "summary": "free_port binds 0.0.0.0:0 and drops the listener for a container's host port; the comment says start_pinned retries with a fresh port, PORT_ATTEMPTS = 5.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/redis.rs",
+              "lines": {
+                "start": 60,
+                "end": 80
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:54.130267746Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4d06840366e24c443d5ada32b47b800d4f51015ff46e19c091db7a01b09b2c4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "free_port's doc and start_pinned retry confirm the PR body's statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2525"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.623716732Z",
+          "seal": {
+            "by": "server",
+            "mac": "86052f034e761e66fda4ce1923fa24562d7aa11ce7beecfc3b86fb63eb117f0d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:19.623716732Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a0ec343ef84f48bb6f432e34f5b8d851a8c403d39eda2f773e711716a52f0bf"
+      }
+    },
+    {
+      "id": "CLM-1721",
+      "statement": "Each connecting call in the touched tests is bounded.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"each connecting call is bounded\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "src/investigator/client_tests.rs",
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2526",
+          "kind": "inspection",
+          "locator": "src/investigator/client_tests.rs:625-638",
+          "summary": "In the HTTPS test, after the bounded port read, http_client().get(&endpoint).send().await and McpClient::open(...).await are awaited with no timeout; both connect to the live s_server. The other touched tests wrap their connecting call in bounded (or registry's own 60 s timeout).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/client_tests.rs",
+              "lines": {
+                "start": 625,
+                "end": 638
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:54.253426510Z",
+          "seal": {
+            "by": "server",
+            "mac": "3914190dd9f4264da5bb468de5eec41fece6c67f471ccaa385fffcd906c73902"
+          }
+        },
+        {
+          "id": "EVD-2527",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1237-1243",
+          "summary": "The registry test is bounded by its own pre-existing tokio::time::timeout(60 s) around stores.get, so it counts as bounded.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1237,
+                "end": 1243
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:54.405562902Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e924c4863102b590675b0775ba242b8e6491e979cc91931e8e133400646b5e0"
+          }
+        },
+        {
+          "id": "EVD-2535",
+          "kind": "inspection",
+          "locator": "src/investigator/client_tests.rs:586-645 at b51a4a6",
+          "summary": "The port read, the GET send and McpClient::open in the HTTPS test are each wrapped in crate::test_net::bounded; the is_connect, UnknownIssuer and is_err assertions are kept. Other touched sites were already bounded (registry has its own 60 s timeout).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/client_tests.rs",
+              "lines": {
+                "start": 586,
+                "end": 645
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:24.211635670Z",
+          "seal": {
+            "by": "server",
+            "mac": "a052e4a5be7c25c4d5f22da5b86b21b7859facb6e5a0a9196b53df11fdf68aa2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "In the HTTPS test the http_client().get().send() and McpClient::open calls to the s_server have no timeout, so a hang there blocks the suite; the PR body says each connecting call is bounded. Fix: wrap the send and the McpClient::open call in investigator_client_https_verifies_certificate_without_provider_panic with crate::test_net::bounded, or reword the PR body to say the unreachable-address and port-announcement steps are bounded.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2526"
+          ],
+          "recorded_at": "2026-11-26T10:37:19.755231624Z",
+          "seal": {
+            "by": "server",
+            "mac": "c53dd0899fc9ec0cbee5042ec86ae5515834fd3520d95b6b65634005626c8afb"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: the TLS GET and open are now bounded.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2535"
+          ],
+          "recorded_at": "2026-11-26T10:39:36.619860908Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3824d4e542472e059d222a145f3d7136d0a1f393c94e3491363fc18c529075c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:39:36.619860908Z",
+      "seal": {
+        "by": "server",
+        "mac": "97eb2d30d48b0aae14fd66fd242a0a0c9ffe0e4b4c88b323f1a7fad8c2604fae"
+      }
+    },
+    {
+      "id": "CLM-1722",
+      "statement": "The narrow run of the touched tests, three repeats, passed 17 tests each time.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Narrow run of the touched tests, three repeats: 17 passed each time.\"",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2528",
+          "kind": "other",
+          "locator": "PR body Validation section",
+          "summary": "Not rerun: the auditor was told not to run cargo tests while a gate is running. The count 17 cannot be reproduced or contradicted by reading code.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T10:36:54.502179877Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfc33bc6e75c1c6e0d13aba418f3a7e51d6881d422d6e7fee30299320619f12b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Auditor was told not to run cargo while a gate runs. Fix: run cargo test on the touched tests (investigator client_tests, mail::postmark, mail::ses, test_net, store::stores, cli::stores, http::api::stores, stores::registry, oauth::clients) three times and record the printed counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T10:37:19.909399453Z",
+          "seal": {
+            "by": "server",
+            "mac": "a164f1a43e0359aeda1680e5294f87e0138655797f5c95b050024b4cfc900eb6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:37:19.909399453Z",
+      "seal": {
+        "by": "server",
+        "mac": "fca783afca57a079d1190ac2ef721562c53de467c77926864b538ca41ea5d674"
+      }
+    },
+    {
+      "id": "CLM-1723",
+      "statement": "A changelog file changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md exists and describes the helper, the replaced sites and the left-alone redis free_port.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: changelog bullet",
+      "derived_from": [
+        "CLM-1710"
+      ],
+      "artifacts": [
+        "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md"
+      ],
+      "tags": [
+        "from-issue:769"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2529",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md:1-17",
+          "summary": "File exists in the commit; describes test_net helper, the replaced sites (investigator, Postmark, SES, three store tests, registry, oauth clients), the s_server change and the left-alone redis free_port.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md",
+              "lines": {
+                "start": 1,
+                "end": 17
+              },
+              "commit": "1eb2744236e6936241b8e43ed28ffbacbe3ff85b"
+            }
+          },
+          "recorded_at": "2026-11-26T10:36:54.598539431Z",
+          "seal": {
+            "by": "server",
+            "mac": "5dc0d97b24e948a0559ff764f392d5098f1308f5c461a8d2f4944bd231c57eca"
+          }
+        },
+        {
+          "id": "EVD-2540",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md at b51a4a6",
+          "summary": "Changelog gained a bullet for TestApp::make_unreachable holding a Refused; earlier content (helper, sites, s_server, redis free_port) unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T10-29-16Z-issue-769-unreachable-port-race.md",
+              "lines": {
+                "start": 1,
+                "end": 19
+              },
+              "commit": "b51a4a667faf3ef6c9af4860210f7a649826a1fd"
+            }
+          },
+          "recorded_at": "2026-11-26T10:39:36.243860078Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bd37d77a8e900bf0de57f396788146bcc20ff14b3fb979ed648dbf3be3ca664"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present with the stated content.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2529"
+          ],
+          "recorded_at": "2026-11-26T10:37:20.036226130Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc0789f8b5f38096e6827488c49348a994fa060b8877c0c176a017520935599f"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b51a4a6: file present with the stated content plus the make_unreachable bullet.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2540"
+          ],
+          "recorded_at": "2026-11-26T10:39:45.683517694Z",
+          "seal": {
+            "by": "server",
+            "mac": "72ce747807e0261b6e49e328747c157a784372715a677a10d25873217192006c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:36:09.925628722Z",
+      "updated_at": "2026-11-26T10:39:45.683517694Z",
+      "seal": {
+        "by": "server",
+        "mac": "8872d48bd43c4c1d8bbec51e33af9b3d2a2c052bc9c668063e8d2b02db30f57e"
       }
     }
   ]

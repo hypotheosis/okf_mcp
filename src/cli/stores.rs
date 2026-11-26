@@ -221,31 +221,30 @@ mod tests {
     async fn adding_a_store_that_cannot_be_reached_is_refused_and_names_no_host() {
         let db = test_db().await;
         let stores = registry(&db.pool);
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .unwrap()
-            .local_addr()
-            .unwrap()
-            .port()
-            .to_string();
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port().to_string();
 
-        let refused = super::stores(
-            &db.pool,
-            &stores,
-            command(&[
-                "add",
-                "shared-1",
-                "--host",
-                "127.0.0.1",
-                "--port",
-                &closed,
-                "--database",
-                "okf",
-                "--credential-kind",
-                "env",
-                "--credential-ref",
-                "NO_SUCH_VARIABLE",
-            ]),
-            Utc::now(),
+        let refused = crate::test_net::bounded(
+            "adding a store at a refusing address",
+            super::stores(
+                &db.pool,
+                &stores,
+                command(&[
+                    "add",
+                    "shared-1",
+                    "--host",
+                    "127.0.0.1",
+                    "--port",
+                    &closed,
+                    "--database",
+                    "okf",
+                    "--credential-kind",
+                    "env",
+                    "--credential-ref",
+                    "NO_SUCH_VARIABLE",
+                ]),
+                Utc::now(),
+            ),
         )
         .await
         .unwrap_err();
@@ -277,11 +276,8 @@ mod tests {
         crate::db::main_in_the_account_database(&db.pool).await;
         // An empty database for a new store, on the same server and login.
         let fresh = crate::db::pg_support::TestDb::start().await;
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .unwrap()
-            .local_addr()
-            .unwrap()
-            .port();
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
         let options = fresh.pool.connect_options();
         // Names in order: `a-down` (unreachable) is migrated first, so the
         // two after it show that the command went on.
@@ -325,9 +321,12 @@ mod tests {
             std::sync::Arc::new(move |name| (name == "STORE_PASSWORD").then(|| password.clone())),
         );
 
-        let failed = super::stores(&db.pool, &stores, command(&["migrate"]), Utc::now())
-            .await
-            .unwrap_err();
+        let failed = crate::test_net::bounded(
+            "migrating a store at a refusing address",
+            super::stores(&db.pool, &stores, command(&["migrate"]), Utc::now()),
+        )
+        .await
+        .unwrap_err();
 
         let report = failed.to_string();
         let applied = crate::db::CATALOG_MIGRATOR.iter().count();

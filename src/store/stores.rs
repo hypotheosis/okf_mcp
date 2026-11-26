@@ -752,18 +752,18 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn adding_an_unreachable_store_is_refused() {
         let db = crate::db::test_db().await;
-        // A port nothing listens on: bind one, then close it.
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .unwrap()
-            .local_addr()
-            .unwrap()
-            .port();
+        // A port held but never listened on: every connect is refused.
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
         let (stores, _) = reachable(&db, "shared-1");
         let row = host_row("shared-1", "127.0.0.1", closed, "okf");
 
-        let refused = add(&db.pool, &stores, row, &AuditActor::cli(), Utc::now())
-            .await
-            .unwrap_err();
+        let refused = crate::test_net::bounded(
+            "adding a store at a refusing address",
+            add(&db.pool, &stores, row, &AuditActor::cli(), Utc::now()),
+        )
+        .await
+        .unwrap_err();
 
         assert!(matches!(refused, OkfError::Refused { .. }), "{refused:?}");
         // The reply names no host, port or credential.

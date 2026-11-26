@@ -1222,12 +1222,9 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn an_unreachable_store_is_store_unavailable_within_the_timeout() {
         let db = crate::db::test_db().await;
-        // A port nothing listens on: bind one, then close it.
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .unwrap()
-            .local_addr()
-            .unwrap()
-            .port();
+        // A port held but never listened on: every connect is refused.
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
         add_host_store(&db.pool, "shared-1", "127.0.0.1", closed, "okf").await;
         let password = password_of(&db.url);
         let stores = Stores::with_environment(

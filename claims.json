@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1695,
+  "next_claim_seq": 1710,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6da6f9114f9e0f5aecb1968297b3e414098c64ab829f23004ee4c3530e22c007"
+    "mac": "15e0e24d5601e31ebf3f39341152f4a7d3c1d68c95199f246fe27ac8dc7eb229"
   },
-  "next_evidence_seq": 2495,
+  "next_evidence_seq": 2512,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ce66ed8550880218e344a80660c116a856152b42ab10895c35180d659e6f6aa0"
+    "mac": "9edafd31dcb4b733b67440f260653c4825a3e41715a0619c945f1dc3b4751d2e"
   },
   "claims": [
     {
@@ -136438,6 +136438,1038 @@
       "seal": {
         "by": "server",
         "mac": "5df8d3908cf836e42e64a32f7c4ca500581e44913d91096dd8ee9d77d79b7889"
+      }
+    },
+    {
+      "id": "CLM-1695",
+      "statement": "Issue #766 is resolved: internal tool errors point agents at send_feedback with a trace id.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/766",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2511",
+          "kind": "analysis",
+          "locator": "children of CLM-1695",
+          "summary": "Every child is supported: trace_id, the gated report hint, placement in tool_error, non-internal exclusion, no leak, transient handling, trace-id test, docs, HTTP unchanged, and the PR's test claims. Together they cover each requirement of the issue.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T10:09:57.567645507Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e527e88d47d6029706eaba7cd6d845a43628e029f87887a7f3307d8a3bcf524"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All 14 children supported; roll-up evidence cites that.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2511"
+          ],
+          "recorded_at": "2026-11-26T10:10:22.693999534Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d90c073aef1a5174ecb94d56550a5c7845be5f6f1ac2aa33b9681130f556e57"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:10:22.693999534Z",
+      "seal": {
+        "by": "server",
+        "mac": "c1fd6900f273be07779cd5f0931133e21668f8a8538e97d3c3d1d017232872e4"
+      }
+    },
+    {
+      "id": "CLM-1696",
+      "statement": "An internal tool error (Database, Migrate, Io, Config) body carries trace_id equal to the tool span's OpenTelemetry trace id.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #766 Proposal: trace_id is the tool span's OpenTelemetry trace id",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2495",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- internal_error (7 passed); src/mcp/telemetry_tests.rs an_internal_error_carries_the_tool_spans_trace_id",
+          "summary": "tool_error sets body[\"trace_id\"] from current_trace_id() (TOOL_SPAN span context, valid only) for is_internal() errors (Database/Migrate/Io/Config). Test asserts body trace_id == exported span's trace id, 32 chars, not zeros, under each trace filter; the end-to-end test asserts the same via a served list_changesets call. Both passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 254,
+                "end": 278
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:27.558165223Z",
+          "seal": {
+            "by": "server",
+            "mac": "33827eab92b2c91ec4828e711285311f8fc0e3044c101c0aa4c1bf8253b5c5ba"
+          }
+        },
+        {
+          "id": "EVD-2496",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs tool_error / current_trace_id; src/error.rs is_internal",
+          "summary": "is_internal covers exactly Database, Migrate, Io, Config; the branch in tool_error calls current_trace_id which reads TOOL_SPAN, the span the call wrapper creates. Only Database is exercised in tests; Migrate/Io/Config share the same is_internal branch.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 404,
+                "end": 454
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:27.676185759Z",
+          "seal": {
+            "by": "server",
+            "mac": "76caf7691276f0c380399e6be437f1676784f54b2d9648d672a5e4a94c5ae108"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test compares body trace_id to the exported span trace id and passes; code gates on is_internal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2495"
+          ],
+          "recorded_at": "2026-11-26T10:09:51.301599932Z",
+          "seal": {
+            "by": "server",
+            "mac": "67116c7b66a8ba5fa9349e08d884c06c0f9b31c9b1d8fb687a21ad84a92ee470"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:51.301599932Z",
+      "seal": {
+        "by": "server",
+        "mac": "2e27a472cb0dc69f17e8b0677dcb4dc976d4c269e014e3f65d508dfc8bfec950"
+      }
+    },
+    {
+      "id": "CLM-1697",
+      "statement": "When [feedback] is configured, an internal error body also carries a report hint that names send_feedback and the failing tool, worded as optional.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #766 Proposal: report names the tool that failed and is worded as optional",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2497",
+          "kind": "test",
+          "locator": "cargo test mcp::tests::an_internal_error_points_at_send_feedback_when_it_is_offered (passed); telemetry_tests::a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback (passed)",
+          "summary": "report_hint formats \"If this keeps happening, you can report it with send_feedback (kind: bug, tool: <tool>), quoting trace_id.\" Unit test asserts the prefix and \"send_feedback (kind: bug, tool: publish)\"; e2e test asserts tool: list_changesets and \"quoting trace_id\" when [feedback] is set.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 458,
+                "end": 485
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:27.894148291Z",
+          "seal": {
+            "by": "server",
+            "mac": "d22425e1a2268737b8217546f0a3503725a654112c2a62253e95a6c49d100832"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Unit and served tests assert the optional wording, send_feedback and the tool name.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2497"
+          ],
+          "recorded_at": "2026-11-26T10:09:51.469508445Z",
+          "seal": {
+            "by": "server",
+            "mac": "adeea62cf41dd39a263ba5f180ed26341dab37c84e3559542f6e76f9b891a972"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:51.469508445Z",
+      "seal": {
+        "by": "server",
+        "mac": "2b3a556c5fa4f2486dc1787c93c7120afda7c6f39012078fedf0e011cf2626b6"
+      }
+    },
+    {
+      "id": "CLM-1698",
+      "statement": "The two fields are added in tool_error or the call wrapper in src/mcp/mod.rs, and OkfError::to_json is unchanged (still two keys for an internal error).",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "issue #766 Where: not in OkfError::to_json()",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2498",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/error.rs src/mcp/mod.rs",
+          "summary": "The fields are inserted in tool_error (let mut body = error.to_json(); body[\"trace_id\"], body[\"report\"]). The src/error.rs diff adds only is_transient and a test; to_json is untouched, and internal_errors_hide_their_details (two keys) still passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 419,
+                "end": 431
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.051015998Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e8a3a25099d103198726b9caf116aa0624bb3ba3e89e8d5ccbbacbe83c0dfbe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff adds fields only in tool_error; to_json untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2498"
+          ],
+          "recorded_at": "2026-11-26T10:09:51.705814296Z",
+          "seal": {
+            "by": "server",
+            "mac": "18fc5baf4b84b959c22bd7ead59202e7836128c39ee7346d411d70864fe53754"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:51.705814296Z",
+      "seal": {
+        "by": "server",
+        "mac": "b4f2f2de56b99084b262c200b88ec181dc58b7be985fca82d01fd8f516a623bb"
+      }
+    },
+    {
+      "id": "CLM-1699",
+      "statement": "The report hint is gated on the same config check that registers send_feedback (app.config().feedback.is_some()), so it is absent without [feedback].",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #766 Where: the hint must never name a tool the client doesn't have",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2499",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:340-345 vs src/mcp/mod.rs:177-185",
+          "summary": "call_tool scopes REPORT_TOOL only when self.app.config().feedback.is_some(), the same condition OkfServer::new uses to keep or remove the send_feedback route; report_hint returns None when the task-local is unset.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 336,
+                "end": 346
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.232715718Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2f3340c63d9898e196a4295140b90c54bccd7f082799c8e7637cfae43c294d4"
+          }
+        },
+        {
+          "id": "EVD-2500",
+          "kind": "test",
+          "locator": "telemetry_tests::a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback (passed); mcp::tests::an_internal_error_has_no_report_without_feedback (passed)",
+          "summary": "The served test runs the real call_tool path with feedback = Some and None: report present only with [feedback], absent without. The unit test shows no report and two keys without REPORT_TOOL.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 294,
+                "end": 339
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.410359636Z",
+          "seal": {
+            "by": "server",
+            "mac": "10204d244983aab072ae499b5f3dde27355d77db7cf149d004401310fff05fbe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Same condition as registration, shown in code and by the served test with and without feedback.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2499",
+            "EVD-2500"
+          ],
+          "recorded_at": "2026-11-26T10:09:51.928517359Z",
+          "seal": {
+            "by": "server",
+            "mac": "faa8d7296958805fa679e70c15920c291b5417783583688ceffbad6efc2a7b4c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:51.928517359Z",
+      "seal": {
+        "by": "server",
+        "mac": "25f78fbdd106f3fea03a6f5914fd670fde316c901e986969c7a5ad1cb65b3dce"
+      }
+    },
+    {
+      "id": "CLM-1700",
+      "statement": "Non-internal errors (for example Conflict, Busy, Forbidden) get neither trace_id nor report.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #766 Scope: only internal errors",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2501",
+          "kind": "test",
+          "locator": "cargo test mcp::tests::a_non_internal_error_gets_neither_field (passed)",
+          "summary": "With REPORT_TOOL set, Conflict, Busy and Forbidden bodies have neither report nor trace_id. Code: both fields sit inside an if error.is_internal() block, so every non-internal variant is excluded. Neither field is tested with a valid span context for non-internal errors.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 662,
+                "end": 681
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.573329743Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b74f031c430990f6fcaac528a2b4ec036432a91996ad9ee4c469c233499c853"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test and the is_internal gate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2501"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.165224172Z",
+          "seal": {
+            "by": "server",
+            "mac": "f81c3319d0874d8202e030c0f2a35d7757eb9ae67e6b66a592fe8462477b4483"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.165224172Z",
+      "seal": {
+        "by": "server",
+        "mac": "bdc912339e6aee0e21cdaceb98ecbef1ad5af0be663a305c71bfa9bafb3531a6"
+      }
+    },
+    {
+      "id": "CLM-1701",
+      "statement": "The internal error's detail never reaches the client: the message stays generic and the new fields do not contain the source error text.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "issue #766 Tests: message is still the generic one, and no detail leaks",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2502",
+          "kind": "test",
+          "locator": "mcp::tests::an_internal_error_points_at_send_feedback_when_it_is_offered; telemetry_tests::an_internal_error_carries_the_tool_spans_trace_id (both passed)",
+          "summary": "A Database error with a sentinel in its sqlx source: body message equals the generic text and body.to_string() does not contain the sentinel, with the hint and trace_id present. The hint is built from the tool name, feedback::TOOL and a constant only, never from the error.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 624,
+                "end": 645
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.749461525Z",
+          "seal": {
+            "by": "server",
+            "mac": "d30a8c673af4af42654f71feb30e2691376871f761a878981d028026496b2c80"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Sentinel absent from the whole body in two tests; hint text built from non-error data.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2502"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.277776092Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff35d9d162809aaf0dac2600f6174bd76416b4b1f133319be88d7287755950b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.277776092Z",
+      "seal": {
+        "by": "server",
+        "mac": "6553d5a9860b67117361c2961088fb5c161fb077de8eaa53056bf6ffad989cca"
+      }
+    },
+    {
+      "id": "CLM-1702",
+      "statement": "Transient database failures are handled: the report hint is left off while trace_id is still sent, and the PR states the choice.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #766 Scope: transient database failures; 'Say which in the PR'; PR: 'Transient database failures: report left off, trace_id kept.'",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2503",
+          "kind": "test",
+          "locator": "cargo test mcp::tests::a_transient_database_failure_has_no_report (passed); src/mcp/mod.rs report_hint",
+          "summary": "report_hint returns None first if error.is_transient(); the test asserts no report for PoolTimedOut, PoolClosed and Io. trace_id is computed before and independently of report_hint, so it is kept, but the transient test has no span and does not assert trace_id presence for a transient error. The PR body states the choice under Decisions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 470,
+                "end": 475
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:28.934133945Z",
+          "seal": {
+            "by": "server",
+            "mac": "667aedd4ccd8a783d30c5c20223a3515fb507af5b731480cc4aa198825019252"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test leave report off for transient errors, trace_id is computed independently, and the PR states the choice. Gap: no test asserts trace_id is present for a transient error.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2503"
+          ],
+          "recorded_at": "2026-11-26T10:09:53.384463757Z",
+          "seal": {
+            "by": "server",
+            "mac": "23082607f767073ca6142d58546284b9e3e3f9411b77b8a377ee30f5d8e68ca7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:53.384463757Z",
+      "seal": {
+        "by": "server",
+        "mac": "206a0b8c5d8dbaee1f3eb0cc2ddec3e3d957dbb81a9840a6ca1849b6b0ad6ccc"
+      }
+    },
+    {
+      "id": "CLM-1703",
+      "statement": "A test checks that the trace_id in the error body matches the tool span's exported trace id, in src/mcp/telemetry_tests.rs.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #766 Tests: trace_id matches the tool span's trace id",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2504",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs: an_internal_error_carries_the_tool_spans_trace_id and a_served_internal_error_quotes_... (passed)",
+          "summary": "Both assert body[\"trace_id\"] == the exported span's span_context.trace_id().to_string(), the first for every FILTERS value and the second through a served endpoint.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 254,
+                "end": 278
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.083775377Z",
+          "seal": {
+            "by": "server",
+            "mac": "16a606aed108d0b78f3c841411c74760f7172602b9677d64accae038a95b3e8a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Two tests in telemetry_tests.rs compare against the exported span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2504"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.584545998Z",
+          "seal": {
+            "by": "server",
+            "mac": "de6a2b2e98f416b06757b07fa00a5b67f079f14902d244fc10aab146cf5f7375"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.584545998Z",
+      "seal": {
+        "by": "server",
+        "mac": "58d1da25a1e7f829f211d8b3313806edb6e532b00ea28203ac8a99ab51c90f72"
+      }
+    },
+    {
+      "id": "CLM-1704",
+      "statement": "docs/reference/tools.md and docs/operations.md document the trace_id and report fields (and the generated reference in src/mcp/reference.rs matches tools.md).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "issue #766 Tests: Update docs/reference/tools.md and the error-shape docs",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "docs/operations.md",
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2505",
+          "kind": "inspection",
+          "locator": "docs/reference/tools.md:41-48, src/mcp/reference.rs:60-67, docs/operations.md:3132-3149",
+          "summary": "tools.md and reference.rs hold identical new text (diff of the two ranges is empty) naming trace_id, report, the transient exception and that no other error carries them. operations.md Feedback section documents both fields, the gating and the outage exception.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3132,
+                "end": 3149
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.226924078Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f842db3a14365803692945daa0862b5c3182f6c956464c553f6b5de82ba5f84"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three docs updated; tools.md and reference.rs identical.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2505"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.719117575Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4d1dda895894cf44afd5ae90cef9a43f3765ac130fc6932004f47f077e83f05"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.719117575Z",
+      "seal": {
+        "by": "server",
+        "mac": "e8c728a9c165867d43a0989c47f2ff60a248cf4a99407b51a4da5fb48f53db7d"
+      }
+    },
+    {
+      "id": "CLM-1705",
+      "statement": "The HTTP API's error responses are unchanged: src/http/mod.rs builds its body from to_json() on its own path and this change does not touch it.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'HTTP API unchanged. src/http/mod.rs turns OkfError into a response with to_json() on its own path (500 for internal errors).'",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2506",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD -- src/http (empty); src/http/mod.rs:170-191",
+          "summary": "The diff touches nothing under src/http. The HTTP error path maps internal errors to 500 and responds with Json(self.0.to_json()); to_json is unchanged, so HTTP bodies are unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 165,
+                "end": 192
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.401187104Z",
+          "seal": {
+            "by": "server",
+            "mac": "9ea23c4cc0c660c3815735516070fb24393ca4dd17420205c43a072bcbc746ad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No src/http changes; HTTP path uses unchanged to_json.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2506"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.858105268Z",
+          "seal": {
+            "by": "server",
+            "mac": "0382aa85c3f5f1da697f20eb5be8535a4577d52677130ff58aec48e5297e037c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.858105268Z",
+      "seal": {
+        "by": "server",
+        "mac": "39887f9e92e04b8132ebc4c19739996dad168af22f0c998321c50e338676f0a9"
+      }
+    },
+    {
+      "id": "CLM-1706",
+      "statement": "OkfError::is_transient is true for a Database error that is a pool timeout, closed pool, transport/TLS failure, crashed pool worker, or SQLSTATE class 08 or 57P01 to 57P03, and false otherwise.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'OkfError::is_transient is true for a Database error that is a pool timeout, closed pool, transport or TLS failure (reset connection), crashed pool worker, SQLSTATE class 08 or 57P01 to 57P03.'",
+      "derived_from": [
+        "CLM-1702"
+      ],
+      "artifacts": [
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2507",
+          "kind": "test",
+          "locator": "cargo test error::tests::only_outage_shaped_database_errors_are_transient (passed); src/error.rs is_transient",
+          "summary": "The code matches the claim's list. The test covers PoolTimedOut, PoolClosed, WorkerCrashed, Io as true and RowNotFound, Protocol and a non-Database Io as false. Tls and SQLSTATE class 08/57P0x branches are not exercised by any test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 422,
+                "end": 456
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.593729091Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac62b928d7cffb09d2a4cc6db7c7d671fef8318cb59d76c9f2bf34ccf53e2fda"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code matches the list and the test covers the main true and false cases; Tls and SQLSTATE branches untested (noted).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2507"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.425462675Z",
+          "seal": {
+            "by": "server",
+            "mac": "aabc12f1819053b17f88a129bf48bca851e33e0dfd84fc8c2c52f9d4b408de51"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.425462675Z",
+      "seal": {
+        "by": "server",
+        "mac": "8c7cd28726a8b38ab19a6299ec2223bf60df2e0729462f5c8015cc989fdc94c0"
+      }
+    },
+    {
+      "id": "CLM-1707",
+      "statement": "trace_id is sent without [feedback], and omitted (not sent as zeros) when the span has no valid trace context.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'trace_id without [feedback]: sent ... sent only when the span has a valid trace context; with telemetry off it is omitted rather than sent as zeros.'",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2508",
+          "kind": "test",
+          "locator": "telemetry_tests::an_internal_error_omits_trace_id_without_a_trace; mcp::tests::an_internal_error_has_no_report_without_feedback (passed)",
+          "summary": "The trace_id is inside the is_internal branch, independent of REPORT_TOOL; the served test with feedback false still asserts trace_id equals the span trace id. With Span::none() trace_id is absent (is_valid() gate), not zeros.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 280,
+                "end": 295
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.770402994Z",
+          "seal": {
+            "by": "server",
+            "mac": "74fd2428c01ca619bd560587f639266698fc1f5b595e0933b8edb7fe2f3fcbd0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and tests show trace_id independent of feedback and omitted with no valid trace.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2508"
+          ],
+          "recorded_at": "2026-11-26T10:09:52.987092966Z",
+          "seal": {
+            "by": "server",
+            "mac": "891752ae238c3f82eae0ecd056673949c31d3df1f92f88fb8585555dbd1cb847"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:52.987092966Z",
+      "seal": {
+        "by": "server",
+        "mac": "48039abc149a18d7d77d883f75936b028fdd97892b1a264699d8cce7b9a4086b"
+      }
+    },
+    {
+      "id": "CLM-1708",
+      "statement": "The PR's listed new tests exist and pass: the four mcp::tests, error::tests::only_outage_shaped_database_errors_are_transient and three mcp::telemetry_tests, including the end-to-end test with and without [feedback].",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation: 'New tests: mcp::tests::an_internal_error_points_at_send_feedback_when_it_is_offered, ... a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback'",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/error.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2509",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- internal_error (7 passed) and -- transient (3 passed, 2 of them this PR's)",
+          "summary": "All 8 listed tests exist and passed: the four mcp::tests, the error test and the three telemetry tests. This audit did not run the full suite.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 617,
+                "end": 700
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:29.915886613Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a5601838ae5a80331fe813acc287a198ba19de2d4f3ebd09e8d5cc7f41da0c7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I reran them narrowly; all passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2509"
+          ],
+          "recorded_at": "2026-11-26T10:09:53.121739504Z",
+          "seal": {
+            "by": "server",
+            "mac": "9785f3694e63cd6edf4ad131bda8261f5200a696de26b3875bcf0d3477bea111"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:53.121739504Z",
+      "seal": {
+        "by": "server",
+        "mac": "4da040a5c0003c577506830c89bacd40fd07644e4d00e5077d9741d4ab3685c5"
+      }
+    },
+    {
+      "id": "CLM-1709",
+      "statement": "internal_errors_hide_their_details in src/error.rs is unchanged and still passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: 'internal_errors_hide_their_details in src/error.rs still passes as it was'",
+      "derived_from": [
+        "CLM-1695"
+      ],
+      "artifacts": [
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:766"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2510",
+          "kind": "test",
+          "locator": "cargo test error::tests::internal_errors_hide_their_details (passed); git diff",
+          "summary": "The test body is unchanged in the diff (lines 913-925 are context) and passes, asserting two keys from to_json.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 913,
+                "end": 925
+              },
+              "commit": "4a21833433a7c7b727b280756a71d8f4110aa7c1"
+            }
+          },
+          "recorded_at": "2026-11-26T10:09:30.073668493Z",
+          "seal": {
+            "by": "server",
+            "mac": "ccdfed27a680fb0d047a77cda4c9de7c9562d92953ff4c663c617828fe54dc72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Unchanged and passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2510"
+          ],
+          "recorded_at": "2026-11-26T10:09:53.256802993Z",
+          "seal": {
+            "by": "server",
+            "mac": "535120bdf9073cd397fdfe8762a0a3a6f9d4960ab9ad2ce4194670fa948ffc95"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T10:08:51.034720158Z",
+      "updated_at": "2026-11-26T10:09:53.256802993Z",
+      "seal": {
+        "by": "server",
+        "mac": "2d02329b9bace7ae0484ecc6c6e9a6ba7df5d05000767d2cbba64339fa7b55b6"
       }
     }
   ]

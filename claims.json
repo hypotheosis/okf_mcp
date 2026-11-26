@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1885,
+  "next_claim_seq": 1906,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "b924bde686e102ab29d63f7defd14ac074fdf3cd5c0665d1af7d45f1979f3963"
+    "mac": "64c77a182529cb4c7f70c003c9a1b9845f63800168bf14b83d796b0ded94f7b6"
   },
-  "next_evidence_seq": 3431,
+  "next_evidence_seq": 3460,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "65b5fec8cdda0b8d2bef20bfedeed04f54b6b0f047fc41c7b698689ae6437931"
+    "mac": "3cfdfcdd0ec47f64b8df5da2f4d73895cb973d477e2a7d294025ddaef15348cd"
   },
   "claims": [
     {
@@ -283,6 +283,28 @@
             "by": "server",
             "mac": "1ef7ad94f0a295b4d8cc616b2b35ee4a0cf7a1bbb7aae30d8a0e8e2a61153807"
           }
+        },
+        {
+          "id": "EVD-3451",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::reference investigator (130 passed) on head f3ef73b1",
+          "summary": "The reference pin test passes with the read_document paragraph changed; the diff to tools.md is one sentence at line 518.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 518,
+                "end": 518
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:25:20.337836212Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9dc50b6e734533f3ad25fd7b800f91e567126c9d02b25c91d0e93fffd938d54"
+          }
         }
       ],
       "verdicts": [
@@ -337,13 +359,26 @@
             "by": "server",
             "mac": "1f946812087f9ed0fee3797fc5ccbc14369e247075287345871a89c569dbea76"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on f3ef73b1: the reference pin test passes; the only tools.md change is the read_document sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3451"
+          ],
+          "recorded_at": "2026-11-26T21:25:24.778947747Z",
+          "seal": {
+            "by": "server",
+            "mac": "d98eb7f2db7cbe0ba01c1efeee87d742e86e73bd17d8655e2a0c88e5bf26b6a4"
+          }
         }
       ],
       "created_at": "2026-11-21T19:04:12.375208519Z",
-      "updated_at": "2026-11-26T13:14:14.772397868Z",
+      "updated_at": "2026-11-26T21:25:24.778947747Z",
       "seal": {
         "by": "server",
-        "mac": "0f3f78c536ee1544b6ad57d02613a57483bda63d0302626b6c913875c1b4dfca"
+        "mac": "079990901ab7594ab3adc414956b747931a5f2892170f4ca5a4ae081323173b6"
       }
     },
     {
@@ -170904,6 +170939,1537 @@
       "seal": {
         "by": "server",
         "mac": "b3a4943ce32cb44f705dca85d83820b566477fbdbde0941c0638509a6775cedb"
+      }
+    },
+    {
+      "id": "CLM-1885",
+      "statement": "Issue #792 is delivered: reads through a changeset show a stale, replayable entry as publish would write it, while writes and publish's lint keep the stored entries.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/792",
+      "derived_from": [],
+      "artifacts": [
+        "src/overlay.rs",
+        "src/mcp/documents.rs",
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3452",
+          "kind": "analysis",
+          "locator": "children of CLM-1885",
+          "summary": "All issue requirements (replayed reads, fallback, vocabulary, writes unchanged, once per build, cache, test, docs) are supported by their children. One PR-description claim is refuted (CLM-1894: replay ops also target concept frontmatter), and the dylint/mcpjam and full-test statements are not decided (CLM-1899, CLM-1900).",
+          "stance": "refutes",
+          "recorded_at": "2026-11-26T21:25:24.882993185Z",
+          "seal": {
+            "by": "server",
+            "mac": "b001a583afa807a5cd6b30d6b3a51056276dc91bd2f7eaf660259091cfaccbee"
+          }
+        },
+        {
+          "id": "EVD-3458",
+          "kind": "analysis",
+          "locator": "children of CLM-1885",
+          "summary": "Re-audit on 253c8dc1: every requirement child (replayed reads, fallback, vocabulary, writes unchanged, once per build, cache, test, docs) is supported, the refuted description claim is retired and replaced by supported claims, and the gates are green except an undecided validation clause in one PR sentence (not an issue requirement).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T21:53:11.892589683Z",
+          "seal": {
+            "by": "server",
+            "mac": "24647a1a57827cb98b7a1267ad71a24e759ef32d7f7aca94ac5b3dc365d8e9fe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The issue's requirements are all met, but child CLM-1894 (a PR-description statement) is refuted, so the parent is marked refuted until the description is corrected. Fix: correct the PR body's replay-op sentence (and the changelog line) to include concept frontmatter replays, then re-audit CLM-1894.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3452"
+          ],
+          "recorded_at": "2026-11-26T21:25:28.509657200Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1f78c282cc8b80642170cfa6d8e3fafced935d23db5d165be57f8507d7ae9b2"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The issue's requirements are met (all component children supported) and the previously refuted description statement was corrected and re-audited (CLM-1902, CLM-1903), the old one retired. Only a PR validation clause (CLM-1900) remains undecided.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3458"
+          ],
+          "recorded_at": "2026-11-26T21:53:15.390966320Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2ec995a700ada3251288b21fc223e1fdb3fa1c005870d8103dfed20cdd9db57"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:53:15.390966320Z",
+      "seal": {
+        "by": "server",
+        "mac": "56b90d14f12c56034ce7224f035276c3c31822bb0708faf25838daf9000ed460"
+      }
+    },
+    {
+      "id": "CLM-1886",
+      "statement": "A read tool that takes a changeset (read_document, get_concept, search and the reports) shows a stale, replayable entry as publish would write it: the entry's operations replayed (publish's replayed_text) on the current published bytes.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #792 requirements: read tools that take a changeset must show a stale, replayable entry as publish would write it (replayed_text on the current published bytes)",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs",
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3431",
+          "kind": "test",
+          "locator": "cargo test --lib a_read_through (src/mcp/changesets.rs:2829)",
+          "summary": "Ran on head f3ef73b1: 4 passed, including a_read_through_a_stale_log_entry_shows_what_publish_would_write, which warms the cache, publishes B, then reads /log.md through A and sees replayed=true with both entries, and the text equals what publish later wrote.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2829,
+                "end": 2858
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.316544541Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbcf249740b1e3135027fd661f8f185ea1219122becbe085991485fe77c2e767"
+          }
+        },
+        {
+          "id": "EVD-3432",
+          "kind": "inspection",
+          "locator": "src/overlay.rs:330 replay_stale, src/overlay.rs:674 View::snapshot; src/mcp/context.rs:1014 ctx.view",
+          "summary": "replay_stale calls publishing::replayed_text (the function publish uses) on base.workspace().stored(path); View::snapshot serves read_snapshot. Every production read (search.rs:166, documents.rs:466, cited_by.rs:130, reports.rs one_view) builds its view through ctx.view, the only constructor of View::Pending (context.rs:1041).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 330,
+                "end": 370
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.429332479Z",
+          "seal": {
+            "by": "server",
+            "mac": "67c32993531347e16774ada12615c2af904d5dcd4be0ea153082c2432629d23a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "replay_stale uses publish's own replayed_text on the published bytes, View serves the result to every production read, and the passing log test shows both entries through a warmed cache.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3431",
+            "EVD-3432"
+          ],
+          "recorded_at": "2026-11-26T21:25:18.656686043Z",
+          "seal": {
+            "by": "server",
+            "mac": "9344828cd844f1402696b89612d42f69791e8f288ffe682cb03775e09a02c09a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:18.656686043Z",
+      "seal": {
+        "by": "server",
+        "mac": "46da0c8ce1bd6ca6a7eaebc2568cb5f1a7b5c57623f9be683346fc40d68d757d"
+      }
+    },
+    {
+      "id": "CLM-1887",
+      "statement": "When replay would fail for a stale, replayable entry, a read through the changeset shows the entry's stored text together with a note (`replay_error`).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #792 requirements: falling back to stored text plus a note when replay would fail",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs",
+        "src/mcp/documents.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3433",
+          "kind": "test",
+          "locator": "cargo test --lib a_read_through (src/mcp/changesets.rs:2862)",
+          "summary": "a_read_through_an_entry_publish_cannot_replay_shows_its_stored_text_and_why passed: an entry with unreadable replay ops reads as stored text '# Stored log', replayed=false, replay_error containing 'refuse it with Conflict'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2862,
+                "end": 2881
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.541452765Z",
+          "seal": {
+            "by": "server",
+            "mac": "475a4ecb938656b27000e844487a4f34b601f75eeebf0882f164ca24377adb40"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The passing test asserts stored text plus a Conflict-worded replay_error for an unreplayable entry; the Err branch in replay_stale and the snapshot-build failure branch both fall back the same way.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3433"
+          ],
+          "recorded_at": "2026-11-26T21:25:18.760120719Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7b0844f69ff931212d43bc1ef48bb415ee1b722b023c612fec8a244917ea663"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:18.760120719Z",
+      "seal": {
+        "by": "server",
+        "mac": "3ba30bbd42614ca1eae3ad9197ba18e81fc80af39f3ce2cb0bf013a376bc04dd"
+      }
+    },
+    {
+      "id": "CLM-1888",
+      "statement": "The read result reuses pending_changes' `replayed` / `replay_error` vocabulary: read_document's Document gains `replayed` and `replay_error`, each left out of the JSON when it does not apply.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #792 requirements: reuse pending_changes' `replayed` / `replay_error` vocabulary; PR body: \"`read_document` result gains `replayed` and `replay_error` (left out when they do not apply)\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/mcp/documents.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3434",
+          "kind": "inspection",
+          "locator": "src/mcp/documents.rs:159-167, 531-546",
+          "summary": "Document.replayed has skip_serializing_if Not::not and replay_error skip_serializing_if Option::is_none; read_document fills them from View::replay_state (Replayed / Failed). Names match PendingFile's replayed / replay_error (changesets.rs:1115-1140).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/documents.rs",
+              "lines": {
+                "start": 156,
+                "end": 168
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.651125516Z",
+          "seal": {
+            "by": "server",
+            "mac": "93bd615629d60518573621b54eaaa4896cf4ac45c6531cbed45b162a480c02f4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Field names match pending_changes and both are skipped from the JSON when not applicable.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3434"
+          ],
+          "recorded_at": "2026-11-26T21:25:18.862913482Z",
+          "seal": {
+            "by": "server",
+            "mac": "19b35c599a91d69df9fab3401fee6b87e0047221d79b4d33df3c5e8395e3f824"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:18.862913482Z",
+      "seal": {
+        "by": "server",
+        "mac": "02cef1692405638510ca4efe81e18fd34ef66e68af255ac44c42dcd6e8fc2eb5"
+      }
+    },
+    {
+      "id": "CLM-1889",
+      "statement": "Writes (write::apply) and publish's lint step keep today's overlay: they read Overlay::snapshot, Overlay::workspace and Overlay::lint, which hold the stored entries, and none of them goes through View or read_snapshot.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "Issue #792 requirements: writes and publish's lint step must keep today's overlay (stored entries)",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/write.rs",
+        "src/store/publish.rs",
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3435",
+          "kind": "inspection",
+          "locator": "src/write.rs:225-227, 392; src/store/publish.rs:629, 641",
+          "summary": "write::apply gets the overlay by get_in and copies overlay.workspace() (stored entries); publish's split_lint calls overlay.lint and overlay.snapshot(), both unchanged by the diff. Neither passes through View.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/publish.rs",
+              "lines": {
+                "start": 620,
+                "end": 645
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.761875320Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cf2eba9f5f9a88b30a837f2a68ab32a5ba81c594f02f90e93426737ae62a533"
+          }
+        },
+        {
+          "id": "EVD-3450",
+          "kind": "analysis",
+          "locator": "git grep -E 'read_snapshot|read_lint|replay_state' src/write.rs src/store/publish.rs",
+          "summary": "Zero hits: the write and publish paths never use the replayed read snapshot (the one View use in write.rs:846 is inside a test).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "read_snapshot|read_lint|replay_state",
+              "scope": [
+                "src/store/publish.rs",
+                "src/write.rs"
+              ],
+              "hits": 0,
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:37.218355682Z",
+          "seal": {
+            "by": "server",
+            "mac": "929a57ed4286fe7616917c2d37e47c2066dea31acc5c894c95006c8cb9e024f1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Write and publish code read Overlay::snapshot/workspace/lint, untouched by the diff, and a zero-hit search shows neither names the read-only accessors.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3435",
+            "EVD-3450"
+          ],
+          "recorded_at": "2026-11-26T21:25:18.966244588Z",
+          "seal": {
+            "by": "server",
+            "mac": "53d1b6b4c45963df84684cf45fa88c5ea9cccc2d205f8c47f390a6d58e5bc692"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:18.966244588Z",
+      "seal": {
+        "by": "server",
+        "mac": "8a9eca7ef12ba3c81fa2c1404a4e71b6ce7d431e0d3b0ebfed01760ba7680527"
+      }
+    },
+    {
+      "id": "CLM-1890",
+      "statement": "The replay is redone once per overlay build (replay_stale in build_overlay), not per document per read.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #792 requirements: redo the replay once per request/build rather than per document per read",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3436",
+          "kind": "inspection",
+          "locator": "src/overlay.rs:257 and :330-370",
+          "summary": "replay_stale is called once inside build_overlay's blocking closure, before entries are consumed; reads then use the stored result. Cached overlays are reused until (generation, version) moves.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 252,
+                "end": 262
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:29.938512996Z",
+          "seal": {
+            "by": "server",
+            "mac": "130a9b918ba85a418206cee9a02d7f39bbff9951a6c39214bcb263c4169743d5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The replay runs once inside build_overlay and the result is stored on the cached overlay.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3436"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.069795454Z",
+          "seal": {
+            "by": "server",
+            "mac": "c39af6a63e4bf54c7d0a904c1963f1c40e12faa7d4d47952fbc7e2b3ce8dcf33"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.069795454Z",
+      "seal": {
+        "by": "server",
+        "mac": "4920495f8d2965573e02ad429a7f1f55d42e87569d389da518c6914e44a8478c"
+      }
+    },
+    {
+      "id": "CLM-1891",
+      "statement": "A cached overlay cannot serve a stale replay: the cache serves an overlay only when its (published generation, changeset version) equals the current one, and every publish bumps the generation.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #792 requirements: a cached read must not serve a stale replay (cache depends on published bytes); PR body: \"the overlay cache key is (published generation, changeset version); a publish bumps the generation, so a cached overlay cannot serve a replay made against older published text\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs",
+        "src/store/publish.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3437",
+          "kind": "inspection",
+          "locator": "src/overlay.rs:596-598 (lookup_or_build), :415 built_at; src/store/publish.rs:297 bump_generation",
+          "summary": "The cache serves an overlay only if built_at == (base.generation(), changeset.version); publish bumps the generation in its transaction. The replay reads the published bytes of that same base Loaded, so a newer publish makes the cached overlay a miss.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 589,
+                "end": 600
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.048247857Z",
+          "seal": {
+            "by": "server",
+            "mac": "52ed533851bc95478ad2a34cc19893234936303df12e0fd3b0e93de9a977c6b8"
+          }
+        },
+        {
+          "id": "EVD-3438",
+          "kind": "test",
+          "locator": "cargo test --lib a_read_through (src/mcp/changesets.rs:2836-2848)",
+          "summary": "The test reads through A (warming the cache, replayed=false, no 'from b'), then publishes B, then reads again and sees replayed=true with both entries; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2836,
+                "end": 2850
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.157329058Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3b3ece8fc166e190090ff8bdfb58b3a7a0c923a3a9606b0cc0c2c3f6e76eb58"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The cache key includes the published generation which publish bumps, and the test warms the cache then publishes and sees the new replay.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3437",
+            "EVD-3438"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.172946429Z",
+          "seal": {
+            "by": "server",
+            "mac": "d626de94982b787cfa8fb80fbc54f715dfd2c59aaf7b4f12fd8c69460a84feb1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.172946429Z",
+      "seal": {
+        "by": "server",
+        "mac": "8782ad039028d3420372a8a07db4a8caf4e64d182fe82e57aa3bdab5bdb9c5c7"
+      }
+    },
+    {
+      "id": "CLM-1892",
+      "statement": "A test puts a log entry in changeset A, publishes another from B, and asserts read_document of /log.md through A shows both entries.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #792 requirements: test: log entry in changeset A, another published from B, read_document of log.md through A shows both entries",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3439",
+          "kind": "test",
+          "locator": "cargo test --lib a_read_through: a_read_through_a_stale_log_entry_shows_what_publish_would_write",
+          "summary": "Entries 'from a' in A and 'from b' in B; B published; read_document /log.md through A asserts text contains both, replayed true, stored entry unchanged, and later publish of A writes the same text. 4 passed, 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2826,
+                "end": 2858
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.266062117Z",
+          "seal": {
+            "by": "server",
+            "mac": "197185cf1eb0aea6cb48666c189b58c222a45fdcbfbf6d34b9d101c6ee8b2437"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I read the assertions (both entries present, replayed true, publish writes the same text) and the test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3439"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.277159668Z",
+          "seal": {
+            "by": "server",
+            "mac": "93ce444160b4c0eb408eaa40a1b0baadde8e2ab8e80ba7ee1bea8770f4054baa"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.277159668Z",
+      "seal": {
+        "by": "server",
+        "mac": "79d25ec0de2e3ff1619e636a0a4ef14627af4fdb240947a959948f12d6fc80f6"
+      }
+    },
+    {
+      "id": "CLM-1893",
+      "statement": "The read_document tool description gains one short clause about the replayed view, and docs/reference/tools.md is regenerated to match.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "Issue #792 requirements: tool descriptions short and docs/reference/tools.md regenerated",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/mcp/documents.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:792"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3440",
+          "kind": "test",
+          "locator": "cargo test --lib -- mcp::reference investigator (130 passed, 0 failed, 2 ignored)",
+          "summary": "The reference-page test compares docs/reference/tools.md with the generated text and passes on head; the diff changes only the read_document paragraph (one clause added to the description at src/mcp/documents.rs:601-606, mirrored at tools.md:518).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 516,
+                "end": 520
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.375405497Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0c457b9e27abb0b844968e7b097a25dea116674f776906c621240deae7e9c72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One clause was added to the description and the generated-reference pin test passes against the checked-in tools.md.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3440"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.381803079Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa7bd77e6bee591ffa9197ee524a9e9d32166bb41f1e892d231506bd1bd71346"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.381803079Z",
+      "seal": {
+        "by": "server",
+        "mac": "c9200a71fbed6c9e3f6bc08eb818a46539ebd0106e76cb3dc675f5051f622123"
+      }
+    },
+    {
+      "id": "CLM-1894",
+      "statement": "Replay ops only target log.md and index files, so get_concept and search get the replayed view with no new fields.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Replay ops only target `log.md` and index files, so `get_concept` and `search` get the replayed view with no new fields.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/okf/ops/replay.rs",
+        "src/okf/ops/frontmatter.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded: the PR body no longer makes this statement. It was refuted (replay ops also target concept frontmatter) and the author corrected the description; the new wording is audited as CLM-1902 and CLM-1903.",
+        "retired_at": "2026-11-26T21:49:35.432737483Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3441",
+          "kind": "inspection",
+          "locator": "src/okf/ops/frontmatter.rs:102 (Stamp), :193 (SetReviewed), :203 (AddQuestion), :485 (AddSource), :616 (RemoveSource); enum at src/okf/ops/replay.rs:65",
+          "summary": "stamp, review, question, add_source and remove_source record ReplayOp::Stamp / SetReviewed / AddQuestion / AddSource / RemoveSource on a concept path (outcome.record(&path, ...)), so replay ops target concept files too, not only log.md and index files. A stale stamp or add_source entry is therefore replayed in get_concept and search with no replayed marker.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/frontmatter.rs",
+              "lines": {
+                "start": 92,
+                "end": 110
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.486763172Z",
+          "seal": {
+            "by": "server",
+            "mac": "1420e44be0becdbe768b14a5fbe73413d385745cfa76d534b265213d2c87e990"
+          }
+        },
+        {
+          "id": "EVD-3442",
+          "kind": "inspection",
+          "locator": "src/okf/ops/replay.rs:65-100 ReplayOp variants",
+          "summary": "The enum also holds AddSource, RemoveSource, Stamp, SetReviewed, AddQuestion, RemoveQuestion, which edit frontmatter of concepts (see replay.rs:155-175); the doc header at replay.rs:33 lists them.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/replay.rs",
+              "lines": {
+                "start": 150,
+                "end": 180
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.596176553Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ca7487e6f586778f559537ac71b97e042bd2354c8a2af3b079397684aaa56d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Replay ops are not limited to log.md and index files: stamp, review, question, add_source and remove_source record Stamp/SetReviewed/AddQuestion/AddSource/RemoveSource on concept paths. A stale such entry is replayed in get_concept and search with no replayed marker, so the reason given for 'no new fields' is wrong (the changelog's 'a log.md or index listing' has the same narrowing). Fix: change the PR body (and the changelog Added line) to say replay also covers concept frontmatter edits (stamp, review, question, add_source, remove_source), whose replayed text get_concept and search show without a `replayed` marker.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3441",
+            "EVD-3442"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.490773528Z",
+          "seal": {
+            "by": "server",
+            "mac": "773d72d7f6e261939d3a17a97bdc342ffd861516dca316e4c2ec5680996ca181"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:49:35.432737483Z",
+      "seal": {
+        "by": "server",
+        "mac": "1187bab8dcabf5cc5c42a706280e2a7a14853ddfd75a99e8cd0b0825ea6c00fd"
+      }
+    },
+    {
+      "id": "CLM-1895",
+      "statement": "Overlay::snapshot and Overlay::lint are unchanged by the PR; View::snapshot and View::lint are the readers switched to the replayed snapshot.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "PR body: \"`Overlay::snapshot` and `Overlay::lint`, which writes and publish's lint use, are unchanged.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Rigor gap: an integrity 3 claim was registered with method inspection. Replaced by a claim verified by analysis (diff plus caller search); the verdict and evidence are unchanged.",
+        "retired_at": "2026-11-26T21:53:20.439606265Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3443",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/overlay.rs; src/overlay.rs:85, 192, 674, 705",
+          "summary": "No hunk touches Overlay::snapshot (line 85) or Overlay::lint (line 192); the only changed bodies are View::snapshot (now read_snapshot) and View::lint (now read_lint).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 670,
+                "end": 710
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.706167325Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d9d71f783b3364510816e842b65577ef82e409b38c5fe511a6ac62e03d630b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff leaves both functions' bodies as they were and changes only the View wrappers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3443"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.594659812Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f148b2ac279c4e6b7ac031f60a1e022898f66e65b0568b4562cc98c6f514900"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:53:20.439606265Z",
+      "seal": {
+        "by": "server",
+        "mac": "531a5859ab48824edd9240de6843939655c7ded4e818b6248399607dfdd31efd"
+      }
+    },
+    {
+      "id": "CLM-1896",
+      "statement": "build_overlay keeps the second snapshot (Overlay::read_snapshot, read_lint, replay_state) only when some entry replays; otherwise reads use the stored snapshot.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"only when some entry replays, keeps a second snapshot (`Overlay::read_snapshot`, `read_lint`, `replay_state`)\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3444",
+          "kind": "inspection",
+          "locator": "src/overlay.rs:274-300 (build_overlay), :100 read_snapshot",
+          "summary": "The second snapshot is built only if `replaced` is non-empty (else replayed = None); a failure to build it sets the states to Failed and leaves None; read_snapshot falls back with unwrap_or(&self.snapshot).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 274,
+                "end": 302
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.815504615Z",
+          "seal": {
+            "by": "server",
+            "mac": "f8658fcc962f0562f92e14cbf711effaf1076898e4e444e145f3bfd10fe57a15"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The second snapshot is built only when `replaced` is non-empty, else None.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3444"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.698906871Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd096c9d52f81683a5925e99546edfd8bdb04d66c465bc31e99b9e56427f2c63"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.698906871Z",
+      "seal": {
+        "by": "server",
+        "mac": "8b5c7a540f9bfc656e7cb6012d7d91578cde4309990fcb05363c4d049dcd7629"
+      }
+    },
+    {
+      "id": "CLM-1897",
+      "statement": "`cannot_replay` in src/mcp/changesets.rs is pub(crate), and the PR adds two tests (a_read_through_a_stale_log_entry_shows_what_publish_would_write and a_read_through_an_entry_publish_cannot_replay_shows_its_stored_text_and_why) that pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`cannot_replay` is `pub(crate)`; two tests.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3445",
+          "kind": "test",
+          "locator": "cargo test --lib a_read_through",
+          "summary": "Both new tests ran and passed (4 passed including two older lagging-replica tests); cannot_replay is declared pub(crate) at src/mcp/changesets.rs:1157.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1157,
+                "end": 1157
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:30.924634885Z",
+          "seal": {
+            "by": "server",
+            "mac": "caa9af0dd5324565c8dbe86a473275b4299439f7cbe513d85e39461a7187b9fb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The visibility change is in the code and both tests ran and passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3445"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.807601909Z",
+          "seal": {
+            "by": "server",
+            "mac": "ea5b9b041f98c43fd01536e33eec9c3c17a63b765ba86fa2ce27b0218f9d7322"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.807601909Z",
+      "seal": {
+        "by": "server",
+        "mac": "a206f4e174f8c1aa0f7b8d902482ac15978b8393650cc26b972190f7e6ddb3f2"
+      }
+    },
+    {
+      "id": "CLM-1898",
+      "statement": "gate.sh fmt and gate.sh lint pass on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`, `mcpjam` pass.\" (fmt and lint part)",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3446",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt; tools/agentic/gate.sh lint",
+          "summary": "Reran on head f3ef73b1: fmt (cargo fmt --all --check) exit 0; lint (cargo clippy --all-targets -D warnings, cargo doc -D warnings) exit 0.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T21:24:31.028852406Z",
+          "seal": {
+            "by": "server",
+            "mac": "7075441cf3ea2f16f5ac8ca06ea8eecd825e5e1cf16a00245cd872ffe6dd1ad3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I reran both gates on head and both exited 0.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3446"
+          ],
+          "recorded_at": "2026-11-26T21:25:19.915719926Z",
+          "seal": {
+            "by": "server",
+            "mac": "20f822ecb9b8247b8d459a086734fb6d82a864a5e5d2b25cac220647403c7e73"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:19.915719926Z",
+      "seal": {
+        "by": "server",
+        "mac": "3d0ed87e7778deafb253c796dae4cfc5c365f8f7b48cd6f14baf1626152c0f06"
+      }
+    },
+    {
+      "id": "CLM-1899",
+      "statement": "gate.sh dylint and gate.sh mcpjam pass on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`, `mcpjam` pass.\" (dylint and mcpjam part)",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3447",
+          "kind": "log",
+          "locator": "target/i792-logs/dylint.log, target/i792-logs/mcpjam.log",
+          "summary": "Only the author's own logs exist; I did not rerun dylint (up to 45m) or mcpjam, so there is no independent run.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T21:24:31.131911924Z",
+          "seal": {
+            "by": "server",
+            "mac": "9da2be3a1fb424ba507c36dfa957fba36e0c954fec88062d69545e596afe8c4e"
+          }
+        },
+        {
+          "id": "EVD-3455",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh dylint; tools/agentic/gate.sh mcpjam (head 253c8dc1)",
+          "summary": "Reran on head 253c8dc1: dylint exit 0; mcpjam exit 0 (vitest 5 files, 29 tests passed).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T21:49:23.907238073Z",
+          "seal": {
+            "by": "server",
+            "mac": "597e023c885a2e212fe28804cb8b412b0c5cf62e6487e8da40ecfe246b263949"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the author's logs exist; no independent run. Fix: run `tools/agentic/gate.sh dylint` and `tools/agentic/gate.sh mcpjam` on the head commit and record their exit codes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3447"
+          ],
+          "recorded_at": "2026-11-26T21:25:20.020613406Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3881f222e4faa344153d97d53b7d5facd041fd76d87e9ce0c13c18358b20928"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "I reran dylint and mcpjam on head 253c8dc1 and both exited 0.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3455"
+          ],
+          "recorded_at": "2026-11-26T21:49:29.234938851Z",
+          "seal": {
+            "by": "server",
+            "mac": "83e0c75509a1f2ad7eb6671c3881a3c4dd5ef56b60bf98aec6f9f63c78c1c445"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:49:29.234938851Z",
+      "seal": {
+        "by": "server",
+        "mac": "65a4b67476819d6040d95041737eb93fcd59751638a231755086718fb29b75e1"
+      }
+    },
+    {
+      "id": "CLM-1900",
+      "statement": "gate.sh test runs 3690 tests and all pass in one run; in another run the known flake #1047 (browse::the_suspended_view_names_the_catalog_and_its_team_by_label) fails and passes alone.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh test`: 3690 tests, all pass in one run; in another run the known flake #1047 (...) failed and passed alone.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "target/i792-logs/test.log"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3448",
+          "kind": "log",
+          "locator": "target/i792-logs/test.log:3821, 7576; flake.log",
+          "summary": "The author's log shows 'Summary 3690 tests run: 3690 passed' in one mode and '3689 passed, 1 failed' (the #1047 flake) in the other, and flake.log shows it passing alone. I did not rerun the full 75 minute gate, and the lib alone has 3187 tests, so the count is unconfirmed by me.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T21:24:31.236011284Z",
+          "seal": {
+            "by": "server",
+            "mac": "15cf1c560991d220aadcb2b357f92f3f13b51a6e491e53aa599cdf50031e0734"
+          }
+        },
+        {
+          "id": "EVD-3457",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh test (head 253c8dc1), second pass",
+          "summary": "My separate-store pass failed on two other tests (tls verify_full..., ui_e2e login::a_read_key_sees_no_administer...), not #1047; both passed alone. So #1047 was not reproduced by me, and the full gate is not green in both modes in one run.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T21:53:02.390877134Z",
+          "seal": {
+            "by": "server",
+            "mac": "68677b3cf0da9251a5f53da74149ba857f79be270c96956d373b2356b00b3af1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The author's log is consistent with the statement but I did not rerun the 75 minute gate. Fix: run `tools/agentic/gate.sh test` on the head commit and record the nextest Summary line in both store modes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3448"
+          ],
+          "recorded_at": "2026-11-26T21:25:20.126352528Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd3553da90d7acdc8565a1c61ca63e282bef1f675afc42a25eb1b763136de65a"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The 3690-all-pass half is supported (CLM-1904), but the #1047 flake half rests on the author's log; in my run the separate-store pass failed two other unrelated tests (both green alone), so #1047 is not reproduced. Fix: reword the PR's Validation line to say that on the final head one pass ran 3690 passed and the other pass hit unrelated flakes (tls verify_full_connects_encrypted_to_a_server_its_ca_signed, ui_e2e login::a_read_key_sees_no_administer_group_and_stays_signed_in) that pass alone, or cite target/i792-logs/test.log for the #1047 run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3448"
+          ],
+          "recorded_at": "2026-11-26T21:53:08.633804325Z",
+          "seal": {
+            "by": "server",
+            "mac": "a379032902d3e5b2c18987db63a57861f84f6ed8f3f08bdcd48d86ef0af1e950"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:53:08.633804325Z",
+      "seal": {
+        "by": "server",
+        "mac": "30634b3e19550a3efd016d4c44bd39f3911f316578f5322e3045f30dcce5bc69"
+      }
+    },
+    {
+      "id": "CLM-1901",
+      "statement": "Reverting View/Overlay::read_snapshot to the stored snapshot makes the new log test (a_read_through_a_stale_log_entry_shows_what_publish_would_write) fail.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Reverting `read_snapshot` to the stored snapshot makes the new log test fail.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3449",
+          "kind": "analysis",
+          "locator": "src/mcp/changesets.rs:2840-2850 against src/overlay.rs:100",
+          "summary": "By reading: the test asserts the text contains 'from b' after B publishes. The stored entry (built on the old base) lacks it and read_snapshot is the only route to the replayed text, so reverting it to the stored snapshot fails that assertion. Not executed, since I may not edit code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2845,
+                "end": 2851
+              },
+              "commit": "f3ef73b11aa68f7ee90106fa5b4eabb418d3b253"
+            }
+          },
+          "recorded_at": "2026-11-26T21:24:31.344053461Z",
+          "seal": {
+            "by": "server",
+            "mac": "317163ed78476b8023f25a6a8ce7f1b07d52a958409f0d1668453660a0fce4a6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading, the test's 'from b' assertion can only pass through the replayed snapshot; not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3449"
+          ],
+          "recorded_at": "2026-11-26T21:25:20.230497997Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb1b0f00f545774019184ef0637c970e6770d31df3569772de689ad374984e3f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:23:44.618399056Z",
+      "updated_at": "2026-11-26T21:25:20.230497997Z",
+      "seal": {
+        "by": "server",
+        "mac": "5113e633a7c505e995a3c819d93fce230b15fb3c975dc8f6cea886930397b83b"
+      }
+    },
+    {
+      "id": "CLM-1902",
+      "statement": "Replay ops cover log.md, index files and concept frontmatter edits (stamp, review, question, source), so get_concept and search show the replayed view too, without a `replayed` marker.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body (revised): \"Replay ops cover `log.md`, index files and concept frontmatter edits (stamp, review, question, source), so `get_concept` and `search` show the replayed view too, without a `replayed` marker\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/okf/ops/frontmatter.rs",
+        "src/okf/ops/replay.rs",
+        "src/mcp/documents.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3453",
+          "kind": "inspection",
+          "locator": "src/okf/ops/frontmatter.rs:92-110 (Stamp), :485 (AddSource); src/mcp/documents.rs:378 (get_concept reads view.snapshot())",
+          "summary": "stamp, review, question and source ops record frontmatter replay ops on concept paths; get_concept and search read view.snapshot(), which is the replayed snapshot; neither result type gained a replayed field (only Document did).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/frontmatter.rs",
+              "lines": {
+                "start": 92,
+                "end": 110
+              },
+              "commit": "253c8dc163ab2006711f2c52ecb70d8a11b07c36"
+            }
+          },
+          "recorded_at": "2026-11-26T21:49:23.629657479Z",
+          "seal": {
+            "by": "server",
+            "mac": "650f5bd6137709c47bee54fe8176516b0f2de9758c439418d11892a7b7ebb211"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The revised wording matches the code: frontmatter ops replay on concept paths and the read views carry no marker for get_concept and search.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3453"
+          ],
+          "recorded_at": "2026-11-26T21:49:28.937180904Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f5582722b62251c4e0df5921cfc1ac2d9d6bf8f8eaa69a347014907d3924c83"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:49:16.039898597Z",
+      "updated_at": "2026-11-26T21:49:28.937180904Z",
+      "seal": {
+        "by": "server",
+        "mac": "c926a0349e7f119d992ce3aae47c921a793bd1525e49350278430c66dee5be8a"
+      }
+    },
+    {
+      "id": "CLM-1903",
+      "statement": "The investigator contract (src/investigator/contract_tools.json) pins get_concept's output schema, so a new field on get_concept would break it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body (revised): \"the investigator contract pins `get_concept`'s output schema (`src/investigator/contract_tools.json`), so a new field there would break it.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/investigator/contract_tools.json",
+        "src/investigator/contract.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3454",
+          "kind": "inspection",
+          "locator": "src/investigator/contract.rs:48-80, 409-423; src/investigator/contract_tools.json get_concept.outputSchema",
+          "summary": "same_contract compares a live tool's output_schema with the checked-in one, and a test asserts it for each allowed tool including get_concept, so an added output field would make it fail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/contract.rs",
+              "lines": {
+                "start": 405,
+                "end": 425
+              },
+              "commit": "253c8dc163ab2006711f2c52ecb70d8a11b07c36"
+            }
+          },
+          "recorded_at": "2026-11-26T21:49:23.766445067Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc83451e77c1d5c48c75a2a629a2fde94869cf5ab71c11aa583d9693cd729c2a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A contract test compares live output schemas with the checked-in ones for get_concept.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3454"
+          ],
+          "recorded_at": "2026-11-26T21:49:29.098940077Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcbbd73e5e836687e5f7037ea109e3737bc3860e21b50eeded76486b3fe293cc"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:49:16.039898597Z",
+      "updated_at": "2026-11-26T21:49:29.098940077Z",
+      "seal": {
+        "by": "server",
+        "mac": "12b756cfb1820ccebb951c9d932e604a45aceb888fe6b8ee01d38dfe049e5e55"
+      }
+    },
+    {
+      "id": "CLM-1904",
+      "statement": "gate.sh test on the final head runs 3690 tests and all of them pass in one run (OKF_TEST_STORE=same).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body (revised): \"`gate.sh test`: 3690 tests, all pass\" on the final head",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3456",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh test (head 253c8dc1); scratchpad/test792.log:3820 'Summary 3690 tests run: 3690 passed, 20 skipped'",
+          "summary": "My run: the first (same-store) pass ran 3690 tests, all passed. The second (separate-store) pass had 2 failures, tls verify_full_connects_encrypted_to_a_server_its_ca_signed and ui_e2e login::a_read_key_sees_no_administer_group_and_stays_signed_in, neither near this change; both passed when rerun alone with OKF_TEST_STORE=separate.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T21:53:02.284126279Z",
+          "seal": {
+            "by": "server",
+            "mac": "471d280dc7943e68421e518971e8d4633c4a7dc402a45dd151e72aa7db6d2ee6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The same-store pass of the gate on the final head ran 3690 tests with 0 failures.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3456"
+          ],
+          "recorded_at": "2026-11-26T21:53:08.531261010Z",
+          "seal": {
+            "by": "server",
+            "mac": "a809da71c4567a4f0c1b62c4e91e3a8055d6a5549cf0f6efca102716d82b53b4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:52:57.547449561Z",
+      "updated_at": "2026-11-26T21:53:08.531261010Z",
+      "seal": {
+        "by": "server",
+        "mac": "375a3958e2a57629a74b0a5d735a1938e496e261cedfacbb473bf35654c3999d"
+      }
+    },
+    {
+      "id": "CLM-1905",
+      "statement": "Overlay::snapshot and Overlay::lint are unchanged by the PR; View::snapshot and View::lint are the readers switched to the replayed snapshot.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`Overlay::snapshot` and `Overlay::lint`, which writes and publish's lint use, are unchanged.\"",
+      "derived_from": [
+        "CLM-1885"
+      ],
+      "artifacts": [
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:792",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3459",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/overlay.rs; git grep -nE 'overlay\\.(snapshot|lint)\\(' src/store/publish.rs",
+          "summary": "No diff hunk touches the bodies of Overlay::snapshot (line 85) or Overlay::lint (line 192); publish.rs:629 and :641 still call them, and only View::snapshot and View::lint were switched to read_snapshot and read_lint (lines 674-710).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 670,
+                "end": 710
+              },
+              "commit": "253c8dc163ab2006711f2c52ecb70d8a11b07c36"
+            }
+          },
+          "recorded_at": "2026-11-26T21:53:23.392600609Z",
+          "seal": {
+            "by": "server",
+            "mac": "87df611db0d0f3f6a9167a4145082f2775ba109f64d6ffa548c120e80774583f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff leaves both bodies as they were and publish still calls them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3459"
+          ],
+          "recorded_at": "2026-11-26T21:53:26.552042483Z",
+          "seal": {
+            "by": "server",
+            "mac": "74c2e49ea007d4f2915615db4b09325e700e82597cbc0c5d0b26ae588b1ac6b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T21:53:20.545083654Z",
+      "updated_at": "2026-11-26T21:53:26.552042483Z",
+      "seal": {
+        "by": "server",
+        "mac": "abb552e5a06d9dcfd0613191d6959be4961a7ca71357f266cac89841cddfde6d"
       }
     }
   ]

@@ -515,7 +515,7 @@ Queue one question in a concept's open_questions without recording a review, in 
 
 **Read Document** (read-only)
 
-Read the raw text of an index.md (default /index.md), log.md or AGENTS.md. Without `catalog`, the first selected catalog that has it answers. With `changeset` (a handle from open_changeset), its catalog reads through that changeset's drafts.
+Read the raw text of an index.md (default /index.md), log.md or AGENTS.md. Without `catalog`, the first selected catalog that has it answers. With `changeset` (a handle from open_changeset), its catalog reads through that changeset's drafts; a stale log or index entry is shown as publish would write it (`replayed`), or as stored with a `replay_error`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

@@ -12,7 +12,7 @@
 //! however many reads ask at once.
 
 use std::cmp::Ordering;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -25,10 +25,12 @@ use crate::catalog::{CatalogState, Loaded};
 use crate::error::OkfError;
 use crate::keyed_lock::KeyedLocks;
 use crate::mcp::blocking;
+use crate::mcp::changesets::cannot_replay;
 use crate::okf::analysis::lint::{lint, CommitTimes, LintReport};
 use crate::okf::snapshot::Snapshot;
 use crate::okf::workspace::{MemWorkspace, StoredFile};
 use crate::store::changesets::{self, ChangesetKey, ChangesetRow, EntryRow};
+use crate::store::publish::replayed_text;
 use crate::stores::CatalogDb;
 use crate::telemetry::metrics::Metrics;
 
@@ -49,8 +51,26 @@ pub struct Overlay {
     // `get_in` may cache such an overlay, since it cannot refresh on its
     // connection; a read never reuses it (`Overlays::get`).
     behind_entries: bool,
+    // What a read shows when some entry is stale and replayable (issue
+    // #792): `None` when no entry is, and then reads use `snapshot`.
+    replayed: Option<Snapshot>,
+    // Per path, what the read view did with a stale, replayable entry.
+    replays: BTreeMap<String, ReplayState>,
     // What it costs in the cache, computed once at build.
     weight: u64,
+}
+
+/// What a read through a changeset shows for one stale, replayable entry
+/// (issue #792): the vocabulary of `pending_changes`' `replayed` and
+/// `replay_error`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReplayState {
+    /// The entry's operations redone on the published text, which is what
+    /// publish would write.
+    Replayed,
+    /// Publish cannot replay it; the read shows the entry's stored text
+    /// and this reason.
+    Failed(String),
 }
 
 impl Overlay {
@@ -64,6 +84,34 @@ impl Overlay {
     )]
     pub fn snapshot(&self) -> &Snapshot {
         &self.snapshot
+    }
+
+    /// The snapshot a read shows: as [`Overlay::snapshot`], but a stale,
+    /// replayable entry (a `log.md` or index listing made on an older base)
+    /// is shown as publish would write it, not as stored (issue #792).
+    /// Writes and publish's lint keep [`Overlay::snapshot`].
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial field accessor: returns a field or a borrow of one"
+        )
+    )]
+    pub fn read_snapshot(&self) -> &Snapshot {
+        self.replayed.as_ref().unwrap_or(&self.snapshot)
+    }
+
+    /// What the read view did with the entry at `path` (catalog-relative),
+    /// if it is stale and replayable.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial field accessor: returns a field or a borrow of one"
+        )
+    )]
+    pub fn replay_state(&self, path: &str) -> Option<&ReplayState> {
+        self.replays.get(path)
     }
 
     /// The overlaid files (what a write op reads, through a copy).
@@ -144,6 +192,25 @@ impl Overlay {
     pub fn lint(&self, now: DateTime<Utc>) -> LintReport {
         lint(&self.snapshot, now, Some(&self.commit_times))
     }
+
+    /// As [`Overlay::lint`], of the snapshot a read shows
+    /// ([`Overlay::read_snapshot`]).
+    ///
+    /// # Arguments
+    /// * `now` - the current time (server clock).
+    ///
+    /// # Returns
+    /// The findings, as [`lint`] returns them.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "one-line delegation to an instrumented function"
+        )
+    )]
+    pub fn read_lint(&self, now: DateTime<Utc>) -> LintReport {
+        lint(self.read_snapshot(), now, Some(&self.commit_times))
+    }
 }
 
 /// Builds an overlay on a blocking thread.
@@ -185,6 +252,9 @@ pub async fn build_overlay(
     // own what it reads.
     blocking(move || {
         let dirty: BTreeSet<String> = entries.iter().map(|entry| entry.path.clone()).collect();
+        // Before `entries` is consumed: what each stale, replayable entry
+        // would be at publish.
+        let (mut replays, replaced) = replay_stale(&base, &entries);
         let changes = entries.into_iter().map(|entry| {
             let executable = entry.executable;
             let file = entry.content.map(|content| StoredFile {
@@ -202,7 +272,33 @@ pub async fn build_overlay(
         // UTF-8): named as theirs, like a clash.
         let snapshot = Snapshot::build(&workspace).map_err(|error| in_changeset(error, &handle))?;
         let commit_times = base.commit_times().with_dirty(dirty.iter().cloned());
-        let weight = weight_of_workspace(&workspace);
+        let mut weight = weight_of_workspace(&workspace);
+        // A second snapshot only when some entry replays, which is rare.
+        let replayed = if replaced.is_empty() {
+            None
+        } else {
+            let result = workspace
+                .with_changes(replaced.into_iter().map(|(path, file)| (path, Some(file))))
+                .and_then(|replayed| {
+                    let snapshot = Snapshot::build(&replayed)?;
+                    Ok((snapshot, weight_of_workspace(&replayed)))
+                });
+            match result {
+                Ok((snapshot, extra)) => {
+                    weight += extra;
+                    Some(snapshot)
+                }
+                // The replayed text cannot be read: show the stored one.
+                Err(error) => {
+                    for state in replays.values_mut() {
+                        if *state == ReplayState::Replayed {
+                            *state = ReplayState::Failed(error.to_string());
+                        }
+                    }
+                    None
+                }
+            }
+        };
         Ok(Overlay {
             base,
             key,
@@ -212,10 +308,61 @@ pub async fn build_overlay(
             dirty,
             commit_times,
             behind_entries,
+            replayed,
+            replays,
             weight,
         })
     })
     .await
+}
+
+/// Redoes each stale, replayable entry on the published text, by the
+/// function publish calls ([`replayed_text`]), once per build.
+///
+/// # Arguments
+/// * `base` - the published state the overlay is built on.
+/// * `entries` - the changeset's entries.
+///
+/// # Returns
+/// The state per such path, and the replayed files to show in place of the
+/// stored ones (only the paths whose replay worked).
+#[tracing::instrument(level = "trace", skip_all)]
+fn replay_stale(
+    base: &Loaded,
+    entries: &[EntryRow],
+) -> (BTreeMap<String, ReplayState>, Vec<(String, StoredFile)>) {
+    let mut states = BTreeMap::new();
+    let mut replaced = Vec::new();
+    for entry in entries.iter().filter(|entry| entry.replay.is_some()) {
+        let current = base.revision(&entry.path);
+        // Fresh, or a snapshot behind the entry (never reused by a read).
+        if entry.base_revision == current
+            || entry
+                .base_revision
+                .zip(current)
+                .is_some_and(|(wanted, have)| have < wanted)
+        {
+            continue;
+        }
+        let published = base.workspace().stored(&entry.path);
+        let old = published.as_ref().map(|file| file.content.as_slice());
+        let state = match replayed_text(entry, old) {
+            Ok(Some(text)) => {
+                replaced.push((
+                    entry.path.clone(),
+                    StoredFile {
+                        content: text.into_bytes(),
+                        executable: entry.executable,
+                    },
+                ));
+                ReplayState::Replayed
+            }
+            Ok(None) => ReplayState::Failed(cannot_replay(&entry.path, current)),
+            Err(error) => ReplayState::Failed(error.to_string()),
+        };
+        states.insert(entry.path.clone(), state);
+    }
+    (states, replaced)
 }
 
 /// Turns an error that applying a changeset's entries caused into an
@@ -527,7 +674,23 @@ impl View {
     pub fn snapshot(&self) -> &Snapshot {
         match self {
             View::Published(loaded) => loaded.snapshot(),
-            View::Pending(overlay) => overlay.snapshot(),
+            View::Pending(overlay) => overlay.read_snapshot(),
+        }
+    }
+
+    /// What this view did with the pending entry at `path`, if it is stale
+    /// and replayable (issue #792); `None` for a published view.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial field accessor: returns a field or a borrow of one"
+        )
+    )]
+    pub fn replay_state(&self, path: &str) -> Option<&ReplayState> {
+        match self {
+            View::Published(_) => None,
+            View::Pending(overlay) => overlay.replay_state(path),
         }
     }
 
@@ -542,7 +705,7 @@ impl View {
     pub fn lint(&self, now: DateTime<Utc>) -> LintReport {
         match self {
             View::Published(loaded) => loaded.lint(now),
-            View::Pending(overlay) => overlay.lint(now),
+            View::Pending(overlay) => overlay.read_lint(now),
         }
     }
 

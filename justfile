@@ -81,5 +81,7 @@ test-agentic:
 release-prepare patchlevel:
     bash scripts/release-prepare.sh {{quote(patchlevel)}}
 
-release-ship:
-    bash scripts/release-ship.sh
+# --no-checks skips fmt, lint and test when main was already tested as it merged.
+[positional-arguments]
+release-ship *flags:
+    bash scripts/release-ship.sh "$@"

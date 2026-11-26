@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1854,
+  "next_claim_seq": 1869,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "dd7540fc86c164bdabf5c6cdf17b49b3aab560ed068436f4eada67bd9fdfffc7"
+    "mac": "b9b5b981efb7a53042629745b1b0ffd2870d80dcc0ad4d8ad7036a87aab73d56"
   },
-  "next_evidence_seq": 3396,
+  "next_evidence_seq": 3413,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "fbfb470fdda3e4fd6dcfa82cf933c11df889c3b332a8b4ba18d49ab89e9ae9ed"
+    "mac": "829d6c95e846749a212eaa105505ec404001ef5714e9f9a2483abab6039a9ca9"
   },
   "claims": [
     {
@@ -168848,6 +168848,994 @@
       "seal": {
         "by": "server",
         "mac": "3f9739661d0f5a6f9b08c2fafdb95d963a55ff75135f4e5549229ce1a997b8c9"
+      }
+    },
+    {
+      "id": "CLM-1854",
+      "statement": "Issue #1115 is resolved: every response of the HTTP server, including errors and redirects, carries X-Robots-Tag: noindex, nofollow, via a single layer on the router, with a test, and no robots.txt Disallow.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1115",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3412",
+          "kind": "analysis",
+          "locator": "children of CLM-1854",
+          "summary": "The issue's four requirements (every response, single layer, test, no Disallow) are CLM-1855 to CLM-1858, all supported. One description-only child (the /metrics ingress statement) is not_enough_info; it is not an issue requirement.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:25:26.811577881Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5dd4046402c58830d0721d92fbfee09db1b88f7749a8491ce6201b19ed9e033"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four issue requirements are supported by their children; the only non-supported child is a PR-description remark outside the issue.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3412"
+          ],
+          "recorded_at": "2026-11-26T20:25:30.487459469Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf4650914e58cad9db6e410ab2ea03bbf0aa491d0819bedd51a05a296ac37720"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:30.487459469Z",
+      "seal": {
+        "by": "server",
+        "mac": "a94be993829d84839a3bf2ae96198fa17f3ed9bd7b0ab3bb9330de9d3db270b8"
+      }
+    },
+    {
+      "id": "CLM-1855",
+      "statement": "Every route of the router returned by http::router, whatever its status (UI page, OAuth page, /mcp 401, 404, redirect), answers with the header X-Robots-Tag: noindex, nofollow.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1115: every route, including errors and redirects, returns `X-Robots-Tag: noindex, nofollow`",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3396",
+          "kind": "test",
+          "locator": "cargo test --lib every_response_says_noindex (rerun on a4a41749: 1 passed); src/http/mod.rs:1843-1883",
+          "summary": "Test requests 9 routes through router() and asserts status and x-robots-tag == \"noindex, nofollow\" on each, incl. 200 pages, 400, 401s, 308 redirect, 404, 405. Passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1843,
+                "end": 1883
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:43.596532378Z",
+          "seal": {
+            "by": "server",
+            "mac": "c26875aaf3b7678209ceeae6fa06818dff97136e3906bdae864ad8d992f72344"
+          }
+        },
+        {
+          "id": "EVD-3397",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:508-513 (layer); serve_with calls router() at src/http/mod.rs:944 and adds no layer after",
+          "summary": "The only production caller of router() is serve_with, which uses it directly; no layer is applied outside the no_index layer, so every response leaves through it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 505,
+                "end": 513
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:43.705910896Z",
+          "seal": {
+            "by": "server",
+            "mac": "18976b7240fc4b49f92e7cc283f2802999ed3ec614f246e22cb5620961919953"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Passing test asserts header on 9 routes of all the status classes; router() is used unwrapped in serve_with.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3396",
+            "EVD-3397"
+          ],
+          "recorded_at": "2026-11-26T20:25:15.567960936Z",
+          "seal": {
+            "by": "server",
+            "mac": "d710a410f5dd5bdf4e334dd5a277160e2b0d5e91c62310ded33e2b5e7672d04a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:15.567960936Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f1f53394cc98fc6fb96db468f6322a21616ecf4a54f988354a79abceb15119b"
+      }
+    },
+    {
+      "id": "CLM-1856",
+      "statement": "The header is set by a single middleware::map_response(no_index) layer on the router, with no per-route header code.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1115: preferably via a single tower layer on the router; PR: \"No per-route headers\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3398",
+          "kind": "inspection",
+          "locator": "git grep -n -i robots -- src (only src/http/mod.rs)",
+          "summary": "Only one place sets the header: no_index (mod.rs:534-540), attached once by .layer(middleware::map_response(no_index)) at mod.rs:510. No other source file mentions robots.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "x-robots-tag|ROBOTS_TAG",
+              "case_insensitive": true,
+              "scope": [
+                "src"
+              ],
+              "hits": 6,
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:43.823050050Z",
+          "seal": {
+            "by": "server",
+            "mac": "67e6984294eeb8e8e65a0d36faad4dc19a79caed7052cede7b0a11e78921e1d8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search over src finds the header only in no_index and its single attachment point.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3398"
+          ],
+          "recorded_at": "2026-11-26T20:25:15.672864856Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9ac8cc9fda70c8f2d70d0cd86a434c144912fe3d413a5af94b947b823f9ea97"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:15.672864856Z",
+      "seal": {
+        "by": "server",
+        "mac": "6db4e4574e80070bf35e0914e96fc74114d078b2aaed147c9cf7f277555a9181"
+      }
+    },
+    {
+      "id": "CLM-1857",
+      "statement": "A test asserts the header for a UI page, an OAuth page, /mcp (401) and a 404.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1115: a test asserts it for a UI page, an OAuth page, /mcp (401) and a 404",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3399",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1850-1862 (cases array)",
+          "summary": "Cases include GET /ui/ (UI page, 200), /oauth/authorize (OAuth page, 400) and /.well-known/oauth-protected-resource, GET /mcp (401), GET /no/such/route (404); loop asserts the header on each (lines 1877-1881).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1850,
+                "end": 1882
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:43.932722839Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b6e9d220033ec2b3451109b8637fcce6723f3b9efe7fb9d6a7acf03afd9f867"
+          }
+        },
+        {
+          "id": "EVD-3411",
+          "kind": "test",
+          "locator": "cargo test --lib every_response_says_noindex (a4a41749): 1 passed; also test.log:1071",
+          "summary": "The test passes on head, so the asserted header holds for the UI page, OAuth page, /mcp 401 and 404 cases.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1843,
+                "end": 1883
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:25:22.617962055Z",
+          "seal": {
+            "by": "server",
+            "mac": "7fd4516ae3d5a6c7f6e6c345d51e26506a346e3f3b972b953aec592e96fa40ec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test's cases include a UI page, an OAuth page, /mcp 401 and a 404, each asserted, and it passes on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3399",
+            "EVD-3411"
+          ],
+          "recorded_at": "2026-11-26T20:25:26.708379172Z",
+          "seal": {
+            "by": "server",
+            "mac": "44682d9b0d23326cd69a6c58a37ea2056016879a9020f188f897c3f933b25429"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:26.708379172Z",
+      "seal": {
+        "by": "server",
+        "mac": "c935877acbbcd71057498ad78476f678b62c8adc1cfaa0f786f3cd18a654373c"
+      }
+    },
+    {
+      "id": "CLM-1858",
+      "statement": "The server serves no robots.txt and nothing in src or docs adds a robots.txt Disallow.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1115: no robots.txt Disallow",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3410",
+          "kind": "analysis",
+          "locator": "git grep -n -i -E 'route\\(\"/robots|robots\\.txt\"|Disallow:' -- src examples",
+          "summary": "Zero hits: no robots.txt route, asset or Disallow rule in src or examples (an earlier broader pattern only hit unrelated User-Agent header code). Only prose (mod.rs:516, operations.md:4027) says none is used.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "route\\(\"/robots|robots\\.txt\"|Disallow:",
+              "case_insensitive": true,
+              "scope": [
+                "examples",
+                "src"
+              ],
+              "hits": 0,
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:52.825599758Z",
+          "seal": {
+            "by": "server",
+            "mac": "93f3fa006cee98187d02e38aba4c3a6b87b96d62dc2f18020d1fa8838f6188af"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A zero-hit search over src and examples finds no robots.txt route or Disallow rule.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3410"
+          ],
+          "recorded_at": "2026-11-26T20:25:15.829169781Z",
+          "seal": {
+            "by": "server",
+            "mac": "14aab6b4f141c16fe3519aa3c7354ebcadc01ff793c9f2ddc2558e962fe4ff07"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:15.829169781Z",
+      "seal": {
+        "by": "server",
+        "mac": "88534998838611dab9131776a8052aaf77cd8880bac4eeae351de760e097ae1e"
+      }
+    },
+    {
+      "id": "CLM-1859",
+      "statement": "The no_index layer is added last (outermost) on the router in router(), so the fallback 404, 405, auth 401s, redirects, timeouts and static files all get the header.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"added last (outermost) on the router in `router()`, so the fallback 404, 405, auth 401s, redirects, timeouts and static files all get it\"",
+      "derived_from": [
+        "CLM-1855"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3400",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:482-513",
+          "summary": ".layer(map_response(no_index)) is the last .layer before .with_state, after TraceLayer, request_telemetry, apply_own_writes, check_settings (the file's own comment says the last .layer is outermost), so route-level timeout/static layers and fallback/405 all sit inside it. Redirect, 401, 404, 405 are exercised by the test; timeouts and static files by layer order only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 482,
+                "end": 513
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.104539082Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cd63374a596c56c6241750cec4de6965834878914731dc9630344cdc746d128"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The layer is the last .layer in router(), hence outermost; timeouts/static files are covered by layer order (not individually tested), the other statuses by the test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3400"
+          ],
+          "recorded_at": "2026-11-26T20:25:15.931060069Z",
+          "seal": {
+            "by": "server",
+            "mac": "51911a7b2e98b63ce5666d9f761c6d8911abcff074255ac4f724471aaa0c4767"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:15.931060069Z",
+      "seal": {
+        "by": "server",
+        "mac": "f698e15ddc359ffe31b5f1e79e3c72d27ebda635089cd534b791516fc679dfb3"
+      }
+    },
+    {
+      "id": "CLM-1860",
+      "statement": "The test every_response_says_noindex_whatever_its_status covers /ui/, /signin, /oauth/authorize, the OAuth metadata, /mcp 401, /api/v1/whoami 401, the /read 308 redirect, an unmatched 404 and a 405, and asserts the header on each.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Test `every_response_says_noindex_whatever_its_status` covers `/ui/`, `/signin`, `/oauth/authorize`, the OAuth metadata, `/mcp` 401, `/api/v1/whoami` 401, the `/read` 308 redirect, an unmatched 404 and a 405\"",
+      "derived_from": [
+        "CLM-1857"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3401",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1851-1862, 1864-1882",
+          "summary": "The cases array lists exactly those nine requests with expected statuses (200,200,400,200,401,401,308,404,405); each iteration asserts the status and the header value. Test passes (log line test.log:1071 and rerun).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1851,
+                "end": 1882
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.213741770Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5c18d53f32c29aa1d3c87d75c069d094326a1f429b87123c4dbc8d01086413e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The cases array matches the PR's list exactly and each is asserted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3401"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.036370300Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6516472816f15c1d17c9f897058ade216c6df2e879c66d3cf42696f570c75fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.036370300Z",
+      "seal": {
+        "by": "server",
+        "mac": "446b0f0fc2345df2d21fff0cfb34f879e11b6235d9bfb44bb423d60acb04302e"
+      }
+    },
+    {
+      "id": "CLM-1861",
+      "statement": "With the no_index layer removed, the test every_response_says_noindex_whatever_its_status fails on GET /ui/.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"With the layer removed, it fails on `GET /ui/`.\"",
+      "derived_from": [
+        "CLM-1857"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3402",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:1851-1882; git grep -n -i x-robots-tag -- src",
+          "summary": "The loop iterates in order and the first case is GET /ui/ (200); nothing else in src sets x-robots-tag, so without the layer the header is None and the first assert_eq on the header fails at /ui/. Reasoned, not run (code may not be modified in this audit).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1851,
+                "end": 1882
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.324289013Z",
+          "seal": {
+            "by": "server",
+            "mac": "6070c109b6bad9a021986bafd3cb6552070a0407c86c30ce63b4b4e90647d0a5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading: first case is /ui/ and nothing else sets the header, so removal fails there. The mutation was not run (no code changes allowed in audit).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3402"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.142238291Z",
+          "seal": {
+            "by": "server",
+            "mac": "440d79f2132d8d890f5fb70a7d12bd97b67f588f055b9d10c83e65191b50e35f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.142238291Z",
+      "seal": {
+        "by": "server",
+        "mac": "2d71cd11026eb79e4b9bc8f5a4bbe243ea8f1df949b138aee2fd6c97cb9aad53"
+      }
+    },
+    {
+      "id": "CLM-1862",
+      "statement": "docs/operations.md describes the X-Robots-Tag header and a changelog entry was added.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`docs/operations.md` describes the header; changelog entry added.\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/2026-11-26T20-30-00Z-issue-1115-x-robots-noindex.md"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3403",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4024-4030; changelog/2026-11-26T20-30-00Z-issue-1115-x-robots-noindex.md",
+          "summary": "operations.md paragraph describes the header, scope, no-Disallow rationale and /metrics exception; the changelog file exists in the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4024,
+                "end": 4030
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.435778471Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c0218ba84ae07e820d3b6be73456f4a014d281d53ee25ac5dc667eb121aff4a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs paragraph and changelog file are in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3403"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.246168971Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3fc53ef07c9f76af2241c3fe819b867dd2d36e5f3578ae364de1cf88ba8059e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.246168971Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c6296aa99b60f3a46326ad88a4db484920bf9011c3c824e5538ca9291a3678b"
+      }
+    },
+    {
+      "id": "CLM-1863",
+      "statement": "The separate /metrics listener (src/telemetry/scrape.rs) does not send the header.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The separate `/metrics` listener (`src/telemetry/scrape.rs`) is not covered\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/telemetry/scrape.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3404",
+          "kind": "inspection",
+          "locator": "src/telemetry/scrape.rs:55-65",
+          "summary": "The scrape router is Router::new().route(\"/metrics\", get(render)).with_state(gather) with no layer; the diff does not touch scrape.rs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/scrape.rs",
+              "lines": {
+                "start": 55,
+                "end": 65
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.545625452Z",
+          "seal": {
+            "by": "server",
+            "mac": "4160c6e54b478b6a423660b00aaa8c524caf597e079a1aeafc1541945d369557"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The scrape router has no layers and is untouched by the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3404"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.348777049Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b4911405717272be899c72a2ae1ef16fbcd88fdf5cebf2575abaec7a33c10b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.348777049Z",
+      "seal": {
+        "by": "server",
+        "mac": "90bc3a498db2b331cff0e4fac5f1f7725670e69022d8015c1a5c457cece6d7ec"
+      }
+    },
+    {
+      "id": "CLM-1864",
+      "statement": "The /metrics listener is an internal port that the ingress never routes to.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"it is an internal port the ingress never routes to\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/telemetry/scrape.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3405",
+          "kind": "inspection",
+          "locator": "examples/kubernetes/metrics-service.yaml:1-10; docs/operations.md:170,1298",
+          "summary": "The repo's example says the metrics Service must not be routed from the Ingress, and docs call it a separate unauthenticated listener. The production ingress config is outside this repo, so the deployed fact is not checkable here.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "examples/kubernetes/metrics-service.yaml",
+              "lines": {
+                "start": 1,
+                "end": 10
+              },
+              "commit": "a4a41749fc5252f98249e1c60a4f967ee4278c57"
+            }
+          },
+          "recorded_at": "2026-11-26T20:24:44.655760404Z",
+          "seal": {
+            "by": "server",
+            "mac": "04eaf3dcd5419d4a485bcf78bbd202909ad5577da981056322976f05e59dad51"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The repo's example manifest and docs say the metrics Service is separate and not to be routed from the Ingress, but the production ingress lives outside this repo (argocd-prod) and was not inspected. Fix: check the prod ingress manifest in hypotheosis/argocd-prod for the okf-mcp release (no rule or backend on the metrics port 9464), or soften the PR text to \"the repo's example keeps it off the Ingress\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T20:25:16.452366128Z",
+          "seal": {
+            "by": "server",
+            "mac": "b10c1daa3c9b2e7a467ad4e1079c16608a62c333884ddbe811a5c1561f70cd8b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.452366128Z",
+      "seal": {
+        "by": "server",
+        "mac": "4f924a24ad058d83b56edf84bfb5c6975c0e567142e548f9d9e0a2086534559c"
+      }
+    },
+    {
+      "id": "CLM-1865",
+      "statement": "The fmt, lint and dylint gates pass on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`: pass.\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3406",
+          "kind": "test",
+          "locator": "cargo fmt --all --check (exit 0); cargo clippy --all-targets -- -D warnings (exit 0) on a4a41749 clean tree; target/i1115-logs/dylint.log ends Finished",
+          "summary": "I reran fmt and clippy on head: both pass. dylint.log shows a clean Finished (no errors) but predates the commit by about 8 minutes and was not rerun; the diff since is not known to differ (tree clean).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:24:44.760228530Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc72693d1e1b783994e5152371d8381f3317eb611162ad111a3b16d9a93cf3f0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fmt and clippy rerun by me pass on the clean head tree; dylint's log ends clean (not rerun, log predates the commit by minutes on an unchanged tree).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3406"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.555331507Z",
+          "seal": {
+            "by": "server",
+            "mac": "73845c32b52817432296c945abce52353353cc1ff07116d73bc927f460724f38"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.555331507Z",
+      "seal": {
+        "by": "server",
+        "mac": "cc64dd2d1f59d6f99b7f79aca4c89e30e6b7d49edbd25d2ab9f81a0ac4271408"
+      }
+    },
+    {
+      "id": "CLM-1866",
+      "statement": "The test gate ran 3684 tests with 3684 passed and 20 skipped.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh test`: 3684 run, 3684 passed, 20 skipped.\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "target/i1115-logs/test.log"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3407",
+          "kind": "log",
+          "locator": "target/i1115-logs/test.log:3815 and :7543",
+          "summary": "Both runs (same and separate store modes) print \"Summary 3684 tests run: 3684 passed, 20 skipped\"; doc-tests 30 passed, 1 ignored. Full suite not rerun by me (needs Postgres/Redis); the new test rerun passes.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:24:44.861246460Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e05f0e92e2b84c2567d37dca260defcb352c0131ad8bf862745d6dd76437c5f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The gate log prints exactly 3684 run, 3684 passed, 20 skipped in both store modes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3407"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.663089460Z",
+          "seal": {
+            "by": "server",
+            "mac": "d34d9e512a01819da12947a0a849045898317afb77c7d8716682606796afe58a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.663089460Z",
+      "seal": {
+        "by": "server",
+        "mac": "3c991fe4e8a19241b12c565a810242dcfd5968d8239ea59f7232f2f77d6344b1"
+      }
+    },
+    {
+      "id": "CLM-1867",
+      "statement": "The mcpjam gate ran 5 files and 29 tests, all passed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh mcpjam`: 5 files, 29 tests passed.\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "target/i1115-logs/mcpjam.log"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3408",
+          "kind": "log",
+          "locator": "target/i1115-logs/mcpjam.log (tail)",
+          "summary": "\"Test Files 5 passed (5); Tests 29 passed (29)\".",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:24:44.963287005Z",
+          "seal": {
+            "by": "server",
+            "mac": "704dc1609e94adc0588b2b24a06a81364c9ce57d76dc88ad4f87887cff814a1e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Log shows 5 files, 29 tests passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3408"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.765904119Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf8a6dbfa40ce6d52da7d72ed6eb62e24a3dfbebafece92e1466ea0618dffc69"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.765904119Z",
+      "seal": {
+        "by": "server",
+        "mac": "d6b05746f7505d2c614b9bcebd7b83ae00de9e6ef872631fa1876d92f9c35c63"
+      }
+    },
+    {
+      "id": "CLM-1868",
+      "statement": "The PR touches no console, HTML or JS file, so test-ui and worker were not needed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"`test-ui` and `worker` not run: no console, HTML or JS touched.\"",
+      "derived_from": [
+        "CLM-1854"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1115"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3409",
+          "kind": "analysis",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Diff files: changelog md, docs/operations.md, src/http/mod.rs. No console, HTML, JS or worker file changed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:24:45.065225259Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e966fa763cdfc8f0e0aa1bb16122dfae79cd6d688a1dd76a8e58fc82a07b821"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches only md and one Rust file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3409"
+          ],
+          "recorded_at": "2026-11-26T20:25:16.871365990Z",
+          "seal": {
+            "by": "server",
+            "mac": "22d7b13bb3da98dd7e75d421c2c8cc0eb8a6fca72d4e334420488500dbaad2be"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:24:10.837167355Z",
+      "updated_at": "2026-11-26T20:25:16.871365990Z",
+      "seal": {
+        "by": "server",
+        "mac": "01eab55f19d0879946047d75f8661460861717d69f5f1b8ec545e5e70c6da23e"
       }
     }
   ]

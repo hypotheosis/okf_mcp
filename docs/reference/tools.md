@@ -132,7 +132,7 @@ Append an entry (id, resource, title, author) to a concept's `sources`, refusing
 
 **Find Citations** (read-only)
 
-List the concepts that cite a source, exactly: `source_id` (case-insensitive) and/or `resource` (case-sensitive); both must match one entry. Returns catalog, path, title and the matching `sources` entries, by catalog then path, at most `limit` (default and maximum 200; `truncated` says more exist). `catalogs` and `changeset` as in `search`.
+List the concepts that cite a source, exactly: `source_id` (case-insensitive) and/or `resource` (case-sensitive); both must match one entry. Returns catalog, path, title and the matching `sources` entries, by catalog then path, at most `limit` (default and maximum 200; `truncated` says more exist). With neither, lists the cited sources and their counts. `catalogs` and `changeset` as in `search`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

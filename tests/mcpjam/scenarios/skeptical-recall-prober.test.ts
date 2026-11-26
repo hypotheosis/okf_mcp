@@ -96,6 +96,18 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
             expect(found.truncated).toBe(false);
         }
     });
+
+    // Issue #1114: with no filter, `cited_by` lists the cited sources instead of refusing.
+    test("cited_by with no filter lists the cited sources and their counts", async () => {
+        const listed = await session().call<{
+            hits: unknown[];
+            sources: { source_id: string; cited_by: number }[];
+            truncated: boolean;
+        }>("cited_by", { catalogs: [session().catalog] });
+        expect(listed.hits).toEqual([]);
+        expect(listed.sources.map((source) => source.source_id)).toContain(sourceId);
+        expect(listed.sources.every((source) => source.cited_by >= 1)).toBe(true);
+    });
 });
 
 describe(SCENARIOS.editConflicts.goal, () => {

@@ -14,6 +14,7 @@
 //! catalog order, then path.
 
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 // `rayon::prelude` brings `par_iter` into scope (trait methods are only
 // callable when the trait is imported).
@@ -951,5 +952,123 @@ mod tests {
     fn plain_snippets_are_made_only_when_asked_for() {
         let hits = search(&snapshot(), &SearchQuery::new("time server"));
         assert!(hits.iter().all(|hit| hit.snippet_text.is_none()));
+    }
+}
+
+/// One source as `cited_by` lists it when given no filter: the grouping key
+/// of its entries, how many concepts cite it, and a title.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, schemars::JsonSchema)]
+pub struct CitedSource {
+    /// The entry id (the spelling that sorts first when entries differ only in case).
+    pub source_id: Option<String>,
+    /// What was consulted: a URI, a path or a description.
+    pub resource: Option<String>,
+    /// The source's title (the one that sorts first when entries differ).
+    pub title: Option<String>,
+    /// How many concepts cite it, each counted once.
+    pub cited_by: usize,
+}
+
+/// The grouping key of a source: `id` lowercased and `resource` as given,
+/// the two comparisons [`SourceMatch`] makes.
+type SourceKey = (Option<String>, Option<String>);
+
+/// Counts, in one pass over the catalogs, how many concepts cite each source.
+#[derive(Debug, Default)]
+pub struct SourceTally {
+    /// Each key's first-sorting original id, first-sorting title and count.
+    groups: HashMap<SourceKey, (Option<String>, Option<String>, usize)>,
+}
+
+impl SourceTally {
+    /// Adds every concept of `snapshot`; a concept citing one source
+    /// several times counts once for it.
+    ///
+    /// # Arguments
+    /// * `snapshot` - the catalog.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub fn add(&mut self, snapshot: &Snapshot) {
+        for doc in snapshot.concepts() {
+            let Some(Value::Seq(items)) = doc.frontmatter().data().and_then(|d| d.get("sources"))
+            else {
+                continue;
+            };
+            let mut seen: Vec<SourceKey> = Vec::with_capacity(items.len());
+            for item in items {
+                let Value::Map(map) = item else { continue };
+                let text = |key: &str| map.get(key).and_then(Value::as_str);
+                let key = (
+                    text("id").map(str::to_lowercase),
+                    text("resource").map(str::to_string),
+                );
+                if key == (None, None) {
+                    continue;
+                }
+                let group = self.groups.entry(key.clone()).or_default();
+                // Every entry may supply the spelling and title, so the choice does
+                // not depend on entry order; only the first one per concept counts.
+                keep_smaller(&mut group.0, text("id"));
+                keep_smaller(&mut group.1, text("title"));
+                if !seen.contains(&key) {
+                    group.2 += 1;
+                    seen.push(key);
+                }
+            }
+        }
+    }
+
+    /// The sources by count descending, then id, then resource, cut to `limit`.
+    ///
+    /// # Arguments
+    /// * `limit` - the most sources to return.
+    ///
+    /// # Returns
+    /// The kept sources, and whether more existed.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub fn top(self, limit: usize) -> (Vec<CitedSource>, bool) {
+        let mut all: Vec<CitedSource> = self
+            .groups
+            .into_iter()
+            .map(
+                |((_, resource), (source_id, title, cited_by))| CitedSource {
+                    source_id,
+                    resource,
+                    title,
+                    cited_by,
+                },
+            )
+            .collect();
+        // The key (lowercased id, resource) is unique, so this order is
+        // total apart from ids that differ only in case; the resource breaks that.
+        let order = |a: &CitedSource, b: &CitedSource| {
+            b.cited_by
+                .cmp(&a.cited_by)
+                .then_with(|| a.source_id.cmp(&b.source_id))
+                .then_with(|| a.resource.cmp(&b.resource))
+        };
+        let truncated = all.len() > limit;
+        if truncated {
+            // Partition the kept head in linear time, then sort only it.
+            all.select_nth_unstable_by(limit, order);
+            all.truncate(limit);
+        }
+        all.sort_unstable_by(order);
+        (all, truncated)
+    }
+}
+
+/// Keeps the smaller of `slot` and `candidate`, so the choice does not
+/// depend on the order concepts were visited in.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "per-element helper called in a hot loop (parser or analysis)"
+    )
+)]
+fn keep_smaller(slot: &mut Option<String>, candidate: Option<&str>) {
+    let Some(candidate) = candidate else { return };
+    if slot.as_deref().is_none_or(|current| candidate < current) {
+        *slot = Some(candidate.to_string());
     }
 }

@@ -22,7 +22,7 @@ use crate::labels::directory::Wanted;
 use crate::mcp::context::{is_broken_overlay, require_selected, ToolContext};
 use crate::mcp::search::SkippedCatalog;
 use crate::mcp::{blocking, reply, OkfServer};
-use crate::okf::search::{cites, CitedEntry, SourceMatch};
+use crate::okf::search::{cites, CitedEntry, CitedSource, SourceMatch, SourceTally};
 use crate::okf::snapshot::Snapshot;
 use crate::overlay::View;
 use crate::store::audit::AccessKind;
@@ -34,8 +34,8 @@ const MAX_LIMIT: usize = 200;
 const DESCRIPTION: &str = "List the concepts that cite a source, exactly: `source_id` \
     (case-insensitive) and/or `resource` (case-sensitive); both must match one entry. Returns \
     catalog, path, title and the matching `sources` entries, by catalog then path, at most \
-    `limit` (default and maximum 200; `truncated` says more exist). `catalogs` and `changeset` \
-    as in `search`.";
+    `limit` (default and maximum 200; `truncated` says more exist). With neither, lists the \
+    cited sources and their counts. `catalogs` and `changeset` as in `search`.";
 
 /// `cited_by`'s arguments.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
@@ -72,7 +72,12 @@ pub struct CitingConcept {
 pub struct CitedByResult {
     /// By catalog id, then path.
     pub hits: Vec<CitingConcept>,
-    /// True when more concepts cite the source than `hits` holds.
+    /// With neither `source_id` nor `resource`: the sources cited, most
+    /// cited first, then by id. Left out of a filtered call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sources: Option<Vec<CitedSource>>,
+    /// True when more concepts cite the source (or more sources are cited,
+    /// without a filter) than `hits` (or `sources`) holds.
     pub truncated: bool,
     /// Catalogs left out because the `changeset` read through does not
     /// apply over their published files; every other catalog still answered.
@@ -86,11 +91,12 @@ pub struct CitedByResult {
 /// * `params` - the arguments.
 ///
 /// # Returns
-/// The citing concepts, at most the limit, in catalog then path order.
+/// The citing concepts, at most the limit, in catalog then path order; or,
+/// when neither `source_id` nor `resource` is given, the cited sources.
 ///
 /// # Errors
-/// [`OkfError::Refused`] when neither `source_id` nor `resource` is given
-/// (or one is empty); otherwise as `search`: a selection error, a bad
+/// [`OkfError::Refused`] when `source_id` or `resource` is given but every
+/// one given is empty; otherwise as `search`: a selection error, a bad
 /// `changeset`, a refused admission or a database error. A catalog whose
 /// overlay does not apply is listed in [`CitedByResult::skipped`].
 #[tracing::instrument(level = "debug", skip_all)]
@@ -98,16 +104,21 @@ pub(crate) async fn run(
     ctx: &ToolContext,
     params: CitedByParams,
 ) -> Result<CitedByResult, OkfError> {
-    let wanted = SourceMatch::new(
-        params.source_id.as_deref().filter(|id| !id.is_empty()),
-        params
-            .resource
-            .as_deref()
-            .filter(|resource| !resource.is_empty()),
-    )
-    .ok_or_else(|| OkfError::Refused {
-        reason: "give a non-empty `source_id` or `resource` to find its citations".to_string(),
-    })?;
+    // Neither argument is a request for the cited sources; an empty string
+    // is a malformed filter, refused rather than widened into that listing.
+    let wanted = match (&params.source_id, &params.resource) {
+        (None, None) => None,
+        (id, resource) => Some(
+            SourceMatch::new(
+                id.as_deref().filter(|id| !id.is_empty()),
+                resource.as_deref().filter(|resource| !resource.is_empty()),
+            )
+            .ok_or_else(|| OkfError::Refused {
+                reason: "give a non-empty `source_id` or `resource` to find its citations"
+                    .to_string(),
+            })?,
+        ),
+    };
     let states = ctx.states(params.catalogs.as_deref()).await?;
     let pinned = ctx.pin(params.changeset.as_deref()).await?;
     require_selected(pinned.as_ref(), &states)?;
@@ -129,6 +140,22 @@ pub(crate) async fn run(
             Err(error) => return Err(error),
         }
     }
+    let Some(wanted) = wanted else {
+        let (sources, truncated) = blocking(move || {
+            let mut tally = SourceTally::default();
+            for (_, view) in &views {
+                tally.add(view.snapshot());
+            }
+            tally.top(limit)
+        })
+        .await;
+        return Ok(CitedByResult {
+            hits: Vec::new(),
+            sources: Some(sources),
+            truncated,
+            skipped,
+        });
+    };
     let found = blocking(move || {
         // Every match is collected and sorted before the cut, so the kept
         // hits do not depend on the order the catalogs were selected in.
@@ -166,6 +193,7 @@ pub(crate) async fn run(
         .collect();
     Ok(CitedByResult {
         hits,
+        sources: None,
         truncated,
         skipped,
     })
@@ -322,15 +350,141 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn neither_argument_is_refused() {
+    async fn an_empty_filter_is_refused_but_no_filter_is_not() {
         let test = app_with(&[("pg", &[])], Config::default()).await;
         let ctx = context(&test, principal(&[], Some("pg")), None);
 
-        let none = run(&ctx, params(None, None)).await.unwrap_err();
         let empty = run(&ctx, params(Some(""), Some(""))).await.unwrap_err();
+        let empty_id = run(&ctx, params(Some(""), None)).await.unwrap_err();
+        let none = run(&ctx, params(None, None)).await.unwrap();
 
-        assert_eq!(none.kind(), "Refused");
         assert_eq!(empty.kind(), "Refused");
+        assert_eq!(empty_id.kind(), "Refused");
+        assert_eq!(none.sources, Some(Vec::new()));
+        assert!(none.hits.is_empty() && !none.truncated);
+    }
+
+    /// A concept citing each `(id, resource)` of `cites`.
+    fn citing(cites: &[(&str, &str)]) -> String {
+        let entries: String = cites
+            .iter()
+            .map(|(id, res)| format!("  - id: {id}\n    resource: {res}\n    title: T-{id}\n"))
+            .collect();
+        format!("---\ntype: Note\nsources:\n{entries}---\nBody.\n")
+    }
+
+    fn listed(result: &CitedByResult) -> Vec<(Option<&str>, Option<&str>, usize)> {
+        result
+            .sources
+            .as_ref()
+            .expect("an unfiltered call lists sources")
+            .iter()
+            .map(|s| (s.source_id.as_deref(), s.resource.as_deref(), s.cited_by))
+            .collect()
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn no_filter_counts_each_source_by_concepts_across_catalogs_in_order() {
+        // `D1` and `d1` are one source; a concept citing it twice counts once.
+        let a = citing(&[("D1", "Diary"), ("d1", "Diary"), ("b", "Ledger")]);
+        let b = citing(&[("d1", "Diary")]);
+        let c = citing(&[("a", "Memo"), ("b", "Ledger")]);
+        let test = app_with(
+            &[
+                ("pg", &[("a.md", &a), ("b.md", &b)]),
+                ("work", &[("c.md", &c)]),
+            ],
+            Config::default(),
+        )
+        .await;
+        let ctx = context(&test, principal(&[], None), Some(&["pg", "work"]));
+
+        let found = run(&ctx, params(None, None)).await.unwrap();
+
+        assert!(found.hits.is_empty() && !found.truncated);
+        // Count descending, then id: `D1` (2), `b` (2), `a` (1).
+        assert_eq!(
+            listed(&found),
+            [
+                (Some("D1"), Some("Diary"), 2),
+                (Some("b"), Some("Ledger"), 2),
+                (Some("a"), Some("Memo"), 1),
+            ]
+        );
+        let first = &found.sources.as_ref().unwrap()[0];
+        assert_eq!(first.title.as_deref(), Some("T-D1"));
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn no_filter_respects_the_limit_and_says_truncated() {
+        let text = citing(&[("s0", "r0"), ("s1", "r1"), ("s2", "r2")]);
+        let extra = citing(&[("s2", "r2")]);
+        let test = app_with(
+            &[("pg", &[("a.md", &text), ("b.md", &extra)])],
+            Config::default(),
+        )
+        .await;
+        let ctx = context(&test, principal(&[], Some("pg")), None);
+        let mut limited = params(None, None);
+        limited.limit = Some(2);
+
+        let cut = run(&ctx, limited).await.unwrap();
+        let all = run(&ctx, params(None, None)).await.unwrap();
+
+        assert!(cut.truncated);
+        assert_eq!(
+            listed(&cut),
+            [(Some("s2"), Some("r2"), 2), (Some("s0"), Some("r0"), 1)]
+        );
+        assert!(!all.truncated);
+        assert_eq!(listed(&all).len(), 3);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn no_filter_through_a_changeset_counts_the_drafts() {
+        let plain = "---\ntype: Note\ntitle: Plain\n---\nBody.\n";
+        let test = app_with(&[("pg", &[("a.md", plain)])], Config::default()).await;
+        store_key(&test, "writer").await;
+        let ctx = context(
+            &test,
+            principal_as("writer", Access::Write, &[], Some("pg")),
+            None,
+        );
+        let handle = open(&ctx).await;
+        let draft = concept("Plain", "draft-1", "Family diary");
+        let edit = PendingEdit {
+            path: "a.md",
+            text: Some(&draft),
+            at: Utc::now(),
+        };
+        pending_entry(&test, &handle, &edit).await;
+        let mut through = params(None, None);
+        through.changeset = Some(handle);
+
+        let published = run(&ctx, params(None, None)).await.unwrap();
+        let drafted = run(&ctx, through).await.unwrap();
+
+        assert_eq!(published.sources, Some(Vec::new()));
+        assert_eq!(
+            listed(&drafted),
+            [
+                (Some("draft-1"), Some("Family diary"), 1),
+                (Some("other"), Some("https://example.com/x"), 1),
+            ]
+        );
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_filtered_call_has_no_sources_field() {
+        let a = concept("A", "d1", "Family diary");
+        let test = app_with(&[("pg", &[("a.md", &a)])], Config::default()).await;
+        let ctx = context(&test, principal(&[], Some("pg")), None);
+
+        let found = run(&ctx, params(Some("d1"), None)).await.unwrap();
+
+        assert!(found.sources.is_none());
+        let json = serde_json::to_value(&found).unwrap();
+        assert!(json.get("sources").is_none());
     }
 
     #[tokio::test(flavor = "multi_thread")]

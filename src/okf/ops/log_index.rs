@@ -1356,6 +1356,14 @@ mod tests {
             // so it is an ordinary listing; the rest are unresolvable.
             let want = usize::from(name != "100%.md");
             assert_eq!(outcome.notes.len(), want, "{name}: {:?}", outcome.notes);
+            // A different summary changes nothing either: a raw bullet is
+            // not re-described, `repair_indexes` rewrites it first.
+            if name != "100%.md" {
+                let other = index(&ws, &ctx(), &concept, "something else", None, None).unwrap();
+                assert!(other.touched.is_empty(), "{name}");
+                assert_eq!(ws.read_to_string("d/index.md").unwrap(), raw, "{name}");
+                assert!(other.notes[0].contains("repair_indexes"), "{name}");
+            }
             // Repair never appends a second bullet: it encodes the raw
             // one's destination (`100%.md` is an ordinary listing, kept).
             repair_indexes(&ws).unwrap();

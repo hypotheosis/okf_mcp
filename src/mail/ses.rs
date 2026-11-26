@@ -562,12 +562,16 @@ mod tests {
 
     #[tokio::test]
     async fn unreachable_endpoints_are_retryable() {
-        // A port that was just free: nothing listens there now.
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let closed = format!("http://{}", listener.local_addr().unwrap());
-        drop(listener);
+        // A port held but never listened on: every connect is refused.
+        let unlistened = crate::test_net::Refused::new();
+        let closed = format!("http://{}", unlistened.address());
 
-        let refused = mailer(&closed).send(&mail()).await.unwrap_err();
+        let refused = crate::test_net::bounded(
+            "a send to a refusing address",
+            mailer(&closed).send(&mail()),
+        )
+        .await
+        .unwrap_err();
 
         assert!(matches!(refused, MailError::Retryable(_)), "{refused:?}");
         assert_clean(&refused);

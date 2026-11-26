@@ -447,22 +447,22 @@ mod tests {
     async fn adding_an_unreachable_store_through_the_api_leaks_nothing() {
         let test = app().await;
         let root = every_catalog_admin(&test).await;
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .unwrap()
-            .local_addr()
-            .unwrap()
-            .port();
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
 
-        let (status, body) = send(
-            &test,
-            "POST",
-            "/api/v1/stores",
-            Some(&root),
-            Some(json!({
-                "name": "shared-1", "host": "127.0.0.1", "port": closed,
-                "database": "okf", "credential_kind": "env",
-                "credential_ref": "NO_SUCH_VARIABLE_FOR_THE_TEST",
-            })),
+        let (status, body) = crate::test_net::bounded(
+            "adding a store at a refusing address",
+            send(
+                &test,
+                "POST",
+                "/api/v1/stores",
+                Some(&root),
+                Some(json!({
+                    "name": "shared-1", "host": "127.0.0.1", "port": closed,
+                    "database": "okf", "credential_kind": "env",
+                    "credential_ref": "NO_SUCH_VARIABLE_FOR_THE_TEST",
+                })),
+            ),
         )
         .await;
 

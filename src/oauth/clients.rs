@@ -2108,12 +2108,8 @@ mod tests {
         assert_eq!(served, cached);
 
         // A refused connection: a row for a URL whose port nobody listens on.
-        let closed = {
-            let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
-                .await
-                .expect("bind");
-            listener.local_addr().expect("address").port()
-        };
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
         let dead_id = format!("http://127.0.0.1:{closed}/client.json");
         let dead = ClientRecord {
             client_id: dead_id.clone(),
@@ -2130,9 +2126,12 @@ mod tests {
         .execute(test.app.accounts().executor())
         .await
         .expect("expire");
-        let served = resolve(&test.app, oauth(&test), &dead_id)
-            .await
-            .expect("stale on a refused connection");
+        let served = crate::test_net::bounded(
+            "a fetch from a refusing address",
+            resolve(&test.app, oauth(&test), &dead_id),
+        )
+        .await
+        .expect("stale on a refused connection");
         assert_eq!(served.client_id, dead_id);
 
         sqlx::query("UPDATE oauth_clients SET fetched_at = now() - interval '25 hours'")
@@ -2140,7 +2139,11 @@ mod tests {
             .await
             .expect("age");
         for id in [&client_id, &dead_id] {
-            let too_old = resolve(&test.app, oauth(&test), id).await;
+            let too_old = crate::test_net::bounded(
+                "a fetch from a refusing address",
+                resolve(&test.app, oauth(&test), id),
+            )
+            .await;
             assert!(
                 matches!(too_old, Err(OAuthError::InvalidClient(_))),
                 "{id}: {too_old:?}"

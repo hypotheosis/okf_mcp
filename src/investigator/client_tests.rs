@@ -316,13 +316,19 @@ async fn investigator_client_auth_revocation_and_no_mutation_retry() {
 
 #[tokio::test]
 async fn investigator_client_init_refusal_is_transport() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let endpoint = format!("http://{}/mcp", listener.local_addr().unwrap());
-    drop(listener);
-    assert!(matches!(
-        McpClient::loopback(&endpoint, "pg", "synthetic").await,
-        Err(RunnerError::Transport)
-    ));
+    // A port held but never listened on: every connect is refused.
+    let refused = crate::test_net::Refused::new();
+    let endpoint = format!("http://{}/mcp", refused.address());
+    let opened = crate::test_net::bounded(
+        "the client's connect to a refusing address",
+        McpClient::loopback(&endpoint, "pg", "synthetic"),
+    )
+    .await;
+    assert!(
+        matches!(opened, Err(RunnerError::Transport)),
+        "{:?}",
+        opened.err()
+    );
 }
 
 #[tokio::test]
@@ -577,39 +583,44 @@ async fn investigator_client_https_verifies_certificate_without_provider_panic()
         cert.signing_key.serialize_pem(),
     )
     .unwrap();
-    let reservation = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let address = reservation.local_addr().unwrap();
-    drop(reservation);
+    // s_server picks its own port (`:0`) and announces it on stdout as
+    // `ACCEPT <address>` once it listens, so no port is reserved and dropped
+    // first. (`-quiet` would hide that line.)
     let mut server = tokio::process::Command::new("openssl")
         .args([
             "s_server",
             "-accept",
-            &address.to_string(),
+            "127.0.0.1:0",
             "-cert",
             "cert.pem",
             "-key",
             "key.pem",
             "-www",
-            "-quiet",
         ])
         .current_dir(directory.path())
         .stdin(Stdio::null())
-        .stdout(Stdio::null())
+        .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .kill_on_drop(true)
         .spawn()
         .expect("openssl TLS test prerequisite");
-    tokio::time::timeout(std::time::Duration::from_secs(5), async {
-        loop {
-            assert!(server.try_wait().unwrap().is_none(), "TLS server exited");
-            if tokio::net::TcpStream::connect(address).await.is_ok() {
-                break;
+    // Kept alive to the end of the test: dropping it would close the pipe and
+    // s_server would die writing to it.
+    let mut announcements = tokio::io::BufReader::new(server.stdout.take().expect("piped stdout"));
+    let address: std::net::SocketAddr =
+        crate::test_net::bounded("s_server to announce its port", async {
+            use tokio::io::AsyncBufReadExt;
+            let mut line = String::new();
+            loop {
+                line.clear();
+                let read = announcements.read_line(&mut line).await.unwrap();
+                assert!(read > 0, "TLS server exited before it listened");
+                if let Some(address) = line.trim().strip_prefix("ACCEPT ") {
+                    break address.parse().expect("s_server's announced address");
+                }
             }
-            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
-        }
-    })
-    .await
-    .unwrap();
+        })
+        .await;
     let endpoint = format!("https://localhost:{}/mcp", address.port());
     let error = http_client()
         .unwrap()

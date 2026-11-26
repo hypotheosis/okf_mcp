@@ -279,11 +279,14 @@ mod tests {
                 "{status}: {refused:?}"
             );
         }
-        // A port that was just free: nothing listens there now.
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let closed = format!("http://{}/email", listener.local_addr().unwrap());
-        drop(listener);
-        let unreachable = mailer(&closed).send(&mail()).await;
+        // A port held but never listened on: every connect is refused.
+        let refused = crate::test_net::Refused::new();
+        let closed = format!("http://{}/email", refused.address());
+        let unreachable = crate::test_net::bounded(
+            "a send to a refusing address",
+            mailer(&closed).send(&mail()),
+        )
+        .await;
         assert!(
             matches!(unreachable, Err(MailError::Retryable(_))),
             "{unreachable:?}"

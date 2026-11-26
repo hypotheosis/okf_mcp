@@ -1,0 +1,15 @@
+# cargo-nextest settings for `just test` (justfile). nextest runs each test
+# in a process of its own, so a static in one test (a lazy global, a
+# subscriber) never leaks into another.
+
+[profile.default]
+# Run every test even after a failure, as `just test` always has: the gate
+# reports all failures at once.
+fail-fast = false
+# A test still running after a minute is reported as SLOW, and one still
+# running after five is killed and fails as TIMEOUT, so a hung test names
+# itself instead of holding the gate until gate.sh's 75-minute limit. The
+# slowest tests take about a minute on a loaded machine.
+slow-timeout = { period = "60s", terminate-after = 5 }
+# Print each failure's output again at the end of the run.
+final-status-level = "fail"

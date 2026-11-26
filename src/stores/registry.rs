@@ -586,8 +586,17 @@ impl Stores {
     #[tracing::instrument(level = "debug", skip_all)]
     pub async fn forget_all(&self) {
         self.inner.forgets.fetch_add(1, Ordering::SeqCst);
-        self.inner.pools.invalidate_all();
-        // Settle moka's bookkeeping now, so the next `get` misses.
+        // Each store by name, not `invalidate_all`: moka only marks entries
+        // stale on `invalidate_all` and drops them later, during some future
+        // housekeeping, so the pools and their credential tasks lived on.
+        // The names are collected first: `iter` borrows the cache, and the
+        // borrow must not be held across an `.await`.
+        let stores: Vec<Arc<StoreName>> = self.inner.pools.iter().map(|(store, _)| store).collect();
+        for store in &stores {
+            self.inner.pools.invalidate(store.as_ref()).await;
+        }
+        // Settle moka's bookkeeping now, so each entry (and with it its
+        // credential task) is dropped before this returns.
         self.inner.pools.run_pending_tasks().await;
     }
 

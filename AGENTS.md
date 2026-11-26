@@ -12,7 +12,7 @@ Shared tooling for agent-driven work lives in [`tools/agentic/`](tools/agentic/R
 
 | Job | Use | Not |
 |---|---|---|
-| Running `fmt`, `lint`, `test`, `test-ui`, `dylint` or a narrow `cargo test` | `tools/agentic/gate.sh <gate>` (shared lock and hard timeout; exit 124 means a hang) | bare `just test`, `cargo test` or your own `flock` / `timeout` wrapper |
+| Running `fmt`, `lint`, `test`, `test-ui`, `dylint`, `mcpjam` or a narrow `cargo test` | `tools/agentic/gate.sh <gate>` (shared lock and hard timeout; exit 124 means a hang) | bare `just test`, `cargo test` or your own `flock` / `timeout` wrapper |
 | Waiting for the review bot on a PR | `tools/agentic/watch-review.sh <pr>` | polling loops or `sleep` |
 | Merging a reviewed PR | `tools/agentic/merge-reviewed.sh <pr>` (checks the review, thread replies and merge state) | `gh pr merge` directly |
 | Detecting hung test or gate processes while coordinating | `tools/agentic/watchdog.sh` in the background | waiting on an agent's report |

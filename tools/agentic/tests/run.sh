@@ -1232,6 +1232,57 @@ test_gate_worker_timeout_returns_124() {
     want_rc 124; want_out "Treat this as a HANG"
 }
 
+test_gate_mcpjam_runs_the_just_recipe() {
+    new_fixtures; fake_just 'printf "%s\n" "$*" >"$GH_FIXTURES/just_args"; exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" mcpjam 2>&1)
+    rc=$?
+    want_rc 0
+    [ "$(cat "$fx/just_args")" = test-mcpjam ] \
+        || die "just got '$(cat "$fx/just_args")', want 'test-mcpjam'"
+}
+
+test_gate_mcpjam_never_reaches_a_remote_target_or_real_database() {
+    new_fixtures
+    # A fake just that records which of the steering variables it was given.
+    # shellcheck disable=SC2016 # expanded by the fake just, not here
+    fake_just 'env | grep -E "^(OKF_MCP_[A-Z_]+|DATABASE_URL|TEST_PG_URL)=" | sort \
+        >"$GH_FIXTURES/just_env"; exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" OKF_MCP_URL=https://example.com/mcp \
+        OKF_MCP_KEY=k OKF_MCP_API_URL=https://example.com/api/v1 OKF_MCP_ISOLATION=folder \
+        OKF_MCP_CATALOG=scratch OKF_MCP_BIN=/elsewhere/okf-mcp \
+        DATABASE_URL=postgres://example.internal/real TEST_PG_URL=postgres://127.0.0.1/test \
+        OKF_MCP_KEEP=1 "$tools/gate.sh" mcpjam 2>&1)
+    rc=$?
+    want_rc 0
+    local want=$'OKF_MCP_KEEP=1\nTEST_PG_URL=postgres://127.0.0.1/test'
+    [ "$(cat "$fx/just_env")" = "$want" ] \
+        || die "just got the environment '$(cat "$fx/just_env")', want '$want'"
+}
+
+test_gate_mcpjam_timeout_returns_124() {
+    new_fixtures; fake_just 'exec sleep 30'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_TIMEOUT_MCPJAM=1s \
+        "$tools/gate.sh" mcpjam 2>&1)
+    rc=$?
+    want_rc 124; want_out "Treat this as a HANG"
+}
+
+test_gate_mcpjam_waits_for_the_gate_lock() {
+    new_fixtures; fake_just 'exit 0'
+    mkdir -p "$repo/.git/agentic"
+    # shellcheck disable=SC2016 # $1 is expanded by the inner bash
+    bash -c 'exec 9>"$1"; flock 9; exec sleep 30' _ "$repo/.git/agentic/gates.lock" \
+        >/dev/null 2>&1 &
+    lock_holder=$! # not local: the EXIT trap runs after the function returns
+    trap 'kill "$lock_holder" 2>/dev/null' EXIT
+    sleep 0.2
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_TIMEOUT_MCPJAM=1s \
+        "$tools/gate.sh" mcpjam 2>&1)
+    rc=$?
+    kill "$lock_holder"; wait "$lock_holder" 2>/dev/null
+    want_rc 124; want_out "for the gate lock"
+}
+
 test_gate_narrow_builds_offline() {
     new_fixtures
     mkdir -p "$fx/bin"

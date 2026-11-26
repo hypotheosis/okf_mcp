@@ -3191,7 +3191,7 @@ error body also carries two fields, neither of which reveals the detail:
   connected agent send a report of the same incident.
 
 No other error carries either field. The HTTP API's internal errors carry `trace_id` too
-(see the `/api/v1` error shape under the console's headers), but never `report`.
+(see the `/api/v1` error shape in the Web console section), but never `report`.
 
 Any credential can send, `read` included, and no catalog is needed. A
 message is at most 4,000 characters, and each credential may send

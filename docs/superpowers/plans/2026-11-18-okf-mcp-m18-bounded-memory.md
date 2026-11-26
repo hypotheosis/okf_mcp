@@ -64,7 +64,8 @@
 - `try_get_with(key, init_future) -> Result<V, Arc<E>>`: concurrent callers for one key share one init.
 - `get(&k)`, `insert(k, v)`, `invalidate(&k)`, `invalidate_all()`, `iter()` (sync, `(Arc<K>, V)`), `entry_count()`, `weighted_size()`, `run_pending_tasks()`.
 - `RemovalCause::{Expired, Explicit, Replaced, Size}`.
-- The weigher returns `u32`: weights are clamped to `u32::MAX` bytes (4 GiB), above any single catalog's budget.
+- The weigher given to moka returns `u32`.
+  > **Corrected (issue #756).** `Bounded::with_weigher` now takes a `u64` byte weight. Moka gets it rounded up to units of `1 << shift` bytes, where the shift is 0 for a budget up to `u32::MAX` bytes and otherwise one that keeps the budget to at most `2^31` units (`bounded::unit_shift`); `max_capacity` is scaled by the same unit and the `okf_cache_bytes` gauge is scaled back to bytes. `too_heavy` compares bytes.
 
 ### sqlx 0.9 `PgListener`
 
@@ -908,7 +909,7 @@ impl CatalogCache {
 Publish (`src/store/publish.rs:303`) and HTTP import (`src/http/archives.rs:576`) keep refreshing the publisher's own entry directly (its `NOTIFY` arrives a moment later and is then a no-op).
 
 > **Corrected (issue #686, 2026-11-19).** As shipped (read `src/cache/catalogs.rs`, `src/app.rs`, `src/mcp/context.rs`):
-> - **The weight is `1024 + 1024 * files + 8 * stored_bytes`** (`cache::catalogs::weight(stored_bytes, files)` and `weight_of(&Loaded)`, saturating at `u32::MAX`; constants `PER_CATALOG_BYTES`, `PER_FILE_BYTES`, `WEIGHT_FACTOR`). Content alone would let empty catalogs and empty files weigh nothing (review of PR #714). `Loaded::stored_bytes()` is new. Method and numbers are in spec Decision 2; the measurement is `tests/snapshot_weight.rs` (`--ignored`).
+> - **The weight is `1024 + 1024 * files + 8 * stored_bytes`** (`cache::catalogs::weight(stored_bytes, files)` and `weight_of(&Loaded)`, saturating at `u64::MAX`, issue #756; constants `PER_CATALOG_BYTES`, `PER_FILE_BYTES`, `WEIGHT_FACTOR`). Content alone would let empty catalogs and empty files weigh nothing (review of PR #714). `Loaded::stored_bytes()` is new. Method and numbers are in spec Decision 2; the measurement is `tests/snapshot_weight.rs` (`--ignored`).
 > - `CatalogCache::new(pool, budget_bytes, metrics)`: no TTL argument. Freshness is not the cache's: `get(row, rebuilds)` uses `get_or_load` and then compares the snapshot's generation with the row's, refreshing in place when behind (`get_or_revalidate`'s `check` runs only for stale-marked entries, so it could not do this). The snapshot cache's moka TTL is a fixed one-day backstop. There is **no `CatalogCache::mark_all_stale`**: a reconnect marks the directory stale (`App::apply_reconnect`, and `App::catch_up_catalogs`, which the M16 subscriber calls on a resubscribe, is now just that), and each use then rereads the row and catches the snapshot up.
 > - `apply` is `catch_up(id, generation, rebuilds) -> Result<CatchUp, OkfError>` (`NotResident | Current | Applied`): used by the change feed (`App::apply`), M16 announcements (`refresh_announced`) and the HTTP import. **Minimum generations (Decision 11)** are the cache's epoch fence: a `Catalog` message that finds the entry not resident calls `Bounded::invalidate(id)`, which moves the epoch of a load in flight (only then: no state otherwise), so that load is served but not kept. It is conservative (a load that already read the new generation is not kept either) and needs no per-id state.
 > - Re-weighing: `refreshed(id)` (every refresh inside the cache) and `refreshed_if_moved(state, before)` (a publish, on every outcome, since `current_base` can refresh before a merge or lint refusal; an overlay build and `pending_changes`, which can refresh through `current_covering`).

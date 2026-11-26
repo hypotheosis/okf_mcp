@@ -1007,7 +1007,10 @@ first use.
 - **Sizing `catalog_cache_bytes`.** A snapshot's weight is
   `1024 + 1024 x files + 8 x stored bytes` per catalog (the method is in the
   milestone 18 design, decision 2), so a count of catalogs and a stored size
-  give the figure. Watch `okf_cache_bytes{cache="catalog"}` against the
+  give the figure. Any budget is accepted: above 4 GiB the cache counts in
+  coarser units (a power of two of bytes, rounded up, so a catalog is never
+  undercounted), and `okf_cache_bytes` still reports bytes. Watch
+  `okf_cache_bytes{cache="catalog"}` against the
   setting, and the hit ratio of `okf_cache_requests_total` for the same
   cache. A ratio that stays low with the cache at its limit, and
   `okf_cache_evictions_total{cause="size"}` rising, mean the working set is

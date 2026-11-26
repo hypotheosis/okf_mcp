@@ -332,7 +332,7 @@ async fn a_request_keeps_its_snapshot_while_the_entry_is_evicted() {
     // Two catalogs of one kilobyte each; the budget holds one.
     let text = note(1024);
     let files: &[(&str, &str)] = &[("a.md", &text)];
-    let budget = u64::from(weight(1024 * 3 / 2, 1));
+    let budget = weight(1024 * 3 / 2, 1);
     let (test, _registry) = app(&[("a", files), ("b", files)], budget).await;
     let ctx = context(&test, principal(&[], None), None);
 
@@ -602,10 +602,10 @@ async fn a_description_change_keeps_the_snapshot() {
 }
 
 #[test]
-fn the_weight_charges_bytes_files_and_the_catalog_and_saturates() {
-    let fixed = u32::try_from(PER_CATALOG_BYTES).unwrap();
-    let per_file = u32::try_from(PER_FILE_BYTES).unwrap();
-    let factor = u32::try_from(WEIGHT_FACTOR).unwrap();
+fn the_weight_charges_bytes_files_and_the_catalog_and_saturates_at_u64() {
+    let fixed = PER_CATALOG_BYTES;
+    let per_file = PER_FILE_BYTES;
+    let factor = WEIGHT_FACTOR;
 
     assert_eq!(weight(0, 0), fixed, "an empty catalog is not free");
     assert_eq!(
@@ -614,8 +614,8 @@ fn the_weight_charges_bytes_files_and_the_catalog_and_saturates() {
         "nor are empty files"
     );
     assert_eq!(weight(1000, 1), fixed + per_file + 1000 * factor);
-    assert_eq!(weight(u64::MAX, 0), u32::MAX);
-    assert_eq!(weight(0, u64::MAX), u32::MAX);
+    assert_eq!(weight(u64::MAX, 0), u64::MAX);
+    assert_eq!(weight(0, u64::MAX), u64::MAX);
 }
 
 /// Catalogs of empty files are charged by their files: a budget of a few
@@ -633,7 +633,7 @@ async fn catalogs_of_empty_files_are_charged_and_evicted() {
     let catalogs: Vec<(&str, &[(&str, &str)])> =
         names.iter().map(|name| (*name, files.as_slice())).collect();
     // Room for two of them: each weighs about 200 KiB.
-    let each = u64::from(weight(0, 200));
+    let each = weight(0, 200);
     let (test, registry) = app(&catalogs, each * 5 / 2).await;
     let cache = test.app.catalog_cache();
 

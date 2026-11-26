@@ -77,7 +77,7 @@ unchanged inside.
   and the method in this spec). The cache's capacity is
   `catalog_cache_bytes`.
   > **Corrected (issue #686, 2026-11-19).** The weight is
-  > `1024 + 1024 * files + 8 * stored_bytes`, saturating at `u32::MAX`
+  > `1024 + 1024 * files + 8 * stored_bytes`, saturating at `u64::MAX` (moka is given it in coarser units for a budget past 4 GiB, issue #756)
   > (`cache::catalogs::{PER_CATALOG_BYTES, PER_FILE_BYTES, WEIGHT_FACTOR,
   > weight}`). Content alone would charge nothing for an empty catalog or
   > for many empty files, whose paths, revisions, commit times and map

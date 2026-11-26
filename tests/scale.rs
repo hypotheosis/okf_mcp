@@ -188,7 +188,7 @@ async fn a_million_catalogs_and_users_stay_within_bounds() {
     // The budget fits about CATALOGS_FITTING tiny catalogs: each weighs
     // 1 KiB + 1 KiB per file + 8 per stored byte.
     let one_catalog = okf_mcp::cache::catalogs::weight(NOTE.len() as u64, 1);
-    let budget = u64::from(one_catalog) * CATALOGS_FITTING;
+    let budget = one_catalog * CATALOGS_FITTING;
     let config = Config {
         catalog_cache_bytes: ByteSize::b(budget),
         credential_cache_entries: CREDENTIAL_ENTRIES,

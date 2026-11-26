@@ -2452,15 +2452,28 @@ mod tests {
     /// removes it once that shell is gone (a run killed with KILL never runs
     /// its EXIT trap), and keeps one whose shell is alive. A server started
     /// without an owner keeps its `server-<name>` label and is never swept.
-    /// The sweep gets the real scope but a liveness stub that calls every
-    /// other pid alive, so it can match nothing but these containers.
+    /// The owners are real, live `sleep` children (unique pids, so concurrent
+    /// runs of this test never share labels, and an ordinary sweep from another
+    /// test process finds them alive and leaves the servers alone). Only this
+    /// test's own sweep, through a liveness stub that calls every pid but one
+    /// of them alive, treats the "dead" owner as dead.
     #[tokio::test(flavor = "multi_thread")]
     async fn the_shared_server_of_a_dead_run_is_swept() {
         let Some(scope) = pg_support::owner_scope() else {
             return;
         };
-        let dead_pid = 4_000_003_u32;
-        let live_pid = 4_000_004_u32;
+        // `kill_on_drop` ends a child even if an assertion panics first.
+        let spawn_owner = || {
+            tokio::process::Command::new("sleep")
+                .arg("600")
+                .kill_on_drop(true)
+                .spawn()
+                .expect("spawn an owner process")
+        };
+        let mut dead_owner = spawn_owner();
+        let mut live_owner = spawn_owner();
+        let dead_pid = dead_owner.id().expect("the dead owner has a pid");
+        let live_pid = live_owner.id().expect("the live owner has a pid");
         let tag = pg_support::unique_start_label();
         let script = concat!(env!("CARGO_MANIFEST_DIR"), "/scripts/test-pg.sh");
         let mut names = Vec::new();
@@ -2493,6 +2506,11 @@ mod tests {
                 .args(["down", name])
                 .status()
                 .await;
+        }
+
+        // Stop and reap both owners, so no process outlives the test.
+        for owner in [&mut dead_owner, &mut live_owner] {
+            let _ = owner.kill().await;
         }
 
         let found = found.unwrap();

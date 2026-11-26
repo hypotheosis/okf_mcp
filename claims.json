@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1548,
+  "next_claim_seq": 1559,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "25337ca749e831229a75ca7df92b422173a0239d20f8ee64619e31b17821dd77"
+    "mac": "99667e4a46466285650ecb65ad1cf972a4d5f28c346dc3a5973c88e12112ec4f"
   },
-  "next_evidence_seq": 2291,
+  "next_evidence_seq": 2318,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7fae5515509e62596389dce1bb5994ff44ebc50a7d5b8205040a8ac3aeb0c7bf"
+    "mac": "95eb857cefcd57d81fd5e41eeef383c804b60660ced5921b42424d257252e655"
   },
   "claims": [
     {
@@ -98392,6 +98392,28 @@
             "by": "server",
             "mac": "42068559699827c922e4bdb6579aabe1134f94b87ec341340b4d33aa4b2d8592"
           }
+        },
+        {
+          "id": "EVD-2304",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests (17 passed); src/http/api/search.rs:150-190; src/http/api/catalogs.rs:276-308",
+          "summary": "Recheck for #732: both listing paths still mark down page-unavailable rows, catch StoreUnavailable from a load into unavailable (search keeps the name), and the named tests (search_returns_other_stores_results_..., list_catalogs_leaves_out_..., the_catalog_listing_route_...) pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 276,
+                "end": 308
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:27:59.787612967Z",
+          "seal": {
+            "by": "server",
+            "mac": "11738f7b6ff384c954770e1b327fc8c1c50ee169fa6f54050a9521eee91ff446"
+          }
         }
       ],
       "verdicts": [
@@ -98420,13 +98442,26 @@
             "by": "server",
             "mac": "55d6a9ceae838c8384a2f0d6d3acb60baafef09fa5930406398b9545241b2dcb"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at f5462ca: unavailable handling intact in both paths; tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2304"
+          ],
+          "recorded_at": "2026-11-26T03:28:11.754276848Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5bef36a845d10efacc95881ba2acbbf3f0f57f73bc4193a6a435a8714c1c8bf"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-24T15:07:50.000958080Z",
+      "updated_at": "2026-11-26T03:28:11.754276848Z",
       "seal": {
         "by": "server",
-        "mac": "ec87fef716aace2faa4f5e51ad271df91ccd97b86c65a657c77bd3be043fa1f8"
+        "mac": "d3891d10c5bd23d8925f3bb7b834bb0eccde1bd696ea4e3d57af6a85dae402a4"
       }
     },
     {
@@ -99614,6 +99649,50 @@
             "by": "server",
             "mac": "90e71a0d9f81e6d0afa01e51ebea8ab3c746848a158fb082682507e067ec75ac"
           }
+        },
+        {
+          "id": "EVD-2303",
+          "kind": "analysis",
+          "locator": "src/mcp/context.rs:1324-1334 (listed_states), 1344-1362 (held_state), 1393-1405 (buffered); src/mcp/catalogs.rs:143-155; gate.sh narrow --lib unavailable_tests (17 passed)",
+          "summary": "Recheck at f5462ca for #732: listed_states now starts up to 8 held_state loads at once. Each checks the down set (empty) before any has failed, then calls app.catalog_state, so n catalogs on a store that passes the page probe but fails the state load each spend a connect attempt (up to min(8, n)), where before the second row returned from the down set without connecting (EVD-1806). The wall time is still one bound, so the time-based tests (list_catalogs_spends_one_bound_..., the route test; passed) still pass; they do not count connections (EVD-1807 says so). The page-found-down path is unchanged and still probes once (an_unnamed_console_search_probes_a_lost_store_once, list_catalogs_probes_a_lost_selected_store_once passed). Not run with a connection counter.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1324,
+                "end": 1362
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:27:59.699402724Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a0e5bd0d4b8a181f814607763f0af7ce1067a9890389227999983f7e7d0c761"
+          }
+        },
+        {
+          "id": "EVD-2309",
+          "kind": "analysis",
+          "locator": "src/mcp/context.rs:1329-1357 (listed_states two waves), 1365-1395 (held_state); gate.sh narrow --lib unavailable_tests (18 passed)",
+          "summary": "At 6e923c8 listed_states partitions rows into heads (first row of each store) and tails and runs heads, then tails, each through buffered_in_order. A head whose load ends StoreUnavailable is marked down by held_state (and by the callers) before the tails start, so tails on that store return from the down set with no connect attempt. A lost store is therefore probed once per call on the listing paths, by reading: heads are one per store, tails are refused from the down set. The earlier gap (up to 8 same-store loads in flight) is closed. Limits: no test counts connection attempts for the state-load-failure case (the existing tests assert elapsed time and unavailable names; the new test only checks page order); and a head that fails with a non-StoreUnavailable error does not mark the store down, so tails then load normally, which is correct.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1329,
+                "end": 1357
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.220465871Z",
+          "seal": {
+            "by": "server",
+            "mac": "4ebe901b6146a9f12b389c41a7a5a5d908d4b310b6ee647f091b75ad63899c0b"
+          }
         }
       ],
       "verdicts": [
@@ -99683,13 +99762,39 @@
             "by": "server",
             "mac": "1442abc17f47dcb8724ce712f895953f0d74b3726e90a982a3550f121e8bd6b6"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "By code reading at f5462ca: the concurrent listing starts up to 8 state loads before any marks the store down, so a store that passes the page probe but fails the state load is hit once per catalog in that window, not once per call (the page-found-down paths still probe once). Time-based tests still pass and do not count connections. Not run with a connection counter. Fix: either add a test with 2+ catalogs on a store that passes the page probe but fails the state load, counting accepted connections, and bound it (for example by loading one row per store first or sharing the failed open), or reword the claim and the PR description to say a listing spends one load bound of wall time on such a store.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2303"
+          ],
+          "recorded_at": "2026-11-26T03:28:11.672518014Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ef8d4b0fb8593f0de0a4d2218b5fe5e0673f74084b24fbef79758badc8cf803"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "By code at 6e923c8, one head per store loads first and marks a lost store down before the tails start, so a lost store is probed once per call. Supported by reading plus time-based tests; no test counts connections for the state-load-failure path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2309"
+          ],
+          "recorded_at": "2026-11-26T03:34:53.897369895Z",
+          "seal": {
+            "by": "server",
+            "mac": "a94043e99a39fad8bb5a199ce2b8670989eee554ffc9910b22ae5137f1815d32"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-25T10:20:40.868997939Z",
+      "updated_at": "2026-11-26T03:34:53.897369895Z",
       "seal": {
         "by": "server",
-        "mac": "af39ec53abfbfccb345ac0160090f50f450dfc7569a43cf8490c43ba46a67f72"
+        "mac": "661dcb31c25f9949bfcaddd05e4bd4fc5619c329ed158cf5d9272a2771917e23"
       }
     },
     {
@@ -100030,6 +100135,50 @@
             "by": "server",
             "mac": "a7455d6a11453df022d697baa56628e91b6582f569cd577dd1b191f5c27c22e4"
           }
+        },
+        {
+          "id": "EVD-2305",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests an_unnamed_console_search_probes_a_lost_store_once (passed); src/http/api/search.rs:160-172",
+          "summary": "Recheck for #732: every_reachable still calls ctx.mark_down for each page-unavailable row and keeps it unloaded; the connection-counting test passes on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/search.rs",
+              "lines": {
+                "start": 160,
+                "end": 172
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:27:59.877120013Z",
+          "seal": {
+            "by": "server",
+            "mac": "88e75a665d117d2202555b14a79ea1359bcdde89037cfae2dbed800dcb761f7a"
+          }
+        },
+        {
+          "id": "EVD-2311",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests (18 passed) incl. an_unnamed_console_search_probes_a_lost_store_once; src/http/api/search.rs:160-172",
+          "summary": "Re-audit at 6e923c8: search.rs is unchanged since f5462ca (seeding of page-unavailable rows intact); connection-counting test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/search.rs",
+              "lines": {
+                "start": 160,
+                "end": 172
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.417128127Z",
+          "seal": {
+            "by": "server",
+            "mac": "da839272590f44e5b83b6b7ed08265170fee8e59953bd48b2c16f3b7a22c2372"
+          }
         }
       ],
       "verdicts": [
@@ -100046,13 +100195,39 @@
             "by": "server",
             "mac": "bca825ccfbd1ddc4ea65c7f2e4a836c8e0fb799cad361e4e778dafedeb19c255"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at f5462ca: seeding of page-unavailable rows is unchanged and its connection-counting test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2305"
+          ],
+          "recorded_at": "2026-11-26T03:28:11.833983326Z",
+          "seal": {
+            "by": "server",
+            "mac": "c9007ec6c0553bd547786505145b38738a652e80da27623705f7f6e0baaf5874"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Seeding unchanged; counting test passes at 6e923c8.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2311"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.066053008Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5f4aef5933ff32106c9b2c180acf1ff9b96b3daa52fc5d12ec1bc1a0dc88b2a"
+          }
         }
       ],
       "created_at": "2026-11-24T15:05:43.151903466Z",
-      "updated_at": "2026-11-24T15:07:48.364534412Z",
+      "updated_at": "2026-11-26T03:34:54.066053008Z",
       "seal": {
         "by": "server",
-        "mac": "3a09c9b6f84639f5fdf45c4cd674713065b5bfe84c6f2b362d890347e7444f0d"
+        "mac": "91be3a2832b378c0e5165629c214ba4b2d45ff33ffc5086a1003f426e6235903"
       }
     },
     {
@@ -100101,6 +100276,50 @@
             "by": "server",
             "mac": "0746b0f51e120d6ed1643a894767b9b4c3bfc1bf63d2e435e7a4fbb9eb139e01"
           }
+        },
+        {
+          "id": "EVD-2306",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests list_catalogs_probes_a_lost_selected_store_once, list_catalogs_leaves_out_and_names_the_unavailable_catalog (passed); src/mcp/catalogs.rs:132-160",
+          "summary": "Recheck for #732: list still calls ctx.mark_down for page-unavailable rows and for a row whose load returned StoreUnavailable, and the selection after it is unchanged; tests pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/catalogs.rs",
+              "lines": {
+                "start": 132,
+                "end": 160
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:27:59.966808420Z",
+          "seal": {
+            "by": "server",
+            "mac": "0677d572de770e6a8ae0b0717d7469a5d765b9949e5d432032c7aaa3cf836958"
+          }
+        },
+        {
+          "id": "EVD-2312",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests (18 passed) incl. list_catalogs_probes_a_lost_selected_store_once; src/mcp/catalogs.rs:132-160",
+          "summary": "Re-audit at 6e923c8: mcp/catalogs.rs unchanged since f5462ca; both mark_down calls intact; tests pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/catalogs.rs",
+              "lines": {
+                "start": 132,
+                "end": 160
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.498025148Z",
+          "seal": {
+            "by": "server",
+            "mac": "93c937b4104dc519811108eeea250276f1cd587ad21cafcadd30705f825f62c9"
+          }
         }
       ],
       "verdicts": [
@@ -100116,13 +100335,39 @@
             "by": "server",
             "mac": "fb138280d3dd7a2b8dbdb7d064decfa04b05e50788a3b37232992524d07df9ea"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at f5462ca: both mark_down calls remain; tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2306"
+          ],
+          "recorded_at": "2026-11-26T03:28:11.920019212Z",
+          "seal": {
+            "by": "server",
+            "mac": "82e98d1c6dd4505a98dce244527b2639ca18bced1f553b2c2abc841afcdeb208"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "mark_down calls unchanged; tests pass at 6e923c8.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2312"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.147910663Z",
+          "seal": {
+            "by": "server",
+            "mac": "f31bfc4a16353475331eac3588ae3f4aec440b9ac56cb4447a6307681456d85d"
+          }
         }
       ],
       "created_at": "2026-11-24T15:05:43.151903466Z",
-      "updated_at": "2026-11-24T15:07:48.587154382Z",
+      "updated_at": "2026-11-26T03:34:54.147910663Z",
       "seal": {
         "by": "server",
-        "mac": "99ad7f138ccaf76fbe4d469d9bdcd5e1d5f683be7efd8e860dbd7e4b7b4991ce"
+        "mac": "17b53e2a2fc4bddc622ddb9b33e4c52bfa821bea1ea1120cbfa99a4460a991ae"
       }
     },
     {
@@ -100913,6 +101158,50 @@
             "by": "server",
             "mac": "b8514dff1d86780164139bff321d16f95d4d2218a53a7d69610dc23a3000f1aa"
           }
+        },
+        {
+          "id": "EVD-2307",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests the_catalog_listing_route_spends_one_load_bound_on_a_store_that_stalls (passed); src/http/api/catalogs.rs:276-308",
+          "summary": "Recheck for #732: the route still uses a per-request ToolContext, marks a failed store down and names both catalogs in unavailable; the test (asserts elapsed < 1.5 x one bound) passes on head. Loads of the two catalogs now overlap, so the cost is one bound by concurrency rather than by the down-set short-circuit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 276,
+                "end": 308
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:28:00.054143120Z",
+          "seal": {
+            "by": "server",
+            "mac": "f90cf74d0b5f3ff8be6cb2c641e532594ff403f915baf6178adcfe5265598503"
+          }
+        },
+        {
+          "id": "EVD-2313",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests the_catalog_listing_route_spends_one_load_bound_on_a_store_that_stalls (passed, 18 passed overall)",
+          "summary": "Re-audit at 6e923c8: the second catalog on the stalled store is now refused from the down set after the first stalls (cost one state_load_timeout again by the down-set mechanism the claim names, not by overlap); both are named in unavailable; test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 276,
+                "end": 308
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.593720054Z",
+          "seal": {
+            "by": "server",
+            "mac": "e19864686f26b14429ebed1f0694d89b8036cd25d4ab7d19848a5142c7a86184"
+          }
         }
       ],
       "verdicts": [
@@ -100941,13 +101230,39 @@
             "by": "server",
             "mac": "d9bff55b31122832cd6dc6a0bd7cef13c8903d08d764c3df82e478ad442bba4c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at f5462ca: the claim's stated outcome (one state_load_timeout, all named) holds and its test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2307"
+          ],
+          "recorded_at": "2026-11-26T03:28:12.002721809Z",
+          "seal": {
+            "by": "server",
+            "mac": "040df4250394406f82349543ee8f408e9f64b805cda180fa3252e602b84f5ac3"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "One bound by the down-set mechanism again; route test passes at 6e923c8.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2313"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.229320355Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a4cc9df94e70e8354301aae0effb69c8f97e9a509f64c38adba79bb09aa7d9c"
+          }
         }
       ],
       "created_at": "2026-11-24T15:47:36.168875358Z",
-      "updated_at": "2026-11-25T10:20:38.232644544Z",
+      "updated_at": "2026-11-26T03:34:54.229320355Z",
       "seal": {
         "by": "server",
-        "mac": "e236b747dc8ed6d2cbd155ee85b42071ea346e6ceb9811e9f439245d8230c636"
+        "mac": "716c3637e57c49cfc2ced01aef80701ab5994672197720a07af939c203435c61"
       }
     },
     {
@@ -125296,6 +125611,946 @@
       "seal": {
         "by": "server",
         "mac": "c7b81331a21d49f5626c95428bb7fe0838cf2607dc43bca7ed5703e090d06475"
+      }
+    },
+    {
+      "id": "CLM-1548",
+      "statement": "Issue #732 is delivered: a listing page's uncached catalog snapshots load concurrently (bounded) instead of one after another, with CatalogCache::get's single-flight and broken-generation handling kept.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/732",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/catalogs.rs",
+        "src/http/api/catalogs.rs",
+        "src/http/api/search.rs",
+        "tests/scale.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All child claims are supported and the code does the requested change, but the issue's goal (cold first page under 50 ms at 1,000,000 catalogs) is unmeasured: the scale test was not run, by instruction. Fix: run tests/scale.rs alone on a quiet machine and record that the cold first-page bound of 50 ms holds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T03:28:25.391014982Z",
+          "seal": {
+            "by": "server",
+            "mac": "a63e1de3fc951aeeda5a302f18d7c36b6438ffa7ddcb833f7d494114e6182fdc"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:28:25.391014982Z",
+      "seal": {
+        "by": "server",
+        "mac": "9bb1f7c4b4b16a48b7e766c98931e1ef0a926d4b1fe4338cd826565bc888b4e1"
+      }
+    },
+    {
+      "id": "CLM-1549",
+      "statement": "ToolContext::listed_states loads a page's rows through listed_state with at most LISTING_LOAD_CONCURRENCY (8) loads in flight at once.",
+      "kind": "performance",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR #732 body: \"They now load concurrently, at most 8 at a time\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2291",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1324-1334,1379,1393-1405",
+          "summary": "listed_states builds one listed_state future per row and passes them to buffered_in_order with LISTING_LOAD_CONCURRENCY = 8; the helper uses stream::iter(loads).buffered(limit.max(1)), which keeps at most 8 in flight.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1324,
+                "end": 1334
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.463679018Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ad3cbfc450c7b23409ada455910f30c82cfdd268e7e2ce9d16dcdb9044ebb1a"
+          }
+        },
+        {
+          "id": "EVD-2292",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib buffered_in_order -- --test-threads=1 (4 passed); test buffered_in_order_never_runs_more_than_the_limit_at_once, src/mcp/context.rs:1917-1943",
+          "summary": "Reran on head: 4 passed, 0 failed. The bound test runs 20 loads with limit 3 and asserts peak in-flight == 3 (assertion read, not just the name). It tests the helper with limit 3, not the constant 8 via listed_states.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1917,
+                "end": 1943
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.558176157Z",
+          "seal": {
+            "by": "server",
+            "mac": "6c17857ed2807ce529e00dbe6995532b32b6b72a49b15962836b33cb693ff5e0"
+          }
+        },
+        {
+          "id": "EVD-2314",
+          "kind": "analysis",
+          "locator": "src/mcp/context.rs:1329-1357, 1414-1426",
+          "summary": "Re-audit at 6e923c8: each wave goes through buffered_in_order with LISTING_LOAD_CONCURRENCY, so at most 8 are in flight at any time (the waves run one after the other). The bound test still passes (4 passed). Concurrency across waves is lower than before for the second wave only after the first finishes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1329,
+                "end": 1357
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.676119430Z",
+          "seal": {
+            "by": "server",
+            "mac": "db4b45090399240575560142560d93e99749451a902c0a5956def3426f90cb1d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code passes the 8-bound to buffered(), and the helper test shows the bound is held and reached.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2291",
+            "EVD-2292"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.516197923Z",
+          "seal": {
+            "by": "server",
+            "mac": "6488017704b7c17287d58276a122100a301cbe68c2be66443f053a2e9c7fb4f9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Each wave is bounded at 8; waves run sequentially; the helper test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2314"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.311171829Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6b9668a7629f847a1512bc231423469c53d01e4174742a014eedcac3afd80ce"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:34:54.311171829Z",
+      "seal": {
+        "by": "server",
+        "mac": "448f7892125e1f6a7908910f8afe088ac93dc2c4b34d20f63be8f69528cb1066"
+      }
+    },
+    {
+      "id": "CLM-1550",
+      "statement": "The page's result order is preserved: listed_states returns one result per row in the order of the rows (futures_util buffered, not buffer_unordered).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator requirement: preserve the page's result order",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2293",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1403 (.buffered, ordered) and the three callers' zip/iteration",
+          "summary": "The helper uses StreamExt::buffered (input-order output), not buffer_unordered; callers zip loadable rows with the returned vec (catalogs.rs:290, mcp/catalogs.rs:144) or consume it in sequence (search.rs:174-186).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1393,
+                "end": 1405
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.648288593Z",
+          "seal": {
+            "by": "server",
+            "mac": "726fc018e84751b336df7665bf668e9989f2bc3795ceb08c4b4b5ebe49cee2db"
+          }
+        },
+        {
+          "id": "EVD-2294",
+          "kind": "test",
+          "locator": "cargo test buffered_in_order_keeps_input_order_when_loads_finish_out_of_order (src/mcp/context.rs:1898-1914)",
+          "summary": "Passed. Delays 30,20,10,0 ms with limit 4 make loads finish in reverse; asserts output == [30,20,10,0]. Helper-level only: no test checks page order through a caller.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1898,
+                "end": 1914
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.735646410Z",
+          "seal": {
+            "by": "server",
+            "mac": "3906bdf42b2c20c27a09e13ec3533be681225e5e55b52e04890861f652e9ab9b"
+          }
+        },
+        {
+          "id": "EVD-2315",
+          "kind": "test",
+          "locator": "cargo test listed_states_answers_in_page_order_across_stores (src/mcp/unavailable_tests.rs:669-695; in the 18 passed)",
+          "summary": "Re-audit at 6e923c8: the two-wave split reorders work, so order is restored by index (results[at] = Some(..), then collected in index order). The new caller-level test loads rows remote-1, home, remote-2 across two stores and asserts the output names equal the page order; it passes. This closes the earlier gap of no order test through listed_states.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 669,
+                "end": 695
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.764903634Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d05ddc6c4afbb70ed66072fd4e9a8178026f23bdeb0d84c2ff77e67b58f44c1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "buffered keeps input order; the reversed-completion test asserts it; callers consume results positionally.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2293",
+            "EVD-2294"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.600747329Z",
+          "seal": {
+            "by": "server",
+            "mac": "948f554f9caef5df3ad95ee55f27ce36850f43509fad36b1a1e58101fa5858b5"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Order is restored by index and a caller-level cross-store test asserts it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2315"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.392620332Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b49e72b0e25a9c37bc0bef247ff81bdc81243f89987ed27abab354e43d5bcdf"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:34:54.392620332Z",
+      "seal": {
+        "by": "server",
+        "mac": "bef59c46ba9d0a3bf2a4d64da94f838b1470ba887d62c41d65158d2191923cbc"
+      }
+    },
+    {
+      "id": "CLM-1551",
+      "statement": "One shared helper serves all three callers: GET /api/v1/catalogs, the list_catalogs MCP tool and the unnamed console search's every_reachable each call ToolContext::listed_states, and no per-row serial listed_state loop remains in src.",
+      "kind": "non_functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Coordinator requirement: one shared helper rather than three copies; PR body: \"One shared helper, buffered_in_order, serves all three callers\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/mcp/catalogs.rs",
+        "src/http/api/search.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2295",
+          "kind": "inspection",
+          "locator": "grep -rn \"listed_states(\" src; grep -rn \"listed_state(\" src",
+          "summary": "listed_states is called at src/mcp/catalogs.rs:143, src/http/api/catalogs.rs:289, src/http/api/search.rs:174, and nowhere else. ToolContext::listed_state(..) is called only inside listed_states (context.rs:1330); the only other listed_state is App::listed_state (app.rs:1170), used by single-name App::catalog (app.rs:1199), not a listing loop. buffered_in_order exists once.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "listed_states\\(",
+              "scope": [
+                "src"
+              ],
+              "hits": 4,
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.831014712Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5d1d58ef2f1d232a7d9e3ed0f19c41ffa0877039c2d69496b73c317ade7755c"
+          }
+        },
+        {
+          "id": "EVD-2316",
+          "kind": "inspection",
+          "locator": "grep -n \"listed_states(\" src/mcp/catalogs.rs src/http/api/catalogs.rs src/http/api/search.rs",
+          "summary": "Re-audit at 6e923c8: the three callers are untouched by the follow-up commit (it changes only context.rs, unavailable_tests.rs and the changelog) and still call listed_states; ToolContext::listed_state is still called only inside listed_states (context.rs:1342 area).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "listed_states\\(",
+              "scope": [
+                "src/http/api/catalogs.rs",
+                "src/http/api/search.rs",
+                "src/mcp/catalogs.rs"
+              ],
+              "hits": 3,
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.854729252Z",
+          "seal": {
+            "by": "server",
+            "mac": "1792009afcf51e8e34efbc0d2668ffb849fa3e88fde46ea3b9585d906078237f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three callers call listed_states; no other listing loop calls ToolContext::listed_state.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2295"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.685030924Z",
+          "seal": {
+            "by": "server",
+            "mac": "64f15ca26ba3d0a15dc34895fe9fb91cdef09c83515873113a7e27aedc3ac0f9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Callers unchanged and still use the one helper.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2316"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.475183948Z",
+          "seal": {
+            "by": "server",
+            "mac": "92f158db8bf733f875814814cf2c116c0c5d09897253f08ee8277eeaf619fbe5"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:34:54.475183948Z",
+      "seal": {
+        "by": "server",
+        "mac": "689d623b3e6ee4422b3ad2186e63333666be5f19770bba091ae433511aa4723e"
+      }
+    },
+    {
+      "id": "CLM-1552",
+      "statement": "CatalogCache::get (src/cache/catalogs.rs, single-flight and broken-generation handling) is not changed by the commit.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #732: keeping the single-flight and broken-generation handling in CatalogCache::get; PR body: \"CatalogCache::get ... is unchanged\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/cache/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2296",
+          "kind": "analysis",
+          "locator": "git diff --stat f5462ca~1 f5462ca -- src/cache (empty); git diff --stat f5462ca~1 f5462ca",
+          "summary": "The commit touches 6 files (changelog, src/http/api/catalogs.rs, src/http/api/search.rs, src/mcp/catalogs.rs, src/mcp/context.rs, tests/scale.rs); nothing under src/cache. CatalogCache::get (src/cache/catalogs.rs:233) is unchanged; the new code only calls it through the existing listed_state/held_state/App::catalog_state path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/catalogs.rs",
+              "lines": {
+                "start": 233,
+                "end": 240
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:26.918003708Z",
+          "seal": {
+            "by": "server",
+            "mac": "1b4207f45d7201bcd1277e821a1dcc110cd4f06706c846d60c8aa44c3a278446"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The commit's diff has no hunk under src/cache.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2296"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.773228702Z",
+          "seal": {
+            "by": "server",
+            "mac": "48330b60e9b41a8b9ba85d76b7aa9447cd86474869db8b391cb03ff5d5653890"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:24:00.773228702Z",
+      "seal": {
+        "by": "server",
+        "mac": "bedc53aafefb3237a4d29434d3d4a74b138c8a66c1ad77c5c8388bdc490cb2a0"
+      }
+    },
+    {
+      "id": "CLM-1553",
+      "statement": "Per-row error semantics are kept at each caller: a catalog whose data does not build is left out, a StoreUnavailable result marks the store down and lists the catalog in unavailable (search keeps its name), and any other error fails the request.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator requirement: keep existing error semantics; PR body: \"each result is handled as before: a catalog whose data does not build is left out, a store that went away is marked down and listed in `unavailable`, other errors fail the request\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/mcp/catalogs.rs",
+        "src/http/api/search.rs",
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2297",
+          "kind": "inspection",
+          "locator": "src/mcp/catalogs.rs:143-165; src/http/api/catalogs.rs:289-304; src/http/api/search.rs:174-189; src/mcp/context.rs:1324-1334",
+          "summary": "Each caller's match arms are the old ones, now over the zipped results: Ok(None) skipped, StoreUnavailable -> mark_down + push to unavailable (search keeps the name), other Err returned. listed_state itself is unchanged, so None for unbuildable/deleted and errors per row are as before. Differences, disclosed in the changelog: a non-store error now surfaces after the page's other loads started (first error in page order is returned), and rows on a store that fails mid-page may already be in flight (held_state also marks the store down).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/catalogs.rs",
+              "lines": {
+                "start": 143,
+                "end": 165
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:42.625240739Z",
+          "seal": {
+            "by": "server",
+            "mac": "76890754c35e0a3fb1367eca495e955bff5056bdc1017001fab2f3ab005eaefd"
+          }
+        },
+        {
+          "id": "EVD-2298",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib unavailable_tests -- --test-threads=1 (17 passed); tools/agentic/gate.sh narrow --lib mcp::catalogs -- --test-threads=1 (7 passed)",
+          "summary": "Existing regression tests through the changed callers pass on head, including list_catalogs_leaves_out_and_names_the_unavailable_catalog, list_catalogs_spends_one_bound_on_a_store_that_fails_at_the_state_load, the_catalog_listing_route_spends_one_load_bound_on_a_store_that_stalls and an_unnamed_console_search_probes_a_lost_store_once. No test found for a catalog whose data does not build or a non-store error through the concurrent path, or for mixed results on one page.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 127,
+                "end": 148
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:42.708030869Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0878aada47fb9c1d634077f6a4f23a05a4bc9de6bcf7a4663a607b46695fe8f"
+          }
+        },
+        {
+          "id": "EVD-2310",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib unavailable_tests (18 passed); --lib mcp::catalogs (7 passed) at 6e923c8; src/mcp/context.rs:1329-1357",
+          "summary": "Re-audit at 6e923c8: the callers' match arms are unchanged, listed_states still returns one result per row at its page position (results slots filled by index), and the store-unavailable regression tests pass. A lost store's later rows are now refused from the down set, as before the change. Still no test for an unbuildable catalog or non-store error through the concurrent path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1329,
+                "end": 1357
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.330533899Z",
+          "seal": {
+            "by": "server",
+            "mac": "6226995adf00e146defc70b1341c145ebe98e0bd97a170e0fe417cf6e101b5b2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Match arms and listed_state are unchanged; existing store-unavailable regression tests pass. Residual: no test drives an unbuildable catalog or a non-store error or mixed results through the concurrent path, and the error-timing difference is only documented in the changelog (not in the PR body).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2297",
+            "EVD-2298"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.860119075Z",
+          "seal": {
+            "by": "server",
+            "mac": "92f56da0570f773628715106d816bbccde5bd9efc0053643205260f8f44c484d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Per-row handling unchanged; regression tests pass at 6e923c8.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2310"
+          ],
+          "recorded_at": "2026-11-26T03:34:53.980486124Z",
+          "seal": {
+            "by": "server",
+            "mac": "164e40232c50bd3823ecee91a7243b6f3eca44cbe1d827dcb43fef47b11f87ee"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:34:53.980486124Z",
+      "seal": {
+        "by": "server",
+        "mac": "0ede128ae4c60387267940ca63055c7941c02716275fcbf044c0c79bf00d092a"
+      }
+    },
+    {
+      "id": "CLM-1554",
+      "statement": "Rows on a store the page found down are still filtered out before loading in list_catalogs, GET /api/v1/catalogs and every_reachable, and every_reachable still skips rows closed to the key before loading.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Rows on a store the page found down, or closed to the key, are still filtered out before loading\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/mcp/catalogs.rs",
+        "src/http/api/search.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2299",
+          "kind": "inspection",
+          "locator": "src/mcp/catalogs.rs:132-140; src/http/api/catalogs.rs:283-291; src/http/api/search.rs:153-172",
+          "summary": "list_catalogs and the route skip rows in page.unavailable (mark_down, continue) before pushing to loadable; every_reachable skips rows failing check_open (continue) and keeps rows in page.unavailable unloaded (mark_down), loading only the rest. Neither list_catalogs nor the route filtered closed rows before or after the change; only search does, and it still does.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/search.rs",
+              "lines": {
+                "start": 153,
+                "end": 172
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:42.796293637Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4417e3ec020671fce5b97e84445d791e1b18d478ec17b5bc546dfae50790ed2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Down-store rows are filtered before loading in all three callers; closed rows are skipped before loading in search (the only caller that filtered them).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2299"
+          ],
+          "recorded_at": "2026-11-26T03:24:00.941966872Z",
+          "seal": {
+            "by": "server",
+            "mac": "c11d6b8dc932f6b569c7966adf7e07044a3c7f825cd3ac51bb6611a07ddae8eb"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:24:00.941966872Z",
+      "seal": {
+        "by": "server",
+        "mac": "9db410be61401f683b6d7780acd1efa1e41db6dea4696864235b646c5e8f625c"
+      }
+    },
+    {
+      "id": "CLM-1555",
+      "statement": "tests/scale.rs's cold first-page bound COLD_PAGE_BOUND is 50 ms (was 200 ms) and its doc comments say so.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #732: Tighten tests/scale.rs's cold bound back to 50 ms; PR body: \"the cold first-page bound is 50 ms again (was 200 ms)\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "tests/scale.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2300",
+          "kind": "inspection",
+          "locator": "tests/scale.rs:15,53,378-382",
+          "summary": "COLD_PAGE_BOUND = Duration::from_millis(50) (was 200); the module doc and the inline comment say 50 ms cold with concurrent loads; the check at line 380 uses the constant. The test itself was not run (told not to).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/scale.rs",
+              "lines": {
+                "start": 53,
+                "end": 53
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:42.884497205Z",
+          "seal": {
+            "by": "server",
+            "mac": "6cd98e390240f470f86c565ca8a411fdcfc95b66cd212ad9a36ef42009d0c6a5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The constant is 50 ms and the docs match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2300"
+          ],
+          "recorded_at": "2026-11-26T03:24:01.025093154Z",
+          "seal": {
+            "by": "server",
+            "mac": "9989b20bf00318655e8b7bf30f85b1cc6c9d4f54ab765f68b15deb8827294100"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:24:01.025093154Z",
+      "seal": {
+        "by": "server",
+        "mac": "41c74a8698bc169808c76f2c257f6d863c43483d8f35d18ce5b21c50d0d0d84e"
+      }
+    },
+    {
+      "id": "CLM-1556",
+      "statement": "Four unit tests of buffered_in_order cover: order kept when loads finish out of order, the concurrency bound held with a counting loader peaking at exactly the limit, errors returned in place, and a zero limit treated as one; they pass.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"Four unit tests of `buffered_in_order`: order kept when loads finish out of order, the concurrency bound held (a counting loader peaks at exactly the limit), errors returned in place, a zero limit treated as one.\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2302",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib buffered_in_order -- --test-threads=1: 4 passed, 0 failed (src/mcp/context.rs:1897-1975)",
+          "summary": "The four tests exist with the described assertions: order [30,20,10,0] under reversed completion; peak in-flight == 3 over 20 items at limit 3 and output 0..20; Ok/Err results returned at their positions; limit 0 gives [0,1,2].",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1897,
+                "end": 1975
+              },
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:46.942547221Z",
+          "seal": {
+            "by": "server",
+            "mac": "96b4f4159362237b63e0875b598ccfbf2aab41b43b7ba8c3e9d908c5826f67f2"
+          }
+        },
+        {
+          "id": "EVD-2317",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib buffered_in_order -- --test-threads=1 at 6e923c8: 4 passed",
+          "summary": "Re-audit at 6e923c8: buffered_in_order and its four tests are unchanged (context.rs:1919-1996) and pass. The new listed_states test is a fifth test of the wave logic, outside this claim.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1918,
+                "end": 1996
+              },
+              "commit": "6e923c886f589ccd65cdf07ea1660852921304cf"
+            }
+          },
+          "recorded_at": "2026-11-26T03:34:39.936527756Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb0ec6fdeec3719567bc258c57df62c6fac7048db894967d689162a5004a9016"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I read the assertions and reran: 4 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2302"
+          ],
+          "recorded_at": "2026-11-26T03:24:01.107514963Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba0cbf3495156f3ba6f559c48ff98b472205eef53eaf1bd2f64ae7955a13facb"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The four helper tests are unchanged and pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2317"
+          ],
+          "recorded_at": "2026-11-26T03:34:54.555970549Z",
+          "seal": {
+            "by": "server",
+            "mac": "87a846500202c721c7842c0723d0528f3efd1bfa3f9d59938b88b1b68d1c7d8f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:34:54.555970549Z",
+      "seal": {
+        "by": "server",
+        "mac": "e97de995481c383d65bf4ea0e909030813115d926a5819ba24bc1519859ecff3"
+      }
+    },
+    {
+      "id": "CLM-1557",
+      "statement": "The commit adds a changelog entry under changelog/ for issue 732.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry.\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [
+        "changelog/2026-11-26T00-15-04Z-issue-732-concurrent-snapshots.md"
+      ],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2301",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T00-15-04Z-issue-732-concurrent-snapshots.md",
+          "summary": "A 27-line timestamped changelog file added by the commit, describing the change, the one disclosed error-timing difference, the scale bound and the tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T00-15-04Z-issue-732-concurrent-snapshots.md",
+              "commit": "f5462ca3ef98c1cbe05c9de21454129b99ccc0a4"
+            }
+          },
+          "recorded_at": "2026-11-26T03:23:43.024710516Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c13c3961a0576e52b740121bc333a6622324d1b91570bcbc0eceed9be994af9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The file exists in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2301"
+          ],
+          "recorded_at": "2026-11-26T03:24:01.199274862Z",
+          "seal": {
+            "by": "server",
+            "mac": "18222e1ad54480f048d32640db8d108e2dea554dd3d55dad0c900503b0b1dfb7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:24:01.199274862Z",
+      "seal": {
+        "by": "server",
+        "mac": "c8e16ccd48eedc9793c1983b4265e80c5ca5ba6e1152e79be618f87e2b745a91"
+      }
+    },
+    {
+      "id": "CLM-1558",
+      "statement": "tools/agentic/gate.sh fmt, lint and dylint pass on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh fmt`, `lint`, `dylint`: pass.\"",
+      "derived_from": [
+        "CLM-1548"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:732"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2308",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt; tools/agentic/gate.sh lint; tools/agentic/gate.sh dylint (run in one loop on f5462ca)",
+          "summary": "fmt (cargo fmt --all --check) exit 0; lint (ending in RUSTDOCFLAGS=-D warnings cargo doc, finished) exit 0; dylint exit 0.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T03:28:20.710532657Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1283a5e3c958d12fe70fd070a9446839a82294f75328df402c5348efa44ebcb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran all three gates on head; each exited 0.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2308"
+          ],
+          "recorded_at": "2026-11-26T03:28:25.307866213Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8d0aec9901ba8a49b8015996c3f06c7d0431b476e862a3e89d6045517e4af53"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T03:23:07.539332802Z",
+      "updated_at": "2026-11-26T03:28:25.307866213Z",
+      "seal": {
+        "by": "server",
+        "mac": "67987f35016976d0ce2172e44502ca86d87cbbc53a3067e879781ad4296e1efd"
       }
     }
   ]

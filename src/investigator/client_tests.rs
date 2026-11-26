@@ -622,19 +622,24 @@ async fn investigator_client_https_verifies_certificate_without_provider_panic()
         })
         .await;
     let endpoint = format!("https://localhost:{}/mcp", address.port());
-    let error = http_client()
-        .unwrap()
-        .get(&endpoint)
-        .send()
-        .await
-        .unwrap_err();
+    let error = crate::test_net::bounded(
+        "the TLS server's answer to a GET",
+        http_client().unwrap().get(&endpoint).send(),
+    )
+    .await
+    .unwrap_err();
     assert!(error.is_connect());
     let details = format!("{error:?}");
     assert!(
         details.contains("UnknownIssuer") || details.contains("unknown issuer"),
         "{details}"
     );
-    assert!(McpClient::open(&endpoint, "pg", "synthetic").await.is_err());
+    let opened = crate::test_net::bounded(
+        "the client's open against the TLS server",
+        McpClient::open(&endpoint, "pg", "synthetic"),
+    )
+    .await;
+    assert!(opened.is_err());
     server.kill().await.unwrap();
     server.wait().await.unwrap();
 }

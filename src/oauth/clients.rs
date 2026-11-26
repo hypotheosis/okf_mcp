@@ -2140,7 +2140,7 @@ mod tests {
             .expect("age");
         for id in [&client_id, &dead_id] {
             let too_old = crate::test_net::bounded(
-                "a fetch from a refusing address",
+                "a refetch of an expired client",
                 resolve(&test.app, oauth(&test), id),
             )
             .await;

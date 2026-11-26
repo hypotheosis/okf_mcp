@@ -31,6 +31,9 @@ pub(crate) struct TestApp {
     // Keeps a test's local meter provider alive (dropping it shuts it down).
     _meter: Option<opentelemetry_sdk::metrics::SdkMeterProvider>,
     _db: TestDb,
+    // Ports held, never listened on, so a store pointed at one stays refused
+    // for the test's lifetime (see `make_unreachable`).
+    refusing: std::sync::Mutex<Vec<crate::test_net::Refused>>,
 }
 
 impl TestApp {
@@ -165,9 +168,9 @@ impl TestApp {
         .expect("import the files");
     }
 
-    /// Makes `store` really unreachable: its row now points at a port nothing
-    /// listens on, and its open pool is dropped, so the next connect is
-    /// refused. A new connection, not a flag: what an operator's outage
+    /// Makes `store` really unreachable: its row now points at a port that
+    /// refuses every connect (held, never listened on), and its open pool is
+    /// dropped, so the next connect is refused. A new connection, not a flag: what an operator's outage
     /// looks like to the registry.
     ///
     /// # Arguments
@@ -176,12 +179,10 @@ impl TestApp {
     /// # Panics
     /// If the row cannot be changed.
     pub(crate) async fn make_unreachable(&self, store: &crate::stores::StoreName) {
-        // A port that was free a moment ago and is closed again now.
-        let closed = std::net::TcpListener::bind("127.0.0.1:0")
-            .expect("bind a free port")
-            .local_addr()
-            .expect("its address")
-            .port();
+        // A port held but never listened on: every connect is refused.
+        let refusing = crate::test_net::Refused::new();
+        let closed = refusing.port();
+        self.refusing.lock().expect("refusing ports").push(refusing);
         sqlx::query("UPDATE stores SET host = '127.0.0.1', port = $2 WHERE name = $1")
             .bind(store.as_str())
             .bind(i32::from(closed))
@@ -452,6 +453,7 @@ pub(crate) async fn app_with_metrics(
         TestApp {
             app,
             _meter: Some(provider),
+            refusing: std::sync::Mutex::default(),
             _db: db,
         },
         registry,
@@ -585,6 +587,7 @@ pub(crate) async fn replica_pair_on(
         TestApp {
             app: first,
             _meter: None,
+            refusing: std::sync::Mutex::default(),
             _db: db,
         },
         second,
@@ -662,6 +665,7 @@ pub(crate) async fn app_on_redis_with(
         TestApp {
             app,
             _meter: None,
+            refusing: std::sync::Mutex::default(),
             _db: db,
         },
         redis,
@@ -697,6 +701,7 @@ async fn load(db: TestDb, config: Config, clock: Arc<dyn Clock>) -> TestApp {
     TestApp {
         app,
         _meter: None,
+        refusing: std::sync::Mutex::default(),
         _db: db,
     }
 }

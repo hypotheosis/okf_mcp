@@ -5,6 +5,8 @@
   listening. On Linux a connect to it is refused at once (`ECONNREFUSED`, checked for three
   connects), and the port cannot be handed to another bind while it is held. `bounded` wraps a
   step in `tokio::time::timeout` (30 s) and names what it waited for.
+- `TestApp::make_unreachable` (`src/mcp/testing.rs`, used by `mcp::unavailable_tests`) now keeps
+  a `Refused` on the app for the test's lifetime.
 - Replaced the bind, read the port, drop pattern with `Refused` in: the investigator client's
   init refusal test, the Postmark and SES unreachable cases, the three store-registration tests
   (`store::stores`, `cli::stores` twice, `http::api::stores`), `stores::registry`'s unavailable

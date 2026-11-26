@@ -575,12 +575,13 @@ Replace a concept's body, keeping its frontmatter byte for byte, in the changese
 
 **Revert Document** (destructive)
 
-Add a document's content at an earlier revision (from `history`), or its deletion for a `delete` revision, to the changeset `changeset` names, for review and publish like any other edit. Every write rule applies, so machinery cannot be reverted. The revert is based on the revision published now, even if this changeset edited the document before, so publish conflicts only if the document is published again after it. Reverting a file this changeset created to a `delete` revision drops it from the changeset. Write access.
+Add a document's content at an earlier revision (from `history`), or its deletion for a `delete` revision, to the changeset `changeset` names, for review and publish like any other edit. Every write rule applies, so machinery cannot be reverted. Prefer passing `expected_revision` (the `current_revision` from `history`): it refuses with Conflict, writing nothing, if the document was published since. The revert is based on the revision published now, even if this changeset edited the document before, so publish conflicts only if the document is published again after it. Reverting a file this changeset created to a `delete` revision drops it from the changeset. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `path` | string | yes | The document as stored, with its extension, e.g. `/infra/ntp.md`. |
 | `revision` | integer | yes | The revision to go back to, as `history` lists it; a `delete` revision means deleting the document. |
+| `expected_revision` | integer | no | The document's `current_revision` as `history` showed it. If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now. |
 | `changeset` | string | yes | The changeset to write to: the handle `open_changeset` returned. |
 
 ## `review`

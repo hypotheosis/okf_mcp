@@ -368,6 +368,7 @@ async fn a_revert_holding_its_changeset_finishes_before_its_users_deletion() {
         let params = RevertParams {
             path: "/a.md".to_string(),
             revision: 1,
+            expected_revision: None,
             changeset: to_revert,
         };
         revert(&reverter, params).await
@@ -447,6 +448,7 @@ async fn an_audited_revert_and_its_users_deletion_share_one_store_connection() {
         let params = RevertParams {
             path: "/a.md".to_string(),
             revision: 1,
+            expected_revision: None,
             changeset: to_revert,
         };
         revert(&reverter, params).await

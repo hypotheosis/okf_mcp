@@ -91,6 +91,13 @@ pub struct OpOutcome {
     /// (issue #788). Every other op leaves it empty, so an entry keeps its
     /// first edit's base.
     pub rebased: BTreeSet<String>,
+    /// Per path, the published revision the caller says it saw. Checked
+    /// against the revision published now, in the snapshot the write is
+    /// built on, before anything is stored: a different one (or none, when
+    /// no live document) is an [`OkfError::Conflict`] and writes nothing.
+    /// `revert` sets it from its `expected_revision` (issue #795); every
+    /// other op leaves it empty.
+    pub expected: BTreeMap<String, i32>,
 }
 
 impl OpOutcome {

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1933,
+  "next_claim_seq": 1944,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "1d6d65ebe579448d2e9c2c87d7778a28971431d1c82a0a85c6205fafd692d62a"
+    "mac": "76553923c7e7ae68239408d920dccefdfcab375a688572907f0ddda838c8448c"
   },
-  "next_evidence_seq": 3488,
+  "next_evidence_seq": 3501,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "8c8420fcf422fecf7e2539a612bc7ee389d0f279058b1d990c720eff650d5506"
+    "mac": "8c2c340f2c175385dadc26453543d32ffbf780099433e2ba72d96b01c307a698"
   },
   "claims": [
     {
@@ -174263,6 +174263,751 @@
       "seal": {
         "by": "server",
         "mac": "ee3ffcf9410104a4df8b3b483d4fb31a58bf3269e05653db8235299a8d7f526a"
+      }
+    },
+    {
+      "id": "CLM-1933",
+      "statement": "Issue #795 is resolved: revert takes an optional expected revision, a mismatch refuses with Conflict and writes nothing, and history exposes the revision to pass back.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/795",
+      "derived_from": [],
+      "artifacts": [
+        "src/write.rs",
+        "src/mcp/changesets.rs",
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Functional children are supported, but the validation statements (lint, dylint, mcpjam, full test count) are unreproduced and the description wording is unsettled. Fix: run gate.sh lint, dylint, mcpjam and test at head, and reword the revert description to \"Prefer passing expected_revision\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T23:08:02.283042671Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee223bf0742a0c5d5084add305e55269d07c8c97eadaa3840ffec5bfad59585f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:08:02.283042671Z",
+      "seal": {
+        "by": "server",
+        "mac": "be81099dbaaf168d7583eff65994b846cd4cc01aab58682f2a3eaf26eca1ac8c"
+      }
+    },
+    {
+      "id": "CLM-1934",
+      "statement": "RevertParams has an optional `expected_revision: Option<i32>` (serde default), and omitting it leaves revert's behaviour unchanged (empty `expected` map, no check).",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #795 requirement; PR body: \"`RevertParams.expected_revision: Option<i32>` (omitted: behaviour unchanged).\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3488",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:678-681,988-995",
+          "summary": "Field is `#[serde(default)] pub expected_revision: Option<i32>`; revert builds `expected` from it via Option::map, so None yields an empty map and write.rs's filter_map has nothing to check.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 678,
+                "end": 681
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.180380047Z",
+          "seal": {
+            "by": "server",
+            "mac": "2408fc2802c9cb16e1544ca189b63cd6343e78ba0e1623c8c3476adbaedd869a"
+          }
+        },
+        {
+          "id": "EVD-3489",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_revert_with_an_expected",
+          "summary": "1 passed; its last step reverts with expected_revision None and asserts an entry is written (changesets.rs:2682, final lines).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2678,
+                "end": 2727
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.291514559Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3c39eb0510374807e8e262c87f69c11ab48f98b202f1758be848ef2163d3484"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Field exists with serde default; None gives an empty map so no check; the test's no-argument arm writes an entry.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3488",
+            "EVD-3489"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.241579562Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e76352fa2b88cc771a75e2167ddbe932f2f80b694d05fa97bcb2c1549d984d9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.241579562Z",
+      "seal": {
+        "by": "server",
+        "mac": "b139f2d7b0384f6ab5343562946405ebba942251c20b32cd30bc40718ed0beac"
+      }
+    },
+    {
+      "id": "CLM-1935",
+      "statement": "When expected_revision differs from the revision published now, revert returns OkfError::Conflict with one ConflictFile whose base_revision is the value passed and current_revision is the revision published now, and nothing is written to the changeset.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR body: \"A mismatch returns `OkfError::Conflict` with one `ConflictFile` (`base_revision` = value passed, `current_revision` = revision published now), the existing shape. Nothing is written to the changeset.\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/write.rs",
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3490",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_revert_with_an_expected (1 passed)",
+          "summary": "Test publishes a second revision, then a third, reverts with the seen (stale) revision; asserts OkfError::Conflict with exactly one ConflictFile{path /a.md, base_revision seen, current_revision now}, no entry for the path in the changeset, and published text unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2700,
+                "end": 2716
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.408994933Z",
+          "seal": {
+            "by": "server",
+            "mac": "627f4666b9c54c1d8ad4b346456aa67957af8509d70304926169e28da2293510"
+          }
+        },
+        {
+          "id": "EVD-3491",
+          "kind": "inspection",
+          "locator": "src/write.rs:239-256",
+          "summary": "Stale check builds ConflictFile{path, base_revision Some(seen), current_revision overlay.base().revision(path)} and returns OkfError::Conflict before any upsert_entry; tx is dropped, rolling back.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 239,
+                "end": 256
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.523250940Z",
+          "seal": {
+            "by": "server",
+            "mac": "c13b642ac03b54b4578487255a5da7dc7aa6234f2e7e85e39d74221d0d595ef7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code returns Conflict with the stated ConflictFile before any write; the test asserts the exact Conflict, no changeset entry and unchanged published text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3490",
+            "EVD-3491"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.346178957Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c5796e54f2130c8783360bd4235bb918e82eafabfb64f1909e9f7f84a0b7104"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.346178957Z",
+      "seal": {
+        "by": "server",
+        "mac": "5cb40fbab07805a60e7075a698b6c7c6a282442ba844f616698d7932c491b0c8"
+      }
+    },
+    {
+      "id": "CLM-1936",
+      "statement": "The expected-revision check runs in write::apply_audited against the same overlay snapshot (overlay.base()) from which each entry's base revision is taken, before any entry is stored, via the new OpOutcome.expected map.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"The check runs in `write::apply_audited`, against the same snapshot the entry's base revision comes from, via the new `OpOutcome.expected` map.\"",
+      "derived_from": [
+        "CLM-1935"
+      ],
+      "artifacts": [
+        "src/write.rs",
+        "src/okf/ops/mod.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3492",
+          "kind": "inspection",
+          "locator": "src/write.rs:239-275",
+          "summary": "The check uses overlay.base().revision(path), the same call as `published` used for each entry's base at write.rs:~263, and sits before the Touched loop that stores entries. OpOutcome.expected: BTreeMap<String,i32> is declared at okf/ops/mod.rs:100.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 239,
+                "end": 275
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.637939870Z",
+          "seal": {
+            "by": "server",
+            "mac": "c8395b4a3a36701f7957f0fface1eeebe12b7880338235858d308b80da5b4eea"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Same overlay.base() snapshot supplies both the check and the entry bases; the check precedes every upsert.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3492"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.451161704Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfa7e1c38d6bdf760b5c1210002b39aa772d2a196bc23035aad17e486ad696b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.451161704Z",
+      "seal": {
+        "by": "server",
+        "mac": "e2f140e4b6e3b790daab0d6e69b24fb8dcd0757f3d65560029a2e8ae5b4f95fa"
+      }
+    },
+    {
+      "id": "CLM-1937",
+      "statement": "The history result has a `current_revision` field: the live revision of the path, null when the path is deleted, computed independently of limit, user and since.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`history` result gains `current_revision` (live revision; null when the path is deleted; independent of `limit`, `user`, `since`).\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3493",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:78-83,321",
+          "summary": "Field is Option<i32> set from state.current().revision(path), the live snapshot, not from the filtered rows, so it is independent of limit/user/since; Catalog::revision returns Option (None for no live doc).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 78,
+                "end": 83
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.750328069Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f3c397a590a5adcada40abfe2896403246f280cc99086386086caaa93ca00c5"
+          }
+        },
+        {
+          "id": "EVD-3494",
+          "kind": "test",
+          "locator": "src/mcp/history.rs:623 (gate.sh narrow --lib -- history: 32 passed)",
+          "summary": "The only assertion on the field checks Some(1) for an unfiltered history of a live path. No test covers null for a deleted path, nor independence from limit, user or since; those parts of the claim are verified by inspection only.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 620,
+                "end": 624
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.860642828Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad20d16e71fac788ca24c4568da66d8061bc043f9b694cef7d9ea6b5f814eca9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The field is read from the live snapshot, not the filtered rows, and is an Option (null when deleted). A test asserts Some(1) for a live path; the null and filter-independence parts rest on inspection only (EVD-3494 neutral). Fix (optional, not blocking): add a history test asserting current_revision is null for a deleted path and unchanged under limit/user/since filters.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3493"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.554979905Z",
+          "seal": {
+            "by": "server",
+            "mac": "95087f13b7467a4100d017b3cb4dcd7b77ca3358b9dd21a1b65df323a586fd52"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.554979905Z",
+      "seal": {
+        "by": "server",
+        "mac": "58c9401b9536b430bb2d6748e5992a3f4674457b3df7fd07683bde874795e549"
+      }
+    },
+    {
+      "id": "CLM-1938",
+      "statement": "docs/reference/tools.md is regenerated (matches the tool list) and the investigator contract fixture src/investigator/contract_tools.json includes history's current_revision, and their checking tests pass.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"docs/reference/tools.md and the investigator contract fixture regenerated.\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "src/investigator/contract_tools.json"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3495",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- mcp::reference (4 passed); -- contract annotations tools_reference (18 passed, 1 ignored)",
+          "summary": "the_checked_in_tool_reference_matches_the_tool_list passes, and the contract and annotation tests pass; tools.md revert section shows expected_revision and the contract JSON adds history's current_revision (integer|null).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/contract_tools.json",
+              "lines": {
+                "start": 439,
+                "end": 446
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:34.971583579Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac654dc5dcd8b2098933fb899c040aa63724d702d930a5b1c8e02b0374501c6a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The reference-matches-tool-list test and the contract/annotation tests pass at head, and the fixtures show the new argument and field.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3495"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.659293729Z",
+          "seal": {
+            "by": "server",
+            "mac": "210e8eb8f6cafa06ac6ceadfcb1629f3b78416443dac6accaf68a2feb6df6617"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.659293729Z",
+      "seal": {
+        "by": "server",
+        "mac": "7455511cc6509ab4a61882c505dc6a4eae808cfdf7ee47a70c5fd9dcb40cddb2"
+      }
+    },
+    {
+      "id": "CLM-1939",
+      "statement": "A test covers each of: a matching expected_revision succeeds, a stale expected_revision is refused with the Conflict and writes no changeset entry, and no argument behaves as before.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #795 tests requirement",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3496",
+          "kind": "test",
+          "locator": "src/mcp/changesets.rs:2682 a_revert_with_an_expected_revision_refuses_a_stale_one_and_writes_nothing (1 passed)",
+          "summary": "One test covers all three: stale refused (Conflict, entry_for is None, published text unchanged); matching value succeeds with base_revision=now; None writes an entry. Assertions read, not just the name.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2678,
+                "end": 2727
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:35.084867632Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f88c561367e9e110684b39df310c3fa95ee206fdb6cbdc67bae4c1edb2abb8a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The single test asserts all three cases; it passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3496"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.762603378Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a9d7f523a91fb7cece97b9a609682c4509c9b9ced8261575e5ee5afe15a8716"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.762603378Z",
+      "seal": {
+        "by": "server",
+        "mac": "853658a51ab1e5d9abbe3378b3d18dba89b22516f0a43faaa95752c16be83f20"
+      }
+    },
+    {
+      "id": "CLM-1940",
+      "statement": "The revert tool description is short and recommends passing expected_revision from history.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #795 requirement: tool description short and recommends it",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3497",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:1260-1270; docs/reference/tools.md:578",
+          "summary": "The description gains one sentence (\"Pass `expected_revision` (the `current_revision` from `history`) to refuse with Conflict, writing nothing, if the document was published since.\"). It states what the argument does but does not say to prefer it (\"recommend\"); the line also exceeds rustfmt width in the source string.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1260,
+                "end": 1270
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:35.200072185Z",
+          "seal": {
+            "by": "server",
+            "mac": "48a733773767f12e97b0d19a4417738d473b1afc1fab1c0b8c1dc1c281a2c173"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Description is short, but it only says what the argument does (\"Pass ... to refuse\"), not that callers should prefer it; whether that is a recommendation is a judgment call. Fix: reword to \"Prefer passing `expected_revision` (...)\" and regenerate docs/reference/tools.md.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T23:07:57.866459040Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa43ac7945b21acae8db0ec6eecc42787584f42d09b3d805f0b9ab009957b351"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.866459040Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac581e1dfe387c8b28b3e0af59fac10776d872b46aa12d713da13c8180d736ec"
+      }
+    },
+    {
+      "id": "CLM-1941",
+      "statement": "A revert onto a deleted path cannot be guarded, because history's current_revision is null there and expected_revision is an integer; the caller omits the argument.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"A deleted path has no live revision, so a revert onto a deleted path cannot be guarded; the caller omits the argument there.\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/write.rs"
+      ],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3498",
+          "kind": "analysis",
+          "locator": "src/mcp/history.rs:321; src/write.rs:243-249",
+          "summary": "For a deleted path history's current_revision is None (Option from Catalog::revision), so no integer can be passed back; expected is BTreeMap<String,i32>, and any given integer vs None yields a Conflict. Consistent with the statement.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 239,
+                "end": 256
+              },
+              "commit": "163104ab076ba313df39708e3c4d38c764ba5ff4"
+            }
+          },
+          "recorded_at": "2026-11-26T23:07:35.310018471Z",
+          "seal": {
+            "by": "server",
+            "mac": "42c5f60cb44883dd46209e72a358ccfbc76721dcb76bd90cd525b581a38616ab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "current_revision is None for a deleted path and expected is integer-only, so no value can express \"deleted\"; matches the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3498"
+          ],
+          "recorded_at": "2026-11-26T23:07:57.974558422Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb90cb32eafcf2232af975ce87d331ecaefbf1578ce89402c20d6445b592326e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:57.974558422Z",
+      "seal": {
+        "by": "server",
+        "mac": "403b4696481bae1f3624478462866b2e30ddd9da684752b1d7b5670a6956d8a8"
+      }
+    },
+    {
+      "id": "CLM-1942",
+      "statement": "gate.sh fmt, lint, dylint and mcpjam pass at head.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`, `mcpjam` pass.\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3499",
+          "kind": "log",
+          "locator": "tools/agentic/gate.sh fmt (cargo fmt --all --check, exit 0)",
+          "summary": "fmt passes at head. lint, dylint and mcpjam were not rerun (30-45 min each); not independently verified.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T23:07:35.415884568Z",
+          "seal": {
+            "by": "server",
+            "mac": "c08fb49b1c39005b828afb16e58e5885a572a4e711b22d0e2b33dd2508f4e22d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only fmt was rerun (passes); lint, dylint and mcpjam were not rerun. Fix: run tools/agentic/gate.sh lint, dylint and mcpjam at head and record their exit codes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T23:07:58.079621419Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5d4613cd9911e16114695f8b6abd7e863e5c85a15a4bd6bbb312c02707ff782"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:58.079621419Z",
+      "seal": {
+        "by": "server",
+        "mac": "332f917f817d333d50e08f0d0cfd9d0823d1a91b02ff58eb495902a075d74979"
+      }
+    },
+    {
+      "id": "CLM-1943",
+      "statement": "gate.sh test passed 3695 tests on a first run, and a second run hit the known tls verify_full_* flake (#1083) which passes alone.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh test`: 3695 passed on the first run; a second run in the same recipe hit the known tls `verify_full_*` flake (#1083), which passes alone.\"",
+      "derived_from": [
+        "CLM-1933"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:795"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3500",
+          "kind": "log",
+          "locator": "gh issue view 1083",
+          "summary": "Issue #1083 exists and is open, titled \"tls tests flake in the full gate: Docker start errors outlast start_with_retry's one retry\". The 3695 count and the run history were not reproduced (the full gate takes up to 75 min).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T23:07:35.523341533Z",
+          "seal": {
+            "by": "server",
+            "mac": "80e4bd091c50e26c3c6efee3510fd1e51dc932d8e74fa15b976d96040871e81b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The flake issue #1083 exists and is open, but the 3695 count and the two-run history were not reproduced. Fix: run tools/agentic/gate.sh test at head and record the passed count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3500"
+          ],
+          "recorded_at": "2026-11-26T23:07:58.183635702Z",
+          "seal": {
+            "by": "server",
+            "mac": "b436c985d3a39e83a07bf30f497025de9dac609a7e4875ce93ff4f53be9e2177"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:07:06.847563893Z",
+      "updated_at": "2026-11-26T23:07:58.183635702Z",
+      "seal": {
+        "by": "server",
+        "mac": "f94d8119dc3e8884cd5d7b6ebdcf357e9d9fb25f1d2976be5459b391fa6b479f"
       }
     }
   ]

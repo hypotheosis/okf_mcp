@@ -4021,6 +4021,14 @@ reader at `/read/` serves its own fonts, hence `font-src 'self'`. Behind
 a proxy that adds its own CSP, keep these sources or the fonts fall back to
 the system ones.
 
+Every response the HTTP server sends, whatever its status (pages, the API,
+`/mcp`, redirects, 401s, 404s, static files), also carries
+`X-Robots-Tag: noindex, nofollow`, set by one layer on the whole router, so
+no page of the server is indexed by a search engine. There is no `robots.txt`
+`Disallow`: a crawler must fetch a page to see it is marked. The `/metrics`
+listener is separate, internal and never routed by the ingress, so it does not
+send it.
+
 Every `/api/v1` response carries `Cache-Control: no-store` and
 `X-Content-Type-Options: nosniff`. The API uses the same bearer keys and the
 same errors as the other routes: 401 without a valid key (plain text, with

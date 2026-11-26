@@ -1260,8 +1260,8 @@ impl OkfServer {
         description = "Add a document's content at an earlier revision (from `history`), or its \
                        deletion for a `delete` revision, to the changeset `changeset` names, for \
                        review and publish like any other edit. Every write rule applies, so \
-                       machinery cannot be reverted. Pass `expected_revision` (the \
-                       `current_revision` from `history`) to refuse with Conflict, writing \
+                       machinery cannot be reverted. Prefer passing `expected_revision` (the \
+                       `current_revision` from `history`): it refuses with Conflict, writing \
                        nothing, if the document was published since. The revert is based on the revision \
                        published now, even if this changeset edited the document before, so \
                        publish conflicts only if the document is published again after it. \
@@ -2688,6 +2688,18 @@ mod publish_tests {
         // What the caller's `history` showed.
         let seen = published_revision(&test, "a.md").await;
         assert_eq!(seen, Some(2));
+        let shown = |limit, path: &str| crate::mcp::history::HistoryParams {
+            path: path.to_string(),
+            catalog: None,
+            limit,
+            user: None,
+            since: None,
+        };
+        // `history` shows it, even when `limit` leaves the newest rows out.
+        let live = crate::mcp::history::history(&ours, shown(Some(1), "/a.md"))
+            .await
+            .unwrap();
+        assert_eq!(live.current_revision, seen);
         // Someone else publishes between that read and the revert.
         publish_file(&theirs, "a.md", Some(&note("Three"))).await;
         let now = published_revision(&test, "a.md").await;
@@ -2720,6 +2732,13 @@ mod publish_tests {
             (entry.base_revision, entry.content.as_deref()),
             (now, Some(NOTE.as_bytes()))
         );
+
+        // A deleted path has no live revision.
+        publish_file(&theirs, "a.md", None).await;
+        let gone = crate::mcp::history::history(&ours, shown(None, "/a.md"))
+            .await
+            .unwrap();
+        assert_eq!(gone.current_revision, None);
 
         // No argument: unchanged behaviour.
         revert(&ours, with(&plain, None)).await.unwrap();

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1606,
+  "next_claim_seq": 1618,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c1db56b3fecb54314b872d12657fb1c1e0330c97bb5bfd8fbbba94a1d2c70acb"
+    "mac": "0cafa2b93994dc6317b5e1ff19c961f4d567d3868da267053dd32beabc5c75f1"
   },
-  "next_evidence_seq": 2387,
+  "next_evidence_seq": 2408,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "0ffe770dae04fd1ff2edf93da85fb30c6d3c5439fcfc9d45b7cf6edc04437c28"
+    "mac": "d465488cd6e014f5837ea961a10282fe85605e88623da0f27ef615ba782c7b97"
   },
   "claims": [
     {
@@ -130195,6 +130195,1066 @@
       "seal": {
         "by": "server",
         "mac": "9e685e528e4a9daacbbfffe2fa1f0854c0ea967f55e95fb91ba4e59a8923e3dd"
+      }
+    },
+    {
+      "id": "CLM-1606",
+      "statement": "Issue #741: the per-action key reads (me::own, me::owned, keys::managed, keys::list_keys, people::user_detail) no longer read every key via keys::list and filter in memory.",
+      "kind": "non_functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/741 'Per-action key reads list every key'",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/api/me.rs",
+        "src/http/api/keys.rs",
+        "src/http/api/people.rs",
+        "src/store/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Rolled up from CLM-1607 to CLM-1613, CLM-1616 and CLM-1617 (all supported) and CLM-1615 (no paging, refuted as a disclosed deviation: the routes have no paging contract and the brief requires byte-compatible responses). Pending the issue owner's decision on paging.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T07:16:00.934215257Z",
+          "seal": {
+            "by": "server",
+            "mac": "a16d50bbb026874b2ff30fec68635bbb6d7e1c3d3e2f668e9fc1925b419e052a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:16:00.934215257Z",
+      "seal": {
+        "by": "server",
+        "mac": "53b3fb36cc5fa1224c96e544edc05d249b210a7c64e94090ca5f4643f1e30bd1"
+      }
+    },
+    {
+      "id": "CLM-1607",
+      "statement": "me::own looks up one credential with keys::record_by_id and applies the same kind and user-id ownership check; an unknown id and another user's credential both give NotFound (404).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #741 brief: 'own and managed can use keys::record_by_id plus the same checks'; PR body: 'me::own and keys::managed use keys::record_by_id ... unknown id and not-yours both stay 404'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/me.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2387",
+          "kind": "inspection",
+          "locator": "src/http/api/me.rs:732-752",
+          "summary": "own() calls key_rows::record_by_id, then filters on record.kind == kind and user_id == Some(user.id); a miss from either gives OkfError::NotFound, same as the replaced find().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/me.rs",
+              "lines": {
+                "start": 732,
+                "end": 752
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:28.069634567Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9f7f005f0c310e19fd37428db9c8279f39f8b6c688d113b9ef5c229a6a81619"
+          }
+        },
+        {
+          "id": "EVD-2388",
+          "kind": "test",
+          "locator": "src/http/api/me.rs:1886 a_session_acts_on_its_own_key_by_id_but_not_another_users_or_a_grant (read, not run: a gate was running)",
+          "summary": "Asserts bob's PATCH of alice's key id is 404, alice's DELETE of that key via /me/grants/{id} is 404 (kind mismatch), and alice's own PATCH is 200 with the new name. Unknown-id 404 is covered by the existing revoke 404 test just above it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/me.rs",
+              "lines": {
+                "start": 1885,
+                "end": 1943
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:28.219454045Z",
+          "seal": {
+            "by": "server",
+            "mac": "b208d972fb465a66ad965a23bd5beaa8819020dec340ea10043f18fb6ceff6ff"
+          }
+        },
+        {
+          "id": "EVD-2402",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_session_acts_on_its_own (1 passed, 0 failed) at 9a2a12c",
+          "summary": "Re-run on the new head: the other-user, key-as-grant and own-key assertions pass; own() is unchanged by the new commit and record_by_id only adds the NUL short-circuit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/me.rs",
+              "lines": {
+                "start": 732,
+                "end": 752
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.207591846Z",
+          "seal": {
+            "by": "server",
+            "mac": "01204af6f863c33c5934965e8f0c47531f77639250bb2ef652eea9f57dae807f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows the by-id lookup with the same kind and owner checks and the same NotFound; the new test asserts the 404 for another user and for a grant/key kind mismatch. Test assertions were read, not run by this auditor (a gate was running).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2387",
+            "EVD-2388"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.194741411Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7b943fa52dadd5ecd2397e5b31c455be2fc85abb9c118f6bc2abe34f6b494d6"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a2a12c: own() unchanged, test passes on run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2387",
+            "EVD-2402"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.236787829Z",
+          "seal": {
+            "by": "server",
+            "mac": "05cafeb4f63e58f2b8079d90422fdcd3d6ae32204ea9c4b11b50dec9603e129a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:13:52.236787829Z",
+      "seal": {
+        "by": "server",
+        "mac": "f3d4600555bd55e47ab550d6d7e52b01ef3693e2abeea4ab4d7d7b1c0430d58e"
+      }
+    },
+    {
+      "id": "CLM-1608",
+      "statement": "keys::managed looks up one credential with keys::record_by_id, requires admin, applies the same manages check, and answers NotFound for an unknown id or a credential the caller does not manage.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #741 brief: 'own and managed can use keys::record_by_id plus the same checks'; PR body: 'unknown id and not-yours both stay 404'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2389",
+          "kind": "inspection",
+          "locator": "src/http/api/keys.rs:371-382",
+          "summary": "managed() calls require_admin first, then record_by_id, then filters with manages(principal, record); None or unmanaged gives OkfError::NotFound path keys/{id}. Same checks and error as the old list().find().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 371,
+                "end": 382
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:28.370810518Z",
+          "seal": {
+            "by": "server",
+            "mac": "275e7ab777b3531ecc0ee4d041bfed03c88cf4ac07c27ac98784276513a4a675"
+          }
+        },
+        {
+          "id": "EVD-2390",
+          "kind": "test",
+          "locator": "src/http/api/keys.rs:1037 a_key_out_of_reach_is_a_404_by_id_and_an_every_catalog_admin_still_acts_on_it (read, not run)",
+          "summary": "Scoped admin's revoke of an every-catalog key, a wider-catalog key and an unknown id each return 404 and leave the keys live; an in-reach key returns 200.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 1036,
+                "end": 1099
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:28.517172405Z",
+          "seal": {
+            "by": "server",
+            "mac": "67c787b4e4d489ba8c067181f60b82be8d0dcab256e695a57e9c3a8e7da2f3ec"
+          }
+        },
+        {
+          "id": "EVD-2403",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_key_out_of_reach (1 passed, 0 failed) at 9a2a12c",
+          "summary": "Re-run on the new head: scoped admin gets 404 for out-of-reach and unknown ids, an in-reach key is revoked 200, and the every-catalog admin acts on the others. managed() unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 371,
+                "end": 382
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.300420712Z",
+          "seal": {
+            "by": "server",
+            "mac": "2065aea97d6ce28bf2118e466496a2a0a2bcb05d9249bd77d854ddba5dab7e1f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "managed() keeps require_admin and manages, now over one row; the test shows 404 for out-of-reach and unknown ids and no side effect. Assertions read, not run by this auditor.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2389",
+            "EVD-2390"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.308966781Z",
+          "seal": {
+            "by": "server",
+            "mac": "dad0ead0952a1f17df8e0c179488a255e7456985a8b76b6d6639cac8c728a3ac"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a2a12c: managed() unchanged, test passes on run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2389",
+            "EVD-2403"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.325743797Z",
+          "seal": {
+            "by": "server",
+            "mac": "47b3cc3f73715732344d923be00c07cdc6c89b9a39f9536399b7b2d58e4890df"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:13:52.325743797Z",
+      "seal": {
+        "by": "server",
+        "mac": "d20397ac1ba5091991a3d931b36a09a295f089e7c189878b0d75fdb3548467be"
+      }
+    },
+    {
+      "id": "CLM-1609",
+      "statement": "me::owned, keys::list_keys and people::user_detail read through the new keys::list_filtered store query instead of keys::list plus in-memory filtering.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #741 brief: 'listings use a store query filtered by user or scope instead of keys::list plus in-memory filtering'; PR body: 'me::owned, keys::list_keys, people::user_detail use list_filtered'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/me.rs",
+        "src/http/api/keys.rs",
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2391",
+          "kind": "inspection",
+          "locator": "src/http/api/me.rs:862; src/http/api/keys.rs:426; src/http/api/people.rs:670",
+          "summary": "Each of the three handlers calls key_rows::list_filtered with a KeyFilter. The only src/http hits for key_rows::list( are the two test-body uses in keys.rs tests; no production handler lists every key.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\\bkey_rows::list\\(",
+              "scope": [
+                "src/http"
+              ],
+              "hits": 2,
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.164061691Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c8bcbd88834a4596273ecad0aac0ac5cd3215035f2a2a24ccc99b396f56345c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three handlers call list_filtered; the repository search shows no production key_rows::list in src/http.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2391"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.418649326Z",
+          "seal": {
+            "by": "server",
+            "mac": "38f95fd18fc70fee670049e688966f948ba1c0d402cce05a445d181da8518aa9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:02:11.418649326Z",
+      "seal": {
+        "by": "server",
+        "mac": "66db62c7a1444f28714ba50f84a40d3d4276b51998e26aa6741d70bdc6051dde"
+      }
+    },
+    {
+      "id": "CLM-1610",
+      "statement": "keys::list_filtered returns keys in keys::list order (ORDER BY k.name, k.actor, k.created_at, k.id), and its SQL conditions on user, kind and reach admit exactly the records the replaced in-memory filters kept (a superset only where manages is still applied in memory).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #741 brief: 'responses byte-for-byte compatible including ordering'; PR body: 'in keys::list order'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/store/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2392",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1060-1088 vs 1013-1023",
+          "summary": "list_filtered uses the same select_key_records! macro and the identical ORDER BY as list. Filters: user_id, user name, kind equality; reaching = not provisioner, not all_catalogs, no granted catalog name outside the set, which matches manages_grants/Principal::level (name lookup in Reach::Catalogs levels) and manages' provisioner rule. WHERE on key_catalogs is a subquery, so the aggregated catalogs/levels columns stay complete.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1060,
+                "end": 1088
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.286495718Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c196c06b6ae1e0165023121e745b7c9c4213b3df2cf1b269fda68b60e952ff0"
+          }
+        },
+        {
+          "id": "EVD-2393",
+          "kind": "test",
+          "locator": "src/http/api/keys.rs:1101 a_filtered_read_answers_what_listing_every_key_and_filtering_did (read, not run)",
+          "summary": "assert_eq on the whole Vec<KeyRecord> (so order included) against list() filtered in memory, for reaching None, Some(main), Some(empty), and for user_name + kind. Does not cover a provisioner key, an OAuth grant row or filtering by user_id (me::owned path), and the fixture has one user.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 1100,
+                "end": 1165
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.408601364Z",
+          "seal": {
+            "by": "server",
+            "mac": "7846fafa9f860af9714ef8650ee9a2f78cd5c546f935341ecb41f1c6f4292c03"
+          }
+        },
+        {
+          "id": "EVD-2404",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_filtered_read_answers (1 passed, 0 failed) at 9a2a12c",
+          "summary": "After the rewrite into three statements, the equivalence test still passes (reaching None/main/empty; user_name + kind). All three statements share the macro and ORDER BY k.name, k.actor, k.created_at, k.id; kind and reach conditions are unchanged; user_id wins over user_name. Still not covered by a test: the user_id statement (me::owned path, covered only by the me.rs test), provisioner and OAuth-grant rows.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1061,
+                "end": 1103
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.386218055Z",
+          "seal": {
+            "by": "server",
+            "mac": "df31bbe3ac6f2dd4db06dcb457a1ae7eeb2157f88b849660c8d89d8521b30db8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Same select macro and ORDER BY as list; SQL predicates mirror manages_grants and the owner/kind filters; the equivalence test compares whole record vectors for three reaches and a user-name plus kind filter. Gap: no provisioner or OAuth-grant row or user_id filter in that test (reasoned equivalent from the SQL). Test read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2392",
+            "EVD-2393"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.526081483Z",
+          "seal": {
+            "by": "server",
+            "mac": "773196703db4244fde5f3420b4e44941d6531aed93c735d8ad3ffc79dae44804"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a2a12c after the three-statement rewrite: same macro, ORDER BY and conditions; equivalence test passes on run. Gap: the user_id statement and provisioner/OAuth-grant rows are not in that test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2392",
+            "EVD-2404"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.413669530Z",
+          "seal": {
+            "by": "server",
+            "mac": "a97433f8906dda598dc0d724d26a93869e12b1be16e721b1e4ada5dc0afd40df"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:13:52.413669530Z",
+      "seal": {
+        "by": "server",
+        "mac": "e03bee6a91258020241227dc13b35298aed6590ae57fe9a4db43d0ff75d82e46"
+      }
+    },
+    {
+      "id": "CLM-1611",
+      "statement": "A user cannot see or act on another user's key through the by-id path: a test shows another user's PATCH of a key id and a DELETE of a key as a grant both answer 404 and the other user's listing stays empty.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #741 brief: 'tests that a user cannot see or act on another user's key via the by-id path'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/me.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2394",
+          "kind": "test",
+          "locator": "src/http/api/me.rs:1886-1943",
+          "summary": "bob PATCH of alice's key id: 404 asserted; alice DELETE of the key via /me/grants: 404; bob GET /me/keys: 200 with an empty list. Covers act (rename) and see (listing), not a GET by id (no such route).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/me.rs",
+              "lines": {
+                "start": 1885,
+                "end": 1943
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.529790467Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6d2510cb7c1c4821380f138a1f8b46af45d5858aa557af59aa5a5a1b4060352"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test asserts 404 for another user's rename, 404 for a key addressed as a grant, and an empty list for the other user. Read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2394"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.631134093Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba00dc22e42d175c24257b21b5fb8fcde379ecca4fe5835d5ae71079bda1ff14"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:02:11.631134093Z",
+      "seal": {
+        "by": "server",
+        "mac": "9a4e96abd3a05dfbddd9502a7f9ff447e17e505ef4f8881c8960d96918e4123e"
+      }
+    },
+    {
+      "id": "CLM-1612",
+      "statement": "Tests show an admin sees and acts on what it did before: an every-catalog admin acts on every-catalog and wider keys that a scoped admin gets 404 for, and list_filtered equals list-then-filter for each reach.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #741 brief: 'tests that ... an admin sees what it saw before'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2395",
+          "kind": "test",
+          "locator": "src/http/api/keys.rs:1037 and :1101 (read, not run)",
+          "summary": "First test: root (every-catalog) admin revokes the every-catalog and wider keys the scoped admin got 404 for, 200 with revoked_at set. Second: list_filtered equals list-then-filter for three reaches. Existing people.rs:2881 compares scoped admin vs root user_detail output.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 1036,
+                "end": 1165
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.650705410Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9e5527a02e0055b3fd4e838576501bfd1275930f017b0a84474362ce030fb42"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests show the every-catalog admin acting on keys the scoped admin cannot, and the filtered read equal to the old list-and-filter. Read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2395"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.728863077Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1a95d1f3919a84f6517f24b7cf53f6a46b7e689b0269ca12e299b0a72606d89"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:02:11.728863077Z",
+      "seal": {
+        "by": "server",
+        "mac": "ea7c8f57daa9af69a380ed040ef2c1ae090c70e785d7ea64f205256e1a44925c"
+      }
+    },
+    {
+      "id": "CLM-1613",
+      "statement": "manages is still applied in memory to every record list_filtered returns in keys::list_keys and people::user_detail, so the SQL reach narrowing never widens what a caller sees.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "PR body: '`manages` is still applied in memory to every returned record, so SQL only narrows'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/http/api/keys.rs",
+        "src/http/api/people.rs",
+        "src/store/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2396",
+          "kind": "inspection",
+          "locator": "src/http/api/keys.rs:426-445; src/http/api/people.rs:666-682",
+          "summary": "list_keys chains .filter(manages(&principal, record)) after list_filtered; user_detail chains .filter(!provisioner && named && manages). reach_names returns None, the level-map names, or an empty set, so SQL admits a superset of manages (Ceiling: manages is always false).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 426,
+                "end": 445
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.762891343Z",
+          "seal": {
+            "by": "server",
+            "mac": "76d14c963f7287dd3c736a28443e660f87ba028630d61dc355df36b9f3ddf7c1"
+          }
+        },
+        {
+          "id": "EVD-2405",
+          "kind": "inspection",
+          "locator": "src/http/api/keys.rs:426-445; src/http/api/people.rs:666-682 at 9a2a12c",
+          "summary": "The new commit changes only src/store/keys.rs; the handlers still apply manages after list_filtered and the reach condition ($3 text[]) is unchanged in meaning.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/keys.rs",
+              "lines": {
+                "start": 426,
+                "end": 445
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.478210127Z",
+          "seal": {
+            "by": "server",
+            "mac": "73d403d259727a757ae05e6a20a79247df52000a1e5e449cdeff4be46b4bdddd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both handlers still run manages after the query, and the SQL reach predicate is a superset of manages for each Reach variant.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2396"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.851698826Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d28ee673dcabe9bc134c9c80eabde01d218dd09f7d3d8fbe6afd3f82aea8c6e"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a2a12c: handlers untouched, manages still applied after the query.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2396",
+            "EVD-2405"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.498087706Z",
+          "seal": {
+            "by": "server",
+            "mac": "e74b92c49dd35502475d3311c186a97b67a7e7d6c7b571f99e8695d25c7b8457"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:13:52.498087706Z",
+      "seal": {
+        "by": "server",
+        "mac": "7fb0ef239a881c16a74c15f63f118e30006f2f59207be90778db30672a1f6933"
+      }
+    },
+    {
+      "id": "CLM-1614",
+      "statement": "No migration or index was added, and the existing api_keys_user_id index serves the user filters of list_filtered.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'No migration or index: `api_keys_user_id` already exists for the user filters.'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "migrations/accounts/0009_users_teams.sql",
+        "src/store/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "The PR body statement it quotes ('the existing api_keys_user_id index serves the user filters') was reworded to a weaker, checkable claim; replaced by a claim quoting the new wording. Its not_enough_info verdict stays as the history of the original wording.",
+        "retired_at": "2026-11-26T07:13:39.683561209Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2397",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD --stat -- migrations (empty); migrations/accounts/0009_users_teams.sql:43",
+          "summary": "No migration in the diff; api_keys_user_id is a partial index on user_id WHERE user_id IS NOT NULL. But the query uses ($1::text IS NULL OR k.user_id = $1): a generic prepared plan cannot use the index for that OR form, and the user_name filter goes via users.name, not that index. Whether the index serves these filters is unmeasured (no EXPLAIN).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "migrations/accounts/0009_users_teams.sql",
+              "lines": {
+                "start": 41,
+                "end": 43
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:48.886395743Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6bef8ce2c2c4021479370ae800d95b54bc4415650034e7829f47aff10d95c1a"
+          }
+        },
+        {
+          "id": "EVD-2406",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1065-1100; migrations/accounts/0009_users_teams.sql:43",
+          "summary": "list_filtered now has a statement with a plain k.user_id = $1 (usable against the api_keys_user_id partial index, whose predicate user_id IS NOT NULL is implied by equality), one with u.name = $1 (users.name is UNIQUE), and one with no user condition. No migration in the diff. Not measured with EXPLAIN; the reworded PR body says so.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1061,
+                "end": 1103
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.570630231Z",
+          "seal": {
+            "by": "server",
+            "mac": "c999a3ad676c815b206f7273aecc1ac6536ac7ce7e885587a8bbf66c6f4424d2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No migration was added (true), but nothing shows the api_keys_user_id partial index is used: the $1 IS NULL OR k.user_id = $1 form can defeat index use in a generic plan and the by-name filter does not use it at all. Fix: run EXPLAIN on the me::owned statement against a populated table (or reword the PR body to say the index exists and the cost was not measured).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2397"
+          ],
+          "recorded_at": "2026-11-26T07:02:11.978471308Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed1e0c93154aec5f76af3dcbdd701cf7cdcdccb3531610cb8a7000741e2d972a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:13:39.683561209Z",
+      "seal": {
+        "by": "server",
+        "mac": "bbe7cd5b4328c5dc16b88d65cbfd2ef932662723d826f47ebed9c408eb041704"
+      }
+    },
+    {
+      "id": "CLM-1615",
+      "statement": "The listings are paged (the issue asks for a store query filtered by user and a page).",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #741 body: 'the listings need a store query filtered by user (and a page)'; PR body: 'No paging was added: these routes have no paging contract'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/store/keys.rs",
+        "src/http/api/keys.rs",
+        "src/http/api/me.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2398",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1060-1088",
+          "summary": "list_filtered has no LIMIT/OFFSET or cursor and none of the three handlers takes a page parameter; the PR body states paging was deliberately not added.",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "LIMIT|OFFSET|page|cursor",
+              "case_insensitive": true,
+              "scope": [
+                "src/store/keys.rs"
+              ],
+              "hits": 26,
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:01:49.019169275Z",
+          "seal": {
+            "by": "server",
+            "mac": "ea3638a753f6d968c74823398f05bae337e4f7cb46b09ebfc7fe093af874a445"
+          }
+        },
+        {
+          "id": "EVD-2399",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1060-1088; src/http/api/keys.rs:426-445",
+          "summary": "The one list_filtered statement ends with ORDER BY only, and list_keys returns every manageable key in a single KeyList; no page, limit or cursor exists anywhere in the new path.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1060,
+                "end": 1088
+              },
+              "commit": "e3903fb6b9e03cc8d981ed1fafb6d863724dde4d"
+            }
+          },
+          "recorded_at": "2026-11-26T07:02:11.069187143Z",
+          "seal": {
+            "by": "server",
+            "mac": "b7dff808177204ee884070fc69d9d32412ec6be21132b277817731d8be56f4be"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The listings have no page parameter and the store query has no LIMIT or cursor; the PR discloses this and gives byte-for-byte compatibility as the reason, but the issue body asks for a page. Fix: have the issue owner decide, and either state in the PR and issue that paging is deferred and file a follow-up for a paged listing contract, or add a page to the listings.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2398"
+          ],
+          "recorded_at": "2026-11-26T07:02:12.109367343Z",
+          "seal": {
+            "by": "server",
+            "mac": "a95e2fe85f4f3b6afee9e9f0e2d65267b9a87b97082c0c098d0198e6d9f9b940"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:01:13.498263342Z",
+      "updated_at": "2026-11-26T07:02:12.109367343Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d6fb6eea1f254a5ad4fc37222112e953c47e7e03125cde550088861a70e9bf6"
+      }
+    },
+    {
+      "id": "CLM-1616",
+      "statement": "A key id containing a NUL byte answers 404, not 500, on the by-id key routes (/keys/{id}/..., /me/keys/{id}, /me/grants/{id}): keys::record_by_id returns None for such an id before querying.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review hand-off for #741: record_by_id returns Ok(None) for an id containing NUL (a Postgres error otherwise became a 500 in http::api::malformed_name_tests)",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "src/store/keys.rs",
+        "src/http/api/malformed_name_tests.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2400",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1187-1195",
+          "summary": "record_by_id returns Ok(None) when id contains '\\0' before any query; own() and managed() map None to NotFound.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1187,
+                "end": 1195
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.024834138Z",
+          "seal": {
+            "by": "server",
+            "mac": "a95b52f1123552d40f65dcf93ad1a39da8354fd517972af80309556ccc67bd08"
+          }
+        },
+        {
+          "id": "EVD-2401",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- no_name_taking_route_answers_500 (1 passed, 0 failed)",
+          "summary": "The test sends a%00b and %00 (plus other bad names) to /api/v1/keys/{}/revoke, /keys/{}/catalogs/main, /me/keys/{} and /me/grants/{} and collects any status other than 404 as a failure; it passed at HEAD 9a2a12c.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/malformed_name_tests.rs",
+              "lines": {
+                "start": 380,
+                "end": 430
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:31.117315582Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec63367c6d623f78e599ae3f8870b621993d40decfe5d1393e3008752c2fbe2c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The store short-circuits a NUL id to None, both by-id lookups map None to 404, and the malformed-name test over /keys/{id}/... and /me/keys|grants/{id} passed on HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2400",
+            "EVD-2401"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.151475348Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b0a8287cbbfa9f151dd58ee81780457d67ece829968505794f2aa19637d762e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:13:15.666884617Z",
+      "updated_at": "2026-11-26T07:13:52.151475348Z",
+      "seal": {
+        "by": "server",
+        "mac": "f92e36c27770c2b8e8d4eec753f7ff6a6e2fe374ec0000312de2d07828175011"
+      }
+    },
+    {
+      "id": "CLM-1617",
+      "statement": "No migration was added; api_keys_user_id already exists and the user filters of list_filtered are written (a plain k.user_id = $1 / u.name = $1 statement per case) so it can serve them; this was not measured with EXPLAIN.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'No migration: api_keys_user_id already exists; the user filters are written so it can serve them (not measured with EXPLAIN)'",
+      "derived_from": [
+        "CLM-1606"
+      ],
+      "artifacts": [
+        "migrations/accounts/0009_users_teams.sql",
+        "src/store/keys.rs"
+      ],
+      "tags": [
+        "from-issue:741"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2407",
+          "kind": "inspection",
+          "locator": "src/store/keys.rs:1061-1103; migrations/accounts/0009_users_teams.sql:43; git diff origin/main..HEAD --stat -- migrations (empty)",
+          "summary": "Three statements: WHERE k.user_id = $1, WHERE u.name = $1 (users.name UNIQUE), and none; no OR-on-NULL on the user condition. The partial index predicate (user_id IS NOT NULL) is implied by equality. No migration in the diff. The PR text states it was not measured.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys.rs",
+              "lines": {
+                "start": 1061,
+                "end": 1103
+              },
+              "commit": "9a2a12ca8e1e62a27e55b51f9f646333522f8bd7"
+            }
+          },
+          "recorded_at": "2026-11-26T07:13:42.687327115Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac4c549f0f9861fc965617173ff55c1d2e230f8122d08499f4c8517485cff3db"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The statement is limited to what the code shows: no migration, plain equality statements per user case, and an explicit not-measured caveat.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2407"
+          ],
+          "recorded_at": "2026-11-26T07:13:52.065567515Z",
+          "seal": {
+            "by": "server",
+            "mac": "81a4ac6907cf435548bdc335d661b0f4eb24fd6f65f31409a404232e4e9e5cff"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:13:39.770543518Z",
+      "updated_at": "2026-11-26T07:13:52.065567515Z",
+      "seal": {
+        "by": "server",
+        "mac": "5b0123c63b5ec95ada2302f82a411ebbb01c18a4dcb3fa4c476584ea79bcb07c"
       }
     }
   ]

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1733,
+  "next_claim_seq": 1749,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "d140c0b3a1e94902a82f969a9f79cb97e4bd6e248a9bdb1102ec5c84d13e9545"
+    "mac": "9bdfacda662a13979e1df5ce47077a5108bd039f0d528c2d9e96c4d3806a5cbb"
   },
-  "next_evidence_seq": 2547,
+  "next_evidence_seq": 2577,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "3b549c09643dc756c7a196a779248cd6e8a7acb13277bb0ae90d7dde56357c9d"
+    "mac": "7387c2a76d7909a6f10739bc7f3a7a720811bdc3b7e8d924fa4193e389d2b0c8"
   },
   "claims": [
     {
@@ -43709,6 +43709,18 @@
             "by": "server",
             "mac": "9ebfa7e1afaa4f34f822cf71f3cdbee62fab81a1d56518080f097f9775515e04"
           }
+        },
+        {
+          "id": "EVD-2573",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::oidc::tests::a_ ... (cluster and standalone a_failed_link_index_swap_removes_the_stored_flow)",
+          "summary": "Reran on head 1e3d9da for #775 re-audit: both cluster::a_failed_link_index_swap_removes_the_stored_flow and standalone:: variants ok (91 passed, 0 failed). The diff only added reauth session-key handling beside the link key.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:17:08.586241603Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b928c93274aea05cff2b9106725c7cab0e9fc008fd225432af2eaef19e24d9f"
+          }
         }
       ],
       "verdicts": [
@@ -43725,13 +43737,26 @@
             "by": "server",
             "mac": "4d15d95402a7f8d2387bebc5ca63205a4fac91a908bf3eee9ac163b7ec4dda76"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Test still passes at head after the diff touched the file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2573"
+          ],
+          "recorded_at": "2026-11-26T12:17:15.711272737Z",
+          "seal": {
+            "by": "server",
+            "mac": "0af9d8a3d542d667bb2742d51999aa3285ccd15c7d9b9c1398186faaf130eac3"
+          }
         }
       ],
       "created_at": "2026-11-23T00:09:45.671818241Z",
-      "updated_at": "2026-11-23T00:10:31.876778967Z",
+      "updated_at": "2026-11-26T12:17:15.711272737Z",
       "seal": {
         "by": "server",
-        "mac": "200e862240c4d23bc2f8e7b10933bb2147cc298b8db3deb55ab0d1d49d6e5abf"
+        "mac": "6a4a03ba21c22bcd4ac826c852ef755ecb12ef5d6ba861ec74510a6adea3cc23"
       }
     },
     {
@@ -58374,6 +58399,18 @@
             "by": "server",
             "mac": "265b082aa135aba9ce9220e02bca5edce312c435cb0c69c58fb8c42d78db9763"
           }
+        },
+        {
+          "id": "EVD-2574",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:1365-1372 delete_own -> delete_own_on -> delete_in; git diff origin/main..HEAD -- src/store/users.rs",
+          "summary": "Re-audit at head: this PR's users.rs hunks only add the Proof::Oidc variant, its check and a doc line; delete_own still delegates to the shared delete_in path (and the feedback delete at line 1043 is untouched). The earlier anchor moved because of other work, not this change.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:17:08.677496656Z",
+          "seal": {
+            "by": "server",
+            "mac": "c1b170f744eef8fead3f3f6db5d1d0f46b15c8bb476d10f761c499eb928cbb3d"
+          }
         }
       ],
       "verdicts": [
@@ -58415,13 +58452,26 @@
             "by": "server",
             "mac": "58f2d610b2ff2052c6cc959fa45a52d624ea490e25f83f55aad82591025973df"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "delete_own still shares the delete path; this PR does not change it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2574"
+          ],
+          "recorded_at": "2026-11-26T12:17:15.807887215Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c5d69d24e1fccb136bd282f1250784e09f13148f3a40e0c975b4bcea120a8e6"
+          }
         }
       ],
       "created_at": "2026-11-23T10:45:51.402016283Z",
-      "updated_at": "2026-11-23T11:15:56.080997819Z",
+      "updated_at": "2026-11-26T12:17:15.807887215Z",
       "seal": {
         "by": "server",
-        "mac": "7297d29e769ad92090cd899be79f1010961902099a03b718fe8933c1e254930c"
+        "mac": "d776cb013e34153e8d630e5a8c28bd95747ccad716e5c3c824a2cefe022f80eb"
       }
     },
     {
@@ -88288,6 +88338,18 @@
             "by": "server",
             "mac": "bc628b4e50acd83e610f81471d447f27a2b01ef06fe4b70386f9d432828c30e1"
           }
+        },
+        {
+          "id": "EVD-2575",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/store/users.rs (grep -ci cleanup: 0)",
+          "summary": "Re-audit at head: the PR's diff of users.rs contains no line mentioning cleanup, and the store_cleanups path is outside its hunks (Proof enum, check_own_deletion arm, doc). The claim's behavior is unchanged by this PR.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:17:08.766227701Z",
+          "seal": {
+            "by": "server",
+            "mac": "d78ea7d06aeddb79cbe75fe2a0b32677af862d500867953dcfd0ab96c91dae44"
+          }
         }
       ],
       "verdicts": [
@@ -88304,13 +88366,26 @@
             "by": "server",
             "mac": "bfcacad0ee13ae0a8fc274728dc52efa9ad54730f346f1b95c7fb2b7e02a0d0a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The cleanup path is outside this PR's hunks; behavior unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2575"
+          ],
+          "recorded_at": "2026-11-26T12:17:15.896395690Z",
+          "seal": {
+            "by": "server",
+            "mac": "f0e71e71fab5017f1c6761971f37663d84395a3e3ea52dab4932a936469909cd"
+          }
         }
       ],
       "created_at": "2026-11-24T02:11:41.769345711Z",
-      "updated_at": "2026-11-24T02:23:49.934942107Z",
+      "updated_at": "2026-11-26T12:17:15.896395690Z",
       "seal": {
         "by": "server",
-        "mac": "5a73eebfba577aff3a29c0ee06973c208d7ddcfc32cc1f6d50976160c245dd06"
+        "mac": "4c09d66057731c1539bc3c3791cd81cf026e957e9d9be3703a099edd6bf3195a"
       }
     },
     {
@@ -88844,6 +88919,18 @@
             "by": "server",
             "mac": "bd31050dbd11f3eb256a4499d9bce135d9feec24fb0b80bf0cacedd49e745bcd"
           }
+        },
+        {
+          "id": "EVD-2576",
+          "kind": "analysis",
+          "locator": "docs/operations.md:2110-2119, 1655, 923; git diff origin/main..HEAD -- docs/operations.md",
+          "summary": "Re-audit at head: the cleanup_stores job and changeset_discarded text is still present at those lines; this PR's docs hunks touch only the OIDC key-space table, self-service deletion, OIDC linking and the /me endpoint rows.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:17:08.854547255Z",
+          "seal": {
+            "by": "server",
+            "mac": "493f996c6792f77bb2a9783c6f3b5d60ac9e05119c040d60ba85279f6f3100d2"
+          }
         }
       ],
       "verdicts": [
@@ -88859,13 +88946,26 @@
             "by": "server",
             "mac": "487af7ed547d6144bfe5d03738eff1d774086ef2c4dcf3387b75906d315568c2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The documented cleanup text is intact at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2576"
+          ],
+          "recorded_at": "2026-11-26T12:17:15.985102345Z",
+          "seal": {
+            "by": "server",
+            "mac": "066fba312ec04e174fd0ec033742dcdb35b296dba9ada07c2c002a732d4964c8"
+          }
         }
       ],
       "created_at": "2026-11-24T02:11:41.769345711Z",
-      "updated_at": "2026-11-24T02:23:50.756548739Z",
+      "updated_at": "2026-11-26T12:17:15.985102345Z",
       "seal": {
         "by": "server",
-        "mac": "4244f2183907ae12098b7c8eecabc1942a6f4efbb6028f34abdf02abf1684a8e"
+        "mac": "ce229dcaffd8d79c7d870bdcaf438389ec8a6e93e742eabf69f98b08984881fd"
       }
     },
     {
@@ -139281,6 +139381,1242 @@
       "seal": {
         "by": "server",
         "mac": "0e94a8bc756e9adddf92dad699fb1c86f4a480a305a23d03291074c445fcefe3"
+      }
+    },
+    {
+      "id": "CLM-1733",
+      "statement": "A user whose only sign-in method is a linked OIDC identity can delete their own account through DELETE /api/v1/me using a provider re-authentication proof.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/775",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/oidc.rs",
+        "src/http/api/me.rs",
+        "src/store/users.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2547",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- http::oidc::tests::a_ ... : http::oidc::tests::a_fresh_provider_reauthentication_deletes_an_oidc_only_account",
+          "summary": "Reran at head: the test links only an OIDC identity (no password), runs start, authorize visit, callback, then DELETE with oidc_reauth and gets 204 with user, identities and sessions gone. Run printed 91 passed, 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1689,
+                "end": 1731
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:11.893093773Z",
+          "seal": {
+            "by": "server",
+            "mac": "0143987c925e19545f611efab2ec41ff101ebb32c5f253fa9ff73127a5902a3e"
+          }
+        },
+        {
+          "id": "EVD-2548",
+          "kind": "inspection",
+          "locator": "src/http/api/me.rs:1381-1412 (delete_account match arm)",
+          "summary": "DELETE /me accepts (None, None, Some(true)) as a third proof, calling oidc_http::take_reauth and passing Proof::Oidc to users::delete_own; zero or several proofs fall to the 400 arm.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/me.rs",
+              "lines": {
+                "start": 1381,
+                "end": 1420
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:11.996851611Z",
+          "seal": {
+            "by": "server",
+            "mac": "458c047c8ca5402341ef9d8eaa8268fba04061b2d09113673ef39edc069d1aee"
+          }
+        },
+        {
+          "id": "EVD-2572",
+          "kind": "analysis",
+          "locator": "children of CLM-1733",
+          "summary": "Every requirement child (start, binding, single use, recheck under lock, token validation, auth_time window, no session or link, ReauthStale, console, docs) is supported. Only the two PR-body statements about full-suite counts and revert checks are not_enough_info; they do not touch the behavior in this claim.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:16:27.453994071Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6ad60cb4866488baa151ff8772134db356e9595bbe3909d98767c10360c5205"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Happy-path test deletes an OIDC-only account via the new proof; the handler accepts it; all behavior children are supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2572",
+            "EVD-2547",
+            "EVD-2548"
+          ],
+          "recorded_at": "2026-11-26T12:16:34.288186717Z",
+          "seal": {
+            "by": "server",
+            "mac": "2107ee75d0f445e0998f9ea5b527050b724a05d5c41d89df937944d9e865b2a1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:34.288186717Z",
+      "seal": {
+        "by": "server",
+        "mac": "e1d89930e87440d0910abe731b877e9b84944c90e321976ee66a585af60dcece"
+      }
+    },
+    {
+      "id": "CLM-1734",
+      "statement": "The re-authentication start sends the browser to the provider with prompt=login and max_age=0, and sign-in starts do not.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #775: \"a fresh provider round trip (`prompt=login` with `max_age=0`...)\"",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2549",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_fresh_provider_reauthentication_deletes_an_oidc_only_account; http::oidc::tests::a_sign_in_start_never_asks_for_a_fresh_login",
+          "summary": "Reran at head (91 passed). The first asserts query prompt=login, max_age=0 and the same values seen by the mock provider's authorize endpoint; the second asserts a sign-in start has neither parameter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1734,
+                "end": 1743
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.093282955Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2142c687f2e48dfe4ac70ff8ea5c3b8eca0462ca0bae4f9522ed86194c4f515"
+          }
+        },
+        {
+          "id": "EVD-2550",
+          "kind": "inspection",
+          "locator": "src/oidc.rs:795-803",
+          "summary": "authorize_url adds CoreAuthPrompt::Login and set_max_age(Duration::ZERO) only when fresh is true; begin() passes fresh = new.reauth.is_some().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 795,
+                "end": 803
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.189013007Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b365513619f5acf870db7f2850f7d4191fa8b8aee5c0aea9858f60b834df1cf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code adds prompt=login and max_age=0 only for reauth flows; tests assert both on the URL and at the provider, and assert sign-in starts lack them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2549",
+            "EVD-2550"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.369949127Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5b43f048f619b1489a7a38a2486a9f3b0bc04e0f006b90d97de323394e69472"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.369949127Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a4582af292cb002c8691e2cfaf5bb5b6aaac41ca1748564a8eb4e3ce9e81c13"
+      }
+    },
+    {
+      "id": "CLM-1735",
+      "statement": "The re-authentication flow is bound to the starting console session (hash), the same user, and the subject linked at that provider when it started; another session, another user or another identity (even one linked to the same user) is refused.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #775: \"bound to the session\"; maintainer requirement: same user and same linked identity",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2551",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_reauthentication_belongs_to_the_session_that_started_it_in_memory, ::cluster/standalone::a_reauthentication_belongs_to_its_session_across_replicas, a_token_for_another_identity_is_refused_even_a_linked_one",
+          "summary": "Reran at head (91 passed): another session's callback or proof is refused, in memory and across replicas; a token for a different subject, including one linked to another user, is refused.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1830,
+                "end": 1944
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.284699159Z",
+          "seal": {
+            "by": "server",
+            "mac": "7843722710f71314c6fc61b5b6f05a446e3f2a4af4348e19bfe9abd583e15c7d"
+          }
+        },
+        {
+          "id": "EVD-2552",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:624-668 finish_reauth, :691-731 take_reauth, :879-935 reauth_start",
+          "summary": "Start stores session_hash and the subject read from user_identities (404 if none); callback requires the live session whose hash matches in constant time (flow_user) and compares the token's sub to the stored subject; take_reauth checks user and session hash again.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 624,
+                "end": 668
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.379444799Z",
+          "seal": {
+            "by": "server",
+            "mac": "592466685c91cdcda3945b67458a2fc5212d884ec56657516b44c37547b6829b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Start binds session hash, user and linked subject; callback and take both check them; tests exercise another session (memory and Redis replicas) and another identity.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2551",
+            "EVD-2552"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.468095143Z",
+          "seal": {
+            "by": "server",
+            "mac": "21a0786e00f47a2d4f17c60111d3003f73aa97fbb42c9702c3a1cab0d40d7943"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.468095143Z",
+      "seal": {
+        "by": "server",
+        "mac": "a07154045c7ddd25a7c83a3be1119514b144f8420b1cebfe3489783ad35057dd"
+      }
+    },
+    {
+      "id": "CLM-1736",
+      "statement": "A finished re-authentication proof is single use and expires after 5 minutes (REAUTH_PROOF_TTL); a replay or an expired proof answers 410.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #775: \"single-use\", \"short-lived\"; PR body: \"keyed by the session hash, 5 minutes, single use\"",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/oidc.rs",
+        "src/shared/ephemeral.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2553",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_used_proof_cannot_be_replayed_and_an_expired_one_is_gone; http::oidc::tests::the_auth_time_window_is_five_minutes_and_a_reauth_proof_lives_that_long",
+          "summary": "Reran at head (91 passed): a second DELETE after use answers 410; an expired proof answers 410; the TTL test ties REAUTH_PROOF_TTL to 5 minutes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 78,
+                "end": 80
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.474936200Z",
+          "seal": {
+            "by": "server",
+            "mac": "60e81d144f7230d6f47d9d9db084e7a74279e352885a375fee8747b83d5448ff"
+          }
+        },
+        {
+          "id": "EVD-2554",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:691-731 take_reauth; src/shared/ephemeral.rs:324 take",
+          "summary": "take_reauth uses Ephemeral::take (atomic remove, memory or Redis) with the TTL fixed at insert; a missing entry maps to OkfError::Gone (410). Note: the proof is consumed in the HTTP handler before users::delete_own, not inside it (same pattern as the passkey ceremony).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 691,
+                "end": 731
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.571307555Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e4008e08a631b366e1e2a44d03df65b9fb34869490f1950040cf6a7697bd6aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Atomic take plus 5-minute TTL; replay and expiry tests answer 410. Consumption happens in the handler (take_reauth) before delete_own, not inside delete_own; the issue text only asks for the recheck there.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2553",
+            "EVD-2554"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.557557044Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e369673716cd99cd4be7c8a09f0fc81e224eae4da54edf3de311f4be4d9cd2a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.557557044Z",
+      "seal": {
+        "by": "server",
+        "mac": "55426eab90945dd576098929a75146a861788999b8d94601c271d9d8fdc5ca54"
+      }
+    },
+    {
+      "id": "CLM-1737",
+      "statement": "users::delete_own rechecks, under the user's row lock, that the proof's provider and subject are still linked to the user, and refuses (403) and changes nothing if not.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #775: \"users::delete_own would recheck it under the user's row lock\"",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/store/users.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2555",
+          "kind": "test",
+          "locator": "store::users::own_deletion_tests::an_identity_that_is_not_linked_to_the_user_any_more_refuses_the_deletion; ::a_deletion_waiting_on_its_session_and_an_unlink_both_finish; ::a_provider_reauthentication_deletes_the_account_too",
+          "summary": "Reran at head (91 passed): an unlinked or non-matching identity refuses the deletion and leaves the account; an unlink racing the deletion lets both finish; a linked identity deletes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_own_deletion_tests.rs",
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.665257341Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9cd0030df44fba1f5efcd4caa05a48c4afdb80a1dc09ee18d6cdac2b56a83ad"
+          }
+        },
+        {
+          "id": "EVD-2556",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:1263-1289 check_own_deletion",
+          "summary": "Proof::Oidc runs SELECT 1 FROM user_identities WHERE user_id, provider, subject on the transaction's connection, within check_own_deletion under the user's lock; absence returns Forbidden.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 1263,
+                "end": 1289
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:12.761780636Z",
+          "seal": {
+            "by": "server",
+            "mac": "0878a7cbfd9e8f233f3c5dc7bc6d84832f454d9e18690f310d01c4152c33970a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "check_own_deletion queries user_identities for the exact provider and subject inside the deletion transaction and refuses otherwise; store tests cover unlinked identity and racing unlink.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2555",
+            "EVD-2556"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.647575236Z",
+          "seal": {
+            "by": "server",
+            "mac": "435123c381f9b9a9b7b4f1b320039ac576604df3e95db122eea3ccc40014e7f1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.647575236Z",
+      "seal": {
+        "by": "server",
+        "mac": "4e89f13aa9dcf9574ad1cda4919da8f02b1dd69580d16c726f37da04cce6995e"
+      }
+    },
+    {
+      "id": "CLM-1738",
+      "statement": "The re-authentication callback validates the ID token fully (signature, issuer, audience, nonce, expiry) through the same verification as sign-in, and also requires auth_time inside that verification.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "Issue #775 requirement: full ID-token validation",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2557",
+          "kind": "analysis",
+          "locator": "src/oidc.rs:880-920 identify_checked; src/http/oidc.rs:382-394",
+          "summary": "identify and identify_fresh both call identify_checked, which exchanges the code with PKCE and calls id_token.claims(&verifier, &nonce) on client.id_token_verifier(); the only addition is set_auth_time_verifier_fn on that verifier. AuthTimeStale is mapped only from ClaimsVerificationError::InvalidAuthTime, which the crate raises after signature/issuer/audience/expiry/nonce checks; all other errors stay IdToken. The pre-existing verifier config is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 886,
+                "end": 920
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.235207033Z",
+          "seal": {
+            "by": "server",
+            "mac": "b06c0afa6a62a753bb31a969d983a703655da16f799eeeefa2e3d24266cf0b9c"
+          }
+        },
+        {
+          "id": "EVD-2571",
+          "kind": "analysis",
+          "locator": "src/http/oidc.rs reauth tests (search of tests)",
+          "summary": "No new test sends a bad signature, wrong audience, wrong issuer or wrong nonce through the re-authentication callback specifically; coverage of those checks rests on the shared code path and the existing sign-in tests.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T12:15:53.965324808Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5291e2ad7a1235e0b92a75ed0040032ff06310e81a1b043178de54c628e5dad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Re-authentication and sign-in share identify_checked and the crate verifier; auth_time is added as a verifier hook, not a post-hoc claim read. No reauth-specific negative tests for signature, audience, issuer or nonce exist (EVD-2571, neutral), so the support is by shared code path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2557"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.745234211Z",
+          "seal": {
+            "by": "server",
+            "mac": "63734204682f743624bf89ed85085098966d37d845aa5757cdf39cbf4d9576b4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.745234211Z",
+      "seal": {
+        "by": "server",
+        "mac": "ecb5705d33e03b3878c1e8e26874194258a772c79458e823e155bd0785452f48"
+      }
+    },
+    {
+      "id": "CLM-1739",
+      "statement": "auth_time must be present, at most REAUTH_AUTH_TIME_WINDOW (5 minutes, a named constant) before the callback and at most 60 s ahead; a missing, older or future auth_time is not accepted as a proof.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #775: \"checking auth_time in the returned ID token\"; 5-minute window requirement",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2558",
+          "kind": "test",
+          "locator": "oidc::tests::auth_time_must_be_present_recent_and_not_from_the_future; http::oidc::tests::a_missing_stale_or_future_auth_time_is_refused_and_keeps_the_account",
+          "summary": "Reran at head (91 passed). Unit test asserts absent, window-edge ok, window+1s err, skew edge ok, skew+1s err. HTTP test covers absent, window+30s, 1 hour, future 600s: each answers ReauthStale and keeps the account; the happy-path test accepts a fresh auth_time.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 946,
+                "end": 964
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.359418365Z",
+          "seal": {
+            "by": "server",
+            "mac": "f9ec71452f2ba76a81848a3516724ea4ad0c9316838a95b845a154a672fb6d6e"
+          }
+        },
+        {
+          "id": "EVD-2559",
+          "kind": "inspection",
+          "locator": "src/oidc.rs:68-80",
+          "summary": "pub const REAUTH_AUTH_TIME_WINDOW = 5*60 s with a doc comment; REAUTH_CLOCK_SKEW = 60 s; used by check_auth_time.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 68,
+                "end": 80
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.454290335Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf3e4917df40f064801a0e226edf0de263749c56a0aa859b7d5c75c70932a7dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Boundary unit test and four HTTP cases pass; the window is a documented pub const.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2558",
+            "EVD-2559"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.834819843Z",
+          "seal": {
+            "by": "server",
+            "mac": "396201df3096021a64855a7fb4a8a314d4e76aef363a307344ae3a2bb558a08a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.834819843Z",
+      "seal": {
+        "by": "server",
+        "mac": "8cd08224bae1f50436d9cfb00ca6fc4124924c774d286a00a76a34bf13accbe3"
+      }
+    },
+    {
+      "id": "CLM-1740",
+      "statement": "The 5-minute auth_time window is documented in docs/operations.md.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #775 requirement: window documented",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2560",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2867-2883",
+          "summary": "The Deleting your own account section states the auth_time claim must be no more than 5 minutes before the callback, 1 minute ahead for skew, fixed in the server as REAUTH_AUTH_TIME_WINDOW and not configurable; the endpoint table and OIDC section repeat 5 minutes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2867,
+                "end": 2883
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.550459409Z",
+          "seal": {
+            "by": "server",
+            "mac": "190c8642abd9af57ceb44ed19a487260c1884593f4184a3a28b265d3196668d4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "docs/operations.md states the 5-minute window, the skew and the constant name.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2560"
+          ],
+          "recorded_at": "2026-11-26T12:16:20.924628175Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc76dd0226b0f0528a8eebfb0cc4cf262c897eb8591d37487c7203fd03d9eed5"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:20.924628175Z",
+      "seal": {
+        "by": "server",
+        "mac": "6e8a1caaccb2de9b307f384a3ec6d4b1a3abf5a798f263d8203643a745aff8b3"
+      }
+    },
+    {
+      "id": "CLM-1741",
+      "statement": "The re-authentication callback creates no session, links no identity and records no sign-in event; and a sign-in or link callback never creates a deletion proof, so a login cannot satisfy the deletion.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #775 requirements: callback creates no session and links nothing; a login callback cannot satisfy the deletion",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2561",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_reauthentication_callback_never_signs_in_or_links; ::a_sign_in_callback_never_satisfies_the_deletion; a_missing_stale_or_future_auth_time_... (sign_in_events count)",
+          "summary": "Reran at head (91 passed). A sign-in callback with a fresh auth_time leaves a later oidc_reauth deletion at 410 and the user intact; a reauth callback without the session sets no cookie and creates no session; the happy-path test sees no session cookie from the callback; stale test counts sign_in_events after refused re-authentications.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1945,
+                "end": 2003
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.644670666Z",
+          "seal": {
+            "by": "server",
+            "mac": "5dfbaf3109a74238f83736dbe653c3207c503e7b668b11c9178bab81ef1c5afb"
+          }
+        },
+        {
+          "id": "EVD-2562",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:437-447 and 624-668",
+          "summary": "The callback dispatch sends a reauth flow to finish_reauth, which only calls store_reauth_proof and redirects (empty session_cookie, no link, no audit call); store_reauth_proof is called nowhere else, so sign-in and link flows never create a proof.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "store_reauth_proof",
+              "scope": [
+                "src"
+              ],
+              "hits": 2,
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.746856029Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcb2b4ea434d469a780f3be94917dde2d8d89c5f7c4864dc29b7a957e3c84b2d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "finish_reauth only stores a proof; the search shows no other caller of store_reauth_proof; tests show a sign-in callback leaves the deletion at 410 and a reauth callback sets no cookie or session.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2561",
+            "EVD-2562"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.017896187Z",
+          "seal": {
+            "by": "server",
+            "mac": "22b04bbdc5332df3adb807031c1c93627e99523e5f914ba9f6ae2f76f03184d7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.017896187Z",
+      "seal": {
+        "by": "server",
+        "mac": "adf7e1dbbc92d37c7536f4615343898e9cd0c2bb50e211fdbbc1be332cd7bed2"
+      }
+    },
+    {
+      "id": "CLM-1742",
+      "statement": "When the ID token is genuine but auth_time is missing or stale, DELETE /api/v1/me answers 403 with the distinct error kind ReauthStale, whose message names the provider by display label and tells the person to sign out of the provider, sign back in and try again.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Maintainer comment on #775, 2026-11-26",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/error.rs",
+        "src/http/oidc.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2563",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_missing_stale_or_future_auth_time_is_refused_and_keeps_the_account; error::tests::a_stale_reauthentication_has_a_kind_of_its_own_and_names_only_the_label; ui_e2e account::a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in_guidance",
+          "summary": "Reran lib tests at head (91 passed). HTTP test: for four non-fresh cases the DELETE answers 403, error ReauthStale, message contains the label 'Example ID' and 'sign out of Example ID'. Kind mapping at src/error.rs:402, status 403 at src/http/mod.rs:149. The UI journey shows 'did not confirm a fresh sign-in' and the guidance (gate-test-ui.log line 19 ok; not rerun by me).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1746,
+                "end": 1812
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.841227037Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d2a77c3669c2cf3c19a25bbba409e3810715f5cf1991e26a6ba5fec7cec1577"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Four non-fresh cases each answer 403 with error ReauthStale and the label-bearing guidance; kind and status mappings inspected.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2563"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.107516178Z",
+          "seal": {
+            "by": "server",
+            "mac": "67be7a6b762a84fb47e54ed8de0ad82a4064e16267baf891881d73c245a079ce"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.107516178Z",
+      "seal": {
+        "by": "server",
+        "mac": "7375b56504b56411440aa6dc59d7f03cf770f6317e601c3d4548624c7dca79ee"
+      }
+    },
+    {
+      "id": "CLM-1743",
+      "statement": "The ReauthStale message and response never show the issuer, the subject or token details, and every other refusal of a re-authentication stays generic (not ReauthStale).",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Maintainer comment on #775: \"Other refusals stay generic\"; task statement: never showing issuer, subject or token details",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/error.rs",
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2564",
+          "kind": "test",
+          "locator": "http::oidc::tests::a_missing_stale_or_future_auth_time_is_refused_and_keeps_the_account; error::tests::a_stale_reauthentication_has_a_kind_of_its_own_and_names_only_the_label",
+          "summary": "Reran at head (91 passed). The message must not contain the mock issuer URL or 'sub-1'. Other refusals: replay/expiry 410, another session/identity refused with the generic REAUTH_RETRY 400 page or a Forbidden without ReauthStale. In src/http/oidc.rs only AuthTimeStale maps to the stale marker; all other identify errors take the generic REAUTH_RETRY path. Caveat: a stale answer is recorded without comparing the token subject, so a genuine but different identity's old token still yields the stale guidance (it holds no identity).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 400,
+                "end": 436
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:48.937766162Z",
+          "seal": {
+            "by": "server",
+            "mac": "704d7d97ef5956fde273ded4b928a8a7f62b31b22d265a091e6db448bedf2ac2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The message holds only the label; test asserts no issuer or subject; only AuthTimeStale produces the kind. Minor observation: the stale marker is not tied to the token subject (no identity is kept), which is harmless.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2564"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.196810119Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fcda34fb8c6288d368f2b154f39e1a9d3f5dcd14f4bafe2545cce0f17a45776"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.196810119Z",
+      "seal": {
+        "by": "server",
+        "mac": "5524122e76569a5ccf8ca90d1b5471adebc4f1679454991decf93457dd224cb0"
+      }
+    },
+    {
+      "id": "CLM-1744",
+      "statement": "The console offers 'Re-authenticate with <label>' to an OIDC-linked user instead of the 'set a password or add a passkey first' note, and after a ReauthStale refusal shows the guidance with a 'Try again' retry button.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #775; maintainer comment: \"the console can show that guidance\"",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js",
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2565",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:407-437, 491-502",
+          "summary": "drawDelete renders a 'Re-authenticate with <label> to delete my account' button per linked configured provider; the old needs-proof note only shows when there is no password, passkey or linked provider; on a refusal deleteStale = error.body.error === 'ReauthStale' relabels the button 'Try again: re-authenticate with <label>' and tags the reason element.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 407,
+                "end": 437
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:49.032346960Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bd06fa8b2872a8262d604d35bc644c07cdde08796c2463c8c4decd38368fd1b"
+          }
+        },
+        {
+          "id": "EVD-2566",
+          "kind": "log",
+          "locator": "target/i775-logs/gate-test-ui.log:19,24 (author's gate log; journeys not rerun by the auditor)",
+          "summary": "Both new journeys, an_oidc_only_member_re_authenticates_at_the_provider_and_deletes_their_account and a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in_guidance, show ok; the test source (tests/ui_e2e/account.rs:1098-1170) asserts the guidance text, data-kind ReauthStale and a 'Try again' button, then a retry that deletes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1098,
+                "end": 1170
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:49.127570701Z",
+          "seal": {
+            "by": "server",
+            "mac": "bdb2bf30345f182786730237c17c780a3413fd85f7ab779120e1f227bc7b9de6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "account.js draws the button, the Try again relabel and the tagged reason; both ui_e2e journeys cover it and passed in the author's log (not rerun by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2565",
+            "EVD-2566"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.287324252Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b334aec88bbe36c0947a86906a5557df74da2646df530abf8b2f8002de6ed73"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.287324252Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a132d8666b404ffd17318204921297bc4b5da8fd4a044451b50c2c784a40134"
+      }
+    },
+    {
+      "id": "CLM-1745",
+      "statement": "docs/operations.md documents the ReauthStale error kind, its message and the console retry behaviour.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Maintainer requirement: documented in docs/operations.md",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2567",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2886-2903, 4230",
+          "summary": "The section 'A provider that did not vouch for a fresh sign-in' names 403 with error ReauthStale, quotes the message with the label, says the Account page shows it with a 'Try again' button and that other refusals stay generic; the DELETE /me endpoint-table row lists ReauthStale.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2886,
+                "end": 2903
+              },
+              "commit": "1e3d9daf495f7f65cb1f7cee71181036483fb647"
+            }
+          },
+          "recorded_at": "2026-11-26T12:15:49.224481677Z",
+          "seal": {
+            "by": "server",
+            "mac": "b299854ef7ba4dd357e32d9375c95a65b57e608ce1f9e09ff4e2be7123047e92"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "docs/operations.md names the kind, status, message, retry button and generic other refusals.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2567"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.376506773Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0affdf8ad2d1d618fef1e382958ec0d4bc0581ed3559ed81d20ac137348b140"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.376506773Z",
+      "seal": {
+        "by": "server",
+        "mac": "f82953e7cb201a326d48fbe1f6f8748026bbc1de8997546f47f38ad478ac00ce"
+      }
+    },
+    {
+      "id": "CLM-1746",
+      "statement": "Validation as the PR body states: cargo fmt --check, clippy -D warnings and cargo doc -D warnings pass on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"fmt, lint (clippy `-D warnings` and `cargo doc`), dylint: pass.\"",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "target/i775-logs/pr-775-body.md"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2568",
+          "kind": "log",
+          "locator": "tools/agentic/gate.sh fmt; tools/agentic/gate.sh lint",
+          "summary": "Ran at head: cargo fmt --all --check exit 0; cargo clippy --all-targets -- -D warnings finished with no warnings; RUSTDOCFLAGS=-D warnings cargo doc --no-deps finished. Dylint exit 0 is from the author's gates.txt only (not rerun).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T12:15:49.313875059Z",
+          "seal": {
+            "by": "server",
+            "mac": "d96dc796b886d2c82bee1646e9bb19707d022fe88d71d9ad60ffda991f55ba30"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fmt, clippy and doc gates rerun clean on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2568"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.465862653Z",
+          "seal": {
+            "by": "server",
+            "mac": "45285170a62e8b4ef30a70ba59fe0945c087f90dc8670cc7871545e02d00518a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.465862653Z",
+      "seal": {
+        "by": "server",
+        "mac": "ca2d3fbe4a6cd94a7224818e4080e054b5f55ee65d62bb9f0d92be46d7028a56"
+      }
+    },
+    {
+      "id": "CLM-1747",
+      "statement": "PR body test counts: the in-memory test run passed 3658/3658, the Postgres/Redis run 3657/3658 with only tls::verify_full_connects_encrypted_to_a_server_its_ca_signed failing (Docker port bind), which then passed alone 4/4; test-ui passed 302 with 0 failed and 1 ignored including both new journeys.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Validation section",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "target/i775-logs/pr-775-body.md"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2569",
+          "kind": "log",
+          "locator": "target/i775-logs/gate-test.log:7509,3789; gate-test-ui.log; tls.log",
+          "summary": "The author's logs show: first mode Summary '3658 tests run: 3658 passed', second '3658 run: 3657 passed, 1 failed' with the tls test failing on 'failed to bind host port ... address already in use'; test-ui 'ok. 302 passed; 0 failed; 1 ignored'; tls.log '4 passed; 0 failed'. These match the PR body, but I did not rerun the full suites (75 min); that the two modes are 'in-memory' and 'Postgres/Redis' is the PR's labelling, not checked.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T12:15:49.403683293Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a2316fa9e47de4d0f8d5bc26972ce1a1e0caa4f681d4b81b53249bcb889756c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The author's logs agree with every number in the statement, but I did not rerun the 75-minute test or 60-minute test-ui gates, and a log is not a rerun. Fix: rerun tools/agentic/gate.sh test and test-ui on the final head and confirm the counts, or accept the author's logs for this statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2569"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.555215774Z",
+          "seal": {
+            "by": "server",
+            "mac": "25e34caf0c71a32ca490c2d9cba1142cc0b4d73d69e53136eb13c282e5a94232"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.555215774Z",
+      "seal": {
+        "by": "server",
+        "mac": "035eb3fffc60c9db3ec1c027a107297bd10e4ac9323d856694b504257a9e2acd"
+      }
+    },
+    {
+      "id": "CLM-1748",
+      "statement": "PR body: the rolling-deploy note and the revert checks (dropping the missing-auth_time refusal, widening the window, skipping the subject comparison, skipping the session check each made matching tests fail) are accurate.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body, Notes and Validation sections",
+      "derived_from": [
+        "CLM-1733"
+      ],
+      "artifacts": [
+        "target/i775-logs/pr-775-body.md"
+      ],
+      "tags": [
+        "from-issue:775"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2570",
+          "kind": "log",
+          "locator": "target/i775-logs/mut1.log, oidc.rs.bak, http_oidc.rs.bak",
+          "summary": "mut1.log shows one mutation run ending '16 passed; 4 failed', so at least one revert check happened; the logs do not show all four mutations, and I did not redo them. The rolling-deploy note is consistent with Flow's serde derive (no deny_unknown_fields; reauth is #[serde(default)]) and the callback treating a flow with link None as a sign-in.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T12:15:49.492366243Z",
+          "seal": {
+            "by": "server",
+            "mac": "74161b3fd2c689f04001a3484b4d65b6cef4668403c8ce6f3c32cabddeccdfd5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only one mutation run is in the logs (4 failures); the four named revert checks cannot be confirmed from it and were not redone. The rolling-deploy note is consistent with the code. Fix: redo each of the four mutations on head (drop the missing-auth_time refusal, widen the window, skip the subject comparison, skip the session check) and record which tests fail, or delete the sentence from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2570"
+          ],
+          "recorded_at": "2026-11-26T12:16:21.643973753Z",
+          "seal": {
+            "by": "server",
+            "mac": "a225069df254c499d24b43c644e978803a30b803396b945bacb89a594bb363b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T12:14:49.647453026Z",
+      "updated_at": "2026-11-26T12:16:21.643973753Z",
+      "seal": {
+        "by": "server",
+        "mac": "38f44879057189f3dd62c7f0b58d16b8d3c8b0bdecee69a037ab7b7ceabde1f0"
       }
     }
   ]

@@ -37,6 +37,7 @@ use crate::error::OkfError;
 use crate::http::api::keys::{parse_access, CreatedKeyView, KeyView};
 use crate::http::api::people::DisplayNameBody;
 use crate::http::console_session::{append_all, clear_cookie, ConsoleSession};
+use crate::http::oidc as oidc_http;
 use crate::http::passkeys::{self as passkeys_http, passkey_name};
 use crate::http::signin::notify_method_added;
 use crate::http::AppError;
@@ -535,6 +536,11 @@ struct DeleteAccountBody {
     /// The browser's answer to `POST /me/passkeys/confirm/start`.
     #[serde(default)]
     passkey: Option<PublicKeyCredential>,
+    /// `true`: the provider re-authentication this session finished
+    /// (`POST /me/identities/{provider}/reauth`, then the provider's
+    /// callback), taken once.
+    #[serde(default)]
+    oidc_reauth: Option<bool>,
 }
 
 impl std::fmt::Debug for DeleteAccountBody {
@@ -550,6 +556,7 @@ impl std::fmt::Debug for DeleteAccountBody {
             .debug_struct("DeleteAccountBody")
             .field("password", &self.password.as_ref().map(|_| "<redacted>"))
             .field("passkey", &self.passkey.as_ref().map(|_| "<assertion>"))
+            .field("oidc_reauth", &self.oidc_reauth)
             .finish()
     }
 }
@@ -1321,13 +1328,19 @@ enum Proved {
     Password(passwords::PasswordStamp),
     /// The raw credential id of the passkey that answered.
     Passkey(Vec<u8>),
+    /// The provider and subject of the linked identity that re-authenticated.
+    Oidc { provider: String, subject: String },
 }
 
 /// `DELETE /me`: deletes the signed-in person's own account (issue #355),
 /// after they re-authenticate in the same request: the current password
 /// (`{"password"}`, checked with the sign-in lockout), or an assertion
 /// from one of their passkeys (`{"passkey"}`, answering
-/// `POST /me/passkeys/confirm/start`). The deletion is `users::delete_own`:
+/// `POST /me/passkeys/confirm/start`), or the provider re-authentication
+/// that `POST /me/identities/{provider}/reauth` and the provider's callback
+/// finished for this session (`{"oidc_reauth": true}`, single use, valid for
+/// [`crate::oidc::REAUTH_PROOF_TTL`]; its ID token must carry an `auth_time`
+/// within [`crate::oidc::REAUTH_AUTH_TIME_WINDOW`]). The deletion is `users::delete_own`:
 /// keys, grants, sign-in codes, sessions, passkeys, linked identities,
 /// entitlements, memberships and the personal team go in one transaction
 /// under the user's row lock, recorded as `user.deleted` with the person
@@ -1340,12 +1353,14 @@ enum Proved {
 /// proof was used.
 ///
 /// # Errors
-/// 400 for a body with neither or both proofs; 403 for a bearer caller, a
-/// wrong password, a locked account, a passkey that does not verify,
-/// another session's ceremony, or a password or passkey changed meanwhile
-/// (never 401, which the console reads as "signed out"); 401 once this
-/// session has ended; 404 for a passkey while passkeys are off; 409 for a
-/// refusal of the deletion rules; 410 for an expired passkey ceremony.
+/// 400 for a body with none or more than one proof; 403 for a bearer
+/// caller, a wrong password, a locked account, a passkey that does not
+/// verify, another session's ceremony, or a password, passkey or linked
+/// identity changed meanwhile (never 401, which the console reads as
+/// "signed out"); 401 once this session has ended; 404 for a passkey while
+/// passkeys are off, or a re-authentication while OIDC is off; 409 for a
+/// refusal of the deletion rules; 410 for an expired passkey ceremony, or a
+/// provider re-authentication that was never finished, expired or was used.
 #[tracing::instrument(level = "debug", skip_all)]
 async fn delete_account(
     State(app): State<Arc<App>>,
@@ -1363,8 +1378,8 @@ async fn delete_account(
     append_all(&mut answer, &passkeys_http::clear_ceremony_cookie(&app));
     // Each arm proves it is the person; what it proved is checked again
     // under the user's row lock by `delete_own`.
-    let proved = match (body.password, body.passkey) {
-        (Some(password), None) => {
+    let proved = match (body.password, body.passkey, body.oidc_reauth) {
+        (Some(password), None, None) => {
             match passwords::verify_user(app.accounts().executor(), user.id, &password, now).await?
             {
                 SignInOutcome::Ok(verified) => Proved::Password(verified.stamp),
@@ -1382,15 +1397,24 @@ async fn delete_account(
                 }
             }
         }
-        (None, Some(assertion)) => {
+        (None, Some(assertion), None) => {
             let credential_id =
                 passkeys_http::confirm(&app, &headers, &session, user.id, &assertion).await?;
             Proved::Passkey(credential_id)
         }
+        (None, None, Some(true)) => {
+            let proof = oidc_http::take_reauth(&app, &session, user.id).await?;
+            Proved::Oidc {
+                provider: proof.provider,
+                subject: proof.subject,
+            }
+        }
         _ => {
             return Err(OkfError::InvalidPath {
                 path: "body".to_string(),
-                reason: "confirm with either your password or a passkey".to_string(),
+                reason: "confirm with exactly one of your password, a passkey or a provider \
+                         re-authentication"
+                    .to_string(),
             }
             .into())
         }
@@ -1398,6 +1422,7 @@ async fn delete_account(
     let proof = match &proved {
         Proved::Password(stamp) => users::Proof::Password(stamp),
         Proved::Passkey(credential_id) => users::Proof::Passkey(credential_id),
+        Proved::Oidc { provider, subject } => users::Proof::Oidc { provider, subject },
     };
     let own = users::OwnDeletion {
         user_id: user.id,
@@ -3439,6 +3464,37 @@ mod tests {
             .await
             .expect("count");
         assert_eq!(gone, 0);
+    }
+
+    #[tokio::test]
+    async fn a_body_with_two_proofs_or_a_false_reauthentication_is_400_and_keeps_the_account() {
+        let test = app().await;
+        let (id, mut browser) = with_password(&test, "alice").await;
+
+        let two = delete_me(
+            &test,
+            &mut browser,
+            json!({"password": PASSWORD, "oidc_reauth": true}),
+        )
+        .await;
+        let off = delete_me(&test, &mut browser, json!({"oidc_reauth": false})).await;
+        // OIDC is off in this app, so there is nothing to take.
+        let without_oidc = delete_me(&test, &mut browser, json!({"oidc_reauth": true})).await;
+
+        assert_eq!(two.status, StatusCode::BAD_REQUEST, "{}", two.text());
+        assert_eq!(off.status, StatusCode::BAD_REQUEST, "{}", off.text());
+        assert_eq!(
+            without_oidc.status,
+            StatusCode::NOT_FOUND,
+            "{}",
+            without_oidc.text()
+        );
+        let kept: i64 = sqlx::query_scalar("SELECT count(*) FROM users WHERE id = $1")
+            .bind(&id)
+            .fetch_one(test.app.accounts().executor())
+            .await
+            .expect("count");
+        assert_eq!(kept, 1);
     }
 
     #[tokio::test]

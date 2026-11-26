@@ -22,6 +22,8 @@ use webauthn_authenticator_rs::prelude::WebauthnAuthenticator as _;
 use webauthn_authenticator_rs::softpasskey::SoftPasskey;
 use webauthn_rs::prelude::{Passkey, Url, Uuid, WebauthnBuilder};
 
+use rustwright::GotoOptions;
+
 use crate::harness::{drive, Ui};
 use crate::oidc_mock::{self as idp, MockIdp};
 use crate::self_service::{console_base, login_server, login_server_with, member, EMAIL, PASSWORD};
@@ -1023,6 +1025,150 @@ async fn a_member_confirms_with_a_passkey_and_deletes_their_account() {
         return;
     }
     assert_eq!(alices(&server.db.pool).await, 0, "the account is gone");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn an_oidc_only_member_re_authenticates_at_the_provider_and_deletes_their_account() {
+    let provider = idp::start().await;
+    provider.will_issue("subject-1", Some(EMAIL), Some(true));
+    let server = oidc_server(&provider).await;
+    member(&server, Access::Write).await;
+    let pool = server.db.pool.clone();
+    // alice has no password and no passkey: only the provider's sign-in,
+    // which links its identity by her verified email.
+    sqlx::query("UPDATE users SET password_hash = NULL WHERE name = 'alice'")
+        .execute(&pool)
+        .await
+        .expect("remove alice's password");
+    let ran = drive(console_base(&server), |ui| {
+        ui.page
+            .goto(
+                &format!("{}/signin?return_to=%2Fui%2F%23%2Faccount", ui.base),
+                GotoOptions::default(),
+            )
+            .expect("open the sign-in page");
+        ui.click("#signin-oidc-example");
+        ui.wait_visible("#app");
+        wait_loaded(ui);
+        // No password box, no passkey button and no "set one first" note:
+        // the linked account is the way to confirm.
+        ui.wait_visible("[data-test=identity-example]");
+        ui.wait_visible("#account-delete-reauth-example");
+        ui.wait_text(
+            "#account-delete-reauth-example",
+            "Re-authenticate with Example ID",
+        );
+        assert!(!ui.present("#account-delete-password"));
+        assert!(!ui.present("#account-delete-needs-proof"));
+        // Off to the provider, which re-authenticates at once (its
+        // `auth_time` is now) and sends the browser back to the callback,
+        // which keeps the proof and returns to the Account page.
+        ui.click("#account-delete-reauth-example");
+        ui.wait_visible("#account-delete-reauthed");
+        wait_loaded(ui);
+        assert_eq!(
+            ui.eval("() => location.pathname + location.hash", json!(null)),
+            json!("/ui/#/account")
+        );
+        // Still signed in, and nothing deleted yet.
+        assert_eq!(ui.eval(SESSION_STATUS, json!(null)), json!(200));
+        ui.click("#account-delete-oidc");
+        ui.wait_visible("#confirm-typed");
+        ui.fill("#confirm-typed", "alice");
+        ui.click("#confirm-ok");
+        ui.wait_visible("#login");
+        ui.wait_text("#login-error", "Your account was deleted");
+        assert_eq!(ui.eval(SESSION_STATUS, json!(null)), json!(401));
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert_eq!(alices(&pool).await, 0, "the account is gone");
+    // The provider was asked for a fresh login, once: for the re-authentication.
+    let fresh = provider
+        .authorizations()
+        .iter()
+        .filter(|query| query.get("prompt").map(String::as_str) == Some("login"))
+        .count();
+    assert_eq!(fresh, 1);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in_guidance() {
+    let provider = idp::start().await;
+    provider.will_issue("subject-1", Some(EMAIL), Some(true));
+    let server = oidc_server(&provider).await;
+    member(&server, Access::Write).await;
+    let pool = server.db.pool.clone();
+    sqlx::query("UPDATE users SET password_hash = NULL WHERE name = 'alice'")
+        .execute(&pool)
+        .await
+        .expect("remove alice's password");
+    let idp_handle = provider.clone();
+    let ran = drive(console_base(&server), move |ui| {
+        ui.page
+            .goto(
+                &format!("{}/signin?return_to=%2Fui%2F%23%2Faccount", ui.base),
+                GotoOptions::default(),
+            )
+            .expect("open the sign-in page");
+        ui.click("#signin-oidc-example");
+        ui.wait_visible("#app");
+        wait_loaded(ui);
+        // A provider that ignores max_age and sends no auth_time.
+        idp_handle.will_authenticate(idp::AuthTime::Absent);
+        ui.wait_visible("#account-delete-reauth-example");
+        ui.click("#account-delete-reauth-example");
+        ui.wait_visible("#account-delete-oidc");
+        wait_loaded(ui);
+        ui.click("#account-delete-oidc");
+        ui.fill("#confirm-typed", "alice");
+        ui.click("#confirm-ok");
+        // The guidance, from the server's own message: the provider by its
+        // label, what to do, and nothing about the issuer or the subject.
+        ui.wait_text(
+            "#account-delete-reason",
+            "Example ID did not confirm a fresh sign-in",
+        );
+        ui.wait_text(
+            "#account-delete-reason",
+            "sign out of Example ID, sign back in, then try again",
+        );
+        let reason = ui.eval(
+            "() => document.querySelector('#account-delete-reason').textContent",
+            json!(null),
+        );
+        let reason = reason.as_str().expect("text").to_string();
+        assert!(
+            !reason.contains("subject-1") && !reason.contains("127.0.0.1"),
+            "{reason}"
+        );
+        assert_eq!(
+            ui.eval(
+                "() => document.querySelector('#account-delete-reason').dataset.kind",
+                json!(null)
+            ),
+            json!("ReauthStale")
+        );
+        // Nothing was deleted; a retry button replaces the first one.
+        ui.wait_text("#account-delete-reauth-example", "Try again");
+        // The person signs back in at the provider, which now vouches for it.
+        idp_handle.will_authenticate(idp::AuthTime::Honest);
+        ui.click("#account-delete-reauth-example");
+        ui.wait_visible("#account-delete-oidc");
+        wait_loaded(ui);
+        ui.click("#account-delete-oidc");
+        ui.fill("#confirm-typed", "alice");
+        ui.click("#confirm-ok");
+        ui.wait_visible("#login");
+        ui.wait_text("#login-error", "Your account was deleted");
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert_eq!(alices(&pool).await, 0, "the retry deleted the account");
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

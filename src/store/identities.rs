@@ -440,6 +440,33 @@ async fn lock_user_auth(
     .await?)
 }
 
+/// The `sub` of the user's identity at a provider, if one is linked.
+///
+/// # Arguments
+/// * `pool` - the database.
+/// * `user_id` - the user.
+/// * `provider` - the provider's id.
+///
+/// # Returns
+/// The subject, or `None`.
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "identities.subject_of"))]
+pub async fn subject_of(
+    pool: &PgPool,
+    user_id: &str,
+    provider: &str,
+) -> Result<Option<String>, OkfError> {
+    Ok(sqlx::query_scalar(
+        "SELECT subject FROM user_identities WHERE user_id = $1 AND provider = $2",
+    )
+    .bind(user_id)
+    .bind(provider)
+    .fetch_optional(pool)
+    .await?)
+}
+
 /// A user's linked identities, by provider.
 ///
 /// # Arguments

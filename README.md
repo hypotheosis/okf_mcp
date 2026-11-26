@@ -768,6 +768,21 @@ or stop nothing):
     export TEST_PG_URL=$(scripts/test-pg.sh up okf-mcp-test-pg)
     scripts/test-pg.sh down okf-mcp-test-pg      # when done
 
+The Redis tests (two-replica tests, rate limits, sessions) share servers the
+same way: `just test` runs through `scripts/test-redis.sh run`, which starts
+one `redis:7.4-alpine` and one one-node Valkey cluster for the whole run and
+passes them as `TEST_REDIS_URL` and `TEST_REDIS_CLUSTER_URL`. Each test uses a
+key prefix of its own, so tests never meet. A test that needs a server to
+itself (it stops Redis, changes the `default` user, or kills every pub/sub
+connection) calls `TestRedis::dedicated()` and still starts a container of its
+own. To keep the servers across runs:
+
+    eval "$(scripts/test-redis.sh up okf-mcp-test-redis)"
+    export TEST_REDIS_URL TEST_REDIS_CLUSTER_URL
+    scripts/test-redis.sh down okf-mcp-test-redis      # when done
+
+Without the variables every Redis test starts its own container.
+
 `just test` runs the suite twice, once for each store mode of the test
 harness: `OKF_TEST_STORE=same` (the default; the catalog data lives in the
 account database) and `OKF_TEST_STORE=separate` (the store `main` is a second

@@ -904,6 +904,9 @@ mod tests {
     async fn subscription_survives_a_killed_connection(
         server: crate::db::redis_support::TestRedis,
     ) {
+        // `CLIENT KILL TYPE pubsub` below ends every subscriber on the server,
+        // so a shared server's other tests would lose theirs.
+        let server = server.dedicated().await;
         let redis = testing::connect(&server).await;
         let channel = redis.channel("announce");
         let mut subscription = redis.subscribe(&channel).await.expect("subscribe");

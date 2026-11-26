@@ -682,7 +682,7 @@ mod tests {
     use super::{FLOW_COOKIE, LINKED_ELSEWHERE, LINK_RETRY, NO_ACCOUNT, SIGN_IN_RETRY, TRY_LATER};
     use crate::app::App;
     use crate::config::{AuthConfig, Config};
-    use crate::db::redis_support::{TestRedis, CLUSTER_URL_VAR, SERVER_URL_VAR};
+    use crate::db::redis_support::TestRedis;
     use crate::http::api::testing::{
         keys, login_config, user_with_password, Browser, Payload, Reply, MAIN, PASSWORD,
     };
@@ -1839,14 +1839,13 @@ mod tests {
 
     async fn a_redis_outage_fails_closed_and_keeps_the_flow_cookie(redis: TestRedis) {
         let idp = idp::start().await;
+        // A shared server cannot be stopped for everyone.
+        let redis = redis.dedicated().await;
         let (a, b, redis) = oidc_pair(&idp, "OKF_TEST_OIDC_SECRET_OUTAGE", redis).await;
         let mut browser = Browser::default();
         let query = start_on(&a.app, &idp, &mut browser).await;
         let flow = browser.cookie(FLOW_COOKIE).expect("a flow").to_string();
-        if redis.stop().await.is_none() {
-            // A shared server cannot be stopped for everyone.
-            return;
-        }
+        redis.stop().await;
 
         let callback = callback_on(&b, &mut browser, &query["state"]).await;
         let started = Browser::default()
@@ -1884,13 +1883,8 @@ mod tests {
     }
 
     async fn a_flow_refused_by_redis_finishes_once_redis_answers_again(redis: TestRedis) {
-        let shared_server = [SERVER_URL_VAR, CLUSTER_URL_VAR]
-            .iter()
-            .any(|var| std::env::var(var).is_ok_and(|url| !url.is_empty()));
-        if shared_server {
-            // Revoking the default user would break every test sharing it.
-            return;
-        }
+        // Revoking the default user would break every test sharing it.
+        let redis = redis.dedicated().await;
         let idp = idp::start().await;
         let (a, b, redis) = oidc_pair(&idp, "OKF_TEST_OIDC_SECRET_RECOVER", redis).await;
         user_with_password(&a, "alice", "alice@example.com", Some(PASSWORD)).await;
@@ -1959,13 +1953,8 @@ mod tests {
     /// answers 503 and the flow it just stored is removed at once (issue
     /// #588): no flow key waits out its TTL.
     async fn a_failed_link_index_swap_removes_the_stored_flow(redis: TestRedis) {
-        let shared_server = [SERVER_URL_VAR, CLUSTER_URL_VAR]
-            .iter()
-            .any(|var| std::env::var(var).is_ok_and(|url| !url.is_empty()));
-        if shared_server {
-            // Restricting the default user would break every test sharing it.
-            return;
-        }
+        // Restricting the default user would break every test sharing it.
+        let redis = redis.dedicated().await;
         let idp = idp::start().await;
         let (a, _b, redis) = oidc_pair(&idp, "OKF_TEST_OIDC_SECRET_ORPHAN", redis).await;
         user_with_password(&a, "alice", "alice@example.com", Some(PASSWORD)).await;

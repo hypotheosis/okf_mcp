@@ -635,7 +635,8 @@ mod tests {
 
     use crate::db::redis_support::TestRedis;
     use crate::oauth::testing::{
-        authorization_code, exchange_for_tokens, form, oauth_replica_pair, send,
+        authorization_code, exchange_for_tokens, form, oauth_replica_pair, oauth_replica_pair_on,
+        send,
     };
 
     /// `verify` on `app` for this server's resource.
@@ -771,17 +772,16 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn a_redis_failure_skips_the_cache_and_still_answers_from_postgres() {
-        let (a, b, server) = oauth_replica_pair().await;
+        // A shared server cannot be stopped for everyone.
+        let (a, b, server) =
+            oauth_replica_pair_on(TestRedis::start().await.dedicated().await).await;
         let revoked = access_token_on(&a).await;
         let live = access_token_on(&a).await;
         assert!(verify_on(&b, &revoked).await.is_some());
         assert!(cached_on(&b, &revoked));
         revoke_row_only(&b, &revoked).await;
         let cached = cache_len(&b);
-        if server.stop().await.is_none() {
-            eprintln!("skipped: a shared Redis (TEST_REDIS_URL) cannot be stopped");
-            return;
-        }
+        server.stop().await;
 
         assert!(
             verify_on(&b, &revoked).await.is_none(),

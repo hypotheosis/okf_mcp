@@ -3109,7 +3109,8 @@ mod tests {
     }
 
     async fn a_redis_outage_fails_passkey_steps_closed(redis: crate::db::redis_support::TestRedis) {
-        let pair = replicas(redis).await;
+        // A shared server cannot be stopped for everyone.
+        let pair = replicas(redis.dedicated().await).await;
         let (alice, mut soft) = alice_with_passkey(&pair.a, None).await;
         let mut browser = Browser::default();
         let signed = assertion_on(
@@ -3121,10 +3122,7 @@ mod tests {
             "/ui/",
         )
         .await;
-        if pair.redis.stop().await.is_none() {
-            // A shared server cannot be stopped for everyone.
-            return;
-        }
+        pair.redis.stop().await;
 
         let finished = finish_on(&pair.b, &mut browser, signed).await;
         let started = Browser::default()

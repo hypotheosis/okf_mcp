@@ -13,8 +13,9 @@ lint:
     cargo clippy --all-targets -- -D warnings
     RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 
-# One Postgres server for the whole run (scripts/test-pg.sh); set
-# TEST_PG_URL to reuse one already running. Runs the reader worker's tests
+# One Postgres server (scripts/test-pg.sh) and one Redis and one Valkey
+# cluster (scripts/test-redis.sh) for the whole run; set TEST_PG_URL, or
+# TEST_REDIS_URL and TEST_REDIS_CLUSTER_URL, to reuse ones already running. Runs the reader worker's tests
 # first. The suite runs twice, once for each store mode of the test harness
 # (tests/support/pg.rs): `same`, the catalog data in the account database,
 # and `separate` (OKF_TEST_STORE), a second database copied from a store
@@ -28,7 +29,7 @@ lint:
 # so `cargo test --doc` runs beside it in each mode.
 test: test-worker
     @cargo nextest --version >/dev/null 2>&1 || { echo "test: cargo-nextest is not installed (cargo install --locked cargo-nextest)" >&2; exit 1; }
-    scripts/test-pg.sh run bash -c 'status=0; for mode in same separate; do OKF_TEST_STORE=$mode cargo nextest run || status=1; OKF_TEST_STORE=$mode cargo test --doc || status=1; done; exit $status'
+    scripts/test-pg.sh run scripts/test-redis.sh run bash -c 'status=0; for mode in same separate; do OKF_TEST_STORE=$mode cargo nextest run || status=1; OKF_TEST_STORE=$mode cargo test --doc || status=1; done; exit $status'
 
 # The mobile reader's service worker (src/http/read/sw.js) in a Node vm, and
 # its page modules without a DOM (src/http/read/js/), with fake Cache Storage,

@@ -2,8 +2,12 @@
 //! `redis:7.4-alpine` container per [`TestRedis`] (testcontainers-modules'
 //! default tag, 5.0, lacks GETDEL). [`TestRedis::start_cluster`] does the same
 //! for a one-node Valkey cluster (`TEST_REDIS_CLUSTER_URL`, else a
-//! `valkey/valkey:8.1-alpine` container). Each [`TestRedis`] has its own random
-//! key prefix, so tests sharing one server never see each other's keys.
+//! `valkey/valkey:8.1-alpine` container). `scripts/test-redis.sh run` starts
+//! both once for a whole run (issue #1045). Each [`TestRedis`] has its own
+//! random key prefix, so tests sharing one server never see each other's keys.
+//! A test that needs the server to itself (it stops it, changes the `default`
+//! user, kills every pub/sub client) calls [`TestRedis::dedicated`], which
+//! starts a container of its own when the server is shared.
 
 // Each crate that includes this file uses a different part of it.
 #![allow(dead_code)]
@@ -96,28 +100,73 @@ async fn start_pinned<I: Image>(
     }
 }
 
+/// The shared server `var` names, if it is set to something.
+fn shared_url(var: &str) -> Option<String> {
+    std::env::var(var).ok().filter(|url| !url.is_empty())
+}
+
 impl TestRedis {
+    /// A [`TestRedis`] on the shared server at `url` (no container of its own).
+    fn on_shared_server(url: String, cluster: bool) -> Self {
+        Self {
+            url,
+            prefix: random_prefix(),
+            cluster,
+            container: None,
+            cluster_container: None,
+            port: None,
+        }
+    }
+
     /// Uses `TEST_REDIS_URL`, or starts a labelled container on a host port
     /// chosen up front (so [`TestRedis::start_again`] keeps it), retried on a
     /// new port when a start fails.
     ///
+    /// On the shared server a test must leave the server as it found it and
+    /// touch only keys under [`TestRedis::prefix`]; one that cannot (it stops
+    /// the server, changes the `default` user, kills every pub/sub client)
+    /// calls [`TestRedis::dedicated`] first.
+    ///
     /// # Panics
     /// If Docker cannot start the container.
     pub async fn start() -> Self {
-        let prefix = random_prefix();
-        if let Some(url) = std::env::var(SERVER_URL_VAR)
-            .ok()
-            .filter(|url| !url.is_empty())
-        {
-            return Self {
-                url,
-                prefix,
-                cluster: false,
-                container: None,
-                cluster_container: None,
-                port: None,
-            };
+        match shared_url(SERVER_URL_VAR) {
+            Some(url) => Self::on_shared_server(url, false),
+            None => Self::start_container().await,
         }
+    }
+
+    /// Uses `TEST_REDIS_CLUSTER_URL`, or starts a one-node Valkey cluster
+    /// (see [`TestRedis::start`] for what a test may do on a shared one).
+    ///
+    /// # Panics
+    /// If Docker cannot start the container or the cluster does not form
+    /// within 30 s.
+    pub async fn start_cluster() -> Self {
+        match shared_url(CLUSTER_URL_VAR) {
+            Some(url) => Self::on_shared_server(url, true),
+            None => Self::start_cluster_container().await,
+        }
+    }
+
+    /// This server, or, when it is a shared one, a container of the same kind
+    /// started for this test alone, so the test may stop it, restart it,
+    /// change its users or kill its connections without touching any other
+    /// test. A [`TestRedis`] that already owns its container is returned as
+    /// it is.
+    ///
+    /// # Panics
+    /// As [`TestRedis::start`] or [`TestRedis::start_cluster`].
+    pub async fn dedicated(self) -> Self {
+        match (self.port, self.cluster) {
+            (Some(_), _) => self,
+            (None, false) => Self::start_container().await,
+            (None, true) => Self::start_cluster_container().await,
+        }
+    }
+
+    /// Starts a `redis:7.4-alpine` container on a pinned host port.
+    async fn start_container() -> Self {
         let (container, port) = start_pinned(|port| {
             RedisImage::default()
                 .with_tag("7.4-alpine")
@@ -126,7 +175,7 @@ impl TestRedis {
         .await;
         Self {
             url: format!("redis://127.0.0.1:{port}/0"),
-            prefix,
+            prefix: random_prefix(),
             cluster: false,
             container: Some(container),
             cluster_container: None,
@@ -134,30 +183,12 @@ impl TestRedis {
         }
     }
 
-    /// Uses `TEST_REDIS_CLUSTER_URL`, or starts a one-node Valkey cluster:
-    /// `--cluster-enabled yes`, then `cluster-announce-ip` and
-    /// `cluster-announce-port` set to the pinned host port (so a cluster
-    /// client on the host follows the topology back to it), all 16384 slots
-    /// added, and a bounded wait for `cluster_state:ok`.
-    ///
-    /// # Panics
-    /// If Docker cannot start the container or the cluster does not form
-    /// within 30 s.
-    pub async fn start_cluster() -> Self {
-        let prefix = random_prefix();
-        if let Some(url) = std::env::var(CLUSTER_URL_VAR)
-            .ok()
-            .filter(|url| !url.is_empty())
-        {
-            return Self {
-                url,
-                prefix,
-                cluster: true,
-                container: None,
-                cluster_container: None,
-                port: None,
-            };
-        }
+    /// Starts a one-node Valkey cluster: `--cluster-enabled yes`, then
+    /// `cluster-announce-ip` and `cluster-announce-port` set to the pinned
+    /// host port (so a cluster client on the host follows the topology back
+    /// to it), all 16384 slots added, and a bounded wait for
+    /// `cluster_state:ok`.
+    async fn start_cluster_container() -> Self {
         let (container, port) = start_pinned(|port| {
             GenericImage::new("valkey/valkey", "8.1-alpine")
                 .with_exposed_port(ContainerPort::Tcp(REDIS_PORT))
@@ -182,7 +213,7 @@ impl TestRedis {
             .expect("the one-node cluster forms within 30 s");
         Self {
             url,
-            prefix,
+            prefix: random_prefix(),
             cluster: true,
             container: None,
             cluster_container: Some(container),
@@ -238,19 +269,18 @@ impl TestRedis {
         move |name| (name == URL_VAR).then(|| self.url.clone())
     }
 
-    /// Stops the container (outage tests); `None` on a shared server, where
-    /// a test cannot stop Redis for everyone and should skip itself.
+    /// Stops the container (outage tests).
     ///
     /// # Panics
-    /// If Docker refuses the stop.
-    pub async fn stop(&self) -> Option<()> {
+    /// On a shared server, which a test cannot stop for everyone (call
+    /// [`TestRedis::dedicated`] first), or if Docker refuses the stop.
+    pub async fn stop(&self) {
         match (&self.container, &self.cluster_container) {
             (Some(container), _) => container.stop().await,
             (None, Some(container)) => container.stop().await,
-            (None, None) => return None,
+            (None, None) => panic!("a shared Redis cannot be stopped: use `dedicated()`"),
         }
         .expect("stop the redis container");
-        Some(())
     }
 
     /// Starts a stopped container again on the same host port, so
@@ -262,12 +292,12 @@ impl TestRedis {
     ///
     /// # Panics
     /// If Docker refuses the start or the cluster does not recover within
-    /// 30 s.
-    pub async fn start_again(&self) -> Option<()> {
+    /// 30 s, or on a shared server (see [`TestRedis::stop`]).
+    pub async fn start_again(&self) {
         match (&self.container, &self.cluster_container) {
             (Some(container), _) => container.start().await,
             (None, Some(container)) => container.start().await,
-            (None, None) => return None,
+            (None, None) => panic!("a shared Redis cannot be restarted: use `dedicated()`"),
         }
         .expect("start the redis container");
         if self.cluster {
@@ -280,7 +310,6 @@ impl TestRedis {
             .await
             .expect("the one-node cluster recovers within 30 s");
         }
-        Some(())
     }
 }
 

@@ -103,11 +103,12 @@ class Releases(unittest.TestCase):
         current = tomllib.loads((ROOT / "Cargo.toml").read_text())["package"]["version"]
         guide = self.repo / "docs/operations.md"
         guide.write_text(re.sub(rf"(?<=[:v]){re.escape(current)}\b", "0.9.0", guide.read_text()))
-        # `just test` runs through scripts/test-pg.sh, which starts a real Postgres; the stub
-        # runs its command directly so the fake cargo answers.
-        stub = self.repo / "scripts/test-pg.sh"
-        stub.write_text('#!/bin/sh\n[ "$1" = run ] && shift\nexec "$@"\n')
-        stub.chmod(0o755)
+        # `just test` runs through scripts/test-pg.sh and scripts/test-redis.sh, which start real
+        # servers; the stubs run their command directly so the fake cargo answers.
+        for name in ("test-pg.sh", "test-redis.sh"):
+            stub = self.repo / "scripts" / name
+            stub.write_text('#!/bin/sh\n[ "$1" = run ] && shift\nexec "$@"\n')
+            stub.chmod(0o755)
         (self.repo / "src").mkdir()
         (self.repo / "src/lib.rs").write_text("pub fn example() {}\n")
         (self.repo / "changelog").mkdir()

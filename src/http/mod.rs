@@ -1160,7 +1160,7 @@ mod tests {
 
     use crate::config::Config;
     use crate::error::LinkSource;
-    use crate::mcp::testing::{app_with, app_with_redis};
+    use crate::mcp::testing::{app_on_redis, app_with, app_with_redis};
 
     /// A response's body as JSON.
     async fn json_body(response: Response) -> serde_json::Value {
@@ -1646,7 +1646,8 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn healthz_reports_redis_without_changing_its_status() {
-        let (test, redis) = app_with_redis(Config::default()).await;
+        let redis = crate::db::redis_support::TestRedis::start().await;
+        let (test, redis) = app_on_redis(Config::default(), redis.dedicated().await).await;
         healthz_follows_redis(test, redis).await;
     }
 
@@ -1674,7 +1675,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn healthz_reports_a_redis_cluster_without_changing_its_status() {
         let cluster = crate::db::redis_support::TestRedis::start_cluster().await;
-        let (test, redis) = crate::mcp::testing::app_on_redis(Config::default(), cluster).await;
+        let (test, redis) = app_on_redis(Config::default(), cluster.dedicated().await).await;
         healthz_follows_redis(test, redis).await;
     }
 
@@ -1699,10 +1700,7 @@ mod tests {
         assert_eq!(up["redis"], "ok");
         // The body never carries the Redis address.
         assert!(!up.to_string().contains("redis://"), "{up}");
-        if redis.stop().await.is_none() {
-            eprintln!("shared TEST_REDIS_URL: the outage half of this test is skipped");
-            return;
-        }
+        redis.stop().await;
         let response = tokio::time::timeout(wait, router.oneshot(get()))
             .await
             .expect("healthz answers while Redis is down")

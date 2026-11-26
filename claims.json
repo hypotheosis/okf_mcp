@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1790,
+  "next_claim_seq": 1807,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "236d2d6e45f5e71b830ee390c1bf9367b24ab2456fa772e402085d92e366aa82"
+    "mac": "62fac0fe2e0d3b1fed962ff5453b4f00606c77a0b470d0dab6f1962a105b0cd3"
   },
-  "next_evidence_seq": 3302,
+  "next_evidence_seq": 3326,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "a736e6daa1cc389246f1a34f1c207638ba28ef21655deca0e6d833d642014365"
+    "mac": "e480dac625ce663e40a514b1553eafda4ecb263cbfc8c08dfe0c659079243a2c"
   },
   "claims": [
     {
@@ -162472,6 +162472,28 @@
             "by": "server",
             "mac": "b5db1712048556d28cfbbc5740121ccec2ace4950cc0bd1c833bc9f19d601777"
           }
+        },
+        {
+          "id": "EVD-3323",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- an_internal_api_error (2 passed) on f38a467",
+          "summary": "Re-audit after the AppError refactor onto request_trace_id: both /api/v1 trace-id tests still pass; into_response still adds trace_id for internal errors (src/http/mod.rs:190-198).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 186,
+                "end": 200
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:12:22.793680932Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd2d06ca43a3f3b3008c548e54d53cb16a74b8d80c7ac545f261dd843f544fc9"
+          }
         }
       ],
       "verdicts": [
@@ -162488,13 +162510,26 @@
             "by": "server",
             "mac": "291cb32c0722598c6c8e5af71b94667ff99af137f7262925b93c99cb3f24fda0"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: refactor kept behavior; both tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3323"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.747032365Z",
+          "seal": {
+            "by": "server",
+            "mac": "11983d1a27428830d806b96ce2bdacc1c829300ab971879fe975c4109c7d57cb"
+          }
         }
       ],
       "created_at": "2026-11-26T14:31:40.406953427Z",
-      "updated_at": "2026-11-26T14:32:32.384865047Z",
+      "updated_at": "2026-11-26T17:12:50.747032365Z",
       "seal": {
         "by": "server",
-        "mac": "57edbd5c05743cbf4b2bb63c71ecb02293b1fde5a24dfdcfe3685b608e850727"
+        "mac": "7e0f02dcbbcab52016d0428cf1fc64c3f86adfb3a4f799aaf3808d8faab1930e"
       }
     },
     {
@@ -162830,6 +162865,28 @@
             "by": "server",
             "mac": "e947b050025d595d943b66edd7eb7bc9959fb8d24085a052e67315eb1cf11261"
           }
+        },
+        {
+          "id": "EVD-3324",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:190-198, 540-559, 563-568",
+          "summary": "The REQUEST_SPAN read moved into request_trace_id(), which into_response calls; REQUEST_SPAN is still the source, Span::current() still not used. The statement holds through one level of indirection.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 540,
+                "end": 568
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:12:22.924118307Z",
+          "seal": {
+            "by": "server",
+            "mac": "659fb28fbeb670ccddea2a1ede256b8c2dd1ab8ba55278e005aa00a52b37c7a5"
+          }
         }
       ],
       "verdicts": [
@@ -162845,13 +162902,26 @@
             "by": "server",
             "mac": "981eb9ee81e1fc61fccde914cbd157f37f6631d91c5f5f57acaa8d32a39b93d7"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: REQUEST_SPAN read now sits in request_trace_id, called by into_response.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3324"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.846868466Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5c933fd40f9a76fe26db3f8819f07aa639155f3c610e9bf34d1567e6ceb80dd"
+          }
         }
       ],
       "created_at": "2026-11-26T14:31:40.406953427Z",
-      "updated_at": "2026-11-26T14:32:32.895671694Z",
+      "updated_at": "2026-11-26T17:12:50.846868466Z",
       "seal": {
         "by": "server",
-        "mac": "914be9a5a45edbe0a0b15c544cbbab6bc0bc895d249766727021a756b2d5c112"
+        "mac": "365b9657806609b774d1d582436ce67c66a3355e55f5f5646a990cf04103dbbe"
       }
     },
     {
@@ -162965,6 +163035,28 @@
             "by": "server",
             "mac": "d1b029055deb0d4600e3c89265762d4f4cb6976e122cf91136da7b99b2f731a5"
           }
+        },
+        {
+          "id": "EVD-3325",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4022-4034",
+          "summary": "The edited paragraph still gives 32 hex, omitted without a valid trace, never zeros, no detail. \"No other error carries it\" now follows sentences naming the bearer-key middleware and the OAuth routes as carriers, so it reads as \"no other class\" and still holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4022,
+                "end": 4034
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:12:23.041518189Z",
+          "seal": {
+            "by": "server",
+            "mac": "34ca9d9ce9348b8d5c49d5fb7d4f65d7ae8a2207fc7eafbb1634c976fbd109f5"
+          }
         }
       ],
       "verdicts": [
@@ -162980,13 +163072,26 @@
             "by": "server",
             "mac": "c0752cd68f840969521d22206e2d3d80960ef1d4b28861ef46c5836854389c0f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: edited paragraph still carries every listed property.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3325"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.947446299Z",
+          "seal": {
+            "by": "server",
+            "mac": "84ad2e4e356bc0ccf0c7f21d6955797fdfa85fe79e1a8f8976abe3c69f337d16"
+          }
         }
       ],
       "created_at": "2026-11-26T14:31:40.406953427Z",
-      "updated_at": "2026-11-26T14:32:33.092526719Z",
+      "updated_at": "2026-11-26T17:12:50.947446299Z",
       "seal": {
         "by": "server",
-        "mac": "afc43c588db2093f79d38af1883db9f0ac587f1d51b9557b8bc4c2b3572fe7ea"
+        "mac": "6c68c2b603d04d9094589c3f874e034a50aa4fc90d591cdbab7853dddaf31043"
       }
     },
     {
@@ -163844,6 +163949,1197 @@
       "seal": {
         "by": "server",
         "mac": "54a945888b7140ede9537c8c4452f682eb25969a5ec2d4bd1bc6d1490bdc41a7"
+      }
+    },
+    {
+      "id": "CLM-1790",
+      "statement": "Issue #1104 is resolved: internal (500) answers outside AppError carry the request span's trace id (OAuth server_error JSON, the authorize/consent HTML error page, the auth middleware's credential-lookup failure), omitted without a valid trace, with no detail, no 4xx id, no X-Trace-Id header, and docs/operations.md updated.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1104",
+      "derived_from": [],
+      "artifacts": [
+        "src/oauth/error.rs",
+        "src/oauth/consent.rs",
+        "src/http/mod.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:10:14.078008756Z",
+      "seal": {
+        "by": "server",
+        "mac": "e61520eab50224de0c5cc15b2095a863d9d412ed2686c47b64fe123a1c3c56ad"
+      }
+    },
+    {
+      "id": "CLM-1791",
+      "statement": "An OAuthError::Server answered with 500 has a JSON body member trace_id equal to the OpenTelemetry trace id of the exported request span.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"OAuth OAuthError::Server JSON gets a trace_id member\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/oauth/error.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3302",
+          "kind": "inspection",
+          "locator": "src/oauth/error.rs:153-165",
+          "summary": "IntoResponse for OAuthError adds body[\"trace_id\"] from http::request_trace_id() when status() is 500.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/error.rs",
+              "lines": {
+                "start": 153,
+                "end": 165
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:31.525017485Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c880d08d460e630e00a9c7a3ca93d2946b32e5f503b9737b95d568c214a2ab4"
+          }
+        },
+        {
+          "id": "EVD-3303",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- oauth_server_error (2 passed); src/http/telemetry_tests.rs:267-322",
+          "summary": "Test breaks oauth_tokens, POSTs /oauth/token, asserts 500 server_error and body trace_id == exported POST /oauth/token span trace id at each filter; passed. Reading the assertion confirms it compares to the exported span, not just presence.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 267,
+                "end": 322
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:31.652151553Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac69207758c5bdf54c864786db657223e27cc77e97e08a7bee2bb2dd76d13209"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code adds the member on 500 and the test compares it with the exported span trace id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3302",
+            "EVD-3303"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.105239131Z",
+          "seal": {
+            "by": "server",
+            "mac": "95da13ee6f2ec9867c0ce023bb8a2a8d2bb3b8822f751170041f7865d9e08a67"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.105239131Z",
+      "seal": {
+        "by": "server",
+        "mac": "adf9167fe224d9ad45e7cea33c4ca05748474ef048283f8b1a2bbe5ee0ce3b67"
+      }
+    },
+    {
+      "id": "CLM-1792",
+      "statement": "The OAuth authorize/consent HTML error page for a 500 shows the request span's trace id in <code id=\"consent-trace-id\">.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"the authorize HTML error page shows it\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/oauth/consent.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3304",
+          "kind": "inspection",
+          "locator": "src/oauth/consent.rs:589-625; src/oauth/authorize.rs:1685-1698",
+          "summary": "error_page looks up request_trace_id for a 500 and error_page_html renders <code id=\"consent-trace-id\">; the \"could not complete sign-in\" 500 goes through consent::error_page. The \"could not check this client\" 500 is returned as (status, message) and rendered via consent::error_page at authorize.rs:761.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/consent.rs",
+              "lines": {
+                "start": 589,
+                "end": 625
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:31.756291794Z",
+          "seal": {
+            "by": "server",
+            "mac": "586cdec2e011559517307050503e30b30ba1ad18c15fdbb2db716c7e619f5dd4"
+          }
+        },
+        {
+          "id": "EVD-3305",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- the_authorize_error_page (1 passed); src/http/telemetry_tests.rs:327-380",
+          "summary": "Breaks oauth_clients, GETs /oauth/authorize, asserts 500 page contains <code id=\"consent-trace-id\">{exported span trace id}</code> at each filter and no table name; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 327,
+                "end": 380
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:31.908025211Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b3fd0bef038f0d9dd974e6eecd0da007d64af2a7524ba48a5c350667ccc38b3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Page code renders the id on 500 and the test checks it equals the exported span trace id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3304",
+            "EVD-3305"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.240470047Z",
+          "seal": {
+            "by": "server",
+            "mac": "9519a31795603c1bf8a8dabaf0c3be6322d37df6b6cd81a443ef802e39ee3eda"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.240470047Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f9753136bd0a40c47754fdb36434054586e6c71797e70c05aff4162deb4e7fd"
+      }
+    },
+    {
+      "id": "CLM-1793",
+      "statement": "The bearer-key middleware's credential-lookup failure answers 500 with a body trace_id equal to the exported request span's trace id.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"the auth middleware's credential-lookup failure carries it\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3306",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1146-1152 (require_key Err arm); src/http/mod.rs:190-198",
+          "summary": "require_key's lookup Err arm is AppError(error).into_response(), and AppError adds trace_id for internal errors via request_trace_id(). MCP and archive routes are wrapped by require_key (mod.rs:427).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1140,
+                "end": 1152
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:32.056477190Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3ad7a562d48f109fd190e5fb9e3bac0087bd5d567ca17d7f00a6899f8da1817"
+          }
+        },
+        {
+          "id": "EVD-3307",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_failed_credential_lookup_in_the_auth (1 passed); src/http/telemetry_tests.rs:406-450",
+          "summary": "Renames api_keys away, POSTs /mcp with an uncached bearer key, asserts 500 and body trace_id == exported POST /mcp span trace id at each filter; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 406,
+                "end": 450
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:32.196594118Z",
+          "seal": {
+            "by": "server",
+            "mac": "30eace89101f197531362995c22945e5e06d832522f89370a8e10d0ae6011364"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lookup failure goes through AppError which carries the id; the test asserts equality with the exported span trace id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3306",
+            "EVD-3307"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.351982962Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7861e8c147cfd9e671ce93765609ed1c8e85e1a9542f2c2f2ff4572b48b7646"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.351982962Z",
+      "seal": {
+        "by": "server",
+        "mac": "e1043ad50d3d27dde8daba970bb498fff4d740b113de61de5b4f5d923b44d423"
+      }
+    },
+    {
+      "id": "CLM-1794",
+      "statement": "The OAuth JSON 500 and the OAuth error page omit the trace id when the request has no valid trace context, and never send zeros.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"Omit it when there is no valid trace context, never zeros\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/oauth/error.rs",
+        "src/oauth/consent.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3308",
+          "kind": "inspection",
+          "locator": "src/telemetry/propagation.rs:63-68; src/http/mod.rs:540-559",
+          "summary": "trace_id_of returns Some only when span_context.is_valid() (zeros are invalid); request_trace_id passes None through, and both OAuth sites only set the member / render the reference on Some.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/propagation.rs",
+              "lines": {
+                "start": 63,
+                "end": 68
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:49.700955157Z",
+          "seal": {
+            "by": "server",
+            "mac": "454f5ecc57316739f1ed0c57912e9d5b139d8b5703a94b0bd5d438ef707357a5"
+          }
+        },
+        {
+          "id": "EVD-3309",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- oauth_server_error (2 passed, incl. oauth_server_errors_omit_the_trace_id_without_a_trace); src/http/telemetry_tests.rs:384-402",
+          "summary": "Without an exporting observer both 500s occur (asserted) and the page lacks consent-trace-id and the JSON body lacks trace_id; plus consent unit test the_error_page_html with None shows no reference.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 384,
+                "end": 402
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:49.842154512Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a6c81051434cb03eacb77d21de508b49aba95e3527e6323a807d0b67ec6b0cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "trace_id_of yields None for invalid contexts; the no-trace test shows both OAuth 500s omit the id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3308",
+            "EVD-3309"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.452483806Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6164e5e6f11aeb73be95b7022597c0fbe807381f5710c6d6444dd6d4cfade52"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.452483806Z",
+      "seal": {
+        "by": "server",
+        "mac": "46ef60d143e2714469f11c4f901f3cce6cead549ffe81b4866f944993b7c9eed"
+      }
+    },
+    {
+      "id": "CLM-1795",
+      "statement": "OAuth 4xx JSON answers, the 503 busy answer, and non-500 error pages carry no trace id.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"4xx answers get none\"; PR body: \"The 503 busy answer and every 4xx carry none.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/oauth/error.rs",
+        "src/oauth/consent.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3310",
+          "kind": "inspection",
+          "locator": "src/oauth/error.rs:157-163; src/oauth/consent.rs:617-618; src/oauth/error.rs:107-108",
+          "summary": "Id is attached only when status == 500 (the 503 Busy arm at error.rs:107 is separate); the page looks the id up only for INTERNAL_SERVER_ERROR.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/error.rs",
+              "lines": {
+                "start": 100,
+                "end": 165
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:50.001096471Z",
+          "seal": {
+            "by": "server",
+            "mac": "58d870dd8bead6748c3a541e9e87d885b8481defd713ccf84ab824e24311e254"
+          }
+        },
+        {
+          "id": "EVD-3311",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:300-322 and 355-362 (passing)",
+          "summary": "The 400 invalid_grant token answer is asserted to have no trace_id and the 400 unknown-client page no consent-trace-id, under the exporting filters. No test asserts the 503 busy answer carries none (only the code path shows it).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 267,
+                "end": 380
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:50.109246060Z",
+          "seal": {
+            "by": "server",
+            "mac": "dacef3efb13facb59a5dc06e190039f2b72a5aaedebdf3241495772d38d38f93"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code gates the id on status 500; tests cover the 400 JSON and 400 page. The 503 case is shown by code only (no test).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3310"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.551914545Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8192f339d3ac945c68830056967e5681365e51d48feb0e894878a6f6619891a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.551914545Z",
+      "seal": {
+        "by": "server",
+        "mac": "dc3c0bea0460d8c45d29fd413e67ecae6202bde0f6962669ab0e9a87b55346b1"
+      }
+    },
+    {
+      "id": "CLM-1796",
+      "statement": "The trace id additions keep error details server-side: the OAuth 500 JSON and the 500 page carry no database or table detail.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1104: \"keep error details server-side\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/oauth/error.rs",
+        "src/oauth/consent.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3312",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs: asserts !body.contains(\"oauth_tokens\") (~line 321) and !page.contains(\"oauth_clients\") (~line 379)",
+          "summary": "Both 500 tests break a real table, so the sqlx error names it; the assertions show the table name is absent from the JSON body and the page. Only the id is added; error_description stays generic (to_json unchanged, error.rs:121).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 267,
+                "end": 380
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:50.214590697Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cd73745014ce3f50f178a7228a763f7bc176dbde2a95a85b33e10cefd1dc3cb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests assert the broken table's name is absent from the 500 body and page.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3312"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.651956437Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a66c5f4e902f8d88e21c8bc0c9d892950010d7a1154eafbd981f2606f7c8923"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.651956437Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac2e94c2ff10be4b5cadfd1ec5d2232096e076c9b7c9129e5b7e6a9e46d11b09"
+      }
+    },
+    {
+      "id": "CLM-1797",
+      "statement": "The change reuses telemetry::propagation::trace_id_of and the REQUEST_SPAN task-local, with no second copy of the extraction in src.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1104: \"Reuse the existing telemetry::propagation::trace_id_of and the REQUEST_SPAN task-local, do not copy them\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3313",
+          "kind": "analysis",
+          "locator": "git grep -nE \"trace_id_of|REQUEST_SPAN\" src",
+          "summary": "trace_id_of is defined once (propagation.rs:63) and called from http/mod.rs:555 and mcp/mod.rs:444 (the latter pre-existing, on its own span). REQUEST_SPAN declared once (mod.rs:565) and set at mod.rs:739. OAuth code calls http::request_trace_id; no new copy of span_context().is_valid() extraction.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "span_context\\(\\)\\.is_valid|\\.trace_id\\(\\)\\.to_string",
+              "scope": [
+                "src/auth.rs",
+                "src/http",
+                "src/oauth",
+                "src/telemetry/propagation.rs"
+              ],
+              "hits": 11,
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:10:50.334100359Z",
+          "seal": {
+            "by": "server",
+            "mac": "52c3946d301bab8ff2ca01bb8a2ed8ace1b5123a11f33add54e237ab9c94414a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One trace_id_of, one REQUEST_SPAN; new call sites go through request_trace_id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3313"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.751332436Z",
+          "seal": {
+            "by": "server",
+            "mac": "59d51e7b185332aded3cc91203ea2019008843d1e84fc5d92c90318062a81c97"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.751332436Z",
+      "seal": {
+        "by": "server",
+        "mac": "8de1e1eb02d03b999169a9d66aa6c78eb23da85490fcc7bc513f8b2bf7f6515f"
+      }
+    },
+    {
+      "id": "CLM-1798",
+      "statement": "No X-Trace-Id response header is added anywhere in src.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1104: \"Do NOT implement an X-Trace-Id header (that is #1105)\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3314",
+          "kind": "analysis",
+          "locator": "git grep -niE \"x-trace-id\" src",
+          "summary": "Zero hits in src; the diff adds no header insert for a trace id.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "x-trace-id|trace.?id.{0,40}HeaderName|HeaderName.{0,40}trace.?id",
+              "case_insensitive": true,
+              "scope": [
+                "src"
+              ],
+              "hits": 0,
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:10.618948870Z",
+          "seal": {
+            "by": "server",
+            "mac": "db31e8a7d8711cec8c52dbd83c664c404305be1db0e4481b0e1bf7f3d8724fb5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search over src.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3314"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.850491054Z",
+          "seal": {
+            "by": "server",
+            "mac": "17e6a4f62c9630104d9768639647d6b87768c36bd33078ab7f9030c00d50477b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.850491054Z",
+      "seal": {
+        "by": "server",
+        "mac": "497c8ed8bfc68498af695e82e5652ae6970d19f7375413bb58922db49898fe2b"
+      }
+    },
+    {
+      "id": "CLM-1799",
+      "statement": "docs/operations.md error shapes document the OAuth 500 trace_id member, the page reference, and the auth middleware's trace id.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1104: \"Update docs/operations.md error shapes\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3315",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4026-4034 and 5099-5105",
+          "summary": "The /api/v1 error section now says the bearer-key middleware answers the same way and OAuth 500s carry it; the OAuth section documents the trace_id member, page reference, 32 hex, omission, no 4xx, no detail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5090,
+                "end": 5106
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:10.812735982Z",
+          "seal": {
+            "by": "server",
+            "mac": "979c1f6504fe60eb5a20583b77e1a77a920b7ea3ed01aff9a8250301046fd4eb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both docs passages are present and accurate against the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3315"
+          ],
+          "recorded_at": "2026-11-26T17:12:49.949339192Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a6f60d1c42403057ae008b9bd8222fe62b8e1fbb72e4710ebab85aa59747a5d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:49.949339192Z",
+      "seal": {
+        "by": "server",
+        "mac": "d28755552785b5367f5cb9fce9002a1597b10d6d5620e039a2369c8e07ff568d"
+      }
+    },
+    {
+      "id": "CLM-1800",
+      "statement": "No other production code path answers an internal 500 with a body or page that could carry a trace id but does not, apart from the two the PR lists as out of scope (pages::respond's bare CSP 500 and the metrics scrape 500).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1104: \"any other 500 path found\"; PR body: \"pages::respond's bare 500 on a bad CSP (no body) and the metrics scrape's bodiless 500 on its own listener.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3316",
+          "kind": "analysis",
+          "locator": "git grep -n INTERNAL_SERVER_ERROR src (non-test hits)",
+          "summary": "Non-test 500 sites: http/mod.rs:171 (AppError, covered), oauth/error.rs:108 (covered), oauth/authorize.rs:703 and 1694 (feed consent::error_page, covered), oauth/consent.rs:617, http/pages.rs:184 (bare, bodiless, listed), telemetry/scrape.rs:84 (bodiless, listed). clients.rs:1682 is a test stub server. Sign-in/passkey routes answer via AppError (signin.rs:415-426,846). The server_error redirect to redirect_uri is a 302, listed. One residual: the Busy 503 page is not a 500.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "INTERNAL_SERVER_ERROR",
+              "scope": [
+                "src/http/mod.rs",
+                "src/http/pages.rs",
+                "src/oauth/authorize.rs",
+                "src/oauth/consent.rs",
+                "src/oauth/error.rs",
+                "src/telemetry/scrape.rs"
+              ],
+              "hits": 13,
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:10.941837800Z",
+          "seal": {
+            "by": "server",
+            "mac": "842ba158ac100256a88a4d1d0e952b70463156f3f083bb1e3e3c5762321de263"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Enumerated every non-test INTERNAL_SERVER_ERROR site; all are covered or are the two listed bodiless ones.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3316"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.049142932Z",
+          "seal": {
+            "by": "server",
+            "mac": "bbba7d400f24713627993ebc557e120e46461d0b855f56e23c64b4f48dd2de79"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.049142932Z",
+      "seal": {
+        "by": "server",
+        "mac": "162d0358569dc42fe99d356e9e9261897b3dea4c98a099b6b0587daa48d8940c"
+      }
+    },
+    {
+      "id": "CLM-1801",
+      "statement": "http::request_trace_id() reads the REQUEST_SPAN task-local (never Span::current()), and AppError::into_response now uses it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"`http::request_trace_id()` reads the `REQUEST_SPAN` task-local (never `Span::current()`); `AppError::into_response` now uses it.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3317",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:190-200 and 540-559",
+          "summary": "request_trace_id is REQUEST_SPAN.try_with(trace_id_of).ok().flatten(), no Span::current() call; AppError::into_response calls it for internal errors.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 540,
+                "end": 559
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:11.062251604Z",
+          "seal": {
+            "by": "server",
+            "mac": "2959761c2a19a8bfbb1e65b24c5bc7b3e8ff2978e5542f88f7bf1b2f22603c11"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code matches the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3317"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.148697012Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2bb62e16c6d84e08b5ffcea7ee3406aa35661e1dc4fc17691afafd141500718"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.148697012Z",
+      "seal": {
+        "by": "server",
+        "mac": "47ef04248f23d1c3252792a511766d1aaafba85bbb7d1c5e313108b34713d091"
+      }
+    },
+    {
+      "id": "CLM-1802",
+      "statement": "The PR's added tests exist: an_oauth_server_error_carries_the_request_spans_trace_id, the_authorize_error_page_shows_the_request_spans_trace_id, oauth_server_errors_omit_the_trace_id_without_a_trace, a_failed_credential_lookup_in_the_auth_middleware_carries_the_trace_id, and two consent page unit tests; they pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Tests added: ... two consent page unit tests.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs",
+        "src/oauth/consent.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3318",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib filters: oauth_server_error (2 passed), the_authorize_error_page (1), a_failed_credential_lookup_in_the_auth (1), the_error_page_shows (1)",
+          "summary": "Four named integration tests exist and pass. The \"two consent page unit tests\" are the_error_page_shows_the_trace_id_it_is_given (new) and an extended existing page test (consent.rs:1084-1090) asserting no reference without an id; the second is a modified test, not a new one. Existing consent test also passed in a wider run was not repeated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/consent.rs",
+              "lines": {
+                "start": 1070,
+                "end": 1105
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:11.212852420Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e9f968e19edf0f0800e50eed8423f74f6944d3c4eb28cb1653f61f3b5cebe09"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All named tests exist and pass. Nuance: one of the \"two consent page unit tests\" is an existing test extended, not new.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3318"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.248609143Z",
+          "seal": {
+            "by": "server",
+            "mac": "accf71ef9e37b168a426ef30811cfcb83f3e2f82fce37c645b4c1d2fddfa2b03"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.248609143Z",
+      "seal": {
+        "by": "server",
+        "mac": "e473775015ea226b26a1c2add4ba8b4c7eff9e93083274aad9eb623b0bb80d2f"
+      }
+    },
+    {
+      "id": "CLM-1803",
+      "statement": "The two OAuth tests (OAuth token 500 and authorize page 500) fail when the 500 check is reverted.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"The two OAuth tests fail when the 500 check is reverted.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3319",
+          "kind": "demonstration",
+          "locator": "temporary mutation (reverted, git status clean): `if false && self.status()==500` in src/oauth/error.rs and `(false && status==500)` in src/oauth/consent.rs, then gate.sh narrow --lib -- an_oauth_server_error_carries / the_authorize_error_page_shows",
+          "summary": "With the 500 checks disabled both tests FAILED (0 passed, 1 failed each); without the mutation they pass.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T17:11:11.362512883Z",
+          "seal": {
+            "by": "server",
+            "mac": "3eea0bab7389635615d196e3211f17529ceae82bdc4c9fec608604f69e72baa6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Mutation run: both tests fail with the 500 checks disabled; tree restored.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3319"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.348520724Z",
+          "seal": {
+            "by": "server",
+            "mac": "b99acf881425cfc82287f3c7325ce3c6ddd867c1326ef54d7c4e052307a6d59e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.348520724Z",
+      "seal": {
+        "by": "server",
+        "mac": "66e6ceea40121b647266ede54c94b8156988249442e07bdf6c3737ffbc5ac785"
+      }
+    },
+    {
+      "id": "CLM-1804",
+      "statement": "gate.sh fmt, lint, dylint and mcpjam pass, and gate.sh test passes (3670 tests, both store modes, doc-tests 30).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`, `mcpjam` pass; `gate.sh test` passes (3670 tests, both store modes, doc-tests 30).\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3320",
+          "kind": "other",
+          "locator": "PR body line \"Validation\"",
+          "summary": "Full gates were not rerun (instructed not to); the 3670 count, both-store-modes and doc-test numbers cannot be checked from the narrow runs (lib has 3167 tests).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T17:11:11.496462174Z",
+          "seal": {
+            "by": "server",
+            "mac": "5cad92302834507fb50a104127abe016a54a772886615ff9a997dec0e95cedae"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Full gates were not rerun by this audit, so the counts are unchecked. Fix: have the author attach the gate.sh test, fmt, lint, dylint and mcpjam output (counts) from head f38a467, or rerun gate.sh test and compare the totals.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3320"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.448997178Z",
+          "seal": {
+            "by": "server",
+            "mac": "06fa510449c3261c001b1bd51b9be6871c9032c18656cf07c6656ea5b745a178"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.448997178Z",
+      "seal": {
+        "by": "server",
+        "mac": "0d8ca2baed125da71a60107ff06a20258b5dda853be8b863673377b92a253c9c"
+      }
+    },
+    {
+      "id": "CLM-1805",
+      "statement": "The auth middleware (auth::require_key) already answered a credential-lookup failure through AppError, so it carried the id since #1093 (no production change was needed there).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"The bearer-key middleware (`auth::require_key`) already answered a credential-lookup failure through `AppError`, so it carries the id since #1093; a test now pins it.\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3321",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1146-1152; git diff origin/main..HEAD --stat (no src/auth.rs hunk)",
+          "summary": "require_key's Err arm is AppError(error).into_response(); the diff does not touch src/auth.rs, and the AppError trace_id logic predates it (#1093, visible as the removed lines in the mod.rs hunk).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1140,
+                "end": 1152
+              },
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:11.638113575Z",
+          "seal": {
+            "by": "server",
+            "mac": "fdcd9030296929008c41112afde1f0f53d77173c5f41766f41cc500cfb875465"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "require_key's Err arm already used AppError and the diff does not touch auth.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3321"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.548943779Z",
+          "seal": {
+            "by": "server",
+            "mac": "480df80f0d7adfa8e6c7f75161f5275caf9234735bb6bc3f98eb54ee777cb3f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.548943779Z",
+      "seal": {
+        "by": "server",
+        "mac": "cd7b6ae37a7e11b11e10cefd8b93022408ffe752068023ee7a38e821e4bfe298"
+      }
+    },
+    {
+      "id": "CLM-1806",
+      "statement": "A changelog entry for issue #1104 is added under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"changelog entry added\"",
+      "derived_from": [
+        "CLM-1790"
+      ],
+      "artifacts": [
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1104"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3322",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T16-55-00Z-issue-1104-oauth-trace-id.md",
+          "summary": "The file exists in the commit and describes the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T16-55-00Z-issue-1104-oauth-trace-id.md",
+              "commit": "f38a4671047c455b5c14b472871f32a0e1b273fc"
+            }
+          },
+          "recorded_at": "2026-11-26T17:11:11.814566931Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a5053f53869ff6e4f467559b629eb9fe329f48e4e586344a1420ead325d5ddb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3322"
+          ],
+          "recorded_at": "2026-11-26T17:12:50.648098168Z",
+          "seal": {
+            "by": "server",
+            "mac": "c63f3ffaebf8563c0991677f6b3ebd1895969bf8f01ec9e48e8c5e166a65f57f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:12:50.648098168Z",
+      "seal": {
+        "by": "server",
+        "mac": "afb48efbbeb21a6d47d1a627f4c1327d96441ec690c4a7bc81f0c9120a4e758f"
       }
     }
   ]

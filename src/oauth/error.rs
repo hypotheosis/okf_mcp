@@ -118,7 +118,9 @@ impl OAuthError {
         }
     }
 
-    /// The body: `{"error", "error_description"}`.
+    /// The body: `{"error", "error_description"}`. A `trace_id` member (an
+    /// extra member is allowed by RFC 6749 section 5.2) is added by
+    /// [`IntoResponse`] to a 500, never here.
     ///
     /// # Returns
     /// The JSON value.
@@ -151,7 +153,16 @@ impl IntoResponse for OAuthError {
         } else {
             tracing::debug!(code = self.code(), "oauth request refused");
         }
-        let mut response = (self.status(), Json(self.to_json())).into_response();
+        let mut body = self.to_json();
+        // Only a 500 names the trace: a refusal (4xx) or a busy 503 has
+        // nothing for an operator to look up. Left out when there is no
+        // valid trace (issue #1104).
+        if self.status() == StatusCode::INTERNAL_SERVER_ERROR {
+            if let Some(trace_id) = crate::http::request_trace_id() {
+                body["trace_id"] = trace_id.into();
+            }
+        }
+        let mut response = (self.status(), Json(body)).into_response();
         let headers = response.headers_mut();
         headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
         if matches!(self, OAuthError::SlowDown) {

@@ -580,14 +580,23 @@ pub fn user_page(
 ///
 /// # Arguments
 /// * `message` - what went wrong, for a person.
+/// * `trace_id` - the request's trace id, for a person to quote when the
+///   failure is the server's (issue #1104).
 ///
 /// # Returns
 /// The page body (no form).
 #[tracing::instrument(level = "debug", skip_all)]
-pub(crate) fn error_page_html(message: &str) -> String {
+pub(crate) fn error_page_html(message: &str, trace_id: Option<&str>) -> String {
+    let reference = trace_id.map_or_else(String::new, |trace_id| {
+        format!(
+            "\n        <p class=\"muted\">Quote this reference when you report it: \
+             <code id=\"consent-trace-id\">{}</code></p>",
+            escape(trace_id)
+        )
+    });
     format!(
         r#"        <h1>Cannot connect</h1>
-        <p class="error consent-error" id="consent-error" role="alert">{}</p>
+        <p class="error consent-error" id="consent-error" role="alert">{}</p>{reference}
         <p class="muted">Close this window and start again from your client.</p>"#,
         escape(message)
     )
@@ -601,16 +610,19 @@ pub(crate) fn error_page_html(message: &str) -> String {
 /// * `brand` - the product name and support contact.
 ///
 /// # Returns
-/// The page with `status`.
-#[cfg_attr(
-    dylint_lib = "hyp_tracing",
-    allow(
-        uninstrumented_fn,
-        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
-    )
-)]
+/// The page with `status`; a 500 also shows the request's trace id when it
+/// has one (issue #1104).
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn error_page(status: StatusCode, message: &str, brand: &Brand) -> Response {
-    page(status, "Cannot connect", &error_page_html(message), brand)
+    let trace_id = (status == StatusCode::INTERNAL_SERVER_ERROR)
+        .then(crate::http::request_trace_id)
+        .flatten();
+    page(
+        status,
+        "Cannot connect",
+        &error_page_html(message, trace_id.as_deref()),
+        brand,
+    )
 }
 
 /// The forwarding page's HTML ([`pages::forward_body`]).
@@ -787,7 +799,7 @@ mod tests {
                 &[],
                 &Brand::default(),
             ),
-            pages::document("t", &error_page_html("e"), &[], &Brand::default()),
+            pages::document("t", &error_page_html("e", None), &[], &Brand::default()),
         ] {
             assert!(!html.contains("<script"), "{html}");
             assert!(!html.contains("<style"), "{html}");
@@ -1072,9 +1084,23 @@ mod tests {
             .to_str()
             .unwrap()
             .contains("form-action 'self';"));
-        let html = error_page_html("Unknown <client>.");
+        let html = error_page_html("Unknown <client>.", None);
         assert!(html.contains("Unknown &lt;client&gt;."));
         assert!(!html.contains("<form"));
+        assert!(!html.contains("consent-trace-id"), "no id, no reference");
+    }
+
+    #[test]
+    fn the_error_page_shows_the_trace_id_it_is_given() {
+        let html = error_page_html(
+            "The server failed.",
+            Some("0af7651916cd43dd8448eb211c80319c"),
+        );
+
+        assert!(
+            html.contains(r#"<code id="consent-trace-id">0af7651916cd43dd8448eb211c80319c</code>"#),
+            "{html}"
+        );
     }
 
     #[test]

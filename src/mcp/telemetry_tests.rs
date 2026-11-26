@@ -495,17 +495,17 @@ async fn the_tool_span_parent_falls_back_to_current_then_root() {
     assert_eq!(tool_span_parent(&with_request), request.id());
 }
 
-/// A write key for `pg`, for the tests that open a changeset.
-async fn write_key(served: &Served) -> String {
+/// A write key named `name` for `pg`, for the tests that open a changeset.
+async fn write_key(served: &Served, name: &str) -> String {
     keys::create(
         served.test.app.accounts().executor(),
         &NewKey {
-            name: "writer",
+            name,
             access: Access::Write,
             maintenance_report: false,
             grants: Grants::Catalogs(&["pg".into()]),
             default_catalog: None,
-            actor: "writer",
+            actor: name,
             user: crate::db::TEST_USER,
             self_issued: false,
             expires_at: None,
@@ -528,7 +528,7 @@ fn text_of(span: &opentelemetry_sdk::trace::SpanData, name: &str) -> Option<Stri
 #[tokio::test]
 async fn the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog() {
     let served = Served::start().await;
-    let writer = write_key(&served).await;
+    let writer = write_key(&served, "writer").await;
     for filter in FILTERS {
         let observer = Observer::start("off", filter, "off", LogFormat::Text);
         let probe = McpProbe::open(&served.endpoint, &writer).await;
@@ -656,4 +656,69 @@ async fn note_catalog_tracks_one_name_then_multiple() {
     // Outside a call it does nothing.
     note_catalog("ignored");
     assert_eq!(seen.lock().expect("lock").label(), "multiple");
+}
+
+/// Issue #834 (review of PR #1116): a handle another key owns resolves nothing, and must not
+/// disclose its catalog through the span or the metrics label. `note_catalog` has to stay
+/// after the ownership check in `resolve_changeset`.
+#[tokio::test]
+async fn a_foreign_changeset_handle_records_no_catalog() {
+    let served = Served::start().await;
+    let owner = write_key(&served, "owner").await;
+    let stranger = write_key(&served, "stranger").await;
+    for filter in FILTERS {
+        let observer = Observer::start("off", filter, "off", LogFormat::Text);
+        let probe = McpProbe::open(&served.endpoint, &owner).await;
+        let opened = probe
+            .call("open_changeset", serde_json::json!({"catalog": "pg"}))
+            .await;
+        let handle = opened["result"]["structuredContent"]["changeset"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{filter}: a handle in {opened}"))
+            .to_string();
+        probe.close().await;
+        let other = McpProbe::open(&served.endpoint, &stranger).await;
+        let refused = other
+            .call("pending_changes", serde_json::json!({"changeset": handle}))
+            .await;
+        other.close().await;
+        let observed = observer.finish();
+
+        assert_eq!(refused["result"]["isError"], true, "{filter}: {refused}");
+        assert_eq!(
+            refused["result"]["structuredContent"]["error"], "UnknownChangeset",
+            "{filter}: {refused}"
+        );
+        let span = &observed.spans_named("mcp pending_changes")[0];
+        assert_eq!(
+            text_of(span, "okf.catalog").as_deref(),
+            Some("none"),
+            "{filter}"
+        );
+        assert_eq!(
+            text_of(span, "okf.error.kind").as_deref(),
+            Some("UnknownChangeset"),
+            "{filter}"
+        );
+    }
+    let text = render(&served.registry);
+    assert!(
+        text.lines().any(|line| {
+            line.starts_with("okf_mcp_tool_duration_seconds_count{")
+                && line.contains(r#"tool="pending_changes""#)
+                && line.contains(r#"catalog="none""#)
+                && line.contains(r#"outcome="error""#)
+        }),
+        "{text}"
+    );
+    assert!(
+        !text.lines().any(|line| {
+            line.starts_with("okf_mcp_tool_duration_seconds_count{")
+                && line.contains(r#"tool="pending_changes""#)
+                && line.contains(r#"outcome="error""#)
+                && line.contains(r#"catalog="pg""#)
+        }),
+        "{text}"
+    );
+    served.stop().await;
 }

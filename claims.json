@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1634,
+  "next_claim_seq": 1653,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "d6d3360470b0698cb5887dd6c2607f6431d13d916d0e15d2ad9ab285e660562d"
+    "mac": "4c2e864951d855edda41950eb9eee637defb414de55a7ab47e816a2465aea375"
   },
-  "next_evidence_seq": 2426,
+  "next_evidence_seq": 2444,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "592e2c8634f59cb42a3cd004c331105d4e8897a9451f4a46d1dc1c4c6168a3ae"
+    "mac": "8763d33b54898f43f391f577bd516992f09190b2acbf44dcfb5691c0484f5e12"
   },
   "claims": [
     {
@@ -132271,6 +132271,1224 @@
       "seal": {
         "by": "server",
         "mac": "ef4e037c091fc2fad8754afc6706ecdd03d5f79c8185e771e92d53ba374b10da"
+      }
+    },
+    {
+      "id": "CLM-1634",
+      "statement": "Issue #752 is delivered: the console stays responsive and shows an accurate pending/done/failed state during a slow catalog delete, with tests under tests/ui_e2e and in src/http/api/catalogs.rs.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/752 acceptance criteria 1-6",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "src/http/api/catalogs.rs",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2443",
+          "kind": "analysis",
+          "locator": "children of CLM-1634",
+          "summary": "The structural, UI, API-test and documentation children are supported, covering criteria 2-6 (the PR deliberately adds no Apalis job). Three children (numbers, full-gate counts, revert check) are not_enough_info, so criterion 1's figures and the validation statements are unverified.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T08:34:27.479568816Z",
+          "seal": {
+            "by": "server",
+            "mac": "ebb801f70d1f99935125fa0655883d6f6e76852fb21b3617cd542bcb001dc3dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All behavioural and structural children are supported, but the three children covering the measurements, full-gate counts and revert check are undecided, so the roll-up cannot be fully supported. Fix: commit the measurement as a rerunnable ignored test, rerun the full gates, and do the revert check in a scratch worktree, then re-audit CLM-1650, CLM-1651 and CLM-1652.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T08:34:34.572723454Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcfeabdc78ccd2c8ecabcf1abb3d6a2b2df9e8e20ca35de6f51e3d782f7b9e90"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:34.572723454Z",
+      "seal": {
+        "by": "server",
+        "mac": "e4f7f61bd33ac6b9691e39fe073ef1ea2f3c980c473530e6802d2c84cb831d21"
+      }
+    },
+    {
+      "id": "CLM-1635",
+      "statement": "delete_catalog in src/http/api/catalogs.rs does not call settle or App::poll; it authorizes, calls store::catalogs::delete_in once and answers {name}.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"`delete_catalog` does not call `settle` or `App::poll` on this branch (the issue's description of it is out of date); there is no post-delete wait to shorten.\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2426",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:934-968",
+          "summary": "Handler body: authorize, one call to catalog_rows::delete_in, split_event, Json(CatalogDeleted). No settle or poll call anywhere in 934-968; the only 'settle' in the file is the test at line 1585.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 934,
+                "end": 968
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:42.836615075Z",
+          "seal": {
+            "by": "server",
+            "mac": "101aad585760e88d00554b9bec960aef1af02647c1cd990f0fba47ee0edfa613"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Handler lines 934-968 call only authorization and delete_in; no settle/poll.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2426"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.406141179Z",
+          "seal": {
+            "by": "server",
+            "mac": "155bc42879191469346d8d66b530616ec8f7bf80eab62cd79849d65e6bca4617"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.406141179Z",
+      "seal": {
+        "by": "server",
+        "mac": "d02167e05399f273ad5267edc0c0f9b9be38b05b969112b48c79198ced61d95c"
+      }
+    },
+    {
+      "id": "CLM-1636",
+      "statement": "store::catalogs::delete_on only marks the catalog deleted (catalog_state and catalogs deleted_at), writes the audit row, owes a store_cleanups row and discards open changesets; it does not delete the catalog's documents or revisions.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"it takes locks, marks the catalog deleted, writes the audit row and owes the cleanup. The data goes later in the housekeeping task\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/store/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2427",
+          "kind": "inspection",
+          "locator": "src/store/catalogs.rs:2138-2167",
+          "summary": "delete_on sets catalog_state.deleted_at (2138), records catalog.deleted audit (record_catalog), sets catalogs.deleted_at (2162) and calls cleanups::owe_catalog (2167); the only per-row work is discarding the open changesets. No DELETE of documents/revisions in the function (2051-2200).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/catalogs.rs",
+              "lines": {
+                "start": 2138,
+                "end": 2167
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:42.929452338Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd0017c1ad5a4c22da5ceb352502397e3ea7c746ad40785600d5dc22f11dc9e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "delete_on only writes deleted_at markers, audit and the cleanup row; the cascade is not in it. The API test additionally shows the rows still present after DELETE.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2427"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.493769869Z",
+          "seal": {
+            "by": "server",
+            "mac": "8203b28fe0d7d73ecb9a09bd9b1dc40c118ffe0927be145b9ee0540f6649e191"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.493769869Z",
+      "seal": {
+        "by": "server",
+        "mac": "08a0c4cee2a6cc3028974621eca4eb638c3b302fd78034093630a89b95ab35cd"
+      }
+    },
+    {
+      "id": "CLM-1637",
+      "statement": "The bulk delete of a deleted catalog's data is done by CleanupStores (src/store/cleanups.rs clean_catalog: DELETE FROM catalog_state cascading, then DELETE FROM catalogs), not in the request.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"the bulk delete is ... background cleanup (`CleanupStores`)\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/store/cleanups.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2428",
+          "kind": "inspection",
+          "locator": "src/store/cleanups.rs:486-515",
+          "summary": "clean_catalog runs DELETE FROM catalog_state WHERE id (cascade through the catalog's tables), commits the store side, then DELETE FROM catalogs WHERE id AND deleted_at IS NOT NULL on the account side. It is invoked by the cleanup run, not by the handler.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/cleanups.rs",
+              "lines": {
+                "start": 486,
+                "end": 515
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.020586705Z",
+          "seal": {
+            "by": "server",
+            "mac": "0410cfe6340f7e1bd9b44d0865169a26ed99e73a1804ec7aeebe0e81ce561333"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "clean_catalog does the cascading delete; the API test shows rows (0,0) only after settle_cleanups.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2428"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.581584950Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd2c6fa1fe02539d17ff0a9691331e63f1cb46733dee3f1ccb79ce946f17884e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.581584950Z",
+      "seal": {
+        "by": "server",
+        "mac": "0ff59692a88faa111993edb46c7bff62b477c3ac07d93eef71da793a008671cd"
+      }
+    },
+    {
+      "id": "CLM-1638",
+      "statement": "delete_on takes the catalog's advisory lock (pg_advisory_xact_lock), so a DELETE can wait behind a concurrent publish or import of the same catalog and not behind unrelated catalogs.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The remaining real source of delay is lock waits behind a concurrent publish or import of the same catalog\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/store/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2429",
+          "kind": "inspection",
+          "locator": "src/store/catalogs.rs:2100 and 2267-2275",
+          "summary": "delete_on calls lock(&mut tx, catalog.id) at 2100; lock is SELECT pg_advisory_xact_lock(namespace, catalog_id), keyed per catalog, the same lock publish/import paths take (lines 413, 644). Whether a publish/import holds it for long was not measured.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/catalogs.rs",
+              "lines": {
+                "start": 2267,
+                "end": 2275
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.111557832Z",
+          "seal": {
+            "by": "server",
+            "mac": "e69f2bb2c294009b5271466b4dfcdd6d173b6a4a6f802224d1d00f321e72cccb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Per-catalog advisory lock is taken in delete_on and in the other store write paths, so same-catalog waits are possible and unrelated catalogs do not contend. That such a wait is the observed delay was not measured, but the claim is only about the mechanism.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2429"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.666656682Z",
+          "seal": {
+            "by": "server",
+            "mac": "68fd308934536099d5899f8889ba868ceb785abcb9d4715877897deb63b7031d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.666656682Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1bee2ba9a37c1ad337b69e682eca7d7e1c72d4d5b416dcd9a8a0305930d540a"
+      }
+    },
+    {
+      "id": "CLM-1639",
+      "statement": "In catalogs.js the Delete button and the force checkbox are both guarded by the key catalog:<name>:delete, and the delete runs through once() with that key.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Delete and the force box are guarded by `catalog:<name>:delete` and started through `once` (the details editor's convention), so duplicates are ignored in the same drawer and in a redrawn one\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "src/http/ui/js/core/pending.js"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2430",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:225-241",
+          "summary": "const deleting = `catalog:${row.name}:delete`; force = guard(checkbox, deleting); remove = guard(button, deleting); the click handler runs the DELETE inside await once(deleting, ...). pending.js once() ignores a start while the key is pending and sync() disables every [data-pending=key] control.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 225,
+                "end": 256
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.202615389Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d431c5088197bea62b6af55ac011e070309c39a578ba2420d0bfafb52c5cd9f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both controls use guard with the same key and the handler body runs in once(); pending.js disables all guarded controls with that key. Tests exercise it (see CLM-1640).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2430"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.753200228Z",
+          "seal": {
+            "by": "server",
+            "mac": "09d34c0d4ba0d6f66ca6ace3b07787d78cdd3ba7328f3e1640d0518418472041"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.753200228Z",
+      "seal": {
+        "by": "server",
+        "mac": "34ba3a3be181a546f1cc5be863fdbad9e573e6b89083a5567aeb7b989a70c659"
+      }
+    },
+    {
+      "id": "CLM-1640",
+      "statement": "While the DELETE is pending the drawer shows a role=status note starting \"Deleting\", a drawer redrawn meanwhile shows the same note with disabled controls, and a second click sends no second DELETE.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"a `role=status` note says \\\"Deleting ...\\\" or shows the failure reason\"; issue criterion 2",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/catalogs.rs",
+        "src/http/ui/js/pages/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2431",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --test ui_e2e -- catalogs::a_slow_catalog_delete catalogs::a_refused_catalog_delete (2 passed)",
+          "summary": "Passed at HEAD. The test waits for #catalog-delete[disabled], #catalog-force[disabled], note text 'Deleting', closes and reopens the same drawer and sees it still disabled with the note, click_twice then asserts held_matches()==1 (no second DELETE). The note element has role=status (catalogs.js:231).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1361,
+                "end": 1415
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.293490736Z",
+          "seal": {
+            "by": "server",
+            "mac": "23f11988f435d29dcd12d52c306cc11babe48282762d8fd093ca68cb31c6b001"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The journey passed and its assertions cover pending state, redrawn drawer and the single held DELETE.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2431"
+          ],
+          "recorded_at": "2026-11-26T08:34:17.853584219Z",
+          "seal": {
+            "by": "server",
+            "mac": "56317f13cea112c4ca8b5fdfab1f2fd57cf3a1f227240e681b6462447fed40a8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:17.853584219Z",
+      "seal": {
+        "by": "server",
+        "mac": "999e3d59c237c164bfc0eb74b21a3276b3e969d7b97b4809ae3fc6ad796362e7"
+      }
+    },
+    {
+      "id": "CLM-1641",
+      "statement": "The success toast, the switcher refresh and the list refresh happen only after api.del returns successfully; a rejected DELETE shows the reason in the note, re-enables the controls and shows no success.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"success toast and switcher/list refresh happen only after the DELETE returns\"; issue criterion 3 \"Success is not shown before deletion commits\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2432",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:239-254",
+          "summary": "Inside once(): await api.del in try; the catch writes 'Could not delete ...: reason' to the note (error toast comes from api.js) and returns; toast('Deleted catalog') and settled(ticket) (refreshIdentity, list reload) come only after the await returns. The ui tests assert no 'Deleted catalog' in #toasts while held, then present after release with the switcher == [main]; the refused journey asserts the reason note, Delete and force re-enabled, catalog still listed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 239,
+                "end": 254
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.381249812Z",
+          "seal": {
+            "by": "server",
+            "mac": "37ba8ae9505850760259bd07080acd14f1bcfeea5ac4df1227b6d7c2db1811b9"
+          }
+        },
+        {
+          "id": "EVD-2441",
+          "kind": "test",
+          "locator": "ui_e2e catalogs::a_slow_catalog_delete..., catalogs::a_refused_catalog_delete... (2 passed)",
+          "summary": "Slow journey: while DELETE held, #toasts has no 'Deleted catalog'; after release the toast appears, acme row hidden, switcher == [main]. Refused journey: 409 shows 'unpublished changes' in the note, Delete and force re-enabled, catalog still listed. Both passed at HEAD.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1361,
+                "end": 1445
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:34:27.300391814Z",
+          "seal": {
+            "by": "server",
+            "mac": "4dc5db62f8246df52387d4d6b1398a88db23d4ac09e53eefb3937f989ffd57b9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code order puts toast and refresh after the awaited DELETE; both journeys passed and assert no success before release and an accurate failure state.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2432",
+            "EVD-2441"
+          ],
+          "recorded_at": "2026-11-26T08:34:34.400174403Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcd56b7e98c916722c8951c3f8a43da7e408b5810dff70dbdcc3c49bc20b68dd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:34.400174403Z",
+      "seal": {
+        "by": "server",
+        "mac": "5d8cdbbebba640bafdc4c8cebf5c7271acb706cfa19d0d90465c79295d48d483"
+      }
+    },
+    {
+      "id": "CLM-1642",
+      "statement": "A delete that settles after the user left the Catalogs page and came back reloads the page mounted now (settled uses mounted.load), and the drawer is closed only through its own ticket, so another drawer is never closed or modified.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"A delete that settles after the user left the Catalogs page and came back now reloads the page mounted now ... The drawer is still closed only through its own ticket\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2433",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:21-24,147-154,340",
+          "summary": "Module-level mounted is set to {main, load} at the end of render (340); settled(ticket) refreshes identity, calls ticket.close() (own ticket only), then 'if (mounted?.main.isConnected) await mounted.load()', i.e. the page mounted now. The ui journey navigates Teams -> Catalogs, opens another catalog's drawer, releases the DELETE, and asserts the acme row is hidden and #catalog-edit-form remains with a title not containing 'acme' (passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 147,
+                "end": 154
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.473281762Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0d60b82a95e304eb8ad41db96cfdc1e627d4e44044ffe36af08e670c2c25b9c"
+          }
+        },
+        {
+          "id": "EVD-2442",
+          "kind": "test",
+          "locator": "ui_e2e catalogs::a_slow_catalog_delete_shows_pending_and_leaves_the_console_usable (passed)",
+          "summary": "Journey opens /teams then /catalogs (a fresh render, so a different main than the one the delete started on), opens main's drawer, releases the DELETE, and asserts the acme row is removed from the new list, the toast shows, #catalog-edit-form is present and the drawer title lacks 'acme'. Passed at HEAD.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1393,
+                "end": 1411
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:34:27.391647616Z",
+          "seal": {
+            "by": "server",
+            "mac": "1bd99cd3c693b673c971ba93f8a7c39391dfe07525b16a471297d0f6239e0be6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "settled() reloads mounted.load and closes only its own ticket; the passing journey checks another drawer survives after a Teams round trip.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2433",
+            "EVD-2442"
+          ],
+          "recorded_at": "2026-11-26T08:34:34.486711739Z",
+          "seal": {
+            "by": "server",
+            "mac": "27e7d2ef56953b62d0a03d8ccc09926c399190d3c1d7c31946bbf65d02fd5b69"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:34.486711739Z",
+      "seal": {
+        "by": "server",
+        "mac": "f11615f1270768502e84eb83bb43042f6f055c59f9e39bf5f588914c384d581e"
+      }
+    },
+    {
+      "id": "CLM-1643",
+      "statement": "The ui_e2e journey a_slow_catalog_delete_shows_pending_and_leaves_the_console_usable passes and covers: pending, no duplicate, navigate to Teams and back, another catalog's drawer survives, success only after release, switcher updated.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"ui_e2e delayed-DELETE journey (pending, no duplicate, navigate to Teams and back, another catalog's drawer survives, success only after release, switcher updated)\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2434",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --test ui_e2e -- catalogs::a_slow_catalog_delete catalogs::a_refused_catalog_delete (2 passed, log target/i752-logs/audit-ui.log)",
+          "summary": "a_slow_catalog_delete_shows_pending_and_leaves_the_console_usable passed. Read the body: hold_next DELETE, pending asserts, no success toast, reopen drawer, click_twice and held_matches==1, open /teams and back, other catalog's drawer open, release_held, wait_hidden acme row, toast, drawer intact, switcher==[main], and the catalog is gone from the DB afterwards.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1361,
+                "end": 1415
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.565766184Z",
+          "seal": {
+            "by": "server",
+            "mac": "064e005dee400ec3d7673e5a14d52f3460cbca7c0bd56a5a62bd014b88ee3e9d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed on HEAD and its body contains each listed step.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2434"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.031659097Z",
+          "seal": {
+            "by": "server",
+            "mac": "5336709be34386d8e1f65eb23cdacd94850840cec409997cf1e925f48e57ea6a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.031659097Z",
+      "seal": {
+        "by": "server",
+        "mac": "5979a5eb6b5c1eb85fccff51d1fc31c49341adf6d3b4cc1bdef8ac4dc49b1281"
+      }
+    },
+    {
+      "id": "CLM-1644",
+      "statement": "The ui_e2e journey a_refused_catalog_delete_keeps_its_reason_and_enables_delete_again passes: a refused DELETE keeps the reason in the drawer and leaves Delete and force enabled and the catalog listed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"a refused-DELETE journey\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2435",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --test ui_e2e -- catalogs::a_refused_catalog_delete (passed)",
+          "summary": "Passed. Body: fail_next DELETE 409 'has unpublished changes'; after confirming it waits for the note text 'unpublished changes', #catalog-delete and #catalog-force not disabled, [data-catalog=main] still present, and main still found in the store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1421,
+                "end": 1445
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.660577934Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7a604fddb4df7e635e12a960c22b38696f1fcf4a265898a55418c8e880b21e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed and asserts reason note, enabled controls and catalog retained.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2435"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.118824866Z",
+          "seal": {
+            "by": "server",
+            "mac": "b949703ab2a43c148349492de682b24b5365ca8b70659f851e6572793326f026"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.118824866Z",
+      "seal": {
+        "by": "server",
+        "mac": "7bf00cff7e172619c85e96592788a10fbb0ed535a208fe029f5d703331c04d35"
+      }
+    },
+    {
+      "id": "CLM-1645",
+      "statement": "The API test delete_returns_before_the_bulk_data_is_cleaned_up passes and asserts that DELETE answers {name} while the documents and revisions are still on the store with the cleanup owed, an unrelated read works, a repeat is 404, and the cleanup then removes the data.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"API test that DELETE answers while the documents and revisions are still on the store with the cleanup owed, an unrelated read works, a repeat is 404, and the cleanup then removes the data\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2436",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --lib -- http::api::catalogs::tests::delete (2 passed, log target/i752-logs/audit-api.log)",
+          "summary": "delete_returns_before_the_bulk_data_is_cleaned_up passed. It seeds 500 docs/1500 revisions, asserts 200 and {name:main}, catalog lookup None, rows unchanged, store_cleanups count 1, unrelated GET 200, repeat DELETE 404, then settle_cleanups and rows == (0,0).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1495,
+                "end": 1588
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.752342633Z",
+          "seal": {
+            "by": "server",
+            "mac": "962c9353a7ac78646cad8bb91d3ff39678b0b0dfa5069198781564dbc4be1bca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed and the assertions match the claim item by item.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2436"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.204529990Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f58de86a227b094ed22e933865a1c907a8b0935b63ba74a06f01df93b83c44b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.204529990Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c5acdb8385e5f6fb86d22830d4dbe321fb0040754a1c7885fa5cc7f875be04b"
+      }
+    },
+    {
+      "id": "CLM-1646",
+      "statement": "The existing API authorization, not-found and force tests for catalog DELETE are unchanged by the diff (it only adds lines) and still pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"Existing authorization, not-found and force tests are unchanged and green.\"; issue criterion 4",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2437",
+          "kind": "test",
+          "locator": "git diff origin/main..HEAD -- src/http/api/catalogs.rs (95 insertions, 0 deletions); cargo test http::api::catalogs::tests::delete_refuses_unpublished_work_unless_forced (passed)",
+          "summary": "The diff to catalogs.rs only inserts one test module hunk, no existing line changed. Existing coverage remains: the role matrix (read 403, write 403, admin 200, stranger 404 for DELETE, ~line 1242), the 403/200 expectation list (~1810), and delete_refuses_unpublished_work_unless_forced (409 then forced 200), which passed in the narrow run. Store-level delete_refuses_unpublished_work_unless_forced exists at src/store/catalogs.rs:2996 (not rerun).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1591,
+                "end": 1632
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.845039285Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e48f06759316e4d4585c3fe7b23f1a9de308ac6d8ade6634b993eb81b585cab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff adds only; the role matrix covers 403/404 and the force test covers 409/200. I reran the API force test (passed) but not the full suite or the role-matrix tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2437"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.289699932Z",
+          "seal": {
+            "by": "server",
+            "mac": "3df075b8ef067c924b46c885e814759fc3949dacccd4e91ca00307d4a88fc635"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.289699932Z",
+      "seal": {
+        "by": "server",
+        "mac": "ec154ce26f6edfe2007f50cff71c6785940103b4074fa3641d9b884e4b87ce31"
+      }
+    },
+    {
+      "id": "CLM-1647",
+      "statement": "The PR makes no API contract change and adds no Apalis job: DELETE still answers {name} after the deletion commits, and no non-test source other than catalogs.js changes.",
+      "kind": "constraint",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"No change to the API contract. DELETE still answers `{name}` only after the deletion commits.\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "Cargo.toml"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2438",
+          "kind": "analysis",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "Files changed: changelog, docs/operations.md, src/http/api/catalogs.rs (test hunk only, after line 1492 inside mod tests), catalogs.js, tests/ui_e2e/catalogs.rs. Handler code (934-968) and Cargo.toml untouched; no apalis reference in catalogs.rs. Non-test source change is catalogs.js only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 934,
+                "end": 968
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:43.937339497Z",
+          "seal": {
+            "by": "server",
+            "mac": "e560c1b584fba3846ea573876b242c95e9e6310b0b4b7fac14b7a511460d1d09"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff stat shows no handler, Cargo or store source change; only a test hunk in catalogs.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2438"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.374983614Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ecda6210aec100c385c185a809dcb315e8c09f141d28508b87e49b0c6b02022"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.374983614Z",
+      "seal": {
+        "by": "server",
+        "mac": "e292183ec96c6912492412416eec3752770432d3c42581d49a836f392f6fabc5"
+      }
+    },
+    {
+      "id": "CLM-1648",
+      "statement": "docs/operations.md's DELETE /catalogs/{catalog} row says the answer comes once the deletion has committed and does not wait for the data to go.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`docs/operations.md` now says the answer does not wait for the data to go.\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2439",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4475",
+          "summary": "The DELETE row now reads 'answers {name} once the deletion has committed. The answer does not wait for the data to go: the request marks the catalog deleted and owes the store cleanup (Store cleanup), so its time does not grow with the catalog's documents and history.'",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4475,
+                "end": 4475
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:44.026723938Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ceda52a839b7659cdf4b662850123c94467b8857cf6b5e8beac335bf79715bd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Row text at line 4475 says so.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2439"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.459918125Z",
+          "seal": {
+            "by": "server",
+            "mac": "30fe7b8865d6c36315e9cdb03507c2a09ad56f63b0de956390123b4ac4712a07"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.459918125Z",
+      "seal": {
+        "by": "server",
+        "mac": "bbdf4f13728c53f13c448344fff299c6166bb96a08f4b7f5602cf6806c432b47"
+      }
+    },
+    {
+      "id": "CLM-1649",
+      "statement": "The reproduction and source of the delay are documented in the committed changelog entry, including that unrelated requests were unaffected.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #752 criterion 1",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "changelog/2026-11-26T08-10-29Z-issue-752-responsive-deletes.md"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2440",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T08-10-29Z-issue-752-responsive-deletes.md (Notes)",
+          "summary": "Notes section records the measured disposable catalog (20000 docs, 160000 revisions): DELETE 15 ms, cleanup 3.2 s, unrelated requests unaffected, handler does no settle/poll, and why no Apalis job. The reproduction harness itself is not committed, so the numbers cannot be rerun.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T08-10-29Z-issue-752-responsive-deletes.md",
+              "lines": {
+                "start": 21,
+                "end": 25
+              },
+              "commit": "dd6e174411343aab98dc962a5577fa9a3f3c5d8a"
+            }
+          },
+          "recorded_at": "2026-11-26T08:33:44.121561228Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f26bbc91c21bd1953af445e7a21c7407cbb5628660fb5af0bc6b0237af07bb0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog Notes document the measurement, source of delay and that unrelated requests were unaffected (the figures themselves are unverified, see the measurement claim).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2440"
+          ],
+          "recorded_at": "2026-11-26T08:34:18.544782156Z",
+          "seal": {
+            "by": "server",
+            "mac": "658f35272166aa83417c1004ab4063bb64f210cce593e7e60721a10e5962574c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.544782156Z",
+      "seal": {
+        "by": "server",
+        "mac": "fef79ad8b879443a27c4cde326c5c2a93f6fb01be2ebbdb6bb4759a00b3b7d05"
+      }
+    },
+    {
+      "id": "CLM-1650",
+      "statement": "Measurements: a 5000-doc catalog deletes in 12 ms and cleans up in 0.52 s, a 20000-doc catalog in 15 ms and 3.2 s, with unrelated GET p50 3.2-3.8 ms and max about 40 ms during the DELETE and about 5 ms during cleanup; the 40 ms maximum is the first probe request (cache warm-up).",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body Measurements table and its bullet \"The 40 ms maximum is the first probe request\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "target/i752-logs/pr-752-body.md"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The measurement test was temporary and is not in the commit; the figures cannot be reproduced from the repository. Structural facts the numbers rely on (request does no bulk work) are supported separately.  Fix: commit the measurement as an ignored test or a script under tools/ that seeds the catalog and prints the timings, then rerun it and compare.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T08:34:18.630174839Z",
+          "seal": {
+            "by": "server",
+            "mac": "f409bcc2507724675b7cec1176237194f9496fc490c158e19fb36f35e548cb27"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.630174839Z",
+      "seal": {
+        "by": "server",
+        "mac": "aa3ed97d458743691fff709478da8075ec76d4970571303352de95bee3dfbe38"
+      }
+    },
+    {
+      "id": "CLM-1651",
+      "statement": "Gate results: gate.sh fmt, lint, dylint pass; gate.sh test passes 3615 (second pass) with one unrelated first-pass failure; gate.sh test-ui passes 300 with 1 ignored.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation section",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "target/i752-logs/pr-752-body.md"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Full gate runs were not repeated in this audit (only narrow runs of the new and force tests, all passing). Fix: rerun tools/agentic/gate.sh fmt, lint, dylint, test and test-ui on the head commit and compare the counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T08:34:18.715244231Z",
+          "seal": {
+            "by": "server",
+            "mac": "db7066ca92c551fb318388ca74f9d3a7393abdb21745e7502b59c5c209097930"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.715244231Z",
+      "seal": {
+        "by": "server",
+        "mac": "bde584f447111564a8e615c39f6702a33a2d465390c71960648fb0a4383ca2ff"
+      }
+    },
+    {
+      "id": "CLM-1652",
+      "statement": "Reverting catalogs.js makes both new ui_e2e journeys fail.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"Reverting `catalogs.js` makes both new ui_e2e journeys fail.\"",
+      "derived_from": [
+        "CLM-1634"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:752"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Checking requires editing catalogs.js, which this audit may not do. Fix: git stash-free check: in a scratch worktree run git checkout origin/main -- src/http/ui/js/pages/catalogs.js and run the two catalogs:: ui_e2e journeys, expecting both to fail.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T08:34:18.801610947Z",
+          "seal": {
+            "by": "server",
+            "mac": "97322ae17dc7809449aec5723e2fe1923ae9c6505f7439be4625e88c7903c4ae"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T08:33:01.113504740Z",
+      "updated_at": "2026-11-26T08:34:18.801610947Z",
+      "seal": {
+        "by": "server",
+        "mac": "79c742e2f37d9f3b2e558f4a2e6b071d302290b1791ef11e7bbdbf45b786959c"
       }
     }
   ]

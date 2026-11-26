@@ -20,7 +20,7 @@
 ## Notes
 - A test process killed with SIGKILL still leaves its small
   `okf-ui-browser-*` folder (no `Drop` ran); its browser no longer survives.
-- Without `setpriv` (util-linux) the launcher starts the browser as before,
+- Without a `setpriv` (util-linux) that supports `--pdeathsig` (the launcher probes it first; older versions lack it) the launcher starts the browser as before,
   without the parent-death protection.
 - Reproduced before the fix: killing a journey's test binary with SIGKILL left
   its 7 browser processes running; after the fix none remain. A clean run left

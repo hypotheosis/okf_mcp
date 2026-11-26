@@ -103,17 +103,22 @@ impl Drop for BrowserHome {
 }
 
 /// The launcher script: runs `browser` with the arguments rustwright passes,
-/// under `setpriv --pdeathsig KILL` when `setpriv` (util-linux) is present.
+/// under `setpriv --pdeathsig KILL` when the installed `setpriv` (util-linux)
+/// supports that option. The script runs `setpriv --pdeathsig KILL true`
+/// first: older util-linux ships a `setpriv` without `--pdeathsig`, which
+/// would exit with an unrecognized-option error instead of starting the
+/// browser.
 /// `exec` replaces the shell, so the browser is the process rustwright
-/// started and the parent-death signal applies to it. Without `setpriv` the
-/// browser starts as usual, only without that protection.
+/// started and the parent-death signal applies to it. Without a capable
+/// `setpriv` the browser starts as usual, only without that protection.
 fn launcher_script(browser: &str) -> String {
     // Single quotes keep any character of the path literal; a quote inside
     // the path is closed, escaped and reopened.
     let quoted = format!("'{}'", browser.replace('\'', r"'\''"));
     format!(
         "#!/bin/sh\n\
-         if command -v setpriv >/dev/null 2>&1; then\n\
+         if command -v setpriv >/dev/null 2>&1 \\\n\
+         && setpriv --pdeathsig KILL true >/dev/null 2>&1; then\n\
          exec setpriv --pdeathsig KILL -- {quoted} \"$@\"\n\
          fi\n\
          exec {quoted} \"$@\"\n"
@@ -164,6 +169,46 @@ mod tests {
     fn the_launcher_quotes_a_path_with_a_quote() {
         let script = launcher_script("/opt/it's/chrome");
         assert!(script.contains(r"'/opt/it'\''s/chrome'"));
+    }
+
+    /// Runs the launcher for `/bin/echo` with `PATH` set to `path_dir` only,
+    /// and returns what it printed.
+    fn run_launcher_with_path(path_dir: &Path) -> String {
+        let home = BrowserHome::create("/bin/echo").expect("create");
+        let output = std::process::Command::new(home.launcher())
+            .arg("started")
+            .env("PATH", path_dir)
+            .output()
+            .expect("run the launcher");
+        assert!(
+            output.status.success(),
+            "the launcher failed: {:?}",
+            output.status
+        );
+        String::from_utf8_lossy(&output.stdout).trim().to_string()
+    }
+
+    #[test]
+    fn a_setpriv_without_pdeathsig_takes_the_direct_launch() {
+        // A `setpriv` that answers `--version` but rejects `--pdeathsig`,
+        // as older util-linux does.
+        let bin = tempfile::tempdir().expect("a folder for the fake");
+        let fake = bin.path().join("setpriv");
+        fs::write(
+            &fake,
+            "#!/bin/sh\ncase \"$1\" in\n--version) echo fake;;\n*) echo 'unrecognized option' >&2; exit 1;;\nesac\n",
+        )
+        .expect("write the fake");
+        fs::set_permissions(&fake, fs::Permissions::from_mode(0o755)).expect("chmod");
+
+        assert_eq!(run_launcher_with_path(bin.path()), "started");
+    }
+
+    #[test]
+    fn no_setpriv_takes_the_direct_launch() {
+        let empty = tempfile::tempdir().expect("an empty PATH folder");
+
+        assert_eq!(run_launcher_with_path(empty.path()), "started");
     }
 
     #[test]

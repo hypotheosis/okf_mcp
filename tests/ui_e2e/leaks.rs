@@ -74,8 +74,12 @@ async fn a_journey_leaves_no_profile_folder_and_no_browser_behind() {
 
 #[test]
 fn a_browser_dies_with_the_process_that_started_it() {
-    if Command::new("setpriv").arg("--version").output().is_err() {
-        eprintln!("skipping: setpriv (util-linux) is not installed");
+    if !Command::new("setpriv")
+        .args(["--pdeathsig", "KILL", "true"])
+        .status()
+        .is_ok_and(|status| status.success())
+    {
+        eprintln!("skipping: no setpriv with --pdeathsig (util-linux)");
         return;
     }
     // `sleep` stands in for the browser: the launcher runs it as it runs

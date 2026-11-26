@@ -4029,9 +4029,20 @@ when the request has no valid trace (telemetry off, or the span filtered out)
 and never sent as zeros. The failed credential lookup of the bearer-key middleware (MCP and archive
 routes) answers the same way. The OAuth routes' 500s carry it too, in their own
 shapes (see the OAuth section). No other error carries it, and no error carries the
-detail. The console shows it in its error toast. There is no `X-Trace-Id`
-header on responses: only a failure needs the id, and the body is where the
-console and API clients already read the error.
+detail. The console shows it in its error toast.
+
+Every response of a routed request also carries `X-Trace-Id`, the same 32 hex
+digits, so a user can quote the id of a slow or wrong-but-200 request, not
+only a failed one; on an error answer it equals the body's `trace_id`. Like
+the body field it is left off, never zeros, when the request has no valid
+trace (telemetry off, or the span filtered out). It is left off embedded
+static files (the console's and reader's scripts, styles, fonts, the
+reader's pages and worker), whose bytes are the same for every caller, so a
+cache or CDN cannot pin one caller's id on them, and off a request that
+matches no route (an unknown path), which has no request span. The OAuth
+discovery documents, the only cross-origin readable responses, send
+`Access-Control-Expose-Headers: x-trace-id`, so a browser client's script can
+read it; the console is same-origin and needs nothing.
 
 Every answer a route gives a signed-in caller also carries `X-OKF-Account`:
 16 hex digits of SHA-256 of a prefixed id (the user's id for a console

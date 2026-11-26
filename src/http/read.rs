@@ -24,7 +24,7 @@ use axum::{Json, Router};
 
 use crate::app::App;
 use crate::http::pages::escape;
-use crate::http::ui::{asset, console_file, content_type, security_headers};
+use crate::http::ui::{asset, console_file, content_type, security_headers, static_file};
 
 // Pastes build.rs's generated `READ_ASSETS` here, as if written in this
 // file (like a C `#include`).
@@ -163,14 +163,16 @@ fn product_name(app: &App) -> String {
 /// load.
 #[tracing::instrument(level = "trace", skip_all)]
 fn rendered(name: &str, body: String) -> Response {
-    (
-        [
-            (header::CONTENT_TYPE, content_type(name)),
-            (header::CACHE_CONTROL, "no-cache"),
-        ],
-        body,
+    static_file(
+        (
+            [
+                (header::CONTENT_TYPE, content_type(name)),
+                (header::CACHE_CONTROL, "no-cache"),
+            ],
+            body,
+        )
+            .into_response(),
     )
-        .into_response()
 }
 
 /// `GET /read/`: the page, named for the product.
@@ -249,14 +251,16 @@ async fn worker(State(app): State<Arc<App>>) -> Response {
     if source.is_empty() {
         return StatusCode::NOT_FOUND.into_response();
     }
-    (
-        [
-            (header::CONTENT_TYPE, "text/javascript; charset=utf-8"),
-            (header::CACHE_CONTROL, "no-cache"),
-        ],
-        source,
+    static_file(
+        (
+            [
+                (header::CONTENT_TYPE, "text/javascript; charset=utf-8"),
+                (header::CACHE_CONTROL, "no-cache"),
+            ],
+            source,
+        )
+            .into_response(),
     )
-        .into_response()
 }
 
 #[cfg(test)]

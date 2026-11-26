@@ -52,6 +52,32 @@ async fn fetch(
         .status()
 }
 
+/// Sends `GET uri` through the whole router and hands back the status, the
+/// headers and the body text.
+async fn fetch_full(
+    test: &TestApp,
+    uri: &str,
+    key: Option<&str>,
+) -> (StatusCode, axum::http::HeaderMap, String) {
+    let mut request = Request::get(uri);
+    if let Some(key) = key {
+        request = request.header("authorization", format!("Bearer {key}"));
+    }
+    let response = router(Arc::clone(&test.app), &CancellationToken::new())
+        .oneshot(request.body(Body::empty()).expect("request"))
+        .await
+        .expect("the router answers");
+    let (parts, body) = response.into_parts();
+    let bytes = axum::body::to_bytes(body, usize::MAX)
+        .await
+        .expect("the body");
+    (
+        parts.status,
+        parts.headers,
+        String::from_utf8_lossy(&bytes).into_owned(),
+    )
+}
+
 /// The text of every exported span, for "never contains" checks.
 fn dump(observed: &Observed) -> String {
     format!("{:?}", observed.spans)
@@ -827,4 +853,96 @@ async fn a_failing_health_probe_is_quiet_but_still_exported_as_an_error() {
         attribute(spans[0], "http.response.status_code"),
         Some(&503.into())
     );
+}
+
+/// Issue #1105: a 200 carries `X-Trace-Id`, the exported request span's
+/// trace id, on the MCP-adjacent API, a console page and a health probe;
+/// an embedded static file carries none (a cache would pin one id on it).
+#[tokio::test]
+async fn a_response_carries_the_request_spans_trace_id_header() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    for filter in FILTERS {
+        let mut answers = Vec::new();
+        let observed = observed(filter, async {
+            for (uri, key) in [
+                ("/api/v1/catalogs/main/health", Some(key.as_str())),
+                ("/healthz", None),
+                ("/ui/brand.json", None),
+                ("/ui/", None),
+                ("/read/sw.js", None),
+            ] {
+                answers.push((uri, fetch_full(&test, uri, key).await));
+            }
+        })
+        .await;
+        for (uri, (status, headers, _)) in &answers {
+            assert_eq!(*status, StatusCode::OK, "{filter} {uri}");
+            let is_static = *uri == "/ui/" || *uri == "/read/sw.js";
+            if is_static {
+                assert!(
+                    !headers.contains_key("x-trace-id"),
+                    "{filter} {uri}: a static file carries no trace id"
+                );
+                continue;
+            }
+            let name = match *uri {
+                "/api/v1/catalogs/main/health" => "GET /api/v1/catalogs/{catalog}/health".into(),
+                other => format!("GET {other}"),
+            };
+            let spans = observed.spans_named(&name);
+            let span = spans
+                .first()
+                .unwrap_or_else(|| panic!("{filter} {uri}: a span"));
+            assert_eq!(
+                headers["x-trace-id"].to_str().expect("ascii"),
+                span.span_context.trace_id().to_string(),
+                "{filter} {uri}"
+            );
+            assert_ne!(headers["x-trace-id"], "0".repeat(32), "{filter} {uri}");
+        }
+    }
+}
+
+/// Issue #1105: an error answer's header is the `trace_id` in its body.
+#[tokio::test]
+async fn an_error_response_header_equals_its_body_trace_id() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    crate::http::api::testing::fail_on(
+        test.app.accounts().executor(),
+        "BEFORE INSERT ON audit_entries FOR EACH ROW",
+    )
+    .await;
+    for filter in FILTERS {
+        let mut answer = None;
+        observed(filter, async {
+            answer = Some(fetch_full(&test, "/api/v1/catalogs/main/export", Some(&key)).await);
+        })
+        .await;
+        let (status, headers, text) = answer.expect("an answer");
+        assert_eq!(status, StatusCode::INTERNAL_SERVER_ERROR, "{filter}");
+        let body: serde_json::Value = serde_json::from_str(&text).expect("json");
+        assert_eq!(
+            body["trace_id"].as_str(),
+            headers["x-trace-id"].to_str().ok(),
+            "{filter}"
+        );
+    }
+    crate::http::api::testing::allow(test.app.accounts().executor(), "audit_entries").await;
+}
+
+/// Issue #1105: with no exported trace there is no header, never zeros.
+#[tokio::test]
+async fn a_response_has_no_trace_id_header_without_a_trace() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    for uri in [
+        "/api/v1/catalogs/main/health",
+        "/healthz",
+        "/api/v1/catalogs/nope/health",
+    ] {
+        let (_, headers, _) = fetch_full(&test, uri, Some(&key)).await;
+        assert!(!headers.contains_key("x-trace-id"), "{uri}: {headers:?}");
+    }
 }

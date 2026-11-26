@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1807,
+  "next_claim_seq": 1820,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "62fac0fe2e0d3b1fed962ff5453b4f00606c77a0b470d0dab6f1962a105b0cd3"
+    "mac": "6d1f5c15c39fd9103d82cb3f1573c9535eb96c221fed2162ffb0d0b962c25e41"
   },
-  "next_evidence_seq": 3326,
+  "next_evidence_seq": 3345,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e480dac625ce663e40a514b1553eafda4ecb263cbfc8c08dfe0c659079243a2c"
+    "mac": "586429382c632d37acb30dfff4e3c5ed633bdd9d511ce34ed9e186d378f7bd36"
   },
   "claims": [
     {
@@ -162887,6 +162887,28 @@
             "by": "server",
             "mac": "659fb28fbeb670ccddea2a1ede256b8c2dd1ab8ba55278e005aa00a52b37c7a5"
           }
+        },
+        {
+          "id": "EVD-3344",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:545-560,751-753",
+          "summary": "Re-read at head: request_trace_id still reads the REQUEST_SPAN task-local (try_with(trace_id_of), line 555) and request_telemetry still scopes the span around next.run (line 753); the diff only added code after it. The anchor moved because of edits above it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 545,
+                "end": 560
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:29.457431553Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e387af24aeb25e167d5f4158e328bb410088c95620be2b1bf758421cf673930"
+          }
         }
       ],
       "verdicts": [
@@ -162915,13 +162937,26 @@
             "by": "server",
             "mac": "c5c933fd40f9a76fe26db3f8819f07aa639155f3c610e9bf34d1567e6ceb80dd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the anchor changed: the task-local use is intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3344"
+          ],
+          "recorded_at": "2026-11-26T17:46:55.549483402Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fc461ba528fae13365e38536a8645a76f91235295813c1acfa2e1a7e95ec2bc"
+          }
         }
       ],
       "created_at": "2026-11-26T14:31:40.406953427Z",
-      "updated_at": "2026-11-26T17:12:50.846868466Z",
+      "updated_at": "2026-11-26T17:46:55.549483402Z",
       "seal": {
         "by": "server",
-        "mac": "365b9657806609b774d1d582436ce67c66a3355e55f5f5646a990cf04103dbbe"
+        "mac": "70b46fd8bc998e4d9d66d497fe14723ea398d91e7cb30e1d213c5bf991dd4c95"
       }
     },
     {
@@ -163113,7 +163148,9 @@
         "from-issue:1093"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by issue #1105, which deliberately adds X-Trace-Id.",
+        "retired_at": "2026-11-26T17:47:18.977065921Z"
       },
       "evidence": [
         {
@@ -163138,6 +163175,29 @@
             "by": "server",
             "mac": "6e818bdd28c0be38c631c039e71c9fc82e07cbe41a5f83ea165eb123b1e32a9c"
           }
+        },
+        {
+          "id": "EVD-3342",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:692,755-761; docs/operations.md:4034-4046",
+          "summary": "At head 78467fe, request_telemetry adds an X-Trace-Id header to routed responses and docs/operations.md documents it; the earlier search for x-trace-id in src now matches 12 lines (recheck: overturned).",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "x-trace-id",
+              "case_insensitive": true,
+              "scope": [
+                "src"
+              ],
+              "hits": 12,
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:29.205774720Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa90482065aaee08c49ce5d0279837ec36dc431d1976244efe858faa7f9fd675"
+          }
         }
       ],
       "verdicts": [
@@ -163153,13 +163213,26 @@
             "by": "server",
             "mac": "7b66fe82038d4d6d89ed0c5fc3c4e0d8242dd82241e135db92ea0cd7bbeef68a"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This PR adds the header the claim says is absent, so the earlier decision is superseded by issue #1105 (accepted). Fix: retire CLM-1777 as superseded by the #1105 work (the claim records a decision this PR reverses on purpose).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3342"
+          ],
+          "recorded_at": "2026-11-26T17:46:55.238179196Z",
+          "seal": {
+            "by": "server",
+            "mac": "93d6b9e92c02b71019bab369f06aba3150cb48e18134d9a4416a506faa96ef13"
+          }
         }
       ],
       "created_at": "2026-11-26T14:31:40.406953427Z",
-      "updated_at": "2026-11-26T14:32:33.189609123Z",
+      "updated_at": "2026-11-26T17:47:18.977065921Z",
       "seal": {
         "by": "server",
-        "mac": "9c38186d6d21fcb7b0411848d193daa116420960a5dc509bd8dd5e3104135cce"
+        "mac": "4edc18f0db97fad714bca894367276a7504a5b2ed68cd1dbb732c7419017e595"
       }
     },
     {
@@ -163970,15 +164043,17 @@
         "from-issue:1104"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Its statement says there is no X-Trace-Id header; superseded by issue #1105.",
+        "retired_at": "2026-11-26T17:47:19.213294689Z"
       },
       "evidence": [],
       "verdicts": [],
       "created_at": "2026-11-26T17:10:14.078008756Z",
-      "updated_at": "2026-11-26T17:10:14.078008756Z",
+      "updated_at": "2026-11-26T17:47:19.213294689Z",
       "seal": {
         "by": "server",
-        "mac": "e61520eab50224de0c5cc15b2095a863d9d412ed2686c47b64fe123a1c3c56ad"
+        "mac": "f71ddf45da1463d6ba96cf9f4e313d0d2fdbf420af7a587ae69e72f65b69fb6c"
       }
     },
     {
@@ -164585,7 +164660,9 @@
         "from-issue:1104"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by issue #1105, which deliberately adds X-Trace-Id.",
+        "retired_at": "2026-11-26T17:47:19.093224572Z"
       },
       "evidence": [
         {
@@ -164610,6 +164687,28 @@
             "by": "server",
             "mac": "db31e8a7d8711cec8c52dbd83c664c404305be1db0e4481b0e1bf7f3d8724fb5"
           }
+        },
+        {
+          "id": "EVD-3343",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:692,755-761",
+          "summary": "At head 78467fe, TRACE_ID_HEADER (x-trace-id) is defined and inserted in request_telemetry; the earlier absence search now matches 12 lines (recheck: overturned).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 755,
+                "end": 761
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:29.332502091Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d15443890c90b836eed1ddd20c48ba8f06c43c59c6221329e9a155b5ebae1bf"
+          }
         }
       ],
       "verdicts": [
@@ -164625,13 +164724,26 @@
             "by": "server",
             "mac": "17e6a4f62c9630104d9768639647d6b87768c36bd33078ab7f9030c00d50477b"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "request_telemetry now inserts X-Trace-Id; the constraint no longer holds because of this diff, as issue #1105 asks. Fix: retire CLM-1798 as superseded by the #1105 work.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3343"
+          ],
+          "recorded_at": "2026-11-26T17:46:55.391099997Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6376ff5fc7063b8e3e13785975ec12ddc4c32b1ea041d12c44eb10616a7d2b8"
+          }
         }
       ],
       "created_at": "2026-11-26T17:10:14.078008756Z",
-      "updated_at": "2026-11-26T17:12:49.850491054Z",
+      "updated_at": "2026-11-26T17:47:19.093224572Z",
       "seal": {
         "by": "server",
-        "mac": "497c8ed8bfc68498af695e82e5652ae6970d19f7375413bb58922db49898fe2b"
+        "mac": "498ba56cda3d233d5f8eb27264b699129ff8d0aa70b2501ef10c6d6d58dee4b1"
       }
     },
     {
@@ -165140,6 +165252,902 @@
       "seal": {
         "by": "server",
         "mac": "afb48efbbeb21a6d47d1a627f4c1327d96441ec690c4a7bc81f0c9120a4e758f"
+      }
+    },
+    {
+      "id": "CLM-1807",
+      "statement": "Issue #1105 is resolved: routed HTTP responses carry an X-Trace-Id header equal to the request span's trace id, omitted without a valid trace, with CORS exposure and /healthz and static-asset behavior settled, docs/operations.md updated, and tests added.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1105",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/http/ui.rs",
+        "src/http/read.rs",
+        "src/oauth/metadata.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:45:38.653817152Z",
+      "seal": {
+        "by": "server",
+        "mac": "b5e4dd187b7372e8432eea041c12ef42d09c3bcc46b29e84cac8839f3c8f566e"
+      }
+    },
+    {
+      "id": "CLM-1808",
+      "statement": "request_telemetry (src/http/mod.rs) inserts an X-Trace-Id response header whose value is telemetry::propagation::trace_id_of of the request span it also scopes in REQUEST_SPAN.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1105; PR: \"`request_telemetry` (src/http/mod.rs) sets `X-Trace-Id` from the request span, using `telemetry::propagation::trace_id_of`\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3326",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:748-763",
+          "summary": "request_telemetry clones Span::current() once, scopes that clone in REQUEST_SPAN around next.run, then inserts TRACE_ID_HEADER from trace_id_of(&span) on the response.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 748,
+                "end": 763
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.019270278Z",
+          "seal": {
+            "by": "server",
+            "mac": "56aba8059ceefc5e5701d6f7c74d581ae5f5b74f3bc2f2cb0d833402868dfc83"
+          }
+        },
+        {
+          "id": "EVD-3327",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- trace_id",
+          "summary": "Ran on head 78467fe: 15 passed, 0 failed, including http::telemetry_tests::a_response_carries_the_request_spans_trace_id_header, which compares the header to the exported span's trace id.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 858,
+                "end": 906
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.148183079Z",
+          "seal": {
+            "by": "server",
+            "mac": "bed4d13571b97e2034c316c64ddfefe637f66ba9ecdbc08e5b0e370399d23564"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads and the passing test show the header is the helper's trace id from the scoped span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3326",
+            "EVD-3327"
+          ],
+          "recorded_at": "2026-11-26T17:46:53.632581870Z",
+          "seal": {
+            "by": "server",
+            "mac": "5bd735e58e9688cc66db737063920b930061fbc98b42cfc672e11e343efc37cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:53.632581870Z",
+      "seal": {
+        "by": "server",
+        "mac": "2af5d87d2a53c5ac8b4ce0c083736bbf7953495b3e46dd23fbd910ad4799b1c7"
+      }
+    },
+    {
+      "id": "CLM-1809",
+      "statement": "The X-Trace-Id header is omitted, never sent as zeros, when the request span has no valid trace context.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1105; PR: \"it is omitted when the span has no valid trace context, never zeros\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3328",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:756-761; src/telemetry/propagation.rs:63-68",
+          "summary": "The insert sits inside `if let Some(trace_id) = trace_id_of(..)`; trace_id_of returns None unless span_context.is_valid(), so nothing is inserted and zeros cannot be sent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 755,
+                "end": 762
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.270738741Z",
+          "seal": {
+            "by": "server",
+            "mac": "bda838659e3092ff1014b1ac7640b8ff78a6fa5eb89a88f40c503f7a062aeaec"
+          }
+        },
+        {
+          "id": "EVD-3329",
+          "kind": "test",
+          "locator": "cargo: http::telemetry_tests::a_response_has_no_trace_id_header_without_a_trace",
+          "summary": "Passes (in the 15-test run). With no exporter installed it asserts no x-trace-id header on /api health, /healthz and a catalog-not-found API answer. It checks absence only, not a zero value, but the 200 test also asserts the header is not 32 zeros.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 935,
+                "end": 948
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.399913023Z",
+          "seal": {
+            "by": "server",
+            "mac": "b440087ad7e90fc2b2f938a0ac4edac26187e4146c06e04aa18975a71e21f43f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "trace_id_of yields None for an invalid context and the insert is guarded by it; the no-trace test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3328",
+            "EVD-3329"
+          ],
+          "recorded_at": "2026-11-26T17:46:53.751490256Z",
+          "seal": {
+            "by": "server",
+            "mac": "66a9f7a089005e8451cfd8e4124faf7f6d1bbbebac181f99a9efd0f0b1057cfc"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:53.751490256Z",
+      "seal": {
+        "by": "server",
+        "mac": "f360ab94fd639745fd6757411cdd947991cccd8620d80f74cb24cd16a56707ab"
+      }
+    },
+    {
+      "id": "CLM-1810",
+      "statement": "A 200 response carries an X-Trace-Id header equal to the trace id of the exported request span, tested for an API route, /healthz and /ui/brand.json at both span filters.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1105 tests: \"a 200 carries a header matching the exported request span's trace id\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3330",
+          "kind": "test",
+          "locator": "cargo: http::telemetry_tests::a_response_carries_the_request_spans_trace_id_header (gate.sh narrow --lib -- trace_id: 15 passed)",
+          "summary": "For each FILTERS value it fetches the health API, /healthz and /ui/brand.json, asserts 200, and asserts the x-trace-id header equals the exported span's span_context.trace_id() and is not zeros. Passes. It does not cover the MCP, OAuth or console-page routes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 858,
+                "end": 906
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.527023016Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bf6810ce1ad0d8daf25e8e850ec1fc15decedf91f0a61079f3d3062b9244dec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test passes and asserts equality with the exported span's trace id on three 200 routes at both filters.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3330"
+          ],
+          "recorded_at": "2026-11-26T17:46:53.859460514Z",
+          "seal": {
+            "by": "server",
+            "mac": "72112120b5af7ee1990f885913153d3cf41e44c03eed827d86e7dd89764050fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:53.859460514Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa6b6a6b5395c6554a546c4ad19c9dd877676ced3da8a9bf907f525c38a70475"
+      }
+    },
+    {
+      "id": "CLM-1811",
+      "statement": "On an internal error answer the X-Trace-Id header equals the body's trace_id.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR: \"On an error answer the header equals the body's `trace_id` (same span).\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3331",
+          "kind": "test",
+          "locator": "cargo: http::telemetry_tests::an_error_response_header_equals_its_body_trace_id",
+          "summary": "Forces a 500 on /api/v1/catalogs/main/export via a failing audit_entries trigger and, at each filter, asserts body trace_id equals the x-trace-id header. Passes. (If both were absent, as_str() None vs .to_str().ok() indexing would panic on the missing header, so both being present is enforced.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 907,
+                "end": 934
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.653982238Z",
+          "seal": {
+            "by": "server",
+            "mac": "62edf4b2260fdb5e58f9a673bb15a753749d6db5d8f129a5f5e5f606b3f13e7a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A forced 500 test passes and asserts the body trace_id equals the header.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3331"
+          ],
+          "recorded_at": "2026-11-26T17:46:53.966225172Z",
+          "seal": {
+            "by": "server",
+            "mac": "5f865285c0f7daf416597a5e94cc70c25e43a0f4f025ce6c20e44ad204fb7631"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:53.966225172Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c70d36b5c87c0522b0ba095fe9e3d2a207babf237e9e82cecd9a4d8323657e3"
+      }
+    },
+    {
+      "id": "CLM-1812",
+      "statement": "Embedded static files (console and reader assets, the reader's rendered pages and worker) carry no X-Trace-Id header, because they are marked with a StaticFile response extension that request_telemetry checks.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"Embedded static files (console and reader assets, the reader's rendered pages and worker) carry no header ... They are marked with a `StaticFile` response extension.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/ui.rs",
+        "src/http/read.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3332",
+          "kind": "inspection",
+          "locator": "src/http/ui.rs:94-118; src/http/read.rs:163-175,251-264; src/http/mod.rs:755",
+          "summary": "asset() (used by console and reader assets), rendered() (reader pages) and the reader worker all wrap their response in static_file(), which inserts the StaticFile extension; request_telemetry skips the header when that extension is present. The only other embedded-file reader, console_file, is a bytes accessor with no response path found.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui.rs",
+              "lines": {
+                "start": 94,
+                "end": 118
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.777664485Z",
+          "seal": {
+            "by": "server",
+            "mac": "073d5eda9eb667509d5b7b8a0716221fb736677bd1e5159d1fbbc0d08dac45fd"
+          }
+        },
+        {
+          "id": "EVD-3333",
+          "kind": "test",
+          "locator": "cargo: http::telemetry_tests::a_response_carries_the_request_spans_trace_id_header",
+          "summary": "Asserts /ui/ (asset) and /read/sw.js (asset) return 200 with no x-trace-id header. Passes. The reader rendered pages and the worker (read.rs:166,254) are not exercised by any test, only by code reading.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 868,
+                "end": 888
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:17.891449186Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b36b55a9ec50a2043d3a7dc4af5f0c5d259515fcc40b7356063372062c4b634"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All embedded-file response paths go through static_file; the middleware honors the marker; two are tested.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3332",
+            "EVD-3333"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.096880537Z",
+          "seal": {
+            "by": "server",
+            "mac": "5421c95add22f4896685e80289dc8e9f3969a7d3fa0d66f8fa5e63d4c0a1a44a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.096880537Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f0315a1e5f462206002bf33733a556e28443cb000bde0c2207b2a0c4af5311b"
+      }
+    },
+    {
+      "id": "CLM-1813",
+      "statement": "The OAuth discovery documents send Access-Control-Expose-Headers: x-trace-id, and no other response in src sets a CORS header.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"The OAuth discovery documents (the only cross-origin readable responses) send `Access-Control-Expose-Headers: x-trace-id`.\" and \"no other route is CORS-enabled\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/oauth/metadata.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3334",
+          "kind": "inspection",
+          "locator": "src/oauth/metadata.rs:173-184; git grep -iE 'access.control|cors' -- src",
+          "summary": "public() sets Access-Control-Expose-Headers: x-trace-id beside Allow-Origin *. The repo-wide search finds CORS headers only in src/oauth/metadata.rs (plus comments and the test).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "access.control|ACCESS_CONTROL|cors",
+              "case_insensitive": true,
+              "scope": [
+                "src"
+              ],
+              "hits": 6,
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.030429684Z",
+          "seal": {
+            "by": "server",
+            "mac": "1043598df18fd6fdae939d5f06c6ea27b795b0d2338d05fc41dad34020d3dbed"
+          }
+        },
+        {
+          "id": "EVD-3335",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- oauth::metadata (5 passed)",
+          "summary": "the_routes_serve_both_documents_at_every_path asserts access-control-expose-headers equals x-trace-id on every discovery path. Passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/metadata.rs",
+              "lines": {
+                "start": 288,
+                "end": 297
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.155520378Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff5c12976354d0f2c985e7670ca29f4f31dcb90abcc68ceeac39270d4d28cef1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The header is set in code, asserted by a passing test, and the only CORS header setter in src is the OAuth metadata module.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3334",
+            "EVD-3335"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.222695098Z",
+          "seal": {
+            "by": "server",
+            "mac": "af2f47d7f644022b75e555deade72b1cebe71cf1343e170b7b9dab5a6144a07b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.222695098Z",
+      "seal": {
+        "by": "server",
+        "mac": "15a836e8662a6ffffa34ad2c3596dbeba368dadeccfdeec308673be36ea81ce5"
+      }
+    },
+    {
+      "id": "CLM-1814",
+      "statement": "Every routed response (MCP, API, OAuth, console pages, /healthz) passes through request_telemetry, while a request matching no route gets no header because it has no request span.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR: \"Which responses: all routed responses (MCP, API, OAuth, console pages, /healthz), except embedded static files and unmatched routes\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3336",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:410-505,733-741",
+          "summary": "request_telemetry is a layer on the merged router that holds the MCP, keyed, OAuth, console, reader, signin, API and health routes, so all pass through it. For a request with no MatchedPath it returns next.run early, before any span or header code, so unmatched requests get none. (The no-span behavior is covered by the existing test an_unmatched_path_makes_no_span; header absence on a 404 is not tested directly.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 728,
+                "end": 741
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.268677196Z",
+          "seal": {
+            "by": "server",
+            "mac": "83a6ba7b773a72139df7eea4e2b1959fb254cdec95d80da8ee500a9ccfc85be1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The layer wraps every merged route and returns early with no header when no route matched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3336"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.346724538Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8b5127dc40644bbc5c370ab4321c91f411878f23e8b7545f96df6b1f954c45a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.346724538Z",
+      "seal": {
+        "by": "server",
+        "mac": "6f0c0668fbfd217acd9bcb77067c320dcebcc78c07cfc827aa5871c22728bd97"
+      }
+    },
+    {
+      "id": "CLM-1815",
+      "statement": "/healthz gets X-Trace-Id like any route, and probes usually have no exported trace so the header is then omitted.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"/healthz gets it like any route; probes usually have no exported trace, so it is then omitted.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3337",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:458-485; src/http/telemetry_tests.rs:858-906",
+          "summary": "/healthz is merged into the router below request_telemetry, so it gets the header when it has a valid trace (the 200 test shows it does under an exporter). The sentence that probes usually have no exported trace is an operational generalization the repository cannot confirm; the test only shows the header appears when spans are exported and is absent with no exporter.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 464,
+                "end": 482
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.384572336Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ce05956f962c05496b4b2f7e8f0ed4a0ff9f2edc7aa5af1e2a6d4925db006a5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The route gets the header like any other, but the claim that probes usually have no exported trace is an operational assumption the repo cannot confirm; the test exports a /healthz span with the header. Fix: reword the PR line to say /healthz gets the header whenever its request span is exported, and drop \"usually\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T17:46:54.455018227Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2b18b17e5fee1d6adc54323c6f0e822f39395b1863ac3c0e075693e4f430845"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.455018227Z",
+      "seal": {
+        "by": "server",
+        "mac": "9f26aa584df045b05ec44459949043908c23d3ef293d5321d014d33dfb687522"
+      }
+    },
+    {
+      "id": "CLM-1816",
+      "statement": "docs/operations.md no longer says there is no X-Trace-Id header and instead documents the header, its omission rules, the static-file and unmatched-route exceptions, and the OAuth discovery Access-Control-Expose-Headers.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"docs/operations.md replaces the \\\"no X-Trace-Id header\\\" text.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3338",
+          "kind": "inspection",
+          "locator": "docs/operations.md:4026-4046",
+          "summary": "The old \"There is no X-Trace-Id header\" sentence is gone; the new paragraph documents the header, equality with the body trace_id, omission without a trace, static-file and unmatched-route exceptions, and Access-Control-Expose-Headers on the OAuth discovery documents. A search shows no other doc says the header is absent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4026,
+                "end": 4046
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.510212702Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf05693bf6335ad7d88b18d5896af940a175795cec99a3c8a337a9df257626a9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The old sentence is replaced by a paragraph covering every listed point.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3338"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.608347428Z",
+          "seal": {
+            "by": "server",
+            "mac": "62eb99da3f613d8537997f5d4231e267f2983c88d91c2424e808077da9ad355b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.608347428Z",
+      "seal": {
+        "by": "server",
+        "mac": "b20628e2e29f0fef602f996219ded92248613da14141c07f6278e12fb61bd866"
+      }
+    },
+    {
+      "id": "CLM-1817",
+      "statement": "Reverting the header insert in request_telemetry makes the new 200 test fail.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR: \"Reverting the header insert makes the new 200 test fail.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3339",
+          "kind": "analysis",
+          "locator": "src/http/telemetry_tests.rs:889-905",
+          "summary": "For a non-static URI the test indexes headers[\"x-trace-id\"] (which panics when the header is missing) and compares it to the span trace id. So removing the insert fails the test. I did not run the revert, because source files must not be modified in this audit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 889,
+                "end": 905
+              },
+              "commit": "78467fe2072ea56aa4fe0623958d3dac9558fd60"
+            }
+          },
+          "recorded_at": "2026-11-26T17:46:18.638925772Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a5fbaf5697d173f9f2b33e8bc79e0a4fffe96932e9139cdb0625a5b0277bba7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading, the test indexes the header, so deleting the insert panics it. The revert itself was not run (no source edits allowed).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3339"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.764149421Z",
+          "seal": {
+            "by": "server",
+            "mac": "94ce6259afb38d9818fe5ef8d329e0a3a844d1728c6cff2180d79dd626419d04"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.764149421Z",
+      "seal": {
+        "by": "server",
+        "mac": "4fea43912ce568643ce4a892403e16ed234c632c13ffc14daae553c4fa04aa7f"
+      }
+    },
+    {
+      "id": "CLM-1818",
+      "statement": "gate.sh fmt, lint and dylint pass, gate.sh test passes 3673 tests with 20 skipped, and gate.sh mcpjam passes 5 files and 28 tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR Validation section: \"`gate.sh test`: 3673 passed, 20 skipped.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3340",
+          "kind": "analysis",
+          "locator": "tools/agentic/gate.sh fmt|lint|dylint|test|mcpjam (not rerun)",
+          "summary": "Not rerun: the audit brief forbids heavy gates. Only narrow runs were done (15 tests with filter trace_id, 5 in oauth::metadata, all passing), which cannot confirm the 3673/20 or 5-file/28-test counts or the lint results.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T17:46:18.785219495Z",
+          "seal": {
+            "by": "server",
+            "mac": "32eae57159e701053ee43786a220e46509a4d127163d6c7aceb1071644e2639d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Heavy gates were not rerun in this audit; narrow runs pass but cannot confirm the counts. Fix: author reruns tools/agentic/gate.sh fmt, lint, dylint, test and mcpjam on the final head and states their printed counts, or the CI results are cited.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3340"
+          ],
+          "recorded_at": "2026-11-26T17:46:54.921569046Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1e81f87b460f20a0a1cc28f535875a1233f713514cdf60a1f22c1479aaa88b4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:54.921569046Z",
+      "seal": {
+        "by": "server",
+        "mac": "244e901890d56f5a32075a862c977f920c30aad0c6a59f05d0b394a1e2f70cfa"
+      }
+    },
+    {
+      "id": "CLM-1819",
+      "statement": "test-ui and worker gates need not run because no console HTML/JS changed.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR: \"`test-ui` and `worker` not run: no console HTML/JS changed.\"",
+      "derived_from": [
+        "CLM-1807"
+      ],
+      "artifacts": [
+        "src/http/ui.rs"
+      ],
+      "tags": [
+        "from-issue:1105"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3341",
+          "kind": "log",
+          "locator": "git diff --name-only origin/main..HEAD | grep -E '\\.(html|js)$'",
+          "summary": "No .html or .js file is in the diff; changed files are docs, changelog and Rust sources only (the console assets are unchanged).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T17:46:18.943196132Z",
+          "seal": {
+            "by": "server",
+            "mac": "35f5a9baf4b906ba0a5d929284e0b8332387e3b23afe67b558f7b4992fdbcc4e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches no .html or .js file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3341"
+          ],
+          "recorded_at": "2026-11-26T17:46:55.081241302Z",
+          "seal": {
+            "by": "server",
+            "mac": "9789e41a757ebea3ed47a8e451900a9bb22061a30bfc6aa921faf5f614f89c75"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T17:45:38.653817152Z",
+      "updated_at": "2026-11-26T17:46:55.081241302Z",
+      "seal": {
+        "by": "server",
+        "mac": "72afc397df305437d8b73c02ee9e8d6d26c0fed77ac0f523274d9fde5a39c42c"
       }
     }
   ]

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1589,
+  "next_claim_seq": 1592,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "d0e9059e20fb4caf99715d260c371c07d33c79c78930429d3605a3c11f997dfc"
+    "mac": "8b790a68a96cd2731840321d03b2c0f0f292da3ec2b08b8896c502a076e00254"
   },
-  "next_evidence_seq": 2365,
+  "next_evidence_seq": 2370,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "0c1ca13d0754df61dafaac1f08b93ee97569821c0970cde9aa59824931c51d22"
+    "mac": "7f4dee726bb0f04e9324a8ee91022fc43dd59ff21e057eb5495bb6e832baa6c0"
   },
   "claims": [
     {
@@ -127702,6 +127702,28 @@
             "by": "server",
             "mac": "f92efa1fbe1a524b2926aea1b86a6cac68cd19cbcc52963e2e15c87f7688ea80"
           }
+        },
+        {
+          "id": "EVD-2369",
+          "kind": "demonstration",
+          "locator": "scripts/test-redis.sh:118-150 run() at 4aefa4d; real `test-redis.sh run bash -c ...`",
+          "summary": "After the line move and `$(set -e; up ...)` change, run() still execs when both variables are set, sets the EXIT trap before up, exports unset variables only and removes both containers on exit. A real run started both containers, exposed both URLs to the command and left no container behind (count back to 31).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 118,
+                "end": 150
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:31.980626797Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa3d827fe579a9d14cfe42096d40c3114dea386ec7483586c36ce4c3bbdee74e"
+          }
         }
       ],
       "verdicts": [
@@ -127717,13 +127739,26 @@
             "by": "server",
             "mac": "5ffb34642f88855ba8b71f18c79a93a6f2bf9b7e52ea99e1aaf525ed0cae4843"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the anchor changed: run() behaves as stated, now also verified by a real run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2369"
+          ],
+          "recorded_at": "2026-11-26T05:40:39.142842835Z",
+          "seal": {
+            "by": "server",
+            "mac": "badcba5eabdfadb68f749b8b401167d60fbfe0a2a8786672f01320e5687fdcee"
+          }
         }
       ],
       "created_at": "2026-11-26T05:22:38.816624754Z",
-      "updated_at": "2026-11-26T05:24:29.646244020Z",
+      "updated_at": "2026-11-26T05:40:39.142842835Z",
       "seal": {
         "by": "server",
-        "mac": "f3b799b5ce5f59b7dded370811a5ffd2a1ec0a8b6c989aae00d2d2c553b78ced"
+        "mac": "bf8228d6b7a331b89a7033f070e7fef4e5750773eff00a5d1610eed2349ca7c4"
       }
     },
     {
@@ -128983,6 +129018,218 @@
       "seal": {
         "by": "server",
         "mac": "e6ccb29b4dd79fe66cf0212bc53adf9e50867c57d30f89601acd64ec5f90ee37"
+      }
+    },
+    {
+      "id": "CLM-1589",
+      "statement": "test-redis.sh run exits nonzero, never runs CMD and removes both containers when the standalone Redis never answers PONG.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: `run` starts `up` as `$(set -e; up ...)` so a failed startup step stops the run",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-redis.sh",
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2365",
+          "kind": "test",
+          "locator": "python3 -m unittest -v scripts.test_test_servers (test_redis_not_ready_while_the_cluster_is_ready_stops_the_run)",
+          "summary": "Ran at 4aefa4d: \"Ran 2 tests ... OK\". The test asserts a nonzero exit, that the marker CMD did not run, that rm was called for both the standalone and the -cluster container, and that the stub's state is empty afterwards. Read the assertions in scripts/test_test_servers.py:77-98. The stub is a fake docker, so this is the script logic only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_test_servers.py",
+              "lines": {
+                "start": 77,
+                "end": 98
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:26.216612569Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c368bb997c5c7fb9c79999e151152c115e51d6f9ebce1c50a26072d8433294e"
+          }
+        },
+        {
+          "id": "EVD-2366",
+          "kind": "demonstration",
+          "locator": "scripts/test-redis.sh run bash -c 'echo ...' against real docker at 4aefa4d",
+          "summary": "The happy path still works: both URLs set, one redis:7.4-alpine and one valkey/valkey:8.1-alpine container were running during the command, and the labelled container count returned to 31 afterwards.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-redis.sh",
+              "lines": {
+                "start": 118,
+                "end": 150
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:26.303907256Z",
+          "seal": {
+            "by": "server",
+            "mac": "965f6cc437276623263a55e4381095153ede1ac30e7ddfe980c9d61efe936124"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The stub test passes and asserts all four parts; the real happy path still works.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2365"
+          ],
+          "recorded_at": "2026-11-26T05:40:38.892770981Z",
+          "seal": {
+            "by": "server",
+            "mac": "e524ff37cab1707b05e60e95c5968b92d8628b2ca42b817b83e4cf219d87f2b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:38.892770981Z",
+      "seal": {
+        "by": "server",
+        "mac": "d44e6978fa5c3524e25017e4cd627e381a5d4e60af5ab0c94468fcfd4ae7af17"
+      }
+    },
+    {
+      "id": "CLM-1590",
+      "statement": "test-pg.sh run exits nonzero and never runs CMD when `docker run` for Postgres fails.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: `TEST_PG_URL=$(set -e; up ...)` in test-pg.sh run",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test-pg.sh",
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2368",
+          "kind": "test",
+          "locator": "python3 -m unittest -v scripts.test_test_servers (test_a_failed_postgres_start_stops_the_run)",
+          "summary": "Passed at 4aefa4d: with the stub failing `docker run` for postgres, test-pg.sh run exits nonzero and the marker CMD does not run. The test does not check container removal (nothing was started).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_test_servers.py",
+              "lines": {
+                "start": 92,
+                "end": 97
+              },
+              "commit": "4aefa4d8c94ea496792b9fe3774f465c24521573"
+            }
+          },
+          "recorded_at": "2026-11-26T05:40:31.890649697Z",
+          "seal": {
+            "by": "server",
+            "mac": "43088441ff75f444c7645ebdfd86d883c4b28e38aca7a564c72d1ddfb851c536"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test passes: nonzero exit and CMD not run when docker run fails.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2368"
+          ],
+          "recorded_at": "2026-11-26T05:40:38.976320990Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c928c6d1325e8c22bbdc8cd7d007d069504d74e8a826a9712f8ebd0d8eef963"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:38.976320990Z",
+      "seal": {
+        "by": "server",
+        "mac": "33cf2165266eaf1b4b415c416bd32f0ae46a2e14967e3f4f2500abd66a4bf976"
+      }
+    },
+    {
+      "id": "CLM-1591",
+      "statement": "Both tests in scripts/test_test_servers.py fail when the `set -e;` is removed from the two `up` command substitutions, and pass with it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Review fix 4aefa4d: new regression tests whose revert-check shows 2 failures",
+      "derived_from": [
+        "CLM-1566"
+      ],
+      "artifacts": [
+        "scripts/test_test_servers.py"
+      ],
+      "tags": [
+        "from-issue:1045"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2367",
+          "kind": "test",
+          "locator": "scratch copy in the scratchpad: sed 's/$(set -e; up /$(up /' on both scripts, then python3 -m unittest -v scripts.test_test_servers",
+          "summary": "With the `set -e;` removed (both lines confirmed reverted by grep), both tests FAIL (\"0 == 0\": exit status 0 despite the failure; the redis case also printed \"redis-cli ... not ready after 1s\"). With it, both pass in the repo. The repo tree was not changed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T05:40:26.436665570Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c53b192f41097257a4c70345ef0e1a5431104f26a6fe867c94460d96818826f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Redid the revert on a scratch copy: both tests fail without `set -e;` and pass with it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2367"
+          ],
+          "recorded_at": "2026-11-26T05:40:39.059670978Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9afe4fe0437a6c9077a127543910b0a7d946e2b91ea774006d7127e7bb4f5d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T05:40:15.910175485Z",
+      "updated_at": "2026-11-26T05:40:39.059670978Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c40043e1b551fff124e1d0ad18fbda6c7da872cb8597262ef34d4f3d54b435b"
       }
     }
   ]

@@ -379,20 +379,20 @@ async fn callback(
         return page(&brand, &headers, StatusCode::BAD_REQUEST, SIGN_IN_RETRY);
     };
     let ip = client_ip(&parts, &app.config().auth);
-    // A re-authentication also needs a recent `auth_time` in the ID token,
-    // checked inside the token's verification.
+    // A re-authentication also needs a recent `auth_time` in the verified
+    // ID token; who answered is checked first, in `finish_reauth`.
     let identified = match &reauth {
         Some(_) => {
             oidc.identify_fresh(&provider, code, secrets, Instant::now(), app.clock().now())
                 .await
         }
-        None => {
-            oidc.identify(&provider, code, secrets, Instant::now())
-                .await
-        }
+        None => oidc
+            .identify(&provider, code, secrets, Instant::now())
+            .await
+            .map(|identity| (identity, true)),
     };
-    let identity = match identified {
-        Ok(identity) => identity,
+    let (identity, fresh) = match identified {
+        Ok(answer) => answer,
         Err(OidcError::Discovery { .. }) => {
             return page(
                 &brand,
@@ -400,24 +400,6 @@ async fn callback(
                 StatusCode::SERVICE_UNAVAILABLE,
                 UNAVAILABLE,
             )
-        }
-        // A genuine token that is not fresh: the person is told to sign out
-        // of the provider and back in, when the deletion asks for the proof.
-        Err(OidcError::AuthTimeStale(reason)) if reauth.is_some() => {
-            split_event!(
-                info,
-                { provider = %provider, },
-                { %reason, },
-                "OIDC re-authentication not fresh"
-            );
-            let Some(reauth) = reauth else {
-                return page(&brand, &headers, StatusCode::BAD_REQUEST, REAUTH_RETRY);
-            };
-            return match finish_reauth(&app, &parts, &provider, None, reauth).await {
-                Ok(Done::Redirect { to, .. }) => (headers, Redirect::to(&to)).into_response(),
-                Ok(Done::Refused(status, message)) => page(&brand, &headers, status, message),
-                Err(error) => AppError(error).into_response(),
-            };
         }
         Err(error) => {
             split_event!(
@@ -438,7 +420,7 @@ async fn callback(
     let done = match (link, reauth) {
         (Some(link), _) => finish_link(&app, &parts, &provider, &identity, link).await,
         (None, Some(reauth)) => {
-            finish_reauth(&app, &parts, &provider, Some(&identity), reauth).await
+            finish_reauth(&app, &parts, &provider, &identity, fresh, reauth).await
         }
         (None, None) => finish_sign_in(&app, &parts, &provider, &identity, return_to).await,
     };
@@ -616,7 +598,10 @@ async fn linking_user<'a>(
 ///   ([`flow_user`]); and
 /// - the verified ID token's subject is exactly the identity the flow was
 ///   started for (another identity, even one linked to the same user,
-///   proves nothing).
+///   proves nothing), whether or not its `auth_time` is fresh.
+///
+/// A right identity with a stale `auth_time` keeps a stale marker instead,
+/// which makes the deletion answer `ReauthStale`.
 ///
 /// What the deletion needs is checked again, under the user's row lock, by
 /// `users::delete_own`.
@@ -625,7 +610,8 @@ async fn finish_reauth(
     app: &Arc<App>,
     parts: &Parts,
     provider: &str,
-    identity: Option<&Identity>,
+    identity: &Identity,
+    fresh: bool,
     reauth: ReauthRequest,
 ) -> Result<Done, OkfError> {
     let refused = || Ok(Done::Refused(StatusCode::BAD_REQUEST, REAUTH_RETRY));
@@ -635,10 +621,10 @@ async fn finish_reauth(
     let Some((_, _)) = flow_user(app, parts, &reauth.user_id, &reauth.session_hash).await? else {
         return refused();
     };
-    // `None`: the token was genuine but not fresh; only that fact is kept.
-    let same_identity = identity.is_none_or(|identity| {
-        bool::from(identity.subject.as_bytes().ct_eq(reauth.subject.as_bytes()))
-    });
+    // Who answered comes before how fresh it is: another identity gets the
+    // generic refusal and leaves nothing behind, so a wrong account is never
+    // told that signing in again would help.
+    let same_identity = bool::from(identity.subject.as_bytes().ct_eq(reauth.subject.as_bytes()));
     if !same_identity {
         split_event!(
             info,
@@ -651,13 +637,10 @@ async fn finish_reauth(
     let proof = ReauthProof {
         user_id: reauth.user_id,
         provider: provider.to_string(),
-        subject: if identity.is_some() {
-            reauth.subject
-        } else {
-            String::new()
-        },
+        // A stale outcome keeps no identity, only the fact that it was stale.
+        subject: if fresh { reauth.subject } else { String::new() },
         session_hash: reauth.session_hash,
-        stale: identity.is_none(),
+        stale: !fresh,
     };
     if !oidc.store_reauth_proof(proof, Instant::now()).await? {
         return Err(OkfError::Busy {
@@ -1731,6 +1714,23 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
+    async fn an_auth_time_four_minutes_old_is_inside_the_window_and_deletes() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_FOUR").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(240));
+
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        let back = callback(&test, &mut browser, &query["state"]).await;
+        let deleted = delete_with_reauth(&test, &mut browser).await;
+
+        assert_eq!(back.status, StatusCode::SEE_OTHER, "{}", back.text());
+        assert_eq!(back.location(), "/ui/#/account");
+        assert_eq!(deleted.status, StatusCode::NO_CONTENT, "{}", deleted.text());
+        assert_eq!(user_count(&test, &id).await, 0);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
     async fn a_sign_in_start_never_asks_for_a_fresh_login() {
         let idp = idp::start().await;
         let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_PLAIN").await;
@@ -1818,22 +1818,34 @@ mod tests {
         .await
         .expect("link bob's identity");
 
-        // bob's identity (linked to a user), and one nobody has linked.
+        // bob's identity (linked to a user), and one nobody has linked, each
+        // with a fresh, an absent and a stale `auth_time`: who answered is
+        // judged before how fresh it was, so the wrong account is never told
+        // that signing in again would help.
         for subject in ["sub-2", "sub-9"] {
-            idp.will_issue(subject, Some("alice@example.com"), Some(true));
-            idp.will_authenticate(ago(5));
-            let query = start_reauth(&test, &idp, &mut browser).await;
-            let back = callback(&test, &mut browser, &query["state"]).await;
-            let deleted = delete_with_reauth(&test, &mut browser).await;
+            for (what, auth_time) in [
+                ("fresh", ago(5)),
+                ("absent", AuthTime::Absent),
+                ("stale", ago(3600)),
+            ] {
+                idp.will_issue(subject, Some("alice@example.com"), Some(true));
+                idp.will_authenticate(auth_time);
+                let query = start_reauth(&test, &idp, &mut browser).await;
+                let back = callback(&test, &mut browser, &query["state"]).await;
+                let deleted = delete_with_reauth(&test, &mut browser).await;
 
-            assert_eq!(
-                back.status,
-                StatusCode::BAD_REQUEST,
-                "{subject}: {}",
-                back.text()
-            );
-            assert!(back.text().contains(REAUTH_RETRY), "{subject}");
-            assert_eq!(deleted.status, StatusCode::GONE, "{subject}");
+                assert_eq!(
+                    back.status,
+                    StatusCode::BAD_REQUEST,
+                    "{subject} {what}: {}",
+                    back.text()
+                );
+                assert!(back.text().contains(REAUTH_RETRY), "{subject} {what}");
+                // No marker either: nothing is waiting, and it is not
+                // `ReauthStale`.
+                assert_eq!(deleted.status, StatusCode::GONE, "{subject} {what}");
+                assert_ne!(deleted.json()["error"], "ReauthStale", "{subject} {what}");
+            }
         }
         assert_eq!(user_count(&test, &id).await, 1);
         assert_eq!(user_count(&test, &bob.id).await, 1);

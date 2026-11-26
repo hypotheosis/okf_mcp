@@ -13,8 +13,8 @@
   row lock by `users::delete_own` (the identity must still be linked).
 - The ID token must carry an `auth_time` within
   `oidc::REAUTH_AUTH_TIME_WINDOW` (5 minutes) of the callback and at most a
-  minute ahead of the server clock; checked inside the crate's own ID-token
-  verification (`set_auth_time_verifier_fn`), after the signature, issuer,
+  minute ahead of the server clock; judged on the verified ID token
+  (`identify_fresh`), after the signature, issuer,
   audience, nonce and expiry checks. A missing `auth_time` is refused.
 - Account page: the delete section offers "Re-authenticate with <provider>"
   for a linked account, then "Delete my account" after the return, instead
@@ -53,3 +53,9 @@
 - Account page: that message in `#account-delete-reason` (`data-kind`
   `ReauthStale`) and a "Try again" re-authenticate button; other refusals
   stay generic.
+
+## Changed (review of PR 1097)
+- `identify_fresh` no longer fails the verification on a stale
+  `auth_time`: it returns the verified identity and whether it is fresh,
+  and `finish_reauth` compares the subject first. Another identity gets the
+  generic refusal and no marker, whatever its `auth_time`.

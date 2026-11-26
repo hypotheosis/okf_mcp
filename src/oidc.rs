@@ -17,9 +17,9 @@ use openidconnect::core::{
     CoreAuthPrompt, CoreAuthenticationFlow, CoreClient, CoreProviderMetadata,
 };
 use openidconnect::{
-    AuthorizationCode, ClaimsVerificationError, ClientId, ClientSecret, CsrfToken,
-    EndpointMaybeSet, EndpointNotSet, EndpointSet, HttpRequest, HttpResponse, IssuerUrl, Nonce,
-    PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, Scope, TokenResponse,
+    AuthorizationCode, ClientId, ClientSecret, CsrfToken, EndpointMaybeSet, EndpointNotSet,
+    EndpointSet, HttpRequest, HttpResponse, IssuerUrl, Nonce, PkceCodeChallenge, PkceCodeVerifier,
+    RedirectUrl, Scope, TokenResponse,
 };
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
@@ -104,10 +104,6 @@ pub enum OidcError {
     /// The ID token is missing or did not verify.
     #[error("the ID token was refused: {0}")]
     IdToken(String),
-    /// A re-authentication's ID token verified in every other respect, but
-    /// its `auth_time` is missing, too old or in the future.
-    #[error("the ID token's auth_time is not fresh: {0}")]
-    AuthTimeStale(String),
 }
 
 impl From<OidcError> for OkfError {
@@ -125,7 +121,7 @@ impl From<OidcError> for OkfError {
                 path: format!("auth/oidc/{id}"),
             },
             OidcError::Discovery { .. } => OkfError::Busy { reason: message },
-            OidcError::Exchange(_) | OidcError::IdToken(_) | OidcError::AuthTimeStale(_) => {
+            OidcError::Exchange(_) | OidcError::IdToken(_) => {
                 OkfError::Unauthenticated { reason: message }
             }
         }
@@ -844,22 +840,31 @@ impl OidcProviders {
         secrets: FlowSecrets,
         now: Instant,
     ) -> Result<Identity, OidcError> {
-        self.identify_checked(id, code, secrets, now, None).await
+        self.identify_checked(id, code, secrets, now)
+            .await
+            .map(|(identity, _)| identity)
     }
 
     /// As [`Self::identify`], for a re-authentication: the same verification
-    /// (signature, issuer, audience, nonce, expiry), and the ID token must
-    /// also carry an `auth_time` at most [`REAUTH_AUTH_TIME_WINDOW`] before
-    /// `clock_now` (and not in the future beyond a minute of skew). A token
-    /// without `auth_time` is refused: a provider that ignored `max_age=0`
-    /// proves nothing unless it says when the person last authenticated.
+    /// (signature, issuer, audience, nonce, expiry), then the verified
+    /// token's `auth_time` is judged: the answer is `true` only when it is
+    /// at most [`REAUTH_AUTH_TIME_WINDOW`] before `clock_now` (and not in the
+    /// future beyond a minute of skew). A token without `auth_time` is not
+    /// fresh: a provider that ignored `max_age=0` proves nothing unless it
+    /// says when the person last authenticated.
+    ///
+    /// The identity comes back whether or not the token is fresh, so the
+    /// caller can check WHO answered before it says anything about
+    /// freshness.
     ///
     /// # Arguments
     /// As [`Self::identify`]; `clock_now` - the server clock's present.
     ///
+    /// # Returns
+    /// The verified identity, and whether its `auth_time` is fresh.
+    ///
     /// # Errors
-    /// As [`Self::identify`]; [`OidcError::IdToken`] when `auth_time` is
-    /// missing, too old or in the future.
+    /// As [`Self::identify`].
     #[tracing::instrument(level = "debug", skip_all)]
     pub async fn identify_fresh(
         &self,
@@ -868,14 +873,14 @@ impl OidcProviders {
         secrets: FlowSecrets,
         now: Instant,
         clock_now: DateTime<Utc>,
-    ) -> Result<Identity, OidcError> {
-        self.identify_checked(id, code, secrets, now, Some(clock_now))
-            .await
+    ) -> Result<(Identity, bool), OidcError> {
+        let (identity, auth_time) = self.identify_checked(id, code, secrets, now).await?;
+        Ok((identity, check_auth_time(auth_time, clock_now).is_ok()))
     }
 
     /// The code exchange and ID-token verification both public methods
-    /// share; `fresh_at` adds the `auth_time` check inside the crate's own
-    /// verification, so no claim is read before the signature has passed.
+    /// share. Returns the verified token's `auth_time` beside the identity;
+    /// nothing is read from the token before its signature has passed.
     #[tracing::instrument(level = "debug", skip_all)]
     async fn identify_checked(
         &self,
@@ -883,8 +888,7 @@ impl OidcProviders {
         code: String,
         secrets: FlowSecrets,
         now: Instant,
-        fresh_at: Option<DateTime<Utc>>,
-    ) -> Result<Identity, OidcError> {
+    ) -> Result<(Identity, Option<DateTime<Utc>>), OidcError> {
         let client = self.client(id, now).await?;
         let http = |request: HttpRequest| send(self.http.clone(), request);
         let tokens = client
@@ -899,34 +903,21 @@ impl OidcProviders {
             .id_token()
             .ok_or_else(|| OidcError::IdToken("the provider sent no ID token".to_string()))?;
         let nonce = Nonce::new(secrets.nonce);
-        let mut verifier = client.id_token_verifier();
-        if let Some(clock_now) = fresh_at {
-            // `move`: the closure owns the (Copy) instant it compares with.
-            verifier = verifier
-                .set_auth_time_verifier_fn(move |auth_time| check_auth_time(auth_time, clock_now));
-        }
         let claims = id_token
-            .claims(&verifier, &nonce)
-            .map_err(|error| match error {
-                // The crate checks the signature, issuer, audience, expiry
-                // and nonce before `auth_time`, so this one is a genuine
-                // token that is not fresh.
-                ClaimsVerificationError::InvalidAuthTime(reason) => {
-                    OidcError::AuthTimeStale(reason)
-                }
-                other => OidcError::IdToken(other.to_string()),
-            })?;
+            .claims(&client.id_token_verifier(), &nonce)
+            .map_err(|error| OidcError::IdToken(error.to_string()))?;
         let subject = claims.subject().as_str();
         if !valid_subject(subject) {
             return Err(OidcError::IdToken(
                 "its subject is empty, too long or holds a control character".to_string(),
             ));
         }
-        Ok(Identity {
+        let identity = Identity {
             subject: subject.to_string(),
             email: claims.email().map(|email| email.as_str().to_string()),
             email_verified: claims.email_verified() == Some(true),
-        })
+        };
+        Ok((identity, claims.auth_time()))
     }
 }
 
@@ -935,7 +926,7 @@ impl OidcProviders {
 /// [`REAUTH_CLOCK_SKEW`] after it.
 ///
 /// # Errors
-/// The reason, for the crate to wrap in its verification error.
+/// The reason it is not fresh.
 #[cfg_attr(
     dylint_lib = "hyp_tracing",
     allow(

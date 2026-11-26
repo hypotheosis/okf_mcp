@@ -1314,6 +1314,11 @@ impl ToolContext {
     /// [`ToolContext::listed_state`] for a page's rows, loading up to
     /// [`LISTING_LOAD_CONCURRENCY`] at once.
     ///
+    /// The first row of each store loads first (the stores concurrently),
+    /// then the rest: a store that is lost is marked down by its first row,
+    /// so the others on it are refused from the down set without a connect
+    /// attempt each, as a call probes a lost store once.
+    ///
     /// # Arguments
     /// * `rows` - the listed catalogs' rows, in page order.
     ///
@@ -1325,13 +1330,29 @@ impl ToolContext {
         &self,
         rows: &[&Arc<CatalogRow>],
     ) -> Vec<Result<Option<Arc<CatalogState>>, OkfError>> {
-        // A loop, not `rows.iter().map(..)`: a closure returning a borrowing
+        let mut seen = std::collections::HashSet::new();
+        let (heads, tails): (Vec<usize>, Vec<usize>) =
+            (0..rows.len()).partition(|&at| seen.insert(rows[at].store.as_str()));
+        // Loops, not `iter().map(..)`: a closure returning a borrowing
         // future makes the handlers' futures fail Axum's `Send` check.
-        let mut loads = Vec::with_capacity(rows.len());
-        for row in rows {
-            loads.push(self.listed_state(row));
+        let mut results: Vec<Option<Result<Option<Arc<CatalogState>>, OkfError>>> =
+            std::iter::repeat_with(|| None).take(rows.len()).collect();
+        for wave in [heads, tails] {
+            let mut loads = Vec::with_capacity(wave.len());
+            for &at in &wave {
+                loads.push(self.listed_state(rows[at]));
+            }
+            for (at, result) in wave
+                .into_iter()
+                .zip(buffered_in_order(loads, LISTING_LOAD_CONCURRENCY).await)
+            {
+                results[at] = Some(result);
+            }
         }
-        buffered_in_order(loads, LISTING_LOAD_CONCURRENCY).await
+        results
+            .into_iter()
+            .map(|result| result.expect("every row is in the heads or the tails"))
+            .collect()
     }
 
     /// The state of `row`'s catalog for this call, resolved and held (with

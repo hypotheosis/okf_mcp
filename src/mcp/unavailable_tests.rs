@@ -665,3 +665,31 @@ async fn a_readable_listing_over_several_scan_pages_spends_one_load_bound_on_a_s
     );
     lock.rollback().await.unwrap();
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn listed_states_answers_in_page_order_across_stores() {
+    // Arrange: rows on two stores, interleaved, so the first row of each store
+    // loads in a different wave from the rest.
+    let test = app_with(&[("home", &[("note.md", HOME_NOTE)])], Config::default()).await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote-1", &[("note.md", REMOTE_NOTE)])
+        .await;
+    test.catalog_on_store(&store, "remote-2", &[("note.md", REMOTE_NOTE)])
+        .await;
+    let ctx = context(&test, principal(&[], None), None);
+    let mut rows = Vec::new();
+    for name in ["remote-1", "home", "remote-2"] {
+        rows.push(test.app.catalog_row(name).await.unwrap().unwrap());
+    }
+    let page: Vec<_> = rows.iter().collect();
+
+    // Act
+    let states = bounded(ctx.listed_states(&page)).await;
+
+    // Assert
+    let names: Vec<_> = states
+        .into_iter()
+        .map(|state| state.unwrap().unwrap().name().to_string())
+        .collect();
+    assert_eq!(names, ["remote-1", "home", "remote-2"]);
+}

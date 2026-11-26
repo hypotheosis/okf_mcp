@@ -19,3 +19,4 @@
 - The overlay cache key (published generation, changeset version) already covers the replayed
   view: it depends on the published bytes, and any publish bumps the generation.
 - A replay whose text cannot be read back falls back to the stored text with a `replay_error`.
+- `get_concept` and `search` show the replayed view (a concept's stamp, review, question or source edits replay too) but get no `replayed` marker: the investigator contract (`src/investigator/contract_tools.json`) pins `get_concept`'s output schema, so a new field would break it.

@@ -733,6 +733,16 @@ mod tests {
         assert_eq!(status, 200, "{nothing}");
         assert_eq!(nothing["published"], false);
         assert_eq!(nothing["revisions"], json!([]));
+        assert!(
+            nothing["reason"]
+                .as_str()
+                .is_some_and(|reason| reason.contains("same turn")),
+            "an empty publish says why and names the parallel-call case: {nothing}"
+        );
+        assert!(
+            unchanged.get("reason").is_none(),
+            "a no-op publish has no reason"
+        );
         assert!(listed(&test, &keys.admin, &empty).await, "it stays open");
         assert_eq!(closed, 200, "{unchanged}");
         assert_eq!(unchanged["published"], true);

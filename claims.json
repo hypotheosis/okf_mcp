@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1683,
+  "next_claim_seq": 1695,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c4e68ac9f1af49a07d85845efc945c281c1e3862b0631249ea590194a1949cc9"
+    "mac": "6da6f9114f9e0f5aecb1968297b3e414098c64ab829f23004ee4c3530e22c007"
   },
-  "next_evidence_seq": 2482,
+  "next_evidence_seq": 2495,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "14ea012a6e5f2fe5b7c5cafa009c2d4ea6f5390de5fe188b3b0064aea04fea6d"
+    "mac": "ce66ed8550880218e344a80660c116a856152b42ab10895c35180d659e6f6aa0"
   },
   "claims": [
     {
@@ -18925,6 +18925,28 @@
             "by": "server",
             "mac": "eb49753c79cd2798c891a005eb8a2af82ea4bf19b16fe65c45f722b5274c83af"
           }
+        },
+        {
+          "id": "EVD-2492",
+          "kind": "test",
+          "locator": "src/mcp/changesets.rs:571,594-600; src/http/api/changesets.rs:734-735",
+          "summary": "At head, publish still returns published: false (from PublishReport, flattened) for a changeset with no entries, now with an added `reason`; the HTTP test asserts published == false and revisions == [] for it. The old anchor (380-402) changed because lines moved and gained the reason field, not because the behavior changed. Test not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/changesets.rs",
+              "lines": {
+                "start": 733,
+                "end": 736
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:33.029431744Z",
+          "seal": {
+            "by": "server",
+            "mac": "aca9b6af552cf8623821e6643d90eb4a42583d7bdd1987590fedfa374f85fc96"
+          }
         }
       ],
       "verdicts": [
@@ -18940,13 +18962,26 @@
             "by": "server",
             "mac": "aea9a59389e4824e6bd32170f4c671991e38beb3cb27057baf708913c95282ca"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 168c4f0: the diff moved and extended the anchored lines, but published: false for an empty changeset is unchanged and now has a test assertion.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2492"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.438526903Z",
+          "seal": {
+            "by": "server",
+            "mac": "3bfc471ea83a477564fb3fa4a5371dd443f39752e26a19308d2bcc514a8b5781"
+          }
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-21T19:10:10.892883976Z",
+      "updated_at": "2026-11-26T09:40:55.438526903Z",
       "seal": {
         "by": "server",
-        "mac": "e9666975ed3769a0d550e956d1be48ae082f6f8110879be45c7ab0be54efc633"
+        "mac": "92b8b07c78a45a8415d7696b7cf9b894dd67344fd9449ce848765acba25bcdf4"
       }
     },
     {
@@ -34082,6 +34117,28 @@
             "by": "server",
             "mac": "d2494dccb5765c4ba9db5e2c1f646869bb66bd8a915f080e1776a06acf5250bb"
           }
+        },
+        {
+          "id": "EVD-2493",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:82-84",
+          "summary": "At head INSTRUCTIONS still ends \"When the person asks you to remember something, save it to the catalog (under a fitting folder) rather than only in the conversation; asking is their consent, so don't ask again. Don't save what they didn't ask you to keep.\" The #758 sentence was inserted earlier in the constant; these lines are unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 81,
+                "end": 84
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:33.117880899Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c18b8bcce220a68ae597b2a276e96e0df7fee408c39e6789180a162093827dc"
+          }
         }
       ],
       "verdicts": [
@@ -34097,13 +34154,26 @@
             "by": "server",
             "mac": "b6cc47ffc72193217da552a70a17a6438d5d1452af78054243d6cbe1ea8c9d67"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 168c4f0: remember sentence unchanged, only moved down by the inserted sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2493"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.527280909Z",
+          "seal": {
+            "by": "server",
+            "mac": "a1bf584425157f9ac2ac5c4742578cb6da6c8b8d9443f2be2b9373bc9541f5ed"
+          }
         }
       ],
       "created_at": "2026-11-22T17:14:04.239695477Z",
-      "updated_at": "2026-11-22T17:14:26.790385761Z",
+      "updated_at": "2026-11-26T09:40:55.527280909Z",
       "seal": {
         "by": "server",
-        "mac": "0f92e82c71c160308666b9a8cdfcaa3a9f915e7de231b460a3bbb543e9b3510b"
+        "mac": "f63a8bd7ba5df247e9c54a8ce872ac265b548044e25171efaf65d10378d4d998"
       }
     },
     {
@@ -34282,6 +34352,28 @@
             "by": "server",
             "mac": "1735fec8a48e7e02d48aabd430e6ed085350f8bb0e61fb08c82a9c5dd88c9f57"
           }
+        },
+        {
+          "id": "EVD-2494",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:82-84; src/mcp/reference.rs:44-47",
+          "summary": "At head the save instruction is still conditional on a request and followed by \"Don't save what they didn't ask you to keep.\"; the new #758 sentence only concerns call ordering and does not tell the model to save anything.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 81,
+                "end": 84
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:33.214188211Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf04d13c1d85538dfd2590d5b177a0d77080d12084e20b4bf837eb46d561fb18"
+          }
         }
       ],
       "verdicts": [
@@ -34297,13 +34389,26 @@
             "by": "server",
             "mac": "d7a50e5c043cfacc6f0ddd6802ad729109522828d88f527f7d3743bf3e8919ec"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 168c4f0: still conditional with an explicit prohibition; the new sentence adds no save instruction.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2494"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.615745725Z",
+          "seal": {
+            "by": "server",
+            "mac": "c412364a85a6f3a61ed97c37952a848634a4d04bf34c38e741f9358b04957849"
+          }
         }
       ],
       "created_at": "2026-11-22T17:14:04.239695477Z",
-      "updated_at": "2026-11-22T17:14:26.879661776Z",
+      "updated_at": "2026-11-26T09:40:55.615745725Z",
       "seal": {
         "by": "server",
-        "mac": "7019145333a905c241ada446e74038135d00a6001bbcd318f0eaf686915c4a0c"
+        "mac": "5338b9fadd1ace0c9d6743a158950e5ddb7dea006037d47f1f06db45aaa0c723"
       }
     },
     {
@@ -135600,6 +135705,739 @@
       "seal": {
         "by": "server",
         "mac": "426b8796004e92728d163815d6958080a5408d637e1e007e1178897d9abb74bf"
+      }
+    },
+    {
+      "id": "CLM-1683",
+      "statement": "Issue #758 is delivered: clients are told to sequence dependent calls and an empty publish says why.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/758",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/reference.rs",
+        "src/mcp/changesets.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:39:52.837654763Z",
+      "seal": {
+        "by": "server",
+        "mac": "1530e937a059bf64d8da6c82f4b6975500dc1f13c9a2db78e107c2d72bd30fe9"
+      }
+    },
+    {
+      "id": "CLM-1684",
+      "statement": "INSTRUCTIONS in src/mcp/mod.rs states that a call depending on an earlier call (an edit to a concept being created, a read after publish) must wait for its result, because parallel calls on one changeset run in no fixed order.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #758 acceptance 1: \"The instructions and the tool reference both state the sequencing rule.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2482",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:78-80",
+          "summary": "INSTRUCTIONS contains \"A call that depends on an earlier one (an edit to a concept you are creating, a read after `publish`) must wait for its result: parallel calls on one changeset run in no fixed order.\" Both examples and the no-fixed-order reason are present.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 78,
+                "end": 80
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:21.530064076Z",
+          "seal": {
+            "by": "server",
+            "mac": "86856ca92eed48e0137addee54da71a15c3d025ae9dcdfc665748d166545d3e9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The constant contains the rule with both issue examples.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2482"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.455478626Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2ed748c657b6a23eb540c48c464cc5704db68e9b4cd6abe2a7df0aab6a10995"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.455478626Z",
+      "seal": {
+        "by": "server",
+        "mac": "0d57a0f1ea72d2c9e28f465e637bcf346c33e75a26b9d7c938bc4d8edad6741f"
+      }
+    },
+    {
+      "id": "CLM-1685",
+      "statement": "The tool reference (src/mcp/reference.rs intro bullet and docs/reference/tools.md) states the same sequencing rule, with identical text in both.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #758 acceptance 1: \"The instructions and the tool reference both state the sequencing rule.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/reference.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2483",
+          "kind": "inspection",
+          "locator": "src/mcp/reference.rs:42-43; docs/reference/tools.md:23-24",
+          "summary": "The two-line bullet in reference.rs and tools.md is byte-identical (\"A call that depends on an earlier one ... run in no fixed order.\"), placed after the open_changeset bullet. Verified by grep of both files.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/reference.rs",
+              "lines": {
+                "start": 42,
+                "end": 43
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:21.625698765Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f080b67c347eabc894c35fd2766bd5d50bb631dd3b6363a385137b186b68fd3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "reference.rs and tools.md carry the same bullet.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2483"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.546942272Z",
+          "seal": {
+            "by": "server",
+            "mac": "683555f537700aa6e8d5f2ff03a18e18929e9aa11a5a1d70775d45802522cb90"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.546942272Z",
+      "seal": {
+        "by": "server",
+        "mac": "1c9bc330d37b6b80d71d865d443c6ccd36796e3f89c7c69fa2bd97d29c7ec497"
+      }
+    },
+    {
+      "id": "CLM-1686",
+      "statement": "The reference regeneration test mcp::reference::the_checked_in_tool_reference_matches_the_tool_list passes at head.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #758 acceptance 2: \"The reference regeneration test passes.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/reference.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2484",
+          "kind": "analysis",
+          "locator": "src/mcp/reference.rs:409-422 (test); git diff origin/main..HEAD -- docs/reference/tools.md",
+          "summary": "The test compares render() with docs/reference/tools.md byte for byte. By reading: the new intro bullet is the same in reference.rs and tools.md, and the tools.md publish paragraph equals the concatenated #[tool] description in changesets.rs:614-622 (backslash continuations join to the same text). So the page should match, but I did not run the test (gates are running separately).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/reference.rs",
+              "lines": {
+                "start": 409,
+                "end": 422
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:21.720006011Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9b06c7ee7ce8c152db739bb4be3bb8eb4392de8b9693a65ed7e0db1cdfdbee2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Reading shows the checked-in page matches what render() would produce, but a test result is needed and I was told not to run cargo. Fix: confirm `cargo test --lib mcp::reference` passes on commit 168c4f0 from the gate output and cite its pass count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2484"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.636392311Z",
+          "seal": {
+            "by": "server",
+            "mac": "de26b1bb6e9ec89e8b01747ceea089bd15b454e5c017bd964a916af5b810eb4d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.636392311Z",
+      "seal": {
+        "by": "server",
+        "mac": "51035167ce0bf0a3337da73362b27ff2c5af7c90aae3f32a475670fb8b98a62f"
+      }
+    },
+    {
+      "id": "CLM-1687",
+      "statement": "publish on a changeset with no entries returns a non-empty `reason` that names the edits-sent-in-the-same-turn (parallel call) case.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #758 acceptance 3: \"publish on an empty changeset returns a reason that names the parallel-call case, and a test covers it.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2485",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:540-542,594-599",
+          "summary": "EMPTY_PUBLISH_REASON = \"nothing to publish: this changeset has no entries. If you sent edits in the same turn, publish after they return.\" is put in Published.reason whenever report.published is false; PublishReport.published is false only for an empty changeset (src/store/publish.rs:48,123), so the reason names the parallel-call case.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 540,
+                "end": 599
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:21.823223266Z",
+          "seal": {
+            "by": "server",
+            "mac": "0dd8ae6a58a0e47407b629ede588f511f081d025d15d2b7ed34989651bb01d31"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code sets the reason exactly when published is false, which is only the empty-changeset case, and the text names edits sent in the same turn.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2485"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.725145318Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ac068a2ebfc0045406a709d77640e3c5cfca98ffdc54ec2bbf0b1145b7112c3"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.725145318Z",
+      "seal": {
+        "by": "server",
+        "mac": "5e75114aaeea43200271c22533a2b8231a795b4e2aead1b6fc12c834830ff8f5"
+      }
+    },
+    {
+      "id": "CLM-1688",
+      "statement": "A test asserts the empty-changeset publish result carries a reason containing \"same turn\" and that a no-op publish (published: true) has no reason.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #758 acceptance 3; PR body: \"the empty-changeset publish test (HTTP route over the tool) now checks `reason`, and its absence on a no-op publish\"",
+      "derived_from": [
+        "CLM-1687"
+      ],
+      "artifacts": [
+        "src/http/api/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2486",
+          "kind": "inspection",
+          "locator": "src/http/api/changesets.rs:710-746 (an_empty_changeset_stays_open_and_a_no_op_one_closes)",
+          "summary": "Test publishes an empty changeset through POST /changesets/{h}/publish (which calls the publish tool fn), asserts published false, revisions [], reason is a string containing \"same turn\"; and for a no-op changeset asserts published true and reason absent. Not run by me. Note: cargo fmt --check fails on this file at line 742 (unchanged.get(\"reason\") assert exceeds line width; rustfmt --check reproduces it).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/changesets.rs",
+              "lines": {
+                "start": 710,
+                "end": 746
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:21.917826022Z",
+          "seal": {
+            "by": "server",
+            "mac": "a54309925e47b46dff5f54006e7d298d1e58f9bf3f001b2938cac31c3e6fbb79"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I read the assertions: they check the reason text and its absence on the no-op path, through the real route. Not executed by me; the test also needs cargo fmt applied (line 742 fails fmt --check).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2486"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.814123915Z",
+          "seal": {
+            "by": "server",
+            "mac": "942ebda5f42ba6c617de965613b6cc8a3f10870a35206a4db21595be463b946f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.814123915Z",
+      "seal": {
+        "by": "server",
+        "mac": "7fcdd1a7e0b7078bec224ed07ada90418e7bcdf98ca88990fa8519481a3f73d7"
+      }
+    },
+    {
+      "id": "CLM-1689",
+      "statement": "The `published` and `revisions` values of publish are unchanged: the added code only sets a new optional `reason`, and `reason` is omitted from the JSON unless published is false.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #758 acceptance 3 / PR body: \"`published` and `revisions` are unchanged; a no-op publish (`published: true`) has no `reason`.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2487",
+          "kind": "analysis",
+          "locator": "src/mcp/changesets.rs:545-600; git diff origin/main..HEAD -- src/mcp/changesets.rs",
+          "summary": "The only non-test changes are a const, a new field `reason: Option<String>` with skip_serializing_if is_none placed before the flattened `report`, its computation `(!report.published).then(..)`, and tool-description text. `report` (published, revisions, warnings, replayed) is moved in unchanged. Reason is Some only when published is false. Existing assertions on published/revisions in the HTTP test (lines 734-735, 745-746) are untouched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 545,
+                "end": 600
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:22.013391292Z",
+          "seal": {
+            "by": "server",
+            "mac": "b88df3404f07e4f0e4fab8351f95a25294f4b82ed84ed06347a4e3580d92b177"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff is additive: new Option field, skipped when None, report passed through unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2487"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.902281180Z",
+          "seal": {
+            "by": "server",
+            "mac": "b14f65d6e7582dc57e57895d3f2d20eea71d084b773833924bfcaa49d80ed2fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.902281180Z",
+      "seal": {
+        "by": "server",
+        "mac": "f11cfbb66338921286b78f51e0a2b782d1f8a7b16bc175200442d50112aa834f"
+      }
+    },
+    {
+      "id": "CLM-1690",
+      "statement": "The publish tool description and docs/reference/tools.md mention that a changeset with no entries returns published: false with a `reason`, and the field's doc says so.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"The field's doc and the `publish` tool description say so.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2488",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:553 and 619-621; docs/reference/tools.md:487",
+          "summary": "The `reason` field doc (line 553), the publish #[tool] description (619-621) and tools.md:487 all say a changeset with no entries returns published: false with a `reason`.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 617,
+                "end": 622
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:22.110470806Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0fc4f0da47566c7921383afb0821f052073d277080d4464232da82ac62346bf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Field doc, tool description and tools.md all say it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2488"
+          ],
+          "recorded_at": "2026-11-26T09:40:54.991344587Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b5056a092d25735599d8966caba55b1f830141a052d026c93c8fd4db6597911"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:54.991344587Z",
+      "seal": {
+        "by": "server",
+        "mac": "db524f9d506e1bc15f2f389b845c9231c292b0fe06de119062f9b75693d0be86"
+      }
+    },
+    {
+      "id": "CLM-1691",
+      "statement": "The optional NotFound hint was not added: the diff does not touch the NotFound error text or path-resolution code.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"The optional `NotFound` hint was not added\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2489",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD | grep NotFound",
+          "summary": "The only NotFound mention in the whole diff is the changelog sentence saying the hint was not added; no source hunk touches NotFound or path resolution.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "NotFound",
+              "scope": [
+                "changelog/2026-11-26T09-34-40Z-issue-758-sequencing-hint.md"
+              ],
+              "hits": 1,
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:22.207128980Z",
+          "seal": {
+            "by": "server",
+            "mac": "a896704e20cbc94965637bb644aafb56a0e90b723c3409965899291c08287d7d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No source hunk mentions NotFound; the diff stat lists no path-resolution file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2489"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.080621096Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2a1053bff9eb4b7bc04f061f1b66c9b3b9e9a4bc7b0f8e9695c162db3cb7bbe"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:55.080621096Z",
+      "seal": {
+        "by": "server",
+        "mac": "e5a7d46eaeea16602c32c3084b3d8c39a1881a323f357a6125b86ecb8e70b505"
+      }
+    },
+    {
+      "id": "CLM-1692",
+      "statement": "No test asserts the length or a snapshot of INSTRUCTIONS other than contains() checks (the addition is one sentence).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"No length or snapshot test covers `INSTRUCTIONS`; the addition is one sentence.\"",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/feedback.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2490",
+          "kind": "analysis",
+          "locator": "grep -rn INSTRUCTIONS src tests; src/mcp/feedback.rs:338-345",
+          "summary": "Tests using INSTRUCTIONS are contains() checks (mod.rs:506-515) and feedback.rs:338-345, which compares get_info().instructions to the constant itself (not a literal or length). No len() or snapshot assertion exists, so the added sentence breaks none.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/feedback.rs",
+              "lines": {
+                "start": 338,
+                "end": 345
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:22.302186267Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d437225986342a1d9f705fba3884a51e22ce29975ba9fc991ab9278e5b2cde5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All INSTRUCTIONS tests are contains or self-comparison; none pins length or full text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2490"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.169611403Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a310e68b2b815f742ed37eba18d2276222ba54903a406c12ddf7ddaa643ee38"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:55.169611403Z",
+      "seal": {
+        "by": "server",
+        "mac": "f77c6cb3e38917c171ca9776b3b70a21f2112b02c538eeb211232b1017dd6a0b"
+      }
+    },
+    {
+      "id": "CLM-1693",
+      "statement": "The instructions test the_instructions_tell_clients_to_sequence_dependent_calls asserts INSTRUCTIONS contains \"must wait for its result\" and \"run in no fixed order\".",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"Tests: the instructions test\"",
+      "derived_from": [
+        "CLM-1684"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2491",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:511-516",
+          "summary": "The test the_instructions_tell_clients_to_sequence_dependent_calls asserts INSTRUCTIONS.contains(\"must wait for its result\") and contains(\"run in no fixed order\"); both substrings are in the constant (mod.rs:79-80, each within one source line after continuation joining). Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 511,
+                "end": 516
+              },
+              "commit": "168c4f08b47d5489efaa71d84bab9337706d489e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:40:22.396733043Z",
+          "seal": {
+            "by": "server",
+            "mac": "601165dd10043fdb525292d51d92ff8369f63b68768f7543be9e7676c9ffd7fa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions match substrings present in the constant.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2491"
+          ],
+          "recorded_at": "2026-11-26T09:40:55.257112715Z",
+          "seal": {
+            "by": "server",
+            "mac": "619737a9f00a7bfd922ddec7b427b3185a97145f1e73fd7936ebe88b0411f414"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:55.257112715Z",
+      "seal": {
+        "by": "server",
+        "mac": "4077f816a2647c4cbac2141c3446f88a51f6591da6eaa47387c29f95d3dba23c"
+      }
+    },
+    {
+      "id": "CLM-1694",
+      "statement": "A later swarm wave shows fewer parallel-dependency errors (index refusals, NotFound right after create).",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "Issue #758 acceptance 4",
+      "derived_from": [
+        "CLM-1683"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:758"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "This needs a new MCPJam swarm run after release; nothing in the repository can show it. Fix: after deploy, run a swarm wave and count index refusals and NotFound-after-create errors against the 2026-11-19/20 runs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T09:40:55.348233720Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f24ae003186e7dbdf785de6f45447a83b053b08c7ef02d21570cfd40dfa7979"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:39:52.837654763Z",
+      "updated_at": "2026-11-26T09:40:55.348233720Z",
+      "seal": {
+        "by": "server",
+        "mac": "5df8d3908cf836e42e64a32f7c4ca500581e44913d91096dd8ee9d77d79b7889"
       }
     }
   ]

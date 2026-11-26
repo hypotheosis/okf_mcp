@@ -75,7 +75,10 @@ pub const INSTRUCTIONS: &str = "Open Knowledge Format catalogs: concepts (markdo
     person to type an id. To write, call `open_changeset` first and pass the handle it \
     returns as `changeset` to every edit, `publish`, `discard`, `revert` and `pending_changes`; \
     reads take it too to see its drafts, and `list_changesets` finds a lost one. Nothing is \
-    visible to others until `publish`. `whoami` says who you act for and the server's time. \
+    visible to others until `publish`. A call that depends on an earlier one (an edit to a \
+    concept you are creating, a read after `publish`) must wait for its result: parallel calls \
+    on one changeset run in no fixed order. \
+    `whoami` says who you act for and the server's time. \
     When the person asks you to remember something, save it to the catalog (under a fitting \
     folder) rather than only in the conversation; asking is their consent, so don't ask again. \
     Don't save what they didn't ask you to keep.";
@@ -503,6 +506,13 @@ mod tests {
         assert!(INSTRUCTIONS
             .contains("When the person asks you to remember something, save it to the catalog"));
         assert!(INSTRUCTIONS.contains("Don't save what they didn't ask you to keep."));
+    }
+
+    /// Issue #758: clients must not send dependent calls in parallel.
+    #[test]
+    fn the_instructions_tell_clients_to_sequence_dependent_calls() {
+        assert!(INSTRUCTIONS.contains("must wait for its result"));
+        assert!(INSTRUCTIONS.contains("run in no fixed order"));
     }
 
     /// Task 1b: an internal error's text can name a path or echo input, so

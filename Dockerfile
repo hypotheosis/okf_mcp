@@ -2,20 +2,33 @@
 # The okf-mcp server image (M7). Built by .github/workflows/image.yml and
 # published to ghcr.io/hypotheosis/okf-mcp; see docs/operations.md.
 
-# Build stage: the same Rust as the workstation's toolchain (1.99.1). Bump both
-# together.
+# Build stages: the same Rust as the workstation's toolchain (1.99.1). Bump
+# both together, and Dockerfile.maintenance with them.
 # Base images go by tag, not digest, on purpose: rebuilds get Debian's security
 # fixes. A pushed release keeps its digest; never rebuild an old tag.
-FROM rust:1.99.1-slim-bookworm AS build
+#
+# cargo-chef splits the compile in two layers: `cook` builds only the
+# dependencies, keyed on recipe.json (the manifests and Cargo.lock), and the
+# final `cargo build` compiles this crate. CI runners start cold, but
+# image.yml keeps layers in the GitHub Actions cache, so a commit that leaves
+# the manifests alone reuses the cooked layer and compiles only okf-mcp. No
+# cache mounts here: they are not saved between runners, and a target/ mount
+# would keep the cooked dependencies out of the layer that is cached.
+FROM rust:1.99.1-slim-bookworm AS chef
+RUN cargo install cargo-chef --locked --version 0.1.78
 WORKDIR /build
+
+# recipe.json changes only when a manifest or Cargo.lock does, so the cook
+# layer below stays cached across source-only commits.
+FROM chef AS planner
 COPY . .
-# Cache mounts keep the crate registry and target/ between builds on one
-# builder. target/ is a cache, not a layer, so the binary is copied out of it.
-# They only help local or long-lived builders (CI runners start cold); a
-# cargo-chef dependency layer is the fix if CI build time ever matters.
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/build/target \
-    cargo build --release --locked --bin okf-mcp \
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS build
+COPY --from=planner /build/recipe.json recipe.json
+RUN cargo chef cook --release --locked --bin okf-mcp --recipe-path recipe.json
+COPY . .
+RUN cargo build --release --locked --bin okf-mcp \
     && cp target/release/okf-mcp /usr/local/bin/okf-mcp
 
 # Runtime stage: no git, and the binary links no OpenSSL (sqlx uses rustls).

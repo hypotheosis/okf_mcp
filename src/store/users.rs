@@ -2617,7 +2617,7 @@ pub(crate) mod tests {
     /// A feedback submission for `alice`, as the tool and the console make
     /// it (`registered`: it names a user).
     async fn submit_feedback_for_alice(pool: &PgPool) -> Result<String, OkfError> {
-        use crate::mail::feedback::{submit, FeedbackKind, FeedbackOrigin, NewFeedback};
+        use crate::mail::feedback::{submit, Caller, FeedbackKind, FeedbackOrigin, NewFeedback};
         let new = NewFeedback {
             credential: "key-1",
             user_slug: "alice",
@@ -2629,6 +2629,7 @@ pub(crate) mod tests {
             rating: None,
             client: "test",
             credential_kind: "api_key",
+            caller: Caller::Credential,
         };
         submit(pool, &new, 10, now()).await
     }

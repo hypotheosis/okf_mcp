@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1944,
+  "next_claim_seq": 1958,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "76553923c7e7ae68239408d920dccefdfcab375a688572907f0ddda838c8448c"
+    "mac": "87e8080707b511c2a1a12fdd45d67d43384cdbecde51b4f62d6bb44d1c328a25"
   },
-  "next_evidence_seq": 3501,
+  "next_evidence_seq": 3518,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "8c2c340f2c175385dadc26453543d32ffbf780099433e2ba72d96b01c307a698"
+    "mac": "98b41e264c389a05b9a18a8fafb698c86051d5ba8f3c8c095fadb4d11c6455e9"
   },
   "claims": [
     {
@@ -29203,6 +29203,28 @@
             "by": "server",
             "mac": "c3aaffc7a841c4f787d26a2c49c02063936cdad1ae20044f15feccabe98967db"
           }
+        },
+        {
+          "id": "EVD-3513",
+          "kind": "inspection",
+          "locator": "src/mcp/feedback.rs:165-172",
+          "summary": "Re-audit after #798 touched these lines (EVD-0261 changed): Draft still has default_origin: FeedbackOrigin::Agent; the diff only added a caller field to Sender above it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/feedback.rs",
+              "lines": {
+                "start": 165,
+                "end": 172
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:29.661244064Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e334f712e53e5a999a5d708cd8fed8018081e90236c8b9d72559879e08b3d6b"
+          }
         }
       ],
       "verdicts": [
@@ -29218,13 +29240,26 @@
             "by": "server",
             "mac": "d23a012919b483f076ccbbcd47fdf51a4a923371b0ad80671992b6fac14f4bef"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: from still defaults to agent; only a caller field was added.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3513"
+          ],
+          "recorded_at": "2026-11-26T23:36:04.260371710Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecacff2b822d7553f8e9fe3c265e55898b0a1b2c1ad9eb9fb261398b54748864"
+          }
         }
       ],
       "created_at": "2026-11-21T19:08:08.066114433Z",
-      "updated_at": "2026-11-21T19:10:02.262492790Z",
+      "updated_at": "2026-11-26T23:36:04.260371710Z",
       "seal": {
         "by": "server",
-        "mac": "b88d04dd321113e6fd6ce20504a358f6b1fb1767ae53cf957864eea47221061a"
+        "mac": "cd609b4c44d32c44fa1c738a1e463aaf3d1d17985a05d3fd9f8dddbeb14d176e"
       }
     },
     {
@@ -68341,6 +68376,28 @@
             "by": "server",
             "mac": "a03b604f0546d3683ca68a9e1878b2ac9b7ffda4c544c3532b24763c6ff2c5fc"
           }
+        },
+        {
+          "id": "EVD-3512",
+          "kind": "inspection",
+          "locator": "src/mcp/feedback.rs:157-164; src/http/api/feedback.rs:150-157",
+          "summary": "Re-audit after #798 touched these lines (anchor EVD-0947 changed): MCP sender still sets registered: principal.user.is_some(); console sender still registered: true; only the added caller field differs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/feedback.rs",
+              "lines": {
+                "start": 157,
+                "end": 164
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:29.537992785Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ad3c5f164a23d5f65c90da4b2a6446cc03518618b8a6f8e705031bb11652a06"
+          }
         }
       ],
       "verdicts": [
@@ -68356,13 +68413,26 @@
             "by": "server",
             "mac": "ab82b59695e7f4d5fd0ff84b4f4214555bc22c51b3a57a6854032a62c9252e4c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head after the changed anchor: registered is set as before at both entry points.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3512"
+          ],
+          "recorded_at": "2026-11-26T23:36:04.154047936Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e7e64ad4f8bb454998dc9be350882646c0579caf26e94361d058bfa83d390e3"
+          }
         }
       ],
       "created_at": "2026-11-23T11:02:24.530532595Z",
-      "updated_at": "2026-11-23T11:03:06.251439058Z",
+      "updated_at": "2026-11-26T23:36:04.154047936Z",
       "seal": {
         "by": "server",
-        "mac": "6d38a3880f9013adf771b5dbd38bd97ce721a864937f024df0400aaac90919a3"
+        "mac": "d3b5fa835c9699cb1737a5d8fcbe4d887090b2249bb6a47aa94b6a60b8d222fd"
       }
     },
     {
@@ -175008,6 +175078,940 @@
       "seal": {
         "by": "server",
         "mac": "f94d8119dc3e8884cd5d7b6ebdcf357e9d9fb25f1d2976be5459b391fa6b479f"
+      }
+    },
+    {
+      "id": "CLM-1944",
+      "statement": "Issue #798 is resolved: passkey-only setup follows the onboarding_url redirect rule of password setup, and the console feedback limit message names the caller instead of 'this credential'.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "hypotheosis/okf_mcp#798",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/passkeys.rs",
+        "src/http/signin.rs",
+        "src/mail/feedback.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3515",
+          "kind": "analysis",
+          "locator": "children of CLM-1944",
+          "summary": "All behavior children (CLM-1945..1951) are supported, so the issue's code requirements hold. CLM-1957 (stale doc comment on setup_finish) is refuted, and CLM-1955/1956 (lint, dylint, full-test claims in the PR body) are not_enough_info.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-26T23:36:07.301931692Z",
+          "seal": {
+            "by": "server",
+            "mac": "e24f1d6680cd7de285b82b23156eaf6328509029fa2cc7a0084a803f58737bae"
+          }
+        },
+        {
+          "id": "EVD-3517",
+          "kind": "analysis",
+          "locator": "children of CLM-1944",
+          "summary": "After 1cbd6961, CLM-1945 to 1951 and CLM-1957 are supported, and the PR-body claims CLM-1952 to 1954 are supported, so the issue's requirements and the doc are met. CLM-1955 and CLM-1956 stay not_enough_info (gates not independently rerun); they are PR-description statements, not issue requirements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T23:40:21.178161198Z",
+          "seal": {
+            "by": "server",
+            "mac": "8eb30919b0a943494265fe966a06ed6dd50706b98264f1e1b62d61c268b8fb7d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behavior is delivered, but a child (CLM-1957) is refuted: a stale doc comment. Fix: update the setup_finish doc comment at src/http/passkeys.rs:701-702 to say the redirect comes from signin::after_setup, commit, then re-audit CLM-1957 and this claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3515"
+          ],
+          "recorded_at": "2026-11-26T23:36:10.688572656Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b10bed1f5d8d2b12d43b23c7969dd31c050fbbfbd8177b9b3b5eaae722bda63"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All requirement and doc children are supported on 1cbd6961. CLM-1955 and CLM-1956 remain not_enough_info (PR-body gate statements, not issue requirements); the parent claim is about the issue being resolved.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3517"
+          ],
+          "recorded_at": "2026-11-26T23:40:24.917356750Z",
+          "seal": {
+            "by": "server",
+            "mac": "b3ec20fb2b144150a362c3a285ff82e32dcf480c2ef74720f48079b2c6f508ac"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:40:24.917356750Z",
+      "seal": {
+        "by": "server",
+        "mac": "b052926550c3768cfb4c75d8496760baedb92093c87603bfd0e1055524f13f77"
+      }
+    },
+    {
+      "id": "CLM-1945",
+      "statement": "POST /auth/passkey/setup/finish takes its JSON redirect from signin::after_setup, the function password setup uses, with no second copy of the rule.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#798 requirement 1: reuses password setup's redirect rule (after_setup in src/http/signin.rs); one shared function, not duplicated",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs",
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3501",
+          "kind": "inspection",
+          "locator": "src/http/passkeys.rs:745-753",
+          "summary": "setup_finish calls after_setup(&pending.return_to, settings.onboarding_url.as_deref()) and answers redirect.target(); imports after_setup from signin.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 745,
+                "end": 753
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.005698724Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6c7bd751f260b9acb0304fdb194fdc62bd5fdaeec11b3023deda6e88259d5bd"
+          }
+        },
+        {
+          "id": "EVD-3502",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:1010-1038; git grep 'after_setup('",
+          "summary": "The rule exists once (pub(crate) fn after_setup, match on onboarding_url and OAUTH_CONTINUATION); the only non-test callers are signin.rs:1099 (password setup) and passkeys.rs:748; no duplicate of the starts_with(/oauth/authorize?) rule in passkeys.rs.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "OAUTH_CONTINUATION|oauth/authorize\\?",
+              "scope": [
+                "src/http/passkeys.rs"
+              ],
+              "hits": 1,
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.226209997Z",
+          "seal": {
+            "by": "server",
+            "mac": "39e591ba6025c961c731e039c2f21f8c7900638f902dba18d62dc6425b87f28f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "setup_finish calls the shared after_setup; the rule exists once.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3501",
+            "EVD-3502"
+          ],
+          "recorded_at": "2026-11-26T23:36:02.765329888Z",
+          "seal": {
+            "by": "server",
+            "mac": "3314876bb7c8e583d1ba763724c07b7d386971b8f92b37aec193c6ebe37fa67d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:02.765329888Z",
+      "seal": {
+        "by": "server",
+        "mac": "de09c2339f78a9ff00c1ef40d172e536681f74db1f886f38ae84011aacf896a0"
+      }
+    },
+    {
+      "id": "CLM-1946",
+      "statement": "When onboarding_url is set, a passkey setup finish answers redirect = the onboarding_url, whatever safe return_to the ceremony started with.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#798 requirement 1 and 3: onboarding_url set redirects there",
+      "derived_from": [
+        "CLM-1945"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3503",
+          "kind": "test",
+          "locator": "cargo test (gate.sh narrow --lib -- a_passkey_setup after_setup feedback): http::passkeys::tests::a_passkey_setup_goes_to_the_onboarding_guide_when_one_is_set ... ok (50 passed, 0 failed)",
+          "summary": "Test drives the full passkey ceremony with onboarding_url set; asserts redirect == GUIDE with no return_to and with return_to /ui/#/keys.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 1815,
+                "end": 1819
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.360360638Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba3b404b4e2ebd596275fd5fa65fddadbe4302596649b171190e22e5eb48d0da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test ran and passed, asserting the guide URL.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3503"
+          ],
+          "recorded_at": "2026-11-26T23:36:02.872085463Z",
+          "seal": {
+            "by": "server",
+            "mac": "e6ecef3b8002000e97ab16aca22d7b255da193c1bd9134bb96f7106b0987bcf1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:02.872085463Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a30997088796819d922e89f2f78b218364fcb06084ccd9917a783cc14450743"
+      }
+    },
+    {
+      "id": "CLM-1947",
+      "statement": "When the ceremony's return_to is an /oauth/authorize? continuation, a passkey setup finish answers redirect = that continuation even when onboarding_url is set.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#798 requirement 1 and 3: an OAuth continuation always wins",
+      "derived_from": [
+        "CLM-1945"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3504",
+          "kind": "test",
+          "locator": "cargo test (gate.sh narrow ...): http::passkeys::tests::a_passkey_setup_keeps_an_oauth_continuation_over_the_guide ... ok",
+          "summary": "With onboarding_url set and return_to /oauth/authorize?client_id=abc&state=1, asserts redirect equals the continuation, not the guide.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 1821,
+                "end": 1825
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.523455377Z",
+          "seal": {
+            "by": "server",
+            "mac": "74368825516ba4629724ae1fd9218103c731bfda1d8b91fc45bea7e7e38a7bd0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test ran and passed, asserting the OAuth continuation beats the guide.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3504"
+          ],
+          "recorded_at": "2026-11-26T23:36:02.978405167Z",
+          "seal": {
+            "by": "server",
+            "mac": "12b76084567f9f74428411929d39334ff17feb32015a571957ad4880fd057f50"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:02.978405167Z",
+      "seal": {
+        "by": "server",
+        "mac": "969c15f69de3d740d77b65c73db2df823876b9601cfe289d47b8fe9a56c90c07"
+      }
+    },
+    {
+      "id": "CLM-1948",
+      "statement": "When onboarding_url is unset, a passkey setup finish answers the validated return_to unchanged (/ui/ by default).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#798 requirement 1 and 3: unchanged when unset",
+      "derived_from": [
+        "CLM-1945"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3505",
+          "kind": "test",
+          "locator": "cargo test (gate.sh narrow ...): http::passkeys::tests::a_passkey_setup_without_a_guide_goes_where_it_was_going ... ok",
+          "summary": "With onboarding_url None asserts redirect \"/ui/\" with no return_to and \"/ui/#/keys\" with that return_to.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 1827,
+                "end": 1831
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.677177242Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd4325e13c313dd2a1c043c2f28a9250153650c351905371c2895f8d0a28ac45"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test ran and passed, asserting /ui/ and the given return_to.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3505"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.084411340Z",
+          "seal": {
+            "by": "server",
+            "mac": "a462c3a2ab89079f4501831aa1c9ec01e02d8660044211ee995e2416923cd94a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.084411340Z",
+      "seal": {
+        "by": "server",
+        "mac": "1976f3ace78d8810469b0fdf498246d554133646e2cb41c3551b4375ac2923f5"
+      }
+    },
+    {
+      "id": "CLM-1949",
+      "statement": "return_to validation is kept: the passkey setup ceremony still stores safe_return_to(body.return_to) and the finish passes that stored value to after_setup.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "#798 requirement 1: return_to validation kept",
+      "derived_from": [
+        "CLM-1945"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3506",
+          "kind": "inspection",
+          "locator": "src/http/passkeys.rs:684, 748; src/http/pages.rs:218-238",
+          "summary": "The setup ceremony stores safe_return_to(body.return_to) (line 684, unchanged by the diff); finish passes pending.return_to to after_setup. safe_return_to accepts only /ui/, /read/, /oauth/authorize? visible-ASCII paths. The guide URL is the operator setting (validated https, store/settings.rs test docs_and_onboarding_urls_are_validated_stored_and_cleared_by_none), not request input.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 680,
+                "end": 686
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.802512141Z",
+          "seal": {
+            "by": "server",
+            "mac": "3013deee9a26b6bc055ba32bc2a6d66d70a39b1b64f868bf44bf01eb02db614d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Start still validates with safe_return_to; finish only consumes the stored value; guide is operator-set validated setting.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3506"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.189355680Z",
+          "seal": {
+            "by": "server",
+            "mac": "535e4324020a57a72f002b02535444dd60cf7cc5183d049387f63ea2a40e7cb3"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.189355680Z",
+      "seal": {
+        "by": "server",
+        "mac": "6422a3276fe4efce7af0eb5aea153184b1f6268552e2fda787c2f3167c4dabbe"
+      }
+    },
+    {
+      "id": "CLM-1950",
+      "statement": "The MCP send_feedback rate-limit refusal still reads 'this credential has sent N feedback messages ...' and the console POST /api/v1/feedback refusal reads 'you have sent N feedback messages ...' without 'this credential'.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "#798 requirement 2 and 3: both limit messages",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [
+        "src/mail/feedback.rs",
+        "src/mcp/feedback.rs",
+        "src/http/api/feedback.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3507",
+          "kind": "test",
+          "locator": "cargo test (gate.sh narrow ...): mcp::feedback::tests::the_hourly_limit_refuses_with_a_clear_error ... ok; http::api::feedback::tests::the_hourly_limit_counts_each_user_across_their_sessions ... ok",
+          "summary": "MCP test asserts error contains \"this credential has sent 2 feedback\" (mcp/feedback.rs:524); console test asserts message contains \"you have sent 2 feedback\" and not \"this credential\" (api/feedback.rs:411-413), for both the third request and another session of the same user.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/feedback.rs",
+              "lines": {
+                "start": 408,
+                "end": 414
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:28.925239547Z",
+          "seal": {
+            "by": "server",
+            "mac": "526fa4310f1f6270893449cbb306d0f6ca9d2cc849519151a90581a89d30605b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both tests ran and passed with the asserted wordings.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3507"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.302782103Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fc4b670d684b7b21444521770449452f06717bdd80b66e64e60270829de0488"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.302782103Z",
+      "seal": {
+        "by": "server",
+        "mac": "14fa68dac58a24ccb52d6963068b0a9b4fd51456939cca9d9858887b7308194a"
+      }
+    },
+    {
+      "id": "CLM-1951",
+      "statement": "The caller kind is passed in as a mail::feedback::Caller value (Credential or User) on Sender and NewFeedback, selected by each entry point, and the message is not string-patched afterwards.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "#798 requirement 2: the caller kind is passed in rather than string-patching",
+      "derived_from": [
+        "CLM-1950"
+      ],
+      "artifacts": [
+        "src/mail/feedback.rs",
+        "src/mcp/feedback.rs",
+        "src/http/api/feedback.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3508",
+          "kind": "inspection",
+          "locator": "src/mail/feedback.rs:248-275,361-368; src/mcp/feedback.rs:163; src/http/api/feedback.rs:156",
+          "summary": "Caller enum with subject() maps Credential to \"this credential has\" and User to \"you have\"; submit formats the refusal with feedback.caller.subject(); the MCP entry sets Caller::Credential and the console sets Caller::User; all Sender/NewFeedback constructors set caller (users.rs test, feedback.rs sample), no post-hoc replace of the text.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mail/feedback.rs",
+              "lines": {
+                "start": 248,
+                "end": 275
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:29.049602111Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a0a8d42e03686bc621ba96d015bdf071000d28e6cf60d50eddef3729c097751"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Caller is a typed field chosen by each entry point; the text is formatted from it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3508"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.408176834Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3a90f9f8fe612e2af2b7f8aff228cf03fb7dff513b638ce7fa60e0799f43159"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.408176834Z",
+      "seal": {
+        "by": "server",
+        "mac": "a6ead4cf228e92491eed1a8f4ac3f1bf194d29463dc2b3b70a83ad246453f6c3"
+      }
+    },
+    {
+      "id": "CLM-1952",
+      "statement": "PR body: passkey.js navigates to the redirect with location.assign.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: `passkey.js` navigates with `location.assign`",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [
+        "src/http/ui/js/signin/passkey.js"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3509",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/signin/passkey.js:31",
+          "summary": "location.assign(done.redirect) after the ceremony call (file unchanged by this PR; the statement is true of it).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/signin/passkey.js",
+              "lines": {
+                "start": 29,
+                "end": 32
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:29.174473178Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c9640c1a4eb23d3756c1e58f0aa51cee3a2f48fd9646701ba70142e899b3592"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "passkey.js:31 uses location.assign.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3509"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.515496471Z",
+          "seal": {
+            "by": "server",
+            "mac": "afd1fd8cce6e0d22725b6c083083b7507bdc94462328534d11816c19877f530e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.515496471Z",
+      "seal": {
+        "by": "server",
+        "mac": "2450e7af7e145bbd9b6d2bdfa857bb724320b31ace913710d5ab508f5ece8b35"
+      }
+    },
+    {
+      "id": "CLM-1953",
+      "statement": "PR body: test-ui and worker were not run because no console JS, HTML or CSS changed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: `test-ui` and `worker` not run: no console JS, HTML or CSS changed.",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [
+        "src/http/ui"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3510",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD | grep -c 'ui/' (0); diff files: src/http/{api/feedback,passkeys,signin}.rs, src/mail/feedback.rs, src/mcp/feedback.rs, src/store/users.rs, changelog",
+          "summary": "No file under src/http/ui or any .js/.html/.css changed. Caveat: signin.rs (which renders server HTML) changed only by visibility and a new accessor, no markup.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T23:35:29.294285580Z",
+          "seal": {
+            "by": "server",
+            "mac": "b84d85ec6c59e0f7d0446f8f7553b805b294a817e95bc8c57465b858d30ebded"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches no UI asset file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3510"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.623345849Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c87db1bead69e128e2507e1b415ee0b132fba49acb0eb21d9053326220e8cf5"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.623345849Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c0d706705a299ffdd10ba073688028f634581c5f1fd5c3397c93d06010c3ad0"
+      }
+    },
+    {
+      "id": "CLM-1954",
+      "statement": "PR body: gate.sh fmt passes on the head commit.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: `gate.sh fmt`, `lint`, `dylint`: pass.",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3511",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh fmt (ran cargo fmt --all --check, no diff output) on 51c60979",
+          "summary": "fmt check printed no differences.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T23:35:29.401677273Z",
+          "seal": {
+            "by": "server",
+            "mac": "68e8d72d40ceaab31267807a1845f5759cee54870dddb9076dcb3f78c98b76a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran gate.sh fmt on head: clean.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3511"
+          ],
+          "recorded_at": "2026-11-26T23:36:03.729270902Z",
+          "seal": {
+            "by": "server",
+            "mac": "bac697eae0a22a70e27a143dc6ca4c44c9d6d8ab4eb9829821caa324d0182e6d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.729270902Z",
+      "seal": {
+        "by": "server",
+        "mac": "0896ef609359307534cd426557d60985ba9f30bc46dc5055bf62e0a75abd8d9d"
+      }
+    },
+    {
+      "id": "CLM-1955",
+      "statement": "PR body: gate.sh lint and dylint pass on the head commit.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: `gate.sh fmt`, `lint`, `dylint`: pass.",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Auditor was limited to narrow tests and did not run gate.sh lint or dylint. Fix: rerun tools/agentic/gate.sh lint and dylint on the head commit and record the pass counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T23:36:03.835248975Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c6d057c423236bc19b7efe3341e77b50cf8d6c8fb957c20a9266afd83f2e9e6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.835248975Z",
+      "seal": {
+        "by": "server",
+        "mac": "b166ddc428a50b496b245ba944e760e5a2ecfed51da80916309b28b9fb67a7d3"
+      }
+    },
+    {
+      "id": "CLM-1956",
+      "statement": "PR body: gate.sh test passed 3698 tests with 20 skipped, and gate.sh mcpjam passed 29 tests.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: `gate.sh test`: 3698 passed, 20 skipped. `gate.sh mcpjam`: pass (29 tests).",
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only a 50-test narrow subset was rerun (all passed); the full 3698/20 and mcpjam 29 counts were not reproduced. Fix: rerun tools/agentic/gate.sh test and mcpjam on the head commit and compare the printed counts with 3698 passed, 20 skipped and 29.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T23:36:03.940577776Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fd13632a72ca877d609e3eb36064ac3102a045bc9189a8f87a5cbc4f6a9351e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:34:50.604615607Z",
+      "updated_at": "2026-11-26T23:36:03.940577776Z",
+      "seal": {
+        "by": "server",
+        "mac": "3d099473e27b610c298ff7d64a9a4d548b31abb4f33b1315fe1fa13b918a423b"
+      }
+    },
+    {
+      "id": "CLM-1957",
+      "statement": "The doc comment of setup_finish describes its JSON answer as the setup's redirect, consistent with the code after this change (guide, OAuth continuation or return_to).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Project rule: keep comments up to date with code changes (.claude/CLAUDE.md, Documentation); #798 changes what redirect holds",
+      "source_anchor": {
+        "path": "src/http/passkeys.rs",
+        "lines": {
+          "start": 699,
+          "end": 702
+        },
+        "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+      },
+      "derived_from": [
+        "CLM-1944"
+      ],
+      "artifacts": [
+        "src/http/passkeys.rs"
+      ],
+      "tags": [
+        "from-issue:798"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3514",
+          "kind": "inspection",
+          "locator": "src/http/passkeys.rs:699-702",
+          "summary": "Doc comment still says it \"Answers `{\\\"redirect\\\": <return_to>}`\", but the code now answers after_setup(...).target(), which is the onboarding_url when set. The diff did not update the comment.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 699,
+                "end": 702
+              },
+              "commit": "51c6097915391af3127a04de5bd2396df4d64318"
+            }
+          },
+          "recorded_at": "2026-11-26T23:35:40.503840118Z",
+          "seal": {
+            "by": "server",
+            "mac": "573d0f1245290206dbdf9affa0281c6d8211418024cde3a6d22f5ff3a7975389"
+          }
+        },
+        {
+          "id": "EVD-3516",
+          "kind": "inspection",
+          "locator": "src/http/passkeys.rs:699-705 at 1cbd6961",
+          "summary": "Doc comment now says it answers {\"redirect\": <destination>} from after_setup: the onboarding_url setting, an OAuth continuation, or the ceremony's return_to. Matches the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/passkeys.rs",
+              "lines": {
+                "start": 699,
+                "end": 705
+              },
+              "commit": "1cbd6961a5f9817e19c930cda714c9054d338b4d"
+            }
+          },
+          "recorded_at": "2026-11-26T23:40:16.254339815Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec42829a33aa55149d1600f2109208a209e1064fda505dd09a35304b517a3224"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The doc comment still says the answer is {\"redirect\": <return_to>} though the redirect is now the onboarding guide when one is set. Fix: change src/http/passkeys.rs:701-702 to say it answers {\"redirect\": <destination>} where the destination comes from signin::after_setup (onboarding_url, an OAuth continuation, or return_to).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3514"
+          ],
+          "recorded_at": "2026-11-26T23:36:04.045905797Z",
+          "seal": {
+            "by": "server",
+            "mac": "437cf193f4bfad519e3ebeb516bbf3bf61f7f1764d45c1cc6ebb3db03064e2dd"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 1cbd6961: the comment now names after_setup's three destinations.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3516"
+          ],
+          "recorded_at": "2026-11-26T23:40:21.003466052Z",
+          "seal": {
+            "by": "server",
+            "mac": "657e3d92eac9ec96676e503c713912441825ec98bfec50e4120651ad7ee02689"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T23:35:37.409350553Z",
+      "updated_at": "2026-11-26T23:40:21.003466052Z",
+      "seal": {
+        "by": "server",
+        "mac": "aad3868215c53dc9b40ca6100affc567337728582f59fc9a6481242e22626522"
       }
     }
   ]

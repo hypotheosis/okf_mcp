@@ -31,7 +31,9 @@ use crate::app::App;
 use crate::auth::{CredentialKind, Principal};
 use crate::error::OkfError;
 use crate::http::AppError;
-use crate::mail::feedback::{self, Draft, FeedbackKind, FeedbackOrigin, Sender, MAX_MESSAGE_CHARS};
+use crate::mail::feedback::{
+    self, Caller, Draft, FeedbackKind, FeedbackOrigin, Sender, MAX_MESSAGE_CHARS,
+};
 
 /// The `client` a console submission is forwarded with.
 pub(crate) const CONSOLE_CLIENT: &str = "web console";
@@ -151,6 +153,7 @@ async fn send(
         registered: true,
         client: CONSOLE_CLIENT,
         credential_kind: "session",
+        caller: Caller::User,
     };
     let draft = Draft {
         message: &body.message,
@@ -405,6 +408,9 @@ mod tests {
         for limited in [&three, &other_session] {
             assert_eq!(limited.status, StatusCode::UNPROCESSABLE_ENTITY);
             assert_eq!(limited.json()["limit"], "feedback_rate");
+            let message = limited.json()["message"].to_string();
+            assert!(message.contains("you have sent 2 feedback"), "{message}");
+            assert!(!message.contains("this credential"), "{message}");
         }
         assert_eq!(other_user.status, StatusCode::CREATED);
         assert_eq!(rows(&test).await.len(), 3);

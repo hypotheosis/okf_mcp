@@ -978,7 +978,7 @@ struct NewPasswordForm {
 
 /// Where a successful first password setup sends the browser.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AfterSetup<'a> {
+pub(crate) enum AfterSetup<'a> {
     /// The `onboarding_url` setting: an `https://` URL, usually on another
     /// origin, so it is reached by a link on a welcome page, never a 303
     /// (the setup form's `form-action 'self'` would block the redirect).
@@ -1007,10 +1007,32 @@ enum AfterSetup<'a> {
         reason = "trivial accessor or conversion: chooses one of its arguments, no I/O"
     )
 )]
-fn after_setup<'a>(return_to: &'a str, onboarding_url: Option<&'a str>) -> AfterSetup<'a> {
+pub(crate) fn after_setup<'a>(
+    return_to: &'a str,
+    onboarding_url: Option<&'a str>,
+) -> AfterSetup<'a> {
     match onboarding_url {
         Some(url) if !return_to.starts_with(OAUTH_CONTINUATION) => AfterSetup::Guide(url),
         _ => AfterSetup::Return(return_to),
+    }
+}
+
+impl AfterSetup<'_> {
+    /// The destination as one string, for a caller that navigates with
+    /// script (the passkey setup's JSON `redirect`), where the guide's
+    /// other origin is no problem: only a form's `form-action 'self'`
+    /// blocks it.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial accessor or conversion: returns one field, no I/O"
+        )
+    )]
+    pub(crate) fn target(&self) -> &str {
+        match self {
+            Self::Guide(target) | Self::Return(target) => target,
+        }
     }
 }
 

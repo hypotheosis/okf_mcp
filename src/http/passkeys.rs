@@ -58,7 +58,9 @@ use crate::http::console_session::{
 };
 use crate::http::limits::ip_key;
 use crate::http::pages::safe_return_to;
-use crate::http::signin::{audit, cross_site, notify_method_added, start_in, SignIn, LINK_EXPIRED};
+use crate::http::signin::{
+    after_setup, audit, cross_site, notify_method_added, start_in, SignIn, LINK_EXPIRED,
+};
 use crate::http::{timeout_layer, AppError};
 use crate::keys;
 use crate::labels::user_label;
@@ -697,7 +699,9 @@ struct SetupFinish {
 /// `POST /auth/passkey/setup/finish`: stores the passkey, uses the link and
 /// signs in, all in one transaction, so a failure anywhere leaves the link
 /// usable and no passkey or session behind. Answers
-/// `{"redirect": <return_to>}`.
+/// `{"redirect": <destination>}`, where the destination is
+/// [`after_setup`]'s: the `onboarding_url` setting, an OAuth continuation,
+/// or the ceremony's `return_to`.
 ///
 /// # Errors
 /// 403 from another site; 410 for an expired ceremony, a used link, or a
@@ -740,9 +744,13 @@ async fn setup_finish(
     // its commit but building the response.
     let cookie = use_setup_link(&app, &parts, &set_up).await?;
     append_all(&mut headers, &cookie);
+    // The same rule as a password setup: the onboarding guide, unless an
+    // OAuth authorization is being continued. `passkey.js` navigates to it.
+    let settings = app.settings();
+    let redirect = after_setup(&pending.return_to, settings.onboarding_url.as_deref());
     Ok((
         headers,
-        Json(serde_json::json!({ "redirect": pending.return_to })),
+        Json(serde_json::json!({ "redirect": redirect.target() })),
     )
         .into_response())
 }
@@ -1765,6 +1773,63 @@ mod tests {
 
         assert_eq!(done.status, StatusCode::OK, "{}", done.text());
         assert_eq!(done.json()["redirect"], "/ui/");
+    }
+
+    /// Sets alice up by passkey on an app with `onboarding_url` as given,
+    /// starting the ceremony with `return_to`, and returns the finish's
+    /// `redirect`.
+    async fn setup_redirect(onboarding_url: Option<&str>, return_to: Option<&str>) -> String {
+        let mut config = login_config();
+        config.auth.onboarding_url = onboarding_url.map(str::to_string);
+        let test = app_with(&[("main", MAIN)], config).await;
+        let alice = user_with_password(&test, "alice", "alice@example.com", None).await;
+        let token = setup_token(&test, &alice).await;
+        let mut soft = SoftPasskey::new(true);
+        let mut browser = Browser::default();
+        let mut body = json!({ "token": token, "name": "Laptop" });
+        if let Some(return_to) = return_to {
+            body["return_to"] = json!(return_to);
+        }
+        let start = browser
+            .send(
+                &test,
+                "POST",
+                "/auth/passkey/setup/start",
+                Payload::Json(body),
+            )
+            .await;
+        let challenge: CreationChallengeResponse =
+            serde_json::from_value(start.json()).expect("a challenge");
+        let credential = soft
+            .do_registration(origin(), challenge)
+            .expect("the authenticator registers");
+        let credential = serde_json::to_value(&credential).expect("json");
+        let done = finish_setup(&test.app, &mut browser, &token, credential).await;
+        assert_eq!(done.status, StatusCode::OK, "{}", done.text());
+        done.json()["redirect"]
+            .as_str()
+            .expect("a redirect string")
+            .to_string()
+    }
+
+    const GUIDE: &str = "https://docs.example.com/start/first-15-minutes/";
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_passkey_setup_goes_to_the_onboarding_guide_when_one_is_set() {
+        assert_eq!(setup_redirect(Some(GUIDE), None).await, GUIDE);
+        assert_eq!(setup_redirect(Some(GUIDE), Some("/ui/#/keys")).await, GUIDE);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_passkey_setup_keeps_an_oauth_continuation_over_the_guide() {
+        let oauth = "/oauth/authorize?client_id=abc&state=1";
+        assert_eq!(setup_redirect(Some(GUIDE), Some(oauth)).await, oauth);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_passkey_setup_without_a_guide_goes_where_it_was_going() {
+        assert_eq!(setup_redirect(None, None).await, "/ui/");
+        assert_eq!(setup_redirect(None, Some("/ui/#/keys")).await, "/ui/#/keys");
     }
 
     #[tokio::test(flavor = "multi_thread")]

@@ -494,3 +494,166 @@ async fn the_tool_span_parent_falls_back_to_current_then_root() {
     assert_eq!(tool_span_parent(&without), current.id());
     assert_eq!(tool_span_parent(&with_request), request.id());
 }
+
+/// A write key for `pg`, for the tests that open a changeset.
+async fn write_key(served: &Served) -> String {
+    keys::create(
+        served.test.app.accounts().executor(),
+        &NewKey {
+            name: "writer",
+            access: Access::Write,
+            maintenance_report: false,
+            grants: Grants::Catalogs(&["pg".into()]),
+            default_catalog: None,
+            actor: "writer",
+            user: crate::db::TEST_USER,
+            self_issued: false,
+            expires_at: None,
+            levels: &[],
+        },
+        &crate::store::audit::AuditActor::cli(),
+        chrono::Utc::now(),
+    )
+    .await
+    .expect("create a write key")
+}
+
+/// An attribute's value as text.
+fn text_of(span: &opentelemetry_sdk::trace::SpanData, name: &str) -> Option<String> {
+    attribute(span, name).map(ToString::to_string)
+}
+
+/// Issues #1113 and #834: the tool span carries a digest of the session and of the changeset
+/// handle (never the raw values), and the catalog a changeset or the selection resolved.
+#[tokio::test]
+async fn the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog() {
+    let served = Served::start().await;
+    let writer = write_key(&served).await;
+    for filter in FILTERS {
+        let observer = Observer::start("off", filter, "off", LogFormat::Text);
+        let probe = McpProbe::open(&served.endpoint, &writer).await;
+        let opened = probe
+            .call("open_changeset", serde_json::json!({"catalog": "pg"}))
+            .await;
+        let handle = opened["result"]["structuredContent"]["changeset"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{filter}: a handle in {opened}"))
+            .to_string();
+        // Only a changeset: no `catalog` argument.
+        let pending = probe
+            .call("pending_changes", serde_json::json!({"changeset": handle}))
+            .await;
+        assert_eq!(pending["result"]["isError"], false, "{pending}");
+        // Only the key's one catalog: no argument, no changeset.
+        let found = probe
+            .call("search", serde_json::json!({"query": "Alpha"}))
+            .await;
+        assert_eq!(found["result"]["isError"], false, "{found}");
+        let session = probe.session().to_string();
+        probe.close().await;
+        let observed = observer.finish();
+
+        let session_token = digest_token("session", &session);
+        let handle_token = digest_token("changeset", &handle);
+        let pending = &observed.spans_named("mcp pending_changes")[0];
+        assert_eq!(text_of(pending, "okf.catalog").as_deref(), Some("pg"));
+        // Recorded once: a second record would be exported as a second attribute.
+        let catalogs = pending
+            .attributes
+            .iter()
+            .filter(|attribute| attribute.key.as_str() == "okf.catalog")
+            .count();
+        assert_eq!(catalogs, 1, "{filter}");
+        assert_eq!(
+            text_of(pending, "okf.changeset").as_deref(),
+            Some(handle_token.as_str()),
+            "{filter}"
+        );
+        assert_eq!(
+            text_of(pending, "mcp.session.id").as_deref(),
+            Some(session_token.as_str()),
+            "{filter}"
+        );
+        let search = &observed.spans_named("mcp search")[0];
+        assert_eq!(text_of(search, "okf.catalog").as_deref(), Some("pg"));
+        assert_eq!(
+            text_of(search, "mcp.session.id").as_deref(),
+            Some(session_token.as_str()),
+            "{filter}: one session's calls share a token"
+        );
+        // A call that names no changeset has no `okf.changeset`.
+        assert!(attribute(search, "okf.changeset").is_none(), "{filter}");
+        let exported = format!("{:?}", observed.spans);
+        assert!(!exported.contains(&session), "{filter}: the raw session id");
+        assert!(!exported.contains(&handle), "{filter}: the raw handle");
+    }
+    served.stop().await;
+}
+
+/// Issue #834: the metrics label is the resolved catalog too, and `none` when nothing resolved.
+#[tokio::test]
+async fn the_metrics_label_is_the_resolved_catalog() {
+    let served = Served::start().await;
+    let probe = McpProbe::open(&served.endpoint, &served.key).await;
+    probe
+        .call("search", serde_json::json!({"query": "Alpha"}))
+        .await;
+    probe
+        .call(
+            "get_concept",
+            serde_json::json!({"path": "/a.md", "catalog": SENTINEL}),
+        )
+        .await;
+    probe.close().await;
+
+    let text = render(&served.registry);
+    let counted = |tool: &str, catalog: &str| {
+        text.lines().any(|line| {
+            line.starts_with("okf_mcp_tool_duration_seconds_count{")
+                && line.contains(&format!(r#"tool="{tool}""#))
+                && line.contains(&format!(r#"catalog="{catalog}""#))
+        })
+    };
+    assert!(counted("search", "pg"), "{text}");
+    assert!(counted("get_concept", "none"), "{text}");
+    assert!(!text.contains(SENTINEL), "{text}");
+    served.stop().await;
+}
+
+/// Issue #1113: a call that did not arrive over HTTP has no session to name.
+#[test]
+fn a_call_without_a_session_has_no_session_digest() {
+    let (without, _) = axum::http::Request::new(()).into_parts();
+    let (with, _) = axum::http::Request::builder()
+        .header(crate::selection::SESSION_HEADER, "abc")
+        .body(())
+        .expect("a request")
+        .into_parts();
+
+    assert_eq!(session_digest(None), None);
+    assert_eq!(session_digest(Some(&without)), None);
+    let token = session_digest(Some(&with)).expect("a digest");
+    assert_eq!(token.len(), 16);
+    assert!(!token.contains("abc"));
+    assert_ne!(Some(token), session_digest(None), "digests differ by value");
+    assert_ne!(digest_token("session", "x"), digest_token("changeset", "x"));
+}
+
+/// Issue #834: one catalog is its name, two are `multiple`, none is `none`.
+#[tokio::test]
+async fn note_catalog_tracks_one_name_then_multiple() {
+    let seen = Arc::new(Mutex::new(CatalogSeen::default()));
+    assert_eq!(seen.lock().expect("lock").label(), "none");
+    TOOL_CATALOG
+        .scope(Arc::clone(&seen), async {
+            note_catalog("pg");
+            note_catalog("pg");
+            assert_eq!(seen.lock().expect("lock").label(), "pg");
+            note_catalog("other");
+        })
+        .await;
+    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+    // Outside a call it does nothing.
+    note_catalog("ignored");
+    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+}

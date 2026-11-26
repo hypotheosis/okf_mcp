@@ -1586,6 +1586,15 @@ resolved to a user or key by whoever can read your database or the audit log,
 so choose a receiver you trust with them. Catalog names are exported too, as
 the `okf.catalog` span attribute and the `catalog` metric label.
 
+`mcp.session.id` and `okf.changeset` are digests, never the raw values: a
+session id or a changeset handle lets whoever holds it act on the session or
+changeset (with the owning key), so neither leaves the server. Each is the
+first 16 hex digits of `SHA-256(kind, 0x00, value)`, unkeyed so every replica
+gives the same token: filter on `mcp.session.id` to see one session's calls,
+or on `okf.changeset` to see the calls on one changeset. To find the token
+for a session or handle you hold, hash it the same way. Both ids are random
+UUIDs, so the token cannot be turned back into the value.
+
 Metric labels come from closed sets only: route templates, registered tool
 names (anything else is `other`), catalog names, and fixed outcome, method,
 rule, reason and status words. No gauge has a series per catalog. The counters
@@ -1678,7 +1687,7 @@ tool, so at the default `info` filter their traces hold the request span alone.
 | Span | Attributes |
 |---|---|
 | `<METHOD> <route>`, such as `POST /signin` (server). No span for an unmatched route | `http.request.method` (`_OTHER` for an unknown method), `http.route`, `http.response.status_code`, `enduser.id`, `okf.key.id`. The status is `Error` for a 5xx only. The caller's `traceparent`, if any, is a link |
-| `mcp <tool>` (server): one per tool call; `other` for an unregistered name | `okf.tool`, `okf.catalog` (an existing catalog, else `none`), `okf.outcome` (`ok` or `error`), `okf.error.kind` on failure, `enduser.id`, `okf.key.id` |
+| `mcp <tool>` (server): one per tool call; `other` for an unregistered name | `okf.tool`, `okf.catalog` (the catalog the tool resolved: an existing catalog's name, from the `catalog` argument, the changeset or the connection's selection; `multiple` when a call reached several, `none` when it resolved none), `mcp.session.id` (a digest of the `Mcp-Session-Id`, only when the request has one), `okf.changeset` (a digest of the `changeset` argument, only when the call names one), `okf.outcome` (`ok` or `error`), `okf.error.kind` on failure, `enduser.id`, `okf.key.id` |
 | `okf.publish`, with children `okf.publish.lock`, `okf.publish.lint` and `okf.publish.write` | `okf.catalog`, `okf.changeset.entries` |
 | `okf.catalog.announcement`: a root per catalog announcement handled | `okf.catalog` (a catalog cached on this replica only), `okf.announcement.result` (as `okf_catalog_announcements_total`'s `result`) |
 | `okf.clock.check` | `okf.outcome`, `okf.clock.offset` (seconds) |

@@ -5275,7 +5275,7 @@ reachable stable tags and committed history. Do not run releases concurrently.
 git switch main
 git pull --ff-only
 just release-prepare patch   # required: patch, minor, major, or exact 1.2.3
-just release-ship
+just release-ship             # add --no-checks to skip fmt, lint and test
 ```
 
 Preparation requires a clean `main` exactly equal to fetched `origin/main`.
@@ -5293,7 +5293,9 @@ Shipping checks that `HEAD` is that prepared, single-parent commit and its
 annotated tag matches the package version. A published tag is always refused.
 Before opening or reusing `release/v<version>`'s PR, it runs `just fmt`,
 `just lint`, and `just test`, the only checks a release gets (they respect
-`RUST_TEST_THREADS` if set). **There is no PR CI configured:** this is local validation, not a claim
+`RUST_TEST_THREADS` if set). `just release-ship --no-checks` skips them, for a
+`main` whose changes were each tested as they merged; the release PR's body
+then says the checks were skipped. **There is no PR CI configured:** this is local validation, not a claim
 that absent CI passed. The script does not wait for nonexistent checks. A
 conflicting remote release branch, ambiguous/closed PR, API failure, or main
 moving before merge stops shipping without cleanup. Branch creation uses an

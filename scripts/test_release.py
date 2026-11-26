@@ -42,11 +42,15 @@ elif command == 'create':
     head = git('rev-parse', 'refs/heads/' + option('--head'))
     pr = dict(number=1, state='OPEN', headRefOid=head, headRefName=option('--head'),
               baseRefName='main', mergeCommit=None, url='https://github.com/test/repo/pull/1',
+              body=option('--body'),
               tagsAtCreate=git('for-each-ref', '--format=%(refname)', 'refs/tags/').splitlines())
     p.write_text(json.dumps(pr))
     if os.environ.get('CREATE_FAIL_AFTER'):
         sys.exit(1)
     print(pr['url'])
+elif command == 'edit':
+    pr['body'] = option('--body')
+    p.write_text(json.dumps(pr))
 elif command == 'merge':
     if os.environ.get('MERGE_FAIL_BEFORE'):
         sys.exit(1)
@@ -136,8 +140,8 @@ class Releases(unittest.TestCase):
     def prepare(self, level="patch", **env):
         return self.command(JUST, "release-prepare", level, **env)
 
-    def ship(self, **env):
-        return self.command(JUST, "release-ship", **env)
+    def ship(self, *flags, **env):
+        return self.command(JUST, "release-ship", *flags, **env)
 
     def prepared(self):
         self.prepare()
@@ -179,6 +183,9 @@ class Releases(unittest.TestCase):
                 self.assertEqual(self.git("status", "--porcelain"), "")
         self.command(JUST, "release-prepare", ok=False)
         self.command(JUST, "release-ship", "extra", ok=False)
+        self.command(JUST, "release-ship", "--no-checks", "extra", ok=False)
+        self.command(JUST, "release-ship", "--no-checks; touch INJECTED", ok=False)
+        self.assertFalse((self.repo / "INJECTED").exists())
 
     def test_dirty_and_wrong_branch(self):
         (self.repo / "dirty").touch()
@@ -207,6 +214,34 @@ class Releases(unittest.TestCase):
         self.assertEqual(self.git("cat-file", "-t", "v0.9.1"), "tag")
         self.ship(FAIL_CHECK="test", ok=False)
         self.assertFalse(Path(self.env["PR_STATE"]).exists())
+
+    def test_ship_checks_by_default_and_says_so(self):
+        self.prepared()
+        self.ship()
+        body = json.loads(Path(self.env["PR_STATE"]).read_text())["body"]
+        self.assertIn("fmt, lint and test run locally", body)
+
+    def test_no_checks_skips_them_and_says_so(self):
+        # A failing check would stop the ship if it ran; --no-checks runs none.
+        self.prepared()
+        out = self.ship("--no-checks", FAIL_CHECK="test")
+        self.assertIn("Skipping fmt, lint and test", out)
+        state = json.loads(Path(self.env["PR_STATE"]).read_text())
+        self.assertEqual(state["state"], "MERGED")
+        self.assertIn("skipped (--no-checks)", state["body"])
+        self.assertEqual(self.git("rev-parse", "v0.9.1^{commit}"), state["mergeCommit"]["oid"])
+
+    def test_resumed_ship_records_its_own_checks(self):
+        # A --no-checks run stops before merging; the checked rerun must say checks ran.
+        self.prepared()
+        self.ship("--no-checks", MERGE_FAIL_BEFORE="1", ok=False)
+        state = json.loads(Path(self.env["PR_STATE"]).read_text())
+        self.assertEqual(state["state"], "OPEN")
+        self.assertIn("skipped (--no-checks)", state["body"])
+        self.ship()
+        state = json.loads(Path(self.env["PR_STATE"]).read_text())
+        self.assertEqual(state["state"], "MERGED")
+        self.assertIn("fmt, lint and test run locally", state["body"])
 
     def test_failed_ship_checks_no_pr(self):
         self.prepared()

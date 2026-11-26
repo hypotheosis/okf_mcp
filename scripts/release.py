@@ -124,7 +124,7 @@ def hook(old, new):
     git("add", "--", str(notes))
 
 
-def ship():
+def ship(run_checks=True):
     clean_main()
     prepared = git("rev-parse", "HEAD")
     tag = f"v{version()}"
@@ -170,7 +170,11 @@ def ship():
     else:
         require(target in (prepared, pr["mergeCommit"]["oid"]), "unexpected resumed tag target")
 
-    checks()
+    if run_checks:
+        checks()
+    else:
+        # Every change on main was gated when it merged; the owner may skip a second run.
+        print("Skipping fmt, lint and test (--no-checks).")
     clean_main()
     require(git("rev-parse", "HEAD") == prepared, "HEAD changed during checks")
     require(git("rev-parse", f"{tag}^{{commit}}") == target, "tag changed during checks")
@@ -184,10 +188,13 @@ def ship():
             # Even a concurrent branch creation must fail rather than fast-forward it.
             git("push", "--no-follow-tags", "--force-with-lease=refs/heads/" + branch + ":", "origin",
                 f"{prepared}:refs/heads/{branch}")
+        validation = ("fmt, lint and test run locally" if run_checks else
+                      "fmt, lint and test skipped (--no-checks): main was tested as each "
+                      "change merged")
+        body = f"Prepared by cargo-release; {validation}. No PR CI is configured."
         if pr is None:
             gh("create", "--base", "main", "--head", branch,
-               "--title", f"chore: Release {tag}", "--body",
-               "Prepared by cargo-release; fmt, lint and test run locally. No PR CI is configured.")
+               "--title", f"chore: Release {tag}", "--body", body)
             prs = json.loads(gh("list", "--state", "all", "--head", branch, "--base", "main",
                                 "--json", "number"))
             require(len(prs) == 1, "could not identify created PR; rerun to resume")
@@ -196,6 +203,8 @@ def ship():
             and pr["baseRefName"] == "main", "PR does not match prepared release")
     if pr["state"] != "MERGED":
         require(pr["state"] == "OPEN", "release PR is not open")
+        # A resumed run may differ from the one that opened the PR: record this run's checks.
+        gh("edit", str(pr["number"]), "--body", body)
         require(fetch_main() == base, "origin/main moved before merge")
         gh("merge", str(pr["number"]), "--merge", "--match-head-commit", prepared)
         pr = view(pr["number"])
@@ -223,11 +232,12 @@ if __name__ == "__main__":
         args = sys.argv[1:]
         if len(args) == 2 and args[0] == "prepare":
             prepare(args[1])
-        elif args == ["ship"]:
-            ship()
+        elif args in (["ship"], ["ship", "--no-checks"]):
+            ship(run_checks=args == ["ship"])
         elif len(args) == 3 and args[0] == "hook":
             hook(*args[1:])
         else:
-            raise ValueError("usage: just release-prepare <patch|minor|major|VERSION> | just release-ship")
+            raise ValueError("usage: just release-prepare <patch|minor|major|VERSION> | "
+                             "just release-ship [--no-checks]")
     except (ValueError, KeyError, TypeError, OSError, subprocess.CalledProcessError) as error:
         sys.exit(f"Release stopped: {error}. State is preserved; inspect before retrying or cleaning up.")

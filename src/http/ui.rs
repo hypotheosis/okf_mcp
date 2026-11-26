@@ -94,16 +94,26 @@ pub(crate) fn content_type(path: &str) -> &'static str {
 #[tracing::instrument(level = "trace", skip_all)]
 pub(crate) fn asset(table: &[(&str, &'static [u8])], path: &str) -> Response {
     match table.iter().find(|(name, _)| *name == path) {
-        Some((name, body)) => (
-            [
-                (header::CONTENT_TYPE, content_type(name)),
-                (header::CACHE_CONTROL, "no-cache"),
-            ],
-            *body,
-        )
-            .into_response(),
+        Some((name, body)) => static_file(
+            (
+                [
+                    (header::CONTENT_TYPE, content_type(name)),
+                    (header::CACHE_CONTROL, "no-cache"),
+                ],
+                *body,
+            )
+                .into_response(),
+        ),
         None => StatusCode::NOT_FOUND.into_response(),
     }
+}
+
+/// Marks `response` as an embedded static file, which carries no
+/// `X-Trace-Id` (see [`crate::http::StaticFile`]).
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn static_file(mut response: Response) -> Response {
+    response.extensions_mut().insert(crate::http::StaticFile);
+    response
 }
 
 /// One console file's bytes, by its path below `src/http/ui`.

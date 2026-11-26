@@ -23,7 +23,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use axum::extract::{MatchedPath, State};
-use axum::http::StatusCode;
+use axum::http::{HeaderName, HeaderValue, StatusCode};
 use axum::middleware;
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
@@ -688,6 +688,17 @@ fn record_response<B>(response: &Response<B>, latency: Duration, span: &tracing:
 /// The route health probes poll; its completion line is logged at DEBUG.
 const HEALTH_ROUTE: &str = "/healthz";
 
+/// The response header that names the request's trace (issue #1105).
+pub(crate) const TRACE_ID_HEADER: HeaderName = HeaderName::from_static("x-trace-id");
+
+/// A response extension (a typed per-response map) that marks a response as
+/// an embedded static file, so `request_telemetry` leaves `X-Trace-Id` off
+/// it: the bytes are the same for every request, and a cache or CDN that
+/// kept the header with the body would hand out the first caller's id to
+/// everyone after (issue #1105).
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct StaticFile;
+
 /// A response extension (a typed per-response map) that `request_telemetry`
 /// sets on a health probe's response so [`record_response`], which sees the
 /// response but not the request, can log its completion line at DEBUG.
@@ -734,11 +745,22 @@ async fn request_telemetry(
     // this future) still balances the counter.
     let _in_flight = app.metrics().http_in_flight(method, &route);
     let started = std::time::Instant::now();
+    let span = tracing::Span::current();
     // `scope` makes the span reachable from `AppError::into_response`, which
     // runs inside `next`.
-    let mut response = REQUEST_SPAN
-        .scope(tracing::Span::current(), next.run(request))
-        .await;
+    let mut response = REQUEST_SPAN.scope(span.clone(), next.run(request)).await;
+    // The same id an internal error's body quotes, so a user can name any
+    // request, not only a failed one. Left off when the span has no valid
+    // trace context (never zeros) and off embedded static files.
+    if response.extensions().get::<StaticFile>().is_none() {
+        if let Some(trace_id) = crate::telemetry::propagation::trace_id_of(&span) {
+            // 32 hex digits are always a valid header value; `if let Ok`
+            // only avoids an `unwrap`.
+            if let Ok(value) = HeaderValue::from_str(&trace_id) {
+                response.headers_mut().insert(TRACE_ID_HEADER, value);
+            }
+        }
+    }
     app.metrics().http_request(
         method,
         &route,

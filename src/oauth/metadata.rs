@@ -176,6 +176,11 @@ fn public(document: impl Serialize) -> Response {
         header::ACCESS_CONTROL_ALLOW_ORIGIN,
         HeaderValue::from_static("*"),
     );
+    // Without this a browser client's script cannot read `X-Trace-Id`.
+    response.headers_mut().insert(
+        header::ACCESS_CONTROL_EXPOSE_HEADERS,
+        HeaderValue::from_static("x-trace-id"),
+    );
     response
 }
 
@@ -284,6 +289,10 @@ mod tests {
             assert_eq!(status, StatusCode::OK, "{path}");
             assert_eq!(body["resource"], "http://127.0.0.1:8080/mcp", "{path}");
             assert_eq!(headers["access-control-allow-origin"], "*", "{path}");
+            assert_eq!(
+                headers["access-control-expose-headers"], "x-trace-id",
+                "{path}"
+            );
             assert_eq!(headers[header::CACHE_CONTROL], "no-store", "{path}");
         }
         let (status, headers, body) = get(&test, "/.well-known/oauth-authorization-server").await;

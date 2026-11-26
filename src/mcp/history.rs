@@ -78,6 +78,8 @@ pub struct History {
     pub catalog_label: String,
     /// `/`-prefixed path.
     pub path: String,
+    /// The revision published now, whatever the filters: null when the path has no live document (it was deleted). Pass it as `expected_revision` to `revert`.
+    pub current_revision: Option<i32>,
     /// Newest first.
     pub revisions: Vec<Revision>,
 }
@@ -316,6 +318,7 @@ pub(crate) async fn history(ctx: &ToolContext, params: HistoryParams) -> Result<
                 catalog: state.name().to_string(),
                 catalog_label: ctx.catalog_label(state.name()).await?,
                 path: format!("/{path}"),
+                current_revision: state.current().revision(path),
                 revisions,
             });
         }
@@ -616,6 +619,8 @@ mod tests {
             ("work", "/infra/b.md")
         );
         assert_eq!(found.revisions.len(), 1);
+        // The live revision, to pass back as `revert`'s `expected_revision`.
+        assert_eq!(found.current_revision, Some(1));
         assert_eq!(found.revisions[0].op, "import");
         assert_eq!(found.revisions[0].actor, "tester");
         assert!(found.revisions[0].at.ends_with('Z'));

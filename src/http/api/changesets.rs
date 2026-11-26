@@ -721,6 +721,7 @@ mod tests {
         let same = RevertParams {
             path: "/systems/beta.md".to_string(),
             revision: 1,
+            expected_revision: None,
             changeset: no_op.clone(),
         };
         revert(&ctx_of(&test, &keys.write).await, same)

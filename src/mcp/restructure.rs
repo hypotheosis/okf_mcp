@@ -526,6 +526,7 @@ mod tests {
             RevertParams {
                 path: "/infra/time.md".to_string(),
                 revision: 1,
+                expected_revision: None,
                 changeset: handle.clone(),
             },
         )

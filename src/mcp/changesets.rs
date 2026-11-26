@@ -675,6 +675,9 @@ pub struct RevertParams {
     pub path: String,
     /// The revision to go back to, as `history` lists it; a `delete` revision means deleting the document.
     pub revision: i32,
+    /// The document's `current_revision` as `history` showed it. If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now.
+    #[serde(default)]
+    pub expected_revision: Option<i32>,
     /// The changeset to write to: the handle `open_changeset` returned.
     pub changeset: String,
 }
@@ -897,12 +900,15 @@ pub(crate) async fn discard(
 ///
 /// # Arguments
 /// * `ctx` - the call's context.
-/// * `params` - the path, revision and changeset.
+/// * `params` - the path, revision, optional `expected_revision` and
+///   changeset.
 ///
 /// # Returns
 /// The write's report.
 ///
 /// # Errors
+/// [`OkfError::Conflict`] when `expected_revision` is given and is not the
+/// revision published now (nothing is written; issue #795);
 /// [`OkfError::InvalidPath`] for machinery or a path outside the catalog
 /// (before any history is read); as [`ToolContext::changeset`] (with
 /// `write`); [`OkfError::NotFound`] for a
@@ -919,6 +925,7 @@ pub(crate) async fn revert(
     let RevertParams {
         path,
         revision,
+        expected_revision,
         changeset,
     } = params;
     // The write rules refuse machinery here, before the history is read;
@@ -980,6 +987,12 @@ pub(crate) async fn revert(
             replay: BTreeMap::new(),
             message,
             notes: Vec::new(),
+            // The caller's `history` read, checked in `apply` against the
+            // snapshot the base comes from (issue #795).
+            expected: expected_revision
+                .map(|seen| (path.clone(), seen))
+                .into_iter()
+                .collect(),
             rebased: BTreeSet::from([path]),
         })
     })
@@ -1247,7 +1260,9 @@ impl OkfServer {
         description = "Add a document's content at an earlier revision (from `history`), or its \
                        deletion for a `delete` revision, to the changeset `changeset` names, for \
                        review and publish like any other edit. Every write rule applies, so \
-                       machinery cannot be reverted. The revert is based on the revision \
+                       machinery cannot be reverted. Pass `expected_revision` (the \
+                       `current_revision` from `history`) to refuse with Conflict, writing \
+                       nothing, if the document was published since. The revert is based on the revision \
                        published now, even if this changeset edited the document before, so \
                        publish conflicts only if the document is published again after it. \
                        Reverting a file this changeset created to a `delete` revision drops it \
@@ -2061,6 +2076,7 @@ mod publish_tests {
         let same = RevertParams {
             path: "/infra/y.md".to_string(),
             revision: 1,
+            expected_revision: None,
             changeset: unchanged.clone(),
         };
         revert(&ctx, same).await.unwrap();
@@ -2518,6 +2534,7 @@ mod publish_tests {
         let params = RevertParams {
             path: path.to_string(),
             revision,
+            expected_revision: None,
             changeset: handle.to_string(),
         };
         revert(ctx, params).await.unwrap()
@@ -2656,6 +2673,57 @@ mod publish_tests {
             ),
             "{error:?}"
         );
+    }
+
+    /// `revert`'s `expected_revision` (issue #795): a matching value
+    /// succeeds, a stale one is refused with a Conflict naming the revision
+    /// now and writes nothing, and none behaves as before.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_revert_with_an_expected_revision_refuses_a_stale_one_and_writes_nothing() {
+        let test = pg().await;
+        let ours = writer(&test, "writer-a", "pg").await;
+        let theirs = writer(&test, "writer-b", "pg").await;
+        let (stale, fresh, plain) = (open(&ours).await, open(&ours).await, open(&ours).await);
+        publish_file(&theirs, "a.md", Some(&note("Two"))).await;
+        // What the caller's `history` showed.
+        let seen = published_revision(&test, "a.md").await;
+        assert_eq!(seen, Some(2));
+        // Someone else publishes between that read and the revert.
+        publish_file(&theirs, "a.md", Some(&note("Three"))).await;
+        let now = published_revision(&test, "a.md").await;
+
+        let with = |handle: &str, expected| RevertParams {
+            path: "/a.md".to_string(),
+            revision: 1,
+            expected_revision: expected,
+            changeset: handle.to_string(),
+        };
+        let error = revert(&ours, with(&stale, seen)).await.unwrap_err();
+        assert!(
+            matches!(
+                error,
+                OkfError::Conflict { ref files } if files == &[ConflictFile {
+                    path: "/a.md".to_string(),
+                    base_revision: seen,
+                    current_revision: now,
+                }]
+            ),
+            "{error:?}"
+        );
+        assert!(entry_for(&test, &stale, "a.md").await.is_none());
+        assert_eq!(published_text(&test, "a.md").await, note("Three"));
+
+        let report = revert(&ours, with(&fresh, now)).await.unwrap();
+        assert_eq!(report.touched, ["/a.md"]);
+        let entry = entry_for(&test, &fresh, "a.md").await.unwrap();
+        assert_eq!(
+            (entry.base_revision, entry.content.as_deref()),
+            (now, Some(NOTE.as_bytes()))
+        );
+
+        // No argument: unchanged behaviour.
+        revert(&ours, with(&plain, None)).await.unwrap();
+        assert!(entry_for(&test, &plain, "a.md").await.is_some());
     }
 
     /// A revert to a `delete` revision of a path the changeset had edited
@@ -3366,6 +3434,7 @@ mod changes_tests {
         RevertParams {
             path: path.to_string(),
             revision,
+            expected_revision: None,
             changeset: handle.to_string(),
         }
     }
@@ -4558,6 +4627,7 @@ mod suspension_tests {
                         RevertParams {
                             path: "a.md".to_string(),
                             revision: 1,
+                            expected_revision: None,
                             changeset: changeset.clone(),
                         },
                     )

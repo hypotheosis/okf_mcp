@@ -19,7 +19,7 @@ use chrono::{DateTime, Utc};
 use schemars::JsonSchema;
 use serde::Serialize;
 
-use crate::error::OkfError;
+use crate::error::{ConflictFile, OkfError};
 use crate::mcp::blocking;
 use crate::mcp::context::{Pinned, ToolContext};
 use crate::okf::ops::replay::ReplayOp;
@@ -235,6 +235,25 @@ where
     // `Arc::clone` gives the blocking thread its own handle on the overlay.
     let work = Arc::clone(&overlay);
     let (outcome, files) = blocking(move || run(&work, &by, now, op)).await?;
+
+    // The caller's expected revisions, against the snapshot the bases below
+    // come from. Before anything is stored, so a stale one writes nothing
+    // (dropping `tx` rolls back).
+    let stale: Vec<ConflictFile> = outcome
+        .expected
+        .iter()
+        .filter_map(|(path, seen)| {
+            let now_published = overlay.base().revision(path);
+            (now_published != Some(*seen)).then(|| ConflictFile {
+                path: format!("/{path}"),
+                base_revision: Some(*seen),
+                current_revision: now_published,
+            })
+        })
+        .collect();
+    if !stale.is_empty() {
+        return Err(OkfError::Conflict { files: stale });
+    }
 
     // Only the paths that end up with an entry (written or a deletion).
     let mut paths = Vec::with_capacity(files.len());
@@ -500,6 +519,7 @@ mod tests {
             message: "test".to_string(),
             notes: Vec::new(),
             rebased: BTreeSet::new(),
+            expected: BTreeMap::new(),
         }
     }
 

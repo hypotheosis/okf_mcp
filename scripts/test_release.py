@@ -48,6 +48,9 @@ elif command == 'create':
     if os.environ.get('CREATE_FAIL_AFTER'):
         sys.exit(1)
     print(pr['url'])
+elif command == 'edit':
+    pr['body'] = option('--body')
+    p.write_text(json.dumps(pr))
 elif command == 'merge':
     if os.environ.get('MERGE_FAIL_BEFORE'):
         sys.exit(1)
@@ -227,6 +230,18 @@ class Releases(unittest.TestCase):
         self.assertEqual(state["state"], "MERGED")
         self.assertIn("skipped (--no-checks)", state["body"])
         self.assertEqual(self.git("rev-parse", "v0.9.1^{commit}"), state["mergeCommit"]["oid"])
+
+    def test_resumed_ship_records_its_own_checks(self):
+        # A --no-checks run stops before merging; the checked rerun must say checks ran.
+        self.prepared()
+        self.ship("--no-checks", MERGE_FAIL_BEFORE="1", ok=False)
+        state = json.loads(Path(self.env["PR_STATE"]).read_text())
+        self.assertEqual(state["state"], "OPEN")
+        self.assertIn("skipped (--no-checks)", state["body"])
+        self.ship()
+        state = json.loads(Path(self.env["PR_STATE"]).read_text())
+        self.assertEqual(state["state"], "MERGED")
+        self.assertIn("fmt, lint and test run locally", state["body"])
 
     def test_failed_ship_checks_no_pr(self):
         self.prepared()

@@ -188,13 +188,13 @@ def ship(run_checks=True):
             # Even a concurrent branch creation must fail rather than fast-forward it.
             git("push", "--no-follow-tags", "--force-with-lease=refs/heads/" + branch + ":", "origin",
                 f"{prepared}:refs/heads/{branch}")
+        validation = ("fmt, lint and test run locally" if run_checks else
+                      "fmt, lint and test skipped (--no-checks): main was tested as each "
+                      "change merged")
+        body = f"Prepared by cargo-release; {validation}. No PR CI is configured."
         if pr is None:
-            validation = ("fmt, lint and test run locally" if run_checks else
-                          "fmt, lint and test skipped (--no-checks): main was tested as each "
-                          "change merged")
             gh("create", "--base", "main", "--head", branch,
-               "--title", f"chore: Release {tag}", "--body",
-               f"Prepared by cargo-release; {validation}. No PR CI is configured.")
+               "--title", f"chore: Release {tag}", "--body", body)
             prs = json.loads(gh("list", "--state", "all", "--head", branch, "--base", "main",
                                 "--json", "number"))
             require(len(prs) == 1, "could not identify created PR; rerun to resume")
@@ -203,6 +203,8 @@ def ship(run_checks=True):
             and pr["baseRefName"] == "main", "PR does not match prepared release")
     if pr["state"] != "MERGED":
         require(pr["state"] == "OPEN", "release PR is not open")
+        # A resumed run may differ from the one that opened the PR: record this run's checks.
+        gh("edit", str(pr["number"]), "--body", body)
         require(fetch_main() == base, "origin/main moved before merge")
         gh("merge", str(pr["number"]), "--merge", "--match-head-commit", prepared)
         pr = view(pr["number"])

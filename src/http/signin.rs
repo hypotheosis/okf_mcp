@@ -57,6 +57,9 @@ const CROSS_SITE: &str = "This form can only be sent from this site. Open it her
 /// The sign-in and setup pages' passkey script (Task 8).
 pub(crate) const PASSKEY_SCRIPT: &str = "/ui/js/signin/passkey.js";
 
+/// The setup and reset pages' show/hide buttons for their password fields.
+const REVEAL_SCRIPT: &str = "/ui/js/signin/reveal.js";
+
 /// A configured OIDC provider's button on the sign-in page (Task 9).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProviderButton {
@@ -906,10 +909,10 @@ pub(crate) fn setup_html(view: &SetupView<'_>) -> String {
             <input type="hidden" name="token" value="{token}">
             <input type="hidden" name="return_to" value="{return_to}">
             <label>Password (at least 12 characters)
-                <input type="password" name="password" id="setup-password" autocomplete="new-password" minlength="12" required>
+                <input type="password" name="password" id="setup-password" data-reveal="password" autocomplete="new-password" minlength="12" required>
             </label>
             <label>Confirm the password
-                <input type="password" name="confirm" id="setup-confirm" autocomplete="new-password" required>
+                <input type="password" name="confirm" id="setup-confirm" data-reveal="password confirmation" autocomplete="new-password" required>
             </label>
             <button type="submit" id="setup-submit">Set password and sign in</button>
         </form>{passkey}"#,
@@ -922,7 +925,11 @@ pub(crate) fn setup_html(view: &SetupView<'_>) -> String {
 /// The setup page with `status`.
 #[tracing::instrument(level = "trace", skip_all)]
 fn setup_response(status: StatusCode, view: &SetupView<'_>, brand: &Brand) -> Response {
-    let scripts: &[&str] = if view.passkey { &[PASSKEY_SCRIPT] } else { &[] };
+    let scripts: &[&str] = if view.passkey {
+        &[REVEAL_SCRIPT, PASSKEY_SCRIPT]
+    } else {
+        &[REVEAL_SCRIPT]
+    };
     pages::respond(
         status,
         pages::document("Set up your account", &setup_html(view), scripts, brand),
@@ -1193,10 +1200,10 @@ fn reset_html(token: &str, error: Option<&str>) -> String {
 {error}        <form method="post" action="/account/reset" id="reset-form">
             <input type="hidden" name="token" value="{token}">
             <label>New password (at least 12 characters)
-                <input type="password" name="password" id="reset-password" autocomplete="new-password" minlength="12" required>
+                <input type="password" name="password" id="reset-password" data-reveal="new password" autocomplete="new-password" minlength="12" required>
             </label>
             <label>Confirm the password
-                <input type="password" name="confirm" id="reset-confirm" autocomplete="new-password" required>
+                <input type="password" name="confirm" id="reset-confirm" data-reveal="new password confirmation" autocomplete="new-password" required>
             </label>
             <button type="submit" id="reset-submit">Change password</button>
         </form>"#,
@@ -1208,12 +1215,15 @@ fn reset_html(token: &str, error: Option<&str>) -> String {
 /// The reset page with `status`.
 #[tracing::instrument(level = "trace", skip_all)]
 fn reset_response(status: StatusCode, token: &str, error: Option<&str>, brand: &Brand) -> Response {
-    pages::page(
+    pages::respond(
         status,
-        "Choose a new password",
-        &reset_html(token, error),
+        pages::document(
+            "Choose a new password",
+            &reset_html(token, error),
+            &[REVEAL_SCRIPT],
+            brand,
+        ),
         CONTENT_SECURITY_POLICY,
-        brand,
     )
 }
 
@@ -2246,8 +2256,10 @@ mod tests {
             page.headers["content-security-policy"],
             CONTENT_SECURITY_POLICY
         );
-        // Passkeys are on for this domain, so only their script loads.
-        assert_eq!(page.text().matches("<script").count(), 1);
+        // Passkeys are on for this domain: the reveal buttons' script and
+        // the passkey script load, and nothing else.
+        assert_eq!(page.text().matches("<script").count(), 2);
+        assert!(page.text().contains(REVEAL_SCRIPT));
         assert!(page.text().contains(PASSKEY_SCRIPT));
         assert_eq!(done.status, StatusCode::SEE_OTHER);
         assert_eq!(done.location(), "/ui/");
@@ -3404,6 +3416,32 @@ mod tests {
         assert!(html.contains("Sign in with Example &lt;ID&gt;"));
         assert!(html.contains(SIGN_IN_FAILED));
         assert!(html.contains(r#"id="signin-api-key""#));
+    }
+
+    #[test]
+    fn the_setup_and_reset_forms_mark_each_password_input_for_a_reveal_button() {
+        let setup = setup_html(&SetupView {
+            user: "alice",
+            token: "t",
+            return_to: "/ui/",
+            error: None,
+            passkey: false,
+        });
+        let reset = reset_html("t", None);
+
+        for (html, marks) in [
+            (&setup, ["password", "password confirmation"]),
+            (&reset, ["new password", "new password confirmation"]),
+        ] {
+            for mark in marks {
+                let attribute = r#"type="password" name=""#;
+                assert!(html.contains(&format!(r#"data-reveal="{mark}""#)), "{html}");
+                assert!(html.contains(attribute), "{html}");
+            }
+            // The buttons come from the script: no markup, and no inline handler.
+            assert!(!html.contains("<button type=\"button\""), "{html}");
+            assert!(!html.contains("onclick"), "{html}");
+        }
     }
 
     #[tokio::test(flavor = "multi_thread")]

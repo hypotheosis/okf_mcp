@@ -230,6 +230,100 @@ async fn a_wrong_current_password_is_refused_and_keeps_the_session() {
     );
 }
 
+/// The selector of the show/hide button of the password field `field`.
+fn reveal(field: &str) -> String {
+    format!("#password-form [data-reveal-for='{field}']")
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn each_password_field_has_its_own_show_hide_button_and_the_form_still_works() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    let ran = drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_visible("#password-form");
+        let current = "#password-form input[name=current]";
+        let next = "#password-form input[name=password]";
+        let confirm = "#password-form input[name=confirm]";
+        // Every field starts masked, with a named, unpressed button.
+        for input in [current, next, confirm] {
+            assert_eq!(ui.input_state(input).0, "password", "{input}");
+        }
+        for (field, label) in [
+            ("current password", "Show current password"),
+            ("new password", "Show new password"),
+            (
+                "new password confirmation",
+                "Show new password confirmation",
+            ),
+        ] {
+            let button = reveal(field);
+            assert_eq!(ui.attribute(&button, "aria-label"), label);
+            assert_eq!(ui.attribute(&button, "aria-pressed"), "false");
+            assert_eq!(ui.attribute(&button, "type"), "button");
+        }
+        // The input keeps its visible label as its name.
+        assert_eq!(ui.attribute(next, "aria-label"), "New password");
+
+        ui.fill(current, PASSWORD);
+        ui.fill(next, NEW_PASSWORD);
+        ui.fill(confirm, NEW_PASSWORD);
+        // Any toggle that sent the form would make this request.
+        ui.hold_next("PUT", "/me/password");
+
+        // One button reveals only its own field, with the value intact.
+        ui.click(&reveal("new password"));
+        assert_eq!(ui.input_state(next), ("text".into(), NEW_PASSWORD.into()));
+        assert_eq!(ui.input_state(confirm).0, "password");
+        assert_eq!(ui.input_state(current).0, "password");
+        assert_eq!(
+            ui.attribute(&reveal("new password"), "aria-label"),
+            "Hide new password"
+        );
+        assert_eq!(
+            ui.attribute(&reveal("new password"), "aria-pressed"),
+            "true"
+        );
+        // Both new fields can be shown at once, to compare them.
+        ui.click(&reveal("new password confirmation"));
+        assert_eq!(ui.input_state(next).1, ui.input_state(confirm).1);
+        assert_eq!(ui.input_state(confirm).0, "text");
+        // A second click masks only its field again.
+        ui.click(&reveal("new password"));
+        assert_eq!(ui.input_state(next).0, "password");
+        assert_eq!(ui.input_state(confirm).0, "text");
+        assert_eq!(ui.held_matches(), 0, "a toggle sent the form");
+        // Typing continues in the revealed field.
+        ui.fill(confirm, "changed my mind");
+        assert_eq!(ui.input_state(confirm).1, "changed my mind");
+        ui.click(&reveal("new password confirmation"));
+        ui.click(&reveal("current password"));
+        assert_eq!(ui.input_state(current).0, "text");
+        // Submitting with a field revealed works as with all masked: the
+        // confirmation check still sees the two values.
+        ui.click("#password-form button[type=submit]");
+        ui.wait_text("#toasts", "differ");
+        assert_eq!(ui.held_matches(), 0, "mismatched passwords were sent");
+        ui.fill(confirm, NEW_PASSWORD);
+        ui.click("#password-form button[type=submit]");
+        assert_eq!(ui.held_matches(), 1, "the matching passwords are sent once");
+        ui.release_held();
+        ui.wait_text("#toasts", "Password changed");
+        // A redrawn form is masked again.
+        ui.wait_visible("#password-form");
+        assert_eq!(ui.input_state(next).0, "password");
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    let changed = passwords::verify(&server.db.pool, EMAIL, NEW_PASSWORD, Utc::now())
+        .await
+        .expect("verify the new password");
+    assert!(matches!(changed, SignInOutcome::Ok(_)), "the new one works");
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn mismatched_new_passwords_are_caught_before_sending() {
     let server = login_server().await;

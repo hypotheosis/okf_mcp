@@ -516,6 +516,42 @@ impl Ui {
             .expect("evaluate")
     }
 
+    /// The `type` property of the input `selector` (`password` or `text`
+    /// for a password field with a show/hide button), and its value.
+    ///
+    /// # Arguments
+    /// * `selector` - a CSS selector for one input.
+    ///
+    /// # Returns
+    /// `(type, value)`; empty strings when nothing matches.
+    pub fn input_state(&self, selector: &str) -> (String, String) {
+        let state = self.eval(
+            "(selector) => { const el = document.querySelector(selector); \
+                return el ? [el.type, el.value] : ['', '']; }",
+            serde_json::json!(selector),
+        );
+        let part = |index: usize| state[index].as_str().unwrap_or_default().to_string();
+        (part(0), part(1))
+    }
+
+    /// An attribute of the first element matching `selector`.
+    ///
+    /// # Arguments
+    /// * `selector` - a CSS selector.
+    /// * `name` - the attribute's name.
+    ///
+    /// # Returns
+    /// Its value, or an empty string when absent.
+    pub fn attribute(&self, selector: &str, name: &str) -> String {
+        self.eval(
+            "([selector, name]) => document.querySelector(selector)?.getAttribute(name) ?? ''",
+            serde_json::json!([selector, name]),
+        )
+        .as_str()
+        .unwrap_or_default()
+        .to_string()
+    }
+
     /// Whether an element matching `selector` is in the page now (no wait).
     ///
     /// # Arguments

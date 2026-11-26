@@ -921,7 +921,7 @@ pub(crate) async fn resolve_grants(
 // order as `catalogs`, so the two arrays pair up; `COALESCE(g.access,
 // k.access)` resolves a NULL level to the key's own.
 macro_rules! select_key_records {
-    ($extra:literal, $filter:literal) => {
+    ($extra:literal, $filter:expr) => {
         concat!(
             "SELECT ",
             $extra,
@@ -1031,7 +1031,8 @@ pub async fn list(pool: &PgPool) -> Result<Vec<KeyRecord>, OkfError> {
 pub struct KeyFilter<'a> {
     /// Only credentials of this user, by `users.id`.
     pub user_id: Option<&'a str>,
-    /// Only credentials of this user, by `users.name`.
+    /// Only credentials of this user, by `users.name`; ignored when
+    /// `user_id` is set.
     pub user_name: Option<&'a str>,
     /// Only keys or only grants.
     pub kind: Option<KeyKind>,
@@ -1061,29 +1062,42 @@ pub async fn list_filtered(
     pool: &PgPool,
     filter: &KeyFilter<'_>,
 ) -> Result<Vec<KeyRecord>, OkfError> {
-    // A NULL bind leaves its condition out, so one statement serves every
-    // combination. `<> ALL` over the reached names finds a granted catalog
-    // outside them; an empty array rejects nothing, so a key with no
+    // The user condition is a separate statement per case, not `$1 IS NULL
+    // OR ...`: a generic plan cannot use `api_keys_user_id` through the
+    // OR. The other conditions only narrow rows already found, so a NULL
+    // bind leaves them out. `<> ALL` over the reached names finds a granted
+    // catalog outside them; an empty array rejects nothing, so a key with no
     // catalogs passes, as `Iterator::all` over none does in `manages`.
-    let rows = sqlx::query_as::<_, KeyRow>(concat!(
-        select_key_records!(
-            "",
-            "WHERE ($1::text IS NULL OR k.user_id = $1) \
-                AND ($2::text IS NULL OR u.name = $2) \
-                AND ($3::text IS NULL OR k.kind = $3) \
-                AND ($4::text[] IS NULL OR (NOT k.provisioner AND NOT k.all_catalogs \
-                    AND NOT EXISTS (SELECT 1 FROM key_catalogs x \
-                        JOIN catalogs xc ON xc.id = x.catalog_id \
-                        WHERE x.key_id = k.id AND xc.name <> ALL($4))))"
-        ),
-        " ORDER BY k.name, k.actor, k.created_at, k.id"
-    ))
-    .bind(filter.user_id)
-    .bind(filter.user_name)
-    .bind(filter.kind.map(KeyKind::as_str))
-    .bind(filter.reaching)
-    .fetch_all(pool)
-    .await?;
+    macro_rules! filtered {
+        ($user:literal) => {
+            concat!(
+                select_key_records!(
+                    "",
+                    concat!(
+                        "WHERE ",
+                        $user,
+                        " AND ($2::text IS NULL OR k.kind = $2) \
+                         AND ($3::text[] IS NULL OR (NOT k.provisioner AND NOT k.all_catalogs \
+                             AND NOT EXISTS (SELECT 1 FROM key_catalogs x \
+                                 JOIN catalogs xc ON xc.id = x.catalog_id \
+                                 WHERE x.key_id = k.id AND xc.name <> ALL($3))))"
+                    )
+                ),
+                " ORDER BY k.name, k.actor, k.created_at, k.id"
+            )
+        };
+    }
+    let (sql, user) = match (filter.user_id, filter.user_name) {
+        (Some(id), _) => (filtered!("k.user_id = $1"), Some(id)),
+        (None, Some(name)) => (filtered!("u.name = $1"), Some(name)),
+        (None, None) => (filtered!("$1::text IS NULL"), None),
+    };
+    let rows = sqlx::query_as::<_, KeyRow>(sql)
+        .bind(user)
+        .bind(filter.kind.map(KeyKind::as_str))
+        .bind(filter.reaching)
+        .fetch_all(pool)
+        .await?;
     rows.into_iter().map(KeyRecord::try_from).collect()
 }
 
@@ -1164,12 +1178,19 @@ pub async fn record_by_hash(
 /// * `id` - its `api_keys.id`.
 ///
 /// # Returns
-/// Its record, revoked or not, or `None` for no such row.
+/// Its record, revoked or not, or `None` for no such row (an id with a NUL
+/// is no such row).
 ///
 /// # Errors
 /// [`OkfError::Database`].
 #[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "keys.record_by_id"))]
 pub async fn record_by_id(pool: &PgPool, id: &str) -> Result<Option<CredentialRecord>, OkfError> {
+    // Postgres rejects NUL in text, which would be a 500; no id has one, so
+    // it takes the path of an unknown id (the routes look keys up by a
+    // client-chosen id).
+    if id.contains('\0') {
+        return Ok(None);
+    }
     let row = sqlx::query_as::<_, CredentialRow>(select_key_records!(
         "(SELECT a.id FROM audit_credentials a WHERE a.credential_id = k.id) \
              AS audit_credential, ",

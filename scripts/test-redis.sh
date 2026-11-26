@@ -36,7 +36,8 @@ set -euo pipefail
 # and the Valkey image tests/support/redis.rs starts per test.
 readonly REDIS_IMAGE=redis:7.4-alpine
 readonly VALKEY_IMAGE=valkey/valkey:8.1-alpine
-readonly READY_TIMEOUT_SECONDS=60
+# TEST_REDIS_READY_TIMEOUT lets scripts/test_test_servers.py shorten the wait.
+readonly READY_TIMEOUT_SECONDS=${TEST_REDIS_READY_TIMEOUT:-60}
 # shellcheck source=scripts/test-server-lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/test-server-lib.sh"
 
@@ -124,7 +125,10 @@ run() {
     trap "down '$name'" EXIT
     # Both servers are started; a variable that is already set wins.
     local started
-    started=$(up "$name" "$$")
+    # `set -e` inside the substitution: Bash clears errexit there, so without it
+    # a failed step in `up` would not stop it and the command would run
+    # against a server that never came up.
+    started=$(set -e; up "$name" "$$")
     local line
     while IFS= read -r line; do
         local variable=${line%%=*}

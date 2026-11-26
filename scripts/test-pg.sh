@@ -80,7 +80,9 @@ run() {
     local name="okf-mcp-test-pg-$$"
     # Set before `up`, so a server that fails to become ready is removed too.
     trap "down '$name'" EXIT
-    TEST_PG_URL=$(up "$name" "$$")
+    # `set -e` inside the substitution: Bash clears errexit there, so without it
+    # a failed `docker run` would not stop `up`.
+    TEST_PG_URL=$(set -e; up "$name" "$$")
     export TEST_PG_URL
     # The command runs in the background so a signal sent to this script
     # alone (`kill`, a timeout) is handled at once: bash defers traps while a

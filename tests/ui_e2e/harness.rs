@@ -6,6 +6,8 @@ use std::time::{Duration, Instant};
 
 use rustwright::{chromium, ActionOptions, Browser, GotoOptions, LaunchOptions, Page};
 
+use crate::browser_home::BrowserHome;
+
 /// How long `wait_*` polls before failing. A generous upper bound, not a
 /// pace: a poll returns the moment its condition holds, so a passing journey
 /// never waits this long, and a machine running several gates at once (load
@@ -92,6 +94,9 @@ pub struct Ui {
     // Declared after `page`, so the page is dropped before its browser
     // (Rust drops struct fields in declaration order).
     browser: Browser,
+    // Declared last, so the folder is removed after the browser has been
+    // closed (issue #1070, `browser_home`).
+    home: BrowserHome,
 }
 
 /// Runs `journey` in a fresh headless Chromium, then fails it on any console
@@ -107,23 +112,27 @@ where
     F: FnOnce(&Ui) + Send + 'static,
 {
     tokio::task::spawn_blocking(move || {
-        if chromium().executable_path().is_none() {
+        let Some(chromium_binary) = chromium().executable_path() else {
             eprintln!("skipping browser journey: no Chromium found (set RUSTWRIGHT_CHROMIUM)");
             return false;
-        }
-        let browser = chromium()
-            .launch(
-                LaunchOptions::default()
-                    .headless(true)
-                    .arg(LOCALHOST_IS_IPV4),
-            )
-            .expect("launch Chromium");
+        };
+        // The harness owns the profile folder and the launcher (issue
+        // #1070): rustwright's own profile folder comes back after it is
+        // deleted, and its browser outlives a test killed before `Drop`.
+        let home = BrowserHome::create(&chromium_binary).expect("create the browser's folder");
+        let mut options = LaunchOptions::default()
+            .headless(true)
+            .arg(LOCALHOST_IS_IPV4);
+        options.user_data_dir = Some(home.profile().to_string_lossy().into_owned());
+        options.executable_path = Some(home.launcher().to_string_lossy().into_owned());
+        let browser = chromium().launch(options).expect("launch Chromium");
         let page = browser.new_page().expect("open a page");
         page.arm_console_capture().expect("capture the console");
         let ui = Ui {
             base,
             page,
             browser,
+            home,
         };
         journey(&ui);
         ui.assert_no_console_errors();
@@ -134,6 +143,12 @@ where
 }
 
 impl Ui {
+    /// The folder holding this browser's profile and launcher, deleted when
+    /// the journey ends.
+    pub fn home_path(&self) -> &std::path::Path {
+        self.home.path()
+    }
+
     /// Navigates to `#<route>` (route like "/keys"; "" for the shell).
     pub fn open(&self, route: &str) {
         self.page

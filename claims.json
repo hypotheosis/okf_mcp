@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "99667e4a46466285650ecb65ad1cf972a4d5f28c346dc3a5973c88e12112ec4f"
   },
-  "next_evidence_seq": 2318,
+  "next_evidence_seq": 2323,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "95eb857cefcd57d81fd5e41eeef383c804b60660ced5921b42424d257252e655"
+    "mac": "19e607d772e90fa180a0eca9d426201ba2a9b75abc4acc9c5a59e3760fc02b0e"
   },
   "claims": [
     {
@@ -99693,6 +99693,28 @@
             "by": "server",
             "mac": "4ebe901b6146a9f12b389c41a7a5a5d908d4b310b6ee647f091b75ad63899c0b"
           }
+        },
+        {
+          "id": "EVD-2318",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- unavailable_tests listed_states (19 passed) at 378af3a; src/mcp/context.rs:1332-1384; src/mcp/unavailable_tests.rs:697-769",
+          "summary": "At 378af3a the first wave is every row needing no store (held or cached at the row's generation, via needs_store) plus the first row per store that does need one; the rest wait for it. A cached first row therefore no longer consumes the store's head slot, so the first cold row marks a lost store down before the others try. a_cached_first_row_does_not_let_the_cold_rows_stall_together caches remote-1, locks the store's documents, and counts queries waiting on the lock via pg_stat_activity while 3 rows load; it passes, and it counts waiting queries, not only elapsed time. Remaining limits: needs_store is a pre-check, so a cache entry evicted between it and the load only costs an extra probe; the earlier test coverage of the stalled and page-found-down paths still passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1332,
+                "end": 1384
+              },
+              "commit": "378af3a719500bb277237570503dd48df58e6b9e"
+            }
+          },
+          "recorded_at": "2026-11-26T03:58:16.322379884Z",
+          "seal": {
+            "by": "server",
+            "mac": "52ea46f820ce67036490f6e2e578332ff38e827edcdd3a2671941165a375bf75"
+          }
         }
       ],
       "verdicts": [
@@ -99788,13 +99810,26 @@
             "by": "server",
             "mac": "a94043e99a39fad8bb5a199ce2b8670989eee554ffc9910b22ae5137f1815d32"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 378af3a: cached rows no longer take a store's head slot, and a test counting queries waiting on a locked store covers the cached-first-row case.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2318"
+          ],
+          "recorded_at": "2026-11-26T03:58:23.845662933Z",
+          "seal": {
+            "by": "server",
+            "mac": "acede2e04d4d3e5f0144f9fda0940286c595ae2c1bd67a72d54af6722f2184a8"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-26T03:34:53.897369895Z",
+      "updated_at": "2026-11-26T03:58:23.845662933Z",
       "seal": {
         "by": "server",
-        "mac": "661dcb31c25f9949bfcaddd05e4bd4fc5619c329ed158cf5d9272a2771917e23"
+        "mac": "d6ad634cf791203474c80c93d01d30f9add20c93d1f9dcd6631d5fd1586daaec"
       }
     },
     {
@@ -125742,6 +125777,28 @@
             "by": "server",
             "mac": "db4b45090399240575560142560d93e99749451a902c0a5956def3426f90cb1d"
           }
+        },
+        {
+          "id": "EVD-2319",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib buffered_in_order -- --test-threads=1 (4 passed); gate.sh narrow --lib -- unavailable_tests listed_states (19 passed) at 378af3a; src/mcp/context.rs:1352-1363",
+          "summary": "Each of the two waves still goes through buffered_in_order with LISTING_LOAD_CONCURRENCY (8), so at most 8 loads are in flight; the waves run one after the other. Bound test passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1352,
+                "end": 1363
+              },
+              "commit": "378af3a719500bb277237570503dd48df58e6b9e"
+            }
+          },
+          "recorded_at": "2026-11-26T03:58:16.404957974Z",
+          "seal": {
+            "by": "server",
+            "mac": "acf04d4b03a91185758ddd078d25c9f295707fa4fb912724cad6727f3081307e"
+          }
         }
       ],
       "verdicts": [
@@ -125771,13 +125828,26 @@
             "by": "server",
             "mac": "c6b9668a7629f847a1512bc231423469c53d01e4174742a014eedcac3afd80ce"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Both waves still bounded at 8; tests pass at 378af3a.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2319"
+          ],
+          "recorded_at": "2026-11-26T03:58:23.987144895Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d22606b5706de57c6a4d70ba10f769e95a3c471f32150d48e80b47364c8d0d9"
+          }
         }
       ],
       "created_at": "2026-11-26T03:23:07.539332802Z",
-      "updated_at": "2026-11-26T03:34:54.311171829Z",
+      "updated_at": "2026-11-26T03:58:23.987144895Z",
       "seal": {
         "by": "server",
-        "mac": "448f7892125e1f6a7908910f8afe088ac93dc2c4b34d20f63be8f69528cb1066"
+        "mac": "568dbae1af6605197b51987322384c51f75c6867d86dbc39ba56d0c74ca62e44"
       }
     },
     {
@@ -125866,6 +125936,28 @@
             "by": "server",
             "mac": "4d05ddc6c4afbb70ed66072fd4e9a8178026f23bdeb0d84c2ff77e67b58f44c1"
           }
+        },
+        {
+          "id": "EVD-2320",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- unavailable_tests listed_states (19 passed) incl. listed_states_answers_in_page_order_across_stores; src/mcp/context.rs:1364-1368",
+          "summary": "Results are still written to results[at] and collected in index order, whatever the wave split; the cross-store page-order test passes at 378af3a. The cached-first-row test uses rows in page order but its assertions are about load overlap (and results shape), not a separate order check.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1350,
+                "end": 1368
+              },
+              "commit": "378af3a719500bb277237570503dd48df58e6b9e"
+            }
+          },
+          "recorded_at": "2026-11-26T03:58:16.492188968Z",
+          "seal": {
+            "by": "server",
+            "mac": "8aacc3a3812fb39fdd13d9974c9e49ca9ffdf7bb32e0be9b2e1ce869903f7b26"
+          }
         }
       ],
       "verdicts": [
@@ -125895,13 +125987,26 @@
             "by": "server",
             "mac": "5b49e72b0e25a9c37bc0bef247ff81bdc81243f89987ed27abab354e43d5bcdf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Index-ordered collection unchanged; cross-store order test passes at 378af3a.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2320"
+          ],
+          "recorded_at": "2026-11-26T03:58:24.070567627Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c6e88d1f77159fa44f3aa1f6ea6bf5231d2d28b980abb6954628f778d736f56"
+          }
         }
       ],
       "created_at": "2026-11-26T03:23:07.539332802Z",
-      "updated_at": "2026-11-26T03:34:54.392620332Z",
+      "updated_at": "2026-11-26T03:58:24.070567627Z",
       "seal": {
         "by": "server",
-        "mac": "bef59c46ba9d0a3bf2a4d64da94f838b1470ba887d62c41d65158d2191923cbc"
+        "mac": "df36b79a703a161d922c5afb56b0e231958c57abc0adbb0f7f7ad514b16be2c0"
       }
     },
     {
@@ -126164,6 +126269,28 @@
             "by": "server",
             "mac": "6226995adf00e146defc70b1341c145ebe98e0bd97a170e0fe417cf6e101b5b2"
           }
+        },
+        {
+          "id": "EVD-2321",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- unavailable_tests listed_states (19 passed) at 378af3a; src/mcp/context.rs:1332-1368",
+          "summary": "Caller match arms are unchanged; listed_state is still the per-row loader and its results are returned per row in page position; the store-unavailable regression tests all pass. A cached row now answers in the first wave, as in a serial walk. Still no test of an unbuildable catalog or a non-store error through listed_states.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1332,
+                "end": 1368
+              },
+              "commit": "378af3a719500bb277237570503dd48df58e6b9e"
+            }
+          },
+          "recorded_at": "2026-11-26T03:58:16.574244086Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f75c85dfc07836af1b684a9d84f7e6b4d06fc5514c2f0cfe94d08a24e3960b6"
+          }
         }
       ],
       "verdicts": [
@@ -126193,13 +126320,26 @@
             "by": "server",
             "mac": "164e40232c50bd3823ecee91a7243b6f3eca44cbe1d827dcb43fef47b11f87ee"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Per-row handling unchanged; regression tests pass at 378af3a.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2321"
+          ],
+          "recorded_at": "2026-11-26T03:58:24.152099853Z",
+          "seal": {
+            "by": "server",
+            "mac": "f16a89ef90e0fd6b1e0d9048636a3c6af3e7863f2c194d060811cc70325112b7"
+          }
         }
       ],
       "created_at": "2026-11-26T03:23:07.539332802Z",
-      "updated_at": "2026-11-26T03:34:53.980486124Z",
+      "updated_at": "2026-11-26T03:58:24.152099853Z",
       "seal": {
         "by": "server",
-        "mac": "0ede128ae4c60387267940ca63055c7941c02716275fcbf044c0c79bf00d092a"
+        "mac": "ea9f9c622b96abacbd5f710f3dc2969d5b912c6a08c9f5df8806df14f808a262"
       }
     },
     {
@@ -126400,6 +126540,28 @@
             "by": "server",
             "mac": "fb0ec6fdeec3719567bc258c57df62c6fac7048db894967d689162a5004a9016"
           }
+        },
+        {
+          "id": "EVD-2322",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib buffered_in_order -- --test-threads=1 at 378af3a: 4 passed",
+          "summary": "buffered_in_order and its four tests are unchanged by the newest commit and pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1940,
+                "end": 2024
+              },
+              "commit": "378af3a719500bb277237570503dd48df58e6b9e"
+            }
+          },
+          "recorded_at": "2026-11-26T03:58:16.654042197Z",
+          "seal": {
+            "by": "server",
+            "mac": "8218be781babcea32486cbecd097a0311093f0c38197e10ce8bff4082355e036"
+          }
         }
       ],
       "verdicts": [
@@ -126428,13 +126590,26 @@
             "by": "server",
             "mac": "87a846500202c721c7842c0723d0528f3efd1bfa3f9d59938b88b1b68d1c7d8f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Helper tests unchanged and pass at 378af3a.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2322"
+          ],
+          "recorded_at": "2026-11-26T03:58:24.233446069Z",
+          "seal": {
+            "by": "server",
+            "mac": "a944f6d4f2e1f34cec3cc9eff6e0c958981c2379aa35a6589c29f4ed8d567b88"
+          }
         }
       ],
       "created_at": "2026-11-26T03:23:07.539332802Z",
-      "updated_at": "2026-11-26T03:34:54.555970549Z",
+      "updated_at": "2026-11-26T03:58:24.233446069Z",
       "seal": {
         "by": "server",
-        "mac": "e97de995481c383d65bf4ea0e909030813115d926a5819ba24bc1519859ecff3"
+        "mac": "dcaf74c13a4985d79759e5cc54d51dd5f44b3cf0fa90df1de7f81bc8f38214ad"
       }
     },
     {

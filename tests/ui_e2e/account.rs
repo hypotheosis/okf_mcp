@@ -373,6 +373,82 @@ async fn the_last_sign_in_method_stays_and_the_page_says_why() {
     assert_eq!(left.len(), 1, "the last sign-in method is kept");
 }
 
+/// The same for the passkey list (issue #778): a late older answer, which
+/// still lists the passkey, must not redraw over the newer empty list.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_older_passkey_list_does_not_redraw_over_a_newer_one() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    let id = alices_id(&server.db.pool).await;
+    alices_passkey(&server.db.pool, &id, "laptop").await;
+    let ran = drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_visible("[data-test=passkey-laptop]");
+        ui.hold_answer("GET", "/api/v1/me/passkeys", || {
+            ui.fill("[data-test=passkey-laptop] input", "work-laptop");
+            ui.click("[data-test=passkey-rename-laptop]");
+        });
+        ui.click("[data-test=passkey-remove-laptop]");
+        ui.click("#confirm-ok");
+        ui.wait_text("#passkey-list", "No passkeys yet");
+        // The held answer still lists the renamed passkey.
+        ui.release_held();
+        assert!(
+            !ui.present("[data-test=passkey-work-laptop]"),
+            "the older read redrew the passkey list"
+        );
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    let left = passkeys::list(&server.db.pool, &id).await.expect("list");
+    assert!(left.is_empty());
+}
+
+/// The same for the linked-accounts list (issue #778), which also feeds the
+/// delete section's re-authentication choices: a late older answer, which
+/// still lists the second identity, must not redraw over the newer empty
+/// list. The account keeps its password, so both unlinks are allowed.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_older_identity_list_does_not_redraw_over_a_newer_one() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    let pool = server.db.pool.clone();
+    let id = alices_id(&pool).await;
+    for (provider, subject) in [("example", "subject-1"), ("second", "subject-2")] {
+        identities::link(&pool, &id, provider, subject, EMAIL, Utc::now())
+            .await
+            .expect("link an identity");
+    }
+    let ran = drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_visible("[data-test=identity-second]");
+        ui.hold_answer("GET", "/api/v1/me/identities", || {
+            ui.click("[data-test=identity-unlink-example]");
+            ui.click("#confirm-ok");
+        });
+        ui.click("[data-test=identity-unlink-second]");
+        ui.click("#confirm-ok");
+        ui.wait_text("#identity-list", "No linked accounts");
+        // The held answer still lists the second identity.
+        ui.release_held();
+        assert!(
+            !ui.present("[data-test=identity-second]"),
+            "the older read redrew the linked accounts"
+        );
+        assert!(!ui.present("[data-test=identity-example]"));
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    let left = identities::list(&pool, &id).await.expect("list");
+    assert!(left.is_empty());
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_member_signs_out_other_sessions_one_at_a_time() {
     let server = login_server().await;
@@ -406,6 +482,41 @@ async fn a_member_signs_out_other_sessions_one_at_a_time() {
     }
     let left = user_sessions::list(pool, &id, None).await.expect("list");
     assert_eq!(left.len(), 1, "only the journey's own session is left");
+}
+
+/// An older `/me/sessions` answer that arrives last must not redraw the
+/// table over the newer one (issue #778): signing the phone out starts a
+/// read whose answer is held, signing the tablet out starts a newer read,
+/// and the held (older) answer, which still lists the tablet, comes last.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_older_session_list_does_not_redraw_over_a_newer_one() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    let pool = &server.db.pool;
+    let id = alices_id(pool).await;
+    for agent in ["phone browser", "tablet browser"] {
+        another_session(pool, &id, agent).await;
+    }
+    drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_text("#session-table", "tablet browser");
+        let phone = revoke_button_of(ui, "phone browser");
+        let tablet = revoke_button_of(ui, "tablet browser");
+        ui.hold_answer("GET", "/api/v1/me/sessions", || {
+            ui.click(&format!("[data-test={phone}]"));
+        });
+        ui.click(&format!("[data-test={tablet}]"));
+        ui.wait_text_gone("#session-table", "tablet browser");
+        // The older answer still lists the tablet as live.
+        ui.release_held();
+        assert!(
+            !ui.text("#session-table").contains("tablet browser"),
+            "the older read redrew the session table"
+        );
+        assert!(!ui.text("#session-table").contains("phone browser"));
+    })
+    .await;
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

@@ -10,9 +10,10 @@ catalogs one after another, so a cold first page of 100 catalogs cost about
 - `ToolContext::listed_states` loads a page's rows through
   `ToolContext::listed_state`, at most `LISTING_LOAD_CONCURRENCY` (8) at a
   time, with `futures_util`'s `buffered`, so results keep the page's order.
-  The first row of each store loads in a first wave and the rest in a second,
-  so a store that is lost is probed once (its first row marks it down), as
-  before. `CatalogCache::get` is untouched: single-flight and broken-generation
+  The first row of each store that needs the store (not held, not cached at
+  its generation) loads in a first wave, with the rows that need no store,
+  and the rest in a second, so a store that is lost is probed once (that row
+  marks it down), as before, even when the page's first row is cached. `CatalogCache::get` is untouched: single-flight and broken-generation
   handling are as before.
 - The three callers filter out rows they do not load (a store the page found
   down, a closed catalog) first, then handle each result exactly as the old

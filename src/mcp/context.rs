@@ -1314,10 +1314,13 @@ impl ToolContext {
     /// [`ToolContext::listed_state`] for a page's rows, loading up to
     /// [`LISTING_LOAD_CONCURRENCY`] at once.
     ///
-    /// The first row of each store loads first (the stores concurrently),
-    /// then the rest: a store that is lost is marked down by its first row,
-    /// so the others on it are refused from the down set without a connect
-    /// attempt each, as a call probes a lost store once.
+    /// The first row of each store that needs the store (not held by this
+    /// call, not cached at its generation) loads first, the stores
+    /// concurrently, then the rest: a store that is lost is marked down by
+    /// that row, so the others on it are refused from the down set without a
+    /// connect attempt each, as a call probes a lost store once. A row
+    /// already cached is no probe: it loads in the first wave too, so a lost
+    /// store never hides it.
     ///
     /// # Arguments
     /// * `rows` - the listed catalogs' rows, in page order.
@@ -1331,8 +1334,17 @@ impl ToolContext {
         rows: &[&Arc<CatalogRow>],
     ) -> Vec<Result<Option<Arc<CatalogState>>, OkfError>> {
         let mut seen = std::collections::HashSet::new();
-        let (heads, tails): (Vec<usize>, Vec<usize>) =
-            (0..rows.len()).partition(|&at| seen.insert(rows[at].store.as_str()));
+        let mut heads = Vec::new();
+        let mut tails = Vec::new();
+        for (at, row) in rows.iter().enumerate() {
+            // A cached row costs no probe: it answers in the first wave, before
+            // a lost store is marked down, as it would in a serial walk.
+            if !self.needs_store(row).await || seen.insert(row.store.as_str()) {
+                heads.push(at);
+            } else {
+                tails.push(at);
+            }
+        }
         // Loops, not `iter().map(..)`: a closure returning a borrowing
         // future makes the handlers' futures fail Axum's `Send` check.
         let mut results: Vec<Option<Result<Option<Arc<CatalogState>>, OkfError>>> =
@@ -1353,6 +1365,22 @@ impl ToolContext {
             .into_iter()
             .map(|result| result.expect("every row is in the heads or the tails"))
             .collect()
+    }
+
+    /// Whether loading `row`'s state would contact its store: it is neither
+    /// held by this call nor cached at the row's generation.
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn needs_store(&self, row: &CatalogRow) -> bool {
+        let held = locked(&self.held)
+            .get(&row.name)
+            .is_some_and(|held| held.state.id() == row.id);
+        if held {
+            return false;
+        }
+        match self.app.catalog_cache().resident(row.id).await {
+            Some(state) => state.current().generation() < row.generation,
+            None => true,
+        }
     }
 
     /// The state of `row`'s catalog for this call, resolved and held (with

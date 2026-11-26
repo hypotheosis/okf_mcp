@@ -4026,7 +4026,9 @@ request's span, the one the exported `request failed` event and the stderr line
 carry (with `telemetry.stderr.format = "json"`). A user can quote it in a
 report and the operator can open that trace. It is 32 hex digits, left out
 when the request has no valid trace (telemetry off, or the span filtered out)
-and never sent as zeros. No other error carries it, and no error carries the
+and never sent as zeros. The failed credential lookup of the bearer-key middleware (MCP and archive
+routes) answers the same way. The OAuth routes' 500s carry it too, in their own
+shapes (see the OAuth section). No other error carries it, and no error carries the
 detail. The console shows it in its error toast. There is no `X-Trace-Id`
 header on responses: only a failure needs the id, and the body is where the
 console and API clients already read the error.
@@ -5093,6 +5095,14 @@ carry `Access-Control-Allow-Origin: *`), and every JSON error is
 `{"error": ..., "error_description": ...}` with the OAuth error code:
 `invalid_client` is 401, `slow_down` 429, `server_error` 500 (503 when Redis
 fails: [Redis](#redis)) and the rest 400.
+
+A `server_error` that is a 500 (not the 503) also carries `trace_id`, the
+OpenTelemetry trace id of the request's span, as an extra member (RFC 6749
+section 5.2 allows them), with the same generic `error_description`. The
+authorize and consent pages show it on a 500 page ("Quote this reference when
+you report it"). It is 32 hex digits, left out when the request has no valid
+trace and never sent as zeros. No 4xx answer carries it, and no answer
+carries the detail (issue #1104).
 
 ## 7. Health and time
 

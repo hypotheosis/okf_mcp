@@ -227,6 +227,226 @@ async fn an_internal_api_error_omits_trace_id_without_a_trace() {
     assert!(body.get("trace_id").is_none(), "{body}");
 }
 
+/// Renames `table` away, so every statement on it fails with a database
+/// error (a 500 on the OAuth routes); [`restore_table`] puts it back.
+async fn break_table(test: &TestApp, table: &str) {
+    // `AssertSqlSafe`: `table` is a literal of the calling test.
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "ALTER TABLE {table} RENAME TO {table}_away"
+    )))
+    .execute(test.app.accounts().executor())
+    .await
+    .expect("rename the table away");
+}
+
+/// Undoes [`break_table`].
+async fn restore_table(test: &TestApp, table: &str) {
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "ALTER TABLE {table}_away RENAME TO {table}"
+    )))
+    .execute(test.app.accounts().executor())
+    .await
+    .expect("restore the table");
+}
+
+/// A refresh-token request for a token that does not exist: `invalid_grant`
+/// (400) while `oauth_tokens` is readable, `server_error` (500) when it is
+/// not.
+fn refresh_form() -> String {
+    crate::oauth::testing::form(&[
+        ("grant_type", "refresh_token"),
+        ("refresh_token", "okfrt_unknown"),
+        ("client_id", crate::oauth::testing::CLIENT_ID),
+        ("resource", crate::oauth::testing::RESOURCE),
+    ])
+}
+
+/// Issue #1104: an OAuth `server_error` (500) names the request span's trace
+/// id, keeps its detail out, and a refusal (400) names none.
+#[tokio::test]
+async fn an_oauth_server_error_carries_the_request_spans_trace_id() {
+    let test = crate::oauth::testing::oauth_app().await;
+    let token_form = refresh_form();
+    for filter in FILTERS {
+        let mut answers = Vec::new();
+        // The refusal first, while the table is in place.
+        let observed = observed(filter, async {
+            answers.push(
+                crate::oauth::testing::send(
+                    &test,
+                    "POST",
+                    "/oauth/token",
+                    Some(token_form.clone()),
+                )
+                .await,
+            );
+            break_table(&test, "oauth_tokens").await;
+            answers.push(
+                crate::oauth::testing::send(
+                    &test,
+                    "POST",
+                    "/oauth/token",
+                    Some(token_form.clone()),
+                )
+                .await,
+            );
+            restore_table(&test, "oauth_tokens").await;
+        })
+        .await;
+        let [(refused, _, refusal), (failed, _, body)] = &answers[..] else {
+            panic!("two answers");
+        };
+        let refusal: serde_json::Value = serde_json::from_str(refusal).expect("JSON");
+        let body: serde_json::Value = serde_json::from_str(body).expect("JSON");
+
+        assert_eq!(*refused, StatusCode::BAD_REQUEST, "{filter}: {refusal}");
+        assert!(refusal.get("trace_id").is_none(), "{filter}: {refusal}");
+        assert_eq!(
+            *failed,
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "{filter}: {body}"
+        );
+        assert_eq!(body["error"], "server_error", "{filter}");
+        let span = &observed.spans_named("POST /oauth/token")[1];
+        assert_eq!(
+            body["trace_id"],
+            span.span_context.trace_id().to_string(),
+            "{filter}"
+        );
+        assert_ne!(body["trace_id"], "0".repeat(32), "{filter}");
+        assert!(
+            !body.to_string().contains("oauth_tokens"),
+            "{filter}: {body}"
+        );
+    }
+}
+
+/// Issue #1104: the authorize page's 500 shows the trace id, and the 400
+/// page for an unknown client shows none.
+#[tokio::test]
+async fn the_authorize_error_page_shows_the_request_spans_trace_id() {
+    let test = crate::oauth::testing::oauth_app().await;
+    let unknown = crate::oauth::testing::authorize_query().replace(
+        &format!("client_id={}", crate::oauth::testing::CLIENT_ID),
+        "client_id=no-such-client",
+    );
+    let query = crate::oauth::testing::authorize_query();
+    for filter in FILTERS {
+        let mut answers = Vec::new();
+        let observed = observed(filter, async {
+            answers.push(
+                crate::oauth::testing::send(
+                    &test,
+                    "GET",
+                    &format!("/oauth/authorize?{unknown}"),
+                    None,
+                )
+                .await,
+            );
+            break_table(&test, "oauth_clients").await;
+            answers.push(
+                crate::oauth::testing::send(
+                    &test,
+                    "GET",
+                    &format!("/oauth/authorize?{query}"),
+                    None,
+                )
+                .await,
+            );
+            restore_table(&test, "oauth_clients").await;
+        })
+        .await;
+        let [(refused, _, refusal), (failed, _, page)] = &answers[..] else {
+            panic!("two answers");
+        };
+
+        assert_eq!(*refused, StatusCode::BAD_REQUEST, "{filter}: {refusal}");
+        assert!(!refusal.contains("consent-trace-id"), "{filter}: {refusal}");
+        assert_eq!(
+            *failed,
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "{filter}: {page}"
+        );
+        let span = &observed.spans_named("GET /oauth/authorize")[1];
+        assert!(
+            page.contains(&format!(
+                r#"<code id="consent-trace-id">{}</code>"#,
+                span.span_context.trace_id()
+            )),
+            "{filter}: {page}"
+        );
+        assert!(!page.contains("oauth_clients"), "{filter}: {page}");
+    }
+}
+
+/// Issue #1104: with no trace exported, neither OAuth answer names one.
+#[tokio::test]
+async fn oauth_server_errors_omit_the_trace_id_without_a_trace() {
+    let test = crate::oauth::testing::oauth_app().await;
+    break_table(&test, "oauth_clients").await;
+    break_table(&test, "oauth_tokens").await;
+    let query = crate::oauth::testing::authorize_query();
+
+    let (page_status, _, page) =
+        crate::oauth::testing::send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
+    let (token_status, _, body) =
+        crate::oauth::testing::send(&test, "POST", "/oauth/token", Some(refresh_form())).await;
+
+    restore_table(&test, "oauth_clients").await;
+    restore_table(&test, "oauth_tokens").await;
+    assert_eq!(page_status, StatusCode::INTERNAL_SERVER_ERROR, "{page}");
+    assert!(!page.contains("consent-trace-id"), "{page}");
+    assert_eq!(token_status, StatusCode::INTERNAL_SERVER_ERROR, "{body}");
+    assert!(!body.contains("trace_id"), "{body}");
+}
+
+/// Issue #1104: the bearer-key middleware (MCP and archive routes) answers a
+/// failed credential lookup through `AppError`, so it names the trace too.
+#[tokio::test]
+async fn a_failed_credential_lookup_in_the_auth_middleware_carries_the_trace_id() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    // A key the cache has never seen is looked up in the database.
+    sqlx::query("ALTER TABLE api_keys RENAME TO api_keys_away")
+        .execute(test.app.accounts().executor())
+        .await
+        .expect("rename the keys table");
+    let unknown = format!("{key}x");
+    for filter in FILTERS {
+        let mut status = None;
+        let mut body = serde_json::Value::Null;
+        let observed = observed(filter, async {
+            let response = router(Arc::clone(&test.app), &CancellationToken::new())
+                .oneshot(
+                    Request::post("/mcp")
+                        .header("authorization", format!("Bearer {unknown}"))
+                        .body(Body::empty())
+                        .expect("request"),
+                )
+                .await
+                .expect("the router answers");
+            status = Some(response.status());
+            let bytes = axum::body::to_bytes(response.into_body(), 1 << 16)
+                .await
+                .expect("body");
+            body = serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null);
+        })
+        .await;
+
+        assert_eq!(status, Some(StatusCode::INTERNAL_SERVER_ERROR), "{filter}");
+        let span = &observed.spans_named("POST /mcp")[0];
+        assert_eq!(
+            body["trace_id"],
+            span.span_context.trace_id().to_string(),
+            "{filter}: {body}"
+        );
+    }
+    sqlx::query("ALTER TABLE api_keys_away RENAME TO api_keys")
+        .execute(test.app.accounts().executor())
+        .await
+        .expect("restore the keys table");
+}
+
 #[tokio::test]
 async fn an_unmatched_path_makes_no_span() {
     let test = app().await;

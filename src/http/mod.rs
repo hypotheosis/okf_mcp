@@ -191,14 +191,8 @@ impl IntoResponse for AppError {
         }
         let mut body = self.0.to_json();
         if self.0.is_internal() {
-            // The request span names the trace an operator can open; it never
-            // carries the detail. Left out when there is no valid trace
-            // (issue #1093).
-            let trace_id = REQUEST_SPAN
-                .try_with(crate::telemetry::propagation::trace_id_of)
-                .ok()
-                .flatten();
-            if let Some(trace_id) = trace_id {
+            // Left out when there is no valid trace (issue #1093).
+            if let Some(trace_id) = request_trace_id() {
                 body["trace_id"] = trace_id.into();
             }
         }
@@ -543,8 +537,28 @@ async fn check_settings(
     next.run(request).await
 }
 
+/// The request span's OpenTelemetry trace id: what an operator opens to find
+/// an internal failure, and what every 500 answer outside the MCP tools
+/// quotes (issues #1093 and #1104).
+///
+/// It reads the request span [`request_telemetry`] scoped, never
+/// `Span::current()`: a helper span a handler left current may carry no
+/// trace context. A response header can reuse it (issue #1105).
+///
+/// # Returns
+/// 32 lower-case hex digits, or `None` outside a routed request or when the
+/// request span has no valid trace context (telemetry off, or the span
+/// filtered out: its id would be all zeros, which names nothing).
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn request_trace_id() -> Option<String> {
+    REQUEST_SPAN
+        .try_with(crate::telemetry::propagation::trace_id_of)
+        .ok()
+        .flatten()
+}
+
 tokio::task_local! {
-    /// The request span, for [`AppError::into_response`], which has no
+    /// The request span, for [`request_trace_id`], which has no
     /// request to read [`RequestSpan`] from and cannot trust
     /// `Span::current()`: a helper span a handler left current may exist for
     /// one layer only and carry no trace context (issue #1093).

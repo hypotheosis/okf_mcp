@@ -419,6 +419,42 @@ impl OkfError {
         )
     }
 
+    /// Is this an internal error that is probably a passing outage rather
+    /// than a bug (issue #766)? An outage hits every connected agent at
+    /// once, so the tool error leaves the "report it" hint off for it.
+    ///
+    /// # Returns
+    /// `true` for a [`OkfError::Database`] whose driver error is a pool
+    /// timeout, a closed pool, a transport or TLS failure (a reset
+    /// connection), a crashed pool worker, or a Postgres connection
+    /// exception (SQLSTATE class `08`) or shutdown (`57P01`, `57P02`,
+    /// `57P03`). `false` for every other error.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "a pure match over the error's variants: a closed-value classifier called while the tool span records its kind, so a span would record nothing new"
+        )
+    )]
+    pub fn is_transient(&self) -> bool {
+        let OkfError::Database { source } = self else {
+            return false;
+        };
+        match source {
+            sqlx::Error::PoolTimedOut
+            | sqlx::Error::PoolClosed
+            | sqlx::Error::Io(_)
+            | sqlx::Error::Tls(_)
+            | sqlx::Error::WorkerCrashed => true,
+            other => other
+                .as_database_error()
+                .and_then(|db_error| db_error.code())
+                .is_some_and(|code| {
+                    code.starts_with("08") || ["57P01", "57P02", "57P03"].contains(&code.as_ref())
+                }),
+        }
+    }
+
     /// The error as clients see it: `{"error": kind, "message": text}`, plus
     /// the `path`, `catalog`, `noun` and `name`, or `problems` it concerns
     /// (a `Suspended` error adds `catalog`, `team` and `notice`, `null` when
@@ -886,6 +922,23 @@ mod tests {
         assert_eq!(body["error"], "Database");
         assert!(!body["message"].as_str().unwrap().contains("pool"));
         assert_eq!(body.as_object().unwrap().len(), 2);
+    }
+
+    /// Issue #766: only a passing outage is transient; a bug-shaped failure is not.
+    #[test]
+    fn only_outage_shaped_database_errors_are_transient() {
+        let outage = |source| OkfError::Database { source };
+        assert!(outage(sqlx::Error::PoolTimedOut).is_transient());
+        assert!(outage(sqlx::Error::PoolClosed).is_transient());
+        assert!(outage(sqlx::Error::WorkerCrashed).is_transient());
+        assert!(outage(sqlx::Error::Io(std::io::Error::other("reset"))).is_transient());
+        assert!(!outage(sqlx::Error::RowNotFound).is_transient());
+        assert!(!outage(sqlx::Error::Protocol("bad".to_string())).is_transient());
+        let io = OkfError::Io {
+            path: "a.md".to_string(),
+            source: std::io::Error::other("disk"),
+        };
+        assert!(!io.is_transient());
     }
 
     #[test]

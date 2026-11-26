@@ -3129,6 +3129,25 @@ No email, display name, key name, token or catalog content is sent unless
 it is in the message. The tool's description tells agents so, and to ask
 the user before including catalog content or personal details.
 
+When a tool fails with an internal error (`Database`, `Migrate`, `Io` or
+`Config`), the client gets only the generic message ("internal error; the
+server log has the details"), and the detail stays in the server's log. The
+error body also carries two fields, neither of which reveals the detail:
+
+- `trace_id`: the tool span's OpenTelemetry trace id, the same id the
+  exported `tool failed` event and the stderr line carry (with
+  `telemetry.stderr.format = "json"`), so an operator can go from a feedback
+  entry to the failing span and its stderr detail. It is sent with or without
+  `[feedback]`, and left out when the span has no valid trace (telemetry off).
+- `report`: one optional sentence ("If this keeps happening, you can report
+  it with send_feedback (kind: bug, tool: <tool>), quoting trace_id.").
+  Sent only when `[feedback]` is set, so it never names a tool the client does
+  not have, and not for a passing database outage (a pool timeout, a lost
+  connection, a Postgres shutdown), which would otherwise make every
+  connected agent send a report of the same incident.
+
+No other error carries either field, and the HTTP API's errors are unchanged.
+
 Any credential can send, `read` included, and no catalog is needed. A
 message is at most 4,000 characters, and each credential may send
 `max_per_hour` (10) in any hour; both are refused with `LimitExceeded`

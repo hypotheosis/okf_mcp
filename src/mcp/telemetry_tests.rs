@@ -35,6 +35,11 @@ impl Served {
     /// named `reader`. A `#[tokio::test]` runtime is current-thread, so the
     /// server's tasks run on the test's thread and see its subscriber.
     async fn start() -> Self {
+        Self::start_with(Config::default()).await
+    }
+
+    /// [`Served::start`] under `config`.
+    async fn start_with(config: Config) -> Self {
         let (test, registry) = app_with_metrics(
             &[(
                 "pg",
@@ -43,7 +48,7 @@ impl Served {
                     "---\ntype: Note\ntitle: Alpha\n---\n# Alpha\nText.\n",
                 )],
             )],
-            Config::default(),
+            config,
         )
         .await;
         let key = keys::create(
@@ -243,6 +248,93 @@ async fn error_kind_lands_on_the_tool_span_under_helper_spans() {
             Some("NotFound"),
             "{filter}"
         );
+    }
+}
+
+/// Issue #766: an internal error's `trace_id` is the tool span's OpenTelemetry trace id, the
+/// one the exported span carries, and the detail stays out of the body.
+#[tokio::test]
+async fn an_internal_error_carries_the_tool_spans_trace_id() {
+    for filter in FILTERS {
+        let observer = Observer::start("off", filter, "off", LogFormat::Text);
+        let span = tracing::info_span!("mcp", okf.error.kind = tracing::field::Empty);
+        let result = TOOL_SPAN
+            .scope(span.clone(), async {
+                tool_error(&OkfError::Database {
+                    source: sqlx::Error::Protocol(SENTINEL.to_string()),
+                })
+            })
+            .instrument(span)
+            .await;
+        let observed = observer.finish();
+
+        let body = result.structured_content.expect("a structured body");
+        let exported = observed.spans_named("mcp")[0].span_context.trace_id();
+        assert_eq!(body["trace_id"], exported.to_string(), "{filter}");
+        assert_eq!(body["trace_id"].as_str().map(str::len), Some(32));
+        assert_ne!(body["trace_id"], "0".repeat(32), "{filter}");
+        assert!(!body.to_string().contains(SENTINEL), "{filter}");
+    }
+}
+
+/// Issue #766: with no valid trace context the id is left out rather than sent as zeros.
+#[tokio::test]
+async fn an_internal_error_omits_trace_id_without_a_trace() {
+    let span = tracing::Span::none();
+    let result = TOOL_SPAN
+        .scope(span, async {
+            tool_error(&OkfError::Database {
+                source: sqlx::Error::Protocol("x".to_string()),
+            })
+        })
+        .await;
+
+    let body = result.structured_content.expect("a structured body");
+    assert!(body.get("trace_id").is_none(), "{body}");
+}
+
+/// Issue #766, end to end: a failing call's body carries the exported tool span's trace id,
+/// and the `report` hint exactly when `[feedback]` offers `send_feedback`.
+#[tokio::test]
+async fn a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback() {
+    for feedback in [true, false] {
+        let config = Config {
+            feedback: feedback.then(|| crate::config::FeedbackConfig::for_form("form-766")),
+            ..Config::default()
+        };
+        let served = Served::start_with(config).await;
+        let observer = Observer::start("off", "debug", "off", LogFormat::Text);
+        let probe = McpProbe::open(&served.endpoint, &served.key).await;
+        // A catalog table the tool reads goes missing: a driver error, not a policy refusal.
+        sqlx::query("ALTER TABLE catalog.changesets RENAME TO changesets_gone")
+            .execute(&crate::db::store_pool(
+                served.test.app.accounts().executor(),
+            ))
+            .await
+            .expect("break the table");
+        let answer = probe
+            .call("list_changesets", serde_json::json!({"catalog": "pg"}))
+            .await;
+        probe.close().await;
+        let observed = observer.finish();
+
+        assert_eq!(answer["result"]["isError"], true, "{answer}");
+        let body = &answer["result"]["structuredContent"];
+        assert_eq!(body["error"], "Database", "{feedback}: {body}");
+        let span = &observed.spans_named("mcp list_changesets")[0];
+        assert_eq!(
+            body["trace_id"],
+            span.span_context.trace_id().to_string(),
+            "{feedback}"
+        );
+        if feedback {
+            let report = body["report"].as_str().expect("a report");
+            assert!(report.contains("send_feedback (kind: bug, tool: list_changesets)"));
+            assert!(report.contains("quoting trace_id"));
+        } else {
+            assert!(body.get("report").is_none(), "{body}");
+        }
+        served.stop().await;
     }
 }
 

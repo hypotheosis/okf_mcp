@@ -15,8 +15,13 @@ import { listTable } from '../components/list-table.js';
 import { confirmDialog } from '../components/confirm.js';
 import { rowsOf, teamChoices, picker, assignControl } from '../components/picker.js';
 import { canAdministerPeople, freshAccount, refreshIdentity, refreshUnassigned } from '../core/shell.js';
-import { guard, once, recheck } from '../core/pending.js';
+import { guard, isPending, once, recheck } from '../core/pending.js';
 import { named } from '../core/labels.js';
+
+// The catalogs page now mounted, if any: a create or delete that settles after
+// the user left this page and came back reloads the page shown now, not the
+// one the write started on (which is gone).
+let mounted = null;
 
 export async function render(main) {
     // Team name -> true when personal, from the last read of GET /teams
@@ -139,12 +144,29 @@ export async function render(main) {
     // the change even if the user has navigated away meanwhile, so it is
     // rebuilt first, before the table. The drawer is closed only while
     // `ticket` (the one it was opened with) is current: once replaced or
-    // dismissed it is another drawer, or none.
+    // dismissed it is another drawer, or none. The list reloaded is the one
+    // mounted now (see `mounted`).
     async function settled(ticket) {
         await refreshIdentity().catch(() => {});
         refreshUnassigned();   // a deleted catalog may have been unassigned
         ticket.close();
-        if (main.isConnected) await load();
+        if (mounted?.main.isConnected) await mounted.load();
+    }
+
+    function deletingText(row) {
+        return `Deleting ${row.label}. Its data is removed in the background; this can take a while, and you can keep using the console.`;
+    }
+
+    // Sets the note of the delete `key` in every drawer that shows it (hidden
+    // when `text` is empty), so a drawer drawn again while the write runs, or
+    // after it failed, says the same as the one it started in.
+    function showDeleteNote(key, text, failed) {
+        document.querySelectorAll('[data-delete-note]').forEach(el => {
+            if (el.dataset.deleteNote !== key) return;
+            el.textContent = text;
+            el.hidden = !text;
+            el.className = failed ? 'error small' : 'muted small';
+        });
     }
 
     async function openCreate() {
@@ -195,8 +217,17 @@ export async function render(main) {
                 },
             }),
             creator ? null : h('p', { class: 'muted small' }, 'Changing the owner needs an admin key that reaches every catalog.'));
-        const force = h('input', { type: 'checkbox', id: 'catalog-force' });
-        const remove = h('button', { type: 'button', id: 'catalog-delete', class: 'danger' }, 'Delete catalog');
+        // A pending write keyed by the catalog (core/pending.js): while the
+        // DELETE runs, Delete and the force box are disabled in every drawer
+        // that shows this catalog, one drawn again included, and a second
+        // start is ignored. The note says what is running, or why the last
+        // try failed, and the outcome is toasted whichever page is shown.
+        const deleting = `catalog:${row.name}:delete`;
+        const force = guard(h('input', { type: 'checkbox', id: 'catalog-force' }), deleting);
+        const remove = guard(h('button', { type: 'button', id: 'catalog-delete', class: 'danger' }, 'Delete catalog'), deleting);
+        const note = h('p', { id: 'catalog-delete-note', class: 'muted small', role: 'status',
+            hidden: !isPending(deleting) }, isPending(deleting) ? deletingText(row) : '');
+        note.dataset.deleteNote = deleting;
         remove.addEventListener('click', async () => {
             const ok = await confirmDialog({
                 title: `Delete ${row.label}?`,
@@ -205,11 +236,21 @@ export async function render(main) {
                 typed: row.name,
             });
             if (!ok) return;
-            try {
-                await api.del(`/catalogs/${enc(row.name)}${force.checked ? '?force=true' : ''}`);
-            } catch { return; /* toasted: 409 names ?force=true */ }
-            toast(`Deleted catalog ${row.label}.`, 'ok');
-            await settled(ticket);
+            await once(deleting, async () => {
+                showDeleteNote(deleting, deletingText(row), false);
+                const withForce = force.checked;
+                try {
+                    await api.del(`/catalogs/${enc(row.name)}${withForce ? '?force=true' : ''}`);
+                } catch (error) {
+                    // Toasted by api.js (409 names ?force=true); every drawer
+                    // of this catalog keeps the reason, with its controls usable.
+                    showDeleteNote(deleting, `Could not delete ${row.label}: ${error.message}`, true);
+                    return;
+                }
+                toast(`Deleted catalog ${row.label}.`, 'ok');
+                showDeleteNote(deleting, '', false);
+                await settled(ticket);
+            });
         });
         const members = memberAccess(row, creator, ticket);
         const switcher = maintenance(row, await maySwitchMaintenance(row), ticket);
@@ -222,7 +263,8 @@ export async function render(main) {
             h('section', { class: 'danger-zone' },
                 h('h3', {}, 'Delete'),
                 h('label', {}, force, ' Also discard unpublished changes (force)'),
-                remove));
+                remove,
+                note));
         await Promise.all([members.refresh(), switcher.refresh()]);
     }
 
@@ -295,6 +337,7 @@ export async function render(main) {
         admin && !creator
             ? h('p', { class: 'muted small' }, 'Creating a catalog needs an admin key that reaches every catalog.')
             : null);
+    mounted = { main, load };
     await load();
 }
 

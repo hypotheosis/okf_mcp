@@ -1353,3 +1353,94 @@ async fn the_catalogs_page_loads_more_and_keeps_its_cursor_when_reloads_fail() {
     })
     .await;
 }
+
+/// Issue #752: a catalog delete that takes a while (its DELETE is held)
+/// shows a pending state, cannot be started twice, leaves the console usable,
+/// and reports its outcome without touching a drawer opened meanwhile.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_slow_catalog_delete_shows_pending_and_leaves_the_console_usable() {
+    let server = server().await;
+    let root = server.key("console-root", Access::Admin, &[], None).await;
+    crate::account::acme_with_owner_and_member(&server).await;
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.login(&root);
+        ui.open("/catalogs");
+        ui.click("[data-catalog=acme-notes]");
+        ui.wait_visible("#catalog-delete:not([disabled])");
+        ui.hold_next("DELETE", "/catalogs/acme-notes");
+        ui.click("#catalog-delete");
+        ui.fill("#confirm-typed", "acme-notes");
+        ui.click("#confirm-ok");
+        // Pending: the controls are disabled and the drawer says what runs.
+        ui.wait_visible("#catalog-delete[disabled]");
+        ui.wait_visible("#catalog-force[disabled]");
+        ui.wait_visible("#catalog-delete-note");
+        ui.wait_text("#catalog-delete-note", "Deleting");
+        // Not a success yet: nothing says it was deleted, and the catalog
+        // is still listed.
+        assert!(!ui.text("#toasts").contains("Deleted catalog"));
+        // The same catalog's drawer, closed and opened again, is still
+        // pending, and a second click sends nothing.
+        ui.click("#drawer-close");
+        ui.click("[data-catalog=acme-notes]");
+        ui.wait_visible("#catalog-delete[disabled]");
+        ui.wait_text("#catalog-delete-note", "Deleting");
+        assert!(ui.click_twice("#catalog-delete"), "Delete is disabled");
+        assert_eq!(ui.held_matches(), 1, "a second DELETE was sent");
+        // Unrelated navigation and reads work meanwhile.
+        ui.open("/teams");
+        ui.wait_visible("[data-test=team-acme]");
+        ui.click("#drawer-close");
+        ui.open("/catalogs");
+        ui.wait_visible("[data-catalog=main]");
+        // A drawer of another catalog, open when the delete settles, stays.
+        ui.click("[data-catalog=main]");
+        ui.wait_visible("#catalog-display-name");
+        ui.release_held();
+        ui.wait_hidden("[data-catalog=acme-notes]");
+        assert!(ui.text("#toasts").contains("Deleted catalog"));
+        assert!(
+            ui.present("#catalog-edit-form") && !ui.text("#drawer-title").contains("acme"),
+            "another catalog's drawer was closed or replaced"
+        );
+        assert_eq!(switcher(ui), ["main"]);
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert!(
+        okf_mcp::store::catalogs::find(&server.db.pool, "acme-notes")
+            .await
+            .is_err()
+    );
+}
+
+/// Issue #752: a refused delete (unpublished changes, no force) ends the
+/// pending state, keeps the reason in the drawer and leaves Delete usable.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_refused_catalog_delete_keeps_its_reason_and_enables_delete_again() {
+    let server = server().await;
+    let root = server.key("console-root", Access::Admin, &[], None).await;
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.login(&root);
+        ui.open("/catalogs");
+        ui.click("[data-catalog=main]");
+        ui.wait_visible("#catalog-delete:not([disabled])");
+        ui.fail_next("DELETE", "/catalogs/main", 409, "has unpublished changes");
+        ui.click("#catalog-delete");
+        ui.fill("#confirm-typed", "main");
+        ui.click("#confirm-ok");
+        ui.wait_text("#catalog-delete-note", "unpublished changes");
+        ui.wait_visible("#catalog-delete:not([disabled])");
+        ui.wait_visible("#catalog-force:not([disabled])");
+        assert!(ui.present("[data-catalog=main]"));
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert!(okf_mcp::store::catalogs::find(&server.db.pool, "main")
+        .await
+        .is_ok());
+}

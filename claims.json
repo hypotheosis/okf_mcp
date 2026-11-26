@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "f0c714d1dcdee0c753eea2af41835a1f1cf19b76119f7a70bba7b250095b22fd"
   },
-  "next_evidence_seq": 2335,
+  "next_evidence_seq": 2336,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "685d56ced5e88f439f4981cf43fddf974d287b5cc2c2d9ef2dc9afef3d287b59"
+    "mac": "f7001e2f1dce86dfbe976d07ba8daa281f4aa947bbf4262003dee2e382b64eb5"
   },
   "claims": [
     {
@@ -127128,6 +127128,28 @@
             "by": "server",
             "mac": "7b477fe2d8989fb0788d2133fc61e8adf93db925aae821c59d93a6749bc4b760"
           }
+        },
+        {
+          "id": "EVD-2335",
+          "kind": "test",
+          "locator": "src/db.rs:2461-2540 the_shared_server_of_a_dead_run_is_swept; gate.sh test at 8e3d2c2",
+          "summary": "After the review fix the fixtures use unique live sleep children as owners; only the dead owner's server is removed (removed == 1, live and unowned servers remain). Passes at 8e3d2c2 (3601 passed, 20 skipped).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2461,
+                "end": 2540
+              },
+              "commit": "8e3d2c2f5c8455ad41a78db504766d8b1259917b"
+            }
+          },
+          "recorded_at": "2026-11-26T04:50:06.071931305Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf499fe4aba6b140d5dd746e43365fca9296baa3a6bbe3d610cc2971e5ce85fa"
+          }
         }
       ],
       "verdicts": [
@@ -127143,13 +127165,26 @@
             "by": "server",
             "mac": "c83c6c918fa0221c57092f312e1210f236c118f247109a213886817cd04f3a69"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-checked after the review fix; the test still asserts and passes.",
+          "auditor": "claude-sonnet-5-5 (author)",
+          "evidence_ids": [
+            "EVD-2335"
+          ],
+          "recorded_at": "2026-11-26T04:50:10.178742333Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac1b2f13c650c8ce83333f90a994c03a3bf17a974749985429654111cfb4725c"
+          }
         }
       ],
       "created_at": "2026-11-26T04:23:15.541180497Z",
-      "updated_at": "2026-11-26T04:23:57.022005558Z",
+      "updated_at": "2026-11-26T04:50:10.178742333Z",
       "seal": {
         "by": "server",
-        "mac": "b73eb0f70508c15412d601167d4b2d0464bb7f8320f6e5fa1619d3a4c75d9001"
+        "mac": "0267a3fdaae3634e47d15a3c5e84a4419d9642c5738829c88ead80f633e340c1"
       }
     },
     {

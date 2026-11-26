@@ -407,6 +407,48 @@ async fn a_late_older_passkey_list_does_not_redraw_over_a_newer_one() {
     assert!(left.is_empty());
 }
 
+/// The same for the linked-accounts list (issue #778), which also feeds the
+/// delete section's re-authentication choices: a late older answer, which
+/// still lists the second identity, must not redraw over the newer empty
+/// list. The account keeps its password, so both unlinks are allowed.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_older_identity_list_does_not_redraw_over_a_newer_one() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    let pool = server.db.pool.clone();
+    let id = alices_id(&pool).await;
+    for (provider, subject) in [("example", "subject-1"), ("second", "subject-2")] {
+        identities::link(&pool, &id, provider, subject, EMAIL, Utc::now())
+            .await
+            .expect("link an identity");
+    }
+    let ran = drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_visible("[data-test=identity-second]");
+        ui.hold_answer("GET", "/api/v1/me/identities", || {
+            ui.click("[data-test=identity-unlink-example]");
+            ui.click("#confirm-ok");
+        });
+        ui.click("[data-test=identity-unlink-second]");
+        ui.click("#confirm-ok");
+        ui.wait_text("#identity-list", "No linked accounts");
+        // The held answer still lists the second identity.
+        ui.release_held();
+        assert!(
+            !ui.present("[data-test=identity-second]"),
+            "the older read redrew the linked accounts"
+        );
+        assert!(!ui.present("[data-test=identity-example]"));
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    let left = identities::list(&pool, &id).await.expect("list");
+    assert!(left.is_empty());
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_member_signs_out_other_sessions_one_at_a_time() {
     let server = login_server().await;

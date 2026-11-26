@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1780,
+  "next_claim_seq": 1790,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f6e7d9e64a48a1c7d0f699348b8ebc469dc9d0016b8b58b9c95d5083eae8e09e"
+    "mac": "236d2d6e45f5e71b830ee390c1bf9367b24ab2456fa772e402085d92e366aa82"
   },
-  "next_evidence_seq": 3289,
+  "next_evidence_seq": 3302,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c6075ac3ba1fd79d9dea57a7919e4f5d23440e5ac439fcea6dc7295226bd26a9"
+    "mac": "a736e6daa1cc389246f1a34f1c207638ba28ef21655deca0e6d833d642014365"
   },
   "claims": [
     {
@@ -163167,6 +163167,683 @@
       "seal": {
         "by": "server",
         "mac": "b8de5a8bf98a82f6d7e630344d9e6820f3139cf883bb3010b0756062bc109370"
+      }
+    },
+    {
+      "id": "CLM-1780",
+      "statement": "Issue #778 is resolved: the Account page's session list read is numbered so a late older /me/sessions answer cannot redraw over a newer one, with a ui_e2e journey proving it, and drawPasskeys and drawIdentities were checked for the same pattern.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/778",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js",
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3301",
+          "kind": "analysis",
+          "locator": "children of CLM-1780",
+          "summary": "The issue's functional requirements (numbered drawSessions with the shared helper, a hold/trigger/release journey that fails without the fix, passkey and identity checks) are each supported by CLM-1781, 1782, 1783, 1784, 1785 and 1789. Two PR-description statements stay undecided (CLM-1787 impossibility of an identities journey, CLM-1788 gate counts beyond test-ui).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T15:39:38.649076575Z",
+          "seal": {
+            "by": "server",
+            "mac": "b906acda245a5de35eadec430d814324523d4ee5a56f0e461f9f0ceebf236413"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All requirement-bearing children are supported; two PR-description children are undecided, so the roll-up stays open on those. Fix: resolve CLM-1787 (write the identities journey or reword the PR body) and CLM-1788 (rerun the remaining gates), then record this roll-up as supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T15:39:42.287772406Z",
+          "seal": {
+            "by": "server",
+            "mac": "22b75757e77a618fa97d6ef83df1fa3b1e3c7109c5a0f9cf6be3f630ac1d0a2b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:39:42.287772406Z",
+      "seal": {
+        "by": "server",
+        "mac": "255095f7073958bc39978242d678ebeb7d5f12e26cb7e962a436d7f7a3a2afc6"
+      }
+    },
+    {
+      "id": "CLM-1781",
+      "statement": "drawSessions takes its load number from a latest() counter before its await on /me/sessions and returns without drawing when a newer sessions load has started or the page was left.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #778: number drawSessions loads (number before the await, drop the answer if a newer load started)",
+      "source_anchor": {
+        "path": "src/http/ui/js/pages/account.js",
+        "lines": {
+          "start": 351,
+          "end": 356
+        },
+        "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+      },
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3289",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:351-356",
+          "summary": "drawSessions calls `const current = sessionReads()` as its first statement, before `await api.get('/me/sessions')`, and returns `if (!current())` after it. latest.js:13-17: current() is false when a newer number was taken or view is disconnected.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 351,
+                "end": 356
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:34.681524984Z",
+          "seal": {
+            "by": "server",
+            "mac": "626961b4dde88ca762793455ad7a410aa515565458cc9e52097d4d33655bb986"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The number is taken before the await and the answer dropped when current() is false; latest.js semantics confirm. Behavior also exercised by the journey (CLM-1783).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3289"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.391571047Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b4984a519ab00748c1e2e47e3868e9c52152adac60f7a24dccb30eed86cfcc1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:50.391571047Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a61c19f6442b47558f7ab6777a94352d2f52ff5a28e17d90b92d9b0dce74517"
+      }
+    },
+    {
+      "id": "CLM-1782",
+      "statement": "drawSessions reuses the existing latest() helper from core/latest.js rather than a new counter.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #778 / lessons.md: reuse existing load-numbering helper",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3290",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:22,59-61",
+          "summary": "account.js imports `latest` from ../core/latest.js and creates sessionReads = latest(main); no new counter code is added in the diff (core/latest.js untouched).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 58,
+                "end": 61
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:34.790981757Z",
+          "seal": {
+            "by": "server",
+            "mac": "12c1e508b7a3ee799fb5688a52b4c957bf5b845f7f2dae910a2d6ea0b4689181"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Imports and uses the existing latest() helper; no new counter added.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3290"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.500503444Z",
+          "seal": {
+            "by": "server",
+            "mac": "f14a8e194f08104c5a3a69af6fa37a418a22e3a50f4a377d85ca6a4c9365eaa9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:50.500503444Z",
+      "seal": {
+        "by": "server",
+        "mac": "df953499a5aad323267fd5dd9cfdc736a5b06771ddb69d7f58fbf18a835f1e00"
+      }
+    },
+    {
+      "id": "CLM-1783",
+      "statement": "The journey a_late_older_session_list_does_not_redraw_over_a_newer_one holds the first /me/sessions answer, triggers a second load, releases the first, and asserts the table shows the newer list; it passes with the fix and fails without it.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #778: add a ui_e2e journey that holds the first /me/sessions answer, triggers a second load, releases the first, checks the table shows the newer list; PR body: \"Both fail without the fix.\"",
+      "source_anchor": {
+        "path": "tests/ui_e2e/account.rs",
+        "lines": {
+          "start": 445,
+          "end": 478
+        },
+        "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+      },
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3291",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test ui_e2e late_older -- --test-threads=1",
+          "summary": "Both new journeys passed at HEAD 8b2b5e5 (2 passed, 304 filtered out).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T15:29:34.896469025Z",
+          "seal": {
+            "by": "server",
+            "mac": "a36740f949f0f24689b1765bf8037c334e379c4b2f2467f0677fbfa4d3801af1"
+          }
+        },
+        {
+          "id": "EVD-3292",
+          "kind": "test",
+          "locator": "tests/ui_e2e/account.rs:445-478",
+          "summary": "Read the assertions: hold_answer on GET /me/sessions while revoking phone; revoke tablet (newer read); wait_text_gone tablet; release_held; assert table text lacks 'tablet browser' and 'phone browser'. The held older answer still lists the tablet, so a stale redraw would fail the assertion.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 445,
+                "end": 478
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:35.005654907Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5871057c45ba0cc78c3a3906fb565934054a5dfd7e3b6796d403d9fc0fb2f83"
+          }
+        },
+        {
+          "id": "EVD-3293",
+          "kind": "test",
+          "locator": "scratch copy of HEAD (git archive) with src/http/ui/js/pages/account.js from origin/main; scripts/test-pg.sh run cargo test --test ui_e2e late_older -- --test-threads=1",
+          "summary": "Without the fix both journeys fail: 'the older read redrew the session table' (account.rs:471) and 'the older read redrew the passkey list' (account.rs:397); 0 passed, 2 failed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T15:29:35.113955646Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b2dfc1ee4823f49f5beb708db5b5693b4487860bf407276ecb5f0e85831553a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ran the journey: passes at HEAD; with account.js reverted to origin/main it fails on the exact assertion the claim names; assertions read and match the issue's hold/trigger/release/check shape.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3291",
+            "EVD-3292",
+            "EVD-3293"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.605395800Z",
+          "seal": {
+            "by": "server",
+            "mac": "3bcce6fe6cb8000f34cc11adef3b48d121d606518fb101b7cf3c9cc56b910c83"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:50.605395800Z",
+      "seal": {
+        "by": "server",
+        "mac": "6e62c17382c4ed91cbb64f3a72ebc83e2dc12ac227ec264f8123fafdb62932e2"
+      }
+    },
+    {
+      "id": "CLM-1784",
+      "statement": "drawPasskeys and drawIdentities were checked for the same pattern and each now takes a latest() number before its read and drops an overtaken answer.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #778: check drawPasskeys and drawIdentities for the same pattern; PR body: \"drawSessions, drawPasskeys and drawIdentities now number their reads with the shared latest() helper\"",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3296",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:208-213 and 297-303",
+          "summary": "drawPasskeys takes passkeyReads() before its await and checks current() after; drawIdentities takes identityReads() before its await and checks current() after. Both replace the bare main.isConnected check. Passkey reload is reachable by overlap (rename/remove/add at lines 242,253,294).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 297,
+                "end": 303
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:35.441272041Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b4f229de15286df3f8c818c99f403028351f9dad99e4c349934d009f08c71cd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both functions number before the await and drop an overtaken answer.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3296"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.716878004Z",
+          "seal": {
+            "by": "server",
+            "mac": "23be3c3fc4d4861b4702e5252ed9e9f6f37220b44c3dfdc61e33df9720040138"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:50.716878004Z",
+      "seal": {
+        "by": "server",
+        "mac": "71f7498d3ba103da3237c6ca2c6023c0f983100f2936ed2e8f116cc4bf6f8f1e"
+      }
+    },
+    {
+      "id": "CLM-1785",
+      "statement": "The journey a_late_older_passkey_list_does_not_redraw_over_a_newer_one holds an older /me/passkeys answer, makes a newer write redraw, releases the old one, and asserts the newer list stays; it passes with the fix and fails without it.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"two journeys hold the older /me/sessions and /me/passkeys answer, make a newer write redraw, release the old one, and check the newer list stays. Both fail without the fix.\"",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3294",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test ui_e2e late_older; reverted scratch copy run (see CLM-1783)",
+          "summary": "Passkey journey passes at HEAD and fails ('the older read redrew the passkey list', account.rs:397) with account.js from origin/main.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T15:29:35.221090510Z",
+          "seal": {
+            "by": "server",
+            "mac": "3068a86ad73582beecebd8a9c194436c8643fcd19ad2e4420c30b545d14bcd5f"
+          }
+        },
+        {
+          "id": "EVD-3295",
+          "kind": "test",
+          "locator": "tests/ui_e2e/account.rs:376-408",
+          "summary": "Read: hold GET /me/passkeys while renaming laptop to work-laptop (older answer lists the rename), remove the passkey (newer read, empty), release, assert passkey-work-laptop absent and DB list empty. Asserts the newer list stays.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 376,
+                "end": 408
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:35.330071542Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5e2de8fdc2ad1e61338fb9ec41864414fafba44c5417f3562e6958a0f7bdfd0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Passes at HEAD, fails against origin/main's account.js, assertions match the claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3294",
+            "EVD-3295"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.826757285Z",
+          "seal": {
+            "by": "server",
+            "mac": "3099abd6ff28d5f68f12a41ed8af595532c421fdec5f57cffb67080789830603"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:50.826757285Z",
+      "seal": {
+        "by": "server",
+        "mac": "468c08b26eff0f81749e835e0ffcd173919df4a674e6b067775e7e276a74c735"
+      }
+    },
+    {
+      "id": "CLM-1786",
+      "statement": "No other Account page list read in account.js that draws after an await is left unnumbered (the same class: drawAccount, drawSignIns, ceilingPage).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "tools/agentic/lessons.md 'Find the whole class'; PR body: \"The Account page's drawSessions, drawPasskeys and drawIdentities now number their reads\"",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:778",
+        "pre-existing"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3297",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:94-97, 127, 152, 203",
+          "summary": "drawAccount awaits freshAccount() and then checks only main.isConnected; it is reloaded from three places (lines 127, 152, 203, the last alongside drawSessions), so overlapping reloads can finish out of order and an older answer redraw the profile. It is not numbered. drawSignIns (518-522) has the same bare check but is called once, at page load, so cannot overlap.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 94,
+                "end": 97
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:35.551862159Z",
+          "seal": {
+            "by": "server",
+            "mac": "c1802df87361080fdb7f910994810bca46a325c950af0177e8db687bfa1083b9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "drawAccount, reloaded from three call sites, is still unnumbered and can be redrawn by an older answer. Outside the issue's named scope (sessions, passkeys, identities), so a pre-existing problem elsewhere, not ours. Fix: take a latest() number at the top of drawAccount in src/http/ui/js/pages/account.js and replace its post-await main.isConnected check with current(), with a hold_answer journey on the /me read; file as a follow-up issue.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3297"
+          ],
+          "recorded_at": "2026-11-26T15:29:50.931481390Z",
+          "seal": {
+            "by": "server",
+            "mac": "62b062d8f5ec5381607dd4de909d3816639eeb02e73c2c5aabe3fa8301b289b8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:39:33.784516916Z",
+      "seal": {
+        "by": "server",
+        "mac": "cc7760b43b76b22a653d51cd8a1d3438b6a152692120979642d5e3be681b14f2"
+      }
+    },
+    {
+      "id": "CLM-1787",
+      "statement": "PR body: \"No journey for drawIdentities (same helper): a second overlapping unlink cannot be driven from the page.\"",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3298",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/pages/account.js:339-348; src/config.rs OIDC providers (Config auth.oidc is a vec); tests/ui_e2e/account.rs:110,516-536",
+          "summary": "unlink() awaits the delete then drawIdentities(); the old list (with the other unlink button) stays drawn while a reload is pending. AuthConfig.oidc is a vector and account.rs:110 already starts a server with providers, and identities::link can link two. So an account with a password and two linked providers could unlink both in succession; I did not build such a journey, so I cannot show the PR's 'cannot be driven' claim true or false.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 339,
+                "end": 348
+              },
+              "commit": "8b2b5e59ce42d6b8292f54859a9fb445797844ba"
+            }
+          },
+          "recorded_at": "2026-11-26T15:29:35.664366053Z",
+          "seal": {
+            "by": "server",
+            "mac": "30282041039948310b022aed56e797674fa2f62543fe374f85fee9e8f0c0587d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Code suggests two providers plus a password would let two unlinks overlap, but I did not build the journey, so the impossibility claim is neither shown nor refuted. Fix: write the journey (login_server_with two OIDC providers, link both with identities::link, hold GET /me/identities across the first unlink, unlink the second, release) and add it, or reword the PR body to say only that the journey was not written.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3298"
+          ],
+          "recorded_at": "2026-11-26T15:29:51.036870506Z",
+          "seal": {
+            "by": "server",
+            "mac": "bee768d6017887d103df0edc388269e36780740f1f4098882c307d0efb699038"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:51.036870506Z",
+      "seal": {
+        "by": "server",
+        "mac": "fda787578441f2c56d6d678c8d2941198f5162bfbe599c427e51d48f96ae3254"
+      }
+    },
+    {
+      "id": "CLM-1788",
+      "statement": "PR body: \"fmt, lint, dylint, test (3664 passed), test-ui (305 passed), worker: all green.\"",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation section",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3300",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh test-ui (just test-ui) at HEAD 8b2b5e5",
+          "summary": "test result: ok. 305 passed; 0 failed; 1 ignored. The test-ui count matches the PR. fmt, lint, dylint, worker and the 3664-test `test` gate were not rerun.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T15:39:33.664568250Z",
+          "seal": {
+            "by": "server",
+            "mac": "fbe3d46a6f40b2cc2c7607eb8da67a6e0a18dcb9e115947f191b089c6dfdee00"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the test-ui figure was rerun (305 passed, 1 ignored, matching). fmt, lint, dylint, worker and the 3664-test gate were not rerun, so the compound statement is undecided. Fix: rerun gate.sh fmt, lint, test, dylint and worker on HEAD and record each count, or split the statement per gate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T15:39:38.541694792Z",
+          "seal": {
+            "by": "server",
+            "mac": "67266cf31af9a84693dbdff85af64f41d044d6fd15849895ab8581a94948cc59"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:39:38.541694792Z",
+      "seal": {
+        "by": "server",
+        "mac": "0b630de50af8d09befeaae3699ddd226e40d12f4d590acc28f8d69023145e687"
+      }
+    },
+    {
+      "id": "CLM-1789",
+      "statement": "The change adds one dated changelog entry under changelog/ for issue 778.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry.\"; project CLAUDE.md changelog rule",
+      "derived_from": [
+        "CLM-1780"
+      ],
+      "artifacts": [
+        "changelog/"
+      ],
+      "tags": [
+        "from-issue:778"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3299",
+          "kind": "inspection",
+          "locator": "changelog/*issue-778-account-read-numbering.md",
+          "summary": "git diff origin/main..HEAD adds exactly one changelog file, timestamped 2026-11-26T15-30-00Z, headed 'Issue #778', listing Changed/Added/Notes consistent with the diff.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T15:29:35.770272303Z",
+          "seal": {
+            "by": "server",
+            "mac": "91eca74eb49c1ba014bef44ecfc75c37dcffef45b280eb50ace3d75c31e1a405"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One timestamped changelog entry in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3299"
+          ],
+          "recorded_at": "2026-11-26T15:29:51.147538059Z",
+          "seal": {
+            "by": "server",
+            "mac": "13ca2444b38dc10af9618f46b66199904b6dbca607f1217977e0f716f1d4cdb2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T15:28:53.234792386Z",
+      "updated_at": "2026-11-26T15:29:51.147538059Z",
+      "seal": {
+        "by": "server",
+        "mac": "54a945888b7140ede9537c8c4452f682eb25969a5ec2d4bd1bc6d1490bdc41a7"
       }
     }
   ]

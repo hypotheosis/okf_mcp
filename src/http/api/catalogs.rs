@@ -1492,6 +1492,101 @@ mod tests {
         assert_eq!(listed["catalogs"][0]["description"], "The main catalog");
     }
 
+    /// Issue #752: the DELETE does not carry the catalog's bulk data with it.
+    /// It marks the catalog deleted and owes the cleanup (a durable row the
+    /// housekeeping task drains), so its cost does not grow with the
+    /// documents and revisions, and the answer arrives while the data is
+    /// still on the store. An unrelated catalog stays readable throughout;
+    /// a second DELETE of the same catalog is a 404; and the name is
+    /// reserved until the cleanup has run.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn delete_returns_before_the_bulk_data_is_cleaned_up() {
+        let test = app().await;
+        let keys = keys(&test).await;
+        let id: i64 = sqlx::query_scalar("SELECT id FROM catalogs WHERE name = 'main'")
+            .fetch_one(test.app.accounts().executor())
+            .await
+            .unwrap();
+        let store = crate::db::store_pool(test.app.accounts().executor());
+        sqlx::query(
+            "INSERT INTO catalog.documents (catalog_id, path, content, executable, revision, \
+             updated_at, updated_by) \
+             SELECT $1, 'bulk/d' || g || '.md', convert_to('# Bulk ' || g, 'UTF8'), false, 3, \
+             now(), 'seed' FROM generate_series(1, 500) g",
+        )
+        .bind(id)
+        .execute(&store)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO catalog.revisions (catalog_id, path, revision, op, content, executable, \
+             actor, message, created_at) \
+             SELECT $1, 'bulk/d' || g || '.md', r, 'update', convert_to('# Bulk ' || g, 'UTF8'), \
+             false, 'seed', 'm', now() FROM generate_series(1, 500) g, generate_series(1, 3) r",
+        )
+        .bind(id)
+        .execute(&store)
+        .await
+        .unwrap();
+        // (revisions, documents) the store holds for the catalog.
+        let rows = || {
+            let store = store.clone();
+            async move {
+                sqlx::query_as::<_, (i64, i64)>(
+                    "SELECT (SELECT count(*) FROM catalog.revisions WHERE catalog_id = $1), \
+                            (SELECT count(*) FROM catalog.documents WHERE catalog_id = $1)",
+                )
+                .bind(id)
+                .fetch_one(&store)
+                .await
+                .unwrap()
+            }
+        };
+
+        let before = rows().await;
+        assert!(before.0 >= 1500 && before.1 >= 500);
+
+        let (status, deleted) = send(
+            &test,
+            "DELETE",
+            "/api/v1/catalogs/main?force=true",
+            Some(&keys.admin),
+            None,
+        )
+        .await;
+
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(deleted, json!({ "name": "main" }));
+        // Gone from every lookup, with its data still to be removed.
+        assert!(test.app.catalog("main").await.unwrap().is_none());
+        assert_eq!(rows().await, before, "the data waits for the cleanup");
+        let owed: i64 = sqlx::query_scalar(
+            "SELECT count(*) FROM store_cleanups WHERE kind = 'catalog' AND subject = $1",
+        )
+        .bind(id.to_string())
+        .fetch_one(test.app.accounts().executor())
+        .await
+        .unwrap();
+        assert_eq!(owed, 1, "the cleanup is owed");
+        // Unrelated catalogs stay usable, and a repeat is a 404.
+        let (unrelated, _) =
+            send(&test, "GET", "/api/v1/catalogs", Some(&keys.stranger), None).await;
+        let (again, _) = send(
+            &test,
+            "DELETE",
+            "/api/v1/catalogs/main?force=true",
+            Some(&keys.admin),
+            None,
+        )
+        .await;
+        assert_eq!(unrelated, StatusCode::OK);
+        assert_eq!(again, StatusCode::NOT_FOUND);
+
+        test.settle_cleanups().await;
+
+        assert_eq!(rows().await, (0, 0));
+    }
+
     #[tokio::test(flavor = "multi_thread")]
     async fn delete_refuses_unpublished_work_unless_forced() {
         let test = app().await;

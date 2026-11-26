@@ -1689,3 +1689,7 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "bounded_property_tests.rs"]
+mod property_tests;

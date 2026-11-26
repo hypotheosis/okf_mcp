@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1869,
+  "next_claim_seq": 1885,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "b9b5b981efb7a53042629745b1b0ffd2870d80dcc0ad4d8ad7036a87aab73d56"
+    "mac": "b924bde686e102ab29d63f7defd14ac074fdf3cd5c0665d1af7d45f1979f3963"
   },
-  "next_evidence_seq": 3413,
+  "next_evidence_seq": 3431,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "829d6c95e846749a212eaa105505ec404001ef5714e9f9a2483abab6039a9ca9"
+    "mac": "65b5fec8cdda0b8d2bef20bfedeed04f54b6b0f047fc41c7b698689ae6437931"
   },
   "claims": [
     {
@@ -169836,6 +169836,1074 @@
       "seal": {
         "by": "server",
         "mac": "01eab55f19d0879946047d75f8661460861717d69f5f1b8ec545e5e70c6da23e"
+      }
+    },
+    {
+      "id": "CLM-1869",
+      "statement": "Issue #790 is resolved: index on an already-listed concept updates its listing's summary as a replayable op instead of answering \"already lists\".",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/790",
+      "derived_from": [],
+      "artifacts": [
+        "src/okf/ops/log_index.rs",
+        "src/okf/ops/replay.rs",
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3430",
+          "kind": "analysis",
+          "locator": "children of CLM-1869",
+          "summary": "All children are supported except the raw-bullet claim, which the code satisfies but no test pins with a differing summary. Behavior, the three requested tests, docs, note text and parity fixture are all covered.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T20:55:04.204699564Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d254f7567eb150a4ee81b447e5e613c48c4d22feea80d94040ea7c7c18a3298"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every requirement is met in code and tests except that the raw-bullet refusal with a differing summary is unpinned by any test. Fix: add the differing-summary raw-bullet assertion to index_does_not_duplicate_an_old_raw_bullet in src/okf/ops/log_index.rs, then re-audit the raw-bullet claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3430"
+          ],
+          "recorded_at": "2026-11-26T20:55:06.872716825Z",
+          "seal": {
+            "by": "server",
+            "mac": "042f5d127e14ef8b8e76df391992c98d84d9c690defcac1f409efe0cb4c90d32"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:55:06.872716825Z",
+      "seal": {
+        "by": "server",
+        "mac": "f6bffc1fcac552346e4899979c73e5cd42dd8de2d60b7ebc88f44ddbd85a294f"
+      }
+    },
+    {
+      "id": "CLM-1870",
+      "statement": "list_concept, for an already-listed concept with a non-empty summary that differs from the bullet's, rewrites the bullet's summary and records ReplayOp::SetListingSummary { target: <concept>, summary } (via redescribe_listing).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790: \"record SetListingSummary { target: <concept>, summary } instead of 'already lists'\"; PR: \"`index` on a concept that is already listed now sets the listing's summary when a non-empty `summary` differs from the bullet's, recording the existing `ReplayOp::SetListingSummary` (target: the concept)\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3413",
+          "kind": "test",
+          "locator": "cargo nextest run okf::ops::log_index::tests::index_of_a_listed_concept_sets_its_summary_and_records_the_op (passed)",
+          "summary": "Test lists ntp with a TODO summary, then index with \"  the  pool \"; asserts the bullet reads \"- the pool\", the message is the bullet, and replay[\"infra/index.md\"] == [SetListingSummary{target:\"infra/ntp.md\", summary:\"the pool\"}]. Ran and passed at HEAD.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 1254,
+                "end": 1280
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:47.816905606Z",
+          "seal": {
+            "by": "server",
+            "mac": "031689c535fb36f684b8383b10597c70b293560b6912ab1b496d3af78d91f3eb"
+          }
+        },
+        {
+          "id": "EVD-3414",
+          "kind": "inspection",
+          "locator": "src/okf/ops/log_index.rs:158-236",
+          "summary": "list_concept calls redescribe_listing when listed and accept_raw; it collapses whitespace, calls set_listing_summary_text, writes atomically and records ReplayOp::SetListingSummary{target: listing.concept, summary}.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 158,
+                "end": 240
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:47.980726458Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ab86357228e8c1f16db1917b102039c84b483477a8fd90e08ac40626922c8af"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and a passing test assert the bullet rewrite and the recorded op with target = concept.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3413",
+            "EVD-3414"
+          ],
+          "recorded_at": "2026-11-26T20:49:25.751994886Z",
+          "seal": {
+            "by": "server",
+            "mac": "16109c6f84431dd4007579872764ed09d53e4a121b8bb9281e3009c3321bf133"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:25.751994886Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1bb30a2a33083e9daf3a72db9ac6f73d73b76cb3d58b058f18890cc4235968a"
+      }
+    },
+    {
+      "id": "CLM-1871",
+      "statement": "index on an already-listed concept whose summary is empty or unchanged (after whitespace collapse) is still a no-op answering \"already lists\".",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790: \"Keep today's no-op when the summary is unchanged or omitted\"; PR: \"A summary that is empty or unchanged is still a no-op\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3415",
+          "kind": "test",
+          "locator": "cargo nextest run okf::ops::log_index::tests::index_of_a_listed_concept_with_the_same_summary_changes_nothing (passed)",
+          "summary": "Re-describing with \" pool \" (same after collapse) and with \"\" both touch nothing and answer \"infra/index.md: already lists infra/ntp.md\". redescribe_listing returns None for empty summary or updated == text.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 1239,
+                "end": 1250
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:48.263174520Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0c957d1bfba7e15f9e64a0703aec4ca2218c776123467a1a66e3d541c9f1871"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test covers same-after-collapse and empty summaries, both no-op with the old message.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3415"
+          ],
+          "recorded_at": "2026-11-26T20:49:25.962583699Z",
+          "seal": {
+            "by": "server",
+            "mac": "019201bda77536800cd96fa5448e2bacb6fad10759979dc2299a0acd72f15dea"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:25.962583699Z",
+      "seal": {
+        "by": "server",
+        "mac": "7f3748ac007e2e667bdc1e169d5fa4945c0d81d119eded9ca40b5bdfdf2253c8"
+      }
+    },
+    {
+      "id": "CLM-1872",
+      "statement": "For an already-listed concept whose bullet has no leading link that resolves to it (a raw bullet), index with a different summary changes nothing and keeps the note pointing at repair_indexes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790: \"raw bullets refused and pointed at repair_indexes\"; PR: \"A raw bullet that does not resolve keeps its existing no-op plus note pointing at `repair_indexes`\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3416",
+          "kind": "inspection",
+          "locator": "src/okf/ops/log_index.rs:158-190, src/okf/ops/replay.rs:834-852",
+          "summary": "For a raw bullet no leading link resolves, set_listing_summary_text returns None, redescribe_listing returns None, and control falls to the unchanged note (\"link that does not resolve ... repair_indexes rewrites it\") and \"already lists\". Code is right, but this is not tested with a differing summary.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 158,
+                "end": 190
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:48.404490396Z",
+          "seal": {
+            "by": "server",
+            "mac": "d81561f7aaf536d34c6366f900ec52a31b4a3a0ed84efc3b527c9715eeda0ca5"
+          }
+        },
+        {
+          "id": "EVD-3417",
+          "kind": "analysis",
+          "locator": "src/okf/ops/log_index.rs:1334-1360 (index_does_not_duplicate_an_old_raw_bullet)",
+          "summary": "The raw-bullet test was changed to pass the summary the bullet already has (\"An odd one.\"), so it cannot distinguish \"no re-description of a raw bullet\" from \"unchanged summary no-op\"; no test passes a different summary for a raw bullet.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 1334,
+                "end": 1360
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:48.630013653Z",
+          "seal": {
+            "by": "server",
+            "mac": "545d7d701a7be90fe83d2e802cd1925f6bdec59860bdbe384755d0ee2c1d6df2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The code path looks right (EVD-3416) but at integrity 3 no test passes a differing summary for a raw bullet; the only raw-bullet test was changed to the bullet's own summary (EVD-3417), so it cannot fail if redescribe wrongly rewrote raw bullets. Fix: in index_does_not_duplicate_an_old_raw_bullet (log_index.rs), also call index with a different summary on each unresolvable raw form and assert the file is unchanged, touched is empty and the repair_indexes note is present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T20:49:26.101050703Z",
+          "seal": {
+            "by": "server",
+            "mac": "d42a95b46b1892043fd57cba3db82cb4f1f1d05128fad43a58b42012bc99595e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:26.101050703Z",
+      "seal": {
+        "by": "server",
+        "mac": "1ba5161b018596a5a32da700fbf41205ccbfff2ed5bc20202ca4734fe2ae216a"
+      }
+    },
+    {
+      "id": "CLM-1873",
+      "statement": "create_concept's index_summary never re-describes an existing listing (its Listing has accept_raw false and redescribe_listing runs only when accept_raw is true).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR: \"`create_concept`'s `index_summary` never re-describes.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/content.rs",
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3418",
+          "kind": "inspection",
+          "locator": "src/okf/ops/content.rs:221,240; src/okf/ops/log_index.rs:161",
+          "summary": "Both Listing literals in content.rs set accept_raw: false; redescribe_listing is called only under `if listing.accept_raw`; only repair_indexes (983, which skips already-listed concepts) and the index tool (347) set it true.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "accept_raw: (true|false)",
+              "scope": [
+                "src"
+              ],
+              "hits": 4,
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:48.846884732Z",
+          "seal": {
+            "by": "server",
+            "mac": "37e4f2d950ba1dd56d1e43ddc0f1b15424051d1f8ec3f14364a129fa70f73e2d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both create_concept listings use accept_raw false and redescribe_listing is gated on accept_raw.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3418"
+          ],
+          "recorded_at": "2026-11-26T20:49:26.284016397Z",
+          "seal": {
+            "by": "server",
+            "mac": "aea5875f72b3ec1947656ac07e149bcdc8f9248f41aa2c2401786101a0a49355"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:26.284016397Z",
+      "seal": {
+        "by": "server",
+        "mac": "6ce4fea8959d2ef7373c4c2918107a3ef8811797b4a52cfdc5c804e73574a895"
+      }
+    },
+    {
+      "id": "CLM-1874",
+      "statement": "Two changesets that each re-describe a different concept in one folder index (index on /infra/time and /infra/other) both publish, the second by replaying set_listing_summary onto the changed index.md.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790 tests wanted; PR: \"two changesets re-describing different concepts in one index both publish\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3419",
+          "kind": "test",
+          "locator": "cargo nextest run mcp::writes::folder_summary_tests::two_concepts_re_described_in_one_folder_index_both_publish (passed)",
+          "summary": "Asserts stored op is set_listing_summary, both publishes report published, second report.replayed contains /infra/index.md, and the final index has both new summaries.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 2412,
+                "end": 2455
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:49.043330855Z",
+          "seal": {
+            "by": "server",
+            "mac": "233c5dad0a35ea1b14195a4b3156c57ae235683d5d2ce3c7fec6efbc6e351934"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed on rerun and asserts both publish and the replay.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3419"
+          ],
+          "recorded_at": "2026-11-26T20:49:26.431315889Z",
+          "seal": {
+            "by": "server",
+            "mac": "78ccfb07541680ce27b016f4118df33b7b5c383f7930dfd259079a4aec8798cd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:26.431315889Z",
+      "seal": {
+        "by": "server",
+        "mac": "a8e680f1edd8edaac961a0959f9dbced40c50b738640fce8219f878328901176"
+      }
+    },
+    {
+      "id": "CLM-1875",
+      "statement": "A concept re-description whose bullet another changeset removed fails at publish with a Refused error saying the index no longer lists the concept, and the summary is not published.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790 tests wanted; PR: \"a summary whose bullet another changeset removed fails at publish\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs",
+        "src/okf/ops/replay.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3420",
+          "kind": "test",
+          "locator": "cargo nextest run mcp::writes::folder_summary_tests::a_concept_summary_whose_listing_another_changeset_removed_fails_at_publish (passed)",
+          "summary": "Second changeset removes the Time bullet and publishes; first's publish returns OkfError::Refused containing \"infra/index.md no longer lists /infra/time.md\", and the published index lacks \"Keeps the clock.\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 2456,
+                "end": 2490
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:49.228910201Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b8de66b7232ace0524952be14a45427535dbdbca9529cbfcecfed1671f5bada"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed and asserts the Refused reason and the absence of the summary.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3420"
+          ],
+          "recorded_at": "2026-11-26T20:49:26.580243878Z",
+          "seal": {
+            "by": "server",
+            "mac": "2042bc62e6e98e4529ad016388daa31548d4adaf54fbe6912c11ec408e8e26af"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:26.580243878Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1545ddc4f38b96a79e657a3dcba7475040bb7fcc4ce61d1736460956dc80298"
+      }
+    },
+    {
+      "id": "CLM-1876",
+      "statement": "A free edit of the folder index.md after index on a concept is still stale-checked: publishing after another changeset changed that index fails with Conflict.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #790 tests wanted; PR: \"a free edit after `index` is still stale-checked\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3421",
+          "kind": "test",
+          "locator": "cargo nextest run mcp::writes::folder_summary_tests::a_free_edit_after_index_on_a_concept_is_stale_checked (passed)",
+          "summary": "First changeset does index on /infra/time then a free edit_document of infra/index.md; second changeset publishes another index change; first's publish returns OkfError::Conflict.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 2491,
+                "end": 2520
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:49.417574540Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d42e9a363150f64b9ef7eff9a82d03a63a7a72fc4b3e9ee6aa208ba74dfb4b7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passed and asserts Conflict.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3421"
+          ],
+          "recorded_at": "2026-11-26T20:49:26.899989379Z",
+          "seal": {
+            "by": "server",
+            "mac": "1725a0a6c7bac6c07d48e52fe1dfa9c1ff39255a10113c5678e41068b0e1628b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:26.899989379Z",
+      "seal": {
+        "by": "server",
+        "mac": "d7cc65cf339c40d06a69d1ae9239b12f5eb2ac49a35cc060dff554114bd965ea"
+      }
+    },
+    {
+      "id": "CLM-1877",
+      "statement": "The index tool description and its summary parameter doc say that for an already-linked concept only its summary is set, and docs/reference/tools.md carries the same text as the code.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #790: \"Update the index description\"; PR: \"The `index` tool description and `summary` parameter updated; `docs/reference/tools.md` regenerated.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3422",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:467,932; docs/reference/tools.md:232,237",
+          "summary": "Description now reads \"if it is already linked, only its summary is set to `summary`\"; param doc \"For a concept already listed, replaces its listing's summary.\"; tools.md has identical text on both lines.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 230,
+                "end": 238
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:49.664637669Z",
+          "seal": {
+            "by": "server",
+            "mac": "661c129be74b1bdd90bb7496c26d4d444f10c6a1161e43d2e4be68f91f5c038b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code strings and tools.md match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3422"
+          ],
+          "recorded_at": "2026-11-26T20:49:27.053933169Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecf08d5f4680eb32a08e15bf7bd80d0f2033a5a1f793c87b7a8378368a5d9114"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:27.053933169Z",
+      "seal": {
+        "by": "server",
+        "mac": "08d9ebfdae85e1df688b798335d5299a388b5eaf704935e1b216c6e6e990a19c"
+      }
+    },
+    {
+      "id": "CLM-1878",
+      "statement": "The note repair_indexes writes for a concept with no description now says to describe it with index on that concept, and the tests that pin the note were updated.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #790: \"Update ... the TODO note repair_indexes writes for concepts\"; PR: \"The note `repair_indexes` writes for a concept with no description now says to describe it with `index` on the concept.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3423",
+          "kind": "inspection",
+          "locator": "src/okf/ops/log_index.rs:994-1000 and the repair tests at ~2370-2380, ~2637",
+          "summary": "The note now ends \"describe it with index on /<concept>\"; three test expectations were updated to the new text, and those tests passed in the 3688-test run and my rerun of the full suite is recorded on CLM-1883.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 993,
+                "end": 1000
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:49.818469128Z",
+          "seal": {
+            "by": "server",
+            "mac": "5398d222fbf9455a868a629313309fef860cda653381a42dc0b09f3570923c48"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Note text changed in code and in three test expectations.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3423"
+          ],
+          "recorded_at": "2026-11-26T20:49:27.223352635Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad1d4f6d1e5174b2e90ff444d2f4d2b8ac5f3ab7eceb1c74f1ff615eeef88bff"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:27.223352635Z",
+      "seal": {
+        "by": "server",
+        "mac": "70be2eab3ffd7a096cc85d8165a06c12718ac9c7823ff41e662a325d9d52b87a"
+      }
+    },
+    {
+      "id": "CLM-1879",
+      "statement": "lost_listing shows a concept target as itself, where it used to trim a trailing index.md from any name, and still shows a folder's index.md as the folder.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"`lost_listing` shows a concept target as itself (it used to trim a trailing `index.md` from any name).\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "src/okf/ops/replay.rs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3424",
+          "kind": "analysis",
+          "locator": "src/okf/ops/replay.rs:858-875 and test a_concept_summary_whose_listing_another_changeset_removed_fails_at_publish",
+          "summary": "\"index.md\" -> \"\", \"x/index.md\" -> \"x/\", other names unchanged. The concept case is asserted by the Refused-reason test (\"no longer lists /infra/time.md\"). The folder case is covered by the existing folder-summary test; no new unit test of lost_listing's folder branch was found in the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/replay.rs",
+              "lines": {
+                "start": 857,
+                "end": 875
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:50.011365896Z",
+          "seal": {
+            "by": "server",
+            "mac": "a29632acc5616b07051eb4c8475249cf30acdb44c01d2bc731dde60c9bb322fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Logic reads correctly for all three cases and the concept case is asserted by a passing test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3424"
+          ],
+          "recorded_at": "2026-11-26T20:49:27.454074885Z",
+          "seal": {
+            "by": "server",
+            "mac": "98ce4235912f588a8be07dc762eb60d3b8fcb9339527858b1af096250d4656f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:27.454074885Z",
+      "seal": {
+        "by": "server",
+        "mac": "41d248693b423ddd486476e175e597c87833366948b358e8450619511ee6a03a"
+      }
+    },
+    {
+      "id": "CLM-1880",
+      "statement": "tests/parity/ops_script.json: the index of analysis/stamps.md passes the summary the fixture already has (\"timestamp cases\"), and the golden output still says \"already lists\".",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"the `index` of `analysis/stamps.md` passes the summary the fixture already has, so okf.py and the server still agree on 'already lists'\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "tests/parity/ops_script.json",
+        "tests/golden/ops.json"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3425",
+          "kind": "inspection",
+          "locator": "tests/parity/ops_script.json:57; tests/golden/ops.json:106,187",
+          "summary": "Script summary is \"timestamp cases\"; the fixture index (golden line 187) has \"[Stamps](/analysis/stamps.md) - timestamp cases\"; golden output line 106 is unchanged \"already lists\". Parity test is in the full suite run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/parity/ops_script.json",
+              "lines": {
+                "start": 57,
+                "end": 57
+              },
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:50.198786649Z",
+          "seal": {
+            "by": "server",
+            "mac": "49cfe31bf3c1430ba7d1c37117107e52efa1d9baad6ba5af00c272b69863bee4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Script summary equals the fixture's; golden unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3425"
+          ],
+          "recorded_at": "2026-11-26T20:49:27.589619646Z",
+          "seal": {
+            "by": "server",
+            "mac": "43f7d0729395229e657713fe29bf127205b01913eb94f36c53e0a60f392ca69a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:27.589619646Z",
+      "seal": {
+        "by": "server",
+        "mac": "fbd782fb900e8f361a65946120251f38aeaf0020f32a68c4e4cc2b05a934778e"
+      }
+    },
+    {
+      "id": "CLM-1881",
+      "statement": "No other test, scenario or doc in the repository still pins \"already lists\" for a concept re-described with a different summary.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Task: \"update any tests/scenarios pinning 'already lists'\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "tests",
+        "docs"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3426",
+          "kind": "analysis",
+          "locator": "git grep -n \"already lists\" -- src tests docs/reference",
+          "summary": "Remaining hits: log_index.rs:135,178 (doc, code), 1248 (same-summary test), content.rs:284 comment, replay.rs:386 comment, tests/golden/ops.json:106 (same summary). Only old plan docs under docs/superpowers elsewhere. None pins a differing-summary concept re-description.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "already lists",
+              "scope": [
+                "docs/reference",
+                "src",
+                "tests"
+              ],
+              "hits": 6,
+              "commit": "a05e4d34f1889e7d0e93fa952902f105fbe605c2"
+            }
+          },
+          "recorded_at": "2026-11-26T20:48:55.468051853Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfc4d0ac94d3c389570f36052d321282c95b202abbcf212858349c7d352c6470"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide search shows no remaining pin of the old behavior.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3426"
+          ],
+          "recorded_at": "2026-11-26T20:49:27.866784314Z",
+          "seal": {
+            "by": "server",
+            "mac": "eb52842241703f57cf8f2206b9cd76c7e2e934b7e4c3916abc087179dffc910d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:49:27.866784314Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5e5e4d5680cbf94eedc8313edf936f66e5a5ca4d24d2e51f75e55f4b8131a71"
+      }
+    },
+    {
+      "id": "CLM-1882",
+      "statement": "gate.sh fmt, lint and dylint pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"`gate.sh fmt`, `lint`, `dylint` pass.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "target/i790-fmt.log",
+        "target/i790-lint.log",
+        "target/i790-dylint.log"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3427",
+          "kind": "log",
+          "locator": "cargo fmt --all --check (rerun, exit 0); target/i790-lint.log, target/i790-dylint.log tails",
+          "summary": "fmt check re-run at HEAD passes. lint log ends with cargo doc \"Finished\" and no warnings/errors (the two \"warning\" hits are the command lines with -D warnings); dylint log ends \"Finished\" with 0 warnings. lint and dylint were not re-run by me.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:54:42.224036302Z",
+          "seal": {
+            "by": "server",
+            "mac": "341437a95366c3161abce6919ab29f7383123ec1292c816aad2a3fa923be70ba"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fmt re-verified; lint and dylint logs show clean finishes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3427"
+          ],
+          "recorded_at": "2026-11-26T20:54:48.049824790Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d707c5cc329490d683f4c0547d3bfdd6b80d13c7eda8da54a73125bfb1530ef"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:54:48.049824790Z",
+      "seal": {
+        "by": "server",
+        "mac": "80c620d73b63d3eb8bfa1b8a2d14710b5e4aa5da6d7e196b2109d6c588725599"
+      }
+    },
+    {
+      "id": "CLM-1883",
+      "statement": "gate.sh test: 3688 passed, 20 skipped.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"`gate.sh test`: 3688 passed, 20 skipped.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "target/i790-test.log"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3428",
+          "kind": "log",
+          "locator": "target/i790-test.log:3819",
+          "summary": "The log holds two runs. The first ends \"Summary [108.304s] 3688 tests run: 3688 passed, 20 skipped\" (the PR's figure). The second (line 7569) ends \"3687 passed, 1 failed, 20 skipped\": tls::verify_full_connects_encrypted_to_a_server_its_ca_signed failed with a Docker \"port already in use\" error; I re-ran that test alone and it passed. My own full nextest rerun hit the 590s cap on a heavily loaded machine (3608 passed, 32 failed, 1 timed out of 3641 run), so it is inconclusive.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:54:42.580991919Z",
+          "seal": {
+            "by": "server",
+            "mac": "7180bceaeaaf133a4f3b51576c981b7f111d54c7720e848c94bc55eb6391e2b7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The log contains a run with exactly 3688 passed, 20 skipped; the later run's single failure was an unrelated Docker port clash that passes alone. The caveat is that the log's last run is the failing one. My full rerun was inconclusive under machine load.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3428"
+          ],
+          "recorded_at": "2026-11-26T20:54:48.191305209Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6eefe61bbc862d831ca24807fe196dbd59ed45d7982f035138f62145c348533"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:54:48.191305209Z",
+      "seal": {
+        "by": "server",
+        "mac": "97fac70f9e648ac4e9af551493d5f0848d26fe082a7ee3a85b1984fec5be48c9"
+      }
+    },
+    {
+      "id": "CLM-1884",
+      "statement": "gate.sh mcpjam: 5 files, 29 tests passed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR: \"`gate.sh mcpjam`: 5 files, 29 tests passed.\"",
+      "derived_from": [
+        "CLM-1869"
+      ],
+      "artifacts": [
+        "target/i790-mcpjam.log"
+      ],
+      "tags": [
+        "from-issue:790"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3429",
+          "kind": "log",
+          "locator": "target/i790-mcpjam.log",
+          "summary": "Log ends \"Test Files 5 passed (5)  Tests 29 passed (29)\". Not re-run by me.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T20:54:42.697312446Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc84aa925c9d71d73069ff268c93f009d32b00232357a0bbcbc78afe3f976c56"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Log shows 5 files, 29 tests passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3429"
+          ],
+          "recorded_at": "2026-11-26T20:54:48.375892280Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad92f30867e3d7bf7cbab12c08cb93fbe6df0c80e57cac79dcc7e715c5a02d6f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T20:48:12.179316036Z",
+      "updated_at": "2026-11-26T20:54:48.375892280Z",
+      "seal": {
+        "by": "server",
+        "mac": "b3a4943ce32cb44f705dca85d83820b566477fbdbde0941c0638509a6775cedb"
       }
     }
   ]

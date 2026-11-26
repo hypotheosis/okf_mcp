@@ -229,12 +229,12 @@ A document's revisions, newest first: revision, op (create, update, delete, impo
 
 **Add Index Entry** (destructive)
 
-List a concept in its folder's index.md as `* [Title](name.md) - summary`, in the changeset `changeset` names (open one with open_changeset); nothing happens if it is already linked (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at publish onto an index.md that changed meanwhile, unless a free edit of that index.md follows. With a folder `path` (`/infra/`), sets the summary of its listing in the parent's index.md instead, replayed the same way. Write access.
+List a concept in its folder's index.md as `* [Title](name.md) - summary`, in the changeset `changeset` names (open one with open_changeset); if it is already linked, only its summary is set to `summary` (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at publish onto an index.md that changed meanwhile, unless a free edit of that index.md follows. With a folder `path` (`/infra/`), sets the summary of its listing in the parent's index.md instead, replayed the same way. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `path` | string | yes | The concept to list, with or without `.md`, e.g. `/infra/ntp`; its folder's index.md must exist (`repair_indexes` creates missing ones). Or a folder, e.g. `/infra/`, to set its listing's summary in its parent's index.md. |
-| `summary` | string | yes | The text after the link's ` - `. |
+| `summary` | string | yes | The text after the link's ` - `. For a concept already listed, replaces its listing's summary. |
 | `section` | string | no | The heading to list it under, e.g. `Build infrastructure` (default: `Concepts`). |
 | `title` | string | no | The link text (default: the concept's frontmatter title). |
 | `changeset` | string | yes | The changeset to write to: the handle `open_changeset` returned. |

@@ -20,8 +20,15 @@ lint:
 # and `separate` (OKF_TEST_STORE), a second database copied from a store
 # template and registered as the store `main`. Both runs happen even when the
 # first fails, and the recipe fails if either did.
+#
+# The tests run under cargo-nextest (`cargo install --locked cargo-nextest`;
+# its settings are in .config/nextest.toml), which runs every test binary's
+# tests side by side instead of one binary after another: about a quarter
+# less time than `cargo test` over both modes. nextest does not run doctests,
+# so `cargo test --doc` runs beside it in each mode.
 test: test-worker
-    scripts/test-pg.sh run bash -c 'status=0; OKF_TEST_STORE=same cargo test || status=1; OKF_TEST_STORE=separate cargo test || status=1; exit $status'
+    @cargo nextest --version >/dev/null 2>&1 || { echo "test: cargo-nextest is not installed (cargo install --locked cargo-nextest)" >&2; exit 1; }
+    scripts/test-pg.sh run bash -c 'status=0; for mode in same separate; do OKF_TEST_STORE=$mode cargo nextest run || status=1; OKF_TEST_STORE=$mode cargo test --doc || status=1; done; exit $status'
 
 # The mobile reader's service worker (src/http/read/sw.js) in a Node vm, and
 # its page modules without a DOM (src/http/read/js/), with fake Cache Storage,
@@ -81,5 +88,7 @@ test-agentic:
 release-prepare patchlevel:
     bash scripts/release-prepare.sh {{quote(patchlevel)}}
 
-release-ship:
-    bash scripts/release-ship.sh
+# --no-checks skips fmt, lint and test when main was already tested as it merged.
+[positional-arguments]
+release-ship *flags:
+    bash scripts/release-ship.sh "$@"

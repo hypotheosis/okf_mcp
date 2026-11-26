@@ -10,7 +10,7 @@
 # AGENTIC_TIMEOUT_TEST=90m):
 #   fmt      just fmt                     5m   (no lock)
 #   lint     just lint                    30m
-#   test     just test                    75m  (the suite twice: OKF_TEST_STORE=same, then =separate)
+#   test     just test                    75m  (nextest and doctests twice: OKF_TEST_STORE=same, then =separate)
 #   test-ui  just test-ui                 60m
 #   narrow   cargo test <args...>         15m  (no lock; for iterating)
 #   dylint   just dylint                  45m  (the first run builds the lint library)

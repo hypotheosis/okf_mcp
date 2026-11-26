@@ -738,7 +738,7 @@ The report structs derive `serde::Serialize`; their JSON has the keys of
 
 ## Testing
 
-    just test                                    # every test, on one shared Postgres
+    just test                                    # every test, on one shared Postgres (needs cargo-nextest)
     cargo test                                   # the same, a Postgres container per test
     cargo test --test writes                     # just the end-to-end write tests
     cargo test --test restructure                # just the end-to-end restructuring tests

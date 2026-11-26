@@ -9,7 +9,7 @@
 #   test binaries                             AGENTIC_WATCHDOG_TEST   default 1200 s
 #     (.../debug/deps/<name>-<hash>, or .../debug/build/<package>/<hash>/out/
 #     <name>-<hash> in the newer build-dir layout, which cargo 1.100 uses)
-#   cargo test|clippy|build, just test|lint   AGENTIC_WATCHDOG_GATE   default 4800 s
+#   cargo test|nextest|clippy|build, just test|lint   AGENTIC_WATCHDOG_GATE   default 4800 s
 #   idle stdin reader                         AGENTIC_WATCHDOG_IDLE   default 600 s
 #     A cat, tee, head or tail (without -f) whose fd 0 is a pipe or socket and
 #     which has used at most one second of CPU. A background command's stdin
@@ -298,7 +298,7 @@ while :; do
             read -r comm <"/proc/$pid/comm" 2>/dev/null || comm=unknown
             found+="pid=$pid elapsed=${elapsed}s comm=$comm cwd=$cwd"$'\n'
         fi
-    done < <(grep -E '/debug/deps/|/debug/build/[^/ ]+/[^/ ]+/out/|cargo (test|clippy|build)|just (test|lint|test-ui)' <<<"$all_procs" \
+    done < <(grep -E '/debug/deps/|/debug/build/[^/ ]+/[^/ ]+/out/|cargo (test|nextest|clippy|build)|just (test|lint|test-ui)' <<<"$all_procs" \
         | grep -v -E 'grep|watchdog\.sh')
     # Idle stdin readers (#780). The list is by comm only; the command line is
     # read here just to tell `tail -f` (a legitimate follower) from `tail`.

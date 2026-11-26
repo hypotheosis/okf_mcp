@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1618,
+  "next_claim_seq": 1634,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "0cafa2b93994dc6317b5e1ff19c961f4d567d3868da267053dd32beabc5c75f1"
+    "mac": "d6d3360470b0698cb5887dd6c2607f6431d13d916d0e15d2ad9ab285e660562d"
   },
-  "next_evidence_seq": 2408,
+  "next_evidence_seq": 2426,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "d465488cd6e014f5837ea961a10282fe85605e88623da0f27ef615ba782c7b97"
+    "mac": "592e2c8634f59cb42a3cd004c331105d4e8897a9451f4a46d1dc1c4c6168a3ae"
   },
   "claims": [
     {
@@ -131255,6 +131255,1022 @@
       "seal": {
         "by": "server",
         "mac": "5b0123c63b5ec95ada2302f82a411ebbb01c18a4dcb3fa4c476584ea79bcb07c"
+      }
+    },
+    {
+      "id": "CLM-1618",
+      "statement": "Issue #744 is delivered: a hegel property test interleaves loads and invalidations against cache::Bounded and checks the epoch and fence, within the task's no-timing and runtime limits.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/744",
+      "derived_from": [],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2425",
+          "kind": "analysis",
+          "locator": "children of CLM-1618",
+          "summary": "The children show the test exists, covers the six operations with schedule-controlled completion, asserts staleness and weight properties that fail under mutation, uses no timing, and runs in about 1 s. No child is refuted.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:48:20.815921Z",
+          "seal": {
+            "by": "server",
+            "mac": "ef6bee977f76715fafd96036dabbb75a798abc9febdf77ce269a24bfceba064d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported; see roll-up evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2425"
+          ],
+          "recorded_at": "2026-11-26T07:48:24.140695245Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5f672c5c4b47dc33def9b0c882e9857d74b44664c1bd42b3a25305d925d3dcd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:24.140695245Z",
+      "seal": {
+        "by": "server",
+        "mac": "be279289411d324690da774db24a4fdc604f0563781b959708e09eb34e7df115"
+      }
+    },
+    {
+      "id": "CLM-1619",
+      "statement": "The property test generates sequences that include get_or_load, get_or_revalidate, invalidate, invalidate_where, reweigh and mark_all_stale, with operation completion order controlled by the schedule.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #744: 'generates sequences of concurrent get_or_load, get_or_revalidate, invalidate, invalidate_where, reweigh and mark_all_stale with controlled completion order'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2408",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:129-198,285-302",
+          "summary": "Step enum and run() call get_or_load, get_or_revalidate, invalidate, invalidate_where, reweigh, mark_all_stale; loaders park on gates opened only by Release steps and futures are polled by hand with Waker::noop, so completion order is schedule-controlled. draw_step generates all variants.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 125,
+                "end": 198
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:43.960861156Z",
+          "seal": {
+            "by": "server",
+            "mac": "5302a7891a9b698f913288ef66d1a40d2be02f4419d6e17a20e644ee96bd8c30"
+          }
+        },
+        {
+          "id": "EVD-2409",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:197 and 285-302",
+          "summary": "Caveat: MarkAllStale is generated and executed, but no assertion checks its effect (stale_before); the properties only check values held in the cache against the model version. It is exercised, not verified.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 197,
+                "end": 197
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.056869972Z",
+          "seal": {
+            "by": "server",
+            "mac": "aaa6f4baf9bb1aaf4da74e9075f2863a899029c1e8e67664e7fa9e64a4b79e1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All six named operations are generated and called, and completion order is set by Release/Poll steps over gated loaders polled by hand. Note (neutral EVD-2409): mark_all_stale's effect is never asserted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2408"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.533190548Z",
+          "seal": {
+            "by": "server",
+            "mac": "666b703062f2bb77bb6af60a2ba73c68112000292b21f2cf52f2aeefb7283d9f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.533190548Z",
+      "seal": {
+        "by": "server",
+        "mac": "5befe3392a02c8ba80806fd64f2470d7c92d3580a5899900ce976f2a32b74714"
+      }
+    },
+    {
+      "id": "CLM-1620",
+      "statement": "The property test asserts that no value loaded before an invalidation of its key (or a fence move) is served from the cache after that invalidation.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #744: 'asserts that no value loaded before an invalidation of its key (or a fence move) is ever served from the cache after that invalidation'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2410",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:181-199,206-222,255-269",
+          "summary": "Every Invalidate/InvalidateWhere bumps the model version before calling the cache; after every step check_properties asserts each resident value equals the current model version (peek), and start() asserts a lookup answered immediately from the cache returns the current version. Loads read the version at start, so an overtaken load would hold an older version and fail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 255,
+                "end": 269
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.152900929Z",
+          "seal": {
+            "by": "server",
+            "mac": "79af4938d1bf01a7f1c27bfb8a55eb94839079914902a0314a77dbf5d736ac19"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions compare every resident value to the model version bumped at each invalidation, after every step; the test fails when the epoch or fence logic is removed (CLM-1632, CLM-1633), so the assertion bites.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2410"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.618972948Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd0a345fd5d151d18cccbf6910663480900d8020b4f19eb086ef1778a61768be"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.618972948Z",
+      "seal": {
+        "by": "server",
+        "mac": "d05e54ae1cafddc179afc6ff0fa735a754dce499ecb7748d45098dbead90bfca"
+      }
+    },
+    {
+      "id": "CLM-1621",
+      "statement": "The property test asserts that cache weights stay within the budget.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #744: 'and that weights stay within the budget'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2411",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:270-277",
+          "summary": "check_properties asserts cache.cache.weighted_size() <= BUDGET (100) and the model's resident weight <= BUDGET after every step; weights up to 150 and Reweigh steps are generated, so over-budget values are exercised.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 270,
+                "end": 277
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.245146727Z",
+          "seal": {
+            "by": "server",
+            "mac": "b752ba412d8ff3cfa13c72fb1418697697240f9195b646e66112daaff9c62a65"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both moka's weighted_size and the model's resident weight are asserted <= BUDGET after each step, with weights above budget generated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2411"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.704651437Z",
+          "seal": {
+            "by": "server",
+            "mac": "b737492abe2f9057f64425cb81047ff36bddd7cb3746323d7b146c9dc138127d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.704651437Z",
+      "seal": {
+        "by": "server",
+        "mac": "21c331ce3bee136932e4af7a3af0c6ab70784a4ef0d27c0c003b2946df3b5550"
+      }
+    },
+    {
+      "id": "CLM-1622",
+      "statement": "The property test uses no timing, sleeps, timers or threads.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #744 task requirements: 'no timing or sleeps'; PR body: 'no timers, sleeps or threads'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2412",
+          "kind": "analysis",
+          "locator": "git grep -iE 'sleep|Instant|thread::spawn|tokio::spawn|timeout|interval' src/cache/bounded_property_tests.rs",
+          "summary": "The only hit is the doc comment saying no timer, sleep or thread is involved. The Duration::from_secs(3600) is a cache TTL constructor argument, never awaited; gates are polled with Waker::noop; the runtime is current_thread block_on.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "sleep|Instant::|thread::spawn|tokio::spawn|timeout|interval",
+              "case_insensitive": true,
+              "scope": [
+                "src/cache/bounded_property_tests.rs"
+              ],
+              "hits": 1,
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.338171987Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb930441f565a086a9621ccf27ce2d1dd85568b0db445ec407137ed9258ee949"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search over the file finds no sleep, timer, spawn or thread use; only a doc comment matches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2412"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.792680216Z",
+          "seal": {
+            "by": "server",
+            "mac": "2dc62b3ad89379c0721b5066cd952d877ab46550b758e4ed426a055b37441e9b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.792680216Z",
+      "seal": {
+        "by": "server",
+        "mac": "f160cf9a8db460b8efcc110918d6ca9c6d08381bb683539986bd857cd198fb77"
+      }
+    },
+    {
+      "id": "CLM-1623",
+      "statement": "The property test runs in under about 10 seconds.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #744 task requirements: 'runtime under about 10 seconds'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2413",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- cache::bounded::property_tests",
+          "summary": "Rerun at head: 1 passed; finished in 0.98s. Full gate run (target/i744-logs/g-test.log:293) shows 1.718s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:43:44.435622317Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2a625dd47e5c0ae34551bab67139d795617659c284d8db7a2a804262accfd88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "0.98 s standalone, 1.7 s in the full run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2413"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.877378832Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f7ea8f1885f87be65c3057a5610534f1132686bbe7dc86070877dd0caa760de"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.877378832Z",
+      "seal": {
+        "by": "server",
+        "mac": "aaf68d2c1e202f82fcef01923b84b5b9bdd40e02cf76c55f1759eb12014af910"
+      }
+    },
+    {
+      "id": "CLM-1624",
+      "statement": "The property test is a hegel test (#[hegel::test]) and passes on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #744: 'Write a hegel property test'",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2414",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- cache::bounded::property_tests",
+          "summary": "Rerun at head: \"test cache::bounded::property_tests::loads_overtaken_by_an_invalidation_are_never_cached_and_weight_stays_in_budget ... ok\", 1 passed, 0 failed. The test is annotated #[hegel::test(test_cases = 1000, derandomize = true)].",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 309,
+                "end": 331
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.538906689Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e6fa1d4a97ac11e3d2aec47cf7d5f32ae7c1f3fcd5afd90bf0d7ed43760f05e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "#[hegel::test] present and the rerun at head passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2414"
+          ],
+          "recorded_at": "2026-11-26T07:48:19.962391418Z",
+          "seal": {
+            "by": "server",
+            "mac": "963bf22b30f532975ca6315ca02b5ebb4a2ace41cb5597f5e3dbcb89599e4b8a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:19.962391418Z",
+      "seal": {
+        "by": "server",
+        "mac": "c4e9d2ee5a164a65570e0561c036151a1639ae13754d28d3a6d2e932393b6f62"
+      }
+    },
+    {
+      "id": "CLM-1625",
+      "statement": "PR body: \"generates up to 60 steps of get_or_load, get_or_revalidate, invalidate, invalidate_where, reweigh, mark_all_stale, plus release, poll and cancel of pending operations\".",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #744 body, Changes bullet 1",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2415",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:40,75-95,313-314",
+          "summary": "MAX_STEPS = 60; count drawn up to MAX_STEPS; Step has Load, Revalidate, Release, Poll, Cancel, Invalidate, InvalidateWhere, Reweigh, MarkAllStale, matching the sentence.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 73,
+                "end": 95
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.632367110Z",
+          "seal": {
+            "by": "server",
+            "mac": "b66096ab3a9b7ba1ae57dd17467a2397e12de0605aab88b596dddd4487522a2a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Step enum and MAX_STEPS match the sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2415"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.046117921Z",
+          "seal": {
+            "by": "server",
+            "mac": "cc974482d27b5aec2c51cc7b3294687208405f99e42a59274df5a76b2d6301ba"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.046117921Z",
+      "seal": {
+        "by": "server",
+        "mac": "dbf6a68af7bddc373ad2e835eca6f58565e69714c408d3759062ced7d355515e"
+      }
+    },
+    {
+      "id": "CLM-1626",
+      "statement": "PR body: \"After the final drain: no epoch remains tracked.\" The test asserts tracked_epochs() == 0 after draining all pending operations.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #744 body, Changes bullet 2",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2416",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:225-252",
+          "summary": "drain() opens all gates, polls to completion (bounded by DRAIN_ROUNDS), runs check_properties, then assert_eq!(cache.tracked_epochs(), 0). Test passes at head, so it holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 225,
+                "end": 252
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.730832762Z",
+          "seal": {
+            "by": "server",
+            "mac": "793e788e5cfc8f8671856d1c5317b636a4e2ee06878176d3f263c824236bed49"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The assertion exists after drain and the test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2416"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.130330565Z",
+          "seal": {
+            "by": "server",
+            "mac": "d014d045ac0ceb64d1408f20c8adb7ee673f20ab29a64a9645ed329bad5c431e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.130330565Z",
+      "seal": {
+        "by": "server",
+        "mac": "e18dc7b2ee981052ec88f94ff033b93affa87c9018dae07f20ad854adde0ef40"
+      }
+    },
+    {
+      "id": "CLM-1627",
+      "statement": "PR body: \"1000 cases (derandomize = true); about 1.7 s in the full test run.\"",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #744 body, Changes bullet 3",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2417",
+          "kind": "log",
+          "locator": "target/i744-logs/g-test.log:293; src/cache/bounded_property_tests.rs:309",
+          "summary": "Attribute is test_cases = 1000, derandomize = true. Full nextest run logged \"PASS [1.718s] cache::bounded::property_tests::loads_overtaken...\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 309,
+                "end": 309
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.825948537Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a2e5c85820668a75610c0a64528d7a2c969bc5b13540bebecaca4b7d40e1a39"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Attribute and logged 1.718 s match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2417"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.215050210Z",
+          "seal": {
+            "by": "server",
+            "mac": "48382f4de777755c27a728ae0983c0cbecb1724f3eb25dd4784d68caef630183"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.215050210Z",
+      "seal": {
+        "by": "server",
+        "mac": "e2deac285c84cffbfaf39495e00cfe02d424c23e5c1b5612171876f7058d3faf"
+      }
+    },
+    {
+      "id": "CLM-1628",
+      "statement": "PR body: \"Changelog entry. bounded.rs gains only the mod line.\"",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #744 body, Changes bullet 4",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs",
+        "changelog/2026-11-26T07-27-24Z-issue-744-bounded-property-test.md"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2418",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/cache/bounded.rs; git diff --stat origin/main..HEAD",
+          "summary": "The only change to bounded.rs is +4 lines: a blank line, #[cfg(test)], #[path = \"bounded_property_tests.rs\"] and mod property_tests;. Changelog changelog/2026-11-26T07-27-24Z-issue-744-bounded-property-test.md exists (25 lines). Three files changed in total.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1690,
+                "end": 1695
+              },
+              "commit": "35f572c2981d3660bcab16f02ab75b58f0df0bcd"
+            }
+          },
+          "recorded_at": "2026-11-26T07:43:44.917228783Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb507de35964b4b79f3d6a859f38e331315a19904d165a06fa5a1dc7fba8a572"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff shows only the mod declaration (cfg, path, mod) added to bounded.rs; changelog exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2418"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.300730660Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e80d96258b1a4b8b678ad089abc1d807e4183d26d46b840815af489f495e822"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.300730660Z",
+      "seal": {
+        "by": "server",
+        "mac": "2c8a404a03e6c80483a21573e64e9fbc5f940d86ae03535b039be0a1fde793f6"
+      }
+    },
+    {
+      "id": "CLM-1629",
+      "statement": "PR body: \"disabling too_heavy does not fail the test\" (the weight property is largely moka's own guarantee).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #744 body, Limits",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2419",
+          "kind": "log",
+          "locator": "target/i744-logs/m3.log",
+          "summary": "m3.log shows the new test passing (\"1 passed\") in a build compiled for a mutation run; the log does not record which mutation it was (no diff saved). Consistent with the claim, not independent proof.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T07:43:45.058373656Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a790a8ac7e4b42c1c29cb516fa9cd98a3381b9ebc875a2ae152e8fa73a76ea5"
+          }
+        },
+        {
+          "id": "EVD-2424",
+          "kind": "demonstration",
+          "locator": "scratch worktree at HEAD with `return false;` as the first statement of too_heavy (src/cache/bounded.rs:958); tools/agentic/gate.sh narrow --lib -- cache::bounded::property_tests",
+          "summary": "I reproduced the mutation myself (scratch worktree, since removed): with too_heavy disabled the test still passes (\"1 passed; 0 failed\", 0.97s), so the PR's statement holds.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:47:58.202599360Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fe527744af6e7fdf38d318045c6d837b615ed81b1004b2b9f60816148b9246c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: with too_heavy disabled the test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2424"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.386431289Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4ade543df06a3ebe27d1c86705ea767e3a58ccc790c57693e22fb5d05fc4550"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.386431289Z",
+      "seal": {
+        "by": "server",
+        "mac": "ca9ab40e2f9cbd5e09662431940e2e949f8a7fa4e73ed90657f7bca401ce51e6"
+      }
+    },
+    {
+      "id": "CLM-1630",
+      "statement": "PR body: \"gate.sh fmt, lint, dylint: pass.\"",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #744 body, Validation bullet 1",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2420",
+          "kind": "log",
+          "locator": "target/i744-logs/g-fmt.log, g-lint.log, g-dylint.log",
+          "summary": "fmt log has only the command line (no diff); lint log ends with clippy -D warnings and cargo doc -D warnings Finished and no warning/error lines; dylint log ends Finished in 2m 20s with no warning/error lines. I did not rerun them.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:43:45.227983641Z",
+          "seal": {
+            "by": "server",
+            "mac": "267449795090cd3e5f4db48eff2b3f6dc0cd1098f31548187e342f1aefd30817"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The gate logs show completed runs with no warnings or errors (logs read, not rerun). The author's logs only; the failure markers are absent.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2420"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.471470696Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a798fd0213cba31edb99e02a0474c5df0aaf35cf0e291ff4011017ab35dc1ae"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.471470696Z",
+      "seal": {
+        "by": "server",
+        "mac": "aa031ab454a06ec8adda8509a2ae422d5178550b58b723d62c349e4cba27dc85"
+      }
+    },
+    {
+      "id": "CLM-1631",
+      "statement": "PR body: \"gate.sh test: 3610 passed, 2 failed (tls::verify_full_*, Docker 'failed to program external connectivity' while starting Postgres); both pass when rerun alone.\"",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #744 body, Validation bullet 2",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2421",
+          "kind": "log",
+          "locator": "target/i744-logs/g-test.log:7435; g-test.log:7068-7084; target/i744-logs/tls.log",
+          "summary": "Summary line: \"3612 tests run: 3610 passed, 2 failed, 20 skipped\"; failures are tls verify_full_refuses_a_server_another_ca_signed and verify_full_connects_encrypted_to_a_server_its_ca_signed with Docker 500 \"driver failed programming external connectivity ... address already in use\". tls.log shows both pass when rerun: \"2 passed\". (The first nextest pass in the same log, line 3743, had 3612 passed.)",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:43:45.317990355Z",
+          "seal": {
+            "by": "server",
+            "mac": "5f6d13157a73813637c34b1ce23d8727004fd96083188a18f7d8a58fec2b25b0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Summary line, failure cause and the standalone rerun in tls.log all match the sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2421"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.557460537Z",
+          "seal": {
+            "by": "server",
+            "mac": "ddd50b88effc6dd70dcb036b789e6c442b1d900a5eff1f1cf111a9856ab7e593"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.557460537Z",
+      "seal": {
+        "by": "server",
+        "mac": "27f864acaede2bded0eb7ff87e5e83f0e9c52334e97ccc4377cb6044a7ebe9bc"
+      }
+    },
+    {
+      "id": "CLM-1632",
+      "statement": "PR body: removing the fence comparison in Flight::current makes the new test fail (shrunk to a short schedule).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR #744 body, Validation bullet 3",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2422",
+          "kind": "log",
+          "locator": "target/i744-logs/m1.log:1-47",
+          "summary": "Build warns \"fields fence and fence_seen are never read\" (so the fence comparison in Flight::current was removed); the new test FAILED with \"key 0 holds a value loaded before its invalidation, after the drain\" (left 1, right 2); the schedule printed is short.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:43:45.409432091Z",
+          "seal": {
+            "by": "server",
+            "mac": "ceabbf97297849227d070ea25b8af68096a382641a0154d0074c0f4b0972f096"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "m1.log shows the fence fields unread (mutation applied) and the new test failing. I did not rerun this mutation myself; the log is the author's.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2422"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.644295141Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ad80701fb92426289f785679293748f09aba6aa5b0efea18e0c6f3b16850ad7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.644295141Z",
+      "seal": {
+        "by": "server",
+        "mac": "d28afad8b3d8754c66343fbd22de5d2fdd142fd543e8db18eb4fdf14b2293514"
+      }
+    },
+    {
+      "id": "CLM-1633",
+      "statement": "PR body: removing the epoch increment in invalidate makes the new test fail (shrunk to a short schedule).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR #744 body, Validation bullet 3",
+      "derived_from": [
+        "CLM-1618"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:744"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2423",
+          "kind": "demonstration",
+          "locator": "scratch worktree at HEAD with src/cache/bounded.rs:753 `flight.epoch += 1;` replaced by `let _ = &flight;`; tools/agentic/gate.sh narrow --lib -- cache::bounded::property_tests",
+          "summary": "I reproduced the mutation myself (scratch worktree, since removed): test FAILED, shrunk to [Load{key:0}, Invalidate{key:0}], \"key 0 holds a value loaded before its invalidation, after the drain\" left 1 right 2; 0 passed 1 failed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T07:44:01.840417147Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd83f4a15202cf815a16d24c5d2b1ad12c5837d548bb92180360e0f105205bbe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced independently; failed with a 2-step schedule.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2423"
+          ],
+          "recorded_at": "2026-11-26T07:48:20.731342775Z",
+          "seal": {
+            "by": "server",
+            "mac": "748c3a80b9ea61bd0f01720c0c8577cef8283b76dee2da7158ee1611d158a160"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T07:40:02.772367964Z",
+      "updated_at": "2026-11-26T07:48:20.731342775Z",
+      "seal": {
+        "by": "server",
+        "mac": "ef4e037c091fc2fad8754afc6706ecdd03d5f79c8185e771e92d53ba374b10da"
       }
     }
   ]

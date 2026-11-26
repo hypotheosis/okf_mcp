@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "15e0e24d5601e31ebf3f39341152f4a7d3c1d68c95199f246fe27ac8dc7eb229"
   },
-  "next_evidence_seq": 2512,
+  "next_evidence_seq": 2513,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9edafd31dcb4b733b67440f260653c4825a3e41715a0619c945f1dc3b4751d2e"
+    "mac": "e62043e7f5f08b4815954b6cd241dffc4fd5613e6ec6346e0378bd52babd0ec3"
   },
   "claims": [
     {
@@ -137247,6 +137247,28 @@
             "by": "server",
             "mac": "ac62b928d7cffb09d2a4cc6db7c7d671fef8318cb59d76c9f2bf34ccf53e2fda"
           }
+        },
+        {
+          "id": "EVD-2512",
+          "kind": "test",
+          "locator": "error::tests::database_errors_are_transient_by_sqlstate and error::tests::only_outage_shaped_database_errors_are_transient (narrow gate, 34 passed, at f828c47)",
+          "summary": "Supersedes EVD-2507's coverage note. The table-driven test, over a CodedError DatabaseError implementation, asserts 08006, 57P01, 57P02 and 57P03 are transient and 57P04, 23505 and a missing code are not. The direct-variant test now also asserts sqlx::Error::Tls is transient. So the Tls and SQLSTATE 08/57P0x branches are covered by tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 925,
+                "end": 1005
+              },
+              "commit": "f828c47830f8ef42e43668e4bf78f09af0198157"
+            }
+          },
+          "recorded_at": "2026-11-26T10:18:29.194212Z",
+          "seal": {
+            "by": "server",
+            "mac": "8304664331fa2bb407fbb634bec218a9fd56b5638b9c8c290ed829fcc35f5d8c"
+          }
         }
       ],
       "verdicts": [
@@ -137262,13 +137284,26 @@
             "by": "server",
             "mac": "aabc12f1819053b17f88a129bf48bca851e33e0dfd84fc8c2c52f9d4b408de51"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The code matches the claimed list, and tests now cover every branch: direct variants including Tls (only_outage_shaped_database_errors_are_transient) and SQLSTATE 08006, 57P01 to 57P03 true, 57P04, 23505 and a missing code false (database_errors_are_transient_by_sqlstate). The earlier note that Tls and SQLSTATE branches were untested (EVD-2507) is superseded by EVD-2512.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2512"
+          ],
+          "recorded_at": "2026-11-26T10:18:32.140630294Z",
+          "seal": {
+            "by": "server",
+            "mac": "a60a92741d91c92d30cb5dd88d8f6ad59ec3c9fe1d552787053bf4f053ae91eb"
+          }
         }
       ],
       "created_at": "2026-11-26T10:08:51.034720158Z",
-      "updated_at": "2026-11-26T10:09:52.425462675Z",
+      "updated_at": "2026-11-26T10:18:32.140630294Z",
       "seal": {
         "by": "server",
-        "mac": "8c7cd28726a8b38ab19a6299ec2223bf60df2e0729462f5c8015cc989fdc94c0"
+        "mac": "d35be8c73623b1a9b0eacf51521bbb40726deb8b2118ca238b02e98f80d1da1c"
       }
     },
     {

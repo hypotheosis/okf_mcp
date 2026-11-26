@@ -1355,6 +1355,7 @@ impl App {
             }
             Invalidation::User { .. }
             | Invalidation::Team { .. }
+            | Invalidation::TeamCatalogs { .. }
             | Invalidation::Credential { .. } => {}
         }
     }

@@ -1039,7 +1039,7 @@ pub async fn suspend(
         now,
     )
     .await?;
-    let invalidations = suspension_invalidations(&mut tx, &locked.id).await?;
+    let invalidations = suspension_invalidations(&locked.id);
     invalidate(&mut tx, &invalidations).await?;
     tx.commit().await?;
     find(pool, name).await
@@ -1099,7 +1099,7 @@ pub async fn unsuspend(
             now,
         )
         .await?;
-        let invalidations = suspension_invalidations(&mut tx, &locked.id).await?;
+        let invalidations = suspension_invalidations(&locked.id);
         invalidate(&mut tx, &invalidations).await?;
     }
     tx.commit().await?;
@@ -1211,37 +1211,30 @@ async fn refuse_last_owner(
     Ok(())
 }
 
-/// What a suspension or its lifting changes: the team, and each catalog
-/// it owns (a suspended team's catalogs refuse their members). Read inside
-/// the change's transaction, under the team's lock: a catalog moved to the
-/// team meanwhile waits on that lock, and its own `set_owner` invalidates it.
+/// What a suspension or its lifting changes: the team (its label and
+/// members) and every catalog it owns (a suspended team's catalogs refuse
+/// their members). Two messages whatever the team owns: the catalogs are
+/// named by the team, not listed, so nothing is read and nothing grows with
+/// their number (issue #757). A catalog moved to the team meanwhile waits
+/// on the team's lock, and its own `set_owner` invalidates it.
 ///
 /// # Arguments
-/// * `conn` - the change's transaction.
 /// * `team_id` - the team's id.
 ///
 /// # Returns
-/// The team's invalidation, then one per owned catalog, by id.
-///
-/// # Errors
-/// [`OkfError::Database`].
-#[tracing::instrument(level = "trace", skip_all, fields(db.system.name = "postgresql", db.operation.name = "teams.suspension_invalidations"))]
-async fn suspension_invalidations(
-    conn: &mut PgConnection,
-    team_id: &str,
-) -> Result<Vec<Invalidation>, OkfError> {
-    let owned: Vec<(i64, String)> =
-        sqlx::query_as("SELECT id, name FROM catalogs WHERE owner_team_id = $1 ORDER BY id")
-            .bind(team_id)
-            .fetch_all(&mut *conn)
-            .await?;
-    Ok(std::iter::once(Invalidation::team(team_id))
-        .chain(
-            owned
-                .into_iter()
-                .map(|(id, name)| Invalidation::CatalogMeta { id, name }),
-        )
-        .collect())
+/// The team's invalidation, then its catalogs'.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+    )
+)]
+fn suspension_invalidations(team_id: &str) -> [Invalidation; 2] {
+    [
+        Invalidation::team(team_id),
+        Invalidation::team_catalogs(team_id),
+    ]
 }
 
 /// The id of the team called `name`, inside a caller's transaction.

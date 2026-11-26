@@ -32,6 +32,7 @@
 //! | `user { id }` | that user |
 //! | `team { id }` | every cached user in that team |
 //! | `catalog_meta { name }` | every cached credential whose reach names that catalog |
+//! | `team_catalogs { team_id }` | nothing: a credential holds no suspension state |
 //!
 //! The indirect ones (by hash, by team, by catalog) scan the resident
 //! entries and raise the cache's fence, so a load running at that moment
@@ -326,7 +327,14 @@ impl Credentials {
                     .await;
             }
             // Catalog content and settings are read per request elsewhere.
-            Invalidation::Catalog { .. } | Invalidation::Settings | Invalidation::Store { .. } => {}
+            // A team's catalogs changing (suspension) changes no credential
+            // or user entry: what a check needs of the catalog comes from
+            // its directory row, and the `Team` message sent beside this
+            // one drops the team's users.
+            Invalidation::Catalog { .. }
+            | Invalidation::TeamCatalogs { .. }
+            | Invalidation::Settings
+            | Invalidation::Store { .. } => {}
         }
     }
 

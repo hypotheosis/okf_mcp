@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1666,
+  "next_claim_seq": 1683,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "a3599428c4d1ec4073989c643a00b621796b4281518d7320ab8b906d3f22d15c"
+    "mac": "c4e68ac9f1af49a07d85845efc945c281c1e3862b0631249ea590194a1949cc9"
   },
-  "next_evidence_seq": 2462,
+  "next_evidence_seq": 2482,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e0b2454fcb0796696f1c1758ead89e031ab1aa4d52665edef442968efcbfafb8"
+    "mac": "14ea012a6e5f2fe5b7c5cafa009c2d4ea6f5390de5fe188b3b0064aea04fea6d"
   },
   "claims": [
     {
@@ -134431,6 +134431,1175 @@
       "seal": {
         "by": "server",
         "mac": "228dfaf1cb156f8136793fe94a439d7e6c2b6af88ebdfa1ffae735c21eda26ee"
+      }
+    },
+    {
+      "id": "CLM-1666",
+      "statement": "Issue #757 is delivered: suspending or unsuspending a team sends a bounded number of change-feed messages however many catalogs it owns, each replica drops the team's directory rows, an old replica never keeps serving a suspended team as live, and docs/operations.md is updated.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/757",
+      "derived_from": [],
+      "artifacts": [
+        "src/store/teams.rs",
+        "src/cache/directory.rs",
+        "src/invalidate.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2481",
+          "kind": "analysis",
+          "locator": "children of CLM-1666",
+          "summary": "The substantive children are supported: two messages regardless of size (code and 5,000-catalog test), directory drop by owner team, no-op for credential/label caches with reason, unreadable-kind path ends in refusal, lift restores access locally and across replicas, docs updated. Two process claims (gate pass, revert check) are not_enough_info because they are not independently rerunnable here; they do not affect what the code does.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T09:28:00.929165650Z",
+          "seal": {
+            "by": "server",
+            "mac": "2daffceae704a648d11bde0e2289e7ec09a375e0b5665c8789d43209413cd6ac"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every requirement from the issue and maintainer is met in code and covered by tests I read; the credential-cache drop was replaced by a justified no-op. Test execution and the revert check are unverified by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2481"
+          ],
+          "recorded_at": "2026-11-26T09:28:08.994410535Z",
+          "seal": {
+            "by": "server",
+            "mac": "9064adb5bf6800d592e85338b81336715cbbd3601c4d687eac98886ec6abf2c4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:28:08.994410535Z",
+      "seal": {
+        "by": "server",
+        "mac": "239d2fcbe5cb2aea038cca06e8594c029d8233b92d32b6f40673a52b90d575b6"
+      }
+    },
+    {
+      "id": "CLM-1667",
+      "statement": "teams::suspend and teams::unsuspend queue exactly two invalidations, Invalidation::team and Invalidation::team_catalogs, with no per-catalog CatalogMeta and no query of the team's catalogs.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"They send two messages whatever the team owns: the existing `team` and a new `team_catalogs { team_id }`\"; \"`suspension_invalidations` ... is now a pure function returning `[team, team_catalogs]`, with no query\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/store/teams.rs",
+        "src/invalidate.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2462",
+          "kind": "inspection",
+          "locator": "src/store/teams.rs:1042,1102,1233-1238",
+          "summary": "suspend and unsuspend call suspension_invalidations(&locked.id), a sync fn with no connection argument returning [Invalidation::team, Invalidation::team_catalogs]; the SELECT on catalogs and CatalogMeta construction are gone from teams.rs (no CatalogMeta match left in the file).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/teams.rs",
+              "lines": {
+                "start": 1233,
+                "end": 1238
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:48.990873265Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c70e1f7c4c1f147f331194177f17a92b073177874f087700227beeb3ad14b47"
+          }
+        },
+        {
+          "id": "EVD-2463",
+          "kind": "inspection",
+          "locator": "src/store/invalidation_tests.rs:795-812 (suspending_a_team_invalidates_it_and_its_catalogs_as_a_whole)",
+          "summary": "Test asserts both the suspend and the lift send exactly [team(owner), team_catalogs(owner)] for a team with two catalogs (assert_eq on the whole vector).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/invalidation_tests.rs",
+              "lines": {
+                "start": 781,
+                "end": 812
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.140569472Z",
+          "seal": {
+            "by": "server",
+            "mac": "873abb1074ee1e1ec838999b2ab1022b563d8bd05d28f9409fd73fc79da55a2a"
+          }
+        },
+        {
+          "id": "EVD-2464",
+          "kind": "inspection",
+          "locator": "git grep CatalogMeta src/store/teams.rs (0 hits)",
+          "summary": "No CatalogMeta in teams.rs at head: per-catalog messages are not sent from the team store module.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "CatalogMeta",
+              "scope": [
+                "src/store/teams.rs"
+              ],
+              "hits": 0,
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.285240221Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f3eaf1dc6e46d7bd4e9fd276527b3ffc14b29359481f6e9e82ba4fb1f9aec38"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code shows a query-free fn returning exactly team and team_catalogs, no CatalogMeta left in teams.rs, and the updated test asserts the exact two-message vector for suspend and lift.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2462",
+            "EVD-2463",
+            "EVD-2464"
+          ],
+          "recorded_at": "2026-11-26T09:27:53.832635032Z",
+          "seal": {
+            "by": "server",
+            "mac": "e641ce6b3806bda431bd347811d54beda0624bec2c42d01e2b0143986e3b6ea9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:53.832635032Z",
+      "seal": {
+        "by": "server",
+        "mac": "fec008ccbe658186a8b648eeac850a6825d85545fd8d667c964e1a9d1592806f"
+      }
+    },
+    {
+      "id": "CLM-1668",
+      "statement": "CatalogDirectory::apply on TeamCatalogs { team_id } drops every cached row whose owner_team_id equals team_id, suspended or not, with one invalidate_where, and no other team's row.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`CatalogDirectory::apply` drops every row whose `owner_team_id` matches, suspended or not\"; issue: \"one invalidate_where on the directory\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2465",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:869-880",
+          "summary": "TeamCatalogs arm makes one self.rows.invalidate_where whose predicate is row.owner_team_id == Some(team_id), with no suspended condition; invalidate_where also fences in-flight loads (per the cache's documented behaviour used by sibling arms).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 869,
+                "end": 880
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.424880932Z",
+          "seal": {
+            "by": "server",
+            "mac": "0acaad39a1a85dd98a901fc519f23b0143384700113639bf03b642884af78ec0"
+          }
+        },
+        {
+          "id": "EVD-2466",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:1069-1106 (a_team_catalogs_message_drops_every_row_the_team_owns_and_no_other)",
+          "summary": "Test caches a not-suspended row of the team and one of another team, applies team_catalogs, asserts the first is not cached and the second still is. Read only; not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1069,
+                "end": 1106
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.564459953Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b7e621da705302991c1c702b7b7e92f1c168fd218e5770ba95f1196aa14a440"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The arm is one invalidate_where on owner_team_id with no suspended condition; the unit test asserts own-team row dropped, other team's kept. Test not executed by me (no-cargo rule); the assertions were read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2465",
+            "EVD-2466"
+          ],
+          "recorded_at": "2026-11-26T09:27:53.974496037Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e1e215a2c4b863d45bf09636586db1ef56f94791d5a90001c9afbd7047b1699"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:53.974496037Z",
+      "seal": {
+        "by": "server",
+        "mac": "7d05934e9a59ec063c1866b50e5f45ec3c58e5a81561bf350d79ba5bf8aed4b7"
+      }
+    },
+    {
+      "id": "CLM-1669",
+      "statement": "Before this change the directory's Team arm dropped only rows that were already suspended (so the team message alone could not close a not-yet-suspended team's cached catalogs).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the old `team` arm only drops rows already suspended, which is why per-catalog messages were needed\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2467",
+          "kind": "inspection",
+          "locator": "git show origin/main:src/cache/directory.rs (Team arm, ~line 860)",
+          "summary": "On origin/main the Team arm's predicate is row.suspended.is_some() && owner_team_id == Some(id); head keeps that arm unchanged (directory.rs:860-867), so the claim about the pre-change behaviour holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 858,
+                "end": 867
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.700220810Z",
+          "seal": {
+            "by": "server",
+            "mac": "3441a1b6077fcc6902bc0475711c72b6bce724826745f534354ec87d50d74c27"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "origin/main's Team arm requires row.suspended.is_some(), so it dropped only already-suspended rows.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2467"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.111745439Z",
+          "seal": {
+            "by": "server",
+            "mac": "ea07902bee3a7aae5fa89426b90d63f43acdc49686bb89edb4951577281368d0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.111745439Z",
+      "seal": {
+        "by": "server",
+        "mac": "52a00ed3a6aabfc586510e758261a08511de205ad1453989ad0c80345cb7e328"
+      }
+    },
+    {
+      "id": "CLM-1670",
+      "statement": "The credential and label caches ignore TeamCatalogs, and the credential cache holds no per-catalog suspension state (the check reads the catalog's directory row), so nothing there needs dropping for a suspension; the Team message sent beside it still drops the team's users.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"The credential and label caches ignore `team_catalogs`: they hold no suspension state ... The issue asked for a drop on each credential cache; there is nothing in them to drop\"; issue: \"one on the credential caches\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/credentials.rs",
+        "src/cache/labels.rs",
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2468",
+          "kind": "inspection",
+          "locator": "src/cache/credentials.rs:12-22,327-337; src/cache/labels.rs:390-396; src/auth.rs:415-424",
+          "summary": "Module doc says the check reads owner team and suspension from the directory at check time, not the credential cache; Credentials::apply and LabelLookup::apply list TeamCatalogs in the no-op arm; Team arm (credentials.rs:305) still drops team users. auth.rs builds the suspension from the directory CatalogRow. Deviation from the issue's wish to invalidate_where the credential caches is therefore justified: nothing to drop.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/credentials.rs",
+              "lines": {
+                "start": 327,
+                "end": 337
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.825814642Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfc7053255bbcb9cc943077c6d24313ee318e5672a84548f17ef028c29236364"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Credential cache holds credentials and users only; suspension is read from the directory row at check time (credentials.rs docs, auth.rs:415). Both caches list TeamCatalogs as a no-op and Team still drops users. This departs from the issue's wording (invalidate_where on the credential caches) but with sound reason; flag to the maintainer.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2468"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.230332836Z",
+          "seal": {
+            "by": "server",
+            "mac": "4135c33db88ca7d875e8a4ee1f34e5f392d939fd2d60b3aa42fd91d65a713b9d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.230332836Z",
+      "seal": {
+        "by": "server",
+        "mac": "7a77f661eaa13921222a3fce02a092271acf9b3bd716044dc76a81d9cc73622d"
+      }
+    },
+    {
+      "id": "CLM-1671",
+      "statement": "The writing replica's App::apply_own_writes applies TeamCatalogs through the same directory.apply path as a received message.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the writing replica's `apply_own_writes` takes the same path\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2469",
+          "kind": "inspection",
+          "locator": "src/app.rs:1376-1384",
+          "summary": "apply_own_writes loops every written invalidation through directory.apply, credentials.apply and labels.apply; the app.rs:1355-1359 match adds TeamCatalogs to the no-op arm only for the settings/store extras.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 1376,
+                "end": 1384
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:49.966199116Z",
+          "seal": {
+            "by": "server",
+            "mac": "ae3525ccbd34eca4dcec9bb1c047b02d0f4d98a7347c30b178ea5713ec6c5b8c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "apply_own_writes feeds each written invalidation to directory.apply, so the TeamCatalogs arm runs on the writer.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2469"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.391679880Z",
+          "seal": {
+            "by": "server",
+            "mac": "591e4232e1ce17487129fce8e58f81ed6994e89c7c9075a67663036096ef5203"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.391679880Z",
+      "seal": {
+        "by": "server",
+        "mac": "bbef62f55a5f6fdbce663f9985e82183160816a72887c3067b14ab0329a2d0e5"
+      }
+    },
+    {
+      "id": "CLM-1672",
+      "statement": "A replica that cannot parse a message kind counts it in okf_invalidations_unreadable_total and runs apply_reconnect, which marks the directory, credential and label caches stale.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "PR body: \"`Message::parse` returns `None` for an unknown kind; the listener counts it in `okf_invalidations_unreadable_total` and runs `apply_reconnect`, which marks every cache stale\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/invalidate.rs",
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2470",
+          "kind": "inspection",
+          "locator": "src/invalidate.rs:78-82,309-316,525-536; src/app.rs:1422-1430,1451-1454",
+          "summary": "Invalidation is serde internally tagged on kind with no catch-all variant, so an unknown kind fails from_str and Message::parse returns None; apply_payload then calls metrics.invalidation_unreadable() and catch_up(), which for the account scope runs apply_reconnect: directory.mark_all_stale, credentials.mark_all_stale (hash, id, users), labels.mark_all_stale, stores forget, settings reload. The diff does not touch these functions, so they are the previous release's behaviour.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/invalidate.rs",
+              "lines": {
+                "start": 525,
+                "end": 536
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:26:50.098917963Z",
+          "seal": {
+            "by": "server",
+            "mac": "b09314210faafb5172c83e773025773fb3a3fe0570bef14de0623144309ef959"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tagged enum with no fallback makes unknown kinds unparseable; apply_payload counts unreadable and calls catch_up, which runs apply_reconnect marking directory, credential and label caches stale. Code is untouched by the diff, so it matches the previous release.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2470"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.518049053Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c74ec058bad1b0f825d7602bbc8fc830e6da1c0bd6340fa2f64971d1e43a428"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.518049053Z",
+      "seal": {
+        "by": "server",
+        "mac": "cff0972a403eb6040c49e407a6eb8b20f51e6beeb2f321612705d7416a990864"
+      }
+    },
+    {
+      "id": "CLM-1673",
+      "statement": "After apply_reconnect (the unreadable-kind path), a cached, previously readable catalog of a team suspended meanwhile is refused with OkfError::Suspended on the next request, as the test a_replica_that_cannot_read_the_team_message_still_refuses_the_suspended_team asserts.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Maintainer requirement: an old replica receiving the new message must never keep serving a suspended team's catalogs as live; PR body Rolling upgrade section",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/credentials_tests.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2471",
+          "kind": "inspection",
+          "locator": "src/cache/credentials_tests.rs:445-487; src/invalidate.rs:845-849 (invalidations_of only listens)",
+          "summary": "Test first reads the catalog (live row cached), suspends via invalidations_of (which captures the NOTIFYs but applies none), asserts a TeamCatalogs was sent, asserts the made-up kind does not parse, calls apply_reconnect, then asserts require_in returns Err(Suspended). So the cached live row would still be served without the reconnect: the assertion is not vacuous. Read only; not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/credentials_tests.rs",
+              "lines": {
+                "start": 449,
+                "end": 487
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:23.665514288Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6834a8b5ba0ee57256ef9bbba0bb39e55529e0c07871b51c138a1e44fd807dc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test holds a cached live row, does not apply the suspension messages, runs the reconnect and asserts Suspended; read the assertion, not executed by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2471"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.647069888Z",
+          "seal": {
+            "by": "server",
+            "mac": "9309214076d465e1fa485ebf387b35adc07c49744740099f569f739cf20de517"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.647069888Z",
+      "seal": {
+        "by": "server",
+        "mac": "081c269376e5375b362aa16e2221decdd649d002420eb4cf22e514b2fa8f6045"
+      }
+    },
+    {
+      "id": "CLM-1674",
+      "statement": "The directory-drop and the unreadable-kind tests exercise the real code paths: the unreadable payload test uses a made-up kind (not team_catalogs) and the build under test, so it models rather than runs a previous-release replica.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body Tests: \"`a_replica_that_cannot_read_the_team_message_still_refuses_the_suspended_team` (rolling upgrade: unknown kind does not parse, then `apply_reconnect`)\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/credentials_tests.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2472",
+          "kind": "inspection",
+          "locator": "src/cache/credentials_tests.rs:471",
+          "summary": "The payload parsed is {\"kind\":\"team_catalogs_from_the_future\"}, not the real team_catalogs, and the build under test (which does parse team_catalogs) runs apply_reconnect directly. It models the old replica's path; it does not run an old binary. Because the diff leaves Message::parse and apply_reconnect unchanged, the model is faithful. The PR body words it as 'unknown kind does not parse, then apply_reconnect', which is accurate.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/credentials_tests.rs",
+              "lines": {
+                "start": 466,
+                "end": 474
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:23.771308030Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a7235aa80db704011ed3ef49716cc0fa6a31a4e4359013a5fa552f576f4f007"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test models the old replica with a fake unknown kind on the new build; faithful because parse and apply_reconnect are unchanged, and the PR's wording is accurate. Caveat for the reader: no old binary is run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2472"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.772181015Z",
+          "seal": {
+            "by": "server",
+            "mac": "6cce4b6c98fbe9a2e2e6115776b176b4f61d379e215ba551c42beadd8ceaad6c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.772181015Z",
+      "seal": {
+        "by": "server",
+        "mac": "a3dc13f982afc18df378f3acf6e3fc195bcd0830d507ce4a65c76951bab46096"
+      }
+    },
+    {
+      "id": "CLM-1675",
+      "statement": "The mixed-version bridge was removed in #727, so the only rolling-upgrade question is how a previous-release replica handles an unknown kind.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"The mixed-version bridge is gone (#727)\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2473",
+          "kind": "inspection",
+          "locator": "docs/operations.md:5256",
+          "summary": "Release notes: 'The milestone 16 bridge and three settings are removed (the release after 0.29.0; issue #727)'; the admin-generation Redis channel is gone. Crate is v0.30.0.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5256,
+                "end": 5262
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:23.869201735Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5bd7f1cd756f36a7886829f5cca11905cb50c7419da9dc0f87a090fcddff368"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "operations.md release notes record the bridge removal under #727.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2473"
+          ],
+          "recorded_at": "2026-11-26T09:27:54.894732570Z",
+          "seal": {
+            "by": "server",
+            "mac": "5cd313c05d623badf34a84a4e2b545ac8d2285f0b356ff97c01fec745434c927"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:54.894732570Z",
+      "seal": {
+        "by": "server",
+        "mac": "fc5a67eeadc7320df30990d12cd44718e42a630d7aa84586f0196dbce7ac1ed3"
+      }
+    },
+    {
+      "id": "CLM-1676",
+      "statement": "The test a_team_owning_thousands_of_catalogs_sends_two_messages_to_suspend_or_lift inserts 5,000 catalogs for the team in one INSERT and asserts suspend sends 2 invalidations and unsuspend sends 2.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body Tests: \"5,000 catalogs by one INSERT ...; the notifications are counted (2 each way), not timed\"; issue: add a test with a team owning many catalogs",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/store/invalidation_tests.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2474",
+          "kind": "inspection",
+          "locator": "src/store/invalidation_tests.rs:814-855",
+          "summary": "MANY_CATALOGS = 5_000; one INSERT ... SELECT generate_series(1,$2) for the TEST_TEAM owner; asserts owned >= 5000, then assert_eq!(suspended.len(), 2) and assert_eq!(lifted.len(), 2) from invalidations_of around teams::suspend and unsuspend. Read only; not executed by me. Also covers the issue's 'next request sees the suspension' only via other tests, not this one.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/invalidation_tests.rs",
+              "lines": {
+                "start": 814,
+                "end": 855
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:23.965604244Z",
+          "seal": {
+            "by": "server",
+            "mac": "7557844251c327dd9d1edb7082c7a453978d254f8d97b24620fd840959a7fbc8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test body matches the statement exactly (5,000 by one INSERT, len 2 each way). Read, not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2474"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.025700334Z",
+          "seal": {
+            "by": "server",
+            "mac": "1d8dcc9952869e4c72b5b1aa47022cb6d9363d307b974ebfbd7cac6c0bb6fa55"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.025700334Z",
+      "seal": {
+        "by": "server",
+        "mac": "aa49b8f6202bd2dbf0519c25daf255ab652224dfc1e0d4f79bee2b1f44a760d2"
+      }
+    },
+    {
+      "id": "CLM-1677",
+      "statement": "The test a_team_catalogs_message_drops_every_row_the_team_owns_and_no_other asserts the team's not-suspended cached row is dropped and another team's cached row stays.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Tests: \"`a_team_catalogs_message_drops_every_row_the_team_owns_and_no_other`\"",
+      "derived_from": [
+        "CLM-1668"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2475",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:1069-1106",
+          "summary": "Two teams, neither suspended; both rows resolved into the cache; after apply(team_catalogs(mine's team id)) assert !is_cached('mine') and is_cached('theirs'). Exactly the claimed assertions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 1096,
+                "end": 1106
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:24.063615548Z",
+          "seal": {
+            "by": "server",
+            "mac": "36f4b267dab2025ac972335e59af6e301887ab0e7c8302983d416efbf02c5241"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions match the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2475"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.156583528Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b852dede9328f57b6d9eb0978f6beb428d58f5aebece8c64a02ef92c921f6c0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.156583528Z",
+      "seal": {
+        "by": "server",
+        "mac": "efdc4424c40a494eb38accb84e1b07715e2d9255f048894900f577c69428cb06"
+      }
+    },
+    {
+      "id": "CLM-1678",
+      "statement": "The test lifting_a_suspension_reopens_the_catalog_for_the_next_request asserts a catalog is readable, refused with Suspended after suspend, and readable again after unsuspend, with caches updated by the messages sent.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Maintainer requirement: unsuspension restores access; issue: the next request sees the suspension",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/credentials_tests.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2476",
+          "kind": "inspection",
+          "locator": "src/cache/credentials_tests.rs:415-445 (+ testing::applied helper at credentials_tests.rs:~100-106)",
+          "summary": "Test asserts reads ok, then suspend under applied() gives Err(Suspended), then unsuspend under applied() gives Ok with message 'access is restored'. applied() takes the messages invalidations_of captured and applies them (credentials_tests.rs:104), so only the new team and team_catalogs messages invalidate the caches. A fresh principal is assembled per read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/credentials_tests.rs",
+              "lines": {
+                "start": 415,
+                "end": 443
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:24.160516429Z",
+          "seal": {
+            "by": "server",
+            "mac": "7dd7ac06438107b34fe812b89db1d45abd7816d05bd3667bbe0bed1774cd36e6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts ok, Suspended, ok across suspend and unsuspend with only the sent messages applied.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2476"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.283380243Z",
+          "seal": {
+            "by": "server",
+            "mac": "72d8b6d2078a581547560b5df8ffe7d1bf0e09e9b8b227058e083697e2c27e9c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.283380243Z",
+      "seal": {
+        "by": "server",
+        "mac": "105ae90efe1a2f988a83d5ad2879695fcf079d06fac29d45508ff3938cf5e9ea"
+      }
+    },
+    {
+      "id": "CLM-1679",
+      "statement": "tests/multi_replica.rs a_team_suspended_on_one_replica_closes_its_catalogs_on_the_other lifts the suspension on replica A and asserts replica B serves the catalog again.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Maintainer requirement: unsuspension restores access on another replica; PR body Tests",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "tests/multi_replica.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2477",
+          "kind": "inspection",
+          "locator": "tests/multi_replica.rs:172-236",
+          "summary": "After the existing suspend-on-A/refused-on-B part, the test PUTs {\"suspended\": false} on A and polls B's get_concept until is_error != Some(true), within WAIT, else expect() panics. Needs Redis and Postgres to execute; not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/multi_replica.rs",
+              "lines": {
+                "start": 213,
+                "end": 236
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:24.262558758Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd82f23ed0a40698504d488a6829343c06e972a3503cf5e77b0a94b78f52ed6c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The extension lifts on A and waits for B to serve the catalog or panics. Needs Redis and Postgres; read, not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2477"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.413287512Z",
+          "seal": {
+            "by": "server",
+            "mac": "26554fad10a5e2566281129e665c584f2254039571d0a4d1f57fa725fe66ba57"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.413287512Z",
+      "seal": {
+        "by": "server",
+        "mac": "360f9a2a81d44ae96b4c11c883eaecc3194488f62847f0b6cd8c78a38d1cd253"
+      }
+    },
+    {
+      "id": "CLM-1680",
+      "statement": "docs/operations.md describes the two-message suspension, the previous-release behaviour for the unknown kind, and lists team_catalogs among the okf_invalidations_queued_total kinds; the changelog has an entry for it.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Docs: `docs/operations.md` (change propagation, metric label list), ... changelog entry\"; maintainer: update docs/operations.md",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/2026-11-26T09-30-00Z-issue-757-team-catalogs-invalidation.md"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2478",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1030-1038,1637; changelog/2026-11-26T09-30-00Z-issue-757-team-catalogs-invalidation.md",
+          "summary": "Change-propagation bullet now describes the two messages, the million-catalog example, previous release counting the unknown kind in okf_invalidations_unreadable_total and marking every cache stale; the okf_invalidations_queued_total row lists team_catalogs; the changelog file exists with the same content. Leftover search: catalog_meta outside src/tests/changelog appears only in docs/operations.md:1637 (list kept) and historical superpowers specs/plans (not operations docs). The docs/operations.md cache table row for Catalog directory is not message-specific.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1030,
+                "end": 1038
+              },
+              "commit": "bc5fc68540e33c250513ca9337325666489285da"
+            }
+          },
+          "recorded_at": "2026-11-26T09:27:24.357913374Z",
+          "seal": {
+            "by": "server",
+            "mac": "067464e6d821cbcba240ca3892d8bb75dc1c556182c6bb344de91960788b1279"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "operations.md bullet, metric kind list and changelog all present and consistent with the code; no stale kind list found elsewhere in docs/operations.md.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2478"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.541851625Z",
+          "seal": {
+            "by": "server",
+            "mac": "9be84c77cdf7b6e5928cc3f21b3f15a73cec00c2fd46fb8305726aae541321eb"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.541851625Z",
+      "seal": {
+        "by": "server",
+        "mac": "9b169b5a1ad2fb96fdad52de701d85abb7c33bb0a3de3f3ec98328b67b9dbb64"
+      }
+    },
+    {
+      "id": "CLM-1681",
+      "statement": "The fmt, clippy/doc lint and dylint gates passed on the change.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR body: \"`tools/agentic/gate.sh fmt`, `lint`, `dylint`: pass.\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "target/i757-logs/fmt.log",
+        "target/i757-logs/lint.log",
+        "target/i757-logs/dylint.log"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2479",
+          "kind": "log",
+          "locator": "target/i757-logs/fmt.log, lint.log, dylint.log",
+          "summary": "fmt.log holds only the command (cargo fmt --all --check) with no diff output; lint.log ends 'Finished dev profile' after clippy -D warnings and cargo doc with no warning or error lines (grep found none); dylint.log ends 'Finished dev profile'. No exit codes are logged, and I did not rerun them (instructed not to run cargo), so this is the producer's own log read by me, not an independent rerun.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T09:27:24.453541610Z",
+          "seal": {
+            "by": "server",
+            "mac": "1620c9f836b5a5965065056faf2ee07a41cf0500abf852d8475cc6dec87c09d5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The producer's logs show no errors but record no exit code, and the audit may not rerun cargo. Fix: have the author (or CI) run tools/agentic/gate.sh fmt, lint and dylint on the head commit and quote the exit status and final lines in the PR.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2479"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.689276155Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd9bf6aaa998a51c9bf4c8a19ad10adc64072a48d594278efb0db53364e66307"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.689276155Z",
+      "seal": {
+        "by": "server",
+        "mac": "e92003c139b279142cc993cd92b0796a4cfcad60897e28c69c32f3160e8cfa37"
+      }
+    },
+    {
+      "id": "CLM-1682",
+      "statement": "With the directory arm made a no-op, the directory test and the lift test fail.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR body: \"Revert check: with the directory arm made a no-op, the directory test and the lift test fail; restored.\"",
+      "derived_from": [
+        "CLM-1666"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:757"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2480",
+          "kind": "log",
+          "locator": "target/i757-logs/ (no revert-check log); git grep over logs",
+          "summary": "No log or transcript of the revert experiment is in the logs directory (only fmt, lint, dylint, test logs, a directory.rs.bak and the PR body). directory.rs.bak is a pre-edit copy and hints an experiment ran, but nothing records the failing tests. Not rerunnable under the audit's no-cargo rule.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T09:27:24.545587874Z",
+          "seal": {
+            "by": "server",
+            "mac": "453c51bd02de6421c9abf6fd57bc9895ac6c6695f1f0cb861248a214f1d6c227"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No record of the revert experiment exists and I may not run it. Fix: re-run it, making the TeamCatalogs arm in src/cache/directory.rs a no-op, run a_team_catalogs_message_drops_every_row_the_team_owns_and_no_other and lifting_a_suspension_reopens_the_catalog_for_the_next_request, confirm both fail, restore, and keep the output.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2480"
+          ],
+          "recorded_at": "2026-11-26T09:27:55.820979242Z",
+          "seal": {
+            "by": "server",
+            "mac": "489a1af43874ff41068b6929c9a4e2dcefd596cd40b27d73b695a51b646c888a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:26:25.241306206Z",
+      "updated_at": "2026-11-26T09:27:55.820979242Z",
+      "seal": {
+        "by": "server",
+        "mac": "426b8796004e92728d163815d6958080a5408d637e1e007e1178897d9abb74bf"
       }
     }
   ]

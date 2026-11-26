@@ -778,10 +778,10 @@ async fn team_writes_invalidate_the_team_and_membership_writes_the_member() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn suspending_a_team_invalidates_it_and_each_catalog_it_owns() {
+async fn suspending_a_team_invalidates_it_and_its_catalogs_as_a_whole() {
     let db = test_db().await;
-    let main = catalog(&db.pool, "main").await;
-    let other = catalog(&db.pool, "other").await;
+    catalog(&db.pool, "main").await;
+    catalog(&db.pool, "other").await;
     let owner = team_id(&db.pool, TEST_TEAM).await;
     let suspended = invalidations_of(&db.pool, async {
         teams::suspend(&db.pool, TEST_TEAM, None, &cli(), now())
@@ -803,9 +803,55 @@ async fn suspending_a_team_invalidates_it_and_each_catalog_it_owns() {
             .unwrap();
     })
     .await;
-    let expected = [Invalidation::team(&owner), meta(&main), meta(&other)];
+    let expected = [
+        Invalidation::team(&owner),
+        Invalidation::team_catalogs(&owner),
+    ];
     assert_eq!(suspended, expected);
     assert_eq!(lifted, expected);
+}
+
+/// Catalogs the bulk test gives the team: enough that one message per
+/// catalog would be plain in the count, few enough for the normal gate
+/// (the issue's 50,000 take the one insert about a second, but the count
+/// is the same at any size).
+const MANY_CATALOGS: i64 = 5_000;
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_team_owning_thousands_of_catalogs_sends_two_messages_to_suspend_or_lift() {
+    let db = test_db().await;
+    let owner = team_id(&db.pool, TEST_TEAM).await;
+    sqlx::query(
+        "INSERT INTO catalogs (name, created_at, owner_team_id, provisioned_at) \
+         SELECT 'bulk-' || n, now(), $1, now() FROM generate_series(1, $2::bigint) AS n",
+    )
+    .bind(&owner)
+    .bind(MANY_CATALOGS)
+    .execute(&db.pool)
+    .await
+    .unwrap();
+    let owned: i64 = sqlx::query_scalar("SELECT count(*) FROM catalogs WHERE owner_team_id = $1")
+        .bind(&owner)
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+    assert!(owned >= MANY_CATALOGS, "the fixture: {owned} catalogs");
+
+    let suspended = invalidations_of(&db.pool, async {
+        teams::suspend(&db.pool, TEST_TEAM, None, &cli(), now())
+            .await
+            .unwrap();
+    })
+    .await;
+    let lifted = invalidations_of(&db.pool, async {
+        teams::unsuspend(&db.pool, TEST_TEAM, &cli(), now())
+            .await
+            .unwrap();
+    })
+    .await;
+
+    assert_eq!(suspended.len(), 2, "counted, not timed: {suspended:?}");
+    assert_eq!(lifted.len(), 2, "{lifted:?}");
 }
 
 // ---- catalog contents ----

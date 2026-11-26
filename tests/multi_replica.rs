@@ -211,6 +211,28 @@ async fn a_team_suspended_on_one_replica_closes_its_catalogs_on_the_other() {
     .expect("B refuses the suspended team's catalog in time");
     let text = format!("{refused:?}").to_lowercase();
     assert!(text.contains("suspend"), "{text}");
+
+    // Lifting it, again on A, reopens the catalog on B (issue #757: one
+    // team-level message each way, not one per catalog).
+    api(
+        reqwest::Method::PUT,
+        &a.base,
+        &format!("/api/v1/teams/{OWNER}/suspension"),
+        &admin,
+        json!({"suspended": false}),
+    )
+    .await;
+    tokio::time::timeout(WAIT, async {
+        loop {
+            let answer = call(&client, "get_concept", args.clone()).await;
+            if answer.is_error != Some(true) {
+                return;
+            }
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await
+    .expect("B serves the catalog again once the suspension is lifted");
 }
 
 #[tokio::test(flavor = "multi_thread")]

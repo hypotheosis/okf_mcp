@@ -115,6 +115,18 @@ pub enum Invalidation {
         /// `teams.id`.
         id: String,
     },
+    /// Every catalog a team owns changed in a way the directory caches (a
+    /// suspension or its lifting). One message stands for all of them, so a
+    /// team owning a million catalogs costs one `NOTIFY`, not a million
+    /// `CatalogMeta`s (issue #757). A replica drops each cached directory
+    /// row owned by the team; it names no catalog, so nothing grows with
+    /// the team's size. A build that predates this kind cannot read it, and
+    /// treats it as a lost message: every cache is marked stale, which also
+    /// ends a suspended team's catalogs being served as live.
+    TeamCatalogs {
+        /// `teams.id`.
+        team_id: String,
+    },
     /// A server setting changed.
     Settings,
     /// A `stores` row changed (its location or credential reference): each
@@ -221,6 +233,26 @@ impl Invalidation {
         Self::Team { id: id.to_owned() }
     }
 
+    /// The invalidation of every catalog one team owns.
+    ///
+    /// # Arguments
+    /// * `team_id` - its `teams.id`.
+    ///
+    /// # Returns
+    /// [`Invalidation::TeamCatalogs`] for it.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+        )
+    )]
+    pub fn team_catalogs(team_id: &str) -> Self {
+        Self::TeamCatalogs {
+            team_id: team_id.to_owned(),
+        }
+    }
+
     /// The invalidation of one store's row.
     ///
     /// # Arguments
@@ -257,6 +289,7 @@ impl Invalidation {
             Self::Credential { .. } => "credential",
             Self::User { .. } => "user",
             Self::Team { .. } => "team",
+            Self::TeamCatalogs { .. } => "team_catalogs",
             Self::Settings => "settings",
             Self::Store { .. } => "store",
         }
@@ -956,6 +989,7 @@ mod tests {
             Invalidation::Team {
                 id: "t_1".to_owned(),
             },
+            Invalidation::team_catalogs("t_1"),
             Invalidation::Settings,
             Invalidation::store(&crate::stores::StoreName::parse("shared-1").unwrap()),
         ];

@@ -206,6 +206,19 @@ pub enum OkfError {
         reason: String,
     },
 
+    /// A provider re-authentication for deleting one's own account that the
+    /// provider did not vouch as fresh: its ID token had no `auth_time`, or
+    /// one outside the window. A kind of its own so the console can tell the
+    /// person to sign out of the provider and back in.
+    #[error(
+        "{provider} did not confirm a fresh sign-in, so the account cannot be deleted yet; \
+         sign out of {provider}, sign back in, then try again"
+    )]
+    ReauthStale {
+        /// The provider's display label (never its issuer or the subject).
+        provider: String,
+    },
+
     /// A single-use link or token that has expired, been used, or never
     /// existed (worded alike, so a link cannot be probed).
     #[error("{reason}")]
@@ -386,6 +399,7 @@ impl OkfError {
             OkfError::MaintenanceOff { .. } => "Forbidden",
             OkfError::Refused { .. } => "Refused",
             OkfError::Unauthenticated { .. } => "Unauthenticated",
+            OkfError::ReauthStale { .. } => "ReauthStale",
             OkfError::Gone { .. } => "Gone",
             OkfError::LimitExceeded { .. } => "LimitExceeded",
             OkfError::Busy { .. } => "Busy",
@@ -550,6 +564,7 @@ impl OkfError {
             | OkfError::Refused { .. }
             | OkfError::Unauthenticated { .. }
             | OkfError::Gone { .. }
+            | OkfError::ReauthStale { .. }
             | OkfError::Busy { .. }
             | OkfError::StoreUnavailable { .. } => {}
         }
@@ -808,6 +823,21 @@ mod tests {
         }
         .to_json();
         assert_eq!(plain.get("maintenance"), None);
+    }
+
+    #[test]
+    fn a_stale_reauthentication_has_a_kind_of_its_own_and_names_only_the_label() {
+        let error = OkfError::ReauthStale {
+            provider: "Example ID".to_string(),
+        };
+
+        let body = error.to_json();
+
+        assert_eq!(error.kind(), "ReauthStale");
+        assert_eq!(body["error"], "ReauthStale");
+        let message = body["message"].as_str().expect("a message");
+        assert!(message.contains("Example ID did not confirm a fresh sign-in"));
+        assert!(message.contains("sign out of Example ID, sign back in"));
     }
 
     #[test]

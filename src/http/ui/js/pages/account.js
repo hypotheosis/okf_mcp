@@ -57,6 +57,15 @@ export async function render(main) {
     let deleteAccount = null;
     let deletePasskeys = null;
     let deleteRefusal = null;
+    // The last refusal was `ReauthStale`: the provider did not vouch for a
+    // fresh sign-in, so the retry button comes with sign-out-and-in guidance.
+    let deleteStale = false;
+    // The linked accounts the provider re-authentication may use (a linked
+    // account whose provider is still configured), `null` until the
+    // identities read answers; and the provider the browser just came back
+    // from, remembered across the redirect in sessionStorage.
+    let deleteReauth = null;
+    let reauthedWith = takeReauthMarker();
     // The ceiling table, a page at a time: drawn once, then redrawn with
     // each committed page. `shownPrefix` is the prefix the drawn rows
     // answer (null before the first page), for the empty text.
@@ -286,6 +295,10 @@ export async function render(main) {
         if (!main.isConnected) return;
         const label = id => providers.find(provider => provider.id === id)?.label ?? id;
         const held = new Set(linked.map(identity => identity.provider));
+        deleteReauth = linked
+            .filter(identity => providers.some(provider => provider.id === identity.provider))
+            .map(identity => ({ id: identity.provider, label: label(identity.provider) }));
+        drawDelete();
         const keep = keepSessionsBox('identity-keep-sessions');
         fill(identities.body,
             h('ul', { class: 'grant-list', id: 'identity-list' }, linked.length
@@ -375,6 +388,7 @@ export async function render(main) {
         const key = 'account:delete';
         const refusal = h('p', { id: 'account-delete-reason', class: 'error', role: 'alert' }, deleteRefusal ?? '');
         refusal.hidden = !deleteRefusal;
+        if (deleteStale) refusal.dataset.kind = 'ReauthStale';
         const parts = [refusal];
         if (deleteAccount?.has_password) {
             const typed = h('input', { type: 'password', id: 'account-delete-password', autocomplete: 'current-password',
@@ -390,11 +404,55 @@ export async function render(main) {
             go.addEventListener('click', () => removeAccount(key, passkeyProof));
             parts.push(h('div', { class: 'inline-form' }, go));
         }
-        if (deleteAccount && !deleteAccount.has_password && deletePasskeys === 0) {
+        for (const identity of deleteReauth ?? []) {
+            if (reauthedWith === identity.id) {
+                // Back from the provider: the server holds a single-use
+                // proof for this session, good for a few minutes.
+                const go = guard(h('button', { type: 'button', id: 'account-delete-oidc', class: 'danger' },
+                    'Delete my account'), key);
+                go.addEventListener('click', () => removeAccount(key, () => ({ oidc_reauth: true })));
+                parts.push(h('p', { class: 'small', id: 'account-delete-reauthed' },
+                    `You re-authenticated with ${identity.label}. Delete your account within a few minutes, `
+                    + 'or re-authenticate again.'), go);
+            } else {
+                const go = guard(h('button', { type: 'button', id: `account-delete-reauth-${identity.id}`,
+                                               class: 'danger' },
+                    deleteStale
+                        ? `Try again: re-authenticate with ${identity.label}`
+                        : `Re-authenticate with ${identity.label} to delete my account`), key);
+                go.addEventListener('click', () => reauthenticate(key, identity.id));
+                parts.push(h('div', { class: 'inline-form' }, go));
+            }
+        }
+        if (deleteAccount && !deleteAccount.has_password && deletePasskeys === 0 && deleteReauth?.length === 0) {
             parts.push(h('p', { class: 'muted small', id: 'account-delete-needs-proof' },
-                'Set a password or add a passkey first: deleting your account asks for one to confirm it is you.'));
+                'Set a password, add a passkey or link a sign-in account first: deleting your account asks for '
+                + 'one to confirm it is you.'));
         }
         fill(removal.body, ...parts);
+    }
+
+    // The provider proof: the server answers where to send the browser
+    // (`{url}`, the provider's sign-in page asked for a fresh login, with the
+    // flow cookie set), and its callback comes back to /ui/#/account, where
+    // the delete section then offers the deletion itself. The typed
+    // confirmation comes after the return, with the deletion.
+    async function reauthenticate(key, provider) {
+        await once(key, async () => {
+            deleteStale = false;
+            let answer;
+            try {
+                answer = await api.post(`/me/identities/${enc(provider)}/reauth`, {}, { quiet: true });
+            } catch (error) {
+                if (error.status === 401) return;
+                deleteRefusal = `Re-authentication did not start: ${reason(error)}.`;
+                drawDelete();
+                return;
+            }
+            rememberReauth(provider);
+            location.assign(answer.url);
+        });
+        if (main.isConnected) drawDelete();
     }
 
     // The passkey proof: the server's challenge for this account's own
@@ -433,6 +491,12 @@ export async function render(main) {
                 await api.del('/me', { body: await proof(), quiet: true });
             } catch (error) {
                 if (error.status === 401) return;
+                // The server spends a provider proof whatever the answer:
+                // a retry starts from a new re-authentication.
+                reauthedWith = null;
+                // Only this kind tells the person to sign out of the provider
+                // and back in; every other refusal stays generic.
+                deleteStale = error.body?.error === 'ReauthStale';
                 deleteRefusal = `Your account was not deleted: ${reason(error)}.`;
                 drawDelete();
                 return;
@@ -457,6 +521,27 @@ export async function render(main) {
     // control it wants: that control can appear while the rest of the page
     // is still arriving (issue #373).
     if (main.isConnected) main.dataset.loaded = 'true';
+}
+
+// The provider the person re-authenticated with before the redirect, kept
+// for this tab only. It only says which button to draw: the server decides
+// whether a proof exists (a missing or expired one answers 410).
+const REAUTH_MARKER = 'okf:delete-reauth';
+
+function rememberReauth(provider) {
+    try { sessionStorage.setItem(REAUTH_MARKER, provider); } catch { /* storage may be blocked */ }
+}
+
+// Reads and clears the marker, so a later visit starts from the plain
+// buttons.
+function takeReauthMarker() {
+    try {
+        const provider = sessionStorage.getItem(REAUTH_MARKER);
+        sessionStorage.removeItem(REAUTH_MARKER);
+        return provider;
+    } catch {
+        return null;
+    }
 }
 
 // A refusal's reason as the server gave it, without the "forbidden: "

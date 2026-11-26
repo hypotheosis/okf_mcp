@@ -1101,6 +1101,15 @@ pub enum Proof<'a> {
     /// A fresh passkey assertion verified; the passkey (its raw credential
     /// id) must still be the user's (a removal meanwhile refuses).
     Passkey(&'a [u8]),
+    /// A fresh re-authentication at the OIDC provider verified (issue #775)
+    /// for this linked identity; it must still be linked to the user (an
+    /// unlink, or a relink to another account, meanwhile refuses).
+    Oidc {
+        /// The provider's id.
+        provider: &'a str,
+        /// The ID token's `sub`.
+        subject: &'a str,
+    },
 }
 
 /// A signed-in person's request to delete their own account
@@ -1147,7 +1156,8 @@ impl std::fmt::Debug for OwnDeletion<'_> {
 ///   change from a session holds it), so a sign-out-everywhere, reset or
 ///   admin change that ended it refuses the deletion;
 /// - the [`Proof`] still holds: the stored password is the one the typed
-///   password matched, or the asserted passkey is still the user's.
+///   password matched, the asserted passkey is still the user's, or the
+///   re-authenticated identity is still linked to the user.
 ///
 /// Keys, grants, sign-in codes, sessions, passkeys, linked identities,
 /// emailed links, entitlements, memberships and the personal team all go
@@ -1250,12 +1260,29 @@ async fn check_own_deletion(
             .await?;
             found.is_some()
         }
+        Proof::Oidc { provider, subject } => {
+            // Unlinking locks the user first (`sign_in_methods::count`), so
+            // it either committed before us or waits for us.
+            let found: Option<i32> = sqlx::query_scalar(
+                "SELECT 1 FROM user_identities \
+                 WHERE user_id = $1 AND provider = $2 AND subject = $3",
+            )
+            .bind(user_id)
+            .bind(provider)
+            .bind(subject)
+            .fetch_optional(&mut *conn)
+            .await?;
+            found.is_some()
+        }
     };
     if !holds {
         return Err(OkfError::Forbidden {
             reason: match own.proof {
                 Proof::Password(_) => "the password changed meanwhile; give the current one again",
                 Proof::Passkey(_) => "that passkey was removed meanwhile; confirm again",
+                Proof::Oidc { .. } => {
+                    "that linked account was unlinked meanwhile; re-authenticate again"
+                }
             }
             .to_string(),
         });

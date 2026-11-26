@@ -40,6 +40,20 @@ pub(crate) struct NextToken {
     audience: Option<String>,
     /// Issues a token that expired a minute ago.
     expired: bool,
+    /// The `auth_time` claim of the next tokens.
+    auth_time: AuthTime,
+}
+
+/// What the mock puts in a token's `auth_time` claim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum AuthTime {
+    /// A provider that honours the request: `auth_time` is the moment the
+    /// authorize page was visited when it carried `max_age`, else absent.
+    Honest,
+    /// A provider that never sends `auth_time`.
+    Absent,
+    /// A person who authenticated this long ago.
+    Ago(chrono::Duration),
 }
 
 /// A running mock provider.
@@ -48,6 +62,10 @@ pub(crate) struct MockIdp {
     /// `http://127.0.0.1:<port>`.
     pub issuer: String,
     next: Arc<Mutex<NextToken>>,
+    /// The query of every authorize request, oldest first.
+    authorizations: Arc<Mutex<Vec<HashMap<String, String>>>>,
+    /// When the authorize page last saw a `max_age`, if it did.
+    honoured_at: Arc<Mutex<Option<chrono::DateTime<chrono::Utc>>>>,
     discoveries: Arc<AtomicUsize>,
     /// Answer discovery with 503 while set.
     pub discovery_down: Arc<AtomicBool>,
@@ -86,6 +104,16 @@ impl MockIdp {
         self.next.lock().expect("mock lock").nonce = Some(nonce.to_string());
     }
 
+    /// Sets what the next ID tokens carry as `auth_time`.
+    pub(crate) fn will_authenticate(&self, auth_time: AuthTime) {
+        self.next.lock().expect("mock lock").auth_time = auth_time;
+    }
+
+    /// The query of every authorize request so far, oldest first.
+    pub(crate) fn authorizations(&self) -> Vec<HashMap<String, String>> {
+        self.authorizations.lock().expect("mock lock").clone()
+    }
+
     /// How many discovery requests arrived.
     pub(crate) fn discoveries(&self) -> usize {
         self.discoveries.load(Ordering::SeqCst)
@@ -120,7 +148,10 @@ pub(crate) async fn start() -> MockIdp {
             issuer: None,
             audience: None,
             expired: false,
+            auth_time: AuthTime::Honest,
         })),
+        authorizations: Arc::default(),
+        honoured_at: Arc::default(),
         discoveries: Arc::default(),
         discovery_down: Arc::default(),
     };
@@ -169,6 +200,13 @@ async fn authorize(
     if let Some(nonce) = query.get("nonce") {
         idp.set_nonce(nonce);
     }
+    // An honest provider re-authenticates for `max_age=0`, and says when.
+    *idp.honoured_at.lock().expect("mock lock") =
+        query.contains_key("max_age").then(chrono::Utc::now);
+    idp.authorizations
+        .lock()
+        .expect("mock lock")
+        .push(query.clone());
     let back = format!(
         "{}?code=c&state={}",
         query
@@ -206,7 +244,12 @@ async fn token(State(idp): State<MockIdp>, body: String) -> Response {
             .set_email_verified(next.email_verified),
         EmptyAdditionalClaims {},
     )
-    .set_nonce(next.nonce.map(Nonce::new));
+    .set_nonce(next.nonce.map(Nonce::new))
+    .set_auth_time(match next.auth_time {
+        AuthTime::Honest => *idp.honoured_at.lock().expect("mock lock"),
+        AuthTime::Absent => None,
+        AuthTime::Ago(ago) => Some(now - ago),
+    });
     let id_token = CoreIdToken::new(
         claims,
         &CoreHmacKey::new(SECRET.as_bytes()),

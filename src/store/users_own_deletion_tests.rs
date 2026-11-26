@@ -539,3 +539,141 @@ async fn a_deletion_waiting_on_its_session_and_a_passkey_removal_both_finish() {
     );
     assert_eq!(rows_of(&db.pool, &alice.user.id).await, [0; 7]);
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_provider_reauthentication_deletes_the_account_too() {
+    let db = test_db().await;
+    let alice = alice(&db.pool).await;
+
+    let deleted = delete_as_alice(
+        &db.pool,
+        &alice,
+        Proof::Oidc {
+            provider: "example",
+            subject: "sub-1",
+        },
+    )
+    .await;
+
+    assert!(deleted.is_ok(), "{deleted:?}");
+    assert_eq!(rows_of(&db.pool, &alice.user.id).await, [0; 7]);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn an_identity_that_is_not_linked_to_the_user_any_more_refuses_the_deletion() {
+    let db = test_db().await;
+    let alice = alice(&db.pool).await;
+
+    // Another subject at the provider, another provider, and the identity
+    // after it was unlinked.
+    let other_subject = delete_as_alice(
+        &db.pool,
+        &alice,
+        Proof::Oidc {
+            provider: "example",
+            subject: "sub-2",
+        },
+    )
+    .await;
+    let other_provider = delete_as_alice(
+        &db.pool,
+        &alice,
+        Proof::Oidc {
+            provider: "elsewhere",
+            subject: "sub-1",
+        },
+    )
+    .await;
+    identities::unlink(&db.pool, &alice.user.id, "example")
+        .await
+        .unwrap();
+    let unlinked = delete_as_alice(
+        &db.pool,
+        &alice,
+        Proof::Oidc {
+            provider: "example",
+            subject: "sub-1",
+        },
+    )
+    .await;
+
+    for result in [&other_subject, &other_provider, &unlinked] {
+        assert!(
+            matches!(result, Err(OkfError::Forbidden { reason }) if reason.contains("unlinked")),
+            "{result:?}"
+        );
+    }
+    assert_eq!(rows_of(&db.pool, &alice.user.id).await[..3], [1, 1, 1]);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_deletion_waiting_on_its_session_and_an_unlink_both_finish() {
+    // Arrange: as for a passkey removal above, with the provider
+    // re-authentication as the proof and an unlink of that identity (which
+    // also locks alice first) queued behind the deletion.
+    let db = test_db().await;
+    let alice = alice(&db.pool).await;
+    let mut holder = db.pool.begin().await.unwrap();
+    sqlx::query("SELECT 1 FROM user_sessions WHERE user_id = $1 FOR UPDATE")
+        .bind(&alice.user.id)
+        .execute(&mut *holder)
+        .await
+        .unwrap();
+    let deleting = tokio::spawn({
+        let pool = db.pool.clone();
+        let (user_id, session, actor) = (
+            alice.user.id.clone(),
+            alice.session.clone(),
+            alice.actor.clone(),
+        );
+        async move {
+            let own = OwnDeletion {
+                user_id: &user_id,
+                name: "alice",
+                session_id: &session,
+                proof: Proof::Oidc {
+                    provider: "example",
+                    subject: "sub-1",
+                },
+            };
+            delete_own(&pool, &own, &actor, now()).await
+        }
+    });
+    tokio::time::timeout(
+        LOCK_WAIT,
+        crate::http::api::testing::wait_for_lock_waiters(&db.pool, 1),
+    )
+    .await
+    .expect("the deletion never queued on the session row");
+    let unlinking = tokio::spawn({
+        let pool = db.pool.clone();
+        let user_id = alice.user.id.clone();
+        async move { identities::unlink(&pool, &user_id, "example").await }
+    });
+    tokio::time::timeout(
+        LOCK_WAIT,
+        crate::http::api::testing::wait_for_lock_waiters(&db.pool, 2),
+    )
+    .await
+    .expect("the unlink never queued on alice");
+
+    // Act
+    holder.rollback().await.unwrap();
+    let deleted = tokio::time::timeout(LOCK_WAIT, deleting)
+        .await
+        .expect("the deletion finished within 30 s")
+        .expect("the deletion did not panic");
+    let unlinked = tokio::time::timeout(LOCK_WAIT, unlinking)
+        .await
+        .expect("the unlink finished within 30 s")
+        .expect("the unlink did not panic");
+
+    // Assert: the deletion went first (it held alice); the unlink then
+    // found no user.
+    assert!(deleted.is_ok(), "{deleted:?}");
+    assert!(
+        matches!(unlinked, Err(OkfError::NotFound { .. })),
+        "{unlinked:?}"
+    );
+    assert_eq!(rows_of(&db.pool, &alice.user.id).await, [0; 7]);
+}

@@ -146,6 +146,7 @@ impl AppError {
             OkfError::Forbidden { .. }
             | OkfError::Suspended { .. }
             | OkfError::UnlockRequired { .. }
+            | OkfError::ReauthStale { .. }
             | OkfError::MaintenanceOff { .. } => StatusCode::FORBIDDEN,
             OkfError::Unauthenticated { .. } => StatusCode::UNAUTHORIZED,
             OkfError::Gone { .. } => StatusCode::GONE,

@@ -12,11 +12,14 @@
 use std::collections::BTreeMap;
 use std::time::{Duration, Instant};
 
-use openidconnect::core::{CoreAuthenticationFlow, CoreClient, CoreProviderMetadata};
+use chrono::{DateTime, Utc};
+use openidconnect::core::{
+    CoreAuthPrompt, CoreAuthenticationFlow, CoreClient, CoreProviderMetadata,
+};
 use openidconnect::{
-    AuthorizationCode, ClientId, ClientSecret, CsrfToken, EndpointMaybeSet, EndpointNotSet,
-    EndpointSet, HttpRequest, HttpResponse, IssuerUrl, Nonce, PkceCodeChallenge, PkceCodeVerifier,
-    RedirectUrl, Scope, TokenResponse,
+    AuthorizationCode, ClaimsVerificationError, ClientId, ClientSecret, CsrfToken,
+    EndpointMaybeSet, EndpointNotSet, EndpointSet, HttpRequest, HttpResponse, IssuerUrl, Nonce,
+    PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, Scope, TokenResponse,
 };
 
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
@@ -62,6 +65,19 @@ pub const MAX_FLOWS: usize = 10_000;
 pub const LINK_STARTS_PER_USER: u32 = 10;
 /// The most users the per-user link limiter tracks at once.
 const MAX_LINKING_USERS: usize = 10_000;
+/// How long before the callback the person may last have authenticated at
+/// the provider, for an ID token to count as the fresh proof that deletes an
+/// account (issue #775). The `auth_time` claim must be present and at most
+/// this old: a provider that ignores `max_age=0` is refused unless the
+/// person really did authenticate recently. Documented in
+/// `docs/operations.md`.
+pub const REAUTH_AUTH_TIME_WINDOW: Duration = Duration::from_secs(5 * 60);
+/// How far ahead of the server's clock an `auth_time` may be (clock skew
+/// between the provider and this server); anything later is refused.
+const REAUTH_CLOCK_SKEW: Duration = Duration::from_secs(60);
+/// How long a finished re-authentication waits to be used by
+/// `DELETE /api/v1/me`: short, and single use.
+pub const REAUTH_PROOF_TTL: Duration = Duration::from_secs(5 * 60);
 /// The longest any provider request may take.
 const HTTP_TIMEOUT: Duration = Duration::from_secs(10);
 /// The longest `sub` OIDC Core allows (section 2: "MUST NOT exceed 255
@@ -88,6 +104,10 @@ pub enum OidcError {
     /// The ID token is missing or did not verify.
     #[error("the ID token was refused: {0}")]
     IdToken(String),
+    /// A re-authentication's ID token verified in every other respect, but
+    /// its `auth_time` is missing, too old or in the future.
+    #[error("the ID token's auth_time is not fresh: {0}")]
+    AuthTimeStale(String),
 }
 
 impl From<OidcError> for OkfError {
@@ -105,7 +125,7 @@ impl From<OidcError> for OkfError {
                 path: format!("auth/oidc/{id}"),
             },
             OidcError::Discovery { .. } => OkfError::Busy { reason: message },
-            OidcError::Exchange(_) | OidcError::IdToken(_) => {
+            OidcError::Exchange(_) | OidcError::IdToken(_) | OidcError::AuthTimeStale(_) => {
                 OkfError::Unauthenticated { reason: message }
             }
         }
@@ -227,8 +247,82 @@ impl std::fmt::Debug for LinkRequest {
     }
 }
 
+/// A signed-in user re-authenticating at the provider, to delete their own
+/// account (issue #775). It never signs in or links anything.
+#[derive(Serialize, Deserialize)]
+pub struct ReauthRequest {
+    /// The user's id.
+    pub user_id: String,
+    /// [`session_hash`] of the session that asked: the callback finishes
+    /// only in the browser whose live session hashes to it.
+    pub session_hash: String,
+    /// The `sub` of the user's identity at this provider when the flow
+    /// started: the returned ID token must carry exactly this subject.
+    pub subject: String,
+}
+
+// Hand-written: neither the session's hash nor the subject reaches a log.
+impl std::fmt::Debug for ReauthRequest {
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "Display/Debug impl: runs while the subscriber formats an event"
+        )
+    )]
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("ReauthRequest")
+            .field("user_id", &self.user_id)
+            .field("session_hash", &"<redacted>")
+            .field("subject", &"<redacted>")
+            .finish()
+    }
+}
+
+/// A finished re-authentication, waiting for `DELETE /api/v1/me`: the
+/// provider proved, moments ago, that the person behind this session's
+/// linked identity is here. Stored under the session's [`session_hash`],
+/// taken (single use) by the deletion, which then rechecks under the user's
+/// row lock that the identity is still linked to the user.
+#[derive(Serialize, Deserialize)]
+pub struct ReauthProof {
+    /// The user's id.
+    pub user_id: String,
+    /// The provider's id.
+    pub provider: String,
+    /// The verified ID token's `sub`; empty for a stale outcome.
+    pub subject: String,
+    /// [`session_hash`] of the session it was made for (also the key).
+    pub session_hash: String,
+    /// The provider answered, but its `auth_time` was not fresh: the
+    /// deletion is refused with `ReauthStale`. Holds no identity.
+    #[serde(default)]
+    pub stale: bool,
+}
+
+// Hand-written: it names a session and an identity.
+impl std::fmt::Debug for ReauthProof {
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "Display/Debug impl: runs while the subscriber formats an event"
+        )
+    )]
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("ReauthProof")
+            .field("user_id", &self.user_id)
+            .field("provider", &self.provider)
+            .finish_non_exhaustive()
+    }
+}
+
 /// A flow in progress, keyed by the `okf_oidc` cookie's random id. Its
-/// `Debug` shows no secret ([`FlowSecrets`] and [`LinkRequest`] redact).
+/// `Debug` shows no secret ([`FlowSecrets`], [`LinkRequest`] and
+/// [`ReauthRequest`] redact). At most one of `link` and `reauth` is set; a
+/// flow with neither is a sign-in.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Flow {
     /// The provider it was started with.
@@ -239,6 +333,11 @@ pub struct Flow {
     pub return_to: String,
     /// Set when a signed-in user is linking, not signing in.
     pub link: Option<LinkRequest>,
+    /// Set when a signed-in user is re-authenticating to delete their
+    /// account (issue #775). `default`: a flow stored before this field
+    /// existed reads as a sign-in or link, never a re-authentication.
+    #[serde(default)]
+    pub reauth: Option<ReauthRequest>,
 }
 
 /// What a verified ID token says about the person.
@@ -295,6 +394,10 @@ pub struct OidcProviders {
     /// Each console session's live link flow, by [`session_hash`]: a new
     /// link flow replaces (and removes) the session's previous one.
     link_flows: Index,
+    /// Finished re-authentications by [`session_hash`] (one per session, a
+    /// new one replacing the old), each valid for [`REAUTH_PROOF_TTL`] and
+    /// taken once.
+    reauth_proofs: Ephemeral<ReauthProof>,
     /// Link starts by user id: a burst of [`LINK_STARTS_PER_USER`], refilled
     /// one per minute; in Redis with `[redis]`, shared by every instance.
     link_starts: KeyedLimit,
@@ -396,6 +499,7 @@ impl OidcProviders {
             providers,
             flows: Ephemeral::new(redis, Keyspace::OidcFlow, FLOW_TTL, MAX_FLOWS),
             link_flows: Index::new(redis, IndexSpace::OidcLink, FLOW_TTL, MAX_FLOWS),
+            reauth_proofs: Ephemeral::new(redis, Keyspace::OidcReauth, REAUTH_PROOF_TTL, MAX_FLOWS),
             link_starts: KeyedLimit::new(
                 Limiter::LinkStarts,
                 LINK_STARTS_PER_USER,
@@ -434,7 +538,17 @@ impl OidcProviders {
     ) -> Result<bool, OkfError> {
         // The session the link belongs to, as the key of its index entry:
         // the flow already holds only the session's hash.
-        let session_key = flow.link.as_ref().map(|link| link.session_hash.clone());
+        // A re-authentication shares the link's slot: a session holds one
+        // of the two at a time.
+        let session_key = flow
+            .link
+            .as_ref()
+            .map(|link| link.session_hash.clone())
+            .or_else(|| {
+                flow.reauth
+                    .as_ref()
+                    .map(|reauth| reauth.session_hash.clone())
+            });
         if let Some(previous) = previous.filter(|previous| *previous != id) {
             self.flows.remove(previous).await?;
         }
@@ -467,6 +581,48 @@ impl OidcProviders {
             }
         }
         Ok(true)
+    }
+
+    /// Keeps a finished re-authentication for the session it was made for,
+    /// replacing that session's previous one.
+    ///
+    /// # Arguments
+    /// * `proof` - the proof, keyed by its `session_hash`.
+    /// * `now` - the current instant.
+    ///
+    /// # Returns
+    /// `false`, storing nothing, when the memory store is full.
+    ///
+    /// # Errors
+    /// [`OkfError::Busy`] when Redis fails.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn store_reauth_proof(
+        &self,
+        proof: ReauthProof,
+        now: Instant,
+    ) -> Result<bool, OkfError> {
+        let key = proof.session_hash.clone();
+        self.reauth_proofs.insert(&key, proof, now).await
+    }
+
+    /// Takes (single use) the session's finished re-authentication.
+    ///
+    /// # Arguments
+    /// * `session_hash` - [`session_hash`] of the asking session.
+    /// * `now` - the current instant.
+    ///
+    /// # Returns
+    /// The proof, or `None` when there is none, it expired or it was used.
+    ///
+    /// # Errors
+    /// [`OkfError::Busy`] when Redis fails.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn take_reauth_proof(
+        &self,
+        session_hash: &str,
+        now: Instant,
+    ) -> Result<Option<ReauthProof>, OkfError> {
+        self.reauth_proofs.take(session_hash, now).await
     }
 
     /// Takes one link start from the user's allowance.
@@ -613,6 +769,8 @@ impl OidcProviders {
     /// # Arguments
     /// * `id` - the provider's id.
     /// * `now` - the current instant.
+    /// * `fresh` - ask the provider to authenticate the person again
+    ///   (`prompt=login` and `max_age=0`), for a re-authentication.
     ///
     /// # Returns
     /// The URL and the flow's secrets (for the caller to keep).
@@ -624,6 +782,7 @@ impl OidcProviders {
         &self,
         id: &str,
         now: Instant,
+        fresh: bool,
     ) -> Result<(String, FlowSecrets), OidcError> {
         let client = self.client(id, now).await?;
         let provider = self.provider(id)?;
@@ -635,6 +794,13 @@ impl OidcProviders {
                 Nonce::new_random,
             )
             .set_pkce_challenge(challenge);
+        if fresh {
+            // The provider is asked to show its login again; whether it does
+            // is checked from `auth_time` ([`Self::identify_fresh`]).
+            request = request
+                .add_prompt(CoreAuthPrompt::Login)
+                .set_max_age(Duration::ZERO);
+        }
         // The crate always sends `openid`; adding it again would repeat it.
         for scope in provider
             .config
@@ -678,6 +844,47 @@ impl OidcProviders {
         secrets: FlowSecrets,
         now: Instant,
     ) -> Result<Identity, OidcError> {
+        self.identify_checked(id, code, secrets, now, None).await
+    }
+
+    /// As [`Self::identify`], for a re-authentication: the same verification
+    /// (signature, issuer, audience, nonce, expiry), and the ID token must
+    /// also carry an `auth_time` at most [`REAUTH_AUTH_TIME_WINDOW`] before
+    /// `clock_now` (and not in the future beyond a minute of skew). A token
+    /// without `auth_time` is refused: a provider that ignored `max_age=0`
+    /// proves nothing unless it says when the person last authenticated.
+    ///
+    /// # Arguments
+    /// As [`Self::identify`]; `clock_now` - the server clock's present.
+    ///
+    /// # Errors
+    /// As [`Self::identify`]; [`OidcError::IdToken`] when `auth_time` is
+    /// missing, too old or in the future.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn identify_fresh(
+        &self,
+        id: &str,
+        code: String,
+        secrets: FlowSecrets,
+        now: Instant,
+        clock_now: DateTime<Utc>,
+    ) -> Result<Identity, OidcError> {
+        self.identify_checked(id, code, secrets, now, Some(clock_now))
+            .await
+    }
+
+    /// The code exchange and ID-token verification both public methods
+    /// share; `fresh_at` adds the `auth_time` check inside the crate's own
+    /// verification, so no claim is read before the signature has passed.
+    #[tracing::instrument(level = "debug", skip_all)]
+    async fn identify_checked(
+        &self,
+        id: &str,
+        code: String,
+        secrets: FlowSecrets,
+        now: Instant,
+        fresh_at: Option<DateTime<Utc>>,
+    ) -> Result<Identity, OidcError> {
         let client = self.client(id, now).await?;
         let http = |request: HttpRequest| send(self.http.clone(), request);
         let tokens = client
@@ -692,9 +899,23 @@ impl OidcProviders {
             .id_token()
             .ok_or_else(|| OidcError::IdToken("the provider sent no ID token".to_string()))?;
         let nonce = Nonce::new(secrets.nonce);
+        let mut verifier = client.id_token_verifier();
+        if let Some(clock_now) = fresh_at {
+            // `move`: the closure owns the (Copy) instant it compares with.
+            verifier = verifier
+                .set_auth_time_verifier_fn(move |auth_time| check_auth_time(auth_time, clock_now));
+        }
         let claims = id_token
-            .claims(&client.id_token_verifier(), &nonce)
-            .map_err(|error| OidcError::IdToken(error.to_string()))?;
+            .claims(&verifier, &nonce)
+            .map_err(|error| match error {
+                // The crate checks the signature, issuer, audience, expiry
+                // and nonce before `auth_time`, so this one is a genuine
+                // token that is not fresh.
+                ClaimsVerificationError::InvalidAuthTime(reason) => {
+                    OidcError::AuthTimeStale(reason)
+                }
+                other => OidcError::IdToken(other.to_string()),
+            })?;
         let subject = claims.subject().as_str();
         if !valid_subject(subject) {
             return Err(OidcError::IdToken(
@@ -709,11 +930,60 @@ impl OidcProviders {
     }
 }
 
+/// Whether an ID token's `auth_time` shows a fresh authentication: present,
+/// at most [`REAUTH_AUTH_TIME_WINDOW`] before `now` and no later than
+/// [`REAUTH_CLOCK_SKEW`] after it.
+///
+/// # Errors
+/// The reason, for the crate to wrap in its verification error.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+    )
+)]
+fn check_auth_time(auth_time: Option<DateTime<Utc>>, now: DateTime<Utc>) -> Result<(), String> {
+    let Some(auth_time) = auth_time else {
+        return Err("the ID token has no auth_time claim".to_string());
+    };
+    // The constants are small, so the conversions cannot fail; `unwrap_or`
+    // keeps the check closed (a zero window refuses everything) if one did.
+    let window = chrono::Duration::from_std(REAUTH_AUTH_TIME_WINDOW).unwrap_or_default();
+    let skew = chrono::Duration::from_std(REAUTH_CLOCK_SKEW).unwrap_or_default();
+    if auth_time < now - window {
+        return Err("the person authenticated too long ago".to_string());
+    }
+    if auth_time > now + skew {
+        return Err("the authentication time is in the future".to_string());
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 pub(crate) mod testing;
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn auth_time_must_be_present_recent_and_not_from_the_future() {
+        use super::{check_auth_time, REAUTH_AUTH_TIME_WINDOW, REAUTH_CLOCK_SKEW};
+        let now = Utc::now();
+        let window = chrono::Duration::from_std(REAUTH_AUTH_TIME_WINDOW).unwrap();
+        let skew = chrono::Duration::from_std(REAUTH_CLOCK_SKEW).unwrap();
+        let second = chrono::Duration::seconds(1);
+
+        assert!(check_auth_time(None, now).is_err(), "absent");
+        assert!(check_auth_time(Some(now), now).is_ok(), "just now");
+        assert!(
+            check_auth_time(Some(now - window), now).is_ok(),
+            "window edge"
+        );
+        assert!(check_auth_time(Some(now - window - second), now).is_err());
+        assert!(check_auth_time(Some(now + skew), now).is_ok(), "skew edge");
+        assert!(check_auth_time(Some(now + skew + second), now).is_err());
+    }
     use std::sync::atomic::Ordering;
 
     use openidconnect::core::CoreIdTokenClaims;
@@ -836,6 +1106,18 @@ mod tests {
                 session_hash: "session-value".to_string(),
                 keep_sessions: false,
             }),
+            reauth: Some(ReauthRequest {
+                user_id: "user-1".to_string(),
+                session_hash: "reauth-session-value".to_string(),
+                subject: "subject-value".to_string(),
+            }),
+        };
+        let proof = ReauthProof {
+            user_id: "user-1".to_string(),
+            provider: "example".to_string(),
+            subject: "subject-value".to_string(),
+            session_hash: "reauth-session-value".to_string(),
+            stale: false,
         };
         let providers = OidcProviders::new(
             &Config {
@@ -859,13 +1141,14 @@ mod tests {
         .expect("built")
         .expect("on");
 
-        let printed = format!("{flow:?} {providers:?}");
+        let printed = format!("{flow:?} {proof:?} {providers:?}");
 
         for secret in [
             "state-value",
             "nonce-value",
             "verifier-value",
             "session-value",
+            "subject-value",
             "client-secret-value",
         ] {
             assert!(!printed.contains(secret), "{secret} in {printed}");

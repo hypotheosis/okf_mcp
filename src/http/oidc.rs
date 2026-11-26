@@ -16,6 +16,16 @@
 //! another site nor another person's callback can link an identity to
 //! someone's account.
 //!
+//! Deleting one's own account without a password or passkey (issue #775)
+//! starts with `POST /api/v1/me/identities/{provider}/reauth`, a flow of its
+//! own kind (`Flow::reauth`, `prompt=login` and `max_age=0`), bound to the
+//! console session and to the identity the user has linked at that provider.
+//! The same callback route finishes it, but only to keep a short-lived,
+//! single-use [`ReauthProof`] for that session: it never signs in, creates a
+//! session or links anything, and a sign-in callback never makes one.
+//! `DELETE /api/v1/me` takes the proof (`take_reauth`) and
+//! `users::delete_own` rechecks it under the user's row lock.
+//!
 //! With `[redis]` the flows live there (spec Decisions 3-8): a callback may
 //! land on any instance, and the take is atomic, so a flow finishes once.
 //! A Redis failure fails closed with a 503 page, never a fallback to memory.
@@ -50,7 +60,10 @@ use crate::http::signin::{
 };
 use crate::http::{timeout_layer, AppError};
 use crate::keys;
-use crate::oidc::{session_hash, Flow, Identity, LinkRequest, OidcError, OidcProviders, FLOW_TTL};
+use crate::oidc::{
+    session_hash, Flow, Identity, LinkRequest, OidcError, OidcProviders, ReauthProof,
+    ReauthRequest, FLOW_TTL,
+};
 use crate::store::identities::{self, OidcOutcome, OidcSignIn, SessionLink};
 use crate::store::settings::Brand;
 use crate::store::sign_in_events::{Method, Outcome};
@@ -67,6 +80,11 @@ pub const NO_ACCOUNT: &str = "No account for this email. Ask an admin to invite 
 pub const SIGN_IN_RETRY: &str = "Sign-in failed; try again";
 /// A link callback without the session that started it (400).
 pub const LINK_RETRY: &str = "Linking failed: sign in again and start it from your account page.";
+/// A re-authentication callback that did not verify, or came from a browser
+/// other than the one that started it (400).
+pub const REAUTH_RETRY: &str =
+    "Re-authentication failed: start it again from your account page, and sign in at your \
+     provider when it asks.";
 /// Discovery failed with nothing cached (503).
 const UNAVAILABLE: &str = "The sign-in provider cannot be reached right now; try again later.";
 /// The shared flow store failed (503): the flow is not finished, and its
@@ -121,7 +139,9 @@ pub(crate) fn routes() -> Router<Arc<App>> {
 pub(crate) fn api_routes() -> Router<Arc<App>> {
     // `{provider}`: Task 10b's `/me/identities/{provider}` must use the same
     // parameter name at this position, or the router refuses to build.
-    Router::new().route("/me/identities/{provider}/link", post(link))
+    Router::new()
+        .route("/me/identities/{provider}/link", post(link))
+        .route("/me/identities/{provider}/reauth", post(reauth_start))
 }
 
 /// The sign-in page's provider buttons.
@@ -168,6 +188,8 @@ struct NewFlow<'a> {
     return_to: String,
     /// Set for a link from the account page.
     link: Option<LinkRequest>,
+    /// Set for a re-authentication from the account page.
+    reauth: Option<ReauthRequest>,
 }
 
 /// Starts a flow: the provider's authorize URL and the flow cookie. The
@@ -185,13 +207,17 @@ async fn begin(
     headers: &HeaderMap,
     new: NewFlow<'_>,
 ) -> Result<(String, HeaderMap), OkfError> {
-    let (url, secrets) = oidc.authorize_url(new.provider, Instant::now()).await?;
+    let fresh = new.reauth.is_some();
+    let (url, secrets) = oidc
+        .authorize_url(new.provider, Instant::now(), fresh)
+        .await?;
     let id = keys::generate_with("")?;
     let flow = Flow {
         provider: new.provider.to_string(),
         secrets,
         return_to: new.return_to,
         link: new.link,
+        reauth: new.reauth,
     };
     let previous = cookie(headers, FLOW_COOKIE);
     if !oidc.store_flow(&id, flow, previous, Instant::now()).await? {
@@ -251,6 +277,7 @@ async fn start(
         provider: &provider,
         return_to,
         link: None,
+        reauth: None,
     };
     match begin(&app, oidc, &parts.headers, new).await {
         Ok((url, headers)) => (headers, Redirect::to(&url)).into_response(),
@@ -335,6 +362,7 @@ async fn callback(
         secrets,
         return_to,
         link,
+        reauth,
     }) = flow
     else {
         return page(&brand, &headers, StatusCode::BAD_REQUEST, SIGN_IN_RETRY);
@@ -351,10 +379,19 @@ async fn callback(
         return page(&brand, &headers, StatusCode::BAD_REQUEST, SIGN_IN_RETRY);
     };
     let ip = client_ip(&parts, &app.config().auth);
-    let identity = match oidc
-        .identify(&provider, code, secrets, Instant::now())
-        .await
-    {
+    // A re-authentication also needs a recent `auth_time` in the ID token,
+    // checked inside the token's verification.
+    let identified = match &reauth {
+        Some(_) => {
+            oidc.identify_fresh(&provider, code, secrets, Instant::now(), app.clock().now())
+                .await
+        }
+        None => {
+            oidc.identify(&provider, code, secrets, Instant::now())
+                .await
+        }
+    };
+    let identity = match identified {
         Ok(identity) => identity,
         Err(OidcError::Discovery { .. }) => {
             return page(
@@ -364,6 +401,24 @@ async fn callback(
                 UNAVAILABLE,
             )
         }
+        // A genuine token that is not fresh: the person is told to sign out
+        // of the provider and back in, when the deletion asks for the proof.
+        Err(OidcError::AuthTimeStale(reason)) if reauth.is_some() => {
+            split_event!(
+                info,
+                { provider = %provider, },
+                { %reason, },
+                "OIDC re-authentication not fresh"
+            );
+            let Some(reauth) = reauth else {
+                return page(&brand, &headers, StatusCode::BAD_REQUEST, REAUTH_RETRY);
+            };
+            return match finish_reauth(&app, &parts, &provider, None, reauth).await {
+                Ok(Done::Redirect { to, .. }) => (headers, Redirect::to(&to)).into_response(),
+                Ok(Done::Refused(status, message)) => page(&brand, &headers, status, message),
+                Err(error) => AppError(error).into_response(),
+            };
+        }
         Err(error) => {
             split_event!(
                 info,
@@ -371,13 +426,21 @@ async fn callback(
                 { %error, },
                 "OIDC sign-in refused"
             );
+            // A refused re-authentication is not a failed sign-in: it is
+            // not recorded as one.
+            if reauth.is_some() {
+                return page(&brand, &headers, StatusCode::BAD_REQUEST, REAUTH_RETRY);
+            }
             audit(&app, None, Method::Oidc, Outcome::Failed, ip).await;
             return page(&brand, &headers, StatusCode::BAD_REQUEST, SIGN_IN_RETRY);
         }
     };
-    let done = match link {
-        Some(link) => finish_link(&app, &parts, &provider, &identity, link).await,
-        None => finish_sign_in(&app, &parts, &provider, &identity, return_to).await,
+    let done = match (link, reauth) {
+        (Some(link), _) => finish_link(&app, &parts, &provider, &identity, link).await,
+        (None, Some(reauth)) => {
+            finish_reauth(&app, &parts, &provider, Some(&identity), reauth).await
+        }
+        (None, None) => finish_sign_in(&app, &parts, &provider, &identity, return_to).await,
     };
     match done {
         Ok(Done::Redirect { session_cookie, to }) => {
@@ -503,32 +566,163 @@ async fn complete_sign_in(
 }
 
 /// The user of this browser's console session and that session's raw id,
-/// when it is the live session that started the link: its id hashes to the
+/// when it is the live session that started a flow: its id hashes to the
 /// flow's `session_hash` (compared in constant time), and it is the same
 /// user. The id returned is this request's own cookie, never a stored one.
+///
+/// # Arguments
+/// * `app` - the application.
+/// * `parts` - the callback request.
+/// * `user_id` - the user the flow was started for.
+/// * `started_in` - the flow's [`session_hash`].
+#[tracing::instrument(level = "debug", skip_all)]
+async fn flow_user<'a>(
+    app: &App,
+    parts: &'a Parts,
+    user_id: &str,
+    started_in: &str,
+) -> Result<Option<(UserAuth, &'a str)>, OkfError> {
+    let Some(id) = cookie(&parts.headers, COOKIE) else {
+        return Ok(None);
+    };
+    if !bool::from(session_hash(id).as_bytes().ct_eq(started_in.as_bytes())) {
+        return Ok(None);
+    }
+    let idle = app.settings().console_session_idle;
+    match user_sessions::touch(app.accounts().executor(), id, idle, app.clock().now()).await? {
+        Some(row) if row.user_id == user_id => Ok(session_user(app, &row.user_id)
+            .await?
+            .map(|user| (user, id))),
+        _ => Ok(None),
+    }
+}
+
+/// The user of this browser's console session and its raw id, when it is
+/// the live session that started the link ([`flow_user`]).
 #[tracing::instrument(level = "debug", skip_all)]
 async fn linking_user<'a>(
     app: &App,
     parts: &'a Parts,
     link: &LinkRequest,
 ) -> Result<Option<(UserAuth, &'a str)>, OkfError> {
-    let Some(id) = cookie(&parts.headers, COOKIE) else {
-        return Ok(None);
+    flow_user(app, parts, &link.user_id, &link.session_hash).await
+}
+
+/// Finishes a re-authentication: keeps a [`ReauthProof`] for the session
+/// that started it, and goes back to the account page. Nothing else: no
+/// session is created, no identity linked, no sign-in recorded. It keeps the
+/// proof only when:
+/// - this browser's own live session is the one that started the flow
+///   ([`flow_user`]); and
+/// - the verified ID token's subject is exactly the identity the flow was
+///   started for (another identity, even one linked to the same user,
+///   proves nothing).
+///
+/// What the deletion needs is checked again, under the user's row lock, by
+/// `users::delete_own`.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn finish_reauth(
+    app: &Arc<App>,
+    parts: &Parts,
+    provider: &str,
+    identity: Option<&Identity>,
+    reauth: ReauthRequest,
+) -> Result<Done, OkfError> {
+    let refused = || Ok(Done::Refused(StatusCode::BAD_REQUEST, REAUTH_RETRY));
+    let Some(oidc) = app.oidc() else {
+        return refused();
     };
-    if !bool::from(
-        session_hash(id)
-            .as_bytes()
-            .ct_eq(link.session_hash.as_bytes()),
-    ) {
-        return Ok(None);
+    let Some((_, _)) = flow_user(app, parts, &reauth.user_id, &reauth.session_hash).await? else {
+        return refused();
+    };
+    // `None`: the token was genuine but not fresh; only that fact is kept.
+    let same_identity = identity.is_none_or(|identity| {
+        bool::from(identity.subject.as_bytes().ct_eq(reauth.subject.as_bytes()))
+    });
+    if !same_identity {
+        split_event!(
+            info,
+            { provider = %provider, },
+            { user = %reauth.user_id, },
+            "OIDC re-authentication refused: another identity answered"
+        );
+        return refused();
     }
-    let idle = app.settings().console_session_idle;
-    match user_sessions::touch(app.accounts().executor(), id, idle, app.clock().now()).await? {
-        Some(row) if row.user_id == link.user_id => Ok(session_user(app, &row.user_id)
-            .await?
-            .map(|user| (user, id))),
-        _ => Ok(None),
+    let proof = ReauthProof {
+        user_id: reauth.user_id,
+        provider: provider.to_string(),
+        subject: if identity.is_some() {
+            reauth.subject
+        } else {
+            String::new()
+        },
+        session_hash: reauth.session_hash,
+        stale: identity.is_none(),
+    };
+    if !oidc.store_reauth_proof(proof, Instant::now()).await? {
+        return Err(OkfError::Busy {
+            reason: "too many sign-ins in progress; try again shortly".to_string(),
+        });
     }
+    Ok(Done::Redirect {
+        session_cookie: HeaderMap::new(),
+        to: ACCOUNT_PAGE.to_string(),
+    })
+}
+
+/// Takes this session's finished re-authentication for `DELETE /api/v1/me`
+/// (single use). The caller passes it to `users::delete_own` as
+/// `Proof::Oidc`, which checks again, under the user's row lock, that the
+/// identity is still linked to the user.
+///
+/// # Arguments
+/// * `app` - the application.
+/// * `session` - the request's console session.
+/// * `user_id` - the session's user.
+///
+/// # Errors
+/// [`OkfError::NotFound`] with OIDC off; [`OkfError::Gone`] when this
+/// session has no finished re-authentication, or it expired or was used;
+/// [`OkfError::Forbidden`] when it belongs to another user or session;
+/// [`OkfError::ReauthStale`] when the provider did not vouch for a fresh
+/// sign-in (no `auth_time`, or an old one);
+/// [`OkfError::Busy`] when Redis fails.
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn take_reauth(
+    app: &App,
+    session: &ConsoleSession,
+    user_id: &str,
+) -> Result<ReauthProof, OkfError> {
+    let oidc = app.oidc().ok_or_else(|| OkfError::NotFound {
+        path: "auth/oidc".to_string(),
+    })?;
+    let hash = session_hash(&session.id);
+    let proof = oidc
+        .take_reauth_proof(&hash, Instant::now())
+        .await?
+        .ok_or_else(|| OkfError::Gone {
+            reason: "no provider re-authentication is waiting for this session, or it expired; \
+                     re-authenticate again"
+                .to_string(),
+        })?;
+    // The key was this session's hash already; both are checked anyway, in
+    // constant time, so a proof stored under the wrong key could not pass.
+    let same_session = bool::from(proof.session_hash.as_bytes().ct_eq(hash.as_bytes()));
+    if proof.user_id != user_id || !same_session {
+        return Err(OkfError::Forbidden {
+            reason: "this re-authentication belongs to another session".to_string(),
+        });
+    }
+    if proof.stale {
+        // Only the label: never the issuer, the subject or token details.
+        let provider = oidc
+            .label(&proof.provider)
+            .unwrap_or("Your identity provider");
+        return Err(OkfError::ReauthStale {
+            provider: provider.to_string(),
+        });
+    }
+    Ok(proof)
 }
 
 /// Links the identity to the signed-in user who started the flow, whatever
@@ -663,6 +857,72 @@ async fn link(
             session_hash: session_hash(&session.id),
             keep_sessions: body.keep_sessions,
         }),
+        reauth: None,
+    };
+    let (url, flow_cookie) = begin(&app, oidc, &headers, new).await?;
+    Ok((flow_cookie, Json(serde_json::json!({ "url": url }))).into_response())
+}
+
+/// `POST /api/v1/me/identities/{provider}/reauth`: `{"url": <authorize
+/// URL>}` and the flow cookie, to re-authenticate at the provider the user
+/// has linked (`prompt=login`, `max_age=0`) before deleting their account
+/// with `DELETE /api/v1/me` and `{"oidc_reauth": true}`. The flow is bound
+/// to this console session and to the identity linked there now; its
+/// callback keeps a proof for the session and does nothing else.
+///
+/// # Errors
+/// 403 for a key or grant; 404 for an unknown provider, with OIDC off, or
+/// when the user has no identity linked at that provider; 429 once the
+/// user's allowance is spent (shared with linking); 503 when the provider
+/// cannot be reached.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn reauth_start(
+    State(app): State<Arc<App>>,
+    Path(provider): Path<String>,
+    Extension(principal): Extension<Arc<Principal>>,
+    session: Option<Extension<ConsoleSession>>,
+    headers: HeaderMap,
+) -> Result<Response, AppError> {
+    let (user_id, session) = match (&principal.kind, session) {
+        (CredentialKind::Session { user_id }, Some(Extension(session))) => {
+            (user_id.clone(), session)
+        }
+        _ => {
+            return Err(OkfError::Forbidden {
+                reason: "re-authenticating needs a console session".to_string(),
+            }
+            .into())
+        }
+    };
+    let not_found = || OkfError::NotFound {
+        path: format!("me/identities/{provider}/reauth"),
+    };
+    let oidc = app.oidc().ok_or_else(not_found)?;
+    if oidc.label(&provider).is_none() {
+        return Err(not_found().into());
+    }
+    // The identity this person linked at the provider: the one whose
+    // return the callback accepts.
+    let subject = identities::subject_of(app.accounts().executor(), &user_id, &provider)
+        .await?
+        .ok_or_else(not_found)?;
+    if !oidc.may_start_link(&user_id, Instant::now()).await {
+        app.metrics().rate_limited(Limiter::LinkStarts);
+        let body = serde_json::json!({
+            "error": "TooManyRequests",
+            "message": TOO_MANY_LINKS,
+        });
+        return Ok((StatusCode::TOO_MANY_REQUESTS, Json(body)).into_response());
+    }
+    let new = NewFlow {
+        provider: &provider,
+        return_to: ACCOUNT_PAGE.to_string(),
+        link: None,
+        reauth: Some(ReauthRequest {
+            user_id,
+            session_hash: session_hash(&session.id),
+            subject,
+        }),
     };
     let (url, flow_cookie) = begin(&app, oidc, &headers, new).await?;
     Ok((flow_cookie, Json(serde_json::json!({ "url": url }))).into_response())
@@ -672,14 +932,17 @@ async fn link(
 mod tests {
     use std::collections::HashMap;
     use std::sync::Arc;
-    use std::time::Duration;
+    use std::time::{Duration, Instant};
 
     use axum::http::StatusCode;
     use chrono::Utc;
     use serde_json::json;
     use sqlx::PgPool;
 
-    use super::{FLOW_COOKIE, LINKED_ELSEWHERE, LINK_RETRY, NO_ACCOUNT, SIGN_IN_RETRY, TRY_LATER};
+    use super::{
+        FLOW_COOKIE, LINKED_ELSEWHERE, LINK_RETRY, NO_ACCOUNT, REAUTH_RETRY, SIGN_IN_RETRY,
+        TRY_LATER,
+    };
     use crate::app::App;
     use crate::config::{AuthConfig, Config};
     use crate::db::redis_support::TestRedis;
@@ -689,8 +952,8 @@ mod tests {
     use crate::http::console_session::COOKIE;
     use crate::http::limits::SIGN_IN_PER_IP;
     use crate::mcp::testing::{app_with, replica_pair_on, TestApp};
-    use crate::oidc::testing::{self as idp, MockIdp, CLIENT_ID, SECRET};
-    use crate::oidc::LINK_STARTS_PER_USER;
+    use crate::oidc::testing::{self as idp, AuthTime, MockIdp, CLIENT_ID, SECRET};
+    use crate::oidc::{LINK_STARTS_PER_USER, REAUTH_AUTH_TIME_WINDOW, REAUTH_PROOF_TTL};
     use crate::store::audit::AuditActor;
     use crate::store::identities;
     use crate::store::sign_in_events::{self, Method, Outcome};
@@ -1329,6 +1592,455 @@ mod tests {
             .await
             .expect("list")
             .is_empty());
+    }
+
+    // ----- Re-authentication for account deletion (issue #775) -----
+
+    /// How long ago a person authenticated, as the mock's `auth_time`.
+    fn ago(seconds: i64) -> AuthTime {
+        AuthTime::Ago(chrono::Duration::seconds(seconds))
+    }
+
+    /// alice with no password and `sub-1` linked at the provider, signed in
+    /// to the console (a session made directly, as for any signed-in test).
+    async fn oidc_only_alice(test: &TestApp, idp: &MockIdp) -> (String, Browser) {
+        let alice = user_with_password(test, "alice", "alice@example.com", None).await;
+        idp.will_issue("sub-1", Some("alice@example.com"), Some(true));
+        identities::link(
+            test.app.accounts().executor(),
+            &alice.id,
+            "example",
+            "sub-1",
+            "alice@example.com",
+            Utc::now(),
+        )
+        .await
+        .expect("link alice's identity");
+        (alice.id, Browser::session_for(test, "alice").await)
+    }
+
+    /// Starts a re-authentication from `browser`'s session on `app` and
+    /// returns the authorize URL's query; the mock is told the nonce.
+    async fn start_reauth_on(
+        app: &Arc<App>,
+        idp: &MockIdp,
+        browser: &mut Browser,
+    ) -> HashMap<String, String> {
+        let started = browser
+            .send_to(
+                app,
+                "POST",
+                "/api/v1/me/identities/example/reauth",
+                Payload::Json(json!({})),
+            )
+            .await;
+        assert_eq!(started.status, StatusCode::OK, "{}", started.text());
+        let query = query_of(started.json()["url"].as_str().expect("a URL"));
+        idp.set_nonce(&query["nonce"]);
+        query
+    }
+
+    /// What the browser does with the authorize URL: asks the mock provider
+    /// for it (without following its redirect back).
+    async fn visit_authorize(idp: &MockIdp, query: &HashMap<String, String>) {
+        let client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::none())
+            .build()
+            .expect("an HTTP client");
+        let mut url = url::Url::parse(&format!("{}/authorize", idp.issuer)).expect("a URL");
+        url.query_pairs_mut().extend_pairs(query);
+        let answer = client.get(url).send().await.expect("visit the provider");
+        assert!(answer.status().is_redirection(), "{}", answer.status());
+    }
+
+    async fn start_reauth(
+        test: &TestApp,
+        idp: &MockIdp,
+        browser: &mut Browser,
+    ) -> HashMap<String, String> {
+        start_reauth_on(&test.app, idp, browser).await
+    }
+
+    /// `DELETE /api/v1/me` with the provider re-authentication as proof.
+    async fn delete_with_reauth_on(app: &Arc<App>, browser: &mut Browser) -> Reply {
+        browser
+            .send_to(
+                app,
+                "DELETE",
+                "/api/v1/me",
+                Payload::Json(json!({"oidc_reauth": true})),
+            )
+            .await
+    }
+
+    async fn delete_with_reauth(test: &TestApp, browser: &mut Browser) -> Reply {
+        delete_with_reauth_on(&test.app, browser).await
+    }
+
+    async fn user_count(test: &TestApp, id: &str) -> i64 {
+        sqlx::query_scalar("SELECT count(*) FROM users WHERE id = $1")
+            .bind(id)
+            .fetch_one(test.app.accounts().executor())
+            .await
+            .expect("count")
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_fresh_provider_reauthentication_deletes_an_oidc_only_account() {
+        // Arrange
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_OK").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        let session = browser.cookie(COOKIE).expect("a session").to_string();
+
+        // Act: the browser follows the authorize URL to the mock, an honest
+        // provider that re-authenticates because `max_age=0` asked it to and
+        // says so in `auth_time`.
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        visit_authorize(&idp, &query).await;
+        let back = callback(&test, &mut browser, &query["state"]).await;
+        let kept = user_count(&test, &id).await;
+        let session_after = browser.cookie(COOKIE).map(str::to_string);
+        let deleted = delete_with_reauth(&test, &mut browser).await;
+
+        // Assert: the provider was asked to authenticate again, the
+        // callback only came back to the account page (no session, no
+        // link), and the deletion went through.
+        assert_eq!(query["prompt"], "login");
+        assert_eq!(query["max_age"], "0");
+        let asked = idp.authorizations();
+        assert_eq!(asked.len(), 1, "one visit to the provider");
+        assert_eq!(asked[0]["prompt"], "login");
+        assert_eq!(asked[0]["max_age"], "0");
+        assert_eq!(back.status, StatusCode::SEE_OTHER, "{}", back.text());
+        assert_eq!(back.location(), "/ui/#/account");
+        assert!(back.set_cookie(COOKIE).is_none(), "no session cookie");
+        assert_eq!(session_after.as_deref(), Some(session.as_str()));
+        assert_eq!(kept, 1, "the callback deleted nothing");
+        assert_eq!(deleted.status, StatusCode::NO_CONTENT, "{}", deleted.text());
+        assert_eq!(user_count(&test, &id).await, 0);
+        let left: i64 = sqlx::query_scalar(
+            "SELECT (SELECT count(*) FROM user_identities WHERE user_id = $1) \
+                  + (SELECT count(*) FROM user_sessions WHERE user_id = $1)",
+        )
+        .bind(&id)
+        .fetch_one(test.app.accounts().executor())
+        .await
+        .expect("count");
+        assert_eq!(left, 0);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_sign_in_start_never_asks_for_a_fresh_login() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_PLAIN").await;
+        let mut browser = Browser::default();
+
+        let query = start(&test, &idp, &mut browser).await;
+
+        assert!(!query.contains_key("prompt"), "{query:?}");
+        assert!(!query.contains_key("max_age"), "{query:?}");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_missing_stale_or_future_auth_time_is_refused_and_keeps_the_account() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_TIME").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        let window = i64::try_from(REAUTH_AUTH_TIME_WINDOW.as_secs()).expect("seconds");
+
+        for (what, auth_time) in [
+            (
+                "no auth_time (a provider that ignored max_age)",
+                AuthTime::Absent,
+            ),
+            ("just past the window", ago(window + 30)),
+            ("an hour old", ago(3600)),
+            ("in the future", ago(-600)),
+        ] {
+            idp.will_authenticate(auth_time);
+            let query = start_reauth(&test, &idp, &mut browser).await;
+            let back = callback(&test, &mut browser, &query["state"]).await;
+            let deleted = delete_with_reauth(&test, &mut browser).await;
+
+            // The provider's answer was genuine but not fresh: back to the
+            // account page, with nothing signed in or linked.
+            assert_eq!(
+                back.status,
+                StatusCode::SEE_OTHER,
+                "{what}: {}",
+                back.text()
+            );
+            assert!(back.set_cookie(COOKIE).is_none(), "{what}");
+            // The deletion says why, with its own kind, and names the
+            // provider by label only.
+            assert_eq!(
+                deleted.status,
+                StatusCode::FORBIDDEN,
+                "{what}: {}",
+                deleted.text()
+            );
+            let body = deleted.json();
+            assert_eq!(body["error"], "ReauthStale", "{what}");
+            let message = body["message"].as_str().expect("a message");
+            assert!(message.contains("Example ID"), "{what}: {message}");
+            assert!(message.contains("sign out of Example ID"), "{what}");
+            for secret in [idp.issuer.as_str(), "sub-1"] {
+                assert!(!message.contains(secret), "{what}: {message}");
+            }
+            assert_eq!(user_count(&test, &id).await, 1, "{what}");
+            // One use: the next attempt has nothing waiting.
+            let again = delete_with_reauth(&test, &mut browser).await;
+            assert_eq!(again.status, StatusCode::GONE, "{what}");
+        }
+        // A refused re-authentication is not a failed sign-in.
+        let events: i64 = sqlx::query_scalar("SELECT count(*) FROM sign_in_events")
+            .fetch_one(test.app.accounts().executor())
+            .await
+            .expect("count");
+        assert_eq!(events, 0);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_token_for_another_identity_is_refused_even_a_linked_one() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_OTHER").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        let bob = user_with_password(&test, "bob", "bob@example.com", None).await;
+        identities::link(
+            test.app.accounts().executor(),
+            &bob.id,
+            "example",
+            "sub-2",
+            "bob@example.com",
+            Utc::now(),
+        )
+        .await
+        .expect("link bob's identity");
+
+        // bob's identity (linked to a user), and one nobody has linked.
+        for subject in ["sub-2", "sub-9"] {
+            idp.will_issue(subject, Some("alice@example.com"), Some(true));
+            idp.will_authenticate(ago(5));
+            let query = start_reauth(&test, &idp, &mut browser).await;
+            let back = callback(&test, &mut browser, &query["state"]).await;
+            let deleted = delete_with_reauth(&test, &mut browser).await;
+
+            assert_eq!(
+                back.status,
+                StatusCode::BAD_REQUEST,
+                "{subject}: {}",
+                back.text()
+            );
+            assert!(back.text().contains(REAUTH_RETRY), "{subject}");
+            assert_eq!(deleted.status, StatusCode::GONE, "{subject}");
+        }
+        assert_eq!(user_count(&test, &id).await, 1);
+        assert_eq!(user_count(&test, &bob.id).await, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_used_proof_cannot_be_replayed_and_an_expired_one_is_gone() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_REPLAY").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(5));
+        // A rule of the deletion refuses it once: her personal team owns a
+        // catalog.
+        sqlx::query(
+            "UPDATE catalogs SET owner_team_id = (SELECT id FROM teams WHERE name = 'alice') \
+             WHERE name = 'main'",
+        )
+        .execute(test.app.accounts().executor())
+        .await
+        .expect("give alice's team main");
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+
+        let refused = delete_with_reauth(&test, &mut browser).await;
+        sqlx::query("UPDATE catalogs SET owner_team_id = NULL WHERE name = 'main'")
+            .execute(test.app.accounts().executor())
+            .await
+            .expect("take it back");
+        let replayed = delete_with_reauth(&test, &mut browser).await;
+
+        // The refusal used the proof up: the replay finds none.
+        assert_eq!(refused.status, StatusCode::CONFLICT, "{}", refused.text());
+        assert_eq!(replayed.status, StatusCode::GONE, "{}", replayed.text());
+        assert_eq!(user_count(&test, &id).await, 1);
+
+        // A new proof works; one that waited past its lifetime does not.
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        let oidc = test.app.oidc().expect("OIDC is on");
+        let hash = crate::oidc::session_hash(browser.cookie(COOKIE).expect("a session"));
+        let late = Instant::now() + REAUTH_PROOF_TTL + Duration::from_secs(1);
+        assert!(oidc
+            .take_reauth_proof(&hash, late)
+            .await
+            .expect("take")
+            .is_none());
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        let deleted = delete_with_reauth(&test, &mut browser).await;
+        assert_eq!(deleted.status, StatusCode::NO_CONTENT, "{}", deleted.text());
+        assert_eq!(user_count(&test, &id).await, 0);
+    }
+
+    /// Re-authenticates in S1 and S2 of one user on `start_on` and
+    /// `finish_on`: S2 can neither finish S1's flow nor spend S1's proof.
+    async fn a_reauthentication_belongs_to_the_session_that_started_it(
+        test: &TestApp,
+        start_on: &Arc<App>,
+        finish_on: &Arc<App>,
+        idp: &MockIdp,
+    ) {
+        let (id, mut s1) = oidc_only_alice(test, idp).await;
+        let mut s2 = Browser::session_for(test, "alice").await;
+        idp.will_authenticate(ago(5));
+
+        // S1's flow cookie beside S2's session.
+        let query = start_reauth_on(start_on, idp, &mut s1).await;
+        let flow = s1.cookie(FLOW_COOKIE).expect("a flow").to_string();
+        let mut crossed = Browser::with_cookie(COOKIE, s2.cookie(COOKIE).expect("S2"));
+        crossed.add_cookie(FLOW_COOKIE, &flow);
+        let refused = callback_on(finish_on, &mut crossed, &query["state"]).await;
+        // S1 finishes it; S2 then tries to spend S1's proof.
+        let query = start_reauth_on(start_on, idp, &mut s1).await;
+        let done = callback_on(finish_on, &mut s1, &query["state"]).await;
+        let from_s2 = delete_with_reauth_on(finish_on, &mut s2).await;
+        let from_s1 = delete_with_reauth_on(start_on, &mut s1).await;
+
+        assert_eq!(
+            refused.status,
+            StatusCode::BAD_REQUEST,
+            "{}",
+            refused.text()
+        );
+        assert!(refused.text().contains(REAUTH_RETRY));
+        assert_eq!(done.status, StatusCode::SEE_OTHER, "{}", done.text());
+        assert_eq!(from_s2.status, StatusCode::GONE, "{}", from_s2.text());
+        // S1's proof was still there for S1.
+        assert_eq!(from_s1.status, StatusCode::NO_CONTENT, "{}", from_s1.text());
+        assert_eq!(user_count(test, &id).await, 0);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_reauthentication_belongs_to_the_session_that_started_it_in_memory() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_SESSION").await;
+        a_reauthentication_belongs_to_the_session_that_started_it(
+            &test, &test.app, &test.app, &idp,
+        )
+        .await;
+    }
+
+    async fn a_reauthentication_belongs_to_its_session_across_replicas(redis: TestRedis) {
+        let idp = idp::start().await;
+        let (a, b, _redis) = oidc_pair(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_REPLICAS", redis).await;
+        a_reauthentication_belongs_to_the_session_that_started_it(&a, &a.app, &b, &idp).await;
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_sign_in_callback_never_satisfies_the_deletion() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_LOGIN").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        // The sign-in's token even carries a brand new auth_time.
+        idp.will_authenticate(ago(0));
+
+        let query = start(&test, &idp, &mut browser).await;
+        let signed_in = callback(&test, &mut browser, &query["state"]).await;
+        // The console reads its new session's CSRF token from the session.
+        let session = browser
+            .send(&test, "GET", "/api/v1/session", Payload::Empty)
+            .await;
+        browser.csrf = Some(
+            session.json()["csrf"]
+                .as_str()
+                .expect("a token")
+                .to_string(),
+        );
+        let deleted = delete_with_reauth(&test, &mut browser).await;
+
+        assert_eq!(
+            signed_in.status,
+            StatusCode::SEE_OTHER,
+            "{}",
+            signed_in.text()
+        );
+        assert!(signed_in.set_cookie(COOKIE).is_some(), "a sign-in");
+        assert_eq!(deleted.status, StatusCode::GONE, "{}", deleted.text());
+        assert_eq!(user_count(&test, &id).await, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_reauthentication_callback_never_signs_in_or_links() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_NOLOGIN").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(5));
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        let flow = browser.cookie(FLOW_COOKIE).expect("a flow").to_string();
+
+        // The flow cookie without alice's session: not a sign-in either.
+        let mut bare = Browser::with_cookie(FLOW_COOKIE, &flow);
+        let refused = callback(&test, &mut bare, &query["state"]).await;
+
+        assert_eq!(
+            refused.status,
+            StatusCode::BAD_REQUEST,
+            "{}",
+            refused.text()
+        );
+        assert!(refused.set_cookie(COOKIE).is_none());
+        assert_eq!(bare.cookie(COOKIE), None);
+        assert_eq!(sessions_of(test.app.accounts().executor(), &id).await, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn starting_a_reauthentication_needs_a_console_session_and_a_linked_identity() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_START").await;
+        let keys = keys(&test).await;
+        let uri = "/api/v1/me/identities/example/reauth";
+        user_with_password(&test, "bob", "bob@example.com", Some(PASSWORD)).await;
+        let mut bob = Browser::signed_in(&test, "bob@example.com", PASSWORD).await;
+        let (_, mut alice) = oidc_only_alice(&test, &idp).await;
+
+        let mut anonymous = Browser::default();
+        let anonymous = anonymous
+            .send(&test, "POST", uri, Payload::Json(json!({})))
+            .await;
+        let (bearer, _) =
+            crate::http::api::testing::send(&test, "POST", uri, Some(&keys.admin), Some(json!({})))
+                .await;
+        // bob links nothing at the provider; no provider is called "nope".
+        let unlinked = bob.send(&test, "POST", uri, Payload::Json(json!({}))).await;
+        let unknown = alice
+            .send(
+                &test,
+                "POST",
+                "/api/v1/me/identities/nope/reauth",
+                Payload::Json(json!({})),
+            )
+            .await;
+
+        assert_eq!(anonymous.status, StatusCode::UNAUTHORIZED);
+        assert_eq!(bearer.as_u16(), 403);
+        assert_eq!(
+            unlinked.status,
+            StatusCode::NOT_FOUND,
+            "{}",
+            unlinked.text()
+        );
+        assert_eq!(unknown.status, StatusCode::NOT_FOUND, "{}", unknown.text());
+    }
+
+    #[test]
+    fn the_auth_time_window_is_five_minutes_and_a_reauth_proof_lives_that_long() {
+        assert_eq!(REAUTH_AUTH_TIME_WINDOW, Duration::from_secs(300));
+        assert_eq!(REAUTH_PROOF_TTL, Duration::from_secs(300));
     }
 
     #[tokio::test(flavor = "multi_thread")]
@@ -2051,6 +2763,7 @@ mod tests {
         a_link_flow_replaces_the_sessions_previous_one_across_replicas,
         no_raw_session_id_reaches_redis,
         a_link_flow_finishes_only_in_its_session_across_replicas,
+        a_reauthentication_belongs_to_its_session_across_replicas,
         a_redis_outage_fails_closed_and_keeps_the_flow_cookie,
         a_flow_refused_by_redis_finishes_once_redis_answers_again,
         a_failed_link_index_swap_removes_the_stored_flow,

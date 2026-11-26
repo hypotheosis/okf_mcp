@@ -61,6 +61,8 @@ pub enum Keyspace {
     OauthCode,
     /// OIDC sign-in and link flows.
     OidcFlow,
+    /// Finished OIDC re-authentications waiting for an account deletion.
+    OidcReauth,
     /// Passkey registration and sign-in ceremonies.
     PasskeyCeremony,
 }
@@ -69,7 +71,8 @@ impl Keyspace {
     /// The key-name part.
     ///
     /// # Returns
-    /// `oauth:pending`, `oauth:code`, `oidc:flow` or `passkey:ceremony`.
+    /// `oauth:pending`, `oauth:code`, `oidc:flow`, `oidc:reauth` or
+    /// `passkey:ceremony`.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(
@@ -82,6 +85,7 @@ impl Keyspace {
             Self::OauthPending => "oauth:pending",
             Self::OauthCode => "oauth:code",
             Self::OidcFlow => "oidc:flow",
+            Self::OidcReauth => "oidc:reauth",
             Self::PasskeyCeremony => "passkey:ceremony",
         }
     }
@@ -101,7 +105,11 @@ impl Keyspace {
     pub fn version(self) -> u32 {
         // No `_` arm: a new key space fails to compile until it has a version.
         match self {
-            Self::OauthPending | Self::OauthCode | Self::OidcFlow | Self::PasskeyCeremony => 1,
+            Self::OauthPending
+            | Self::OauthCode
+            | Self::OidcFlow
+            | Self::OidcReauth
+            | Self::PasskeyCeremony => 1,
         }
     }
 }
@@ -1166,6 +1174,7 @@ mod tests {
             Keyspace::OauthPending,
             Keyspace::OauthCode,
             Keyspace::OidcFlow,
+            Keyspace::OidcReauth,
             Keyspace::PasskeyCeremony,
         ];
         let names: std::collections::HashSet<_> = spaces.iter().map(|s| s.name()).collect();

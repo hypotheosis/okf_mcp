@@ -706,7 +706,8 @@ session id: the keys and values that refer to one hold its hash.
 | `{p}oauth:pending:h(id)` | A consent page in progress | 10 minutes, fixed |
 | `{p}oauth:code:h(h(code))` (the server's own hash of the code, hashed again by the store) | An authorization code | 60 seconds, fixed. A used code stays until then, so a second use is seen as a replay and the token family is revoked |
 | `{p}oauth:access-revocations` | A counter of access-token revocations | None |
-| `{p}oidc:flow:h(cookie)` | An OIDC sign-in or link flow | 10 minutes, fixed |
+| `{p}oidc:flow:h(cookie)` | An OIDC sign-in, link or re-authentication flow | 10 minutes, fixed |
+| `{p}oidc:reauth:h(<hash of the console session id>)` | A finished OIDC re-authentication waiting for `DELETE /api/v1/me` | 5 minutes, fixed; taken once |
 | `{p}oidc:link:<hash of the console session id>` | Which flow that console session has in progress | 10 minutes, renewed on use |
 | `{p}passkey:ceremony:h(cookie)` | A passkey registration or sign-in ceremony | 5 minutes, fixed |
 | `{p}passkey:session:<hash of the console session id>` | Which ceremony that console session has in progress | 5 minutes, renewed on use |
@@ -2863,11 +2864,49 @@ again that it is them, in the same request:
   the account's passkeys can answer; the ceremony is single use, bound to
   the 5-minute `okf_passkey` cookie and to this session).
 
-An account with neither a password nor a passkey (only a linked OIDC
-account) cannot confirm, and the page says to set a password or add a
-passkey first. The page draws no deletion control until it has read the
-account, since the confirmation asks you to type its ID. A key or OAuth token is refused (403): only a console session
-may delete its account.
+- with a fresh re-authentication at a linked OIDC provider, for a person
+  whose only sign-in method is a linked account (issue #775). The page's
+  "Re-authenticate with <provider>" button runs
+  `POST /api/v1/me/identities/{provider}/reauth`, which sends the browser to
+  the provider with `prompt=login` and `max_age=0`. The callback (the same
+  `/auth/oidc/{provider}/callback` route) verifies the ID token as a
+  sign-in does (signature, issuer, audience, nonce, expiry), and the
+  token must also carry an **`auth_time` claim no more than 5 minutes
+  before the callback** (and at most a minute ahead of the server's clock,
+  for skew); a token with no `auth_time`, or an older one, is not accepted
+  as a proof (see below for what the person is told). So a
+  provider that ignores `max_age` is accepted only if the person really did
+  authenticate within those 5 minutes; one that never sends `auth_time`
+  cannot be used for deletion at all. The window is fixed in the server
+  (`REAUTH_AUTH_TIME_WINDOW`), not configurable. The token's subject must be
+  the one the person linked at that provider when the flow started. The
+  callback creates no session, links nothing and records no sign-in: it only
+  keeps a proof for this console session, valid for 5 minutes and taken
+  once by `DELETE /api/v1/me` with `{"oidc_reauth": true}`. A sign-in or
+  link callback never makes one, and a callback finished in another
+  browser or session is refused (400). The flow shares the link starts'
+  allowance (10 in a burst, then one a minute). With Redis the proof lives
+  in the `oidc:reauth` key space, so any replica can finish and spend it.
+- **A provider that did not vouch for a fresh sign-in.** When the token is
+  genuine (it passed every other check) but its `auth_time` is missing, too
+  old or in the future, the callback still returns to the Account page and
+  keeps a marker for this session instead of a proof. The next
+  `DELETE /api/v1/me` with `{"oidc_reauth": true}` then answers **403 with
+  `"error": "ReauthStale"`** (a kind of its own, distinct from `Forbidden`),
+  spends the marker, and says: "`<label>` did not confirm a fresh sign-in, so
+  the account cannot be deleted yet; sign out of `<label>`, sign back in,
+  then try again." `<label>` is the provider's configured display label,
+  never the issuer, the subject or token details. The Account page shows
+  that text with a "Try again" button. Every other refusal (another
+  identity, a used or expired proof, another session's proof) stays generic
+  and never says this.
+
+The page offers each way the account has. An account with no password, no
+passkey and no linked account at a configured provider cannot confirm, and
+the page says to set a password, add a passkey or link an account first. The
+page draws no deletion control until it has read the account, since the
+confirmation asks you to type its ID. A key or OAuth token is refused (403):
+only a console session may delete its account.
 
 The deletion is the same one an admin's `DELETE /api/v1/users/{name}` runs
 ([Deletion rules](#deletion-rules)), in one transaction under the user's
@@ -2875,9 +2914,10 @@ row lock: keys and OAuth grants (revoked ones too), sign-in codes, every
 console session, passkeys, linked identities, emailed links, entitlements,
 team memberships and the personal team all go, or nothing does. Under that
 lock it also checks that this session is still in force, and that the
-password is still the one typed or the passkey is still the account's, so
-a reset, password change, passkey removal or sign-out that commits first
-refuses the deletion. It is recorded as `user.deleted`, with the person as
+password is still the one typed, the passkey is still the account's or the
+re-authenticated identity is still linked to it, so a reset, password
+change, passkey removal, unlink or sign-out that commits first refuses the
+deletion. A refused deletion still uses the proof up; re-authenticate again. It is recorded as `user.deleted`, with the person as
 the actor (the log then names them `deleted user #N`, as for any deleted
 user). The refusals are the deletion rules': the last admin user, a
 personal team that owns a catalog, and the only owner of a shared team are
@@ -2977,8 +3017,12 @@ holding the session that started the link, and returns to `/ui/#/account`.
 Each user may start 10 links in a burst, then one a minute. A user links
 at most one account per provider, and an account linked to another user
 cannot be linked (409). Unlinking is refused for the last sign-in method
-(409). The Settings page lists the providers (id, label, issuer), never a
-secret. Changing a provider's `id` orphans its linked identities.
+(409). A person whose only sign-in method is a linked account can
+re-authenticate at the provider to delete their account
+([Deleting your own account](#deleting-your-own-account)): the same callback,
+a flow of its own kind that signs nobody in and requires an `auth_time` no
+more than 5 minutes old. The Settings page lists the providers (id, label,
+issuer), never a secret. Changing a provider's `id` orphans its linked identities.
 
 ### Mail
 
@@ -4183,7 +4227,7 @@ does. Limits are in [Signing in and self-service](#signing-in-and-self-service).
 | `GET /api/v1/me/ceiling` | console session, or a key that belongs to a user | `?prefix=&after=&limit=`: one page of the user's ceiling, `{ceiling: [{catalog, access}], next}`, by catalog name in byte order; `prefix` (trimmed, lowercased) keeps the names that start with it, and one no name can start with finds nothing; `next` is present when more follow (send it back as `after`); `limit` is 100 by default, at most 1000. Each page is one bounded read: no request reads the whole ceiling. 400 for a malformed `after`, 404 for a key without a user |
 | `GET /api/v1/me/keys` | console session | `{keys, ceiling}`: the user's keys, revoked and expired ones included, as `GET /api/v1/keys` shows them (with `catalog_access`, `expires_at`, `self_issued`), and the ceiling on the catalogs its live self-issued keys name (`{catalog: "read"\|"write"}`; a catalog left out is outside it) |
 | `POST /api/v1/me/keys` | console session | Body `{name, catalogs: [{catalog, access}], default_catalog, actor, expires_at}` (`actor` defaults to `name`; `expires_at` RFC 3339, and absent means the lifetime limit, or none). Answers `{key, secret}`, the secret once. 400 for no catalogs, a repeated catalog, an unknown level, or a malformed or past expiry; 409 for a bad or taken name or a default that is not one of `catalogs`; 422 above the ceiling (`admin` included), past the key limit or the lifetime limit (`limit` is `ceiling`, `max_keys_per_user` or `max_key_lifetime`), or for an unknown field such as `all`, `user` or `maintenance_report` |
-| `DELETE /api/v1/me` | console session | Deletes your own account ([Deleting your own account](#deleting-your-own-account)). Body `{password}` or `{passkey}` (the browser's answer to `POST /api/v1/me/passkeys/confirm/start`), exactly one. 204, clearing the session cookie and any `okf_passkey` ceremony cookie, whichever proof was used. 400 for neither or both; 403 for a key or token, a wrong password, a locked account, a passkey that does not verify, another session's ceremony, or a password or passkey changed meanwhile (never 401, which the console reads as signed out); 401 once this session has ended; 404 for a passkey while passkeys are off; 409 for a refusal of the deletion rules (the last admin user, a personal team owning a catalog, the only owner of a shared team); 410 for an expired or used passkey ceremony |
+| `DELETE /api/v1/me` | console session | Deletes your own account ([Deleting your own account](#deleting-your-own-account)). Body `{password}`, `{passkey}` (the browser's answer to `POST /api/v1/me/passkeys/confirm/start`) or `{oidc_reauth: true}` (the provider re-authentication `POST /api/v1/me/identities/{provider}/reauth` and its callback finished for this session, single use, 5 minutes; its ID token needed an `auth_time` within 5 minutes of the callback), exactly one. 204, clearing the session cookie and any `okf_passkey` ceremony cookie, whichever proof was used. 400 for none or more than one; 403 for a key or token, a wrong password, a locked account, a passkey that does not verify, another session's ceremony or re-authentication, `"error": "ReauthStale"` when the provider's `auth_time` was missing or not fresh (the message tells the person to sign out of the provider, sign back in and try again), or a password, passkey or linked identity changed meanwhile (never 401, which the console reads as signed out); 401 once this session has ended; 404 for a passkey while passkeys are off, or a re-authentication while OIDC is off; 409 for a refusal of the deletion rules (the last admin user, a personal team owning a catalog, the only owner of a shared team); 410 for an expired or used passkey ceremony, or a provider re-authentication that was never finished, expired or was used |
 | `PATCH /api/v1/me/keys/{id}` | console session | Body `{name}`. Renames a live key; answers its view. 409 for a bad or taken name or a revoked key |
 | `DELETE /api/v1/me/keys/{id}` | console session | Revokes it (the row stays, revoked); answers its view. 409 if already revoked |
 | `GET /api/v1/me/grants` | console session | `{grants, ceiling}`: the user's OAuth grants, revoked ones included, as key views (`client_name`, `catalog_access`, `self_issued`, `revoked_at`, ...), and the ceiling on the catalogs its live self-issued grants name, as for `/me/keys` |
@@ -4197,6 +4241,7 @@ does. Limits are in [Signing in and self-service](#signing-in-and-self-service).
 | `DELETE /api/v1/me/passkeys/{id}` | console session | Removes it; 204. 409 for the last sign-in method |
 | `GET /api/v1/me/identities` | console session | `{identities, providers}`: the linked identities (`provider`, `email_at_link`, `created_at`, `last_used_at`; never the subject) and the configured providers (`id`, `label`) |
 | `POST /api/v1/me/identities/{provider}/link` | console session | Body `{keep_sessions}`. Starts linking: answers `{url}`, the provider's sign-in URL (the flow cookie is set); the callback links the identity and returns to `/ui/#/account`. 404 for an unknown provider or with no providers, 429 past the per-user allowance, 503 when the provider cannot be reached |
+| `POST /api/v1/me/identities/{provider}/reauth` | console session | Starts re-authenticating at the provider where you have an identity linked, to delete your account: answers `{url}`, the provider's sign-in URL with `prompt=login` and `max_age=0` (the flow cookie is set). The callback verifies the ID token (it must carry an `auth_time` within 5 minutes, and the subject you linked), keeps a single-use proof for this session for 5 minutes and returns to `/ui/#/account`; it never signs in or links. 404 for an unknown provider, with OIDC off, or when you have no identity linked there; 429 past the per-user allowance shared with link starts, 503 when the provider cannot be reached |
 | `DELETE /api/v1/me/identities/{provider}` | console session | Unlinks it; 204. 404 when none is linked there, 409 for the last sign-in method |
 | `GET /api/v1/me/sessions` | console session | `{sessions}`, most recently used first: `id_prefix` (12 hex characters, never the id), `created_at`, `last_seen_at`, `ip`, `user_agent`, `current` (this browser's) |
 | `DELETE /api/v1/me/sessions/{id_prefix}` | console session | Signs one session out, this browser's included; 204. 404 for a malformed prefix or one none of the user's sessions has; 409 for one several share (none is ended) |

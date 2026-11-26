@@ -699,7 +699,9 @@ struct SetupFinish {
 /// `POST /auth/passkey/setup/finish`: stores the passkey, uses the link and
 /// signs in, all in one transaction, so a failure anywhere leaves the link
 /// usable and no passkey or session behind. Answers
-/// `{"redirect": <return_to>}`.
+/// `{"redirect": <destination>}`, where the destination is
+/// [`after_setup`]'s: the `onboarding_url` setting, an OAuth continuation,
+/// or the ceremony's `return_to`.
 ///
 /// # Errors
 /// 403 from another site; 410 for an expired ceremony, a used link, or a

@@ -19,6 +19,7 @@ import { ago, when } from '../core/format.js';
 import { freshAccount, refreshIdentity, requireSession, signedOut } from '../core/shell.js';
 import { catalogLabel, named, teamLabel } from '../core/labels.js';
 import { guard, once } from '../core/pending.js';
+import { latest } from '../core/latest.js';
 import { listTable } from '../components/list-table.js';
 import { confirmDialog } from '../components/confirm.js';
 import { accessPill } from '../components/levels.js';
@@ -54,6 +55,10 @@ export async function render(main) {
     // password) and how many passkeys it has, each set by its own read;
     // `null` until that read answers. `deleteRefusal` is the last refusal's
     // reason, kept across redraws until the next attempt.
+    // One counter per list: a read that a newer one overtook draws nothing.
+    const passkeyReads = latest(main);
+    const identityReads = latest(main);
+    const sessionReads = latest(main);
     let deleteAccount = null;
     let deletePasskeys = null;
     let deleteRefusal = null;
@@ -201,9 +206,10 @@ export async function render(main) {
     }
 
     async function drawPasskeys() {
+        const current = passkeyReads();
         let list;
         try { ({ passkeys: list } = await api.get('/me/passkeys')); } catch { return; }
-        if (!main.isConnected) return;
+        if (!current()) return;
         deletePasskeys = list.length;
         drawDelete();
         const name = h('input', { id: 'passkey-name', 'aria-label': 'A name for the new passkey',
@@ -291,8 +297,9 @@ export async function render(main) {
     async function drawIdentities() {
         let linked;
         let providers;
+        const current = identityReads();
         try { ({ identities: linked, providers } = await api.get('/me/identities')); } catch { return; }
-        if (!main.isConnected) return;
+        if (!current()) return;
         const label = id => providers.find(provider => provider.id === id)?.label ?? id;
         const held = new Set(linked.map(identity => identity.provider));
         deleteReauth = linked
@@ -342,9 +349,10 @@ export async function render(main) {
     }
 
     async function drawSessions() {
+        const current = sessionReads();
         let list;
         try { ({ sessions: list } = await api.get('/me/sessions')); } catch { return; }
-        if (!main.isConnected) return;
+        if (!current()) return;
         // One Sign out per session (Task 10b has no "all others" route).
         // This browser's own signs the console out once the server ended it.
         fill(sessions.body,

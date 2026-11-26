@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "c1db56b3fecb54314b872d12657fb1c1e0330c97bb5bfd8fbbba94a1d2c70acb"
   },
-  "next_evidence_seq": 2386,
+  "next_evidence_seq": 2387,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b36c97dd493f015f7ec1e26a3eb22a7b501a29dd05610a850c7cf2574e43ce76"
+    "mac": "0ffe770dae04fd1ff2edf93da85fb30c6d3c5439fcfc9d45b7cf6edc04437c28"
   },
   "claims": [
     {
@@ -129783,6 +129783,28 @@
             "by": "server",
             "mac": "216091d3aeb794aeb935126c0f365b2b1a675e52b0149534e562454477750bdf"
           }
+        },
+        {
+          "id": "EVD-2386",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (tests/ui_e2e/browser_home.rs a_setpriv_without_pdeathsig_takes_the_direct_launch, no_setpriv_takes_the_direct_launch)",
+          "summary": "The launcher probes `setpriv --pdeathsig KILL true` before using it; a fake setpriv that answers --version but rejects --pdeathsig, and a PATH with no setpriv, both launch the browser directly (7 tests passed; the fake-setpriv test fails when the probe is removed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 105,
+                "end": 126
+              },
+              "commit": "747d1bee19e7ef3e3e74e4d8257d65ce18c83c1d"
+            }
+          },
+          "recorded_at": "2026-11-26T06:45:18.970095692Z",
+          "seal": {
+            "by": "server",
+            "mac": "01403462f498956ee6c0708c980eed4875d51d9c5681dcb71777986356ba8457"
+          }
         }
       ],
       "verdicts": [
@@ -129798,13 +129820,26 @@
             "by": "server",
             "mac": "edebcd84b22aba475e89111d4cf22bcd0506ca0513fe608c8bd91c28ab373af1"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "After review round 1 the launcher probes setpriv --pdeathsig before use; regression tests cover a setpriv lacking --pdeathsig and a PATH without setpriv.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2386"
+          ],
+          "recorded_at": "2026-11-26T06:45:27.220206230Z",
+          "seal": {
+            "by": "server",
+            "mac": "c793fde51bf44f68a4a76372488a6bbaf2218c994d59254a3cc7dd5aec0bcf46"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T06:24:29.031267732Z",
+      "updated_at": "2026-11-26T06:45:27.220206230Z",
       "seal": {
         "by": "server",
-        "mac": "c0e6b57d42b62f981e281f9102da698178aae5b09c2b5aaebfec8a5c4c5e1eb7"
+        "mac": "83b9163c60dea93a831f84a57d8a1a3b98278f1e9f3f9402accaf326682ddd61"
       }
     },
     {

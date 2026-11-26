@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::auth::CredentialKind;
 use crate::error::OkfError;
-use crate::mail::feedback::{self, Draft, FeedbackOrigin, Sender, MAX_CLIENT_CHARS};
+use crate::mail::feedback::{self, Caller, Draft, FeedbackOrigin, Sender, MAX_CLIENT_CHARS};
 use crate::mcp::context::ToolContext;
 use crate::mcp::{reply, OkfServer};
 
@@ -160,6 +160,7 @@ pub(crate) async fn send(
         registered: principal.user.is_some(),
         client: &client,
         credential_kind,
+        caller: Caller::Credential,
     };
     let draft = Draft {
         message: &params.message,
@@ -520,6 +521,12 @@ mod tests {
         assert_eq!(error.kind(), "LimitExceeded");
         assert_eq!(error.to_json()["limit"], "feedback_rate");
         assert!(error.to_string().contains("try again later"), "{error}");
+        assert!(
+            error
+                .to_string()
+                .contains("this credential has sent 2 feedback"),
+            "{error}"
+        );
     }
 
     /// Serves `test`'s app on loopback with a `read` key of the fixture

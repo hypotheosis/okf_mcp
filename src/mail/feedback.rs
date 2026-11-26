@@ -244,6 +244,35 @@ pub struct NewFeedback<'a> {
     pub client: &'a str,
     /// `api_key`, `oauth` or `session` (the console).
     pub credential_kind: &'static str,
+    /// Whom the rate limit's refusal addresses.
+    pub caller: Caller,
+}
+
+/// Who the rate limit counts, so its refusal can name them: an MCP
+/// credential, or the signed-in person behind the console.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Caller {
+    /// An API key or OAuth token: "this credential has sent ...".
+    Credential,
+    /// A console user, counted across their sessions: "you have sent ...".
+    User,
+}
+
+impl Caller {
+    /// The subject of the rate-limit refusal's first clause.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial accessor or conversion: maps a variant to a string, no I/O"
+        )
+    )]
+    fn subject(self) -> &'static str {
+        match self {
+            Self::Credential => "this credential has",
+            Self::User => "you have",
+        }
+    }
 }
 
 /// Queues one [`QUEUE`] job naming feedback `id`, in the caller's
@@ -332,8 +361,9 @@ pub async fn submit(
         return Err(OkfError::LimitExceeded {
             limit: "feedback_rate",
             reason: format!(
-                "this credential has sent {max_per_hour} feedback messages in the last hour, \
-                 the most allowed; try again later"
+                "{} sent {max_per_hour} feedback messages in the last hour, \
+                 the most allowed; try again later",
+                feedback.caller.subject()
             ),
         });
     }
@@ -424,6 +454,8 @@ pub(crate) struct Sender<'a> {
     pub client: &'a str,
     /// `api_key`, `oauth` or `session`.
     pub credential_kind: &'static str,
+    /// Whom the rate limit's refusal addresses.
+    pub caller: Caller,
 }
 
 /// A submission's fields as the caller gave them, before any check.
@@ -561,6 +593,7 @@ pub(crate) async fn check_and_submit(
         rating,
         client: sender.client,
         credential_kind: sender.credential_kind,
+        caller: sender.caller,
     };
     submit(
         app.accounts().executor(),
@@ -1438,6 +1471,7 @@ pub(crate) mod tests {
             rating: Some(3),
             client: "MCPJam",
             credential_kind: "api_key",
+            caller: Caller::Credential,
         }
     }
 

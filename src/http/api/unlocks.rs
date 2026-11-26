@@ -311,8 +311,6 @@ async fn create_unlock(
     };
     let now = app.clock().now();
     let created = unlocks::create(app.accounts().executor(), &new, &policy, &actor, now).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok((StatusCode::CREATED, Json(UnlockView::of(created, now))))
 }
 
@@ -393,8 +391,6 @@ async fn end_unlock(
     }
     let now = app.clock().now();
     let ended = unlocks::end(app.accounts().executor(), id, &actor, now).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(UnlockView::of(ended, now)))
 }
 

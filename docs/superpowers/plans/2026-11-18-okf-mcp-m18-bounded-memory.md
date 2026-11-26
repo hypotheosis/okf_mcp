@@ -1095,6 +1095,12 @@ Each caller builds its `Wanted` from what it is about to render (the audit page'
 
 ### Task 13: Settings on invalidation, and the M16 bridge (spec Decisions 9, 14)
 
+> **Removed (issue #727, 2026-11-25).** The M16 bridge this task describes
+> (`App::bridge_to_m16`, `announce::{BRIDGE_PAYLOAD, publish_bridge, listen}`,
+> `App::apply_m16_announcement`, the `admin-generation` channel) is deleted. The
+> `admin_generation` counter and its bumps stay: the settings check
+> (`App::revalidate_settings`) reads it. Read the corrections below as history.
+
 > **Corrected (issue #689, 2026-11-19).** Task 11 already renamed `reload_keys_now` to `reload_settings_now` (settings and labels), deleted `reload_moved_keys`' key reload (it is `reload_moved_settings`) and added `App::apply_m16_announcement` (marks the credential caches stale, then `reload_settings_now(false)`), which the `admin_generation` subscriber already calls. Principal assembly reads settings in one place, `App::access_view()`: make it use `fresh_settings`. The settings test should assemble through `app.find_key`, not `credentials.find`.
 
 **Files:** Modify `src/app.rs`, `src/invalidate.rs`, `src/shared/announce.rs`, `src/http/api/mod.rs`, `src/cache/credentials.rs` and the request extractors (`fresh_settings` per request), `tests/multi_replica.rs`.

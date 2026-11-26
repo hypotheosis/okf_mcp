@@ -986,8 +986,6 @@ async fn update_account(
         app.clock().now(),
     )
     .await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(account_view(&app, &principal).await?))
 }
 
@@ -1089,8 +1087,6 @@ async fn create_key(
         { user = %user.name, },
         "self-issued key created"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     let key = own(&app, user, KeyKind::Key, &created.id).await?;
     Ok(Json(CreatedKeyView {
         key: key.into(),
@@ -1206,8 +1202,6 @@ async fn revoke_own(
         { user = %user.name, },
         "self-service revoke"
     );
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     Ok(Json(own(app, user, kind, &target.id).await?.into()))
 }
 
@@ -1406,8 +1400,6 @@ async fn delete_account(
         proof,
     };
     let deleted = users::delete_own_on(app.accounts().executor(), &own, &actor, now).await?;
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    app.bridge_to_m16();
     split_event!(
         info,
         { keys = deleted.keys, codes = deleted.codes, },

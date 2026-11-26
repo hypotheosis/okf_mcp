@@ -592,13 +592,6 @@ pub struct MailConfig {
     pub provider: MailProvider,
     /// The From address (`"okf <okf@example.com>"`).
     pub from: String,
-    /// Deprecated and ignored: every `serve` runs the mail worker, so a
-    /// Deployment of several replicas needs no per-pod mail setting (issue
-    /// #458). The key still parses, so a configuration that has it keeps
-    /// starting; [`Config::deprecation_warnings`] names it. The worker's
-    /// pool is shared with the housekeeping worker: up to 3 connections
-    /// beside `database_max_connections`.
-    pub worker: Option<bool>,
     /// The SMTP relay, for `provider = "smtp"`.
     pub smtp: Option<SmtpConfig>,
     /// Postmark, for `provider = "postmark"`.
@@ -619,7 +612,6 @@ impl Default for MailConfig {
         Self {
             provider: MailProvider::Log,
             from: DEFAULT_MAIL_FROM.to_string(),
-            worker: None,
             smtp: None,
             postmark: None,
             ses: None,
@@ -1023,17 +1015,6 @@ pub struct Config {
     /// The catalog a key with no default of its own reads and writes (design
     /// "Catalog selection", step 4).
     pub default_catalog: Option<String>,
-    /// Deprecated and ignored (milestone 18, spec Decision 18): the server no
-    /// longer polls. Changes reach every replica through the change feed,
-    /// with `catalog_ttl` and `credential_ttl` as the backstop. The key
-    /// still parses (`"10s"`), so a configuration that has it keeps
-    /// starting; [`Config::deprecation_warnings`] names it.
-    // `with = "humantime_serde"` parses the field through that module's
-    // functions instead of `Duration`'s own serde impl (which wants
-    // `{secs, nanos}`); it reads `Option<Duration>` too, a missing key
-    // being `None`.
-    #[serde(with = "humantime_serde")]
-    pub poll_interval: Option<Duration>,
     /// How long an MCP session may be idle before it is closed (`"2h"`).
     #[serde(with = "humantime_serde")]
     pub session_idle_timeout: Duration,
@@ -1080,9 +1061,6 @@ pub struct Config {
     /// is dropped (and rebuilt if read again); an overlay larger than the
     /// whole budget is served but not kept.
     pub overlay_cache_bytes: ByteSize,
-    /// Deprecated and ignored: use `overlay_cache_bytes`. Still read so an
-    /// old configuration starts (`deprecation_warnings` names it).
-    pub overlay_cache_size: Option<usize>,
     /// The most memory the catalog snapshots held in this process may take,
     /// as estimated from their stored size (`"1GiB"`, or a number of bytes).
     /// Catalogs load on first use; past the budget, the least recently used
@@ -1150,7 +1128,6 @@ impl Default for Config {
             // `&str` into an owned `String`) without copying it a second time.
             allowed_hosts: Vec::from(DEFAULT_ALLOWED_HOSTS.map(String::from)),
             default_catalog: None,
-            poll_interval: None,
             session_idle_timeout: DEFAULT_SESSION_IDLE_TIMEOUT,
             worker_shutdown_grace: DEFAULT_WORKER_SHUTDOWN_GRACE,
             time_server: None,
@@ -1161,7 +1138,6 @@ impl Default for Config {
             store_idle_timeout: DEFAULT_STORE_IDLE_TIMEOUT,
             store_connect_timeout: DEFAULT_STORE_CONNECT_TIMEOUT,
             overlay_cache_bytes: ByteSize::b(DEFAULT_OVERLAY_CACHE_BYTES),
-            overlay_cache_size: None,
             catalog_cache_bytes: ByteSize::b(DEFAULT_CATALOG_CACHE_BYTES),
             catalog_directory_entries: DEFAULT_CATALOG_DIRECTORY_ENTRIES,
             catalog_ttl: DEFAULT_CATALOG_TTL,
@@ -1238,34 +1214,6 @@ impl Config {
     )]
     pub fn from_toml(text: &str) -> Result<Self, toml::de::Error> {
         toml::from_str(text)
-    }
-
-    /// Settings that are read but no longer do anything. `Config::load` runs
-    /// before the log subscriber exists, so it cannot log them; `serve` calls
-    /// this once the subscriber is up and logs each message as a warning.
-    ///
-    /// # Returns
-    /// One message per deprecated setting present in the file (empty when
-    /// there is none).
-    #[cfg_attr(
-        dylint_lib = "hyp_tracing",
-        allow(
-            uninstrumented_fn,
-            reason = "pure check over the parsed settings, called once at start-up"
-        )
-    )]
-    pub fn deprecation_warnings(&self) -> Vec<&'static str> {
-        let mut warnings = Vec::new();
-        if self.mail.worker.is_some() {
-            warnings.push("mail.worker is deprecated and ignored: every serve runs the worker");
-        }
-        if self.poll_interval.is_some() {
-            warnings.push("poll_interval is deprecated and ignored");
-        }
-        if self.overlay_cache_size.is_some() {
-            warnings.push("overlay_cache_size is deprecated and ignored; set overlay_cache_bytes");
-        }
-        warnings
     }
 
     /// Checks the values serde cannot: ones that would break the server.
@@ -1725,7 +1673,6 @@ mod tests {
         assert_eq!(config.listen.to_string(), "0.0.0.0:8080");
         assert_eq!(config.allowed_hosts, ["localhost", "127.0.0.1", "::1"]);
         assert_eq!(config.default_catalog, None);
-        assert_eq!(config.poll_interval, None);
         assert_eq!(
             config.session_idle_timeout,
             Duration::from_secs(2 * 60 * 60)
@@ -1736,7 +1683,6 @@ mod tests {
         assert_eq!(config.store_idle_timeout, Duration::from_secs(600));
         assert_eq!(config.store_connect_timeout, Duration::from_secs(5));
         assert_eq!(config.overlay_cache_bytes.as_u64(), 256 * 1024 * 1024);
-        assert_eq!(config.overlay_cache_size, None);
         assert_eq!(config.catalog_cache_bytes.as_u64(), 1024 * 1024 * 1024);
         assert_eq!(config.catalog_directory_entries, 100_000);
         assert_eq!(config.catalog_ttl, Duration::from_secs(10));
@@ -1752,7 +1698,6 @@ mod tests {
                     listen = \"127.0.0.1:9000\"\n\
                     allowed_hosts = [\"okf-mcp.example\"]\n\
                     default_catalog = \"pg\"\n\
-                    poll_interval = \"90s\"\n\
                     session_idle_timeout = \"30m\"\n\
                     time_server = \"ntp.example\"\n\
                     concept_outline_chars = 500\n\
@@ -1766,7 +1711,6 @@ mod tests {
         assert_eq!(config.listen.to_string(), "127.0.0.1:9000");
         assert_eq!(config.allowed_hosts, ["okf-mcp.example"]);
         assert_eq!(config.default_catalog.as_deref(), Some("pg"));
-        assert_eq!(config.poll_interval, Some(Duration::from_secs(90)));
         assert_eq!(config.session_idle_timeout, Duration::from_secs(30 * 60));
         assert_eq!(config.time_server.as_deref(), Some("ntp.example"));
         assert_eq!(config.concept_outline_chars, 500);
@@ -2236,52 +2180,22 @@ mod tests {
         assert_eq!(mail, MailConfig::default());
         assert_eq!(mail.provider, MailProvider::Log);
         assert_eq!(mail.from, "okf <okf@localhost>");
-        assert_eq!(mail.worker, None);
-        assert!(Config::default().deprecation_warnings().is_empty());
         assert!(Config::default().validate().is_ok());
     }
 
+    /// The settings removed after milestone 18 (`poll_interval`,
+    /// `overlay_cache_size`, `mail.worker`) are unknown keys now. Neither the
+    /// top level nor `[mail]` denies unknown keys, so a configuration that
+    /// still sets them keeps starting, with the values and without a warning.
     #[test]
-    fn mail_worker_false_parses_with_a_warning_and_is_ignored() {
-        let config = Config::from_toml("[mail]\nworker = false\n").unwrap();
+    fn removed_settings_are_ignored_as_unknown_keys() {
+        let config = Config::from_toml(
+            "poll_interval = \"10s\"\noverlay_cache_size = 0\n[mail]\nworker = false\n",
+        )
+        .unwrap();
 
-        assert_eq!(config.mail.worker, Some(false));
-        assert!(
-            config.validate().is_ok(),
-            "an old configuration still starts"
-        );
-        assert_eq!(
-            config.deprecation_warnings(),
-            ["mail.worker is deprecated and ignored: every serve runs the worker"]
-        );
-    }
-
-    #[test]
-    fn poll_interval_parses_with_a_warning_and_is_ignored() {
-        // A zero interval too: nothing runs on it any more.
-        for text in ["poll_interval = \"10s\"\n", "poll_interval = \"0s\"\n"] {
-            let config = Config::from_toml(text).unwrap();
-
-            assert!(
-                config.validate().is_ok(),
-                "an old configuration still starts"
-            );
-            assert_eq!(
-                config.deprecation_warnings(),
-                ["poll_interval is deprecated and ignored"]
-            );
-        }
-    }
-
-    #[test]
-    fn overlay_cache_size_parses_with_a_warning_and_is_ignored() {
-        let config = Config::from_toml("overlay_cache_size = 0\n").unwrap();
-
-        assert!(config.validate().is_ok(), "an old configuration starts");
-        assert_eq!(
-            config.deprecation_warnings(),
-            ["overlay_cache_size is deprecated and ignored; set overlay_cache_bytes"]
-        );
+        assert_eq!(config, Config::default());
+        assert!(config.validate().is_ok());
     }
 
     #[test]
@@ -2304,7 +2218,6 @@ mod tests {
         let text = "[mail]\n\
                     provider = \"smtp\"\n\
                     from = \"okf <okf@example.com>\"\n\
-                    worker = false\n\
                     [mail.smtp]\n\
                     host = \"smtp.example.com\"\n\
                     port = 465\n\
@@ -2320,7 +2233,6 @@ mod tests {
 
         assert_eq!(config.mail.provider, MailProvider::Smtp);
         assert_eq!(config.mail.from, "okf <okf@example.com>");
-        assert_eq!(config.mail.worker, Some(false));
         assert_eq!(
             config.mail.smtp,
             Some(SmtpConfig {

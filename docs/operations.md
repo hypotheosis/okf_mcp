@@ -40,9 +40,8 @@ changesets and the routes in detail.
   replica promptly through Redis: the catalog snapshots (best-effort pub/sub
   announcements of each catalog's new generation) and the access-token cache
   (a revocation counter). Credentials, users, settings and catalog rows learn
-  of changes through the Postgres change feed, with or without Redis (the
-  `admin-generation` channel only bridges milestone 16 replicas during a
-  rolling upgrade). Everything else stays as it was. The Redis section below says what to run, what it holds and what
+  of changes through the Postgres change feed, with or without Redis.
+  Everything else stays as it was. The Redis section below says what to run, what it holds and what
   happens when it fails; "Several replicas: what stays per replica" lists the
   caveats. Without the table nothing changes: no Redis code runs, no
   connection is made, and one replica is still required.
@@ -67,9 +66,7 @@ changesets and the routes in detail.
   rereads every row on next use. Key, user, team and settings changes travel
   the same way (a lost message is bounded by `credential_ttl`, 10 seconds by
   default). With `[redis]` the command line also announces imports and
-  `catalog repair-indexes` to the catalog subscribers, and sends the M16
-  bridge payload so that milestone 16 replicas, which still poll, notice at
-  once (best effort).
+  `catalog repair-indexes` to the catalog subscribers (best effort).
 
 ## 2. The image
 
@@ -113,7 +110,6 @@ unknown keys are ignored, so one file serves every version.
 | `allowed_hosts` | `["localhost", "127.0.0.1", "::1"]` | The `Host` names (optionally `host:port`) that `/mcp` accepts: rmcp's DNS-rebinding check. Behind an ingress, the public host name |
 | `default_catalog` | none | The catalog a key with no default of its own reads and writes |
 | `session_idle_timeout` | `"2h"` | An idle MCP session is closed after this; an open changeset with no change within it is `idle` in `list_changesets` |
-| `poll_interval` | none | Deprecated and ignored since milestone 18: the server no longer polls, and logs a warning at start-up when the key is set. Changes reach every replica through the change feed, with `catalog_ttl` and `credential_ttl` as the backstop |
 | `maintenance_review_intervals` | `{}` (30 days per catalog) | Per-catalog review durations, e.g. `{ pg = "30d" }`; each must be at least one day |
 | `max_import_bytes` | `"64MiB"` | The largest uncompressed import (`MiB` is binary, `MB` decimal, or a number of bytes). The import route caps the request body at this plus 0.1% and 64 KiB of gzip slack |
 | `time_server` | none | The NTP server for the clock check (`host`, `host:port` or an address). Without it there is no check |
@@ -122,7 +118,7 @@ unknown keys are ignored, so one file serves every version.
 | `store_max_connections` | `8` | The most connections one process opens to each catalog store, beside `database_max_connections` (the account database). Every store, `main` included, has a pool of its own, opened on its first use. A store on its own database also holds one more connection for its change-feed listener, outside this limit |
 | `store_idle_timeout` | `"10m"` | How long an idle connection to a catalog store is kept open before it is closed. A store's pool holds no connection while unused |
 | `store_connect_timeout` | `"5s"` | How long opening a store's pool, or waiting for a connection to begin a transaction on it, may take. Past it the request fails with `StoreUnavailable`, which never names the store. Loading a catalog from a store may take 6 times this before the store is reported unavailable |
-| `overlay_cache_bytes` | `"256MiB"` | The most memory the changeset overlays (an open changeset's view of its catalog) may take, estimated like a catalog snapshot (a fixed cost per file plus a multiple of the stored size, over the overlay's whole workspace, so many empty files count). Past it, an overlay is dropped and rebuilt on its next read; one larger than the whole budget is served but not kept. An overlay unused for `session_idle_timeout` is dropped too. `overlay_cache_size` is deprecated and ignored (a warning at start-up) |
+| `overlay_cache_bytes` | `"256MiB"` | The most memory the changeset overlays (an open changeset's view of its catalog) may take, estimated like a catalog snapshot (a fixed cost per file plus a multiple of the stored size, over the overlay's whole workspace, so many empty files count). Past it, an overlay is dropped and rebuilt on its next read; one larger than the whole budget is served but not kept. An overlay unused for `session_idle_timeout` is dropped too |
 | `public_url` | none | The server's public origin, such as `"https://okf-mcp.example.com"` (no path, query or user info; a trailing `/` is dropped). Setting it turns on OAuth ("OAuth connectors") and console sign-in by account ("Signing in and self-service"); without it the OAuth and sign-in routes are 404. It must be `https`, except on a loopback host (such as `localhost`, `127.0.0.1` or `::1`) for local testing, and its host must be in `allowed_hosts` |
 | `oauth.access_token_ttl` | `"24h"` | How long an OAuth access token works. A revoked one stops working at once whatever its lifetime, so the long default costs little; each refresh is a chance for a client's processes to race (`oauth.refresh_reuse_grace`) |
 | `oauth.refresh_token_ttl` | `"30d"` | How long a refresh token works. Each refresh issues a new one with a fresh lifetime, so a connection used within this stays signed in |
@@ -142,7 +138,6 @@ unknown keys are ignored, so one file serves every version.
 | `[[auth.oidc]]` | none | One table per OIDC provider: `id` (1 to 32 of `a-z`, `0-9` and `-`; stable, since each linked identity stores it), `label` (the button text), `issuer`, `client_id`, `client_secret_env` (the environment variable holding the secret) and `scopes` (default `["openid", "email", "profile"]`). Needs `public_url` |
 | `mail.provider` | `"log"` | `"smtp"`, `"postmark"`, `"ses"` or `"log"`. **`log` is for development only:** it writes each whole message, setup and reset links included, to the log at `info`, and delivers nothing |
 | `mail.from` | `"okf <okf@localhost>"` | The From address, such as `"okf <okf@example.com>"`; it must parse as one mailbox. Set it for `smtp`, `postmark` and `ses` (for `ses`, an identity verified in SES) |
-| `mail.worker` | none | Deprecated and ignored: every `serve` runs the mail worker, and logs a warning if the key is present. The workers share one pool of up to 3 connections per process, on top of `database_max_connections` |
 | `catalog_cache_bytes` | `"1GiB"` | The most memory this process's catalog snapshots may take, estimated from their stored size (`"512MiB"`, or a number of bytes). Catalogs load on first use, not at start-up; past the budget the least recently used one is dropped and loaded again when next read. A catalog larger than the whole budget is served but not kept |
 | `catalog_directory_entries` | `100000` | The most catalog rows the catalog directory keeps in memory, by name. It answers "does this catalog exist, and who owns it" without loading content |
 | `catalog_ttl` | `"10s"` | How long the directory serves a catalog row before reading it again, and so the longest a replica serves an older snapshot of a catalog whose change message it missed (each use refreshes the snapshot to its row). A change drops the row at once; this covers a change message that is lost while the listener stays connected (a reconnect marks every row stale). A name that does not exist is remembered for 5 seconds regardless |
@@ -716,7 +711,6 @@ session id: the keys and values that refer to one hold its hash.
 | `{p}passkey:ceremony:h(cookie)` | A passkey registration or sign-in ceremony | 5 minutes, fixed |
 | `{p}passkey:session:<hash of the console session id>` | Which ceremony that console session has in progress | 5 minutes, renewed on use |
 | `{p}ratelimit:<limiter>:h(id)` | A rate limit's token bucket: the tokens left and when they were counted. `<limiter>` is the `limiter` label of `okf_ratelimit_rejections_total`; `id` is the address key, the normalized email or the user id, or `global` for the OAuth limits | The time an empty bucket takes to refill (15 minutes for sign-in, an hour for the reset limits, 10 minutes for link starts, 60, 30 and 20 seconds for OAuth registration, token and consent), renewed on every request |
-| channel `{p}admin-generation` | The M16 bridge: `notified` from milestone 18 servers and the command line, a generation number or an empty message from milestone 16 binaries | Not stored |
 | channel `{p}catalog-generation` | Announcements that a catalog's snapshot is out of date: `<catalog id> <generation>` | Not stored |
 
 - **Values** are JSON with a version. A value of another version, or one that
@@ -735,20 +729,12 @@ session id: the keys and values that refer to one hold its hash.
   pending authorization is changed by a compare-and-set that retries up to 8
   times and then answers 503, so two replicas racing for one code produce one
   exchange and one replay.
-- **The `admin-generation` channel** is a bridge for a rolling upgrade from
-  milestone 16, not how milestone 18 replicas learn of key changes (they use
-  the Postgres change feed). A milestone 18 server, and the command line,
-  publish `notified` after each administrative change; a milestone 16
-  replica reads any payload as "check `admin_generation` now" and reloads its
-  keys. A milestone 18 replica that receives a number or an empty message
-  (from a milestone 16 binary) marks its credential, user and label caches
-  and its catalog directory stale, so each entry is read again on its next
-  use, and checks the settings against `admin_generation`; it ignores
-  `notified`, since the same change reached it through the change feed.
-  Settings are also checked against `admin_generation` once they are older
-  than `credential_ttl`. The bridge is removed in the release after 0.23.
-  A command that cannot reach Redis logs a warning; a milestone 16 replica
-  then notices within its own `poll_interval`.
+- **Administrative changes are not announced through Redis.** Keys, users,
+  teams, grants and settings reach every replica through the Postgres change
+  feed. A replica's settings are also checked against `admin_generation`
+  (a counter every administrative change bumps) once they are older than
+  `credential_ttl`. The `admin-generation` channel of releases up to 0.29.0 is
+  gone; nothing publishes or subscribes to it.
 - **Catalog snapshots** are announced, not stored. After a publish, an HTTP
   import, or (from the command line) an import or `catalog repair-indexes`
   commits, the writer publishes the catalog's id and new generation, and every
@@ -793,18 +779,11 @@ back to memory, because that would split the state between replicas.
 | `GET /healthz` | Still 200: `"redis": "unavailable"` (section 7) |
 | A catalog read or write | Unaffected: Postgres alone serves them |
 
-- **Bridge announcements.** A failed publish is counted and logged; it only
-  matters to milestone 16 replicas, whose own poll covers it, and the change
-  itself already reached every milestone 18 replica through Postgres. When a
-  replica's subscriber (re)subscribes it marks its credential, user and label
-  caches and its catalog directory stale, since a message sent while it was
-  disconnected is lost. The client resubscribes by itself after a reconnect;
-  a subscription that stays disconnected for 10 seconds is replaced by a new
-  one, retried with a wait that grows from 1 to 30 seconds. Key revocation
-  between milestone 18 replicas does not depend on Redis at all.
-- **Subscriber log lines.** Each subscriber (`subscriber="bridge"` for the
-  `admin_generation` channel, `subscriber="catalog"` for catalog
-  announcements) logs at `info` every time it is subscribed (`resubscribe`
+- **Subscriber reconnects.** The client resubscribes by itself after a
+  reconnect; a subscription that stays disconnected for 10 seconds is replaced
+  by a new one, retried with a wait that grows from 1 to 30 seconds.
+- **Subscriber log lines.** The catalog subscriber (`subscriber="catalog"`)
+  logs at `info` every time it is subscribed (`resubscribe`
   is `true` after the first, also when a replaced subscription is followed
   by a new one; `disconnected_ms` says how long a connection loss within
   one subscription lasted), and at `warn` when the connection is lost, when a lost
@@ -927,8 +906,8 @@ two). What `[redis]` does not share:
   The hourly `prune_workers` housekeeping job deletes the `apalis.workers`
   rows of stopped replicas.
 - **The feedback worker** runs on every replica with `[feedback]` unless
-  `[feedback] worker = false`, like the mail worker: turn it on for one
-  replica, the same way. Fetching a job is exclusive in normal operation, so
+  `[feedback] worker = false`, which you can set on all but one replica.
+  Fetching a job is exclusive in normal operation, so
   two workers do not normally post the same job, but delivery is
   at-least-once (see [Feedback](#feedback)), and one worker is enough. The
   feedback rate limit is counted in Postgres, so unlike the
@@ -3121,7 +3100,7 @@ reaches the browser.
 [feedback]
 forminit_form_id = "<form id>"            # not a secret
 api_key_env = "OKF_MCP_FORMINIT_API_KEY"  # optional: the variable holding the X-API-KEY
-# worker = true                           # one replica only, as [mail] worker
+# worker = true                           # set false on the replicas that must not run it
 # max_per_hour = 10                       # per credential
 # retention = "30d"                       # how long sent and failed feedback is kept
 ```
@@ -5180,11 +5159,8 @@ take the server out of service. Alert on the `error` log line, not on
   `0027_catalogs_member_reach_bytes.sql`, and an older
   binary refuses the migrated database. The migrations run before the new
   binary serves. Old and new replicas can run together
-  during a rolling deploy: a milestone 18 server bridges both ways (it still
-  bumps `admin_generation` and, with `[redis]`, publishes `notified` on the
-  `admin-generation` channel, and it treats a milestone 16 announcement as
-  "mark the caches stale"). The bridge and the deprecated settings go in the
-  release after this one. What changes for operators:
+  during a rolling deploy (a milestone 18 server bridged both ways until
+  0.29.0; see the entry after this one). What changes for operators:
   - **Three indexes are built concurrently.** `0025`, `0026` and `0027` add
     partial indexes on `catalogs` (a console session's catalogs, listed a
     page at a time per owner team; its owner teams' writable catalogs; and
@@ -5206,7 +5182,7 @@ take the server out of service. Alert on the `error` log line, not on
     pod's memory limit above `catalog_cache_bytes` plus
     `overlay_cache_bytes`, and the database's `max_connections` for
     `N x (database_max_connections + 4)` ([Postgres](#4-postgres)).
-  - **Settings deprecated (still parsed; `serve` logs a warning):**
+  - **Settings deprecated** (removed after 0.29.0, see the entry after this one):
     `poll_interval` (nothing polls any more), `overlay_cache_size` (use
     `overlay_cache_bytes`) and `mail.worker` (every replica runs the worker).
   - **Behaviour:** catalogs load on first use, not at start-up; changes
@@ -5263,6 +5239,26 @@ take the server out of service. Alert on the `error` log line, not on
     `okf_catalog_generation` (and the `okf.poll` span). Added: the
     `okf_cache_*`, `okf_invalidations_*` and `okf_housekeeping_*` families. The Grafana example
     follows.
+
+- **The milestone 16 bridge and three settings are removed (the release
+  after 0.29.0; issue #727).**
+  - **Upgrade from milestone 16 only through 0.23.0 or later.** The
+    `admin-generation` Redis channel is gone: nothing publishes `notified`
+    on it and nothing subscribes to it. A milestone 16 replica (0.22 or
+    older) running beside this release no longer hears of administrative
+    changes through Redis. It sees them only on its own poll. Finish any
+    rolling upgrade from 0.22 or older onto 0.23.0 or later before taking
+    this release. `server_state.admin_generation` stays: the settings check
+    still reads it, and no migration changes it.
+  - **Removed settings:** `poll_interval`, `overlay_cache_size` (use
+    `overlay_cache_bytes`) and `mail.worker`. A configuration that still
+    sets them is **not** refused: neither the top level nor `[mail]` denies
+    unknown keys, so the server starts, ignores the keys, and no longer logs
+    the start-up warning it logged from 0.23.0 to 0.29.0. Delete the keys at
+    your leisure. A typo elsewhere in those two sections is equally silent.
+  - **The command line** no longer announces anything on Redis after a
+    key, user, team or settings command (only catalog imports and
+    `catalog repair-indexes` announce, as before).
 
 ### Preparing and shipping a release
 

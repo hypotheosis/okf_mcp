@@ -125,7 +125,7 @@ pub struct App {
     // check serves every request that queued behind it.
     settings_rounds: AtomicU64,
     // How many times the settings were marked stale (a `Settings` message,
-    // a reconnect, an M16 announcement, the request's own write). They stay stale, for
+    // a reconnect, the request's own write). They stay stale, for
     // every caller, until a check that began after the last mark succeeds:
     // `satisfied_marks` is the count such a check saw when it began, and is
     // written only on success, so a failed or cancelled check satisfies
@@ -145,9 +145,6 @@ pub struct App {
     pub(crate) settings_checks: std::sync::atomic::AtomicUsize,
     #[cfg(test)]
     pub(crate) settings_loads: std::sync::atomic::AtomicUsize,
-    // Test counter: how many M16 announcements were applied.
-    #[cfg(test)]
-    pub(crate) m16_announcements: std::sync::atomic::AtomicUsize,
     // The last clock check (design "Time"); `None` until the first one, and
     // always without a `time_server`. Written by the check loop only.
     clock_status: RwLock<Option<ClockStatus>>,
@@ -379,8 +376,6 @@ impl App {
             settings_checks: std::sync::atomic::AtomicUsize::new(0),
             #[cfg(test)]
             settings_loads: std::sync::atomic::AtomicUsize::new(0),
-            #[cfg(test)]
-            m16_announcements: std::sync::atomic::AtomicUsize::new(0),
             clock_status: RwLock::new(None),
             oauth,
             sign_in_limits,
@@ -870,7 +865,7 @@ impl App {
     }
 
     /// Marks the settings stale and checks them at once: what a `Settings`
-    /// message, a reconnect and an M16 announcement do.
+    /// message and a reconnect do.
     #[tracing::instrument(level = "debug", skip_all)]
     pub async fn reload_settings(&self) {
         self.mark_settings_stale();
@@ -1206,26 +1201,6 @@ impl App {
         }
     }
 
-    /// M16 bridge (spec Decision 14): remove in the release after 0.23.
-    ///
-    /// After an administrative change this replica committed, tells
-    /// milestone 16 replicas to check `admin_generation` now
-    /// ([`shared::announce::publish_bridge`]); the change itself reached
-    /// every milestone 18 replica through the change feed. Best effort and
-    /// detached, like [`App::announce_catalog`]: a slow or failing Redis
-    /// never delays the caller's answer, and an M16 replica's own poll
-    /// covers a lost announcement (`invalidate` still bumps
-    /// `admin_generation`, which that poll reads). Does nothing without
-    /// `[redis]`.
-    #[tracing::instrument(level = "debug", skip_all)]
-    pub fn bridge_to_m16(&self) {
-        let Some(redis) = self.redis.clone() else {
-            return;
-        };
-        // M16 bridge (spec Decision 14): remove in the release after 0.23.
-        tokio::spawn(shared::announce::publish_bridge(redis).instrument(tracing::Span::current()));
-    }
-
     /// Tells the other replicas that a catalog's published generation moved
     /// (issue #659), after the write that moved it committed. Best effort and
     /// detached: the publish happens on its own task, so a slow or failing
@@ -1464,22 +1439,6 @@ impl App {
     #[tracing::instrument(level = "debug", skip_all)]
     pub async fn apply_store_reconnect(&self, store: &crate::stores::StoreName) {
         self.directory.drop_store(store).await;
-    }
-
-    /// M16 bridge (spec Decision 14): remove in the release after 0.23.
-    ///
-    /// What an M16 replica's announcement means here: an older replica
-    /// changed something without sending change messages, so every cached
-    /// credential, user, label and catalog row (suspension, owner,
-    /// maintenance) is reread on its next use, and the settings are checked.
-    #[tracing::instrument(level = "debug", skip_all)]
-    pub async fn apply_m16_announcement(&self) {
-        #[cfg(test)]
-        self.m16_announcements.fetch_add(1, Ordering::Relaxed);
-        self.credentials.mark_all_stale();
-        self.labels.mark_all_stale();
-        self.directory.mark_all_stale().await;
-        self.reload_settings().await;
     }
 
     /// Makes every cached catalog revalidate on its next use: what the
@@ -2080,53 +2039,6 @@ mod tests {
         );
     }
 
-    /// An app whose catalog rows and credentials live an hour (so only an
-    /// invalidation, never a TTL, can reread them), with `main` owned by
-    /// the test team and a writer key of the test user on it, warmed: its
-    /// principal assembled and `main`'s row cached.
-    async fn warmed_writer() -> (
-        crate::db::pg_support::TestDb,
-        Arc<App>,
-        Arc<crate::auth::Principal>,
-    ) {
-        let db = test_db().await;
-        create_catalog_main(&db.pool).await;
-        let names = ["main".to_string()];
-        let created = key_rows::create_with_id(
-            &db.pool,
-            &key_rows::NewKey {
-                name: "writer",
-                access: key_rows::Access::Write,
-                maintenance_report: false,
-                grants: key_rows::Grants::Catalogs(&names),
-                default_catalog: None,
-                actor: "writer",
-                user: crate::db::TEST_USER,
-                self_issued: false,
-                expires_at: None,
-                levels: &[],
-            },
-            &crate::store::audit::AuditActor::cli(),
-            Utc::now(),
-        )
-        .await
-        .unwrap();
-        let config = Config {
-            catalog_ttl: std::time::Duration::from_secs(3600),
-            credential_ttl: std::time::Duration::from_secs(3600),
-            ..Config::default()
-        };
-        let app = App::load(db.pool.clone(), config, Arc::new(SystemClock))
-            .await
-            .unwrap();
-        let writer = app.find_key(&created.key).await.unwrap().unwrap();
-        assert!(writer
-            .require_in(app.directory(), key_rows::Access::Read, "main")
-            .await
-            .is_ok());
-        (db, app, writer)
-    }
-
     async fn create_catalog_main(pool: &PgPool) {
         catalogs::create(
             pool,
@@ -2143,9 +2055,9 @@ mod tests {
         .unwrap();
     }
 
-    /// Suspends the test team as a milestone 16 replica does: the row and
-    /// `admin_generation` in one transaction, and no change message.
-    async fn suspend_as_an_older_replica(pool: &PgPool) {
+    /// Suspends the test team with no change message: the row and
+    /// `admin_generation` in one transaction.
+    async fn suspend_silently(pool: &PgPool) {
         let mut tx = pool.begin().await.unwrap();
         sqlx::query(
             "UPDATE teams SET suspended_at = now(), suspension_notice = 'Paused.' WHERE name = $1",
@@ -2168,20 +2080,6 @@ mod tests {
                 .await,
             Err(OkfError::Suspended { .. })
         )
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn an_older_replicas_announcement_rereads_the_cached_catalog_rows() {
-        let (db, app, writer) = warmed_writer().await;
-        suspend_as_an_older_replica(&db.pool).await;
-        assert!(!suspended(&app, &writer).await, "the row is still cached");
-
-        app.apply_m16_announcement().await;
-
-        assert!(
-            suspended(&app, &writer).await,
-            "the next check reads it again"
-        );
     }
 
     /// The backstop for a message that never arrives (a listener that is up
@@ -2217,7 +2115,7 @@ mod tests {
             .execute(&db.pool)
             .await
             .unwrap();
-        suspend_as_an_older_replica(&db.pool).await;
+        suspend_silently(&db.pool).await;
         sqlx::query("UPDATE catalogs SET display_name = 'Renamed' WHERE name = 'main'")
             .execute(&db.pool)
             .await

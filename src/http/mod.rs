@@ -849,18 +849,7 @@ pub async fn serve_with(
     shutdown: CancellationToken,
     options: ServeOptions,
 ) -> std::io::Result<()> {
-    for warning in app.config().deprecation_warnings() {
-        tracing::warn!("{warning}");
-    }
     let router = router(Arc::clone(&app), &shutdown);
-    // M16 bridge (spec Decision 14): remove in the release after 0.23.
-    // Marks the credential caches and the catalog directory stale on every
-    // announcement from a milestone 16 replica; ends at once without
-    // `[redis]`.
-    let announcements = tokio::spawn(crate::shared::announce::listen(
-        Arc::clone(&app),
-        shutdown.clone(),
-    ));
     // Refreshes a catalog's snapshot on every catalog generation
     // announcement (issue #659); ends at once without `[redis]`.
     let catalog_announcements = tokio::spawn(crate::shared::announce::listen_catalogs(
@@ -934,14 +923,6 @@ pub async fn serve_with(
     // rmcp's sessions) before returning; cancelling twice is harmless.
     shutdown.cancel();
     // The loops return once `shutdown` is cancelled; a panic in one is logged.
-    if let Err(error) = announcements.await {
-        split_event!(
-            error,
-            {},
-            { %error, },
-            "the announcement subscriber panicked"
-        );
-    }
     if let Err(error) = catalog_announcements.await {
         split_event!(
             error,
@@ -1836,13 +1817,8 @@ mod tests {
             .connect_with(db.pool.connect_options().as_ref().clone())
             .await
             .unwrap();
-        // The deprecated `mail.worker = false` is ignored: the worker runs.
         let config = Config {
             database_max_connections: 1,
-            mail: crate::config::MailConfig {
-                worker: Some(false),
-                ..crate::config::MailConfig::default()
-            },
             ..Config::default()
         };
         let app = App::load(one, config, Arc::new(crate::clock::SystemClock))

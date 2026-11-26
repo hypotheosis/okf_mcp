@@ -2256,8 +2256,10 @@ mod tests {
             page.headers["content-security-policy"],
             CONTENT_SECURITY_POLICY
         );
-        // Passkeys are on for this domain, so only their script loads.
-        assert_eq!(page.text().matches("<script").count(), 1);
+        // Passkeys are on for this domain: the reveal buttons' script and
+        // the passkey script load, and nothing else.
+        assert_eq!(page.text().matches("<script").count(), 2);
+        assert!(page.text().contains(REVEAL_SCRIPT));
         assert!(page.text().contains(PASSKEY_SCRIPT));
         assert_eq!(done.status, StatusCode::SEE_OTHER);
         assert_eq!(done.location(), "/ui/");

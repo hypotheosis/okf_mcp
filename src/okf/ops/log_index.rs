@@ -132,7 +132,8 @@ pub(crate) struct Listing<'a> {
 ///
 /// # Returns
 /// `okf.py`'s message: `<folder>/index.md: <bullet>`, or
-/// `<folder>/index.md: already lists <concept>`.
+/// `<folder>/index.md: already lists <concept>`, or, when `index` changed
+/// the summary of an existing listing, `<folder>/index.md: <bullet>`.
 ///
 /// # Errors
 /// [`OkfError::Refused`] without a folder `index.md`, or when `section`
@@ -157,6 +158,13 @@ pub(crate) fn list_concept(
         lists_target(workspace, &text, &index_path, listing.concept)
     };
     if listed {
+        if listing.accept_raw {
+            if let Some(outcome_message) =
+                redescribe_listing(workspace, &text, &index_path, listing, outcome)?
+            {
+                return Ok(outcome_message);
+            }
+        }
         if !lists_target(workspace, &text, &index_path, listing.concept) {
             // Only an older raw bullet lists it: no link resolves, so say so
             // rather than append a second bullet beside it.
@@ -185,6 +193,52 @@ pub(crate) fn list_concept(
         },
     );
     Ok(message)
+}
+
+/// `index` on an already-listed concept (issue #790): when the listing's
+/// bullet has a working leading link and `listing.summary` differs from its
+/// summary, sets it and records a [`ReplayOp::SetListingSummary`], so publish
+/// redoes it on newer text instead of conflicting (as for a folder). The
+/// label and link stay as they are.
+///
+/// # Returns
+/// `Some(message)` when the summary was changed; `None` when nothing is to
+/// change (summary empty or unchanged, or no bullet with a working leading
+/// link: a raw one is left to `list_concept`'s note, which points at
+/// `repair_indexes`).
+///
+/// # Errors
+/// The workspace's write error.
+#[tracing::instrument(level = "debug", skip_all)]
+fn redescribe_listing(
+    workspace: &dyn Workspace,
+    text: &str,
+    index_path: &str,
+    listing: &Listing<'_>,
+    outcome: &mut OpOutcome,
+) -> Result<Option<String>, OkfError> {
+    let summary = collapse_whitespace(listing.summary);
+    if summary.is_empty() {
+        return Ok(None);
+    }
+    let Some(updated) =
+        set_listing_summary_text(workspace, text, index_path, listing.concept, &summary)
+    else {
+        return Ok(None);
+    };
+    if updated == text {
+        return Ok(None);
+    }
+    workspace.write_atomic(index_path, &updated)?;
+    let message = format!("{index_path}: {}", set_line(&updated, text));
+    outcome.record(
+        index_path,
+        ReplayOp::SetListingSummary {
+            target: listing.concept.to_string(),
+            summary,
+        },
+    );
+    Ok(Some(message))
 }
 
 /// The #432 round trip: refuses a listing whose bullet no later run would
@@ -940,7 +994,8 @@ fn repair_counted(workspace: &dyn Workspace) -> Result<(OpOutcome, RepairCounts)
         }
         if about.description.is_none() {
             outcome.notes.push(format!(
-                "listed /{concept} with a TODO summary: it has no description"
+                "listed /{concept} with a TODO summary: it has no description; describe it with \
+                 index on /{concept}"
             ));
             counts.placeholders += 1;
         }
@@ -1182,14 +1237,46 @@ mod tests {
     }
 
     #[test]
-    fn index_of_a_listed_concept_changes_nothing() {
+    fn index_of_a_listed_concept_with_the_same_summary_changes_nothing() {
         let ws = infra();
         index(&ws, &ctx(), "infra/ntp", "pool", None, None).unwrap();
 
-        let again = index(&ws, &ctx(), "infra/ntp.md", "other", None, Some("T")).unwrap();
+        let again = index(&ws, &ctx(), "infra/ntp.md", " pool ", None, Some("T")).unwrap();
+        let empty = index(&ws, &ctx(), "infra/ntp.md", "", None, None).unwrap();
 
-        assert!(again.touched.is_empty());
+        assert!(again.touched.is_empty() && empty.touched.is_empty());
         assert_eq!(again.message, "infra/index.md: already lists infra/ntp.md");
+        assert_eq!(empty.message, again.message);
+    }
+
+    #[test]
+    fn index_of_a_listed_concept_sets_its_summary_and_records_the_op() {
+        let ws = infra();
+        index(
+            &ws,
+            &ctx(),
+            "infra/ntp",
+            "TODO: describe this concept",
+            None,
+            None,
+        )
+        .unwrap();
+
+        let again = index(&ws, &ctx(), "infra/ntp.md", "  the  pool ", None, Some("T")).unwrap();
+
+        let bullet = "* [NTP \\[pool\\]](ntp.md) - the pool";
+        assert_eq!(
+            ws.read_to_string("infra/index.md").unwrap(),
+            format!("{INFRA_INDEX}{bullet}\n")
+        );
+        assert_eq!(again.message, format!("infra/index.md: {bullet}"));
+        assert_eq!(
+            again.replay["infra/index.md"],
+            [ReplayOp::SetListingSummary {
+                target: "infra/ntp.md".to_string(),
+                summary: "the pool".to_string(),
+            }]
+        );
     }
 
     /// File names the issue (#453) names, one per character class.
@@ -1259,7 +1346,9 @@ mod tests {
             let ws = awkward_ws(name, &raw);
             let concept = format!("d/{name}");
 
-            let outcome = index(&ws, &ctx(), &concept, "odd", None, None).unwrap();
+            // The summary it already has: an ordinary listing (`100%.md`)
+            // would otherwise be re-described (issue #790).
+            let outcome = index(&ws, &ctx(), &concept, "An odd one.", None, None).unwrap();
 
             assert_eq!(ws.read_to_string("d/index.md").unwrap(), raw, "{name}");
             assert!(outcome.touched.is_empty(), "{name}");
@@ -2281,10 +2370,10 @@ mod tests {
                 "created /infra/hosts/index.md; replace its TODO line",
                 "created /log.md",
                 "listed /a-note.md under its file name: it has no title",
-                "listed /a-note.md with a TODO summary: it has no description",
+                "listed /a-note.md with a TODO summary: it has no description; describe it with index on /a-note.md",
                 "listed /infra/ in /index.md with a TODO summary; describe it with index on /infra/",
                 "listed /infra/hosts/ in /infra/index.md with a TODO summary; describe it with index on /infra/hosts/",
-                "listed /infra/hosts/web.md with a TODO summary: it has no description",
+                "listed /infra/hosts/web.md with a TODO summary: it has no description; describe it with index on /infra/hosts/web.md",
             ]
         );
         // Every edit of an index is a replay op, so publish never overwrites
@@ -2545,7 +2634,7 @@ mod tests {
         );
         assert_eq!(
             outcome.notes,
-            ["listed /broken.md with a TODO summary: it has no description"]
+            ["listed /broken.md with a TODO summary: it has no description; describe it with index on /broken.md"]
         );
     }
 

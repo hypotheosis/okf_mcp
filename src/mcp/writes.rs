@@ -464,7 +464,7 @@ pub struct LogParams {
 pub struct IndexParams {
     /// The concept to list, with or without `.md`, e.g. `/infra/ntp`; its folder's index.md must exist (`repair_indexes` creates missing ones). Or a folder, e.g. `/infra/`, to set its listing's summary in its parent's index.md.
     pub path: String,
-    /// The text after the link's ` - `.
+    /// The text after the link's ` - `. For a concept already listed, replaces its listing's summary.
     pub summary: String,
     /// The heading to list it under, e.g. `Build infrastructure` (default: `Concepts`).
     pub section: Option<String>,
@@ -929,7 +929,7 @@ impl OkfServer {
         title = "Add Index Entry",
         description = "List a concept in its folder's index.md as `* \
                        [Title](name.md) - summary`, in the changeset `changeset` names (open one \
-                       with open_changeset); nothing happens if it is already linked (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at \
+                       with open_changeset); if it is already linked, only its summary is set to `summary` (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at \
                        publish onto an index.md that changed meanwhile, unless a free edit of \
                        that index.md follows. With a folder `path` (`/infra/`), sets the summary \
                        of its listing in the parent's index.md instead, replayed the same way. \
@@ -2406,6 +2406,116 @@ mod folder_summary_tests {
             "set_listing_summary"
         );
         assert_eq!(edited.replay, None);
+        assert!(matches!(error, OkfError::Conflict { .. }), "{error:?}");
+    }
+
+    /// Issue #790: `index` on an already-listed concept re-describes it as a
+    /// replayable op, so two changesets doing so for different concepts in
+    /// one folder index both publish.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn two_concepts_re_described_in_one_folder_index_both_publish() {
+        let test = pg(&[]).await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let (a, b) = (open(&first).await, open(&second).await);
+        index(&first, describe("/infra/time", "Keeps the clock.", &a))
+            .await
+            .unwrap();
+        index(&second, describe("/infra/other", "More notes.", &b))
+            .await
+            .unwrap();
+        let stored = entry(&test, &a, "infra/index.md").await;
+
+        let one = publish_as(&first, &a).await.unwrap();
+        let two = publish_as(&second, &b).await.unwrap();
+
+        assert_eq!(
+            stored.replay.expect("replayable")[0]["op"],
+            "set_listing_summary"
+        );
+        assert!(
+            one.report.published && two.report.published,
+            "{one:?} {two:?}"
+        );
+        assert!(
+            two.report.replayed.contains(&"/infra/index.md".to_string()),
+            "{two:?}"
+        );
+        let text = published_text(&test, "infra/index.md").await;
+        assert!(
+            text.contains("* [Time](time.md) - Keeps the clock.\n"),
+            "{text}"
+        );
+        assert!(
+            text.contains("* [Other](other.md) - More notes.\n"),
+            "{text}"
+        );
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_concept_summary_whose_listing_another_changeset_removed_fails_at_publish() {
+        let test = pg(&[]).await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let (a, b) = (open(&first).await, open(&second).await);
+        index(&first, describe("/infra/time", "Keeps the clock.", &a))
+            .await
+            .unwrap();
+        edit_document(
+            &second,
+            EditDocumentParams {
+                path: "/infra/index.md".to_string(),
+                old_str: "* [Time](time.md) - The clock.\n".to_string(),
+                new_str: String::new(),
+                replace_all: false,
+                changeset: b.clone(),
+            },
+        )
+        .await
+        .unwrap();
+        publish_as(&second, &b).await.unwrap();
+
+        let error = publish_as(&first, &a).await.unwrap_err();
+
+        let OkfError::Refused { reason } = &error else {
+            panic!("not Refused: {error:?}")
+        };
+        assert!(
+            reason.contains("infra/index.md no longer lists /infra/time.md"),
+            "{reason}"
+        );
+        let text = published_text(&test, "infra/index.md").await;
+        assert!(!text.contains("Keeps the clock."), "{text}");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_free_edit_after_index_on_a_concept_is_stale_checked() {
+        let test = pg(&[]).await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let (a, b) = (open(&first).await, open(&second).await);
+        index(&first, describe("/infra/time", "Keeps the clock.", &a))
+            .await
+            .unwrap();
+        edit_document(
+            &first,
+            EditDocumentParams {
+                path: "/infra/index.md".to_string(),
+                old_str: "Systems.".to_string(),
+                new_str: "Our systems.".to_string(),
+                replace_all: false,
+                changeset: a.clone(),
+            },
+        )
+        .await
+        .unwrap();
+        index(&second, describe("/infra/other", "More notes.", &b))
+            .await
+            .unwrap();
+        publish_as(&second, &b).await.unwrap();
+
+        let error = publish_as(&first, &a).await.unwrap_err();
+
         assert!(matches!(error, OkfError::Conflict { .. }), "{error:?}");
     }
 

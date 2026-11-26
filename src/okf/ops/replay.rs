@@ -139,13 +139,13 @@ pub enum ReplayOp {
         /// Its rewrite.
         fixed: String,
     },
-    /// `index` on a folder: replace the summary (the text after ` - `) of
-    /// the first bullet whose leading link resolves to `target` (issue
-    /// #668). The label and link are kept as they read now, so someone
+    /// `index` on a folder or on an already-listed concept: replace the summary (the text after ` - `) of
+    /// the first bullet whose leading link resolves to `target` (issues #668
+    /// and #790). The label and link are kept as they read now, so someone
     /// else's edit of them survives; a bullet no longer there is refused,
     /// never silently dropped or applied to another line.
     SetListingSummary {
-        /// Catalog-relative path the bullet lists (a folder's `index.md`).
+        /// Catalog-relative path the bullet lists (a folder's `index.md`, or a concept).
         target: String,
         /// The new summary, its whitespace already collapsed.
         summary: String,
@@ -857,7 +857,14 @@ pub(crate) fn set_listing_summary_text(
 /// The refusal of a `SetListingSummary` whose bullet is gone at publish.
 #[tracing::instrument(level = "trace", skip_all)]
 fn lost_listing(index: &str, target: &str) -> OkfError {
-    let listed = target.strip_suffix("index.md").unwrap_or(target);
+    // A folder's `index.md` is shown as the folder; a concept as itself.
+    let listed = if target == "index.md" {
+        ""
+    } else {
+        target
+            .strip_suffix("/index.md")
+            .map_or(target, |folder| &target[..=folder.len()])
+    };
     OkfError::Refused {
         reason: format!(
             "{index} no longer lists /{listed} (another changeset removed or rewrote its \

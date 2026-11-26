@@ -54,7 +54,7 @@
     {"cmd": "index", "concept": "people/pgrace.md", "summary": "me"},
     {"cmd": "index", "concept": "infra/ntp.md", "summary": "pool", "section": "concepts"},
     {"cmd": "index", "concept": "root-note.md", "summary": "at the root"},
-    {"cmd": "index", "concept": "analysis/stamps.md", "summary": "s", "title": "T", "section": "Extras"},
+    {"cmd": "index", "concept": "analysis/stamps.md", "summary": "timestamp cases", "title": "T", "section": "Extras"},
     {"cmd": "index", "concept": "people/other.md", "summary": "x", "section": "Nowhere"},
     {"cmd": "index", "concept": "markdown/slugs.md", "summary": "slugs", "title": "Slugs"},
     {"cmd": "index", "concept": "nowhere/thing.md", "summary": "t"},

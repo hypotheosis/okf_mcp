@@ -13,6 +13,7 @@
 // team, the last admin) shows its reason on the page and keeps the
 // controls, and a deletion signs the console out.
 import { h, fill, fact } from '../core/dom.js';
+import { addReveal } from '../core/reveal.js';
 import { api, enc } from '../core/api.js';
 import { toast } from '../core/toast.js';
 import { ago, when } from '../core/format.js';
@@ -161,24 +162,28 @@ export async function render(main) {
         const current = account.has_password
             ? h('input', { type: 'password', name: 'current', required: true, autocomplete: 'current-password' })
             : null;
+        const next = h('input', { type: 'password', name: 'password', required: true, minlength: '12', autocomplete: 'new-password' });
+        const repeat = h('input', { type: 'password', name: 'confirm', required: true, minlength: '12', autocomplete: 'new-password' });
         const form = h('form', { id: 'password-form' },
             account.password_sign_in ? null : h('p', { class: 'muted small', id: 'password-sign-in-off' },
                 'Password sign-in is turned off on this server: a password works once an admin turns it back on.'),
             current
                 ? h('label', {}, 'Current password', current)
                 : h('p', { class: 'muted small' }, 'You have no password yet. Set one to sign in with your email.'),
-            h('label', {}, 'New password',
-                h('input', { type: 'password', name: 'password', required: true, minlength: '12', autocomplete: 'new-password' })),
-            h('label', {}, 'Repeat the new password',
-                h('input', { type: 'password', name: 'confirm', required: true, minlength: '12', autocomplete: 'new-password' })),
+            h('label', {}, 'New password', next),
+            h('label', {}, 'Repeat the new password', repeat),
             h('p', { class: 'muted small' }, 'At least 12 characters, and not a common password.'),
             keepSessionsBox('password-keep-sessions'),
             h('button', { type: 'submit' }, account.has_password ? 'Change password' : 'Set password'));
+        // Each field gets its own button, so both new ones can be shown to compare.
+        if (current) addReveal(current, 'current password');
+        addReveal(next, 'new password');
+        addReveal(repeat, 'new password confirmation');
         form.addEventListener('submit', async event => {
             event.preventDefault();
             const data = new FormData(form);
-            const next = String(data.get('password') ?? '');
-            if (next !== String(data.get('confirm') ?? '')) {
+            const typed = String(data.get('password') ?? '');
+            if (typed !== String(data.get('confirm') ?? '')) {
                 toast('The two new passwords differ.', 'error');
                 return;
             }
@@ -187,7 +192,7 @@ export async function render(main) {
                 // console stays signed in; the policy's refusal is a 422.
                 await api.put('/me/password', {
                     current_password: current ? current.value : null,
-                    new_password: next,
+                    new_password: typed,
                     keep_sessions: data.get('keep_sessions') === 'on',
                 }, { quiet: true });
             } catch (error) {

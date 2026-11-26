@@ -320,6 +320,126 @@ async fn the_welcome_page_links_on_to_the_console_signed_in() {
     .await;
 }
 
+/// Checks the show/hide buttons of a setup or reset form: both fields start
+/// masked, each button acts on its own field only, the typed value is kept
+/// and no toggle submits the form. Leaves both fields filled with
+/// `password` and revealed, ready to submit.
+///
+/// # Arguments
+/// * `ui` - the page, on the form.
+/// * `prefix` - `setup` or `reset`, the form's id prefix.
+/// * `fields` - the buttons' field names, for the first and second input.
+/// * `password` - the password to type in both.
+fn exercise_reveal(ui: &Ui, prefix: &str, fields: [&str; 2], password: &str) {
+    let first = format!("#{prefix}-password");
+    let second = format!("#{prefix}-confirm");
+    let button = |field: &str| format!("#{prefix}-form [data-reveal-for='{field}']");
+    ui.wait_visible(&button(fields[0]));
+    assert_eq!(ui.input_state(&first).0, "password");
+    assert_eq!(ui.input_state(&second).0, "password");
+    for field in fields {
+        assert_eq!(ui.attribute(&button(field), "type"), "button");
+        assert_eq!(ui.attribute(&button(field), "aria-pressed"), "false");
+        assert_eq!(
+            ui.attribute(&button(field), "aria-label"),
+            format!("Show {field}")
+        );
+    }
+    ui.fill(&first, password);
+    ui.fill(&second, password);
+    ui.click(&button(fields[0]));
+    assert_eq!(ui.input_state(&first), ("text".into(), password.into()));
+    assert_eq!(ui.input_state(&second).0, "password");
+    assert_eq!(
+        ui.attribute(&button(fields[0]), "aria-label"),
+        format!("Hide {}", fields[0])
+    );
+    assert_eq!(ui.attribute(&button(fields[0]), "aria-pressed"), "true");
+    // Both shown at once, to compare them.
+    ui.click(&button(fields[1]));
+    assert_eq!(ui.input_state(&second), ("text".into(), password.into()));
+    // Hiding one leaves the other shown.
+    ui.click(&button(fields[0]));
+    assert_eq!(ui.input_state(&first).0, "password");
+    assert_eq!(ui.input_state(&second).0, "text");
+    ui.click(&button(fields[0]));
+    // Still the same page: no toggle submitted the form.
+    assert!(ui.present(&format!("#{prefix}-form")));
+    assert!(!ui.present("#form-error"));
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_setup_form_reveals_each_password_field_alone_and_still_sets_the_password() {
+    let guide = guide_host().await;
+    let (server, setup) = onboarding_server(guide).await;
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.page
+            .goto(&setup, GotoOptions::default())
+            .expect("open the setup link");
+        exercise_reveal(ui, "setup", ["password", "password confirmation"], PASSWORD);
+        // Submitting with both fields revealed sets the password.
+        ui.click("#setup-submit");
+        ui.wait_text("#setup-welcome", "Your account is ready");
+    })
+    .await;
+    let pool = &server.db.pool;
+    if ran {
+        let outcome =
+            okf_mcp::store::passwords::verify(pool, "alice@example.com", PASSWORD, Utc::now())
+                .await
+                .expect("verify");
+        assert!(matches!(
+            outcome,
+            okf_mcp::store::passwords::SignInOutcome::Ok(_)
+        ));
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_reset_form_reveals_each_password_field_alone_and_still_resets_the_password() {
+    let guide = guide_host().await;
+    let (server, _setup) = onboarding_server(guide).await;
+    let pool = &server.db.pool;
+    let alice = users::find_by_email(pool, "alice@example.com")
+        .await
+        .expect("find alice")
+        .expect("alice exists");
+    let token = email_tokens::issue(
+        pool,
+        &alice.id,
+        Purpose::Reset,
+        Duration::from_secs(3600),
+        Utc::now(),
+    )
+    .await
+    .expect("issue a reset link");
+    let reset = link(&server.base, "/account/reset", &token);
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.page
+            .goto(&reset, GotoOptions::default())
+            .expect("open the reset link");
+        exercise_reveal(
+            ui,
+            "reset",
+            ["new password", "new password confirmation"],
+            PASSWORD,
+        );
+        ui.click("#reset-submit");
+        ui.wait_visible("#signin-form");
+    })
+    .await;
+    if ran {
+        let outcome =
+            okf_mcp::store::passwords::verify(pool, "alice@example.com", PASSWORD, Utc::now())
+                .await
+                .expect("verify");
+        assert!(matches!(
+            outcome,
+            okf_mcp::store::passwords::SignInOutcome::Ok(_)
+        ));
+    }
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_refused_password_says_so_and_a_session_survives_a_reload() {
     let server = server().await;

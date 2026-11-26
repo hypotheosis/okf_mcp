@@ -254,3 +254,8 @@ pre.diff .del { color: var(--error); }
 /* Display names (M17 Task 10a): a label with its id beneath */
 .named { display: flex; flex-direction: column; }
 .id-line { font-size: 0.8em; font-family: var(--pico-font-family-monospace); }
+
+/* A password input with its show/hide button (core/reveal.js) */
+.reveal-field { display: flex; gap: .5rem; align-items: stretch; margin-bottom: var(--pico-spacing, 1rem); }
+.reveal-field input { flex: 1; min-width: 0; margin: 0; }
+.reveal-field button { width: auto; margin: 0; }

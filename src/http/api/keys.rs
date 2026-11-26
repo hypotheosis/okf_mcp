@@ -370,13 +370,40 @@ pub(crate) fn parse_access(text: &str) -> Result<Access, OkfError> {
 #[tracing::instrument(level = "debug", skip_all)]
 async fn managed(app: &App, principal: &Principal, id: &str) -> Result<KeyRecord, OkfError> {
     require_admin(principal)?;
-    key_rows::list(app.accounts().executor())
+    // One row by id (issue #741), then the same `manages` check as before:
+    // an unknown id and a key the caller does not manage answer alike.
+    key_rows::record_by_id(app.accounts().executor(), id)
         .await?
-        .into_iter()
-        .find(|record| record.id == id && manages(principal, record))
+        .map(|credential| credential.record)
+        .filter(|record| manages(principal, record))
         .ok_or_else(|| OkfError::NotFound {
             path: format!("keys/{id}"),
         })
+}
+
+/// The catalog names a caller that is not [`Reach::All`] reaches, for
+/// [`key_rows::KeyFilter::reaching`]: the database narrows to credentials
+/// that could pass [`manages`], which the caller still applies.
+///
+/// # Arguments
+/// * `principal` - the caller.
+///
+/// # Returns
+/// `None` for a caller reaching every catalog (nothing to narrow); otherwise
+/// the names it reaches (none for a console session's ceiling).
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+    )
+)]
+pub(crate) fn reach_names(principal: &Principal) -> Option<Vec<String>> {
+    match &principal.reach {
+        Reach::All => None,
+        Reach::Catalogs(levels) => Some(levels.keys().cloned().collect()),
+        Reach::Ceiling => Some(Vec::new()),
+    }
 }
 
 /// Answers with the key as it now is, once the change has committed: this
@@ -401,12 +428,19 @@ async fn list_keys(
     Extension(principal): Extension<Arc<Principal>>,
 ) -> Result<Json<KeyList>, AppError> {
     require_admin(&principal)?;
-    let keys = key_rows::list(app.accounts().executor())
-        .await?
-        .into_iter()
-        .filter(|record| manages(&principal, record))
-        .map(KeyView::from)
-        .collect();
+    let reaching = reach_names(&principal);
+    let keys = key_rows::list_filtered(
+        app.accounts().executor(),
+        &key_rows::KeyFilter {
+            reaching: reaching.as_deref(),
+            ..Default::default()
+        },
+    )
+    .await?
+    .into_iter()
+    .filter(|record| manages(&principal, record))
+    .map(KeyView::from)
+    .collect();
     Ok(Json(KeyList { keys }))
 }
 
@@ -997,6 +1031,137 @@ mod tests {
                 .all(|name| everything.iter().any(|n| n == name)),
             "{everything:?}"
         );
+    }
+
+    #[tokio::test]
+    async fn a_key_out_of_reach_is_a_404_by_id_and_an_every_catalog_admin_still_acts_on_it() {
+        let test = app().await;
+        let keys = keys(&test).await;
+        let root = stored(&test, "root", Access::Admin, Grants::All).await;
+        let beyond = vec!["main".to_string(), "other".to_string()];
+        // Each of these is beyond the scoped admin: an every-catalog key, a
+        // key that also names a catalog it does not reach, and an unknown id.
+        let every = stored(&test, "every", Access::Read, Grants::All).await.id;
+        let wider = stored(&test, "wider", Access::Read, Grants::Catalogs(&beyond))
+            .await
+            .id;
+        let inside = stored(
+            &test,
+            "inside",
+            Access::Read,
+            Grants::Catalogs(&main_only()),
+        )
+        .await
+        .id;
+
+        for id in [&every, &wider, "no-such-id"] {
+            let (status, body) = send(
+                &test,
+                "POST",
+                &format!("/api/v1/keys/{id}/revoke"),
+                Some(&keys.admin),
+                None,
+            )
+            .await;
+            assert_eq!(status.as_u16(), 404, "{id}: {body}");
+        }
+        // The refused attempts changed nothing; a key inside reach is acted on.
+        let stored_keys = key_rows::list(test.app.accounts().executor())
+            .await
+            .expect("list");
+        for id in [&every, &wider] {
+            let key = stored_keys.iter().find(|key| &key.id == id).expect("key");
+            assert!(key.revoked_at.is_none(), "{id} stays live");
+        }
+        let (status, body) = send(
+            &test,
+            "POST",
+            &format!("/api/v1/keys/{inside}/revoke"),
+            Some(&keys.admin),
+            None,
+        )
+        .await;
+        assert_eq!(status.as_u16(), 200, "{body}");
+        // An admin reaching every catalog acts on what the scoped one cannot.
+        for id in [&every, &wider] {
+            let (status, body) = send(
+                &test,
+                "POST",
+                &format!("/api/v1/keys/{id}/revoke"),
+                Some(&root.key),
+                None,
+            )
+            .await;
+            assert_eq!(status.as_u16(), 200, "{id}: {body}");
+            assert!(body["revoked_at"].is_string(), "{body}");
+        }
+    }
+
+    #[tokio::test]
+    async fn a_filtered_read_answers_what_listing_every_key_and_filtering_did() {
+        use crate::store::keys::KeyFilter;
+
+        let test = app().await;
+        let _ = keys(&test).await;
+        let beyond = vec!["main".to_string(), "other".to_string()];
+        stored(&test, "every", Access::Read, Grants::All).await;
+        stored(&test, "wider", Access::Read, Grants::Catalogs(&beyond)).await;
+        stored(
+            &test,
+            "inside",
+            Access::Read,
+            Grants::Catalogs(&main_only()),
+        )
+        .await;
+        let all = key_rows::list(test.app.accounts().executor())
+            .await
+            .expect("list");
+        let reached = main_only();
+
+        for reaching in [None, Some(reached.as_slice()), Some(&[][..])] {
+            let filtered = key_rows::list_filtered(
+                test.app.accounts().executor(),
+                &KeyFilter {
+                    reaching,
+                    ..Default::default()
+                },
+            )
+            .await
+            .expect("filtered");
+            let expected: Vec<_> = all
+                .iter()
+                .filter(|record| match reaching {
+                    None => true,
+                    Some(names) => {
+                        !record.provisioner
+                            && !record.all_catalogs
+                            && record.catalogs.iter().all(|name| names.contains(name))
+                    }
+                })
+                .cloned()
+                .collect();
+            assert_eq!(filtered, expected, "reaching {reaching:?}");
+        }
+        let by_name = key_rows::list_filtered(
+            test.app.accounts().executor(),
+            &KeyFilter {
+                user_name: Some(crate::db::TEST_USER),
+                kind: Some(key_rows::KeyKind::Key),
+                ..Default::default()
+            },
+        )
+        .await
+        .expect("filtered");
+        let expected: Vec<_> = all
+            .iter()
+            .filter(|record| {
+                record.user.as_deref() == Some(crate::db::TEST_USER)
+                    && record.kind == key_rows::KeyKind::Key
+            })
+            .cloned()
+            .collect();
+        assert_eq!(by_name, expected);
+        assert!(!expected.is_empty());
     }
 
     #[tokio::test]

@@ -921,7 +921,7 @@ pub(crate) async fn resolve_grants(
 // order as `catalogs`, so the two arrays pair up; `COALESCE(g.access,
 // k.access)` resolves a NULL level to the key's own.
 macro_rules! select_key_records {
-    ($extra:literal, $filter:literal) => {
+    ($extra:literal, $filter:expr) => {
         concat!(
             "SELECT ",
             $extra,
@@ -1022,6 +1022,85 @@ pub async fn list(pool: &PgPool) -> Result<Vec<KeyRecord>, OkfError> {
     rows.into_iter().map(KeyRecord::try_from).collect()
 }
 
+/// Which keys and grants [`list_filtered`] reads: each field set narrows the
+/// answer, and the default (every field `None`) is [`list`].
+///
+/// The database only narrows what is read (issue #741); the caller still
+/// applies its own authorization check to every record it gets back.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct KeyFilter<'a> {
+    /// Only credentials of this user, by `users.id`.
+    pub user_id: Option<&'a str>,
+    /// Only credentials of this user, by `users.name`; ignored when
+    /// `user_id` is set.
+    pub user_name: Option<&'a str>,
+    /// Only keys or only grants.
+    pub kind: Option<KeyKind>,
+    /// Only credentials a caller that reaches exactly these catalogs
+    /// manages: not a provisioner, not all-catalogs, and every named catalog
+    /// among these. `None` leaves the reach out (a caller reaching every
+    /// catalog).
+    pub reaching: Option<&'a [String]>,
+}
+
+/// The keys and grants matching `filter`, in [`list`]'s order, with their
+/// granted catalogs: the per-action reads of `/me`, `/keys` and
+/// `/users/{name}` use it instead of listing every key and filtering in
+/// memory (issue #741).
+///
+/// # Arguments
+/// * `pool` - the database.
+/// * `filter` - what to keep.
+///
+/// # Returns
+/// The records, ordered as [`list`] orders them, revoked ones included.
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "keys.list_filtered"))]
+pub async fn list_filtered(
+    pool: &PgPool,
+    filter: &KeyFilter<'_>,
+) -> Result<Vec<KeyRecord>, OkfError> {
+    // The user condition is a separate statement per case, not `$1 IS NULL
+    // OR ...`: a generic plan cannot use `api_keys_user_id` through the
+    // OR. The other conditions only narrow rows already found, so a NULL
+    // bind leaves them out. `<> ALL` over the reached names finds a granted
+    // catalog outside them; an empty array rejects nothing, so a key with no
+    // catalogs passes, as `Iterator::all` over none does in `manages`.
+    macro_rules! filtered {
+        ($user:literal) => {
+            concat!(
+                select_key_records!(
+                    "",
+                    concat!(
+                        "WHERE ",
+                        $user,
+                        " AND ($2::text IS NULL OR k.kind = $2) \
+                         AND ($3::text[] IS NULL OR (NOT k.provisioner AND NOT k.all_catalogs \
+                             AND NOT EXISTS (SELECT 1 FROM key_catalogs x \
+                                 JOIN catalogs xc ON xc.id = x.catalog_id \
+                                 WHERE x.key_id = k.id AND xc.name <> ALL($3))))"
+                    )
+                ),
+                " ORDER BY k.name, k.actor, k.created_at, k.id"
+            )
+        };
+    }
+    let (sql, user) = match (filter.user_id, filter.user_name) {
+        (Some(id), _) => (filtered!("k.user_id = $1"), Some(id)),
+        (None, Some(name)) => (filtered!("u.name = $1"), Some(name)),
+        (None, None) => (filtered!("$1::text IS NULL"), None),
+    };
+    let rows = sqlx::query_as::<_, KeyRow>(sql)
+        .bind(user)
+        .bind(filter.kind.map(KeyKind::as_str))
+        .bind(filter.reaching)
+        .fetch_all(pool)
+        .await?;
+    rows.into_iter().map(KeyRecord::try_from).collect()
+}
+
 /// A key or grant with the audit id its accesses are recorded with: what
 /// the credential cache holds (M18 Decision 9).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1099,12 +1178,19 @@ pub async fn record_by_hash(
 /// * `id` - its `api_keys.id`.
 ///
 /// # Returns
-/// Its record, revoked or not, or `None` for no such row.
+/// Its record, revoked or not, or `None` for no such row (an id with a NUL
+/// is no such row).
 ///
 /// # Errors
 /// [`OkfError::Database`].
 #[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "keys.record_by_id"))]
 pub async fn record_by_id(pool: &PgPool, id: &str) -> Result<Option<CredentialRecord>, OkfError> {
+    // Postgres rejects NUL in text, which would be a 500; no id has one, so
+    // it takes the path of an unknown id (the routes look keys up by a
+    // client-chosen id).
+    if id.contains('\0') {
+        return Ok(None);
+    }
     let row = sqlx::query_as::<_, CredentialRow>(select_key_records!(
         "(SELECT a.id FROM audit_credentials a WHERE a.credential_id = k.id) \
              AS audit_credential, ",

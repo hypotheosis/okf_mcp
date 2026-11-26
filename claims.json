@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1559,
+  "next_claim_seq": 1566,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "99667e4a46466285650ecb65ad1cf972a4d5f28c346dc3a5973c88e12112ec4f"
+    "mac": "f0c714d1dcdee0c753eea2af41835a1f1cf19b76119f7a70bba7b250095b22fd"
   },
-  "next_evidence_seq": 2323,
+  "next_evidence_seq": 2335,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "19e607d772e90fa180a0eca9d426201ba2a9b75abc4acc9c5a59e3760fc02b0e"
+    "mac": "685d56ced5e88f439f4981cf43fddf974d287b5cc2c2d9ef2dc9afef3d287b59"
   },
   "claims": [
     {
@@ -19340,6 +19340,28 @@
             "by": "server",
             "mac": "9f4834954e711bb3638ac9f6c552c5611cc0776943351b2c929e59b566097d08"
           }
+        },
+        {
+          "id": "EVD-2332",
+          "kind": "inspection",
+          "locator": "scripts/test-pg.sh:25-135 at head",
+          "summary": "Re-audit after #1044: IMAGE is still postgres:17-alpine, up still uses --tmpfs data dir, fsync=off and jobs=${TEST_PG_JOBS:-$(nproc)}; up (1-2 args), down and run subcommands remain.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-pg.sh",
+              "lines": {
+                "start": 25,
+                "end": 135
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:57.279477512Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ea0e12494b536265397657314fb4dd95ea91fef8ab91a28abf955e5eb3bb436"
+          }
         }
       ],
       "verdicts": [
@@ -19355,13 +19377,26 @@
             "by": "server",
             "mac": "d63ad28890577ccb9ab8b3ab5be657e944f1230e421511b930570a2277b07ee2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head after the PR changed scripts/test-pg.sh: image, tmpfs, fsync off, TEST_PG_JOBS sizing and up/down/run all still present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2332"
+          ],
+          "recorded_at": "2026-11-26T04:24:01.891872556Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6a088a00336053172ad00376fecdbeeefd734ac857a84bbfb255dc9faa54238"
+          }
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-21T19:10:11.009411028Z",
+      "updated_at": "2026-11-26T04:24:01.891872556Z",
       "seal": {
         "by": "server",
-        "mac": "5bb82c89161f60b91a55b007b81f94d67e98262cb4792f9ae4f8a4fb58ec124a"
+        "mac": "10a02486f322e841c4f851105744f204a0139ca1b3d7979ba9f5eb34132d965a"
       }
     },
     {
@@ -126726,6 +126761,561 @@
       "seal": {
         "by": "server",
         "mac": "67987f35016976d0ce2172e44502ca86d87cbbc53a3067e879781ad4296e1efd"
+      }
+    },
+    {
+      "id": "CLM-1559",
+      "statement": "A shared Postgres server started by `scripts/test-pg.sh run` whose run was killed with KILL is removed by the stale-container sweep once the run shell is gone.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1044 (title and suggested fix)",
+      "derived_from": [],
+      "artifacts": [
+        "scripts/test-pg.sh",
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2333",
+          "kind": "analysis",
+          "locator": "children of CLM-1559",
+          "summary": "Children together show the fix: the run shell's labels match what the sweep reads, unowned servers stay exempt, the sweep rules are untouched, and a test covers dead vs live. The one open child is the PR's own pass-count statement, which does not affect the behaviour.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T04:24:02.061796233Z",
+          "seal": {
+            "by": "server",
+            "mac": "89561eb7fc5b60e0b0ee7d4eb78d74f3b1f1fb88ca571e95a63a8afd9082a41c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Behaviour children CLM-1560 to CLM-1564 are supported, but the end-to-end KILL scenario was not run (the test stubs liveness and the auditor ran no Docker), and CLM-1565 is undecided. Fix: rerun the narrow gate on the head commit and record its pass counts so CLM-1565 can be supported, then record this roll-up as supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2333"
+          ],
+          "recorded_at": "2026-11-26T04:24:05.037656562Z",
+          "seal": {
+            "by": "server",
+            "mac": "127ac7888efd6c18383abf3d8893be570087c72dbb7613c98b40ea7c931c2bf1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:24:05.037656562Z",
+      "seal": {
+        "by": "server",
+        "mac": "a59e42c0af28abdd9fe4443c8ed75cdf9df4f7b277b21712455d47daeb5e67ed"
+      }
+    },
+    {
+      "id": "CLM-1560",
+      "statement": "`scripts/test-pg.sh run` starts its shared server with the owner pid of the run shell ($$) and `up` labels it `okf-mcp.test-start=<pid>-0` and `okf-mcp.test-owner-scope=<boot id>/<pid namespace>`, the format the sweep reads.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "Issue #1044 suggested fix: give the shared server the ownership labels of other test containers; PR body: \"`run` passes its own pid (`$$`)\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "scripts/test-pg.sh"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2323",
+          "kind": "demonstration",
+          "locator": "bash: source owner_labels() from scripts/test-pg.sh (lines 45-59) and call `owner_labels pg 4242`",
+          "summary": "Printed `--label okf-mcp.test-start=4242-0 --label okf-mcp.test-owner-scope=<boot id>/pid:[4026531836]`, the same `<boot id>/<namespace>` shape tests/support/pg.rs owner_scope() builds from boot_id and the pid ns link.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-pg.sh",
+              "lines": {
+                "start": 45,
+                "end": 59
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.468907916Z",
+          "seal": {
+            "by": "server",
+            "mac": "d21902420953f635e7181a4c34f21801587964eaf084aafb842c162bc05a8e37"
+          }
+        },
+        {
+          "id": "EVD-2324",
+          "kind": "inspection",
+          "locator": "scripts/test-pg.sh:100-110",
+          "summary": "run() calls `up \"$name\" \"$$\"` (the run shell's own pid) with the EXIT trap set before; the shell, not the child, is the owner, so the pid is gone when the shell is KILLed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-pg.sh",
+              "lines": {
+                "start": 100,
+                "end": 110
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.601859334Z",
+          "seal": {
+            "by": "server",
+            "mac": "cae4c9a348ca2d8da42ddd16039303176ac68a71219fc162e3b6d58729f01fa9"
+          }
+        },
+        {
+          "id": "EVD-2325",
+          "kind": "inspection",
+          "locator": "src/db.rs:2493-2506 (test assertions on dead server's labels)",
+          "summary": "The db test asserts a server started with `up NAME <pid>` has start label `<pid>-0` and owner_scope equal to pg_support::owner_scope(). The test was reported passing by the caller; I did not rerun it (Docker).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2493,
+                "end": 2506
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.690689721Z",
+          "seal": {
+            "by": "server",
+            "mac": "775ed15c01456cceab3547ef5275489d4d11bce7f7c6418c5f69e44fdc8b8f94"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "run() passes $$ to up; owner_labels emits start label <pid>-0 and scope <boot id>/<pid ns> in the exact format owner_scope() produces (demonstrated by running the function); the db test asserts the same labels on a real container.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2323",
+            "EVD-2324",
+            "EVD-2325"
+          ],
+          "recorded_at": "2026-11-26T04:23:56.751458314Z",
+          "seal": {
+            "by": "server",
+            "mac": "fdcf09c1896af02b47a67b18b8e6d2f2fa74bd0a9e96799c97cd0c95273e04ea"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:23:56.751458314Z",
+      "seal": {
+        "by": "server",
+        "mac": "2bb8f8970cf0f265c4b14c3b4c59e846181c359e25cd915031c2a20ec13fe6b4"
+      }
+    },
+    {
+      "id": "CLM-1561",
+      "statement": "`scripts/test-pg.sh up NAME` with no owner pid, or where the boot id or pid namespace cannot be read, labels the container `okf-mcp.test-start=server-<name>` with no scope label, so the sweep never removes it.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR body: \"Without an owner pid (a server kept across runs), or where the boot id or pid namespace cannot be read, the label stays `server-<name>` with no scope, so the sweep never removes it.\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "scripts/test-pg.sh",
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2326",
+          "kind": "demonstration",
+          "locator": "bash: source owner_labels() from scripts/test-pg.sh and call `owner_labels pg` (no owner)",
+          "summary": "Printed only `--label okf-mcp.test-start=server-pg`: no scope label. The else branch (lines 54-58) is also taken when boot_id or pid-namespace reads fail, since they are in the same && condition.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test-pg.sh",
+              "lines": {
+                "start": 45,
+                "end": 59
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.781463483Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb0ed95899cd85a5a569f4781bf316ce669633d0e80c9549c24202cdab1138d6"
+          }
+        },
+        {
+          "id": "EVD-2327",
+          "kind": "analysis",
+          "locator": "tests/support/pg.rs:1264-1276 stale_container_ids",
+          "summary": "A container without a scope label fails the `owner_scope == Some(own_scope)` filter, and a `server-<name>` label gives owner_pid None, so either alone keeps it. Test asserts the unowned server remains (src/db.rs:2514-2515).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1264,
+                "end": 1276
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.870717700Z",
+          "seal": {
+            "by": "server",
+            "mac": "38ae36f7fe0c82e96d4da69a0ea107420186ae9bdf7f27a1af82bd9da2292cbd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "With no owner the function emits only server-<name>; failed boot-id/namespace reads share the && condition and fall to the same branch (read, not executed with a failing proc). The sweep's scope and pid filters keep such a container.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2326",
+            "EVD-2327"
+          ],
+          "recorded_at": "2026-11-26T04:23:56.849177892Z",
+          "seal": {
+            "by": "server",
+            "mac": "11e3687b79c2541015f7f61fe49410d9a308c52491641e339e8eb446c2e2de38"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:23:56.849177892Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe43c29f6daf704f737d42d19276e9c57b63670b78ff0c8361f115bf4e77893f"
+      }
+    },
+    {
+      "id": "CLM-1562",
+      "statement": "The sweep's rules are unchanged by the PR: only a container with the sweeper's own scope label and a `<pid>-<counter>` start label whose pid the kernel reports as ESRCH is removed.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1044: \"keep the sweep's conservative rules (only ESRCH means dead)\"; PR body: \"The sweep's rules are unchanged: only ESRCH from kill(pid, 0) means dead.\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2328",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- tests/support/pg.rs",
+          "summary": "The only hunk in tests/support/pg.rs is a doc-comment change on owner_pid (line 1240); stale_container_ids, the scope check, owner_pid parsing and the ESRCH rule (pid_may_be_alive, lines 1151-1178) are untouched. The filters at 1264-1276 still require the same scope, a pid-counter label and a not-alive pid.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1237,
+                "end": 1276
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:40.958063882Z",
+          "seal": {
+            "by": "server",
+            "mac": "5dac863f7100cb1055840adbe15c2f1242e89e3d329e18c0bbd19e4ab96a6177"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches tests/support/pg.rs only in one doc comment; sweep logic and the ESRCH rule are byte-for-byte unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2328"
+          ],
+          "recorded_at": "2026-11-26T04:23:56.935897936Z",
+          "seal": {
+            "by": "server",
+            "mac": "89bdc89a942e7382d55b3c58ea43aa251e0da6635a46fffb981f439355fc4e53"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:23:56.935897936Z",
+      "seal": {
+        "by": "server",
+        "mac": "e83aaee3103e252cd52c1b2897748d2357bdc07c28aef710297989ab38b64b81"
+      }
+    },
+    {
+      "id": "CLM-1563",
+      "statement": "The test `db::tests::the_shared_server_of_a_dead_run_is_swept` starts real servers through scripts/test-pg.sh (dead owner, live owner, no owner) and asserts that the sweep removes only the dead owner's server and keeps the live-owner and unowned ones.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue requester: \"add a test proving a dead-owner server is swept and a live one is not\"; PR body: \"asserts only the dead owner's server is removed\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2329",
+          "kind": "inspection",
+          "locator": "src/db.rs:2457-2515 the_shared_server_of_a_dead_run_is_swept",
+          "summary": "Starts three servers via scripts/test-pg.sh up (owner dead pid 4000003, live 4000004, none); sweeps with real scope and stub `pid != dead_pid`; asserts removed == 1, dead label absent after, live and `server-<name>` present, removing all test servers before asserting. Assertions read and decide the claim. Caller reports the test passed; not rerun by me (Docker).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2457,
+                "end": 2515
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:41.047040779Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b477fe2d8989fb0788d2133fc61e8adf93db925aae821c59d93a6749bc4b760"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test body, read at head, creates all three kinds of server through the script and asserts exactly one removal (the dead owner) while live and unowned remain; it exercises the defect's input (dead-owner shared server).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2329"
+          ],
+          "recorded_at": "2026-11-26T04:23:57.022005558Z",
+          "seal": {
+            "by": "server",
+            "mac": "c83c6c918fa0221c57092f312e1210f236c118f247109a213886817cd04f3a69"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:23:57.022005558Z",
+      "seal": {
+        "by": "server",
+        "mac": "b73eb0f70508c15412d601167d4b2d0464bb7f8320f6e5fa1619d3a4c75d9001"
+      }
+    },
+    {
+      "id": "CLM-1564",
+      "statement": "No documentation outside the changelog still says the shared test server's `server-<name>` label is never swept, and the comments on `owner_pid` and in scripts/test-pg.sh describe the owner-pid behaviour.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue requester: \"update docs that describe test-pg.sh/the sweep if they mention the server exemption\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "README.md",
+        "tests/support/pg.rs",
+        "scripts/test-pg.sh",
+        "changelog/2026-11-26T04-21-11Z-issue-1044-test-pg-server-owner-labels.md"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2330",
+          "kind": "analysis",
+          "locator": "git grep -nE 'never swept|no test process owns|server-<name>' (excluding changelog/, docs/superpowers, target)",
+          "summary": "Remaining hits are the updated comments at scripts/test-pg.sh:44, src/db.rs:2454, tests/support/pg.rs:1240, all describing the owner-pid behaviour. README.md:755-770 does not mention the exemption or the sweep, so needs no change. The #784 changelog line 19 keeps the old statement; the new changelog's Notes say it supersedes it.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "never swept|no test process owns|server-<name>",
+              "scope": [
+                "AGENTS.md",
+                "README.md",
+                "justfile",
+                "scripts",
+                "src",
+                "tests",
+                "tools"
+              ],
+              "hits": 3,
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:41.162992767Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0f7c6b85b135b5db2fcbd9680dbfe9918f849aaebf4ae6d0c4171431cd32b25"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search finds only the three updated comments; README does not describe the exemption.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2330"
+          ],
+          "recorded_at": "2026-11-26T04:23:57.106174834Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7f9b4214396ba0eefb4029f9c97bc252bbcd10ea4d3ac2d17e3c618a3b33afb"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:23:57.106174834Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f054f54ea46cba51794788de921a38b2cafc21105505d85513e2776baf568e6"
+      }
+    },
+    {
+      "id": "CLM-1565",
+      "statement": "`tools/agentic/gate.sh narrow --lib -- the_shared_server_of_a_dead_run_is_swept the_sweep` runs 5 tests and all pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body Validation: \"`tools/agentic/gate.sh narrow --lib -- the_shared_server_of_a_dead_run_is_swept the_sweep`: 5 passed.\"",
+      "derived_from": [
+        "CLM-1559"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:1044"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2331",
+          "kind": "analysis",
+          "locator": "grep fn names in src/db.rs matching the_sweep|the_shared_server_of_a_dead_run_is_swept",
+          "summary": "Five test functions match the filter (src/db.rs lines 2362, 2397, 2458, 2520, 2584), consistent with the count of 5. Passing was not rerun by the auditor (no cargo/Docker runs allowed).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 2457,
+                "end": 2459
+              },
+              "commit": "864e5ec80f313ef75004a0fd27d3131a8d20cecd"
+            }
+          },
+          "recorded_at": "2026-11-26T04:23:41.251503122Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f7f425dec1402c5f1f41fb95468509154a5b476a3d9c462815c43803923e227"
+          }
+        },
+        {
+          "id": "EVD-2334",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- the_shared_server_of_a_dead_run_is_swept the_sweep (target/i1044-logs/narrow.log)",
+          "summary": "Ran by the author at the code commit: 5 passed, 0 failed, exit 0. Full test gate also: 3601 passed, 20 skipped.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T04:34:35.930055538Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb4c935aa43bf409fac71ac0cc49fac0d5b2bf4fa7a663e2aee92e583e471527"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Five tests match the filter, but the auditor did not rerun the gate (no cargo or Docker runs), so the pass count is unverified. Fix: run `tools/agentic/gate.sh narrow --lib -- the_shared_server_of_a_dead_run_is_swept the_sweep` on the head commit and record the printed counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2331"
+          ],
+          "recorded_at": "2026-11-26T04:23:57.190588571Z",
+          "seal": {
+            "by": "server",
+            "mac": "07218c90b557e6f1fea5bd997c657711b4de4c317578a6b3e7e4f7078b59e7ed"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Gate output shows 5 passed.",
+          "auditor": "claude-sonnet-5-5 (author, from own gate log)",
+          "evidence_ids": [
+            "EVD-2334"
+          ],
+          "recorded_at": "2026-11-26T04:34:38.874862337Z",
+          "seal": {
+            "by": "server",
+            "mac": "affe82dc9e04cfeb1f0f369cb94854964535705ed6eb86dd3ef1130670ddc08b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T04:23:15.541180497Z",
+      "updated_at": "2026-11-26T04:34:38.874862337Z",
+      "seal": {
+        "by": "server",
+        "mac": "1b4efbf0274f27961c1bd348d91afb19b965edc258362a2e501f2ec45e7e7aef"
       }
     }
   ]

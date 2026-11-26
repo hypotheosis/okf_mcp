@@ -172,6 +172,8 @@ enum Load<V> {
 struct Probe<K, V> {
     cache: Cache<K, Entry<V>>,
     by_bytes: bool,
+    /// The cache's weight unit, as a power of two (see [`unit_shift`]).
+    unit_shift: u32,
 }
 
 impl<K, V> CacheSize for Probe<K, V>
@@ -192,7 +194,12 @@ where
         allow(uninstrumented_fn, reason = "a gauge callback reading one counter")
     )]
     fn bytes(&self) -> Option<u64> {
-        self.by_bytes.then(|| self.cache.weighted_size())
+        // Moka counts weight units; the gauge reports bytes.
+        self.by_bytes.then(|| {
+            self.cache
+                .weighted_size()
+                .saturating_mul(1 << self.unit_shift)
+        })
     }
 }
 
@@ -246,7 +253,54 @@ fn locked<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
 }
 
 /// The weigher type: how many bytes (or units) one value counts.
-type Weigher<K, V> = Arc<dyn Fn(&K, &V) -> u32 + Send + Sync>;
+type Weigher<K, V> = Arc<dyn Fn(&K, &V) -> u64 + Send + Sync>;
+
+/// How many low bits of a byte count moka's weight drops, for a byte
+/// budget: moka weighs an entry in a `u32`, so a budget past `u32::MAX`
+/// bytes is counted in coarser units of `1 << shift` bytes, the smallest
+/// power of two that keeps the whole budget to at most `2^31` units. A budget
+/// that fits in a `u32` keeps exact bytes (shift 0).
+///
+/// # Arguments
+/// * `budget` - the byte budget.
+///
+/// # Returns
+/// The shift.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(uninstrumented_fn, reason = "arithmetic only")
+)]
+const fn unit_shift(budget: u64) -> u32 {
+    if budget <= u32::MAX as u64 {
+        0
+    } else {
+        (u64::BITS - budget.leading_zeros()).saturating_sub(31)
+    }
+}
+
+/// `bytes` in units of `1 << shift` bytes, rounded up so a count never
+/// understates, and saturating at `u32::MAX` (moka's weight type). An entry
+/// the cache keeps weighs no more than the budget, whose own unit count is
+/// at most `2^31` ([`unit_shift`]), so a kept entry never saturates.
+///
+/// # Arguments
+/// * `bytes` - the byte count.
+/// * `shift` - the unit's power of two.
+///
+/// # Returns
+/// The unit count.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(uninstrumented_fn, reason = "arithmetic only")
+)]
+const fn units_up(bytes: u64, shift: u32) -> u32 {
+    let units = bytes.div_ceil(1 << shift);
+    if units > u32::MAX as u64 {
+        u32::MAX
+    } else {
+        units as u32
+    }
+}
 
 /// A bounded async cache with single-flight loads, per-key invalidation
 /// epochs and stale marking.
@@ -320,14 +374,15 @@ where
     /// before [`Bounded::with_metrics`] and before the cache is used.
     ///
     /// # Arguments
-    /// * `weigher` - the weight of a key and value, saturating at
-    ///   `u32::MAX`.
+    /// * `weigher` - the weight of a key and value, in bytes. Moka is given
+    ///   it rounded up to a coarser unit when the budget exceeds 4 GiB
+    ///   (a power-of-two unit chosen from the budget); the oversize check uses the bytes.
     ///
     /// # Returns
     /// The cache.
     #[tracing::instrument(level = "trace", skip_all)]
     #[must_use]
-    pub fn with_weigher(mut self, weigher: impl Fn(&K, &V) -> u32 + Send + Sync + 'static) -> Self {
+    pub fn with_weigher(mut self, weigher: impl Fn(&K, &V) -> u64 + Send + Sync + 'static) -> Self {
         debug_assert!(
             self.probe.is_none(),
             "with_weigher goes before with_metrics"
@@ -371,6 +426,7 @@ where
         let probe = Arc::new(Probe {
             cache: self.cache.clone(),
             by_bytes: matches!(self.limit, Limit::Bytes(_)),
+            unit_shift: self.unit_shift(),
         });
         let size: Weak<dyn CacheSize> = Arc::downgrade(&probe) as Weak<dyn CacheSize>;
         metrics.observe_cache(self.name, size);
@@ -378,11 +434,25 @@ where
         self
     }
 
+    /// The weight unit's power of two: [`unit_shift`] of a byte budget, 0
+    /// for an entry count.
+    #[tracing::instrument(level = "trace", skip_all)]
+    fn unit_shift(&self) -> u32 {
+        match self.limit {
+            Limit::Bytes(budget) => unit_shift(budget),
+            Limit::Entries(_) => 0,
+        }
+    }
+
     /// Builds the moka cache from the settings so far.
     #[tracing::instrument(level = "trace", skip_all)]
     fn build_cache(&self) -> Cache<K, Entry<V>> {
+        let shift = self.unit_shift();
+        // Rounded up like a weight, so a value that fits the budget in
+        // bytes fits the capacity in units.
         let capacity = match self.limit {
-            Limit::Entries(count) | Limit::Bytes(count) => count,
+            Limit::Entries(count) => count,
+            Limit::Bytes(budget) => budget.div_ceil(1 << shift),
         };
         let mut builder = Cache::builder()
             .max_capacity(capacity)
@@ -391,7 +461,9 @@ where
             builder = builder.time_to_idle(idle);
         }
         if let Some(weigher) = self.weigher.clone() {
-            builder = builder.weigher(move |key: &K, entry: &Entry<V>| weigher(key, &entry.value));
+            builder = builder.weigher(move |key: &K, entry: &Entry<V>| {
+                units_up(weigher(key, &entry.value), shift)
+            });
         }
         if let Some(metrics) = self.metrics.clone() {
             let name = self.name;
@@ -818,6 +890,14 @@ where
         self.cache.entry_count()
     }
 
+    /// The bytes the size gauge would report, as moka counts them.
+    #[cfg(test)]
+    pub fn probe_bytes_for_test(&self) -> u64 {
+        self.cache
+            .weighted_size()
+            .saturating_mul(1 << self.unit_shift())
+    }
+
     /// Keys with a load in flight: the size of the epoch map.
     #[cfg(test)]
     pub fn tracked_epochs(&self) -> usize {
@@ -960,7 +1040,7 @@ where
             return false;
         };
         let weight = weigher(key, value);
-        if u64::from(weight) <= budget {
+        if weight <= budget {
             return false;
         }
         let mut warned = locked(&self.oversize_warned);
@@ -1352,6 +1432,95 @@ mod tests {
         assert_eq!(cache.get_or_load(1, || async { Ok(3) }).await.unwrap(), 2);
     }
 
+    const GIB: u64 = 1 << 30;
+
+    #[test]
+    fn a_budget_past_four_gib_gets_a_unit_that_keeps_it_under_two_to_the_31() {
+        assert_eq!(unit_shift(0), 0);
+        assert_eq!(
+            unit_shift(u64::from(u32::MAX)),
+            0,
+            "exact bytes while they fit"
+        );
+        for budget in [u64::from(u32::MAX) + 1, 6 * GIB, 1 << 50, u64::MAX] {
+            let shift = unit_shift(budget);
+            assert!(shift > 0, "{budget}");
+            assert!(budget.div_ceil(1 << shift) <= 1 << 31, "{budget}");
+        }
+    }
+
+    #[test]
+    fn rounding_a_weight_to_units_never_undercounts() {
+        for shift in [0, 1, 10, 20, 33] {
+            for bytes in [0, 1, 1023, 1024, 1025, 6 * GIB + 1, 8 * GIB] {
+                let units = u64::from(units_up(bytes, shift));
+                if units == u64::from(u32::MAX) {
+                    continue; // saturated: only for weights over the budget
+                }
+                assert!(units << shift >= bytes, "{bytes} bytes at shift {shift}");
+                assert!(
+                    (units << shift) - bytes < 1 << shift,
+                    "rounds up by less than a unit"
+                );
+            }
+        }
+        assert_eq!(units_up(u64::MAX, 0), u32::MAX, "saturates, never wraps");
+    }
+
+    /// A weigher that is faked, so no test allocates gigabytes: the cached
+    /// value is the byte weight it claims.
+    fn faked_weight_cache(budget: u64) -> Bounded<i64, u64> {
+        Bounded::<i64, u64>::new(CacheName::Catalog, Limit::Bytes(budget), TTL)
+            .with_weigher(|_, bytes| *bytes)
+    }
+
+    #[tokio::test]
+    async fn a_value_over_a_budget_past_four_gib_is_refused() {
+        // With a weight saturated at `u32::MAX` (4 GiB) this 8 GiB value
+        // passed the oversize check under a 6 GiB budget and was kept.
+        let cache = faked_weight_cache(6 * GIB);
+        let value = cache
+            .get_or_load(1, || async { Ok(8 * GIB) })
+            .await
+            .unwrap();
+        assert_eq!(value, 8 * GIB, "served");
+        cache.settle().await;
+        assert_eq!(cache.cache.entry_count(), 0, "but not kept");
+        assert!(cache.too_heavy(&1, &(8 * GIB)));
+        assert!(!cache.too_heavy(&1, &(5 * GIB)));
+    }
+
+    #[tokio::test]
+    async fn a_small_value_fits_under_a_budget_past_four_gib() {
+        let cache = faked_weight_cache(6 * GIB);
+        cache.get_or_load(1, || async { Ok(1000) }).await.unwrap();
+        cache
+            .get_or_load(2, || async { Ok(5 * GIB) })
+            .await
+            .unwrap();
+        cache.settle().await;
+        assert_eq!(cache.cache.entry_count(), 2);
+        assert_eq!(
+            cache.probe_bytes_for_test(),
+            5 * GIB + 1000,
+            "the gauge reports bytes, rounded up to the unit"
+        );
+    }
+
+    #[tokio::test]
+    async fn a_budget_past_four_gib_evicts_by_bytes_not_by_saturated_weight() {
+        // Two 4 GiB values weigh 8 GiB: over a 6 GiB budget, one must go.
+        let cache = faked_weight_cache(6 * GIB);
+        for key in 1..=2 {
+            cache
+                .get_or_load(key, || async { Ok(4 * GIB) })
+                .await
+                .unwrap();
+            cache.settle().await;
+        }
+        assert_eq!(cache.cache.entry_count(), 1);
+    }
+
     #[tokio::test]
     async fn an_entry_heavier_than_the_whole_budget_is_served_and_not_kept() {
         let cache = Bounded::<i64, i64>::new(CacheName::Catalog, Limit::Bytes(100), TTL)
@@ -1633,7 +1802,7 @@ mod tests {
         let weight = Arc::new(AtomicU64::new(10));
         let seen = weight.clone();
         let cache = Bounded::<i64, i64>::new(CacheName::Catalog, Limit::Bytes(1000), TTL)
-            .with_weigher(move |_, _| u32::try_from(seen.load(Ordering::SeqCst)).unwrap());
+            .with_weigher(move |_, _| seen.load(Ordering::SeqCst));
         cache.get_or_load(1, || async { Ok(1) }).await.unwrap();
         cache.settle().await;
         assert_eq!(cache.cache.weighted_size(), 10);

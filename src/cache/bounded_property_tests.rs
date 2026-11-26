@@ -321,7 +321,7 @@ fn loads_overtaken_by_an_invalidation_are_never_cached_and_weight_stays_in_budge
         Limit::Bytes(BUDGET),
         Duration::from_secs(3600),
     )
-    .with_weigher(move |key, _| weigher_world.weight(*key));
+    .with_weigher(move |key, _| u64::from(weigher_world.weight(*key)));
 
     tokio::runtime::Builder::new_current_thread()
         .enable_all()

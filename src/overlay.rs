@@ -50,7 +50,7 @@ pub struct Overlay {
     // connection; a read never reuses it (`Overlays::get`).
     behind_entries: bool,
     // What it costs in the cache, computed once at build.
-    weight: u32,
+    weight: u64,
 }
 
 impl Overlay {
@@ -287,7 +287,7 @@ fn supersedes(cached: &Arc<Overlay>, built: &Arc<Overlay>) -> bool {
 /// # Returns
 /// The estimated resident bytes.
 #[tracing::instrument(level = "trace", skip_all)]
-fn weight_of_workspace(workspace: &MemWorkspace) -> u32 {
+fn weight_of_workspace(workspace: &MemWorkspace) -> u64 {
     let (files, stored_bytes) = workspace.totals();
     weight(stored_bytes, files)
 }
@@ -854,7 +854,7 @@ mod tests {
         for id in 1..=3 {
             overlays_built.push(built(&base, id, 1, 1, 10 * 1024).await);
         }
-        let each = u64::from(overlays_built[0].weight);
+        let each = overlays_built[0].weight;
         let (overlays, registry, _provider) = overlays_with(each * 5 / 2);
 
         // Act: a third overlay does not fit. Which one moka drops is its
@@ -905,7 +905,7 @@ mod tests {
         let test = app_with(&[("pg", &[("a.md", "# A\n")])], Config::default()).await;
         let base = test.app.catalog("pg").await.unwrap().unwrap().current();
         let big = built(&base, 1, 1, 1, 50_000).await;
-        let (overlays, _registry, _provider) = overlays_with(u64::from(big.weight) - 1);
+        let (overlays, _registry, _provider) = overlays_with(big.weight - 1);
 
         store(&overlays, Arc::clone(&big)).await;
 

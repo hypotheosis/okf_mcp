@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1653,
+  "next_claim_seq": 1666,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "4c2e864951d855edda41950eb9eee637defb414de55a7ab47e816a2465aea375"
+    "mac": "a3599428c4d1ec4073989c643a00b621796b4281518d7320ab8b906d3f22d15c"
   },
-  "next_evidence_seq": 2444,
+  "next_evidence_seq": 2462,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "8763d33b54898f43f391f577bd516992f09190b2acbf44dcfb5691c0484f5e12"
+    "mac": "e0b2454fcb0796696f1c1758ead89e031ab1aa4d52665edef442968efcbfafb8"
   },
   "claims": [
     {
@@ -133489,6 +133489,948 @@
       "seal": {
         "by": "server",
         "mac": "79c742e2f37d9f3b2e558f4a2e6b071d302290b1791ef11e7bbdbf45b786959c"
+      }
+    },
+    {
+      "id": "CLM-1653",
+      "statement": "Issue #756 is resolved: with a catalog or overlay cache budget above 4 GiB, an oversized entry is no longer charged a saturated u32::MAX weight and is refused by Bounded::too_heavy.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/756",
+      "derived_from": [],
+      "artifacts": [
+        "src/cache/bounded.rs",
+        "src/cache/catalogs.rs",
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2461",
+          "kind": "analysis",
+          "locator": "children of CLM-1653",
+          "summary": "Children cover the requirements: u64 oversize check, rounded-up weight, scaled capacity, both caches, byte gauge, no saturation for kept entries, tests and docs. Only the gates-ran claim is not_enough_info, which does not affect the behavior.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T09:02:14.262896662Z",
+          "seal": {
+            "by": "server",
+            "mac": "906264ca601ab74f893099792934f53ad6800feecdddfc16929230442ae5036b"
+          }
+        }
+      ],
+      "verdicts": [],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:14.262896662Z",
+      "seal": {
+        "by": "server",
+        "mac": "695187bcb1ab11c4c5f9826799b5dd773912a0cc190aace7e15b1bf87cec1891"
+      }
+    },
+    {
+      "id": "CLM-1654",
+      "statement": "too_heavy compares a u64 byte weight (the weigher returns u64, not u32) against the u64 byte budget, so no saturation occurs in the oversize check.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #756: 'Keep a u64 estimate for the oversize check'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs",
+        "src/cache/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2444",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs:1038-1046; src/cache/bounded.rs:385",
+          "summary": "Weigher type is Fn(&K,&V)->u64; too_heavy does `let weight = weigher(key,value); if weight <= budget` with both u64, no u32 conversion. catalogs::weight returns u64 with saturating ops only (u64::MAX).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1038,
+                "end": 1046
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:27.951410116Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1eb06cd67af062ca6e3a8c761d16af67566f23a39610eb3ed7b0acf9b441b90"
+          }
+        },
+        {
+          "id": "EVD-2445",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_value_over_a_budget_past_four_gib_is_refused; cache::catalogs_tests::the_weight_charges_bytes_files_and_the_catalog_and_saturates_at_u64",
+          "summary": "too_heavy(&1,&(8*GIB)) asserted true and 5 GiB false under a 6 GiB budget; weight(u64::MAX,0)==u64::MAX asserted. Not rerun (caller said full gates passed); read the assertions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1477,
+                "end": 1491
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.040937757Z",
+          "seal": {
+            "by": "server",
+            "mac": "0deb4f5e328590e11883b7e470c072a7a64f4d9d09902001912e50f05bfff102"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Weigher and budget both u64 in too_heavy; test asserts 8 GiB refused, 5 GiB not.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2444",
+            "EVD-2445"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.188333441Z",
+          "seal": {
+            "by": "server",
+            "mac": "30eaf75777e100277be1d5b8c1936746122a97a8f6cc109f40933da6a445b170"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.188333441Z",
+      "seal": {
+        "by": "server",
+        "mac": "6df3944d3c6dea1aa144649735cb74cf95244dcd7bc5d3cb6f9ff0fcdba58e35"
+      }
+    },
+    {
+      "id": "CLM-1655",
+      "statement": "The weight handed to moka is the byte weight rounded up to units of 1<<shift bytes (units_up uses div_ceil), so a unit count never understates the bytes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #756: 'give moka a conservatively rounded weight ... so it never undercounts'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2446",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs:296-303; src/cache/bounded.rs:461-467",
+          "summary": "units_up = bytes.div_ceil(1<<shift), saturating to u32::MAX only above that; build_cache wraps the weigher as units_up(weigher(..), shift).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 296,
+                "end": 303
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.132378018Z",
+          "seal": {
+            "by": "server",
+            "mac": "dce93530798312945f2ced036b76bc3061907f501cf9fa2cbe4b1d47a252113d"
+          }
+        },
+        {
+          "id": "EVD-2447",
+          "kind": "test",
+          "locator": "cache::bounded::tests::rounding_a_weight_to_units_never_undercounts",
+          "summary": "For shifts 0,1,10,20,33 and byte counts incl. 0,1,1023,1025,6GiB+1,8GiB asserts units<<shift >= bytes and the excess is < one unit; saturated results are skipped (only reachable for weights over the budget) and units_up(u64::MAX,0)==u32::MAX.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1452,
+                "end": 1470
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.223146755Z",
+          "seal": {
+            "by": "server",
+            "mac": "73bd9d73f33b5008ee5468339da94f07885cf6dfd74102ddc055b2dfccb1139a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "units_up uses div_ceil and the test asserts units<<shift >= bytes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2446",
+            "EVD-2447"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.276121440Z",
+          "seal": {
+            "by": "server",
+            "mac": "16ad570bae1d90228a171dd1bfb93e3cedc0debcbb03f99f16fa809cda4e4ef5"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.276121440Z",
+      "seal": {
+        "by": "server",
+        "mac": "917248bb976846658488c93a1e9f16db68839aa53ac1e36192abbdd25017c407"
+      }
+    },
+    {
+      "id": "CLM-1656",
+      "statement": "moka's max_capacity for a byte-limited cache is the budget rounded up to the same unit (budget.div_ceil(1 << shift)), so capacity and weights are in the same units.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #756 task: 'scale moka max_capacity by the same unit'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2448",
+          "kind": "analysis",
+          "locator": "src/cache/bounded.rs:449-466",
+          "summary": "build_cache computes shift = self.unit_shift() once and uses it for both capacity (Limit::Bytes => budget.div_ceil(1<<shift)) and the weigher wrapper; entry-count caches use shift 0 and the raw count. Same shift, so same unit. Rounding capacity up means a value fitting in bytes fits in units.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 437,
+                "end": 468
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.315223069Z",
+          "seal": {
+            "by": "server",
+            "mac": "feae04341af93d36ac669a1148e15d9953d1691c019e70e59455b485c1fa43eb"
+          }
+        },
+        {
+          "id": "EVD-2449",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_budget_past_four_gib_evicts_by_bytes_not_by_saturated_weight",
+          "summary": "Behaviorally exercises capacity scaling: with a 6 GiB budget, two 4 GiB values leave entry_count 1, which only holds if capacity and weights share the unit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1510,
+                "end": 1522
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.408329729Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e060b93128268a39747a349d184690085dde85f61e738de411bb261d77238bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "build_cache uses one shift for capacity and weigher; eviction test depends on it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2448",
+            "EVD-2449"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.360714937Z",
+          "seal": {
+            "by": "server",
+            "mac": "eea7ccc3bd65579756bf7b80bb2e1179911aed513b12ca93d1692b07fc9054d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.360714937Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa81f013b82f83145dc109b283a2bab9e8208993d290793d7bafcfca33a64d6c"
+      }
+    },
+    {
+      "id": "CLM-1657",
+      "statement": "Both the catalog cache and the overlay cache use the new u64 weigher and unit scaling (both build on Bounded::with_weigher with u64 weights).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #756: 'The catalog and overlay weigher'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/catalogs.rs",
+        "src/overlay.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2450",
+          "kind": "inspection",
+          "locator": "src/cache/catalogs.rs:201; src/overlay.rs:324; src/overlay.rs:53,290",
+          "summary": "Catalog cache and OverlayCache both construct Bounded::new(..Limit::Bytes(budget)..).with_weigher(..) returning catalogs::weight_of / Overlay.weight (u64); unit scaling is inside Bounded so applies to both. No cache-level test above 4 GiB for overlay specifically (only Bounded-level tests); the shared code path is the same.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/overlay.rs",
+              "lines": {
+                "start": 321,
+                "end": 328
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.499190246Z",
+          "seal": {
+            "by": "server",
+            "mac": "f425863e441ba4a6ad6bda1a937d8ec5930deeff56b707eb13d93e55ec6c1839"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both caches go through Bounded with u64 weighers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2450"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.453576907Z",
+          "seal": {
+            "by": "server",
+            "mac": "b987f49f99322089089063d2e1539db1a686ee0f41aef9c7920eb04bce5afab6"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.453576907Z",
+      "seal": {
+        "by": "server",
+        "mac": "687086d06e84717370791e3623ab99b301639d725842a36ed9b3d079cce60cf7"
+      }
+    },
+    {
+      "id": "CLM-1658",
+      "statement": "The okf_cache_bytes gauge still reports bytes: Probe::bytes multiplies moka's weighted_size by 1<<unit_shift.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'The okf_cache_bytes gauge is moka's weighted size scaled back to bytes.'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2451",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs:196-203",
+          "summary": "Probe::bytes returns weighted_size().saturating_mul(1<<unit_shift) when by_bytes; Probe is built in with_metrics with unit_shift: self.unit_shift().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 194,
+                "end": 203
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.589656052Z",
+          "seal": {
+            "by": "server",
+            "mac": "2790afbd355e83e99d9ba86f2a215f62d9af02edba6727bd25e253b88b99fed8"
+          }
+        },
+        {
+          "id": "EVD-2452",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_small_value_fits_under_a_budget_past_four_gib",
+          "summary": "Asserts probe_bytes_for_test() == 5 GiB + 1000 under a 6 GiB budget (unit 4 bytes). That helper replicates the Probe formula rather than calling Probe::bytes, so the real gauge path is covered by inspection only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1493,
+                "end": 1508
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:28.680143957Z",
+          "seal": {
+            "by": "server",
+            "mac": "6489a434216594fa9c7bb7bef1767cf1dcef9cb4bce79a63e8dcb6ad9f5ecb8c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Probe::bytes scales by the unit; test helper replicates it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2451",
+            "EVD-2452"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.543987317Z",
+          "seal": {
+            "by": "server",
+            "mac": "a81d786e0df169ba7970a07a8c1da18d5e66818925d0b3b424e9eeb2c45d6a0b"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.543987317Z",
+      "seal": {
+        "by": "server",
+        "mac": "b69e63ebd41c7dcf0279469b9068445d93606d7b3d94a61a2f30cb68a5956840"
+      }
+    },
+    {
+      "id": "CLM-1659",
+      "statement": "Saturation of a kept entry is impossible for any accepted budget: unit_shift keeps the budget to at most 2^31 units, and an entry over the budget is refused in bytes before moka sees it, so units_up never saturates u32 for an entry the cache keeps; Config::validate is unchanged.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'Absurd budgets cannot saturate a kept entry (the budget is at most 2^31 units; an entry over the budget is refused in bytes before moka sees it). So Config::validate is unchanged and no accepted budget is rejected.'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs",
+        "src/config.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2453",
+          "kind": "analysis",
+          "locator": "src/cache/bounded.rs:273-279 (unit_shift), 296-303 (units_up), 984, 1024",
+          "summary": "budget>u32::MAX: shift = bit_length(budget)-31, so budget < 2^bl and budget/2^shift < 2^31 (u64::MAX: shift 33, ceil = 2^31). Kept-entry weight <= budget (both insert paths, lines 984 and 1024, call too_heavy first and refuse heavier), so units <= 2^31 < u32::MAX: no saturation. For budget <= u32::MAX shift 0 and kept weight <= budget <= u32::MAX. Capacity (<=2^31) fits u64 anyway. Config::validate untouched (diff has no src/config.rs change).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 273,
+                "end": 279
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.540359785Z",
+          "seal": {
+            "by": "server",
+            "mac": "7ffe6b1cd5f569857a20de3a4610ffb40e702dbfd8015e4fb9eab2cc7c04a322"
+          }
+        },
+        {
+          "id": "EVD-2454",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_budget_past_four_gib_gets_a_unit_that_keeps_it_under_two_to_the_31",
+          "summary": "For budgets u32::MAX+1, 6 GiB, 2^50, u64::MAX asserts shift>0 and budget.div_ceil(1<<shift) <= 2^31. Supports the unit bound; the 'kept entry never saturates' step follows from too_heavy being on both insert paths (inspection above).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1437,
+                "end": 1450
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.635239365Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fc026847d9d591c789d49f5811d67ac31a7f580d94602fc7e4df69bdf012f05"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Arithmetic bound plus too_heavy on both insert paths; validate untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2453",
+            "EVD-2454"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.630171450Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6aa160248d2f8d31eded334c317d67c71b5a614ac3e839bdb574ddc3f93ea25"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.630171450Z",
+      "seal": {
+        "by": "server",
+        "mac": "a1ba1e7015b18db80a0879db1d4cc593ec94824711eba9071a76f52211ec6a20"
+      }
+    },
+    {
+      "id": "CLM-1660",
+      "statement": "unit_shift returns 0 (exact bytes) for a budget up to u32::MAX bytes, and otherwise the smallest power-of-two shift that keeps the whole budget to at most 2^31 units.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'bounded::unit_shift picks the weight unit ... exact bytes (shift 0) for a budget up to u32::MAX bytes ..., otherwise a power of two that keeps the budget to at most 2^31 units.'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2455",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_budget_past_four_gib_gets_a_unit_that_keeps_it_under_two_to_the_31",
+          "summary": "Asserts unit_shift(0)==0, unit_shift(u32::MAX)==0, and for four larger budgets shift>0 with budget.div_ceil(1<<shift) <= 2^31. 'Smallest' shift is not asserted by the test; by construction shift=bitlen-31 is the minimum (shift-1 would give >=2^31 units except the exact-power case, which the formula gives 2^31 via bitlen).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 267,
+                "end": 280
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.721207180Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a3cda33603495ea4b58888dbe947e8783507c6ad04b5353287bb5dfe3227f92"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test agree; minimality is by construction.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2455"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.716729195Z",
+          "seal": {
+            "by": "server",
+            "mac": "b553518b15c57c023069a22851055296c97fc81448ba804cad50f4c9e9c91136"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.716729195Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac5c3423b06b9bf6c668d1ba1ec845c55b5202ac15183c8944f6149ce396c2ae"
+      }
+    },
+    {
+      "id": "CLM-1661",
+      "statement": "A test shows a budget above 4 GiB refuses an oversized (8 GiB) value via too_heavy: the value is served, not kept (entry_count 0), under a 6 GiB budget.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #756: 'Add a test with a budget above 4 GiB and an oversized catalog'; PR body: 'an 8 GiB catalog under a 6 GiB budget is served but not kept'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2456",
+          "kind": "test",
+          "locator": "cache::bounded::tests::a_value_over_a_budget_past_four_gib_is_refused",
+          "summary": "Faked-weight cache with Limit::Bytes(6 GiB); get_or_load returns an 8 GiB value (served, asserted), settle, then entry_count()==0 asserted, and too_heavy true for 8 GiB. Under the old saturated u32 weight (4 GiB-1 <= 6 GiB) the value would have been kept, so the test discriminates the defect.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1477,
+                "end": 1491
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.813934709Z",
+          "seal": {
+            "by": "server",
+            "mac": "fafb01e4123cd49947bf249923c120f389857c859de428df026f1042d9ed24cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts served and entry_count 0 for 8 GiB under 6 GiB; discriminates the old defect.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2456"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.804429264Z",
+          "seal": {
+            "by": "server",
+            "mac": "97e9078f450954f50bfb9c6b1d08a446da84e78a450111e810b90e4c96230a3e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.804429264Z",
+      "seal": {
+        "by": "server",
+        "mac": "059563e6c8919681ef72a955696a5d2e05592a5e39b531e3125b5cdb869d857d"
+      }
+    },
+    {
+      "id": "CLM-1662",
+      "statement": "Tests show rounding never undercounts (units<<shift >= bytes, and by less than a unit) and that a small value still fits under a budget above 4 GiB.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'rounding never undercounts, a small value fits, eviction is by bytes'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2457",
+          "kind": "test",
+          "locator": "cache::bounded::tests::rounding_a_weight_to_units_never_undercounts; cache::bounded::tests::a_small_value_fits_under_a_budget_past_four_gib",
+          "summary": "Rounding test asserts units<<shift >= bytes and excess < one unit across shifts and sizes. Small-value test: a 1000-byte and a 5 GiB value both stay (entry_count 2) under 6 GiB and the byte gauge is 5 GiB+1000.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 1452,
+                "end": 1508
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.906280946Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9d1c2ba01096d503430d8a1b1ab41bf2164bbce51232ebfdf65fcc97fac22dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both tests present with the stated assertions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2457"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.895499917Z",
+          "seal": {
+            "by": "server",
+            "mac": "15d239408735012d889c4c4cd7578527ce84f1f1f9e3b58f3dfa38ef55c78a09"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.895499917Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a4fc137375faabfb54a1dbe94b6b627960803f9e518ac0f69911e6d290e02e1"
+      }
+    },
+    {
+      "id": "CLM-1663",
+      "statement": "Docs are updated: docs/operations.md sizing note describes the coarser units above 4 GiB and that okf_cache_bytes still reports bytes; the M18 spec and plan carry '> **Corrected (issue #756).**' notes; a changelog entry exists. No remaining doc says the weight saturates at u32::MAX as current behavior.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'Docs: docs/operations.md sizing note; the M18 spec and plan corrected (> **Corrected (issue #756).**). Changelog entry added.'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "docs/superpowers/specs/2026-11-18-okf-bounded-memory-design.md",
+        "docs/superpowers/plans/2026-11-18-okf-mcp-m18-bounded-memory.md",
+        "changelog/2026-11-26T08-43-10Z-issue-756-cache-weight-units.md"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2458",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1007-1013; spec line 80; plan line 68, 912; changelog/2026-11-26T08-43-10Z-issue-756-cache-weight-units.md",
+          "summary": "operations.md sizing bullet now says any budget is accepted, above 4 GiB counts in coarser power-of-two units rounded up, okf_cache_bytes reports bytes. Spec and plan have the Corrected (issue #756) notes; changelog file exists. Only remaining 'clamped to u32::MAX' is plan line 864, a historical task step (the plan's Step 1 instruction), now contradicted by the correction at line 68 but not itself marked; minor. operations.md does not mention overlay_cache_bytes having the same behavior (table row line 121 unchanged); minor.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1007,
+                "end": 1013
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:51.999145375Z",
+          "seal": {
+            "by": "server",
+            "mac": "91c2a4383a7d4ddf6578c1c20fed298c44201e6c7da8d964a5b5635ad0990898"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs, spec, plan and changelog changed as stated; two minor leftovers noted in evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2458"
+          ],
+          "recorded_at": "2026-11-26T09:02:13.985648316Z",
+          "seal": {
+            "by": "server",
+            "mac": "f964c8566fa97bc3f6e968a1b3170507082dc3c981b49075b550f913417014fd"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:13.985648316Z",
+      "seal": {
+        "by": "server",
+        "mac": "73ae42984b96c3121118e23a2a6ef7d2a6a814cd650f9f04fd7a3b0655993ad8"
+      }
+    },
+    {
+      "id": "CLM-1664",
+      "statement": "PR body: the hegel property test in bounded_property_tests.rs is 'unchanged apart from widening its weigher to u64', and tests/scale.rs only 'dropped a now-useless u64::from'.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'includes the hegel property test in bounded_property_tests.rs, unchanged apart from widening its weigher to u64'; '`tests/scale.rs`: dropped a now-useless `u64::from`.'",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs",
+        "tests/scale.rs"
+      ],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2459",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/cache/bounded_property_tests.rs tests/scale.rs",
+          "summary": "bounded_property_tests.rs: one line, with_weigher closure wrapped in u64::from(...). tests/scale.rs: one line, u64::from(one_catalog)*N becomes one_catalog*N. Nothing else in either file.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 319,
+                "end": 325
+              },
+              "commit": "1264452fc9d07f9a9a8f466dc3a120f2706e0a6e"
+            }
+          },
+          "recorded_at": "2026-11-26T09:01:52.096321815Z",
+          "seal": {
+            "by": "server",
+            "mac": "f049980e4380381b18c501e1d204426dac4815c004d6ac0248e10fd32a400a00"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each file has a single one-line change as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2459"
+          ],
+          "recorded_at": "2026-11-26T09:02:14.072766163Z",
+          "seal": {
+            "by": "server",
+            "mac": "295701777b24fb03c619f9f9cb9311e90ca5332162f903a0bd560e15fe250362"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:14.072766163Z",
+      "seal": {
+        "by": "server",
+        "mac": "f5317152ab1523389a0528967ed768c5e1a7878bccb749c9a668bb71fa235898"
+      }
+    },
+    {
+      "id": "CLM-1665",
+      "statement": "PR body: gate.sh fmt, gate.sh narrow --lib -- cache overlay, and gate.sh dylint pass on the head commit.",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation section",
+      "derived_from": [
+        "CLM-1653"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:756"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2460",
+          "kind": "other",
+          "locator": "gate.sh fmt; gate.sh narrow --lib -- cache overlay; gate.sh dylint",
+          "summary": "Not rerun by this auditor: the caller instructed no cargo builds or tests on the shared machine and stated the gates passed. Cannot be independently confirmed from reading code.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T09:01:52.183886829Z",
+          "seal": {
+            "by": "server",
+            "mac": "c55191ab4f72c4d1b8279665a30bb99a9fc03b62c76840022d011c39bce18479"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Gates not rerun by this auditor per instruction; only the caller's statement exists. Fix: author records the gate.sh output (pass counts) in the PR report comment, or a reviewer reruns gate.sh fmt, narrow and dylint on the head commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T09:02:14.173612546Z",
+          "seal": {
+            "by": "server",
+            "mac": "2003d3da6e218d738f1d17d662143b324a6e703bd477efb680497dbe101a29b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T09:01:04.819503638Z",
+      "updated_at": "2026-11-26T09:02:14.173612546Z",
+      "seal": {
+        "by": "server",
+        "mac": "228dfaf1cb156f8136793fe94a439d7e6c2b6af88ebdfa1ffae735c21eda26ee"
       }
     }
   ]

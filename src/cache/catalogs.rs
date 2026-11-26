@@ -75,7 +75,8 @@ const BROKEN_TTL: Duration = Duration::from_secs(60 * 60);
 
 /// The weight of a snapshot, as moka takes it: [`PER_CATALOG_BYTES`], plus
 /// [`PER_FILE_BYTES`] per file, plus [`WEIGHT_FACTOR`] per stored byte. The
-/// estimate saturates at `u32::MAX` (4 GiB), above any one catalog's budget.
+/// estimate is exact in a `u64` (saturating only at `u64::MAX`); the cache
+/// hands moka a rounded-up coarser unit when the budget needs one.
 ///
 /// # Arguments
 /// * `stored_bytes` - the stored files' total content size.
@@ -90,12 +91,11 @@ const BROKEN_TTL: Duration = Duration::from_secs(60 * 60);
         reason = "the weigher: runs on every insert, arithmetic only"
     )
 )]
-pub fn weight(stored_bytes: u64, files: u64) -> u32 {
-    let estimate = stored_bytes
+pub fn weight(stored_bytes: u64, files: u64) -> u64 {
+    stored_bytes
         .saturating_mul(WEIGHT_FACTOR)
         .saturating_add(files.saturating_mul(PER_FILE_BYTES))
-        .saturating_add(PER_CATALOG_BYTES);
-    u32::try_from(estimate).unwrap_or(u32::MAX)
+        .saturating_add(PER_CATALOG_BYTES)
 }
 
 /// [`weight`] of a loaded snapshot.
@@ -112,7 +112,7 @@ pub fn weight(stored_bytes: u64, files: u64) -> u32 {
         reason = "the weigher: runs on every insert, arithmetic only"
     )
 )]
-pub fn weight_of(loaded: &Loaded) -> u32 {
+pub fn weight_of(loaded: &Loaded) -> u64 {
     // `usize` to `u64` never loses anything on the 64-bit targets this
     // builds for; `try_from` says so without a silent cast.
     weight(

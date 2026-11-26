@@ -118,7 +118,7 @@ unknown keys are ignored, so one file serves every version.
 | `store_max_connections` | `8` | The most connections one process opens to each catalog store, beside `database_max_connections` (the account database). Every store, `main` included, has a pool of its own, opened on its first use. A store on its own database also holds one more connection for its change-feed listener, outside this limit |
 | `store_idle_timeout` | `"10m"` | How long an idle connection to a catalog store is kept open before it is closed. A store's pool holds no connection while unused |
 | `store_connect_timeout` | `"5s"` | How long opening a store's pool, or waiting for a connection to begin a transaction on it, may take. Past it the request fails with `StoreUnavailable`, which never names the store. Loading a catalog from a store may take 6 times this before the store is reported unavailable |
-| `overlay_cache_bytes` | `"256MiB"` | The most memory the changeset overlays (an open changeset's view of its catalog) may take, estimated like a catalog snapshot (a fixed cost per file plus a multiple of the stored size, over the overlay's whole workspace, so many empty files count). Past it, an overlay is dropped and rebuilt on its next read; one larger than the whole budget is served but not kept. An overlay unused for `session_idle_timeout` is dropped too |
+| `overlay_cache_bytes` | `"256MiB"` | The most memory the changeset overlays (an open changeset's view of its catalog) may take, estimated like a catalog snapshot (a fixed cost per file plus a multiple of the stored size, over the overlay's whole workspace, so many empty files count). Past it, an overlay is dropped and rebuilt on its next read; one larger than the whole budget is served but not kept (a budget above 4 GiB is counted in coarser, rounded-up units, as for `catalog_cache_bytes`). An overlay unused for `session_idle_timeout` is dropped too |
 | `public_url` | none | The server's public origin, such as `"https://okf-mcp.example.com"` (no path, query or user info; a trailing `/` is dropped). Setting it turns on OAuth ("OAuth connectors") and console sign-in by account ("Signing in and self-service"); without it the OAuth and sign-in routes are 404. It must be `https`, except on a loopback host (such as `localhost`, `127.0.0.1` or `::1`) for local testing, and its host must be in `allowed_hosts` |
 | `oauth.access_token_ttl` | `"24h"` | How long an OAuth access token works. A revoked one stops working at once whatever its lifetime, so the long default costs little; each refresh is a chance for a client's processes to race (`oauth.refresh_reuse_grace`) |
 | `oauth.refresh_token_ttl` | `"30d"` | How long a refresh token works. Each refresh issues a new one with a fresh lifetime, so a connection used within this stays signed in |
@@ -1007,7 +1007,10 @@ first use.
 - **Sizing `catalog_cache_bytes`.** A snapshot's weight is
   `1024 + 1024 x files + 8 x stored bytes` per catalog (the method is in the
   milestone 18 design, decision 2), so a count of catalogs and a stored size
-  give the figure. Watch `okf_cache_bytes{cache="catalog"}` against the
+  give the figure. Any budget is accepted: above 4 GiB the cache counts in
+  coarser units (a power of two of bytes, rounded up, so a catalog is never
+  undercounted), and `okf_cache_bytes` still reports bytes. Watch
+  `okf_cache_bytes{cache="catalog"}` against the
   setting, and the hit ratio of `okf_cache_requests_total` for the same
   cache. A ratio that stays low with the cache at its limit, and
   `okf_cache_evictions_total{cause="size"}` rising, mean the working set is

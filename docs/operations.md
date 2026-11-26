@@ -3190,7 +3190,8 @@ error body also carries two fields, neither of which reveals the detail:
   connection, a Postgres shutdown), which would otherwise make every
   connected agent send a report of the same incident.
 
-No other error carries either field, and the HTTP API's errors are unchanged.
+No other error carries either field. The HTTP API's internal errors carry `trace_id` too
+(see the `/api/v1` error shape under the console's headers), but never `report`.
 
 Any credential can send, `read` included, and no catalog is needed. A
 message is at most 4,000 characters, and each credential may send
@@ -4017,6 +4018,18 @@ same errors as the other routes: 401 without a valid key (plain text, with
 `WWW-Authenticate: Bearer`), and otherwise `{"error": ..., "message": ...}`
 with the statuses in the README's "Routes". An unknown `/api/v1` path is 404,
 key or not.
+
+An internal error (`Database`, `Migrate`, `Io` or `Config`: every 500 from a
+route) answers with the generic message ("internal error; the server log has
+the details") and one more field, `trace_id`: the OpenTelemetry trace id of the
+request's span, the one the exported `request failed` event and the stderr line
+carry (with `telemetry.stderr.format = "json"`). A user can quote it in a
+report and the operator can open that trace. It is 32 hex digits, left out
+when the request has no valid trace (telemetry off, or the span filtered out)
+and never sent as zeros. No other error carries it, and no error carries the
+detail. The console shows it in its error toast. There is no `X-Trace-Id`
+header on responses: only a failure needs the id, and the body is where the
+console and API clients already read the error.
 
 Every answer a route gives a signed-in caller also carries `X-OKF-Account`:
 16 hex digits of SHA-256 of a prefixed id (the user's id for a console

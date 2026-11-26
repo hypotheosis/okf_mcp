@@ -395,7 +395,7 @@ when OAuth is on, and a plain-text body). `/mcp`, the archive routes and
 `/api/v1` take an OAuth access token (`okfat_...`) wherever they take a key. A catalog that does not exist, or that the key does not reach, is 404
 (never 403, so a key cannot probe which catalogs exist); a reachable catalog
 the key's level does not allow (a `read` key importing) is 403. Those and
-the other route errors have the body `{"error": ..., "message": ...}`; the
+the other route errors have the body `{"error": ..., "message": ...}` (an internal error also has `trace_id`, see docs/operations.md); the
 401, the 413, the timeout layer's 503 below and `/healthz`'s own body are the
 exceptions. A catalog whose owner team is suspended answers every non-admin
 credential with 403 `Suspended` (naming the `catalog`, `team` and `notice`),

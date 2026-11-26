@@ -141,3 +141,25 @@ async fn a_failed_health_read_leaves_the_revision_list_working_and_refresh_recov
     })
     .await;
 }
+
+/// Issue #1093: an internal error's trace id shows in the toast, so a person
+/// can quote it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn an_internal_error_toast_shows_its_trace_id() {
+    let server = TestServer::start(
+        vec![("main", files(&[("index.md", INDEX)]))],
+        Config::default(),
+    )
+    .await;
+    let key = server
+        .key("console-trace-id", Access::Read, &["main"], Some("main"))
+        .await;
+    drive(server.base.clone(), move |ui| {
+        ui.login(&key);
+        ui.open("");
+        ui.fail_next_traced("GET", "/health", 500, "0af7651916cd43dd8448eb211c80319c");
+        ui.click("a[data-nav=recent]");
+        ui.wait_text("#toasts", "Trace id: 0af7651916cd43dd8448eb211c80319c");
+    })
+    .await;
+}

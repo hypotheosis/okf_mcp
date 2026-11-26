@@ -3,7 +3,13 @@
 # a database of its own on it (tests/support/pg.rs), instead of starting a
 # container per test.
 #
-#   scripts/test-pg.sh up NAME     start container NAME; print its TEST_PG_URL
+#   scripts/test-pg.sh up NAME [OWNER_PID]
+#                                  start container NAME; print its TEST_PG_URL.
+#                                  With OWNER_PID the container is labelled as
+#                                  owned by that process, so the stale-container
+#                                  sweep (tests/support/pg.rs) removes it once
+#                                  the process is gone; without it, nothing
+#                                  sweeps it (a server kept across runs)
 #   scripts/test-pg.sh down NAME   remove container NAME (fine if it is gone)
 #   scripts/test-pg.sh run CMD...  run CMD with TEST_PG_URL set: reuse the
 #                                  server already named there, else start one
@@ -19,22 +25,47 @@
 set -euo pipefail
 
 readonly IMAGE=postgres:17-alpine
-# The label every test container carries (tests/support/pg.rs START_LABEL),
-# so `docker ps --filter label=okf-mcp.test-start` counts this one too.
+# The labels every test container carries (tests/support/pg.rs START_LABEL and
+# OWNER_SCOPE_LABEL), so `docker ps --filter label=okf-mcp.test-start` counts
+# this one too.
 readonly LABEL=okf-mcp.test-start
+readonly SCOPE_LABEL=okf-mcp.test-owner-scope
 readonly READY_TIMEOUT_SECONDS=60
 
 usage() {
-    echo "usage: $0 up NAME | down NAME | run CMD..." >&2
+    echo "usage: $0 up NAME [OWNER_PID] | down NAME | run CMD..." >&2
     exit 2
 }
 
+# Prints the `--label` arguments, one per line, that mark a container as owned
+# by process $2, in the form the sweep reads (tests/support/pg.rs): the start
+# label `<pid>-<counter>` and the owner scope `<boot id>/<pid namespace>`.
+# Without an owner, or where the scope cannot be read, the start label is
+# `server-<name>` and no scope is set, so the sweep never removes it.
+owner_labels() {
+    local name=$1 owner=${2:-}
+    local boot_id namespace
+    if [[ -n $owner ]] &&
+        boot_id=$(cat /proc/sys/kernel/random/boot_id 2>/dev/null) &&
+        namespace=$(readlink /proc/self/ns/pid 2>/dev/null); then
+        echo "--label"
+        echo "$LABEL=$owner-0"
+        echo "--label"
+        echo "$SCOPE_LABEL=$boot_id/$namespace"
+    else
+        echo "--label"
+        echo "$LABEL=server-$name"
+    fi
+}
+
 up() {
-    local name=$1
+    local name=$1 owner=${2:-}
+    local -a labels
+    mapfile -t labels < <(owner_labels "$name" "$owner")
     local jobs=${TEST_PG_JOBS:-$(nproc)}
     local max_connections=$((jobs * 30 + 100))
     local shm_megabytes=$((jobs * 32 + 256))
-    docker run --detach --name "$name" --label "$LABEL=server-$name" \
+    docker run --detach --name "$name" "${labels[@]}" \
         --env POSTGRES_PASSWORD=postgres \
         --publish 127.0.0.1::5432 \
         --tmpfs /var/lib/postgresql/data \
@@ -73,7 +104,7 @@ run() {
     local name="okf-mcp-test-pg-$$"
     # Set before `up`, so a server that fails to become ready is removed too.
     trap "down '$name'" EXIT
-    TEST_PG_URL=$(up "$name")
+    TEST_PG_URL=$(up "$name" "$$")
     export TEST_PG_URL
     # The command runs in the background so a signal sent to this script
     # alone (`kill`, a timeout) is handled at once: bash defers traps while a
@@ -100,9 +131,13 @@ stop() {
 command=$1
 shift
 case $command in
-up | down)
+up)
+    (($# == 1 || $# == 2)) || usage
+    up "$@"
+    ;;
+down)
     (($# == 1)) || usage
-    "$command" "$1"
+    down "$1"
     ;;
 run)
     (($# >= 1)) || usage

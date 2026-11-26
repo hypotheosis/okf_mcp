@@ -17,7 +17,7 @@ use crate::okf::outline::{Outline, OutlineHeading};
 use crate::okf::paths::{basename, escapes_root, normpath};
 use crate::okf::snapshot::{Frontmatter, Snapshot, SnapshotDoc};
 use crate::okf::yaml::Value;
-use crate::overlay::View;
+use crate::overlay::{ReplayState, View};
 
 /// `get_concept`'s arguments.
 // `Deserialize` reads them from the call's JSON; `JsonSchema` gives the tool
@@ -156,6 +156,15 @@ pub struct Document {
     pub path: String,
     /// The file verbatim.
     pub text: String,
+    /// With `changeset`: `text` is the pending entry redone on the current
+    /// published text, what publish would write, because the entry was made
+    /// on an older base. Absent otherwise.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub replayed: bool,
+    /// With `changeset`: publish cannot replay this stale entry, so `text`
+    /// is its stored text, built on the old base. Absent otherwise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replay_error: Option<String>,
 }
 
 /// A frontmatter string value.
@@ -522,11 +531,18 @@ pub(crate) async fn read_document(
             continue;
         };
         if let Some(doc) = view.snapshot().get(&path) {
+            let (replayed, replay_error) = match view.replay_state(&path) {
+                Some(ReplayState::Replayed) => (true, None),
+                Some(ReplayState::Failed(reason)) => (false, Some(reason.clone())),
+                None => (false, None),
+            };
             return Ok(Document {
                 catalog: state.name().to_string(),
                 catalog_label: ctx.catalog_label(state.name()).await?,
                 path: format!("/{path}"),
                 text: doc.raw(),
+                replayed,
+                replay_error,
             });
         }
     }
@@ -585,7 +601,9 @@ impl OkfServer {
         description = "Read the raw text of an index.md (default /index.md), log.md or \
                        AGENTS.md. Without `catalog`, the first selected catalog that has it \
                        answers. With `changeset` (a handle from open_changeset), its catalog \
-                       reads through that changeset's drafts.",
+                       reads through that changeset's drafts; a stale log or index entry is shown \
+                       as publish would write it (`replayed`), or as stored with a \
+                       `replay_error`.",
         annotations(
             title = "Read Document",
             read_only_hint = true,

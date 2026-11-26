@@ -1154,7 +1154,7 @@ fn pending_files(
 /// # Returns
 /// The reason, naming the path and what to do.
 #[tracing::instrument(level = "trace", skip_all)]
-fn cannot_replay(path: &str, current: Option<i32>) -> String {
+pub(crate) fn cannot_replay(path: &str, current: Option<i32>) -> String {
     let now = match current {
         Some(revision) => format!("revision {revision}"),
         None => "a deleted document".to_string(),
@@ -2807,6 +2807,77 @@ mod publish_tests {
         assert_eq!(file.diff, format!("{reason}\n"));
         let error = publish_as(&ctx, &handle, "a").await.unwrap_err();
         assert_eq!(error.kind(), "Conflict");
+    }
+
+    /// `read_document` of `/log.md` through `handle`.
+    async fn read_log(ctx: &ToolContext, handle: &str) -> crate::mcp::documents::Document {
+        let params = crate::mcp::documents::ReadDocumentParams {
+            path: Some("/log.md".to_string()),
+            catalog: None,
+            changeset: Some(handle.to_string()),
+        };
+        crate::mcp::documents::read_document(ctx, params)
+            .await
+            .unwrap()
+    }
+
+    /// A read through a changeset whose `log` entry went stale shows the
+    /// entry redone on the published text, with the entries published since
+    /// (issue #792), also when an overlay cached before the publish is
+    /// there. The stored entry, which a write builds on, is untouched.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_read_through_a_stale_log_entry_shows_what_publish_would_write() {
+        let test = pg().await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let (a, b) = (open(&first).await, open(&second).await);
+        log_entry(&first, &a, "from a").await;
+        log_entry(&second, &b, "from b").await;
+        let stored = entry_for(&test, &a, "log.md").await.unwrap().content;
+        // Warm the overlay cache before the other changeset publishes.
+        let fresh = read_log(&first, &a).await;
+        assert!(!fresh.replayed && fresh.replay_error.is_none());
+        assert!(fresh.text.contains("from a") && !fresh.text.contains("from b"));
+        publish_as(&second, &b, "theirs").await.unwrap();
+
+        let shown = read_log(&first, &a).await;
+
+        assert!(shown.replayed && shown.replay_error.is_none());
+        assert!(
+            shown.text.contains("from a") && shown.text.contains("from b"),
+            "{}",
+            shown.text
+        );
+        assert_eq!(
+            entry_for(&test, &a, "log.md").await.unwrap().content,
+            stored
+        );
+        publish_as(&first, &a, "ours").await.unwrap();
+        assert_eq!(published_text(&test, "log.md").await, shown.text);
+    }
+
+    /// A stale entry publish cannot replay is read as stored, with the
+    /// reason `pending_changes` gives.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_read_through_an_entry_publish_cannot_replay_shows_its_stored_text_and_why() {
+        let test = pg().await;
+        let ctx = writer(&test, "writer-a", "pg").await;
+        let handle = open(&ctx).await;
+        let unreadable = EntryRow {
+            path: "log.md".to_string(),
+            base_revision: Some(0),
+            content: Some(b"# Stored log\n".to_vec()),
+            executable: false,
+            replay: Some(serde_json::json!("not a list of operations")),
+        };
+        insert_entry(&test, &handle, unreadable).await;
+
+        let shown = read_log(&ctx, &handle).await;
+
+        assert!(!shown.replayed);
+        let reason = shown.replay_error.as_deref().unwrap();
+        assert!(reason.contains("refuse it with Conflict"), "{reason}");
+        assert_eq!(shown.text, "# Stored log\n");
     }
 
     #[tokio::test(flavor = "multi_thread")]

@@ -179,6 +179,13 @@ pub struct App {
     // and persistence.
     #[cfg(test)]
     pub(crate) access_hold: Arc<tokio::sync::Mutex<()>>,
+    // Test hook: the mail worker's task waits for this lock after its
+    // worker has stopped, then sets `mail_worker_stopped`, so a test can
+    // hold the worker's end and check that `serve` waits for it.
+    #[cfg(test)]
+    pub(crate) mail_worker_exit_hold: Arc<tokio::sync::Mutex<()>>,
+    #[cfg(test)]
+    pub(crate) mail_worker_stopped: Arc<std::sync::atomic::AtomicBool>,
 }
 
 impl App {
@@ -390,6 +397,10 @@ impl App {
             metrics,
             #[cfg(test)]
             access_hold: Arc::default(),
+            #[cfg(test)]
+            mail_worker_exit_hold: Arc::default(),
+            #[cfg(test)]
+            mail_worker_stopped: Arc::default(),
         });
         // `Arc::downgrade`: the gauges' callbacks live in the meter provider,
         // which outlives the app, so they hold a weak handle (no cycle).

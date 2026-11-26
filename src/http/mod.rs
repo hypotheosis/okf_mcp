@@ -1805,6 +1805,57 @@ mod tests {
         );
     }
 
+    /// `serve` returns only after the mail worker's task has finished. The
+    /// test holds the worker's end (`App::mail_worker_exit_hold`), so the
+    /// worker cannot finish until it lets go: `serve` must still be
+    /// waiting, and the worker's own flag must be set by the time it
+    /// returns (read right after, with no wait for anything to settle).
+    #[tokio::test(flavor = "multi_thread")]
+    async fn serve_returns_only_after_the_mail_worker_stopped() {
+        let db = crate::db::test_db().await;
+        let app = App::load(
+            db.pool.clone(),
+            Config::default(),
+            Arc::new(crate::clock::SystemClock),
+        )
+        .await
+        .unwrap();
+        let hold = Arc::clone(&app.mail_worker_exit_hold).lock_owned().await;
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let shutdown = CancellationToken::new();
+        let mut served = tokio::spawn(serve(Arc::clone(&app), listener, shutdown.clone()));
+
+        shutdown.cancel();
+        // Everything `serve` does besides the held worker takes well under
+        // this; only the worker's wait keeps it from returning.
+        let early = tokio::time::timeout(std::time::Duration::from_secs(3), &mut served).await;
+        // Checked before `served` is awaited again: a finished handle must
+        // not be polled twice.
+        assert!(
+            early.is_err(),
+            "serve returned while the mail worker's task was held: {early:?}"
+        );
+        assert!(
+            !app.mail_worker_stopped
+                .load(std::sync::atomic::Ordering::SeqCst),
+            "the held worker finished"
+        );
+        drop(hold);
+        let returned = tokio::time::timeout(std::time::Duration::from_secs(20), served).await;
+        let stopped = app
+            .mail_worker_stopped
+            .load(std::sync::atomic::Ordering::SeqCst);
+
+        assert!(
+            matches!(returned, Ok(Ok(Ok(())))),
+            "serve returns once the worker stops: {returned:?}"
+        );
+        assert!(
+            stopped,
+            "serve returned before the mail worker's task finished"
+        );
+    }
+
     #[tokio::test(flavor = "multi_thread")]
     async fn serve_runs_the_mail_worker_on_its_own_connections_and_waits_for_it() {
         let db = crate::db::test_db().await;

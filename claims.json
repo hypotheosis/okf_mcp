@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1724,
+  "next_claim_seq": 1733,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6566ed6d2c95cbe22a55a94d59d0592645d04fe2becc4785ef3183472ea984c8"
+    "mac": "d140c0b3a1e94902a82f969a9f79cb97e4bd6e248a9bdb1102ec5c84d13e9545"
   },
-  "next_evidence_seq": 2541,
+  "next_evidence_seq": 2547,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c7e518547d635a395b538711834b601b7533a9380f15154fd471f81a3ada282a"
+    "mac": "3b549c09643dc756c7a196a779248cd6e8a7acb13277bb0ae90d7dde56357c9d"
   },
   "claims": [
     {
@@ -138789,6 +138789,498 @@
       "seal": {
         "by": "server",
         "mac": "8872d48bd43c4c1d8bbec51e33af9b3d2a2c052bc9c668063e8d2b02db30f57e"
+      }
+    },
+    {
+      "id": "CLM-1724",
+      "statement": "Issue #773 is delivered: a test proves that serve returns only after the mail worker has stopped, and it fails when the supervisor await in serve is dropped.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "hypotheosis/okf_mcp#773 requirement",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:29.003530966Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1f0e6862f5a95d3322a031099751689abb62d4a559f88c987759f7d32507cf4"
+      }
+    },
+    {
+      "id": "CLM-1725",
+      "statement": "http::tests::serve_returns_only_after_the_mail_worker_stopped holds the mail worker's task open, asserts serve has not returned and the worker's flag is unset 3 s after cancellation, then releases the hold and asserts serve returns Ok(Ok(Ok(()))) and the worker's flag is set.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"It holds the mail worker's task open, cancels `serve`, and checks that `serve` is still running 3 s later. It then lets go and checks that `serve` returns `Ok` and that the worker's task had already finished\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2541",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1814-1857",
+          "summary": "Test locks mail_worker_exit_hold, spawns serve, cancels, asserts timeout of 3 s elapsed (early.is_err()) and flag unset, drops hold, awaits serve (20 s), reads flag, asserts matches Ok(Ok(Ok(()))) and flag true. Wrapper in queue.rs:802-811 awaits worker then the hold lock, then sets the flag, and the hold is held by the test so the worker task cannot end; the 3 s wait is under the 30 s default worker_shutdown_grace (config.rs:41) so the supervisor does not abort it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1814,
+                "end": 1857
+              },
+              "commit": "9bb34db82affdf1608f78f8b33ebd802837125a6"
+            }
+          },
+          "recorded_at": "2026-11-26T11:26:42.467502146Z",
+          "seal": {
+            "by": "server",
+            "mac": "f08d2fdd0e33fb1f65e8acbe4b81a47b8f5be97bdab4e2ed36aa8d148921c9ac"
+          }
+        },
+        {
+          "id": "EVD-2542",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- serve_returns_only_after",
+          "summary": "1 passed; 0 failed; 3140 filtered out (10.48 s) on head 9bb34db.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T11:26:42.560334762Z",
+          "seal": {
+            "by": "server",
+            "mac": "b97f991105e8550b764d2acd3adf6d71afadfa8f102cc3ef24c77e1dabd9da0d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the assertions: negative check at 3 s (serve still pending, flag unset) while the hold is owned, then release and positive checks; test ran and passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2541",
+            "EVD-2542"
+          ],
+          "recorded_at": "2026-11-26T11:26:59.084896470Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9518f77c4cc61a2fc5940051649fd0e0b6e786f1200a367c7ca8291b90e4c94"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.084896470Z",
+      "seal": {
+        "by": "server",
+        "mac": "08e382094ee659ba6f37cb870e449ded8ca30684be6e92a8dae990da701de74f"
+      }
+    },
+    {
+      "id": "CLM-1726",
+      "statement": "The worker's task-finished flag is read immediately after serve returns, with no polling or settling wait in between.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"read right after `serve` returns (no polling or settling wait)\"; task owner: deterministic check, no wait to settle",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2543",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1843-1848",
+          "summary": "The timeout await of serve returns, and the very next statement loads mail_worker_stopped (SeqCst) with no sleep, poll loop or retry; asserts follow. The only waits are before release (3 s negative check) and the bounded await of serve itself.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1843,
+                "end": 1848
+              },
+              "commit": "9bb34db82affdf1608f78f8b33ebd802837125a6"
+            }
+          },
+          "recorded_at": "2026-11-26T11:26:42.655594229Z",
+          "seal": {
+            "by": "server",
+            "mac": "4866b294935e6aef883cc09e6dac988017e5342d204b857fe5155890eb5f184a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The flag load is the statement directly after serve's JoinHandle resolves; no sleep or loop.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2543"
+          ],
+          "recorded_at": "2026-11-26T11:26:59.177857096Z",
+          "seal": {
+            "by": "server",
+            "mac": "472b81b809418270590899064f81718ef1004c680be8e1997f3910b4f20d54a8"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.177857096Z",
+      "seal": {
+        "by": "server",
+        "mac": "5fbb35fde777f54a79e43b19d374ded3ae106103f8f817eb5c75b2543f4e0872"
+      }
+    },
+    {
+      "id": "CLM-1727",
+      "statement": "With the loop in serve changed to `supervisors.into_iter().flatten().take(0)`, the new test fails with `serve returned while the mail worker's task was held: Ok(Ok(Ok(())))`; restored, it passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"Revert check: with `for supervisor in supervisors.into_iter().flatten().take(0)` the new test fails with `serve returned while the mail worker's task was held: Ok(Ok(Ok(())))`; restored, it passes.\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2544",
+          "kind": "demonstration",
+          "locator": "sed on src/http/mod.rs:964 to add .take(0); tools/agentic/gate.sh narrow --lib -- serve_returns_only_after; then git checkout src/http/mod.rs",
+          "summary": "With .flatten().take(0) the test failed at src/http/mod.rs:1834: \"serve returned while the mail worker's task was held: Ok(Ok(Ok(())))\" (0 passed; 1 failed, 2.36 s). After git checkout and touch, git status was clean and the unmodified test passed (1 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 963,
+                "end": 974
+              },
+              "commit": "9bb34db82affdf1608f78f8b33ebd802837125a6"
+            }
+          },
+          "recorded_at": "2026-11-26T11:26:42.752082111Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c5c5fd8374ad658374cb73995f494bd91635b0143e6902a6a4e5e0ba9936b57"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced the revert check myself: fails with the quoted message at the first assertion, passes when restored.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2544"
+          ],
+          "recorded_at": "2026-11-26T11:26:59.269188415Z",
+          "seal": {
+            "by": "server",
+            "mac": "a01d1291eef16bb5aa87711bc7a53fba8b1dcdffb939eb74d9f178d140a23228"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.269188415Z",
+      "seal": {
+        "by": "server",
+        "mac": "c9f0c733bd6c761e421fa9e682a3abf2e2158be1a519a454899e7c125944ccbc"
+      }
+    },
+    {
+      "id": "CLM-1728",
+      "statement": "The test hooks App::mail_worker_exit_hold, App::mail_worker_stopped and the wrapper task in mail::queue::spawn_worker are all behind #[cfg(test)], so nothing in them is in production builds.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Test-only hooks (`#[cfg(test)]`, nothing in production builds)\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/mail/queue.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2545",
+          "kind": "inspection",
+          "locator": "src/app.rs:182-188,400-403; src/mail/queue.rs:799-812",
+          "summary": "Both App fields and both initialisers have #[cfg(test)] directly above; the wrapper block in spawn_worker is #[cfg(test)] let worker = {...}. git grep finds mail_worker_exit_hold and mail_worker_stopped only in app.rs, queue.rs and the test. Note: in non-test builds spawn_worker reduces to `let worker = run_worker(...); worker`, which clippy's let_and_return may flag; the lint gate was not run by this audit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mail/queue.rs",
+              "lines": {
+                "start": 799,
+                "end": 812
+              },
+              "commit": "9bb34db82affdf1608f78f8b33ebd802837125a6"
+            }
+          },
+          "recorded_at": "2026-11-26T11:26:42.850278931Z",
+          "seal": {
+            "by": "server",
+            "mac": "1cf9362fe8ec44a04d5a8e96251123fcf05806524c2df9ddaf753ddde38994c3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every added non-test-module line outside the test is under #[cfg(test)]. Side note (not a refutation): possible clippy let_and_return in non-test builds; not checked.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2545"
+          ],
+          "recorded_at": "2026-11-26T11:26:59.359668901Z",
+          "seal": {
+            "by": "server",
+            "mac": "d097dfa0798b0e93ad1b94db30013b1ff261f6b4564ceb379054d6346163561c"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.359668901Z",
+      "seal": {
+        "by": "server",
+        "mac": "182b309c55cd6f3c3baf78a8a5fde44545d806a2c5f8a484ed0ab3ca07bb3aba"
+      }
+    },
+    {
+      "id": "CLM-1729",
+      "statement": "The changelog entry changelog/2026-11-26T11-08-51Z-issue-773-serve-waits-worker.md exists and describes the new test and the test-only hooks.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry `changelog/2026-11-26T11-08-51Z-issue-773-serve-waits-worker.md`.\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "changelog/2026-11-26T11-08-51Z-issue-773-serve-waits-worker.md"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-2546",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-26T11-08-51Z-issue-773-serve-waits-worker.md",
+          "summary": "File exists in the diff (21 lines); its Added section names the test and both App hooks plus the spawn_worker wrapper, as test-only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T11-08-51Z-issue-773-serve-waits-worker.md",
+              "commit": "9bb34db82affdf1608f78f8b33ebd802837125a6"
+            }
+          },
+          "recorded_at": "2026-11-26T11:26:42.947759917Z",
+          "seal": {
+            "by": "server",
+            "mac": "4391d8175e4bb372f91991566e9460b753720c3876ea68902151fbcb7a314db0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present and matches the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-2546"
+          ],
+          "recorded_at": "2026-11-26T11:26:59.450794369Z",
+          "seal": {
+            "by": "server",
+            "mac": "1445bb330eb769c2fac0340e746cf5d56f57f9899fc7efe9be24cf317380350f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.450794369Z",
+      "seal": {
+        "by": "server",
+        "mac": "863b48fe113d86fe5ca959c1f2c852336f8a7fe83d17937bc9a8927789074824"
+      }
+    },
+    {
+      "id": "CLM-1730",
+      "statement": "With the supervisor await removed (`.take(0)`), a pg_stat_activity snapshot taken at the moment serve returned still passed on 3 of 3 runs, and a mailer that blocks mid-send did not help because worker_pool.close() waits for the pool's connections.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body, \"Why not pg_stat_activity\": \"a snapshot taken at the moment `serve` returned still passed on 3 of 3 runs\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The experiment is not in the diff and the audit rules allowed only the one test, so the 3-of-3 pg_stat_activity result and the pool-close claim could not be reproduced. Fix: either drop the statement from the PR body or keep it as the author's recorded observation; a reproduction would need a throwaway pg_stat_activity test run three times under .take(0).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T11:26:59.541985827Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b116a508622359163757df269f7db450c057ecb03bcec8b720768142410ca33"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.541985827Z",
+      "seal": {
+        "by": "server",
+        "mac": "65290332d22277dd7c9078000c52a4f0ab7f00e1d61f51e3de65dd9fd479b099"
+      }
+    },
+    {
+      "id": "CLM-1731",
+      "statement": "Narrow runs of the serve_ tests, 4 plain repeats, pass 14 tests each time.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"Narrow runs of the `serve_` tests, 4 plain repeats: 14 passed each time.\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the single new test was permitted to run; the 14-test serve_ count over 4 repeats was not rerun. Fix: run tools/agentic/gate.sh narrow --lib -- serve_ on head and put the printed counts in the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T11:26:59.633135965Z",
+          "seal": {
+            "by": "server",
+            "mac": "81ffe4d7f0b877e543d16c22e3cab4a667f4bd8217055fcc360e41502b0df342"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.633135965Z",
+      "seal": {
+        "by": "server",
+        "mac": "d388f64a3845042a179e6e493ca52d5a1e7e083b727cd756d476c4ffe4e657bd"
+      }
+    },
+    {
+      "id": "CLM-1732",
+      "statement": "The fmt, lint, dylint and test gates via tools/agentic/gate.sh pass on the head commit.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/gate.sh` fmt, lint, dylint, test: see the report below.\"",
+      "derived_from": [
+        "CLM-1724"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/mail/queue.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:773"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Gates were not run by this audit (only the narrow test allowed); the PR body defers to a report. Fix: run gate.sh fmt, lint, dylint and test on head 9bb34db and record the counts, checking lint for clippy let_and_return on spawn_worker in queue.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-26T11:26:59.723529370Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7e8b55514479a324ecc8c7fc90d5f29f8f746365538bfbf8bd06500b0b054e0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T11:26:29.003530966Z",
+      "updated_at": "2026-11-26T11:26:59.723529370Z",
+      "seal": {
+        "by": "server",
+        "mac": "0e94a8bc756e9adddf92dad699fb1c86f4a480a305a23d03291074c445fcefe3"
       }
     }
   ]

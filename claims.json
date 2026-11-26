@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1768,
+  "next_claim_seq": 1780,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "bf316cc747c527aacd085c486ec9e9f4ec54f53a0ac6e9163a3b243cde508565"
+    "mac": "f6e7d9e64a48a1c7d0f699348b8ebc469dc9d0016b8b58b9c95d5083eae8e09e"
   },
-  "next_evidence_seq": 3272,
+  "next_evidence_seq": 3289,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "aa27ad8f8d87b281a0d7d828ae0e307f94140bd3648e886b66a44ed6c1824066"
+    "mac": "c6075ac3ba1fd79d9dea57a7919e4f5d23440e5ac439fcea6dc7295226bd26a9"
   },
   "claims": [
     {
@@ -156302,6 +156302,28 @@
             "by": "server",
             "mac": "76caf7691276f0c380399e6be437f1676784f54b2d9648d672a5e4a94c5ae108"
           }
+        },
+        {
+          "id": "EVD-3287",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::telemetry_tests (11 passed); src/mcp/mod.rs:441-448",
+          "summary": "At head, current_trace_id delegates to trace_id_of with the same TOOL_SPAN try_with; a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback passes, so MCP tool-error trace_id behavior is intact after the refactor.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 441,
+                "end": 448
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:33:01.600458732Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fddc248d8d2d922b3ebf698eaf9b8e02f662160cbc501bbfe8e854f36760314"
+          }
         }
       ],
       "verdicts": [
@@ -156317,13 +156339,26 @@
             "by": "server",
             "mac": "67116c7b66a8ba5fa9349e08d884c06c0f9b31c9b1d8fb687a21ad84a92ee470"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head after current_trace_id refactor: tests pass and delegation preserves behavior.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3287"
+          ],
+          "recorded_at": "2026-11-26T14:33:07.370714774Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8430109f48047542083e1d9a7dc32e5575dc92584c2034053c0018266ac868c"
+          }
         }
       ],
       "created_at": "2026-11-26T10:08:51.034720158Z",
-      "updated_at": "2026-11-26T10:09:51.301599932Z",
+      "updated_at": "2026-11-26T14:33:07.370714774Z",
       "seal": {
         "by": "server",
-        "mac": "2e27a472cb0dc69f17e8b0677dcb4dc976d4c269e014e3f65d508dfc8bfec950"
+        "mac": "9b3524b40586b87c23c75228d8e412b2a80771e2744cdc6f20ce32124bf64e51"
       }
     },
     {
@@ -156858,6 +156893,28 @@
             "by": "server",
             "mac": "4f842db3a14365803692945daa0862b5c3182f6c956464c553f6b5de82ba5f84"
           }
+        },
+        {
+          "id": "EVD-3288",
+          "kind": "inspection",
+          "locator": "docs/operations.md:3176-3194",
+          "summary": "At head the Feedback section still documents trace_id and report, their gating and the outage exception; the only edit is the closing sentence, which now notes HTTP internal errors carry trace_id but never report. tools.md/reference.rs not touched by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3176,
+                "end": 3194
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:33:01.708381132Z",
+          "seal": {
+            "by": "server",
+            "mac": "4aed230a393c75acf6d4ac7d2fdba185d1682f75faedfb8d9f02ee4d4ad72078"
+          }
         }
       ],
       "verdicts": [
@@ -156873,13 +156930,26 @@
             "by": "server",
             "mac": "f4d1dda895894cf44afd5ae90cef9a43f3765ac130fc6932004f47f077e83f05"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: the documented fields are intact; only a cross-reference sentence changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3288"
+          ],
+          "recorded_at": "2026-11-26T14:33:07.469462255Z",
+          "seal": {
+            "by": "server",
+            "mac": "2522205da7729cd73d4301934473a8ff3dbd44bebc733cb59bc3f0aded816401"
+          }
         }
       ],
       "created_at": "2026-11-26T10:08:51.034720158Z",
-      "updated_at": "2026-11-26T10:09:52.719117575Z",
+      "updated_at": "2026-11-26T14:33:07.469462255Z",
       "seal": {
         "by": "server",
-        "mac": "e8c728a9c165867d43a0989c47f2ff60a248cf4a99407b51a4da5fb48f53db7d"
+        "mac": "f23d5df1703756ae54d10fff88de5c3ec1bd26adf3f769ed0cc3430c65321dae"
       }
     },
     {
@@ -156900,7 +156970,9 @@
         "from-issue:766"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1093: internal /api/v1 errors now carry trace_id (CLM-1769).",
+        "retired_at": "2026-11-26T14:33:28.343094349Z"
       },
       "evidence": [
         {
@@ -156924,6 +156996,28 @@
             "by": "server",
             "mac": "9ea23c4cc0c660c3815735516070fb24393ca4dd17420205c43a072bcbc746ad"
           }
+        },
+        {
+          "id": "EVD-3286",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:189-206 (git diff origin/main..HEAD -- src/http/mod.rs)",
+          "summary": "The PR changes the HTTP error path: into_response now adds trace_id to the to_json() body for internal errors, so the claim that HTTP error responses are unchanged no longer holds. The change is the intent of #1093 and supersedes the #766 decision.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 187,
+                "end": 206
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:33:01.471816919Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bb59b0c5149fed67061c401869b4f135323dd97a1dccb94e1e3412234030971"
+          }
         }
       ],
       "verdicts": [
@@ -156939,13 +157033,26 @@
             "by": "server",
             "mac": "0382aa85c3f5f1da697f20eb5be8535a4577d52677130ff58aec48e5297e037c"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The #766 claim said the HTTP error responses are unchanged and src/http is untouched; this diff changes src/http/mod.rs so internal errors gain trace_id. Intentional supersession by #1093, but the claim is false at head. Fix: retire CLM-1705 with the reason 'superseded by #1093' (CLM-1769 states the new HTTP behavior).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3286"
+          ],
+          "recorded_at": "2026-11-26T14:33:07.250921950Z",
+          "seal": {
+            "by": "server",
+            "mac": "37fdb09485c74595948562ab7c4772fce529ec3eca773253e3ce6965e00591f9"
+          }
         }
       ],
       "created_at": "2026-11-26T10:08:51.034720158Z",
-      "updated_at": "2026-11-26T10:09:52.858105268Z",
+      "updated_at": "2026-11-26T14:33:28.343094349Z",
       "seal": {
         "by": "server",
-        "mac": "39887f9e92e04b8132ebc4c19739996dad168af22f0c998321c50e338676f0a9"
+        "mac": "38eb0cdf321cedb00687dd941323d4dfdddda7f79e4b7260f63ee4a09d036d0d"
       }
     },
     {
@@ -162244,6 +162351,822 @@
       "seal": {
         "by": "server",
         "mac": "883ec5a6e5421991f141e96157052b03530673a31c1f2ba26f362c88ab28ef6f"
+      }
+    },
+    {
+      "id": "CLM-1768",
+      "statement": "Issue #1093 is resolved: an internal /api/v1 error carries the request span's trace id, the console shows it, and the API error-shape docs say so.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1093",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3285",
+          "kind": "analysis",
+          "locator": "children of CLM-1768",
+          "summary": "Children cover the issue: trace_id on internal errors (CLM-1769), omitted not zeros (CLM-1770), absent on 4xx (CLM-1771), detail never leaves (CLM-1772), shared helper (CLM-1773), console toast (CLM-1775), docs (CLM-1776), and no regression to MCP errors (CLM-1779).",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T14:32:14.569912771Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e8f9dbb9aeba6264f3dcc204f21a6dac682d8484ff1a783676f4ce4ce2e98be"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported; the optional header was decided against and documented.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3285"
+          ],
+          "recorded_at": "2026-11-26T14:32:33.483485582Z",
+          "seal": {
+            "by": "server",
+            "mac": "76df576d2979b5989fb8030ec277890bbd09e69b77cba19a336c6445f84a69a1"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:33.483485582Z",
+      "seal": {
+        "by": "server",
+        "mac": "bbeae21f79c8f269c6a2ed41241f79016131ecfc30ccf2d05d8029d8a7537016"
+      }
+    },
+    {
+      "id": "CLM-1769",
+      "statement": "An internal /api/v1 error (Database, Migrate, Io or Config: every 500) has a body field trace_id equal to the OpenTelemetry trace id of the exported request span.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1093: 'for internal errors only, add trace_id from the request span'; PR body: 'An internal /api/v1 error (every 500) now carries trace_id, the request span's OpenTelemetry trace id'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3272",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- an_internal_api_error (2 passed); src/http/telemetry_tests.rs:149-190",
+          "summary": "Test forces a 500 on GET /api/v1/catalogs/main/export at every span filter and asserts body trace_id equals the exported request span's span_context trace_id (non-zero). Reran at head: 2 passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 149,
+                "end": 190
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:09.724314559Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bc951261112252737a1f08ac4d14447bfa58dee9b238f4d6c7c34a251de1152"
+          }
+        },
+        {
+          "id": "EVD-3273",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:187-206, src/error.rs:426-434",
+          "summary": "into_response adds trace_id under is_internal(), which matches Database, Migrate, Io, Config; read from REQUEST_SPAN, scoped around next.run in request_telemetry (mod.rs ~723-727).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 187,
+                "end": 206
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:09.859887543Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5db1712048556d28cfbbc5740121ccec2ace4950cc0bd1c833bc9f19d601777"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts equality with exported span trace id; code gated on is_internal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3272",
+            "EVD-3273"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.384865047Z",
+          "seal": {
+            "by": "server",
+            "mac": "291cb32c0722598c6c8e5af71b94667ff99af137f7262925b93c99cb3f24fda0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.384865047Z",
+      "seal": {
+        "by": "server",
+        "mac": "57edbd5c05743cbf4b2bb63c71ecb02293b1fde5a24dfdcfe3685b608e850727"
+      }
+    },
+    {
+      "id": "CLM-1770",
+      "statement": "The trace_id field is omitted when the request has no valid trace context and is never sent as all zeros.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1093 maintainer requirement: 'never send an all-zeros trace id'; PR body: 'The id is omitted without a valid trace, never zeros.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/telemetry/propagation.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3274",
+          "kind": "test",
+          "locator": "cargo: an_internal_api_error_omits_trace_id_without_a_trace (src/http/telemetry_tests.rs:~190-228), passed at head",
+          "summary": "With no exporter, the 500 body has no trace_id key at all (asserted via body.get(\"trace_id\").is_none()). The carries test also asserts the id is not 32 zeros.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 191,
+                "end": 228
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:09.967401325Z",
+          "seal": {
+            "by": "server",
+            "mac": "ef4f6cf12df41281013de205f7f3b68e05c623dfbf77a934859a6f8c6de58ed8"
+          }
+        },
+        {
+          "id": "EVD-3275",
+          "kind": "inspection",
+          "locator": "src/telemetry/propagation.rs:48-68",
+          "summary": "trace_id_of returns Some only when span_context().is_valid(), which is false for an all-zero trace id; the HTTP path only inserts the field on Some.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/propagation.rs",
+              "lines": {
+                "start": 48,
+                "end": 68
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.074683365Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f8a10e2abfb96cc50d827f299161d7c17d08dc23340356a38b26c08a20d1905"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test shows field absent with no trace; is_valid gate excludes zeros.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3274",
+            "EVD-3275"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.507124537Z",
+          "seal": {
+            "by": "server",
+            "mac": "5acb14c46f6f53ba725a786fe538ce23470b275ce59dd3f921f0cda85d1553ff"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.507124537Z",
+      "seal": {
+        "by": "server",
+        "mac": "4b9c45f9fb23f56350eff9d83339ce2f6703e8de888d99911eba39bd9c0d9d66"
+      }
+    },
+    {
+      "id": "CLM-1771",
+      "statement": "Non-internal /api/v1 errors (for example 404 NotFound) carry no trace_id.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1093: 'a non-internal error (404, 409, 403) has none'; PR body: '4xx errors carry no trace_id.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3276",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:~182-185 (GET /api/v1/catalogs/nope/health -> 404, no trace_id), passed at head",
+          "summary": "Test asserts a 404 answer has no trace_id at each filter. Only a NotFound is tested, not 403/409; the code path is gated by is_internal() so other 4xx kinds are excluded structurally.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 149,
+                "end": 190
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.183404060Z",
+          "seal": {
+            "by": "server",
+            "mac": "00b96973b8a169253fe3a707b486d0dd6444e5ed817f5a083a7b20f08bcd3bfa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "404 test asserts no trace_id and code adds the field only for internal errors.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3276"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.604955613Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ecefdbe656ac279b695ef51a704ee8bbf383c11b63c45ecb6d3d28b4a97b738"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.604955613Z",
+      "seal": {
+        "by": "server",
+        "mac": "158f09da153f12609f21a4b1700c6966e0002cbb5f72dd38539f0ce44062e403"
+      }
+    },
+    {
+      "id": "CLM-1772",
+      "statement": "OkfError::to_json() is unchanged by the PR, and an internal API error body never contains the error detail.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1093: 'Keep OkfError::to_json() unchanged, so the detail still never leaves the server'; PR body: 'OkfError::to_json() is unchanged, so the detail never leaves the server.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/error.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3277",
+          "kind": "test",
+          "locator": "git diff --stat origin/main..HEAD -- src/error.rs (empty); src/http/telemetry_tests.rs assertion !body.to_string().contains(\"injected failure\")",
+          "summary": "src/error.rs is not in the diff, so to_json is unchanged. The 500 test asserts the injected database failure text is absent from the body; only trace_id is added.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "injected failure",
+              "scope": [
+                "src/http/telemetry_tests.rs"
+              ],
+              "hits": 1,
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.294831972Z",
+          "seal": {
+            "by": "server",
+            "mac": "e21ad495ac1659ddda1e6272a3c105e61fe6f22f35aaa4f25680458049b267b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "error.rs untouched; test asserts the injected detail is absent from the body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3277"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.702474318Z",
+          "seal": {
+            "by": "server",
+            "mac": "703eed42eec226cc11fd37618bc5be6acf5b2629393bfab6ccd55e4c05d0967d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.702474318Z",
+      "seal": {
+        "by": "server",
+        "mac": "94068b0a483faa9b8821bd6aefe87bea460479c262a8ff120d361fc15cd06175"
+      }
+    },
+    {
+      "id": "CLM-1773",
+      "statement": "The trace id extraction is shared: telemetry::propagation::trace_id_of(&Span) is the single implementation and mcp::current_trace_id calls it, with no copy of the extraction left in src.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1093 maintainer requirement: 'share the trace-id extraction with current_trace_id in src/mcp/mod.rs rather than copying'; PR body: 'mcp::current_trace_id now calls it (no copy).'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/telemetry/propagation.rs",
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3278",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:441-448; src/http/mod.rs:197-200; src/telemetry/propagation.rs:59-67",
+          "summary": "Both current_trace_id (MCP) and AppError::into_response (HTTP) pass trace_id_of to try_with; the opentelemetry extraction block was removed from mcp/mod.rs. git grep for is_valid() in src finds only propagation.rs:37 (inbound link), :66 (trace_id_of) and telemetry/json.rs:207 (a different log-line ancestor scan, pre-existing, not the helper's duplicate).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 441,
+                "end": 448
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.399769696Z",
+          "seal": {
+            "by": "server",
+            "mac": "cef8f5a82af0bef51e47a48f03e3a9e516ca5dc511d693dde1041c476272b92b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both call sites use trace_id_of; no duplicate extraction remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3278"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.798508660Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e5c2a21a7a854e889bf6d36b8e563a98bb8152711ab71f9c93c9a549bb2d0fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.798508660Z",
+      "seal": {
+        "by": "server",
+        "mac": "e376c20377ab6b330e6d91557935d608dd42dd76cea74ad88b252950ca8f9744"
+      }
+    },
+    {
+      "id": "CLM-1774",
+      "statement": "AppError::into_response reads the span from a REQUEST_SPAN task-local that request_telemetry sets around next.run, and does not use Span::current(), because the helper span provisioner_gate (instrumented at debug level) can be current there and carries no trace context at the info span filter.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'read from a REQUEST_SPAN task-local that request_telemetry sets. Span::current() is not used: a helper span (provisioner_gate) is current there and carries no trace context at the info span filter.'",
+      "derived_from": [
+        "CLM-1769"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/http/api/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3279",
+          "kind": "analysis",
+          "locator": "src/http/mod.rs:197,548-551,723-727; src/http/api/mod.rs:111,392-393",
+          "summary": "REQUEST_SPAN task-local is scoped around next.run in request_telemetry and read in into_response; Span::current() is not used for the id. provisioner_gate is #[tracing::instrument(level = \"debug\")] and wraps the handlers, so at the default info filter it is a disabled span with no trace context, consistent with the stated reason. No test pins the helper-span case specifically.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 545,
+                "end": 552
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.506725566Z",
+          "seal": {
+            "by": "server",
+            "mac": "e947b050025d595d943b66edd7eb7bc9959fb8d24085a052e67315eb1cf11261"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code matches the stated mechanism; the provisioner_gate reason follows from its debug-level instrument attribute (analysis, no dedicated test).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3279"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.895671694Z",
+          "seal": {
+            "by": "server",
+            "mac": "981eb9ee81e1fc61fccde914cbd157f37f6631d91c5f5f57acaa8d32a39b93d7"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.895671694Z",
+      "seal": {
+        "by": "server",
+        "mac": "914be9a5a45edbe0a0b15c544cbbab6bc0bc895d249766727021a756b2d5c112"
+      }
+    },
+    {
+      "id": "CLM-1775",
+      "statement": "The console shows 'Trace id: <id>' in the error toast when an API error body has a trace_id, and the toast stays 30 s (toast() takes a lingerMs).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1093: 'show trace id in the console toast if feasible'; PR body: 'core/api.js shows \"Trace id: <id>\" in the toast and toast() takes a lingerMs (30 s for a trace id).'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/api.js",
+        "src/http/ui/js/core/toast.js",
+        "tests/ui_e2e/health.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3280",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test ui_e2e -- an_internal_error_toast (1 passed); src/http/ui/js/core/api.js:45-48,80; toast.js:4-8",
+          "summary": "Browser test fakes a 500 with trace_id and waits for \"Trace id: 0af7...19c\" in #toasts: passed at head. api.js passes 30000 ms when the body has trace_id; toast() applies lingerMs to setTimeout. The 30 s value is not asserted by a test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/health.rs",
+              "lines": {
+                "start": 145,
+                "end": 165
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.614768519Z",
+          "seal": {
+            "by": "server",
+            "mac": "c15c03a2a7a327e5a0b175382dce2c3d24e6f863ac16847bd7c2189e083b4566"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Browser test passes and code applies the 30 s linger.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3280"
+          ],
+          "recorded_at": "2026-11-26T14:32:32.993438250Z",
+          "seal": {
+            "by": "server",
+            "mac": "ebf5ff2461a7efad78324cd54568e76e0bb5a1151fc9929a32683c548e5ccca4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:32.993438250Z",
+      "seal": {
+        "by": "server",
+        "mac": "56c5ff9e654a511904fa501fdbbf3c747c94701c09b5de83cc0ea4402dce0694"
+      }
+    },
+    {
+      "id": "CLM-1776",
+      "statement": "docs/operations.md documents the /api/v1 internal error's trace_id (32 hex digits, omitted without a valid trace, never zeros, no other error carries it, no detail), its MCP section no longer says the HTTP API is unchanged, and the README route-errors line mentions trace_id.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1093: 'Update the API error-shape docs'; PR body: 'Docs: docs/operations.md (API error shape, MCP section's \"HTTP API unchanged\" line) and README route-errors line.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "README.md"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3281",
+          "kind": "inspection",
+          "locator": "docs/operations.md:3193-3194, 4022-4033; README.md:398",
+          "summary": "operations.md lines 4022-4033 describe trace_id (32 hex, omitted without valid trace, never zeros, no other error carries it, no detail, no header); the MCP section line 3193 now says HTTP internal errors carry trace_id; README route-errors line mentions it. git grep finds no remaining 'HTTP API unchanged' wording. Minor: line 3194 says 'under the console's headers' but the paragraph sits in the Web console section after the headers list; acceptable.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4022,
+                "end": 4033
+              },
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.722632821Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1b029055deb0d4600e3c89265762d4f4cb6976e122cf91136da7b99b2f731a5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs text present at the cited lines; stale line gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3281"
+          ],
+          "recorded_at": "2026-11-26T14:32:33.092526719Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0752cd68f840969521d22206e2d3d80960ef1d4b28861ef46c5836854389c0f"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:33.092526719Z",
+      "seal": {
+        "by": "server",
+        "mac": "afc43c588db2093f79d38af1883db9f0ac587f1d51b9557b8bc4c2b3572fe7ea"
+      }
+    },
+    {
+      "id": "CLM-1777",
+      "statement": "No X-Trace-Id response header is added anywhere; the PR records that as a decision and docs/operations.md says so.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'Decision: no X-Trace-Id header.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3282",
+          "kind": "analysis",
+          "locator": "git grep -i \"x-trace-id\" -- src (0 hits); docs/operations.md:4030",
+          "summary": "No X-Trace-Id header is set anywhere in src; operations.md states there is none, and the changelog records the decision.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "x-trace-id",
+              "case_insensitive": true,
+              "scope": [
+                "src"
+              ],
+              "hits": 0,
+              "commit": "076f7d93f3ffc4d73139f62859a01b2ea3befe9c"
+            }
+          },
+          "recorded_at": "2026-11-26T14:32:10.839002206Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e818bdd28c0be38c631c039e71c9fc82e07cbe41a5f83ea165eb123b1e32a9c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search and docs statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3282"
+          ],
+          "recorded_at": "2026-11-26T14:32:33.189609123Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b66fe82038d4d6d89ed0c5fc3c4e0d8242dd82241e135db92ea0cd7bbeef68a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:33.189609123Z",
+      "seal": {
+        "by": "server",
+        "mac": "9c38186d6d21fcb7b0411848d193daa116420960a5dc509bd8dd5e3104135cce"
+      }
+    },
+    {
+      "id": "CLM-1778",
+      "statement": "Running tools/agentic/gate.sh narrow --lib -- an_internal_api_error passes both trace-id tests (an_internal_api_error_carries_the_request_spans_trace_id and an_internal_api_error_omits_trace_id_without_a_trace).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'tools/agentic/gate.sh narrow --lib -- an_internal_api_error passes both.'",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3283",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- an_internal_api_error",
+          "summary": "Reran at head 076f7d9: both tests ok, \"2 passed; 0 failed; 3160 filtered out\". Note target/i1093-logs/narrow1-5.log record earlier failures (assertion at telemetry_tests.rs:192); narrow6 is the passing run.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T14:32:10.943943011Z",
+          "seal": {
+            "by": "server",
+            "mac": "fda48138a6e3442ed9eaee5d50a687b373ed8475fb2352eb4c644e59ca71f014"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 2 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3283"
+          ],
+          "recorded_at": "2026-11-26T14:32:33.287487369Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fcef1194262c54beb8ed886c4c684bfb95ba7cbac7e752b01ed8ac3c4229441"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:33.287487369Z",
+      "seal": {
+        "by": "server",
+        "mac": "6821192965162695ad21487077db9d7e0b22ee755b155e89b9c24f08a9036c5f"
+      }
+    },
+    {
+      "id": "CLM-1779",
+      "statement": "The refactor of mcp::current_trace_id does not change MCP tool-error behavior: the mcp::telemetry_tests suite still passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Existing claims CLM-1696, CLM-1707 (issue #766); issue #1093 shared-helper requirement",
+      "derived_from": [
+        "CLM-1768"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1093"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3284",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::telemetry_tests",
+          "summary": "At head: 11 passed, 0 failed, including a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T14:32:11.045027135Z",
+          "seal": {
+            "by": "server",
+            "mac": "87e8817dfc64dcb927486b9562b568c8e063088023d64c94a80dc1881ecd3ebd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 11 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3284"
+          ],
+          "recorded_at": "2026-11-26T14:32:33.384345793Z",
+          "seal": {
+            "by": "server",
+            "mac": "2dabdb4bc052f805a3b43ef3bd9ebbb702d290073565e03d629f4a7ab439968d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T14:31:40.406953427Z",
+      "updated_at": "2026-11-26T14:32:33.384345793Z",
+      "seal": {
+        "by": "server",
+        "mac": "b8de5a8bf98a82f6d7e630344d9e6820f3139cf883bb3010b0756062bc109370"
       }
     }
   ]

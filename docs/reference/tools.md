@@ -20,6 +20,8 @@ How a session usually goes:
 - To write, call `open_changeset` first and pass the handle it returns as `changeset` to every
   edit, `publish`, `discard`, `revert` and `pending_changes`. Reads take it too, to see the
   drafts. Nothing is visible to others until `publish`.
+- A call that depends on an earlier one (an edit to a concept you are creating, a read after
+  `publish`) must wait for its result: parallel calls on one changeset run in no fixed order.
 - When the person asks you to remember something, save it to the catalog (under a fitting
   folder) rather than only in the conversation; asking is their consent, so don't ask again.
   Don't save what they didn't ask you to keep.
@@ -482,7 +484,7 @@ The unpublished changeset `changeset` names: each changed path (create, update o
 
 **Publish Changeset** (destructive)
 
-Publish the changeset `changeset` names: its edits become the published documents, each with a new revision carrying `message`. Refused with Conflict when a document changed since this changeset read it (log.md and index.md bookkeeping, and the stamp, review, question, unquestion, add_source and remove_source edits of a concept, are replayed onto the new text instead; a replay that can no longer apply is refused with its reason), or with LintFailed when a changed file has lint errors; the changeset then stays open (an error the published file already has is a warning, not a refusal). Lint errors elsewhere come back as warnings. When every edit already matches the published text, the changeset is closed with published: true and no revisions. With several replicas, a read on another replica may still show the previous revision for a moment after this returns (usually well under a second); reads through a changeset and pending_changes are always current for its own edits. Write access.
+Publish the changeset `changeset` names: its edits become the published documents, each with a new revision carrying `message`. Refused with Conflict when a document changed since this changeset read it (log.md and index.md bookkeeping, and the stamp, review, question, unquestion, add_source and remove_source edits of a concept, are replayed onto the new text instead; a replay that can no longer apply is refused with its reason), or with LintFailed when a changed file has lint errors; the changeset then stays open (an error the published file already has is a warning, not a refusal). Lint errors elsewhere come back as warnings. When every edit already matches the published text, the changeset is closed with published: true and no revisions. A changeset with no entries returns published: false with a `reason` (edits sent in the same turn as publish may not have landed; publish again after they return). With several replicas, a read on another replica may still show the previous revision for a moment after this returns (usually well under a second); reads through a changeset and pending_changes are always current for its own edits. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

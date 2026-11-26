@@ -537,6 +537,10 @@ pub struct PublishParams {
     pub changeset: String,
 }
 
+/// What `publish` says when the changeset held no entries (issue #758).
+const EMPTY_PUBLISH_REASON: &str = "nothing to publish: this changeset has no entries. If you \
+    sent edits in the same turn, publish after they return.";
+
 /// `publish`'s result.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct Published {
@@ -546,6 +550,9 @@ pub struct Published {
     pub catalog_label: String,
     /// The changeset's handle. With `published: false` it was not published and stays open (it held no entries, for instance after a discard emptied it).
     pub changeset: String,
+    /// Why nothing was published (absent when something was, or when every edit already matched the published text): the changeset held no entries. Edits sent in the same turn as `publish` may not have landed yet; publish again after they return.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
     /// What was written; `flatten` puts its fields beside these.
     #[serde(flatten)]
     pub report: crate::store::publish::PublishReport,
@@ -584,10 +591,12 @@ pub(crate) async fn publish(
         message,
     };
     let report = publishing::publish(ctx.app(), &state, &input, &ctx.audit_actor()).await?;
+    let reason = (!report.published).then(|| EMPTY_PUBLISH_REASON.to_string());
     Ok(Published {
         catalog: state.name().to_string(),
         catalog_label: ctx.catalog_label(state.name()).await?,
         changeset: row.handle,
+        reason,
         report,
     })
 }
@@ -607,7 +616,9 @@ impl OkfServer {
                        then stays open (an error the published file already has is a warning, not \
                        a refusal). Lint errors elsewhere come back as warnings. When every \
                        edit already matches the published text, the changeset is closed with \
-                       published: true and no revisions. With several replicas, a read on another replica may still show the previous revision for a \
+                       published: true and no revisions. A changeset with no entries returns published: false with a \
+                       `reason` (edits sent in the same turn as publish may not have landed; publish \
+                       again after they return). With several replicas, a read on another replica may still show the previous revision for a \
                        moment after this returns (usually well under a second); reads through a \
                        changeset and pending_changes are always current for its own edits. \
                        Write access.",

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1820,
+  "next_claim_seq": 1839,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6d1f5c15c39fd9103d82cb3f1573c9535eb96c221fed2162ffb0d0b962c25e41"
+    "mac": "2b47e6abdc96e1815d822be695594e00af5b1a27ee7a0fdb403ee46a64a90584"
   },
-  "next_evidence_seq": 3345,
+  "next_evidence_seq": 3376,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "586429382c632d37acb30dfff4e3c5ed633bdd9d511ce34ed9e186d378f7bd36"
+    "mac": "fb959536dd0806ecfa6df6fe5bf811dedb058bbfe92bb17ce0e0afd840be5afd"
   },
   "claims": [
     {
@@ -6037,6 +6037,28 @@
             "by": "server",
             "mac": "eca1c716e70d9e7be0b8834b621bf64931afce4a26a4b1c1c6f1634d2d5e44f9"
           }
+        },
+        {
+          "id": "EVD-3368",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:388-409 at 4c2edf64",
+          "summary": "After the diff call_tool still builds tracing::info_span!(\"mcp\", otel.name = \"mcp {tool}\") (anchored lines shifted by the new helpers; the request span in src/http/mod.rs is untouched).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 399,
+                "end": 409
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:02.821862542Z",
+          "seal": {
+            "by": "server",
+            "mac": "8099a36a76238094b8bf9f3a25965364ce5173498486fbac75118a8b79d80092"
+          }
         }
       ],
       "verdicts": [
@@ -6052,13 +6074,26 @@
             "by": "server",
             "mac": "1b95b1d1fb2b77975c97b04ac13c607deefa5482e211e95bac0761181fe0919b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the diff moved the anchored lines: call_tool still opens the info span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3368"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.340058651Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3f18e4abae466da047e1fce1d63591699389a7eeb432d3ce2665e7a090b79ba"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:36.900182326Z",
-      "updated_at": "2026-11-21T19:09:15.520752552Z",
+      "updated_at": "2026-11-26T19:04:16.340058651Z",
       "seal": {
         "by": "server",
-        "mac": "00409df9d3d8483519dd19c2af6162cd52b7459f577c3bad1df28752040cef0f"
+        "mac": "7e1b504049b6fe43c39bcd86b5f1ec4cfee2b66a674fce0523085db3396d731f"
       }
     },
     {
@@ -29160,6 +29195,28 @@
             "by": "server",
             "mac": "1e27be43717f46c7b5eb3f859a63128e9e09f7a5885e424f6f60f7b5eeb559d2"
           }
+        },
+        {
+          "id": "EVD-3373",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:435-441 at 4c2edf64",
+          "summary": "call_tool still gates REPORT_TOOL on self.app.config().feedback.is_some(); the diff shifted lines only. The send_feedback registration code was not touched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 435,
+                "end": 441
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:03.381727848Z",
+          "seal": {
+            "by": "server",
+            "mac": "67e44a4cd10ad98bed156d3d0a7d929fa204734bb0a37c7f509adfd81178c81d"
+          }
         }
       ],
       "verdicts": [
@@ -29188,13 +29245,26 @@
             "by": "server",
             "mac": "2454d3f88b926582c4869b02ab5d62e050f895fa53fa764ac12abc856642d8bd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the feedback gate is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3373"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.857712907Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a671809761d94bea5f29e102ed3a2dc613b9e692a61cf47c9529c3b784fb41e"
+          }
         }
       ],
       "created_at": "2026-11-21T19:08:08.066114433Z",
-      "updated_at": "2026-11-26T13:12:55.870786643Z",
+      "updated_at": "2026-11-26T19:04:16.857712907Z",
       "seal": {
         "by": "server",
-        "mac": "9f7cf2a86f190cc6d1d2c3e03f91cd3c15cdf269fac8eadbf98645921eca2ab4"
+        "mac": "f7d7bc6f98cdd0c98df69a82a6e8f94f5319dedaeba9354e3ee8780dd9f400f9"
       }
     },
     {
@@ -47395,6 +47465,28 @@
             "by": "server",
             "mac": "1f96d5b6f1b7e4e35a775f15b1aafe236a5bdd5c7949461bbdad87817ea04b83"
           }
+        },
+        {
+          "id": "EVD-3369",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_tool_span_is_a_child_of_the_request_span) at 4c2edf64",
+          "summary": "Still passes; call_tool still passes parent: tool_span_parent(&context.extensions) to the span (mod.rs:388,400).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 386,
+                "end": 402
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:02.932578722Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ff5a6461806342d0ac0d24534359630479011c947945af8fdbf7d97c5e9d0fa"
+          }
         }
       ],
       "verdicts": [
@@ -47410,13 +47502,26 @@
             "by": "server",
             "mac": "6ca3221dafeb2039787b75cc79ad8ca2aab135042d9e4814e137f4dab8f4ff74"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the explicit parent is unchanged and the parent test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3369"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.445558085Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce2698572878320f63f99ebe1914cb73df6f9b700bcfbf85769078d3f4baca25"
+          }
         }
       ],
       "created_at": "2026-11-22T22:23:12.638921607Z",
-      "updated_at": "2026-11-22T22:24:19.628141622Z",
+      "updated_at": "2026-11-26T19:04:16.445558085Z",
       "seal": {
         "by": "server",
-        "mac": "4c39ffe643825b4c5dc69ac15665b621886da46c29b330e477a1ba5d51664eae"
+        "mac": "76fc51e58b705c1e2f266f40d7bd3f1e4d5e01a5dc24beaa0a019de612d33278"
       }
     },
     {
@@ -47769,6 +47874,28 @@
             "by": "server",
             "mac": "8b9669c40a997f59573d98cfd7cf7b24e4471075c6b6c04fc19c56b59eb1d992"
           }
+        },
+        {
+          "id": "EVD-3370",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_tool_span_is_a_child_of_the_request_span) at 4c2edf64",
+          "summary": "Still passes at head; the span is still parented with tool_span_parent (mod.rs:388,400); the doc sentence is unchanged by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 386,
+                "end": 402
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:03.044157426Z",
+          "seal": {
+            "by": "server",
+            "mac": "0494e1ade615d1ab8fad5596cdcf11096398e295749d4417d21450f852608b9f"
+          }
         }
       ],
       "verdicts": [
@@ -47797,13 +47924,26 @@
             "by": "server",
             "mac": "00432e24bc0f411511ac49e901f8d0ecedf3c499a25323b56a328866cdbb9c06"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: parenting code and test unchanged in behavior.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3370"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.549863300Z",
+          "seal": {
+            "by": "server",
+            "mac": "1227a30532429f8b8ba287f853e5e6371e0c830732899675bc7b3cdb0de185d9"
+          }
         }
       ],
       "created_at": "2026-11-22T22:23:12.638921607Z",
-      "updated_at": "2026-11-26T13:04:33.781397689Z",
+      "updated_at": "2026-11-26T19:04:16.549863300Z",
       "seal": {
         "by": "server",
-        "mac": "8a3cc57cd2851bb8ad45fdd1dfdbcc1037f0de1162e25d7b5bfa24cb71401c16"
+        "mac": "255f364b5862209b3a8b637e56af8fc7896c0fc5967250343403ac2c05be09b7"
       }
     },
     {
@@ -48092,6 +48232,28 @@
             "by": "server",
             "mac": "3cca5271128f4f0d56f260a03f9cf3f5fee71e009b148a7b56a45c35308c786c"
           }
+        },
+        {
+          "id": "EVD-3371",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:386-402 at 4c2edf64",
+          "summary": "The tool span is still a child of the request span via tool_span_parent; the diff only moved lines.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 386,
+                "end": 402
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:03.153463380Z",
+          "seal": {
+            "by": "server",
+            "mac": "a97958f16a7ff18f0764495f9a5154dc0593e398975318c278a5aac56cda08dd"
+          }
         }
       ],
       "verdicts": [
@@ -48120,13 +48282,26 @@
             "by": "server",
             "mac": "7be27cd7feff52ddb5e2766ac2ae546ec5a1afce93573cb801f36d101f249da5"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the span relationship the doc claim relies on is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3371"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.651334826Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee81e371275799f7f010aa19497be72964261cfafba27cf224be83a26220579d"
+          }
         }
       ],
       "created_at": "2026-11-22T22:23:12.638921607Z",
-      "updated_at": "2026-11-26T13:04:33.888929187Z",
+      "updated_at": "2026-11-26T19:04:16.651334826Z",
       "seal": {
         "by": "server",
-        "mac": "21accc6070771fc3e74acb9e0bff35538b4c862b553954672264a79f6abd1b46"
+        "mac": "2c9f06f6387bdae9e12fcb568fb2f667ebd260d71aed4370fbd77ccbb76a304b"
       }
     },
     {
@@ -48224,6 +48399,28 @@
             "by": "server",
             "mac": "2263dc01ec1fbc5a0acea7ac60676b4405db5ada996648f95a1c1a8add30fd19"
           }
+        },
+        {
+          "id": "EVD-3372",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:380-409 at 4c2edf64",
+          "summary": "The mcp span is still opened only inside call_tool; the diff adds no span for other requests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 380,
+                "end": 409
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:03.268873699Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a96f936b870505cf643d848dbf9c2baf29ddd30f6e4e9164dce1f07f99ddc07"
+          }
         }
       ],
       "verdicts": [
@@ -48266,13 +48463,26 @@
             "by": "server",
             "mac": "bbed4558faf746a1403fd79bf5f6223340acbc1a574b781ffdd383c7d8bb2766"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: still only call_tool opens an mcp span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3372"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.755248991Z",
+          "seal": {
+            "by": "server",
+            "mac": "63917dcabf4cb51ce2ce85d829b6c5bcdd3d6d8bb671706066415083011d4ef3"
+          }
         }
       ],
       "created_at": "2026-11-22T22:23:12.638921607Z",
-      "updated_at": "2026-11-26T13:04:33.989742657Z",
+      "updated_at": "2026-11-26T19:04:16.755248991Z",
       "seal": {
         "by": "server",
-        "mac": "db7b71506b55fa0362dd6f0c89d89b5aca234c50231967c8ba13c3913f8c1d57"
+        "mac": "9b2d32aec06559eb547a811889187aebe480459f08a0977fd96ec684b8e9b29a"
       }
     },
     {
@@ -156558,6 +156768,28 @@
             "by": "server",
             "mac": "10204d244983aab072ae499b5f3dde27355d77db7cf149d004401310fff05fbe"
           }
+        },
+        {
+          "id": "EVD-3374",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback) at 4c2edf64",
+          "summary": "Passes at head; the feedback.is_some() gate on REPORT_TOOL is unchanged at mod.rs:435-441.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 435,
+                "end": 441
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:04:03.495887872Z",
+          "seal": {
+            "by": "server",
+            "mac": "53609f2d32b0fbbc6bafe02fb1b8b441ae5e8ebf8fce9e8cdb00805ed2de7f9f"
+          }
         }
       ],
       "verdicts": [
@@ -156574,13 +156806,26 @@
             "by": "server",
             "mac": "faa8d7296958805fa679e70c15920c291b5417783583688ceffbad6efc2a7b4c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: gate unchanged and the served test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3374"
+          ],
+          "recorded_at": "2026-11-26T19:04:16.957680854Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd726de317a6ba0cc9f38f48bd2d2062582c6b5d70a3cc8b35f07c95cc799826"
+          }
         }
       ],
       "created_at": "2026-11-26T10:08:51.034720158Z",
-      "updated_at": "2026-11-26T10:09:51.928517359Z",
+      "updated_at": "2026-11-26T19:04:16.957680854Z",
       "seal": {
         "by": "server",
-        "mac": "25f78fbdd106f3fea03a6f5914fd670fde316c901e986969c7a5ad1cb65b3dce"
+        "mac": "1de364b6d1a8034502598f411ebf76cc7da531f19376c8d09bc43744caadbc43"
       }
     },
     {
@@ -166148,6 +166393,1343 @@
       "seal": {
         "by": "server",
         "mac": "72afc397df305437d8b73c02ee9e8d6d26c0fed77ac0f523274d9fde5a39c42c"
+      }
+    },
+    {
+      "id": "CLM-1820",
+      "statement": "The change delivers issues #1113 and #834: the `mcp <tool>` span records the MCP session, the changeset and the resolved catalog.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1113 and /issues/834",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/context.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1113",
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3375",
+          "kind": "analysis",
+          "locator": "children of CLM-1820",
+          "summary": "All behavior, test, docs and digest children are supported. Only the PR's full-gate validation statement (counts from test, mcpjam, fmt, lint, dylint) is not_enough_info, as those gates were not rerun.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T19:04:17.164574455Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3586f8a389d1dd442e3afc78420937738d7cc98da2199845105511d5154c711"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every behavioral, test and docs child is supported; only the PR's full-gate validation statement is undecided because only the narrow telemetry gate was run. Fix: rerun gate.sh test, mcpjam, fmt, lint and dylint on the head commit and record the counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3375"
+          ],
+          "recorded_at": "2026-11-26T19:04:20.578123405Z",
+          "seal": {
+            "by": "server",
+            "mac": "41954c5500a0f0ab91e3d181e5054ba59e827fc870e1542e18d3c1bda6fa1ab2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:04:20.578123405Z",
+      "seal": {
+        "by": "server",
+        "mac": "8577438221caeb33eeb11ac0fe1b5c9c18cc69534b1776a0f8e1b28116d11378"
+      }
+    },
+    {
+      "id": "CLM-1821",
+      "statement": "The tool span records `mcp.session.id` when the request carries an Mcp-Session-Id header, as a digest of it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1113 acceptance: records `mcp.session.id` when the request has a session",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3345",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:168-172,392,406",
+          "summary": "session_digest reads the mcp-session-id header from the request Parts and digests it; call_tool puts it on the span field mcp.session.id (an Option, so absent without a header).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 386,
+                "end": 410
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:01:59.624850498Z",
+          "seal": {
+            "by": "server",
+            "mac": "b375c2036542674534c882b8bd4d5bd25ed059d4441c1e5cc5772033b5dec37b"
+          }
+        },
+        {
+          "id": "EVD-3346",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --lib mcp::telemetry_tests (the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog)",
+          "summary": "Test passed (15 passed, 0 failed). It reads the probe's real session id, computes digest_token(\"session\", id) and asserts mcp.session.id on both the pending_changes and search spans equals it, under every FILTERS setting.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 567,
+                "end": 584
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:01:59.763702618Z",
+          "seal": {
+            "by": "server",
+            "mac": "25dca7ca6647e65ca07ad0bd77f5fa7b8f68e338e62bdab1fd10aa34ff7ebb22"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code records the digest from the header and the test compares the span attribute with the digest of the real session id on two spans.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3345",
+            "EVD-3346"
+          ],
+          "recorded_at": "2026-11-26T19:03:07.960791498Z",
+          "seal": {
+            "by": "server",
+            "mac": "86be35ca12121ff0f0dfb3912d9c737b2e892fec479413b72ce964a0855bd680"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:07.960791498Z",
+      "seal": {
+        "by": "server",
+        "mac": "d9f9878a0f724ec991b256048838597f9c2127f055192a08f16e3920a4411c98"
+      }
+    },
+    {
+      "id": "CLM-1822",
+      "statement": "The tool span records `okf.changeset` when the call's `changeset` argument names one, as a digest of the handle.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1113 acceptance: `okf.changeset` when the call names one",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3347",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:390-407",
+          "summary": "call_tool maps request.arguments[\"changeset\"] (string) through digest_token(\"changeset\", ..) and records it as okf.changeset on span creation; None when the argument is missing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 390,
+                "end": 407
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:01:59.872042236Z",
+          "seal": {
+            "by": "server",
+            "mac": "5da3557ad42f848966a13ba04a9f02d9e46326e9962c7f718e43da1642ce13a8"
+          }
+        },
+        {
+          "id": "EVD-3348",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog)",
+          "summary": "Passed. The test asserts okf.changeset on the pending_changes span equals digest_token(\"changeset\", handle) for the handle open_changeset returned, and is absent (is_none) on the search span.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 559,
+                "end": 586
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.028128028Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0ecdd803050e56a4bca607f79e95751bf59278d61c74d9b9e3b63b40b5003e6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test agree: the attribute equals the digest of the handle used, and is absent when no changeset is named.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3347",
+            "EVD-3348"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.067014448Z",
+          "seal": {
+            "by": "server",
+            "mac": "df8b91c806e3a1cdfeaf42f1baf40739385565c3d96771d56639e48afbf118a9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.067014448Z",
+      "seal": {
+        "by": "server",
+        "mac": "aa5013bd790257a915e043ee114e16345aa878df81b2b439089187a974f59353"
+      }
+    },
+    {
+      "id": "CLM-1823",
+      "statement": "A changeset tool called with only a `changeset` (no `catalog` argument) records the changeset's catalog in `okf.catalog`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issues #1113 (changeset's catalog in okf.catalog) and #834 regression test: changeset tool with only a changeset records the changeset's catalog",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113",
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3349",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog)",
+          "summary": "Passed. pending_changes is called with only {\"changeset\": handle} (no catalog argument) and the span's okf.catalog is \"pg\", recorded exactly once. The tool is a changeset tool, which the issue allows in place of edit_document.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 541,
+                "end": 566
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.188797390Z",
+          "seal": {
+            "by": "server",
+            "mac": "5976349b06728d9197d5e01e57aac210caa9ddc9a3aa8ae1c9cba70f239b832b"
+          }
+        },
+        {
+          "id": "EVD-3350",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1172-1175",
+          "summary": "resolve_changeset calls crate::mcp::note_catalog(state.name()) once the handle resolved and the ownership/offers check passed; call_tool records the noted value on okf.catalog at the end of the call (mod.rs:441-448).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1165,
+                "end": 1178
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.350504335Z",
+          "seal": {
+            "by": "server",
+            "mac": "60d09e812748ae0f53f35cb32449695f01865f411e9a00164745a431070b62c1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "pending_changes with only a handle records catalog pg once; resolve_changeset is the path that notes it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3349",
+            "EVD-3350"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.172265307Z",
+          "seal": {
+            "by": "server",
+            "mac": "210ee5f4fe8a2f88a16baba695aeb94f2587ddf188f4fcf0978bac35753af5ff"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.172265307Z",
+      "seal": {
+        "by": "server",
+        "mac": "02d0fd28c68e517dab1e2b2affc6139525369517c9baaa717ce34268c45d8e46"
+      }
+    },
+    {
+      "id": "CLM-1824",
+      "statement": "`search` with no `catalog` argument and no changeset, on a key that reaches a single catalog, records that catalog in `okf.catalog`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #834 regression test: search with no catalog on a single-catalog key records that catalog",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3351",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog)",
+          "summary": "Passed. search is called with only {\"query\": \"Alpha\"} on a write key granted to catalog pg alone; the mcp search span's okf.catalog is \"pg\" (and okf.changeset absent).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 547,
+                "end": 586
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.501975676Z",
+          "seal": {
+            "by": "server",
+            "mac": "f582f090935112bf9a8b061c9719528e6314f357fd55a6b1043ec36721f06f37"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The search-with-no-catalog span carries okf.catalog pg in the passing test; on main the up-front lookup gave none for this call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3351"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.275047958Z",
+          "seal": {
+            "by": "server",
+            "mac": "744d0c1e3e26cf5a291b067eddd9a1d195428cd5eb671463403b724d4c6beb74"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.275047958Z",
+      "seal": {
+        "by": "server",
+        "mac": "f819b5334b5f073e1e3f7913fdd10a22c91fd11460f7b941042217b1c734a6ad"
+      }
+    },
+    {
+      "id": "CLM-1825",
+      "statement": "`okf.catalog` is `multiple` when a call resolved several catalogs and `none` only when it resolved none, and the value is a catalog's `name`, never its label.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #834 fix: `multiple` for a read across several catalogs, `none` only when nothing resolved, the catalog name never the label",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3352",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (note_catalog_tracks_one_name_then_multiple)",
+          "summary": "Passed. CatalogSeen yields \"none\" initially, the name after one or repeated notes, \"multiple\" after a second distinct name. Callers pass state.name() (the catalog name; the label is a separate field). The multiple case is tested on the accumulator only, not through a real multi-catalog tool call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 642,
+                "end": 659
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.661151915Z",
+          "seal": {
+            "by": "server",
+            "mac": "dae72227fe37878914952fae18c4296e5bac5f6691f6cca84648aa93931620da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The accumulator gives none/name/multiple as stated and callers pass state.name(). Caveat: multiple is exercised only on the accumulator, no end-to-end multi-catalog tool call asserts it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3352"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.378219928Z",
+          "seal": {
+            "by": "server",
+            "mac": "90d288358738e2a742c486501cf7e557d6f7d761a0ac49d5f2d7e0c0d3e6f57d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.378219928Z",
+      "seal": {
+        "by": "server",
+        "mac": "fd81b7dd62fb9b5ff9f97575bc5eb14ff8017387b1de32b7b6e826c2db1fd9ce"
+      }
+    },
+    {
+      "id": "CLM-1826",
+      "statement": "The `catalog` label of okf_mcp_tool_duration_seconds is the same resolved value as `okf.catalog`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #834: the metrics label uses the same resolved value; PR body: 'The metrics `catalog` label uses the same value.'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3353",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib mcp::telemetry_tests (the_metrics_label_is_the_resolved_catalog)",
+          "summary": "Passed. After search without catalog the okf_mcp_tool_duration_seconds_count series has catalog=\"pg\"; get_concept with an unknown name has catalog=\"none\"; the sentinel name is absent from the metrics text. Code: mod.rs:441-455 computes one `catalog` string and passes it to both span.record and metrics().tool_call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 441,
+                "end": 455
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:00.824509674Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac3c1348d904b66832ee2006c9dd219e391855b2471ecf27a0dc0e1c897d32e0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One string feeds both the span and the metric; the test reads the metric labels pg and none.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3353"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.483091398Z",
+          "seal": {
+            "by": "server",
+            "mac": "5f18fe773c7bc1cc2f93e443e2d243b775db683f36dca9a4f7d0982433e220de"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.483091398Z",
+      "seal": {
+        "by": "server",
+        "mac": "10fcb1cccc7b5de408dd84ceef944f1a5b55d0b3ec0336c3e516d5cb3021a90b"
+      }
+    },
+    {
+      "id": "CLM-1827",
+      "statement": "A telemetry test asserts that `mcp.session.id`, `okf.changeset` and `okf.catalog` are present on the tool span, and that `okf.changeset` is absent on a span of a call with no changeset.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1113 acceptance: a telemetry test covers all three and their absence for a stateless call and for a call with no changeset",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3354",
+          "kind": "test",
+          "locator": "the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog, src/mcp/telemetry_tests.rs:529-591",
+          "summary": "Passed. One test asserts mcp.session.id, okf.changeset and okf.catalog on the changeset call, mcp.session.id and okf.catalog on the search call, and okf.changeset absent (is_none) on the search call that names no changeset; also that raw session and handle appear nowhere in exported spans.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 529,
+                "end": 591
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.373657900Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fa155d05167eedba1ed09dba856c4fe25580854a4b2a7182954205514fb7fba"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test covers all three attributes and the changeset absence on a no-changeset call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3354"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.591454197Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ad89ae0114b5d70b31958568953297a320ff4a4527d0072b69a8071d2e2917a"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.591454197Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1658d89b2f470f187d786b250dfc841fc159c5a2dac624ca612265d3208660d"
+      }
+    },
+    {
+      "id": "CLM-1828",
+      "statement": "A test asserts that a call with no session (no HTTP parts, or no Mcp-Session-Id header) has no session digest, so no `mcp.session.id` is recorded for a stateless call.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1113 acceptance: their absence for a stateless call",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3355",
+          "kind": "test",
+          "locator": "a_call_without_a_session_has_no_session_digest, src/mcp/telemetry_tests.rs:624-640",
+          "summary": "Passed. session_digest(None) and session_digest(Some(parts without header)) are None; with a header it is a 16-char token not containing the value. The test is on the helper, not on an exported span; call_tool feeds the helper's Option straight to the span field (mod.rs:392,406), the same path whose absence is asserted at span level for okf.changeset.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 624,
+                "end": 640
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.484277333Z",
+          "seal": {
+            "by": "server",
+            "mac": "5524bb5c8695014f846dfb295a4f46c179efe585fb5a75ce631d9cd60e653d61"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The helper test shows no digest without a session. It does not assert absence on an exported span, but the span field is the helper's Option and the same mechanism is span-tested for okf.changeset.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3355"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.694680538Z",
+          "seal": {
+            "by": "server",
+            "mac": "9a12ceb92c10aa0c95335346211eb3b79916e6206241b1b1c0391c627859f081"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.694680538Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c0c830f8473ec7235750bc7e441df53e3206a136c15d70a4a256d7cb0b0b9ae"
+      }
+    },
+    {
+      "id": "CLM-1829",
+      "statement": "docs/operations.md lists `mcp.session.id` and `okf.changeset` among the `mcp <tool>` span attributes and describes `okf.catalog` as the resolved catalog.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1113 acceptance: docs/operations.md lists the new attributes",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3356",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1689-1690 and 1589-1596",
+          "summary": "The mcp <tool> row of the span table lists okf.catalog as the resolved catalog (name, multiple, none), mcp.session.id (digest, only with a session) and okf.changeset (digest, only when the call names one); a paragraph at 1589 explains the digests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1689,
+                "end": 1690
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.593769434Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2cf301a16a9f9704a614c8df820045e7479b4d9a9306af82ab4f85c856ff0da"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The span table row lists both attributes and the resolved okf.catalog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3356"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.798107018Z",
+          "seal": {
+            "by": "server",
+            "mac": "57be09ab422821ebcdd0b52de13ae5700b8d8df5e6da19ac3f4a9e6b17af10f3"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.798107018Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a4c5cf0433fcfb9bda46d96e9029f94aafcfc13bb17ff75c920f656d5b26f2c"
+      }
+    },
+    {
+      "id": "CLM-1830",
+      "statement": "The session id and the changeset handle are capabilities (holding the value lets the holder act on the session or changeset, with the right key), and the span never exports either raw: only a digest.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "Maintainer requirement: check whether Mcp-Session-Id and the changeset handle are bearer capabilities; if so record a digest, never the raw value",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/http/sessions.rs",
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3357",
+          "kind": "analysis",
+          "locator": "src/http/sessions.rs:1-10,303; src/store/changesets.rs:121-123,323; rmcp-3.8.0 server_side_http.rs:16-17",
+          "summary": "Both are capabilities. The session id is a UUIDv4 (rmcp) and sessions.rs comments say a session id lets its holder use the session; bind_session binds it to the opening key, so the key is also needed. The changeset handle is a random UUID (gen_random_uuid) and resolve_changeset requires owning key or admin. So each is bearer-like but key-gated; a raw export would hand out a handle the maintainer asked to protect.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/sessions.rs",
+              "lines": {
+                "start": 1,
+                "end": 10
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.704108866Z",
+          "seal": {
+            "by": "server",
+            "mac": "f33b013b111534d6b0cfe99aa0445b3bb48d24431ea6eab02fb1b49cf2fe9daf"
+          }
+        },
+        {
+          "id": "EVD-3358",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:587-588 (the_tool_span_records_the_session_the_changeset_and_the_resolved_catalog)",
+          "summary": "Passed. The Debug text of every exported span, under each filter, contains neither the raw session id nor the raw changeset handle; call_tool records only digest_token output for both (mod.rs:392-407).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 586,
+                "end": 589
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.813633287Z",
+          "seal": {
+            "by": "server",
+            "mac": "5382f6b648e7e0a4907edd8abb00e73d5683e4a80d4eef67f4468d561e9e6916"
+          }
+        },
+        {
+          "id": "EVD-3367",
+          "kind": "analysis",
+          "locator": "children of CLM-1830",
+          "summary": "Both ids are key-gated capabilities and the span carries only a deterministic unkeyed digest (stable across replicas, domain-separated, 64 bits of an id that is a 122-bit random UUID), with a test asserting no raw value in any exported span.",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T19:03:14.237545507Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ff65588733cb7e09b69ce406072d3ca4f4f1a63f10e446e4c5470890f9faad4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both ids are key-gated capabilities and only digests are exported; the two children hold and the test finds no raw value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3367",
+            "EVD-3357",
+            "EVD-3358"
+          ],
+          "recorded_at": "2026-11-26T19:04:17.062119659Z",
+          "seal": {
+            "by": "server",
+            "mac": "b41daf2008ec27466357c6470a154de5c1bdef167b6c46e115f0149f6dbb93f4"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:04:17.062119659Z",
+      "seal": {
+        "by": "server",
+        "mac": "c517acba2841ad9e981f65d80c017e341196d4f8d66ace095c9f4fb8f0ea80a2"
+      }
+    },
+    {
+      "id": "CLM-1831",
+      "statement": "The digests are stable across processes and replicas: they are an unkeyed SHA-256 of a fixed domain and the value, with no per-process state.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Maintainer requirement: a digest stable within a process and ideally across replicas; PR body: 'every replica gives the same token'",
+      "derived_from": [
+        "CLM-1830"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3359",
+          "kind": "analysis",
+          "locator": "src/mcp/mod.rs:147-157",
+          "summary": "digest_token is a pure function: SHA-256 over domain bytes, a 0 byte and the value, first 8 bytes as hex. No salt, key, counter or process state, so every process and replica computes the same token for the same id.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 147,
+                "end": 157
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:32.922942777Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0f9a0cc33d233ca79655f13bfbac096cb860d80c1f52d5fdb04f1892848fe5b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "digest_token is pure and unkeyed, so it is the same in every process and replica.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3359"
+          ],
+          "recorded_at": "2026-11-26T19:03:08.903732058Z",
+          "seal": {
+            "by": "server",
+            "mac": "d77167e1bbabefe314c19f1312cf57c92f05acf271b490bf23e6e084fa3443f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:08.903732058Z",
+      "seal": {
+        "by": "server",
+        "mac": "3e67ffd6772679a34dacde3edc49a566531dc280b27f03903787ec0df2f02f65"
+      }
+    },
+    {
+      "id": "CLM-1832",
+      "statement": "PR statement: each digest is the first 16 hex digits of SHA-256(kind, 0x00, value), and the kind prefix stops a session token matching a changeset token.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'Each is the first 16 hex digits of `SHA-256(kind, 0x00, value)` ... The kind prefix stops a session token matching a changeset token.'",
+      "derived_from": [
+        "CLM-1830"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3360",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:147-157; src/mcp/telemetry_tests.rs:639",
+          "summary": "Code hashes domain, 0x00, value and keeps bytes [..8] as lowercase 2-digit hex (16 digits). The test asserts a 16-char token and digest_token(\"session\",\"x\") != digest_token(\"changeset\",\"x\"). Test pins length and domain separation but not an exact known-answer value.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 147,
+                "end": 157
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:33.031512016Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7d6f1224337ab3cf729d300b7ab4f5637a89477dfa1dbc5bbcc7e9d50808a5c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The code matches the stated construction and the test pins length and domain separation.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3360"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.007515437Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fd7c8c26ae7d180671ec7aae58e9a45dc30bae5fb383cb070fab89e356293d0"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.007515437Z",
+      "seal": {
+        "by": "server",
+        "mac": "357d4d01ad18e3e01225e34b4b563f3171732aab088d7bde8a16aded92afcb2a"
+      }
+    },
+    {
+      "id": "CLM-1833",
+      "statement": "PR statement: a changeset records its catalog only after the ownership check, so a handle the caller does not own reveals no catalog.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'A changeset records its catalog only after the ownership check, so a stranger's handle reveals nothing.'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3361",
+          "kind": "analysis",
+          "locator": "src/mcp/context.rs:1166-1175",
+          "summary": "note_catalog sits after the `if !self.offers(&catalog) || !(own || admin) { return Err(unknown()) }` check, so a stranger's handle returns before it. Earlier early returns (unknown handle, catalog not selected) also precede it. No test covers a stranger's handle recording no catalog; the claim rests on code order.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1166,
+                "end": 1176
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:33.152275744Z",
+          "seal": {
+            "by": "server",
+            "mac": "afedbe568663a476e6a0d38d1c6183ffe1cc20647c52ac5900c8cd9ab06af258"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By code order, note_catalog runs only after the ownership and offers check. No test covers the stranger case.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3361"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.107374978Z",
+          "seal": {
+            "by": "server",
+            "mac": "db088cf62c7c5c04bb424d54e03a4f7b7ca55321911796f1bb407ec7da967c49"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.107374978Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f6e0392288277c856d9abd2f40846e4c460963be549aa5578997aa1633d161a"
+      }
+    },
+    {
+      "id": "CLM-1834",
+      "statement": "PR statement: the up-front `catalog_label` directory lookup in OkfServer is gone, and `state`, `listed_state` and `resolve_changeset` call `note_catalog`.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'The up-front `catalog_label` directory lookup is gone.' and 'src/mcp/context.rs: `state`, `listed_state` and `resolve_changeset` call `note_catalog`.'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1113",
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3366",
+          "kind": "analysis",
+          "locator": "git grep -E 'catalog_label' src/mcp/mod.rs (0 hits); src/mcp/context.rs:1175,1273,1292,1318",
+          "summary": "OkfServer's catalog_label helper no longer exists in src/mcp/mod.rs (the other catalog_label names under src/mcp are display-label code, unrelated). note_catalog is called in resolve_changeset (1175), state (1273 held path, 1292) and listed_state (1318).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "catalog_label",
+              "scope": [
+                "src/mcp/mod.rs"
+              ],
+              "hits": 0,
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:39.458514338Z",
+          "seal": {
+            "by": "server",
+            "mac": "6bffd15640af00eaeab488d60b129d075477162e704d8ed966cfa759d8624f04"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The helper is gone from mod.rs and the three context.rs functions call note_catalog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3366"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.209970178Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a0b25b4d18fa908fba1292337db6f4b0530752c3b9cfa4f5affec8ca1e823e9"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.209970178Z",
+      "seal": {
+        "by": "server",
+        "mac": "be458a74399bcefc381614f5a3e9eafdaea3de745a16c49696d27d2edde513b5"
+      }
+    },
+    {
+      "id": "CLM-1835",
+      "statement": "PR statement: a typed catalog name that no catalog bears is never exported (the span attribute and the metrics label are `none`).",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'a typed name no catalog bears is never exported'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:834"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3362",
+          "kind": "test",
+          "locator": "every_tool_call_opens_one_mcp_span (src/mcp/telemetry_tests.rs:105-179) and the_metrics_label_is_the_resolved_catalog",
+          "summary": "Passed. get_concept with catalog=SENTINEL yields a span with okf.catalog \"none\"; the Debug text of all exported spans does not contain SENTINEL; the metrics text has catalog=\"none\" and does not contain SENTINEL.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 154,
+                "end": 178
+              },
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:33.393904969Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ba2c8a1b10053ce7627d7e5a56884e6a410704a2740ebb1d790181667cb4f54"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The sentinel name is absent from spans and metrics and the label is none.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3362"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.313721488Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9a2979dd994bba51b90bb57c8ef7c90afb4d39fae3bdc47b18fc0f7ab41ee80"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.313721488Z",
+      "seal": {
+        "by": "server",
+        "mac": "28b6aff6d54e00d778a8547772b0d4a30e8b27f81d25645d3083a2cd70e5fb4a"
+      }
+    },
+    {
+      "id": "CLM-1836",
+      "statement": "PR statement: the narrow telemetry tests pass (gate.sh narrow --lib mcp::telemetry_tests).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body ## Validation (tests)",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3363",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --jobs 4 --lib mcp::telemetry_tests",
+          "summary": "Reran at head 4c2edf64: \"running 15 tests ... test result: ok. 15 passed; 0 failed; 0 ignored; 3159 filtered out\".",
+          "stance": "supports",
+          "recorded_at": "2026-11-26T19:02:33.537383560Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f11824f3a330e7a7926bfe87a81c78aace8283ab3b61c927fca260129d3298d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 15 passed, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3363"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.415205148Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fe7068290f82e0231a1fa49bdeb046561d0dd9cf75820ff17d3247b15ad059d"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.415205148Z",
+      "seal": {
+        "by": "server",
+        "mac": "d42b9639efad5796ecbd35094d1c33752a661757d7656620c97dd18793d69441"
+      }
+    },
+    {
+      "id": "CLM-1837",
+      "statement": "PR statement: `gate.sh test` passed 3677 tests (20 skipped) on both profiles, `gate.sh mcpjam` passed 28, and `gate.sh fmt`, `lint` and `dylint` pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body ## Validation: 'gate.sh test: 3677 passed, 20 skipped (both profiles)', 'gate.sh mcpjam: 28 passed', 'gate.sh fmt, lint, dylint: pass'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3364",
+          "kind": "other",
+          "locator": "PR body ## Validation",
+          "summary": "Not reproduced: the audit was limited to the narrow telemetry gate and did not run test, mcpjam, fmt, lint or dylint, so the counts 3677/20/28 are unchecked. Only the author's account supports them.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-26T19:02:33.694549725Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe4ac4c2e8dd82803cc95f84b8b393b173b9baca6c4c35376af9e0b026d2cf2e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The audit was limited to the narrow telemetry gate; the full test, mcpjam, fmt, lint and dylint runs were not reproduced. Fix: rerun gate.sh test, mcpjam, fmt, lint and dylint on the head commit and compare the counts (3677 passed, 20 skipped, 28 mcpjam) with the PR text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3364"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.522925748Z",
+          "seal": {
+            "by": "server",
+            "mac": "4620611f6035849e1d8e17853648bd30b13b9ba4f39634f67b972b57c133b180"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.522925748Z",
+      "seal": {
+        "by": "server",
+        "mac": "228558af40b88b89910b2ab8cc894807f55c723bc0094482e00e9270122920e0"
+      }
+    },
+    {
+      "id": "CLM-1838",
+      "statement": "PR statement: no console, HTML or JS file is touched by the change, and a changelog entry was added.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'test-ui and worker not run: no console, HTML or JS touched' and '... changelog entry.'",
+      "derived_from": [
+        "CLM-1820"
+      ],
+      "artifacts": [
+        "changelog/"
+      ],
+      "tags": [
+        "from-issue:1113"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3365",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "The six changed files are one changelog entry, docs/operations.md and four src/mcp/*.rs files; no HTML, CSS, JS or console file. The changelog entry changelog/2026-11-26T18-46-55Z-issue-1113-834-tool-span-session-catalog.md exists.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T18-46-55Z-issue-1113-834-tool-span-session-catalog.md",
+              "commit": "4c2edf6454be072e28535462bb134930d64bc18e"
+            }
+          },
+          "recorded_at": "2026-11-26T19:02:33.849614574Z",
+          "seal": {
+            "by": "server",
+            "mac": "b615ebdd8909b6d7f1aa9a0104da8b68daab0a4a78418719965863ef8b0c6e8d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches no front-end file and adds the changelog entry.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3365"
+          ],
+          "recorded_at": "2026-11-26T19:03:09.628434298Z",
+          "seal": {
+            "by": "server",
+            "mac": "30dd53537f53d69804a09ff704a1818d4b5e5919c81b7837f8c575e34975dc8e"
+          }
+        }
+      ],
+      "created_at": "2026-11-26T19:01:31.723160887Z",
+      "updated_at": "2026-11-26T19:03:09.628434298Z",
+      "seal": {
+        "by": "server",
+        "mac": "81d42d931a74e509d40c0be3fc4183f34faf8be37a2392ae48d6d7dd5c246280"
       }
     }
   ]

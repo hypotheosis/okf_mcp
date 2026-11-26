@@ -38,6 +38,14 @@ How a session usually goes:
   - A write and `cited_by` (it does not merge) fail with `StoreUnavailable` while a store they
     need is down. So does a changeset handle that is not found before a lost store is reached
     (the stores are asked in turn, `main` first): a handle found earlier still works.
+- An internal failure (`Database`, `Migrate`, `Io` or `Config`) answers with the generic message
+  `internal error; the server log has the details`: the detail stays in the server's log. The
+  body also carries `trace_id`, the failing call's OpenTelemetry trace id, when the server traces
+  its calls (quote it in a report; it is left out rather than sent as zeros). When
+  `send_feedback` is offered it carries `report`, one optional sentence on how to report the
+  failure with `send_feedback` (`kind: bug`, `tool` set to the failing tool), unless the failure
+  looks like a passing database outage (a pool timeout or a lost connection), where retrying
+  later is the better answer. No other error carries `trace_id` or `report`.
 
 A tool is one of five kinds:
 

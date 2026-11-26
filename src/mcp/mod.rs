@@ -61,6 +61,12 @@ tokio::task_local! {
     /// than on `Span::current()`, which under a raised `traces_filter` is the
     /// tool method's own `debug` span or a helper's.
     static TOOL_SPAN: tracing::Span;
+    /// The name of the tool call in progress, set by `call_tool` only when
+    /// `send_feedback` is offered (`[feedback]` is set): its presence is
+    /// what lets [`tool_error`] name that tool in an internal error's
+    /// `report` hint (issue #766), so the hint never points at a tool the
+    /// client does not have.
+    static REPORT_TOOL: &'static str;
 }
 
 /// What the server tells a client it is for.
@@ -327,12 +333,16 @@ impl ServerHandler for OkfServer {
         // `Instrument::instrument` enters the span on every poll of the
         // future, so the tool's own spans and events are its children;
         // `TOOL_SPAN.scope` makes the same span reachable from `tool_error`.
-        let result = TOOL_SPAN
-            .scope(
-                span.clone(),
-                self.tool_router.call(call).instrument(span.clone()),
-            )
-            .await;
+        let work = TOOL_SPAN.scope(
+            span.clone(),
+            self.tool_router.call(call).instrument(span.clone()),
+        );
+        // The same check `new` registers `send_feedback` by.
+        let result = if self.app.config().feedback.is_some() {
+            REPORT_TOOL.scope(tool, work).await
+        } else {
+            work.await
+        };
         let outcome = outcome_of(&result);
         span.record("okf.outcome", outcome.as_str());
         if outcome == Outcome::Error {
@@ -382,6 +392,12 @@ pub type ToolResult<T> = Result<Json<T>, CallToolResult>;
 /// # Arguments
 /// * `error` - what went wrong.
 ///
+/// An internal error's body gains `trace_id` (the tool span's OpenTelemetry
+/// trace id, when it has a valid one: the id the exported `tool failed` event
+/// carries, so an operator can go from a report to the failing span) and, when
+/// `send_feedback` is offered and the failure is not a passing outage, `report`
+/// (issue #766). Neither carries the error's detail.
+///
 /// # Returns
 /// The result to send the client.
 #[tracing::instrument(level = "debug", skip_all)]
@@ -403,7 +419,69 @@ pub fn tool_error(error: &OkfError) -> CallToolResult {
     } else {
         tracing::debug!(kind = error.kind(), "tool error");
     }
-    CallToolResult::structured_error(error.to_json())
+    let mut body = error.to_json();
+    if error.is_internal() {
+        let trace_id = current_trace_id();
+        if let Some(trace_id) = &trace_id {
+            body["trace_id"] = trace_id.as_str().into();
+        }
+        if let Some(report) = report_hint(error, trace_id.is_some()) {
+            body["report"] = report.into();
+        }
+    }
+    CallToolResult::structured_error(body)
+}
+
+/// The tool span's OpenTelemetry trace id.
+///
+/// # Returns
+/// 32 lower-case hex digits, or `None` outside a tool call or when the span
+/// has no valid trace context (telemetry off, or the span filtered out: its
+/// id would be all zeros, which names nothing).
+#[tracing::instrument(level = "trace", skip_all)]
+fn current_trace_id() -> Option<String> {
+    use opentelemetry::trace::TraceContextExt;
+    use tracing_opentelemetry::OpenTelemetrySpanExt;
+
+    TOOL_SPAN
+        .try_with(|span| {
+            let context = span.context();
+            let span_context = context.span().span_context().clone();
+            span_context
+                .is_valid()
+                .then(|| span_context.trace_id().to_string())
+        })
+        .ok()
+        .flatten()
+}
+
+/// The `report` hint for an internal error, naming `send_feedback` and the
+/// failing tool.
+///
+/// # Arguments
+/// * `error` - the internal error.
+/// * `has_trace_id` - whether the body carries a `trace_id` to quote.
+///
+/// # Returns
+/// The sentence, or `None` when `send_feedback` is not offered to this call
+/// (no `REPORT_TOOL`), or when the error looks like a passing outage
+/// ([`OkfError::is_transient`]): every connected agent would report the same
+/// incident, and the feedback rate limit is per credential.
+#[tracing::instrument(level = "trace", skip_all)]
+fn report_hint(error: &OkfError, has_trace_id: bool) -> Option<String> {
+    if error.is_transient() {
+        return None;
+    }
+    let tool = REPORT_TOOL.try_with(|tool| *tool).ok()?;
+    let quote = if has_trace_id {
+        ", quoting trace_id"
+    } else {
+        ""
+    };
+    Some(format!(
+        "If this keeps happening, you can report it with {} (kind: bug, tool: {tool}){quote}.",
+        feedback::TOOL
+    ))
 }
 
 /// A tool function's outcome as a tool result.
@@ -534,6 +612,91 @@ mod tests {
         assert!(exported.contains("Io"), "{exported}");
         assert!(!exported.contains("zq-sentinel-7f3a"), "{exported}");
         assert!(observed.stderr.contains("zq-sentinel-7f3a-path"));
+    }
+
+    /// A `Database` error whose driver text carries a marker no client may see.
+    fn leaky_database_error() -> OkfError {
+        OkfError::Database {
+            source: sqlx::Error::Protocol("zq-sentinel-766-detail".to_string()),
+        }
+    }
+
+    /// Issue #766: with `send_feedback` offered, an internal error's body says how to report
+    /// it and names the failing tool; the message stays generic and nothing leaks.
+    #[tokio::test]
+    async fn an_internal_error_points_at_send_feedback_when_it_is_offered() {
+        let result = REPORT_TOOL
+            .scope("publish", async { tool_error(&leaky_database_error()) })
+            .await;
+
+        let body = result.structured_content.expect("a structured body");
+        assert_eq!(body["error"], "Database");
+        assert_eq!(
+            body["message"],
+            "internal error; the server log has the details"
+        );
+        let report = body["report"].as_str().expect("a report hint");
+        assert!(report.starts_with("If this keeps happening, you can report it"));
+        assert!(report.contains("send_feedback (kind: bug, tool: publish)"));
+        assert!(!body.to_string().contains("zq-sentinel-766"));
+        // No tool span here, so there is no trace id to send or to quote.
+        assert!(body.get("trace_id").is_none());
+        assert!(!report.contains("trace_id"));
+    }
+
+    /// Issue #766: without `[feedback]` (no `REPORT_TOOL`) the hint is never sent.
+    #[test]
+    fn an_internal_error_has_no_report_without_feedback() {
+        let body = tool_error(&leaky_database_error())
+            .structured_content
+            .expect("a structured body");
+
+        assert!(body.get("report").is_none(), "{body}");
+        assert_eq!(body.as_object().expect("an object").len(), 2);
+    }
+
+    /// Issue #766: the errors an agent can act on or that are policy get neither field.
+    #[tokio::test]
+    async fn a_non_internal_error_gets_neither_field() {
+        let errors = [
+            OkfError::Conflict { files: Vec::new() },
+            OkfError::Busy {
+                reason: "later".to_string(),
+            },
+            OkfError::Forbidden {
+                reason: "no".to_string(),
+            },
+        ];
+        for error in errors {
+            let body = REPORT_TOOL
+                .scope("publish", async { tool_error(&error) })
+                .await
+                .structured_content
+                .expect("a structured body");
+
+            assert!(body.get("report").is_none(), "{}: {body}", error.kind());
+            assert!(body.get("trace_id").is_none(), "{}: {body}", error.kind());
+        }
+    }
+
+    /// Issue #766: a passing database outage keeps its message but not the hint.
+    #[tokio::test]
+    async fn a_transient_database_failure_has_no_report() {
+        for source in [
+            sqlx::Error::PoolTimedOut,
+            sqlx::Error::PoolClosed,
+            sqlx::Error::Io(std::io::Error::other("connection reset")),
+        ] {
+            let error = OkfError::Database { source };
+            let body = REPORT_TOOL
+                .scope("publish", async { tool_error(&error) })
+                .await
+                .structured_content
+                .expect("a structured body");
+
+            assert_eq!(body["error"], "Database");
+            assert!(body.get("report").is_none(), "{body}");
+        }
     }
 
     #[test]

@@ -35,7 +35,7 @@ mod unavailable_tests;
 pub(crate) mod whoami;
 pub(crate) mod writes;
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use axum::http::request::Parts;
 use rmcp::handler::server::router::tool::ToolRouter;
@@ -67,6 +67,111 @@ tokio::task_local! {
     /// `report` hint (issue #766), so the hint never points at a tool the
     /// client does not have.
     static REPORT_TOOL: &'static str;
+    /// The catalogs the tool call in progress has resolved (set by
+    /// `call_tool`): how [`note_catalog`] hands the tool's catalog back for
+    /// `okf.catalog` and the metrics label.
+    static TOOL_CATALOG: Arc<Mutex<CatalogSeen>>;
+}
+
+/// The catalogs one tool call resolved, as the `okf.catalog` attribute and
+/// the `catalog` metric label report them (issue #834).
+#[derive(Debug, Default, PartialEq, Eq)]
+enum CatalogSeen {
+    /// Nothing resolved: the label is `none`.
+    #[default]
+    Nothing,
+    /// Exactly one catalog, by name.
+    One(String),
+    /// Two or more: the label is `multiple`, never a list (a bounded label).
+    Several,
+}
+
+impl CatalogSeen {
+    /// The attribute and label value.
+    ///
+    /// # Returns
+    /// A catalog name, `multiple` or `none`.
+    #[tracing::instrument(level = "trace", skip_all)]
+    fn label(&self) -> &str {
+        match self {
+            Self::Nothing => "none",
+            Self::One(name) => name,
+            Self::Several => "multiple",
+        }
+    }
+
+    /// Adds a resolved catalog.
+    ///
+    /// # Arguments
+    /// * `name` - the catalog's name.
+    ///
+    #[tracing::instrument(level = "trace", skip_all)]
+    fn add(&mut self, name: &str) {
+        match self {
+            Self::Nothing => *self = Self::One(name.to_string()),
+            Self::One(seen) if seen != name => *self = Self::Several,
+            Self::One(_) | Self::Several => {}
+        }
+    }
+}
+
+/// Records that the tool call in progress resolved catalog `name`; `call_tool`
+/// puts the result on `okf.catalog` and the metrics label when the call ends
+/// (an attribute recorded twice is exported twice, so it is set once). A
+/// no-op outside a tool call. Call it only for a catalog the caller is
+/// allowed to reach, with its real name: the name is exported.
+///
+/// # Arguments
+/// * `name` - the catalog's name (never its label).
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn note_catalog(name: &str) {
+    let _ = TOOL_CATALOG.try_with(|seen| {
+        seen.lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .add(name);
+    });
+}
+
+/// A stable, non-reversible token for an identifier that grants access to
+/// something, safe to export: the first 8 bytes of
+/// `SHA-256(domain || 0x00 || value)`, as 16 hex digits.
+///
+/// # Arguments
+/// * `domain` - what the value is (`session`, `changeset`), so one value
+///   cannot be matched across kinds.
+/// * `value` - the identifier.
+///
+/// # Returns
+/// 16 lower-case hex digits: the same on every replica.
+#[tracing::instrument(level = "trace", skip_all)]
+fn digest_token(domain: &str, value: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(domain.as_bytes());
+    hasher.update([0]);
+    hasher.update(value.as_bytes());
+    hasher.finalize()[..8]
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+
+/// The digest of the request's `Mcp-Session-Id`, if it carries one.
+///
+/// # Arguments
+/// * `parts` - the HTTP request's parts, `None` for a call that did not
+///   arrive over HTTP.
+///
+/// # Returns
+/// The `mcp.session.id` attribute value, or `None` without a session.
+#[tracing::instrument(level = "trace", skip_all)]
+fn session_digest(parts: Option<&Parts>) -> Option<String> {
+    let id = parts?
+        .headers
+        .get(crate::selection::SESSION_HEADER)?
+        .to_str()
+        .ok()?;
+    Some(digest_token("session", id))
 }
 
 /// What the server tells a client it is for.
@@ -194,30 +299,6 @@ impl OkfServer {
         }
     }
 
-    /// The `catalog` label and attribute for a call: the argument's value
-    /// when it names an existing catalog, else `none`. A name the client
-    /// typed that no catalog bears never becomes a label or an attribute.
-    /// The check is a catalog directory lookup (no content is loaded); a
-    /// failed lookup counts as `none`.
-    ///
-    /// # Arguments
-    /// * `arguments` - the call's arguments.
-    ///
-    /// # Returns
-    /// An existing catalog's name, or `"none"`.
-    #[tracing::instrument(level = "trace", skip_all)]
-    async fn catalog_label(&self, arguments: Option<&rmcp::model::JsonObject>) -> String {
-        let named = arguments
-            .and_then(|arguments| arguments.get("catalog"))
-            .and_then(serde_json::Value::as_str);
-        match named {
-            Some(name) if matches!(self.app.catalog_row(name).await, Ok(Some(_))) => {
-                name.to_string()
-            }
-            _ => "none".to_string(),
-        }
-    }
-
     /// Every tool: each module's router, joined with `+`.
     ///
     /// # Returns
@@ -304,8 +385,17 @@ impl ServerHandler for OkfServer {
         context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<CallToolResponse, rmcp::ErrorData> {
         let tool = tool_label(&request.name);
-        let catalog = self.catalog_label(request.arguments.as_ref()).await;
         let parent = tool_span_parent(&context.extensions);
+        let parts = context.extensions.get::<Parts>();
+        // Digests, never the raw values: a session id or a changeset handle
+        // lets its holder act (with the right key), so neither is exported.
+        let session = session_digest(parts);
+        let changeset = request
+            .arguments
+            .as_ref()
+            .and_then(|arguments| arguments.get("changeset"))
+            .and_then(serde_json::Value::as_str)
+            .map(|handle| digest_token("changeset", handle));
         let span = tracing::info_span!(
             parent: parent,
             "mcp",
@@ -313,7 +403,10 @@ impl ServerHandler for OkfServer {
             otel.kind = "server",
             otel.status_code = tracing::field::Empty,
             okf.tool = tool,
-            okf.catalog = catalog.as_str(),
+            mcp.session.id = session.as_deref(),
+            okf.changeset = changeset.as_deref(),
+            // Recorded when the call ends, from what the tool resolved (#834).
+            okf.catalog = tracing::field::Empty,
             okf.outcome = tracing::field::Empty,
             okf.error.kind = tracing::field::Empty,
             enduser.id = tracing::field::Empty,
@@ -321,10 +414,8 @@ impl ServerHandler for OkfServer {
         );
         // The principal the auth layer put on the HTTP request, as
         // `ToolContext::from_parts` reads it; recorded on the handle.
-        if let Some(principal) = context
-            .extensions
-            .get::<Parts>()
-            .and_then(|parts| parts.extensions.get::<Arc<crate::auth::Principal>>())
+        if let Some(principal) =
+            parts.and_then(|parts| parts.extensions.get::<Arc<crate::auth::Principal>>())
         {
             crate::auth::record_principal_ids(&span, principal);
         }
@@ -333,9 +424,13 @@ impl ServerHandler for OkfServer {
         // `Instrument::instrument` enters the span on every poll of the
         // future, so the tool's own spans and events are its children;
         // `TOOL_SPAN.scope` makes the same span reachable from `tool_error`.
-        let work = TOOL_SPAN.scope(
-            span.clone(),
-            self.tool_router.call(call).instrument(span.clone()),
+        let resolved = Arc::new(Mutex::new(CatalogSeen::default()));
+        let work = TOOL_CATALOG.scope(
+            Arc::clone(&resolved),
+            TOOL_SPAN.scope(
+                span.clone(),
+                self.tool_router.call(call).instrument(span.clone()),
+            ),
         );
         // The same check `new` registers `send_feedback` by.
         let result = if self.app.config().feedback.is_some() {
@@ -344,6 +439,13 @@ impl ServerHandler for OkfServer {
             work.await
         };
         let outcome = outcome_of(&result);
+        let catalog = resolved
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .label()
+            .to_string();
+        // Once, at the end: an attribute recorded twice is exported twice.
+        span.record("okf.catalog", catalog.as_str());
         span.record("okf.outcome", outcome.as_str());
         if outcome == Outcome::Error {
             span.record("otel.status_code", "error");

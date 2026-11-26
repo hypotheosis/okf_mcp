@@ -1169,6 +1169,10 @@ impl ToolContext {
         if !self.offers(&catalog) || !(own || admin) {
             return Err(unknown());
         }
+        // The caller owns (or administers) this changeset: its catalog is
+        // the call's, for the tool span (issue #834). Not before the check
+        // above, which must not tell a stranger which catalog a handle is in.
+        crate::mcp::note_catalog(state.name());
         // The whole content check, the unlock last (M14 Task 9b): it refuses
         // here, before `changeset` admits.
         self.require_contents(access, &state).await?;
@@ -1265,7 +1269,9 @@ impl ToolContext {
     #[tracing::instrument(level = "trace", skip_all)]
     pub(crate) async fn state(&self, name: &str) -> Result<Arc<CatalogState>, OkfError> {
         if let Some(held) = locked(&self.held).get(name) {
-            return Ok(Arc::clone(&held.state));
+            let state = Arc::clone(&held.state);
+            crate::mcp::note_catalog(state.name());
+            return Ok(state);
         }
         if let Some(store) = self.down_store_of(name) {
             return Err(OkfError::store_unavailable(&store));
@@ -1281,7 +1287,10 @@ impl ToolContext {
                     }
                 })?,
             };
-        self.held_state(&row).await
+        let state = self.held_state(&row).await?;
+        // The tool span's `okf.catalog` (issue #834).
+        crate::mcp::note_catalog(state.name());
+        Ok(state)
     }
 
     /// [`ToolContext::state`] for a listed row: the catalog's state, held
@@ -1305,7 +1314,10 @@ impl ToolContext {
         row: &CatalogRow,
     ) -> Result<Option<Arc<CatalogState>>, OkfError> {
         match self.held_state(row).await {
-            Ok(state) => Ok(Some(state)),
+            Ok(state) => {
+                crate::mcp::note_catalog(state.name());
+                Ok(Some(state))
+            }
             Err(OkfError::CatalogNotSelected { .. }) => Ok(None),
             Err(error) => Err(error),
         }

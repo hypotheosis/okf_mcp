@@ -1275,6 +1275,11 @@ impl McpProbe {
         request.send().await.expect("the server answers")
     }
 
+    /// The session's `Mcp-Session-Id`.
+    pub(crate) fn session(&self) -> &str {
+        &self.session
+    }
+
     /// Calls a tool.
     ///
     /// # Arguments

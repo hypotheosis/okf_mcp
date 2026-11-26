@@ -666,14 +666,20 @@ async fn user_detail(
     // `as_deref` turns the record's `Option<String>` into an `Option<&str>`,
     // comparable with `Some(name)` without allocating.
     let named = |owner: Option<&str>| owner == Some(name.as_str());
-    let keys = key_rows::list(app.accounts().executor())
-        .await?
-        .into_iter()
-        .filter(|key| {
-            !principal.provisioner && named(key.user.as_deref()) && manages(&principal, key)
-        })
-        .map(KeyView::from)
-        .collect();
+    let reaching = crate::http::api::keys::reach_names(&principal);
+    let keys = key_rows::list_filtered(
+        app.accounts().executor(),
+        &key_rows::KeyFilter {
+            user_name: Some(&name),
+            reaching: reaching.as_deref(),
+            ..Default::default()
+        },
+    )
+    .await?
+    .into_iter()
+    .filter(|key| !principal.provisioner && named(key.user.as_deref()) && manages(&principal, key))
+    .map(KeyView::from)
+    .collect();
     let now = app.clock().now();
     let codes = codes::list(app.accounts().executor())
         .await?

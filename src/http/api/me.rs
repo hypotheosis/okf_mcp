@@ -735,12 +735,12 @@ async fn own(
     kind: KeyKind,
     id: &str,
 ) -> Result<KeyRecord, OkfError> {
-    key_rows::list(app.accounts().executor())
+    // One row by id (issue #741), then the same ownership check as before:
+    // an unknown id and another user's credential answer alike.
+    key_rows::record_by_id(app.accounts().executor(), id)
         .await?
-        .into_iter()
-        .find(|record| {
-            record.id == id && record.kind == kind && record.user_id.as_deref() == Some(user.id)
-        })
+        .map(|credential| credential.record)
+        .filter(|record| record.kind == kind && record.user_id.as_deref() == Some(user.id))
         .ok_or_else(|| OkfError::NotFound {
             path: format!(
                 "me/{}/{id}",
@@ -860,12 +860,18 @@ async fn own_ceiling(
 /// [`OkfError::Database`].
 #[tracing::instrument(level = "debug", skip_all)]
 async fn owned(app: &App, user: SessionUser<'_>, kind: KeyKind) -> Result<Vec<KeyView>, OkfError> {
-    Ok(key_rows::list(app.accounts().executor())
-        .await?
-        .into_iter()
-        .filter(|record| record.kind == kind && record.user_id.as_deref() == Some(user.id))
-        .map(KeyView::from)
-        .collect())
+    Ok(key_rows::list_filtered(
+        app.accounts().executor(),
+        &key_rows::KeyFilter {
+            user_id: Some(user.id),
+            kind: Some(kind),
+            ..Default::default()
+        },
+    )
+    .await?
+    .into_iter()
+    .map(KeyView::from)
+    .collect())
 }
 
 /// `GET /me`: the account behind the caller: a session's user, or the user
@@ -1874,6 +1880,66 @@ mod tests {
 
         assert_eq!(renamed.as_u16(), 404);
         assert_eq!(revoked.as_u16(), 404);
+    }
+
+    #[tokio::test]
+    async fn a_session_acts_on_its_own_key_by_id_but_not_another_users_or_a_grant() {
+        let test = app().await;
+        let mut alice = member(&test, "alice", &[("main", Access::Read)]).await;
+        let mut bob = member(&test, "bob", &[("main", Access::Read)]).await;
+        let (made, created) = alice
+            .send(
+                &test,
+                "POST",
+                "/api/v1/me/keys",
+                Payload::Json(one("a", "main", "read")),
+            )
+            .await
+            .parts();
+        assert_eq!(made.as_u16(), 200, "{created}");
+        let id = created["key"]["id"].as_str().expect("an id").to_string();
+
+        let (renamed, _) = bob
+            .send(
+                &test,
+                "PATCH",
+                &format!("/api/v1/me/keys/{id}"),
+                Payload::Json(json!({"name": "stolen"})),
+            )
+            .await
+            .parts();
+        let (as_grant, _) = alice
+            .send(
+                &test,
+                "DELETE",
+                &format!("/api/v1/me/grants/{id}"),
+                Payload::Empty,
+            )
+            .await
+            .parts();
+        let (bobs, bobs_list) = bob
+            .send(&test, "GET", "/api/v1/me/keys", Payload::Empty)
+            .await
+            .parts();
+        let (own, own_renamed) = alice
+            .send(
+                &test,
+                "PATCH",
+                &format!("/api/v1/me/keys/{id}"),
+                Payload::Json(json!({"name": "mine"})),
+            )
+            .await
+            .parts();
+
+        assert_eq!(renamed.as_u16(), 404);
+        assert_eq!(as_grant.as_u16(), 404, "a key is not a grant");
+        assert_eq!(bobs.as_u16(), 200);
+        assert!(
+            bobs_list["keys"].as_array().expect("a list").is_empty(),
+            "{bobs_list}"
+        );
+        assert_eq!(own.as_u16(), 200, "{own_renamed}");
+        assert_eq!(own_renamed["name"], "mine");
     }
 
     #[tokio::test]

@@ -1022,6 +1022,71 @@ pub async fn list(pool: &PgPool) -> Result<Vec<KeyRecord>, OkfError> {
     rows.into_iter().map(KeyRecord::try_from).collect()
 }
 
+/// Which keys and grants [`list_filtered`] reads: each field set narrows the
+/// answer, and the default (every field `None`) is [`list`].
+///
+/// The database only narrows what is read (issue #741); the caller still
+/// applies its own authorization check to every record it gets back.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct KeyFilter<'a> {
+    /// Only credentials of this user, by `users.id`.
+    pub user_id: Option<&'a str>,
+    /// Only credentials of this user, by `users.name`.
+    pub user_name: Option<&'a str>,
+    /// Only keys or only grants.
+    pub kind: Option<KeyKind>,
+    /// Only credentials a caller that reaches exactly these catalogs
+    /// manages: not a provisioner, not all-catalogs, and every named catalog
+    /// among these. `None` leaves the reach out (a caller reaching every
+    /// catalog).
+    pub reaching: Option<&'a [String]>,
+}
+
+/// The keys and grants matching `filter`, in [`list`]'s order, with their
+/// granted catalogs: the per-action reads of `/me`, `/keys` and
+/// `/users/{name}` use it instead of listing every key and filtering in
+/// memory (issue #741).
+///
+/// # Arguments
+/// * `pool` - the database.
+/// * `filter` - what to keep.
+///
+/// # Returns
+/// The records, ordered as [`list`] orders them, revoked ones included.
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "keys.list_filtered"))]
+pub async fn list_filtered(
+    pool: &PgPool,
+    filter: &KeyFilter<'_>,
+) -> Result<Vec<KeyRecord>, OkfError> {
+    // A NULL bind leaves its condition out, so one statement serves every
+    // combination. `<> ALL` over the reached names finds a granted catalog
+    // outside them; an empty array rejects nothing, so a key with no
+    // catalogs passes, as `Iterator::all` over none does in `manages`.
+    let rows = sqlx::query_as::<_, KeyRow>(concat!(
+        select_key_records!(
+            "",
+            "WHERE ($1::text IS NULL OR k.user_id = $1) \
+                AND ($2::text IS NULL OR u.name = $2) \
+                AND ($3::text IS NULL OR k.kind = $3) \
+                AND ($4::text[] IS NULL OR (NOT k.provisioner AND NOT k.all_catalogs \
+                    AND NOT EXISTS (SELECT 1 FROM key_catalogs x \
+                        JOIN catalogs xc ON xc.id = x.catalog_id \
+                        WHERE x.key_id = k.id AND xc.name <> ALL($4))))"
+        ),
+        " ORDER BY k.name, k.actor, k.created_at, k.id"
+    ))
+    .bind(filter.user_id)
+    .bind(filter.user_name)
+    .bind(filter.kind.map(KeyKind::as_str))
+    .bind(filter.reaching)
+    .fetch_all(pool)
+    .await?;
+    rows.into_iter().map(KeyRecord::try_from).collect()
+}
+
 /// A key or grant with the audit id its accesses are recorded with: what
 /// the credential cache holds (M18 Decision 9).
 #[derive(Debug, Clone, PartialEq, Eq)]

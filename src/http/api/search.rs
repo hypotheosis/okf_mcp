@@ -150,7 +150,10 @@ async fn every_reachable(app: &App, ctx: &ToolContext) -> Result<Vec<String>, Ok
     // data does not build is left out, as one that was not loaded was
     // before: each open one is loaded here, which the search does anyway.
     let now = app.clock().now();
-    let mut names = Vec::with_capacity(page.items.len());
+    // Each entry is a name to keep, with whether its snapshot is loaded (an
+    // open catalog on a reachable store) before it is kept.
+    let mut kept = Vec::with_capacity(page.items.len());
+    let mut loadable = Vec::with_capacity(page.items.len());
     for row in &page.items {
         if principal.check_open(row, Access::Read, now).is_err() {
             continue;
@@ -161,10 +164,21 @@ async fn every_reachable(app: &App, ctx: &ToolContext) -> Result<Vec<String>, Ok
             // The page spent a timeout on this store: the search's
             // selection and loads must not spend another.
             ctx.mark_down(row);
+            kept.push((row, true));
+            continue;
+        }
+        kept.push((row, false));
+        loadable.push(row);
+    }
+    // The open ones load concurrently; the results come back in page order.
+    let mut states = ctx.listed_states(&loadable).await.into_iter();
+    let mut names = Vec::with_capacity(kept.len());
+    for (row, unloaded) in kept {
+        if unloaded {
             names.push(row.name.clone());
             continue;
         }
-        match ctx.listed_state(row).await {
+        match states.next().expect("one result per loaded row") {
             Ok(Some(_)) => names.push(row.name.clone()),
             Ok(None) => {}
             // The store went away since the page was read.

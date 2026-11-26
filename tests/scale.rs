@@ -12,7 +12,7 @@
 //! * authenticating 10,000 distinct keys has a p99 under 20 ms and leaves
 //!   the credential cache at, and not over, `credential_cache_entries`;
 //! * the first page of `GET /api/v1/catalogs` for an admin key answers in
-//!   under 200 ms cold (100 snapshot loads) and under 50 ms repeated.
+//!   under 50 ms cold (100 snapshot loads, loaded concurrently) and under 50 ms repeated.
 //!
 //! Ignored by default: it needs Docker, writes several GiB of rows and takes
 //! minutes. Run it once, alone, with
@@ -50,7 +50,7 @@ const CREDENTIAL_ENTRIES: u64 = 5_000;
 /// The slack the resident memory may grow beyond the cache budget.
 const RSS_SLACK: u64 = 200 * 1024 * 1024;
 /// The first listing page of 100 catalogs, whose snapshots are not loaded.
-const COLD_PAGE_BOUND: Duration = Duration::from_millis(200);
+const COLD_PAGE_BOUND: Duration = Duration::from_millis(50);
 /// The same page again (the plan's 50 ms).
 const WARM_PAGE_BOUND: Duration = Duration::from_millis(50);
 /// The default page size of the listing routes.
@@ -375,10 +375,8 @@ async fn a_million_catalogs_and_users_stay_within_bounds() {
          limit=10 {:.2?}",
         timings[0], timings[1], timings[2]
     );
-    // The plan's 50 ms holds for a page whose snapshots are loaded. The
-    // first request of a default page (100 catalogs) also loads 100
-    // snapshots one after another and the key's principal, so it is held to
-    // 200 ms (measured about 90 ms; the plan's correction note says why).
+    // The plan's 50 ms holds cold too: the page's 100 snapshots load eight at
+    // a time (issue #732), not one after another.
     if first_page >= COLD_PAGE_BOUND {
         failures.push(format!("the first listing page took {first_page:?}"));
     }

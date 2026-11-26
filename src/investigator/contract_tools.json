@@ -436,6 +436,14 @@
           "description": "`/`-prefixed path.",
           "type": "string"
         },
+        "current_revision": {
+          "description": "The revision published now, whatever the filters: null when the path has no live document (it was deleted). Pass it as `expected_revision` to `revert`.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int32"
+        },
         "revisions": {
           "description": "Newest first.",
           "type": "array",

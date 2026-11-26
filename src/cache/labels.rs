@@ -390,6 +390,7 @@ impl LabelLookup {
             }
             // Content, credentials and settings carry no label.
             Invalidation::Catalog { .. }
+            | Invalidation::TeamCatalogs { .. }
             | Invalidation::Credential { .. }
             | Invalidation::Settings
             | Invalidation::Store { .. } => {}

@@ -379,6 +379,113 @@ async fn a_suspension_closes_the_catalog_for_every_cached_principal() {
     ));
 }
 
+/// A replica with a catalog `main`, a key on it, and the principal the key
+/// gives, read and admitted before any suspension.
+async fn replica_with_a_reader() -> (crate::mcp::testing::TestApp, String, String) {
+    let test =
+        crate::mcp::testing::app_with(&[("main", &[])], crate::config::Config::default()).await;
+    let pool = test.app.accounts().executor();
+    let granted = ["main".to_string()];
+    let (_, secret) = stored(pool, &new_key("writer", TEST_USER, &granted, false)).await;
+    let team = test
+        .app
+        .directory()
+        .resolve("main")
+        .await
+        .unwrap()
+        .unwrap()
+        .owner_team
+        .clone()
+        .expect("an owner");
+    (test, secret, team)
+}
+
+/// Whether the key named by `secret` may read `main` right now, with the
+/// principal assembled afresh from the replica's caches.
+async fn reads(app: &crate::app::App, secret: &str) -> Result<(), OkfError> {
+    app.find_key(secret)
+        .await
+        .unwrap()
+        .unwrap()
+        .require_in(app.directory(), Access::Read, "main")
+        .await
+        .map(|_| ())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn lifting_a_suspension_reopens_the_catalog_for_the_next_request() {
+    let (test, secret, team) = replica_with_a_reader().await;
+    let pool = test.app.accounts().executor();
+    assert!(reads(&test.app, &secret).await.is_ok());
+
+    crate::invalidate::testing::applied(&test.app, async {
+        teams::suspend(pool, &team, None, &AuditActor::cli(), Utc::now())
+            .await
+            .unwrap();
+    })
+    .await;
+    assert!(matches!(
+        reads(&test.app, &secret).await,
+        Err(OkfError::Suspended { .. })
+    ));
+
+    crate::invalidate::testing::applied(&test.app, async {
+        teams::unsuspend(pool, &team, &AuditActor::cli(), Utc::now())
+            .await
+            .unwrap();
+    })
+    .await;
+    assert!(
+        reads(&test.app, &secret).await.is_ok(),
+        "access is restored"
+    );
+}
+
+// Rolling upgrade (issue #757): a replica of the previous release cannot
+// read `team_catalogs`. `Message::parse` gives `None` for an unknown kind,
+// and the listener answers with `apply_reconnect`, which marks every cache
+// stale. This is what such a replica does on the new message; it must not
+// keep serving the suspended team's catalogs as live.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_replica_that_cannot_read_the_team_message_still_refuses_the_suspended_team() {
+    let (test, secret, team) = replica_with_a_reader().await;
+    let pool = test.app.accounts().executor();
+    let directory = test.app.directory();
+    let principal = test.app.find_key(&secret).await.unwrap().unwrap();
+    assert!(principal
+        .require_in(directory, Access::Read, "main")
+        .await
+        .is_ok());
+
+    let sent = invalidations_of(pool, async {
+        teams::suspend(pool, &team, None, &AuditActor::cli(), Utc::now())
+            .await
+            .unwrap();
+    })
+    .await;
+    assert!(sent.iter().any(|invalidation| matches!(
+        invalidation,
+        crate::invalidate::Invalidation::TeamCatalogs { .. }
+    )));
+    // What the old build reads of the new payload: an unknown kind.
+    let unknown = r#"{"v":1,"at":1,"kind":"team_catalogs_from_the_future","team_id":"t"}"#;
+    assert!(crate::invalidate::Message::parse(unknown).is_none());
+    test.app.apply_reconnect().await;
+
+    let refused = test
+        .app
+        .find_key(&secret)
+        .await
+        .unwrap()
+        .unwrap()
+        .require_in(directory, Access::Read, "main")
+        .await;
+    assert!(
+        matches!(refused, Err(OkfError::Suspended { .. })),
+        "{refused:?}"
+    );
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn an_unknown_credential_is_not_cached() {
     let db = test_db().await;

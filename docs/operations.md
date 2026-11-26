@@ -1027,6 +1027,15 @@ first use.
   before it answers, so the writer reads its own change. Delivery needs
   neither Redis nor an announcement, so any number of replicas may run.
   `okf_invalidations_lag_seconds` is the time from send to application.
+  Suspending a team or lifting it sends two messages whatever the team
+  owns: `team` (its label and members) and `team_catalogs` (every directory
+  row it owns), so a team with a million catalogs costs two `NOTIFY`s, not
+  a million. A replica of the previous release cannot read `team_catalogs`
+  (an unknown kind counts in `okf_invalidations_unreadable_total`), and
+  treats it as a lost message: it marks every cache stale, so it too refuses
+  the suspended team's catalogs on its next request. That makes a rolling
+  upgrade safe; the old replica rereads more than it needs to while it
+  lasts.
 - **What bounds a lost message.** While a listener is disconnected it loses
   messages, so when it reconnects every cached entry is marked stale (not
   dropped): each is read again on its next use, nothing is reloaded at once.
@@ -1625,7 +1634,7 @@ the dotted originals.
 | `okf_lint_rejections_total` | counter | `catalog`, `rule` | Lint errors that refused a publish. `rule` is the lint's rule id, `secret` for any secret rule, or `other` |
 | `okf_changesets_open` | gauge | none | Open changesets in the cluster, as of the last `cluster_stats` housekeeping job (the same on every replica) |
 | `okf_catalog_announcements_total` | counter | `result` | Catalog announcements handled, counting also each catalog found behind in the catch-up after a (re)subscribe: `applied` (rebuilt), `current` (already there), `unknown` (not loaded here, or deleted) or `failed`. Only with `[redis]` |
-| `okf_invalidations_queued_total` | counter | `kind` | Change-feed messages queued by this replica's write transactions; Postgres delivers one only if its transaction commits, so a rollback leaves this ahead of `received` (`catalog`, `catalog_meta`, `credential`, `user`, `team`, `settings`) |
+| `okf_invalidations_queued_total` | counter | `kind` | Change-feed messages queued by this replica's write transactions; Postgres delivers one only if its transaction commits, so a rollback leaves this ahead of `received` (`catalog`, `catalog_meta`, `credential`, `user`, `team`, `team_catalogs`, `settings`) |
 | `okf_invalidations_received_total` | counter | `kind` | Change-feed messages received and applied |
 | `okf_invalidations_unreadable_total` | counter | | Change-feed payloads this build could not read (each reloads the caches) |
 | `okf_invalidations_lag_seconds` | histogram | | Time from a message's send to its application on this replica |

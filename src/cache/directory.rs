@@ -824,8 +824,10 @@ impl CatalogDirectory {
         Ok(page)
     }
 
-    /// Applies a change-feed message. Only [`Invalidation::CatalogMeta`] and
-    /// [`Invalidation::Catalog`] touch the directory.
+    /// Applies a change-feed message. [`Invalidation::CatalogMeta`],
+    /// [`Invalidation::Catalog`], [`Invalidation::Team`],
+    /// [`Invalidation::TeamCatalogs`] and [`Invalidation::User`] touch the
+    /// directory.
     ///
     /// # Arguments
     /// * `invalidation` - what changed.
@@ -861,6 +863,18 @@ impl CatalogDirectory {
                         row.row.as_ref().is_some_and(|row| {
                             row.suspended.is_some() && row.owner_team_id.as_deref() == Some(id)
                         })
+                    })
+                    .await;
+            }
+            // A suspension or its lifting changes every row the team owns,
+            // suspended or not: one scan, however many catalogs it owns. A
+            // load running now is fenced out of the cache by the scan.
+            Invalidation::TeamCatalogs { team_id } => {
+                self.rows
+                    .invalidate_where(|_, row| {
+                        row.row
+                            .as_ref()
+                            .is_some_and(|row| row.owner_team_id.as_deref() == Some(team_id))
                     })
                     .await;
             }
@@ -1050,6 +1064,45 @@ mod tests {
         }
 
         assert_eq!(team_label_of(&directory, "shared").await, "Platform");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_team_catalogs_message_drops_every_row_the_team_owns_and_no_other() {
+        use crate::store::teams::{self, NewTeam};
+        let db = test_db().await;
+        seed(&db.pool, "mine").await;
+        let other = NewTeam {
+            name: "ops",
+            display_name: &DisplayName::parse("Operations").unwrap(),
+            owner: crate::db::TEST_USER,
+        };
+        teams::create(&db.pool, &other, &AuditActor::cli(), Utc::now())
+            .await
+            .unwrap();
+        let theirs = NewCatalog {
+            name: "theirs",
+            display_name: &DisplayName::default(),
+            description: "",
+            owner_team: "ops",
+        };
+        create(&db.pool, &theirs, &AuditActor::cli(), Utc::now())
+            .await
+            .unwrap();
+        let directory = directory(&db.pool);
+        // Neither is suspended, so the old `team` message would keep both.
+        let mine = directory.resolve("mine").await.unwrap().unwrap();
+        directory.resolve("theirs").await.unwrap().unwrap();
+        let team_id = mine.owner_team_id.clone().expect("an owner team id");
+
+        directory
+            .apply(&Invalidation::team_catalogs(&team_id))
+            .await;
+
+        assert!(
+            !directory.is_cached("mine").await,
+            "the team's row is dropped"
+        );
+        assert!(directory.is_cached("theirs").await, "another team's stays");
     }
 
     #[tokio::test(flavor = "multi_thread")]

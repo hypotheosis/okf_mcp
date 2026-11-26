@@ -739,7 +739,8 @@ async fn a_cached_first_row_does_not_let_the_cold_rows_stall_together() {
     let waiting = || async {
         sqlx::query_scalar::<_, i64>(
             "SELECT count(*) FROM pg_stat_activity \
-             WHERE wait_event_type = 'Lock' AND pid <> pg_backend_pid()",
+             WHERE wait_event_type = 'Lock' AND datname = current_database() \
+             AND pid <> pg_backend_pid()",
         )
         .fetch_one(db.executor())
         .await

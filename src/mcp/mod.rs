@@ -70,12 +70,12 @@ tokio::task_local! {
     static REPORT_TOOL: &'static str;
     /// The catalogs the tool call in progress has resolved (set by
     /// `call_tool`): how [`note_catalog`] hands the tool's catalog back for
-    /// `okf.catalog` and the metrics label.
+    /// `okf.catalog` (never a metric label, issue #1157).
     static TOOL_CATALOG: Arc<Mutex<CatalogSeen>>;
 }
 
 /// The catalogs one tool call resolved, as the `okf.catalog` attribute and
-/// the `catalog` metric label report them (issue #834).
+/// report them (issue #834). Metrics carry no catalog (issue #1157).
 #[derive(Debug, Default, PartialEq, Eq)]
 enum CatalogSeen {
     /// Nothing resolved: the label is [`CATALOG_LABEL_NONE`].
@@ -117,7 +117,7 @@ impl CatalogSeen {
 }
 
 /// Records that the tool call in progress resolved catalog `name`; `call_tool`
-/// puts the result on `okf.catalog` and the metrics label when the call ends
+/// puts the result on `okf.catalog` when the call ends
 /// (an attribute recorded twice is exported twice, so it is set once). A
 /// no-op outside a tool call. Call it only for a catalog the caller is
 /// allowed to reach, with its real name: the name is exported.
@@ -453,7 +453,7 @@ impl ServerHandler for OkfServer {
         }
         self.app
             .metrics()
-            .tool_call(tool, &catalog, outcome, started.elapsed());
+            .tool_call(tool, outcome, started.elapsed());
         result
     }
 

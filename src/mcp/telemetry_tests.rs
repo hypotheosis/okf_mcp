@@ -387,7 +387,6 @@ async fn tool_duration_is_recorded_per_tool_catalog_outcome() {
             .filter(|line| line.starts_with("okf_mcp_tool_duration_seconds_count{"))
             .find(|line| {
                 line.contains(&format!(r#"tool="{tool}""#))
-                    && line.contains(r#"catalog="pg""#)
                     && line.contains(&format!(r#"outcome="{outcome}""#))
             })
             .map(str::to_string)
@@ -594,9 +593,10 @@ async fn the_tool_span_records_the_session_the_changeset_and_the_resolved_catalo
     served.stop().await;
 }
 
-/// Issue #834: the metrics label is the resolved catalog too, and `(none)` when nothing resolved.
+/// Issue #1157: the tool metric carries no catalog dimension, so calls on a loaded catalog and
+/// on none share one series per tool and outcome.
 #[tokio::test]
-async fn the_metrics_label_is_the_resolved_catalog() {
+async fn the_tool_metric_carries_no_catalog_label() {
     let served = Served::start().await;
     let probe = McpProbe::open(&served.endpoint, &served.key).await;
     probe
@@ -611,15 +611,20 @@ async fn the_metrics_label_is_the_resolved_catalog() {
     probe.close().await;
 
     let text = render(&served.registry);
-    let counted = |tool: &str, catalog: &str| {
+    let counted = |tool: &str| {
         text.lines().any(|line| {
             line.starts_with("okf_mcp_tool_duration_seconds_count{")
                 && line.contains(&format!(r#"tool="{tool}""#))
-                && line.contains(&format!(r#"catalog="{catalog}""#))
         })
     };
-    assert!(counted("search", "pg"), "{text}");
-    assert!(counted("get_concept", CATALOG_LABEL_NONE), "{text}");
+    assert!(counted("search"), "{text}");
+    assert!(counted("get_concept"), "{text}");
+    for line in text
+        .lines()
+        .filter(|line| line.starts_with("okf_mcp_tool_duration_seconds"))
+    {
+        assert!(!line.contains("catalog="), "{line}");
+    }
     assert!(!text.contains(SENTINEL), "{text}");
     served.stop().await;
 }
@@ -653,8 +658,8 @@ fn the_sentinel_labels_cannot_be_catalog_names() {
     assert!(!is_valid_name(CATALOG_LABEL_MULTIPLE));
 }
 
-/// Issue #1117: a call that reaches two catalogs records `(multiple)` on the span and the
-/// metrics label.
+/// Issue #1117: a call that reaches two catalogs records `(multiple)` on the span; the metric
+/// carries no catalog (issue #1157).
 #[tokio::test]
 async fn a_call_reaching_several_catalogs_records_the_multiple_sentinel() {
     let served = Served::start_catalogs(Config::default(), &["pg", "other"]).await;
@@ -675,7 +680,7 @@ async fn a_call_reaching_several_catalogs_records_the_multiple_sentinel() {
         text.lines().any(|line| {
             line.starts_with("okf_mcp_tool_duration_seconds_count{")
                 && line.contains(r#"tool="list_catalogs""#)
-                && line.contains(&format!(r#"catalog="{CATALOG_LABEL_MULTIPLE}""#))
+                && !line.contains("catalog=")
         }),
         "{text}"
     );
@@ -702,7 +707,7 @@ async fn note_catalog_tracks_one_name_then_multiple() {
 }
 
 /// Issue #834 (review of PR #1116): a handle another key owns resolves nothing, and must not
-/// disclose its catalog through the span or the metrics label. `note_catalog` has to stay
+/// disclose its catalog through the span. `note_catalog` has to stay
 /// after the ownership check in `resolve_changeset`.
 #[tokio::test]
 async fn a_foreign_changeset_handle_records_no_catalog() {
@@ -749,17 +754,8 @@ async fn a_foreign_changeset_handle_records_no_catalog() {
         text.lines().any(|line| {
             line.starts_with("okf_mcp_tool_duration_seconds_count{")
                 && line.contains(r#"tool="pending_changes""#)
-                && line.contains(&format!(r#"catalog="{CATALOG_LABEL_NONE}""#))
                 && line.contains(r#"outcome="error""#)
-        }),
-        "{text}"
-    );
-    assert!(
-        !text.lines().any(|line| {
-            line.starts_with("okf_mcp_tool_duration_seconds_count{")
-                && line.contains(r#"tool="pending_changes""#)
-                && line.contains(r#"outcome="error""#)
-                && line.contains(r#"catalog="pg""#)
+                && !line.contains("catalog=")
         }),
         "{text}"
     );

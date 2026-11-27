@@ -1584,15 +1584,41 @@ Nothing below reaches an OTLP span, event, log record or metric, or
 **What is exported is not anonymous.** The ids above are stable and can be
 resolved to a user or key by whoever can read your database or the audit log,
 so choose a receiver you trust with them. Catalog names are exported too, as
-the `okf.catalog` span attribute and the `catalog` metric label.
+the `okf.catalog` span attribute, but not on any metric (see below).
 
-**Upgrading: `(none)` and `(multiple)`.** A tool call that resolved no catalog
-used to be labelled `none`, and one that reached several `multiple`, which a
-catalog of that name could be mistaken for. They are now `(none)` and
-`(multiple)`, which no catalog name can match. Dashboards and alerts that match
-`okf.catalog:none` or `catalog="none"` must change to `(none)` (and `multiple`
-to `(multiple)`). The example Grafana dashboard's `catalog` variable uses
-`.*`, so it needs no change.
+**Catalog names are not metric labels (issue #1157).** No metric carries a
+`catalog` label, on `/metrics` or in OTLP. Decision: the dimension is removed
+rather than replaced by the catalog's database row id. A catalog name is
+operator- or user-supplied text that can identify a person or project, and one
+series per catalog is a cardinality the server cannot bound (a row id would
+hide the text but not the series count). Per-catalog figures are available
+from the `okf.catalog` span attribute, the audit log and the database, which
+are not time-series stores. The affected instruments are
+`okf_mcp_tool_duration_seconds`, `okf_publish_duration_seconds`,
+`okf_publish_lock_wait_seconds`, `okf_lint_rejections_total` and
+`okf_archive_size_bytes_total`; operations on every catalog now land in the same
+series, with the remaining labels unchanged.
+
+**Upgrading: the `catalog` metric label is gone.** Dashboards, recording rules
+and alerts that filter (`catalog="pg"`), match (`catalog=~"$catalog"`) or group
+(`sum by (catalog)`) on it must drop that matcher or grouping: a selector on a
+label the series no longer has matches nothing, and a `sum by (catalog)` now
+yields one series with an empty label. The example Grafana dashboard no longer
+has a `catalog` variable or per-catalog panels. **Samples already stored in
+Prometheus (or any OTLP backend) are not scrubbed:** series recorded before the
+upgrade keep their `catalog` label and its values until your retention drops
+them, or until you delete them with the TSDB admin API (`delete_series`) or
+your backend's equivalent. Old and new samples of one metric are different
+series, so a query that spans the upgrade sees both until the old ones age out.
+
+**Upgrading: `(none)` and `(multiple)` (span only).** A tool call that
+resolved no catalog used to be labelled `none`, and one that reached several
+`multiple`, which a catalog of that name could be mistaken for. They are now
+`(none)` and `(multiple)`, which no catalog name can match, in the
+`okf.catalog` span attribute. Searches and alerts on spans that match
+`okf.catalog:none` must change to `(none)` (and `multiple` to `(multiple)`).
+Before issue #1157 the tool metric carried the same values as a `catalog`
+label; that label no longer exists.
 
 `mcp.session.id` and `okf.changeset` are digests, never the raw values: a
 session id or a changeset handle lets whoever holds it act on the session or
@@ -1604,13 +1630,9 @@ for a session or handle you hold, hash it the same way. Both ids are random
 UUIDs, so the token cannot be turned back into the value.
 
 Metric labels come from closed sets only: route templates, registered tool
-names (anything else is `other`), catalog names, and fixed outcome, method,
-rule, reason and status words. No gauge has a series per catalog. The counters
-and histograms
-(`okf_publish_duration_seconds`, the tool and
-archive series) keep the series they recorded for that catalog until the
-process restarts, so a catalog created and deleted under many names leaves
-that many series behind.
+names (anything else is `other`), and fixed outcome, method,
+rule, reason and status words. No metric has a series per catalog, so a catalog created and deleted under many
+names adds none.
 
 **stderr is the one exception, and it is sensitive.** Events with the target
 `okf_mcp::local_only` reach stderr only (both OTLP layers turn them off), and
@@ -1645,11 +1667,11 @@ the dotted originals.
 |---|---|---|---|
 | `http_server_request_duration_seconds` | histogram | `http_request_method`, `http_route`, `http_response_status_code` | Every HTTP request on the main port |
 | `http_server_active_requests` | gauge | `http_request_method`, `http_route` | Requests being served |
-| `okf_mcp_tool_duration_seconds` | histogram | `tool`, `catalog`, `outcome` | MCP tool calls. `tool` is a registered tool or `other`; `catalog` is an existing catalog, `(multiple)` for a call that reached several, or `(none)`; `outcome` is `ok` or `error` |
+| `okf_mcp_tool_duration_seconds` | histogram | `tool`, `outcome` | MCP tool calls. `tool` is a registered tool or `other`; `outcome` is `ok` or `error` |
 | `okf_mcp_sessions_active` | gauge | none | Open MCP sessions |
-| `okf_publish_duration_seconds` | histogram | `catalog`, `outcome` | A publish, from the first lock to the refreshed snapshot |
-| `okf_publish_lock_wait_seconds` | histogram | `catalog` | Time a publish waited for the catalog's locks |
-| `okf_lint_rejections_total` | counter | `catalog`, `rule` | Lint errors that refused a publish. `rule` is the lint's rule id, `secret` for any secret rule, or `other` |
+| `okf_publish_duration_seconds` | histogram | `outcome` | A publish, from the first lock to the refreshed snapshot |
+| `okf_publish_lock_wait_seconds` | histogram | none | Time a publish waited for the catalog's locks |
+| `okf_lint_rejections_total` | counter | `rule` | Lint errors that refused a publish. `rule` is the lint's rule id, `secret` for any secret rule, or `other` |
 | `okf_changesets_open` | gauge | none | Open changesets in the cluster, as of the last `cluster_stats` housekeeping job (the same on every replica) |
 | `okf_catalog_announcements_total` | counter | `result` | Catalog announcements handled, counting also each catalog found behind in the catch-up after a (re)subscribe: `applied` (rebuilt), `current` (already there), `unknown` (not loaded here, or deleted) or `failed`. Only with `[redis]` |
 | `okf_invalidations_queued_total` | counter | `kind` | Change-feed messages queued by this replica's write transactions; Postgres delivers one only if its transaction commits, so a rollback leaves this ahead of `received` (`catalog`, `catalog_meta`, `credential`, `user`, `team`, `team_catalogs`, `settings`) |
@@ -1675,7 +1697,7 @@ the dotted originals.
 | `db_client_connection_count` | gauge | `state` | Postgres pool connections: `idle` and `used` sum to the pool's size |
 | `okf_clock_checks_total` | counter | `outcome` | Clock checks against `time_server` |
 | `okf_clock_offset_seconds` | gauge | none | The time server's clock minus the server's, at the last good check |
-| `okf_archive_size_bytes_total` | counter | `direction`, `catalog` | Archive bytes moved; `direction` is `export` or `import` |
+| `okf_archive_size_bytes_total` | counter | `direction` | Archive bytes moved; `direction` is `export` or `import` |
 | `okf_archive_duration_seconds` | histogram | `direction`, `outcome` | Archive exports and imports |
 | `okf_telemetry_export_failures_total` | counter | `signal`, `reason` | Failed OTLP exports. `signal` is `traces`, `logs` or `metrics`; `reason` is `timeout`, `transport`, `rejected` or `other`. All twelve series exist from the first scrape |
 | `okf_build_info` | gauge | `version` | Always 1; the label is the running version |

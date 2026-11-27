@@ -172,11 +172,10 @@ pub async fn publish(
     } else {
         Outcome::Error
     };
-    app.metrics()
-        .publish(state.name(), outcome, started.elapsed());
+    app.metrics().publish(outcome, started.elapsed());
     if let Err(OkfError::LintFailed { errors, .. }) = &result {
         for finding in errors {
-            app.metrics().lint_rejection(state.name(), &finding.rule);
+            app.metrics().lint_rejection(&finding.rule);
         }
     }
     result
@@ -241,8 +240,7 @@ async fn publish_locked(
     .instrument(tracing::info_span!("okf.publish.lock"))
     .await;
     // A refusal waited too, so the wait is recorded before `?` returns it.
-    app.metrics()
-        .publish_lock_wait(state.name(), lock_started.elapsed());
+    app.metrics().publish_lock_wait(lock_started.elapsed());
     let (_publishing, account_tx, mut tx, locked, resolved) = locks?;
     let now = app.clock().now();
     // Again under the lock: a discard may have emptied it meanwhile.

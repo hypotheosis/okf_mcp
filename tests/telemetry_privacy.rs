@@ -26,6 +26,8 @@ use okf_mcp::telemetry::config::{OtlpConfig, TelemetryConfig};
 use okf_mcp::telemetry::otlp::{FailureReason, Signal};
 use okf_mcp::telemetry::subscriber::settings;
 use okf_mcp::telemetry::{install_with_writer, ProviderOutcome, Telemetry};
+use opentelemetry_proto::tonic::common::v1::KeyValue as OtlpAttribute;
+use opentelemetry_proto::tonic::metrics::v1::{metric, Metric};
 use serde_json::json;
 use support::oauth::form;
 use support::otlp_collector::{self as otlp, Collector, Mode, Payload, Recorded};
@@ -978,4 +980,269 @@ async fn nothing_secret_is_exported_or_scraped() {
         "secrets reached an exporter or /metrics:\n{}",
         leaks.join("\n")
     );
+}
+
+/// The attributes of every data point of `metric`, whatever its kind.
+fn point_attributes(metric: &Metric) -> Vec<&[OtlpAttribute]> {
+    match &metric.data {
+        Some(metric::Data::Gauge(gauge)) => gauge
+            .data_points
+            .iter()
+            .map(|point| point.attributes.as_slice())
+            .collect(),
+        Some(metric::Data::Sum(sum)) => sum
+            .data_points
+            .iter()
+            .map(|point| point.attributes.as_slice())
+            .collect(),
+        Some(metric::Data::Histogram(histogram)) => histogram
+            .data_points
+            .iter()
+            .map(|point| point.attributes.as_slice())
+            .collect(),
+        Some(metric::Data::ExponentialHistogram(histogram)) => histogram
+            .data_points
+            .iter()
+            .map(|point| point.attributes.as_slice())
+            .collect(),
+        Some(metric::Data::Summary(summary)) => summary
+            .data_points
+            .iter()
+            .map(|point| point.attributes.as_slice())
+            .collect(),
+        None => Vec::new(),
+    }
+}
+
+/// Issue #1157: no catalog name is a metric attribute, on `/metrics` or in an
+/// OTLP export, and the same operation on two catalogs lands in one series.
+///
+/// It exercises an MCP call, a successful and a failed publish (which waits
+/// for the lock and, failing, is refused by the lint), and an archive export,
+/// each on two catalogs with recognizable synthetic names. The trace and log
+/// policy is not under test here; only metrics are scanned.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn no_catalog_name_is_a_metric_attribute() {
+    let _serial = SERIAL.lock().await;
+    let names = [
+        format!("{SENTINEL}-alpha-cat"),
+        format!("{SENTINEL}-beta-cat"),
+    ];
+
+    // Telemetry exporting metrics to the collector and a `/metrics` listener.
+    // The global tracing subscriber is not installed (the sentinel test owns
+    // it); the instruments need only the meter provider `Telemetry::start`
+    // sets.
+    let collector = Collector::start().await;
+    let config = telemetry_config(endpoint_without_headers(&collector.url()));
+    let telemetry = Telemetry::start(&config, &|_| None).expect("telemetry starts");
+    let scrape_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("bind /metrics");
+    let scrape_url = format!(
+        "http://{}/metrics",
+        scrape_listener.local_addr().expect("addr")
+    );
+    let scrape_stop = CancellationToken::new();
+    let scraping = tokio::spawn(okf_mcp::telemetry::scrape::serve(
+        scrape_listener,
+        telemetry.registry(),
+        scrape_stop.clone(),
+    ));
+
+    let tree = || {
+        files(&[
+            ("index.md", "# Home\n"),
+            (
+                "infra/index.md",
+                "# Infra\n\n* [Time server](time.md) - the GPS clock\n",
+            ),
+            (
+                "infra/time.md",
+                "---\ntype: System\ntitle: Time server\ndescription: The GPS clock.\n---\n# Time\n",
+            ),
+            ("log.md", "# Log\n"),
+        ])
+    };
+    let mut server = TestServer::start(
+        names.iter().map(|name| (name.as_str(), tree())).collect(),
+        Config::default(),
+    )
+    .await;
+    let base = server.base.clone();
+    let key = server.key("writer", Access::Admin, &[], None).await;
+    let client = server.client(&key, None).await.expect("mcp client");
+
+    for name in &names {
+        // An MCP call on the catalog.
+        let read = call(
+            &client,
+            "get_concept",
+            json!({"path": "/infra/time.md", "catalog": name}),
+        )
+        .await;
+        structured(&read);
+        // A successful publish.
+        let handle = open_changeset(&client, Some(name)).await;
+        structured(
+            &call(
+                &client,
+                "create_concept",
+                json!({
+                    "path": "/infra/ok.md",
+                    "frontmatter": {"type": "System", "title": "Ok", "description": "Fine."},
+                    "body": "# Ok\n\nFine.\n",
+                    "changeset": handle,
+                }),
+            )
+            .await,
+        );
+        structured(
+            &call(
+                &client,
+                "publish",
+                json!({"message": "add ok", "changeset": handle}),
+            )
+            .await,
+        );
+        // A failed publish: a broken link is a lint error.
+        let handle = open_changeset(&client, Some(name)).await;
+        structured(
+            &call(
+                &client,
+                "create_concept",
+                json!({
+                    "path": "/infra/broken.md",
+                    "frontmatter": {"type": "System", "title": "Broken", "description": "Bad."},
+                    "body": "# Broken\n\nSee [gone](/gone.md).\n",
+                    "changeset": handle,
+                }),
+            )
+            .await,
+        );
+        let refused = call(
+            &client,
+            "publish",
+            json!({"message": "add broken", "changeset": handle}),
+        )
+        .await;
+        assert_eq!(refused.is_error, Some(true), "{refused:?}");
+    }
+
+    // A successful archive export of each catalog.
+    let http = reqwest::Client::builder()
+        .timeout(Duration::from_secs(60))
+        .build()
+        .expect("client");
+    for name in &names {
+        let exported = http
+            .get(format!("{base}/catalogs/{name}/export"))
+            .bearer_auth(&key)
+            .send()
+            .await
+            .expect("export");
+        assert_eq!(exported.status(), 200, "export of {name}");
+        exported.bytes().await.expect("tarball");
+    }
+
+    let scraped = http
+        .get(&scrape_url)
+        .send()
+        .await
+        .expect("scrape /metrics")
+        .text()
+        .await
+        .expect("metrics text");
+    client.cancel().await.expect("close the client");
+    server.stop().await;
+    scrape_stop.cancel();
+    tokio::time::timeout(PATIENCE, scraping)
+        .await
+        .expect("the /metrics listener stops")
+        .expect("its task")
+        .expect("it serves without an I/O error");
+    let report = telemetry.shutdown().await;
+    assert_eq!(report.metrics, ProviderOutcome::Flushed, "{report:?}");
+    let requests = collector
+        .wait_for(
+            "metrics",
+            |requests| !otlp::metrics(requests).is_empty(),
+            PATIENCE,
+        )
+        .await;
+
+    // The operations happened (so the checks below are not vacuous), and the
+    // two catalogs share one series each: two publishes ok, two refused, two
+    // lock waits per outcome counted together, two tool calls, two exports.
+    let series = |prefix: &str| -> Vec<&str> {
+        scraped
+            .lines()
+            .filter(|line| line.starts_with(prefix))
+            .collect()
+    };
+    assert_eq!(
+        series("okf_publish_duration_seconds_count"),
+        [
+            r#"okf_publish_duration_seconds_count{outcome="error"} 2"#,
+            r#"okf_publish_duration_seconds_count{outcome="ok"} 2"#,
+        ],
+        "{scraped}"
+    );
+    assert_eq!(
+        series("okf_publish_lock_wait_seconds_count"),
+        ["okf_publish_lock_wait_seconds_count 4"],
+        "{scraped}"
+    );
+    let rejections = series("okf_lint_rejections_total");
+    assert_eq!(rejections.len(), 1, "{scraped}");
+    assert!(
+        rejections[0].starts_with(r#"okf_lint_rejections_total{rule="broken-link"} "#),
+        "{rejections:?}"
+    );
+    let archives = series("okf_archive_size_bytes_total");
+    assert_eq!(archives.len(), 1, "{scraped}");
+    assert!(
+        archives[0].starts_with(r#"okf_archive_size_bytes_total{direction="export"} "#),
+        "{archives:?}"
+    );
+    assert_eq!(
+        series(r#"okf_archive_duration_seconds_count{direction="export",outcome="ok"}"#),
+        [r#"okf_archive_duration_seconds_count{direction="export",outcome="ok"} 2"#],
+        "{scraped}"
+    );
+    let reads: Vec<&str> = series("okf_mcp_tool_duration_seconds_count")
+        .into_iter()
+        .filter(|line| line.contains(r#"tool="get_concept""#))
+        .collect();
+    assert_eq!(
+        reads,
+        [r#"okf_mcp_tool_duration_seconds_count{outcome="ok",tool="get_concept"} 2"#],
+        "{scraped}"
+    );
+
+    // No catalog name, and no `catalog` label, on /metrics or in any OTLP
+    // metric attribute.
+    for name in &names {
+        assert!(!scraped.contains(name.as_str()), "{name} on /metrics");
+    }
+    assert!(!scraped.contains("catalog="), "a catalog label: {scraped}");
+    let mut exported_points = 0;
+    for metric in otlp::metrics(&requests) {
+        for attributes in point_attributes(metric) {
+            exported_points += 1;
+            for pair in attributes {
+                let value = pair.value.as_ref().map(otlp::any_text).unwrap_or_default();
+                assert_ne!(pair.key, "catalog", "{} has a catalog key", metric.name);
+                for name in &names {
+                    assert!(
+                        !value.contains(name.as_str()),
+                        "{} carries {name} as {}",
+                        metric.name,
+                        pair.key
+                    );
+                }
+            }
+        }
+    }
+    assert!(exported_points > 0, "no OTLP metric points arrived");
 }

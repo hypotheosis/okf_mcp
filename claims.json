@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1983,
+  "next_claim_seq": 1990,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "83b2152b4b3ec04d04052087c77afe2ac1e3c8efa496a668091769f68513f1c8"
+    "mac": "e6f4130bb6b40cba694b1f9745acac2b6f99146be58925fc03227a645e1cf3b9"
   },
-  "next_evidence_seq": 3549,
+  "next_evidence_seq": 3557,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "61ebca05e0f37fe355263dc6369f939a9694a01e0ac4ef6b203f1515ede90ea1"
+    "mac": "744deaeb42f531aa2963d97852078208e49ea1c42067366d3621ba3ec131a8ad"
   },
   "claims": [
     {
@@ -177688,6 +177688,462 @@
       "seal": {
         "by": "server",
         "mac": "4bcae004ed460683ebe51fb224421e4d8f0ff437f643353b5bedd3dda80f75f5"
+      }
+    },
+    {
+      "id": "CLM-1983",
+      "statement": "Issue #836 is resolved by fixing the cause of the flake in each_clock_check_is_its_own_trace, without raising timeouts or serialising tests, with a failure message that prints what was captured, reusing the existing src/test_tracing.rs helpers.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "hypotheosis/okf_mcp#836 and task requirement",
+      "derived_from": [],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3556",
+          "kind": "analysis",
+          "locator": "children of CLM-1983",
+          "summary": "Children CLM-1984..1987 and 1989 are supported (no timeout/serialise change, message prints captures, helpers reused), but CLM-1988 (the cause) is not_enough_info, so \"fixes the cause\" is not established.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T01:09:50.115291547Z",
+          "seal": {
+            "by": "server",
+            "mac": "4ccd691c272bdc9b090d83c8447bd917d6ece03ea90d2e476b7e8edfe60f2a73"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every constraint child holds, but the cause of the flake is unconfirmed, so \"fixes the cause\" cannot be decided. Fix: capture a failure with the new message, or add a deterministic test that primes a cached \"never\" for the clock-check callsite on another thread and fails without the rebuild call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T01:09:53.859579666Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecee6b82afb5adba92ae22cf25b61f807be5b28af60a2824f5aa48f7ad77c3a6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:53.859579666Z",
+      "seal": {
+        "by": "server",
+        "mac": "9f6010be563d3af67414854f91456ef4c5b9add8e42168a94da70180cf141cf1"
+      }
+    },
+    {
+      "id": "CLM-1984",
+      "statement": "Observer::start in src/telemetry/subscriber.rs calls tracing::callsite::rebuild_interest_cache() after installing its subscriber as the thread default via crate::test_tracing::set_default, before returning.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`Observer::start` now calls `tracing::callsite::rebuild_interest_cache()` after installing its subscriber\"",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3549",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:721-728",
+          "summary": "After `let guard = crate::test_tracing::set_default(subscriber);` the next statement is `tracing::callsite::rebuild_interest_cache();`, then Self is built. test_tracing::set_default is the only installer; Observer is used by the clock test on a single-thread #[tokio::test], so the thread-local default covers its spans.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 721,
+                "end": 728
+              },
+              "commit": "605a50f183bdc04bb23715cf483a1276e87f9c53"
+            }
+          },
+          "recorded_at": "2026-11-27T01:09:32.288533634Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbb9a6dbdbdc27e90d3078a6bb8f2453164c1dcb2b08e9f72ac08b47720cc2c9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The call sits directly after set_default in Observer::start; the concurrency test exercising Observer passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3549"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.408371038Z",
+          "seal": {
+            "by": "server",
+            "mac": "6c77c0d4f2e78bfaabcfedee83eecd0f47e56680d5b7c8bf26b41b461a0d2593"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.408371038Z",
+      "seal": {
+        "by": "server",
+        "mac": "b732640ff1017ec61fd1c48903cd8b29f73d17221a6973ec0c205bb5a0ea91e1"
+      }
+    },
+    {
+      "id": "CLM-1985",
+      "statement": "The change adds no timeout increase, serial_test/mutex serialisation or sleep to any test; its only code hunks are the rebuild_interest_cache call and assertion messages.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Task requirement: fix the cause rather than raise timeouts or serialise",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3550",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src",
+          "summary": "Diff of src is 5 added lines in subscriber.rs (comment plus rebuild_interest_cache call) and the app.rs hunk that adds a span-name list and message arguments to two assertions. No Duration, timeout, sleep, serial or lock changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2753,
+                "end": 2765
+              },
+              "commit": "605a50f183bdc04bb23715cf483a1276e87f9c53"
+            }
+          },
+          "recorded_at": "2026-11-27T01:09:33.864285495Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfbd15864750a61914d9c14a84d80d9a49ccd82217f497beb5d9708da184ed12"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The src diff contains no timeout, sleep or serialisation change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3550"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.524976582Z",
+          "seal": {
+            "by": "server",
+            "mac": "c896c465d2e164210038dcdadc5efa149e3d0ae95e4979c910640c1ba6d10808"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.524976582Z",
+      "seal": {
+        "by": "server",
+        "mac": "e7d6cf3c8855c9692708290059ef46aca2fa97b3f6cf8c2cfee002c47d384e73"
+      }
+    },
+    {
+      "id": "CLM-1986",
+      "statement": "When each_clock_check_is_its_own_trace finds the wrong number of 'caller' or 'okf.clock.check' spans, its assertion failure message includes the filter and the list of span names the capture holds.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"the test asserts `caller` count and `okf.clock.check` count with the captured span names in the failure message\"",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3551",
+          "kind": "inspection",
+          "locator": "src/app.rs:2756-2765",
+          "summary": "`seen` collects every captured span name; both the `callers.len() == 1` and `checks.len() == 1` assertions use \"{filter}: captured {seen:?}\". The old `[0]` index (which would panic without the message) is replaced by a length assert. No test triggers the failure path, so the format is read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2756,
+                "end": 2765
+              },
+              "commit": "605a50f183bdc04bb23715cf483a1276e87f9c53"
+            }
+          },
+          "recorded_at": "2026-11-27T01:09:36.183479053Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d573af748dcff1f8efc682453cc61468cd0e513a45a1ef50963b2690c7c95f5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both count assertions carry the filter and the captured span names (read from source; failure path not exercised).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3551"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.639937949Z",
+          "seal": {
+            "by": "server",
+            "mac": "28cf85d2760c20368441d6d66c67476f8869143f3e121af35846e318d22c8008"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.639937949Z",
+      "seal": {
+        "by": "server",
+        "mac": "85b09f97e82a75ee908d6da19ff55f17f36a70e9f0a483444d23e48848ad8c10"
+      }
+    },
+    {
+      "id": "CLM-1987",
+      "statement": "The fix reuses existing helpers: it relies on src/test_tracing.rs set_default and the same rebuild_interest_cache pattern as rows_returned::counting, and adds no new helper or duplicate subscriber setup.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"as `rows_returned::counting` does since #826\"; task requirement to reuse src/test_tracing.rs",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs",
+        "src/test_tracing.rs",
+        "src/rows_returned.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3552",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:723-728; src/rows_returned.rs:60-64",
+          "summary": "The change adds no helper or subscriber setup; it adds one call beside the existing test_tracing::set_default, the same call rows_returned::counting makes after its set_default.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/rows_returned.rs",
+              "lines": {
+                "start": 60,
+                "end": 64
+              },
+              "commit": "605a50f183bdc04bb23715cf483a1276e87f9c53"
+            }
+          },
+          "recorded_at": "2026-11-27T01:09:37.809764876Z",
+          "seal": {
+            "by": "server",
+            "mac": "d63ded78a3a45ca703e7e24b93b268d0ad00d3d5b36a213869e14ce3aa2b82b9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No new helper; the existing set_default and the same call as rows_returned are used.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3552"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.755968541Z",
+          "seal": {
+            "by": "server",
+            "mac": "a878b0682a2aee4be9ee50215ff223059844544b2a6ba8115616931f9442690a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.755968541Z",
+      "seal": {
+        "by": "server",
+        "mac": "13a2d3dabcbbd57d7b9a238328ffbd1e020510a185dee335391ec5e756960b48"
+      }
+    },
+    {
+      "id": "CLM-1988",
+      "statement": "The flake's cause is a per-callsite interest cache holding a cached 'never' for the caller or okf.clock.check callsite, registered earlier by another test thread, which hides the spans from this test's subscriber.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md: \"Cause (from reading the code, unreproduced)\"",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3555",
+          "kind": "analysis",
+          "locator": "src/test_tracing.rs:1-14; changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md",
+          "summary": "The mechanism is real and documented (a callsite first registered on another thread can cache \"never\"), and the same failure was fixed by the same call for rows_returned (#826). But the failure was never captured and three plain runs passed; the changelog itself says the cause is unreproduced. Nothing shows this is the cause of #836, and the test_tracing anchor already guards the first-registration path.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/test_tracing.rs",
+              "lines": {
+                "start": 1,
+                "end": 14
+              },
+              "commit": "605a50f183bdc04bb23715cf483a1276e87f9c53"
+            }
+          },
+          "recorded_at": "2026-11-27T01:09:38.266874310Z",
+          "seal": {
+            "by": "server",
+            "mac": "da80e4f537b8cccfd48bad7663a446efb44463029e13a6d6ffaf773ed3832d89"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mechanism is plausible and matches #826, but the failure was never captured or reproduced, so the cause is inferred. Fix: either capture the failure with the new span-name message and cite it, or add a deterministic test that caches \"never\" for the okf.clock.check callsite on another thread before Observer::start and asserts the span is captured, failing without the rebuild call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3555"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.994566004Z",
+          "seal": {
+            "by": "server",
+            "mac": "5cc8a76d8c38296b3648cc808b2917bd7d1de675d7cb7186ec5f5068004380bb"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.994566004Z",
+      "seal": {
+        "by": "server",
+        "mac": "a0da83acc59d7b75edc2e8f4d19a5846c5ab2d5cb45aa12a9a969722cdf7590a"
+      }
+    },
+    {
+      "id": "CLM-1989",
+      "statement": "The narrow test app::tests::each_clock_check_is_its_own_trace passes at head (1 passed) and the Observer-concurrency test captures_made_and_dropped_on_many_threads_do_not_deadlock still passes with the new call in Observer::start.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Task: run tools/agentic/gate.sh narrow --lib each_clock_check_is_its_own_trace",
+      "derived_from": [
+        "CLM-1983"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3553",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib each_clock_check_is_its_own_trace",
+          "summary": "At head 605a50f1: 1 passed; 0 failed; 3192 filtered out (6.03 s).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:09:38.003601004Z",
+          "seal": {
+            "by": "server",
+            "mac": "86cc88822efd9e299d9d1459360db194e2da82483296482d15de309a6672e7bc"
+          }
+        },
+        {
+          "id": "EVD-3554",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib captures_made_and_dropped_on_many_threads",
+          "summary": "At head 605a50f1: telemetry::subscriber::tests::captures_made_and_dropped_on_many_threads_do_not_deadlock ok, 1 passed. This 16-thread test starts and drops Observers concurrently, so it exercises the new call.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:09:38.132100243Z",
+          "seal": {
+            "by": "server",
+            "mac": "603ad9d1741c38cc37dcac7bdc021500ba5753296d119d6b66c875d66e9960d6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both narrow runs on head passed (1 passed each).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3553",
+            "EVD-3554"
+          ],
+          "recorded_at": "2026-11-27T01:09:49.873445949Z",
+          "seal": {
+            "by": "server",
+            "mac": "485141babf0d5ff086c37c75c13057bf4f2239b184274183e8de3a865cd5cf50"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:09:15.512940677Z",
+      "updated_at": "2026-11-27T01:09:49.873445949Z",
+      "seal": {
+        "by": "server",
+        "mac": "6cfb60eb94bb0ba5e6bfeb305eb06a5cbe507b4b837aeada93d693fdb9472671"
       }
     }
   ]

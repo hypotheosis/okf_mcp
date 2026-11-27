@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2039,
+  "next_claim_seq": 2042,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "d3ca699692beabab73b393b49f1adc6faedb071425518e1ff802cfd2e5047386"
+    "mac": "e6994f876d6e2e8bd960a18bb586f9428341e283f9e591abea39a79324d4c9b4"
   },
-  "next_evidence_seq": 3633,
+  "next_evidence_seq": 3647,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "463b5873ad2c7d532af2a294d92e4a6753ea0ae8d87cdc0e45450ac3d7065b43"
+    "mac": "46b560be34b32189bc2c8e8240045ffe5a130359e13d078e36d16da7b82869dc"
   },
   "claims": [
     {
@@ -149901,6 +149901,28 @@
             "by": "server",
             "mac": "aca195221b5bc159aac24da4ffe42a014aaa97d8de692ffc1f8d5e991959dc67"
           }
+        },
+        {
+          "id": "EVD-3639",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:164-290 @ 607e27c1",
+          "summary": "processes_using, read_proc and all_cmdlines read /proc/<pid>/cmdline into memory and only compare bytes. No println!, dbg!, tracing or log:: in the file; the two eprintln! lines (199, 203) print a removed count and a thread-spawn error only. ProcRead derives Debug but is never formatted by non-test code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 164,
+                "end": 290
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:19.434730414Z",
+          "seal": {
+            "by": "server",
+            "mac": "296a51713e1f81ab0e351e604b25a60515692726ca9ca0d75dbee690b8628617"
+          }
         }
       ],
       "verdicts": [
@@ -149942,13 +149964,26 @@
             "by": "server",
             "mac": "d3d3e70e22d58e1881d395311be9eceeadf7e4687070d52120b9cb4fb08f6791"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 607e27c1: still in memory only, never printed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3639"
+          ],
+          "recorded_at": "2026-11-27T03:39:35.028655221Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c7ab873d5be9062ea1130e5b8b1da35a3cab462ad456b06eb1660e8917f902f"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-27T03:19:48.670403160Z",
+      "updated_at": "2026-11-27T03:39:35.028655221Z",
       "seal": {
         "by": "server",
-        "mac": "43f8ec2bb171598175a242b34310006de92cd48e93a74e55ff8faac0a423ce4e"
+        "mac": "bc5754b99504b7ebb98aa78d3eeadef365474598c918f733641bb510198fa886"
       }
     },
     {
@@ -180338,7 +180373,9 @@
         "from-issue:1078"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Restated more precisely as CLM-2039 after PR review: it now covers the incomplete-snapshot rule and its residue.",
+        "retired_at": "2026-11-27T03:39:34.440896201Z"
       },
       "evidence": [
         {
@@ -180440,10 +180477,10 @@
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.232962541Z",
+      "updated_at": "2026-11-27T03:39:34.440896201Z",
       "seal": {
         "by": "server",
-        "mac": "5d7d222f3fd0912d7164f8fe2e3c5ab2d28a6cc57078788ef01106186981eae9"
+        "mac": "a59c917ddc04b2b16eb9b4e7ae73a676c44a4322575dbd6c0e37deb06a55c17e"
       }
     },
     {
@@ -180681,6 +180718,28 @@
             "by": "server",
             "mac": "61b15fd519f03ab4df4642638efd10692d0de84b2294275a232018f03872a6e4"
           }
+        },
+        {
+          "id": "EVD-3636",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs:182-207,339-357 @ 607e27c1",
+          "summary": "Delete is still `.filter(|path| fs::remove_dir_all(path).is_ok()).count()` with the result a usize; the thread closure has no unwrap or expect; all_cmdlines/read_proc return Option/enum values and never panic; a spawn error only goes to eprintln. No test forces a delete failure.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 357
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:18.867496844Z",
+          "seal": {
+            "by": "server",
+            "mac": "68b320a235e40ef8c329876737c07434d25cf3ef0fe6c37e981dcbcfceb03ae6"
+          }
         }
       ],
       "verdicts": [
@@ -180709,13 +180768,26 @@
             "by": "server",
             "mac": "59ae7144eae4d449bd27da529a9ee625dbcf2ebbc837484e483a205d479532d4"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Delete errors dropped; no panic paths in the new proc-reading code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3636"
+          ],
+          "recorded_at": "2026-11-27T03:39:34.598219213Z",
+          "seal": {
+            "by": "server",
+            "mac": "20a32fb227ea37c7a7999a942db874fb93053efddbea09e191b0d7c6ff99d466"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.341969076Z",
+      "updated_at": "2026-11-27T03:39:34.598219213Z",
       "seal": {
         "by": "server",
-        "mac": "8e7dcddd2c6d1863e0bc548905da1ed7be113fe95d3b49a0b969b0e41e134f69"
+        "mac": "83279af888fb1fdf10c8e4faf4d163ecf56258f1a0451435ae8d20db195718cc"
       }
     },
     {
@@ -180784,6 +180856,28 @@
             "by": "server",
             "mac": "74b4928d2612756d062f1d73b3aa19878cc21be7be10eae1982142592ccce839"
           }
+        },
+        {
+          "id": "EVD-3637",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs:182-207,339-357 @ 607e27c1; the_sweep_removes_old_folders_up_to_the_cap (line 498)",
+          "summary": "Still a detached thread (JoinHandle dropped) with .take(cap), SWEEP_CAP 500, and the /proc scan inside the thread. The cap test passes in my 15-test rerun (removed 3 of 5 old with cap 3).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 357
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:19.042817440Z",
+          "seal": {
+            "by": "server",
+            "mac": "344f760e459e49a755f4e280a9eaad8d1aeee4c3aeba3c9fe5f51f9b80973350"
+          }
         }
       ],
       "verdicts": [
@@ -180813,13 +180907,26 @@
             "by": "server",
             "mac": "603f87f835c7837085afe43859abbbf31dc75236e49b674aa712bf225d6fc6de"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Detached thread and cap unchanged; cap test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3637"
+          ],
+          "recorded_at": "2026-11-27T03:39:34.740273708Z",
+          "seal": {
+            "by": "server",
+            "mac": "81577c5083ada05e42b6dbde33e7d310d6c6df932d515eee46256ad0efb5bb2f"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.451362494Z",
+      "updated_at": "2026-11-27T03:39:34.740273708Z",
       "seal": {
         "by": "server",
-        "mac": "1156a6fa4f7638a1423578131e624c45cd69f28994f42edcdd255d9744468e75"
+        "mac": "63e6fc64e56fb0ca12130755215993cc55dbb1fdab7e3075563efc8b811c19b1"
       }
     },
     {
@@ -180876,6 +180983,28 @@
             "by": "server",
             "mac": "1dad84ab4ba4b048027788f4620456a1df734a3843b594f98688d7184bdaeb0a"
           }
+        },
+        {
+          "id": "EVD-3638",
+          "kind": "analysis",
+          "locator": "grep -n 'println\\|dbg!\\|tracing\\|log::' tests/ui_e2e/browser_home.rs @ 607e27c1; tests/ui_e2e/browser_home.rs:182-290",
+          "summary": "Only two print lines exist (eprintln! at 199: the count; at 203: a spawn io::Error). ProcRead derives Debug, but no code formats a ProcRead or any cmdline: the tests use assert!/assert_eq on Option/usize/Vec results; the one assert_eq in the new tests compares Some(vec![b\"chrome\"]) built in the test, not real cmdlines. Cmdline bytes only go into Vec and a windows() compare.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 290
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:19.227166593Z",
+          "seal": {
+            "by": "server",
+            "mac": "f594ab3d0be1fe5da333ff4c11909b4ae57e299d72deaea0199389bf515db0ae"
+          }
         }
       ],
       "verdicts": [
@@ -180904,13 +181033,26 @@
             "by": "server",
             "mac": "178ca5c0433f26c5670cdd8daee1b8c2f5dbdc8b37454e50fe0986f58699872d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Only a count and a spawn error are printed; no ProcRead or cmdline is formatted by non-test code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3638"
+          ],
+          "recorded_at": "2026-11-27T03:39:34.894249549Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cba5a07944dc3ac2af352213068ec56317531e3bc31919183bc759a4d912241"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.560728891Z",
+      "updated_at": "2026-11-27T03:39:34.894249549Z",
       "seal": {
         "by": "server",
-        "mac": "082f147668bf8cc4f23c21f16c52c1545d94322188f413d75ef14ba7a51d9f9e"
+        "mac": "863b72c8f08317f8aefb29efdab0c8126f3ff96cba8ebcd39fce63dcd30609cc"
       }
     },
     {
@@ -180967,6 +181109,28 @@
             "by": "server",
             "mac": "b14a3c1a05e4000f453c6bf20ea79aab9d3bce6604e0c2c8bf91e80ed580e714"
           }
+        },
+        {
+          "id": "EVD-3642",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: @ 607e27c1 (15 passed)",
+          "summary": "All sweep tests build their folders with tempfile::tempdir() and pass it as the temp argument, with hand-built cmdline lists or ProcRead scans; none reads the real /tmp or real /proc. Age, prefix, in-use, symlink, ownership, cap, empty and incomplete snapshot are each covered and pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 360,
+                "end": 609
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:20.007139897Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a3f581e8f9bc4f3d2a3dfb402eea4f7ca0ed22161a7880da053379a1c22aaf7"
+          }
         }
       ],
       "verdicts": [
@@ -180995,13 +181159,26 @@
             "by": "server",
             "mac": "08a77d5d8b8019bc93f00465012bd62384a9ee82630247253572897a06411f5f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All sweep tests use fake dirs and hand-built process data, and pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3642"
+          ],
+          "recorded_at": "2026-11-27T03:39:35.425070645Z",
+          "seal": {
+            "by": "server",
+            "mac": "74f13078a2da2769b7fc391eb05c03c1bd7cb854f2062fae1dc40bdaa4f57552"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.998994434Z",
+      "updated_at": "2026-11-27T03:39:35.425070645Z",
       "seal": {
         "by": "server",
-        "mac": "fa14cad1860a0ce3cbfc69631a360f0d18ecb9930c4d685d717559e0990474fe"
+        "mac": "902787195e3ceb0be834ad8c3010b6f8f9b5cbd59be56b609c16b1d9376173e9"
       }
     },
     {
@@ -181116,6 +181293,28 @@
             "by": "server",
             "mac": "a2515eba7f194f1275847d589ac0a9f974287e52e62a5eed5d2cee63be3ff552"
           }
+        },
+        {
+          "id": "EVD-3640",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:182-207,242-264 @ 607e27c1",
+          "summary": "all_cmdlines() is called once, in the sweep thread closure, as `all_cmdlines().as_deref()` passed to sweep_stale; there is one pass over /proc. The Option<Vec<Vec<u8>>> is never printed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 264
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:19.626511321Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5b078aa451303a1fcc192f94a0cf6283eb4a8520b77191279eaa413989e2de6"
+          }
         }
       ],
       "verdicts": [
@@ -181144,13 +181343,26 @@
             "by": "server",
             "mac": "05ed46fe2ee0ea703a7f1117c334bfc4d787660991ab6167c4ec54c682bdfa31"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "One scan per process, in the sweep thread, never printed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3640"
+          ],
+          "recorded_at": "2026-11-27T03:39:35.158501348Z",
+          "seal": {
+            "by": "server",
+            "mac": "daa9af15c6e8a29323d06d8afb90d7c7eece0fffd6669b5aa06593e47192d92d"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.780306519Z",
+      "updated_at": "2026-11-27T03:39:35.158501348Z",
       "seal": {
         "by": "server",
-        "mac": "2e9d08edcf4c81a1f7b8c79d06975cb987944e2dbe6acb480dd1508ebfa6c6e6"
+        "mac": "d12b956729407231b02d64cf988603c6585b694564a528fb4bd567f37c1d02d1"
       }
     },
     {
@@ -181265,6 +181477,28 @@
             "by": "server",
             "mac": "985b1c5b86018964b2b889a7b7dce0803b7fdd56b38993172e5ee196b24775fb"
           }
+        },
+        {
+          "id": "EVD-3641",
+          "kind": "test",
+          "locator": "grep -n '    fn ' in tests module of tests/ui_e2e/browser_home.rs; cargo test --test ui_e2e -- browser_home:: @ 607e27c1",
+          "summary": "The change adds eleven tests (15 in the module, 4 older): the six listed before plus an_unreadable_process_of_this_user_makes_the_snapshot_incomplete, an_unreadable_process_of_unknown_owner_makes_the_snapshot_incomplete, a_vanished_process_and_another_users_process_do_not, nothing_is_deleted_when_a_relevant_process_could_not_be_checked, a_vanished_process_does_not_stop_the_sweep. All 15 pass in my rerun. The PR body statement lists areas (prefix and age, in-use, symlink, ownership, cap) which are still covered; it does not name the process-snapshot tests and should if it claims a full list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 360,
+                "end": 609
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:19.813271323Z",
+          "seal": {
+            "by": "server",
+            "mac": "03e5d6c3b780195af8a69c663074c2c642abaa864805940d2d2f2d522df36528"
+          }
         }
       ],
       "verdicts": [
@@ -181293,13 +181527,26 @@
             "by": "server",
             "mac": "ebf50554131227c0b8981c514db8d94ea2afc36ef5d6cbcea1bb6108a8e054c6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Listed areas are covered and all 15 tests pass; the statement's \"5 new tests\" count is stale (11 now). Fix: drop the count from the PR statement or say 11 new tests, naming the process-snapshot tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3641"
+          ],
+          "recorded_at": "2026-11-27T03:39:35.289391829Z",
+          "seal": {
+            "by": "server",
+            "mac": "138fde275b35d5153a06e77b73194ba60e2b0a2bb228767c548900972d63f308"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:48.889554516Z",
+      "updated_at": "2026-11-27T03:39:35.289391829Z",
       "seal": {
         "by": "server",
-        "mac": "2cc62b4f626479be0b3ee69deb5b6ce27d5b5f0ccbc68cf92b1f339e381de17a"
+        "mac": "c5b835410431b1bc51d44e4ed7ceaa43ff5b723bbfe3f5b345b155aba9efca7c"
       }
     },
     {
@@ -181405,6 +181652,18 @@
             "by": "server",
             "mac": "773f33cce2e650280e901148ff10707f2795cc9a22fe71fb635f3f57f84c66f9"
           }
+        },
+        {
+          "id": "EVD-3643",
+          "kind": "log",
+          "locator": "target/i1078-logs/fmt.log, lint.log, dylint.log (22:37:56-22:38:09); tests/ui_e2e/browser_home.rs mtime 22:37:56.88; HEAD 607e27c1",
+          "summary": "The logs were written at or after the last edit of browser_home.rs. fmt.log is the `cargo fmt --all --check` command line with no diff output. lint.log ends with clippy and doc Finished and docs generated; dylint.log ends `Finished dev profile`. None of the three has a warning or error line. I read the logs; I did not rerun dylint.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:54:14.030758055Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6a2137e961453098ea99ba011a5559b29ce36976a72caea1f93945414a6de82"
+          }
         }
       ],
       "verdicts": [
@@ -181433,13 +181692,26 @@
             "by": "server",
             "mac": "a2abe01b34ec27474e635ba0bd891c50d7dbefcc6710d618ac874e5c94bc3aa6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "fmt, lint and dylint logs postdate the last source edit and show no diagnostics.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3643"
+          ],
+          "recorded_at": "2026-11-27T03:54:20.484075924Z",
+          "seal": {
+            "by": "server",
+            "mac": "269f8ea6639d775c0bbfce2379dd4ff4fd6076460b70cc1eda722115099be9f5"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T03:19:49.110060140Z",
+      "updated_at": "2026-11-27T03:54:20.484075924Z",
       "seal": {
         "by": "server",
-        "mac": "07960f4c860c30eb63fdfe34ff524bc4d684a13545825707a287af649818631e"
+        "mac": "5919f887e4b4e283c4599d18e991421fe493f7411a011f24818a0f52d78ce31b"
       }
     },
     {
@@ -181643,6 +181915,18 @@
             "by": "server",
             "mac": "b0f8af31bcb5323b7eaf459009121b79cf00a6f632d9b0c74c88ff416e724ea5"
           }
+        },
+        {
+          "id": "EVD-3644",
+          "kind": "log",
+          "locator": "target/i1078-logs/mcpjam.log (started 22:38:21)",
+          "summary": "`Tests 29 passed (29)`, run after the last source edit at 22:37:56. The change touches only a Rust test file, so this count is not affected by it.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:54:14.214010902Z",
+          "seal": {
+            "by": "server",
+            "mac": "f97ff454aee93e0075cefafc25148294f34cbf87253b0785bbe8183053820eb8"
+          }
         }
       ],
       "verdicts": [
@@ -181658,13 +181942,26 @@
             "by": "server",
             "mac": "83f58d4b08a4ff07ff9494407425ac702fb5b93450ad39aa0f7692b3a5159d74"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "mcpjam.log shows 29 passed after the last edit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3644"
+          ],
+          "recorded_at": "2026-11-27T03:54:20.690755213Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a50ead3efcfbd284836ea6f43ad15405497bdb0c8a6e3691392e8649d37666a"
+          }
         }
       ],
       "created_at": "2026-11-27T02:56:00.384161719Z",
-      "updated_at": "2026-11-27T02:57:41.959479358Z",
+      "updated_at": "2026-11-27T03:54:20.690755213Z",
       "seal": {
         "by": "server",
-        "mac": "1529dccd3e55f285d804607e54bd460e22f7801611cec9ab3095339b921bb575"
+        "mac": "6c337a0e7b2f0fced055fc286c319cefd8d5f28b734ff1748d6ac964321fb726"
       }
     },
     {
@@ -181686,7 +181983,9 @@
         "pr-body"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: the count changed from 3707 to 3712 at HEAD 607e27c1.",
+        "retired_at": "2026-11-27T03:58:29.299689846Z"
       },
       "evidence": [
         {
@@ -181718,10 +182017,10 @@
         }
       ],
       "created_at": "2026-11-27T03:19:53.028625755Z",
-      "updated_at": "2026-11-27T03:20:03.139168854Z",
+      "updated_at": "2026-11-27T03:58:29.299689846Z",
       "seal": {
         "by": "server",
-        "mac": "815e84ab2d3a3303e013b7e5a104afad199ee33835238ab7889924a64feca218"
+        "mac": "b8750cb6edd27d82c1c28afacc1b3e0337acc6c3410fe54e6add7aeb6fcc6734"
       }
     },
     {
@@ -181743,7 +182042,9 @@
         "pr-body"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: the count changed again after more sweep tests were added at HEAD 607e27c1.",
+        "retired_at": "2026-11-27T03:54:13.858915453Z"
       },
       "evidence": [
         {
@@ -181775,10 +182076,225 @@
         }
       ],
       "created_at": "2026-11-27T03:19:53.028625755Z",
-      "updated_at": "2026-11-27T03:20:03.252697088Z",
+      "updated_at": "2026-11-27T03:54:13.858915453Z",
       "seal": {
         "by": "server",
-        "mac": "ca05aeb0c5986310b245c438dba379a0e9dba4dca0ea8769b8b648260092cc74"
+        "mac": "a1707704e52fe83e64af65ae53fc4cedb19ec8fcda25fd9fb11de0afb2193332"
+      }
+    },
+    {
+      "id": "CLM-2039",
+      "statement": "The sweep keeps a folder whose path appears in a running process's command line, and deletes nothing when the process snapshot is incomplete: a process owned by this user (or by an unknown owner) could not be read, or /proc could not be listed. Vanished processes and other users' unreadable processes are ignored.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1078: 'not used by any running process' (restated after review of PR #1137)",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3633",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:209-290,339-357 @ 607e27c1",
+          "summary": "all_cmdlines returns None when /proc cannot be listed; read_proc classifies each entry as Cmdline, Vanished (ENOENT/ESRCH) or Inaccessible{owner}; snapshot returns None for an Inaccessible process whose owner is this uid or unknown and ignores Vanished and other-owner ones; a listing error for an entry counts as unknown-owner Inaccessible. sweep_stale returns 0 for None or an empty list, otherwise stale_folders drops every folder whose path bytes occur in a cmdline. Residue: an unreadable process of another user, and one that vanished mid-scan, are ignored.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 209,
+                "end": 357
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:18.283994575Z",
+          "seal": {
+            "by": "server",
+            "mac": "7fdef320e96b6d19d2dd606fe473a5948188b077801fbd5dbbc65b4eedc80ec7"
+          }
+        },
+        {
+          "id": "EVD-3634",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: @ 607e27c1 (15 passed)",
+          "summary": "Rerun by me: 15 passed, 0 failed. The tests assert: a live folder is not selected (a_folder_named_by_a_running_process_is_kept); an unreadable process of this user, and one of unknown owner, make snapshot return None; a vanished process and another user's unreadable process do not; with an incomplete snapshot sweep_stale removes 0 and the old folder stays; with only a vanished process it removes 1; Some(&[]) removes 0. Gap: these drive snapshot and sweep_stale with hand-built ProcRead values; read_proc's error classification against a real /proc is not unit tested.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 400,
+                "end": 609
+              },
+              "commit": "607e27c12fb6423ad6188139b35f05a03ca543bd"
+            }
+          },
+          "recorded_at": "2026-11-27T03:39:18.477852696Z",
+          "seal": {
+            "by": "server",
+            "mac": "b547ba4804a135050804d3fd1c87d4b9da89258797fb0d1eb4d595d16bfa9f22"
+          }
+        },
+        {
+          "id": "EVD-3635",
+          "kind": "demonstration",
+          "locator": "shell loop over /proc/[0-9]* owned by me (test -O), counting cat <pid>/cmdline failures; output only counts",
+          "summary": "On this machine 196 processes are owned by me and 0 of them have an unreadable cmdline, so the new None rule does not by itself disable the sweep here. Nothing from the cmdlines was printed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T03:39:18.669257640Z",
+          "seal": {
+            "by": "server",
+            "mac": "c1b619e7224232828f72b5d8c96593a3c647104fb5e9db310dc37fd8ba1ff525"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and the 15 passing tests show a folder named by a process is kept and that nothing is deleted when a process of this user or unknown owner could not be read or /proc could not be listed; vanished and other-user cases are ignored as stated. read_proc's real-/proc classification is not unit tested; my demonstration (EVD-3635) is neutral.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3633",
+            "EVD-3634"
+          ],
+          "recorded_at": "2026-11-27T03:39:34.259018854Z",
+          "seal": {
+            "by": "server",
+            "mac": "e21279b59ef5acc74b2cc252482afcda3f9b205bb09abce3f5fc9df8e3396bca"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T03:38:52.730184679Z",
+      "updated_at": "2026-11-27T03:39:34.259018854Z",
+      "seal": {
+        "by": "server",
+        "mac": "297c4a9686c7c47c0bf05a730668c000eb95629c6437799dd76d60523035302f"
+      }
+    },
+    {
+      "id": "CLM-2040",
+      "statement": "gate.sh test-ui on HEAD 607e27c1: 321 passed, 1 ignored.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body (updated): '`gate.sh test-ui`: 321 passed, 1 ignored'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/ui.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3645",
+          "kind": "log",
+          "locator": "target/i1078-logs/ui.log final result line (22:53:45)",
+          "summary": "`test result: ok. 321 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 651.22s`, written after the last source edit (22:37:56) at HEAD 607e27c1.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:54:20.274695046Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4e9c2ff006c9fdc5ac7df59eef6fcd0db1f1ca4329a73d4d8ab93c8d804c90b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "ui.log result line shows 321 passed, 1 ignored, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3645"
+          ],
+          "recorded_at": "2026-11-27T03:54:24.161852694Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e5412a79fe636e4189e1c4524049a046eb52088e3750c1c60114477bd8552d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T03:54:13.676026457Z",
+      "updated_at": "2026-11-27T03:54:24.161852694Z",
+      "seal": {
+        "by": "server",
+        "mac": "ba7f8d419574e327adc35ce90053c122ac69a4e76049da874f62414176fcc568"
+      }
+    },
+    {
+      "id": "CLM-2041",
+      "statement": "gate.sh test on HEAD 607e27c1 (clean run): 3712 tests run, 3712 passed, 20 skipped (nextest); doctests 30 passed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body (updated): '`gate.sh test`: 3712 passed, 20 skipped (nextest); doctests 30 passed'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/test.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3646",
+          "kind": "log",
+          "locator": "target/i1078-logs/test.log:3842 and :7598 (nextest Summary); :3879 and :7635 (doctests); log last written 22:58:17",
+          "summary": "Both nextest runs in the log print `3712 tests run: 3712 passed, 20 skipped`; both doctest runs print `30 passed; 0 failed; 1 ignored`. No FAIL line. This is the clean re-run after an earlier run at this HEAD hit a failure of tls verify_full_connects_encrypted_to_a_server_its_ca_signed (reported to me as the known flake #1083); that earlier run's log is not in the file, so I could not read it.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:58:32.349059505Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8b38bdc3ddae4c43f2d85c8872eb413b672b87c330deb3d4f1d5a0ace6497e4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The log's results match the statement exactly (3712 run, all passed, 20 skipped, doctests 30). It is a clean re-run; the earlier flaky failure was not seen by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3646"
+          ],
+          "recorded_at": "2026-11-27T03:58:34.857853630Z",
+          "seal": {
+            "by": "server",
+            "mac": "603a3e6429dc4a3e16e4d47287d8dc46431e712bf5eb9426cda5daa2c728ee7c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T03:58:29.185352921Z",
+      "updated_at": "2026-11-27T03:58:34.857853630Z",
+      "seal": {
+        "by": "server",
+        "mac": "a749f61658186ac23e36745a50e1fa9f306fe210db0f14bfb67a21b6851d3930"
       }
     }
   ]

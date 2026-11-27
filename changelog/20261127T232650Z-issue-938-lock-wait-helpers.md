@@ -18,7 +18,9 @@ the code under test reaching the lock the test means. They now use `src/test_loc
   on the rotation's row, which is the race it tests.
 - `test_locks::wait_row_lock_waiters` is new (test-only): it waits for `count` sessions on one row.
   The second session after a row queues for the first one's `tuple` lock rather than the holder's
-  transaction, so it is counted once some session waits for the holder itself.
+  transaction, so it is counted only when `pg_blocking_pids` names a session that waits for the
+  holder itself; a queue on another row of the same table, behind another holder, is not (review of
+  PR #1184, regression test `a_queue_on_another_row_of_the_table_is_not_counted_for_the_holder`).
   `wait_row_lock_waiter` is `wait_row_lock_waiters` with a count of one.
 - The `query LIKE 'LISTEN%'` checks (`invalidate.rs`, `invalidate/store_feed_tests.rs`,
   `mail/queue.rs`) find idle LISTEN connections, not lock waits, and are unchanged.

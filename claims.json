@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "ece8f5a36a06adde11d24afaca7967dc4595a15b49657c0dfc1dd5d1067790a3"
   },
-  "next_evidence_seq": 3674,
+  "next_evidence_seq": 3675,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e0896f9b911b83e58cad1516496b0376ecb18d2f2d178bbc85690c7bb0bd2a3a"
+    "mac": "73ba86c0c1d25fc76b3f7f73ae85e4b5882beb2a2ddb5c5278143d0c6fa535eb"
   },
   "claims": [
     {
@@ -183736,7 +183736,7 @@
     },
     {
       "id": "CLM-2061",
-      "statement": "The PR adds a changelog/ entry for issue 1086 and changes only teams.js, users.js, keys.js, the three ui_e2e files and that entry.",
+      "statement": "The PR adds a changelog/ entry for issue 1086 and changes only teams.js, users.js, keys.js, the three ui_e2e files, that entry and claims.json (the audit ledger, which records this audit).",
       "kind": "documentation",
       "level": "artifact",
       "integrity_level": 1,
@@ -183772,6 +183772,24 @@
             "by": "server",
             "mac": "d19708e9be18021d20088434bfcff1a8ce91f9562ec079cdfe23f63610fe2692"
           }
+        },
+        {
+          "id": "EVD-3674",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "8 files: the changelog entry, claims.json (the audit ledger), keys.js, teams.js, users.js and tests/ui_e2e/{keys,teams,users}.rs. Nothing else changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T04-40-33Z-issue-1086-stale-lists.md",
+              "commit": "b4d181474186eb85f57917647625854dbdc8ce67"
+            }
+          },
+          "recorded_at": "2026-11-27T05:12:04.886047080Z",
+          "seal": {
+            "by": "server",
+            "mac": "b18e7190ea64b12a79751b6b0e7d2b5e935b0d6f6393bb6739aaeaf1bb03d53e"
+          }
         }
       ],
       "verdicts": [
@@ -183787,13 +183805,26 @@
             "by": "server",
             "mac": "0db6a0b47a32344cc3c2201a25134abc53c337c8133cd2b20099298302f7119b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The diff stat against origin/main lists exactly the eight files the restated claim names, claims.json included.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3674"
+          ],
+          "recorded_at": "2026-11-27T05:12:07.463534142Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fafeea759fd48ea46f216802c73be7e8daea57a5a54275c40c813b0209916de"
+          }
         }
       ],
       "created_at": "2026-11-27T05:04:13.842682487Z",
-      "updated_at": "2026-11-27T05:05:14.270723449Z",
+      "updated_at": "2026-11-27T05:12:07.463534142Z",
       "seal": {
         "by": "server",
-        "mac": "7691a2f31e82c72305216a70ed609d48531af8a4c0f6a1239236af56082cb54a"
+        "mac": "baad7b305c9e4378de3a58fe328fbc6da8322b054cebbe3dde74e55f7f3787df"
       }
     }
   ]

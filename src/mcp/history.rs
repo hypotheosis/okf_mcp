@@ -22,7 +22,9 @@ use crate::mcp::context::ToolContext;
 use crate::mcp::{reply, OkfServer};
 use crate::okf::paths::{escapes_root, normpath};
 use crate::store::audit::AccessKind;
-use crate::store::history::{recent_by, revisions_by, Filter, RecentCursor, RecentRow, RECENT_MAX};
+use crate::store::history::{
+    latest_revision, recent_by, revisions_by, Filter, RecentCursor, RecentRow, RECENT_MAX,
+};
 use crate::store::users::{filter_id, names_by_ids, DELETED_USER_PREFIX};
 
 /// The design's default `limit`.
@@ -80,6 +82,8 @@ pub struct History {
     pub path: String,
     /// The revision published now, whatever the filters: null when the path has no live document (it was deleted). Pass it as `expected_revision` to `revert`.
     pub current_revision: Option<i32>,
+    /// The path's newest revision number, whatever the filters, including a `delete` revision: for a deleted path this is the deletion's number. Pass it as `expected_revision` to `revert` to guard a restore of a deleted document. Equals `current_revision` while the document is live.
+    pub latest_revision: Option<i32>,
     /// Newest first.
     pub revisions: Vec<Revision>,
 }
@@ -319,6 +323,7 @@ pub(crate) async fn history(ctx: &ToolContext, params: HistoryParams) -> Result<
                 catalog_label: ctx.catalog_label(state.name()).await?,
                 path: format!("/{path}"),
                 current_revision: state.current().revision(path),
+                latest_revision: latest_revision(db.executor(), state.id(), path).await?,
                 revisions,
             });
         }
@@ -621,6 +626,7 @@ mod tests {
         assert_eq!(found.revisions.len(), 1);
         // The live revision, to pass back as `revert`'s `expected_revision`.
         assert_eq!(found.current_revision, Some(1));
+        assert_eq!(found.latest_revision, Some(1));
         assert_eq!(found.revisions[0].op, "import");
         assert_eq!(found.revisions[0].actor, "tester");
         assert!(found.revisions[0].at.ends_with('Z'));

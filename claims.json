@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2143,
+  "next_claim_seq": 2152,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "fe2d614a03d5692b2af630ec5e40f51445567704014361d943529c28df7566b0"
+    "mac": "01511478f788f2a9b539b533f3273b9a1a8fac7512593daa3c329b6e93492515"
   },
-  "next_evidence_seq": 3803,
+  "next_evidence_seq": 3815,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "843f4f962c803ac18f8b5fd89327afbce5d918f619744f953e1f89720e4e1f0b"
+    "mac": "007c04beffc8cfa0acd79ec1455fbdcd0eea3b7edf43daa9e6ab18eaf652e494"
   },
   "claims": [
     {
@@ -1991,6 +1991,28 @@
             "by": "server",
             "mac": "15011e9f8193c0024c1144d667c43283f3a80e0146021935aa671eaf715c3b50"
           }
+        },
+        {
+          "id": "EVD-3812",
+          "kind": "analysis",
+          "locator": "regex extraction of ^| `okf_* names in docs/operations.md vs string literals of Metrics::ALL_FAMILIES at 47ba7d07",
+          "summary": "Re-audit after the diff added okf_oauth_refreshes_total to both: symmetric difference of the two name sets is empty (33 underscore-named each in my extraction; dotted ones excluded on both sides).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 270,
+                "end": 312
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T12:00:56.452787916Z",
+          "seal": {
+            "by": "server",
+            "mac": "832e0f58fb1c20e610603f5d67eee2933c5b04773f1f81bbc640476281ed9353"
+          }
         }
       ],
       "verdicts": [
@@ -2032,13 +2054,26 @@
             "by": "server",
             "mac": "fcb125d1762fe7b883dc578b5c44d195cfe2b1c0ed76837e77ea9b50d0db84c2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: docs table and ALL_FAMILIES match with the new family on both sides.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3812"
+          ],
+          "recorded_at": "2026-11-27T12:01:12.767210893Z",
+          "seal": {
+            "by": "server",
+            "mac": "3dcbc5025fb20a90783ca3f634509bda4ff39c6632be97d8bf28e76808134696"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:29.655947925Z",
-      "updated_at": "2026-11-26T13:09:52.334874890Z",
+      "updated_at": "2026-11-27T12:01:12.767210893Z",
       "seal": {
         "by": "server",
-        "mac": "bf394391dc07273d62cfa3337498cb4e028abf9a98fe2a812a086bd55fa3e88f"
+        "mac": "e1d4b101dd944de93f2495d7e37b82b97fccecf532c27e6057f71d0dbb294500"
       }
     },
     {
@@ -8598,6 +8633,28 @@
             "by": "server",
             "mac": "da3e926e5aed069f80712a1763a9c74c67af9d5d4ce101422566c4e04731d30f"
           }
+        },
+        {
+          "id": "EVD-3813",
+          "kind": "test",
+          "locator": "src/oauth/token.rs:520,593-600; tools/agentic/gate.sh narrow --lib -- oauth::token (a_reused_refresh_says_so_on_its_span ok)",
+          "summary": "After refresh_label became refresh_result, span.record(\"okf.refresh\", result.as_str()) still maps the four RefreshUse cases to rotated/grace/reused/unknown; the existing span tests (rotated at :986, reused at :1248) pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 590,
+                "end": 601
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T12:00:56.610752166Z",
+          "seal": {
+            "by": "server",
+            "mac": "b4dc9276926ae4907e37524b8ea800f90351869de868c6121725c89c4b7d7eb1"
+          }
         }
       ],
       "verdicts": [
@@ -8613,13 +8670,26 @@
             "by": "server",
             "mac": "1c6984cc4dbb141b916084c1dc8d3eed48dc0cad381339e37b94da4304a01617"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the refresh_label rename: span still records the four values.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3813"
+          ],
+          "recorded_at": "2026-11-27T12:01:12.945404557Z",
+          "seal": {
+            "by": "server",
+            "mac": "33d6aef450163ad5d4b5f7f9f42aea8470844a63f23022ce28dee6df21290735"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-21T19:10:45.470749522Z",
+      "updated_at": "2026-11-27T12:01:12.945404557Z",
       "seal": {
         "by": "server",
-        "mac": "7073f4518cbbb95461c93627ac92448eea32d4c247f806adf8549b4596701073"
+        "mac": "70879cc6105d5deb5e9af2cdad4553af299ef2afed48afa4cb7b59d4134efda5"
       }
     },
     {
@@ -190385,6 +190455,602 @@
       "seal": {
         "by": "server",
         "mac": "ee4e732f970f8dc7b2dbd2bbd9b36d51f413b7b5d069b0bf3bdf7af4522cb445"
+      }
+    },
+    {
+      "id": "CLM-2143",
+      "statement": "Issue #887 is delivered: okf_oauth_refreshes_total{result} counts OAuth refresh results with documentation, an example alert and tests.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/887",
+      "derived_from": [],
+      "artifacts": [
+        "src/oauth/token.rs",
+        "src/telemetry/metrics.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3814",
+          "kind": "analysis",
+          "locator": "children of CLM-2143",
+          "summary": "The children cover each issue requirement (counter and closed set, same-value recording, pre-registration, docs row plus alert, one test per result) and the PR description's extra statements (dashboard panel, no alert rules, OTLP note); all are supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T12:01:16.032960302Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e426e29742e1c2907c448f114e481200a8c2ef9f87fdbe1310f2a4e51cef58d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All nine children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3814"
+          ],
+          "recorded_at": "2026-11-27T12:01:18.754153786Z",
+          "seal": {
+            "by": "server",
+            "mac": "39e6c94f2c49c96c5dd6d0bb263ddd905ef26deacb33d578dabc06a3a57ef394"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:18.754153786Z",
+      "seal": {
+        "by": "server",
+        "mac": "2af684f6d1b993e88ac02c26926211471f7d48584059add1c78734b191edae46"
+      }
+    },
+    {
+      "id": "CLM-2144",
+      "statement": "A counter okf_oauth_refreshes_total with label result (OTel instrument okf.oauth.refreshes) exists, with result limited to the closed set rotated, grace, reused, unknown.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #887: counter okf_oauth_refreshes_total{result} (OTel okf.oauth.refreshes); closed set rotated/grace/reused/unknown",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3803",
+          "kind": "inspection",
+          "locator": "src/telemetry/metrics.rs:410-418,887-911,1087-1092",
+          "summary": "Counter okf.oauth.refreshes built via counter(); okf_oauth_refreshes_total listed in ALL_FAMILIES; the only recorder is oauth_refresh(RefreshResult) with label \"result\" from RefreshResult::as_str; RefreshResult is a four-variant enum (rotated/grace/reused/unknown), so the set is closed by type.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 885,
+                "end": 911
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:30.335115689Z",
+          "seal": {
+            "by": "server",
+            "mac": "d73e7a283e8587d6db51fa855b0d051e22de37e482ea94bf5e858dcf1c1b5b5a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Counter and closed enum exist as specified.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3803"
+          ],
+          "recorded_at": "2026-11-27T12:01:11.198690538Z",
+          "seal": {
+            "by": "server",
+            "mac": "3999f24837ba1281133dedc1a3050166a02afe7b965b6123aee4e4be0bcc1f4e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:11.198690538Z",
+      "seal": {
+        "by": "server",
+        "mac": "06683516f0f45b76e7aedb9e8b732a50672a40761b780bda14b342c9de681f8a"
+      }
+    },
+    {
+      "id": "CLM-2145",
+      "statement": "`refresh` in src/oauth/token.rs computes one RefreshResult and uses that same value for both the okf.refresh span attribute and the counter, so they cannot drift.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #887: recorded in refresh from the same value as the span; PR body: 'refresh ... computes one RefreshResult (from refresh_result, formerly refresh_label) and uses it for both the span and the counter, so they cannot drift.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3804",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:517-521,593-600",
+          "summary": "`let result = refresh_result(&found); span.record(\"okf.refresh\", result.as_str()); app.metrics().oauth_refresh(result);` : one value feeds both; refresh_result is an exhaustive match on RefreshUse. No other caller of the old refresh_label remains (grep: only the changelog mentions it).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 515,
+                "end": 522
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:30.469786804Z",
+          "seal": {
+            "by": "server",
+            "mac": "fba31809bd34d13e2b7c8ccba46cca89fcefe6e819eedb74e7a905e2b2cfe643"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single local `result` feeds both span and counter; behaviour also covered by the span tests plus the counter tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3804"
+          ],
+          "recorded_at": "2026-11-27T12:01:11.406568106Z",
+          "seal": {
+            "by": "server",
+            "mac": "2173666b409aefacebbd73ec29b6ba46c88634c41e168d3ab3a57bf469765cea"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:11.406568106Z",
+      "seal": {
+        "by": "server",
+        "mac": "22ea8d5c8a38eacfcf76a5243c06946a3b09a9dfc9527cbb18e5225dd0e0f67d"
+      }
+    },
+    {
+      "id": "CLM-2146",
+      "statement": "Metrics::new registers all four result series at zero, so they appear in the first scrape before any refresh.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #887: all four series pre-registered; PR body: 'Metrics::new registers all four series at zero, so they exist from the first scrape.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3805",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- oauth::token::tests::every_refresh_result_series (passed, 15/15 in the oauth::token filter)",
+          "summary": "Metrics::new loops RefreshResult::ALL adding 0 per series (metrics.rs:317-330); every_refresh_result_series_exists_before_any_refresh renders the registry and asserts all four samples are Some(0.0); it passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 317,
+                "end": 329
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:30.608052831Z",
+          "seal": {
+            "by": "server",
+            "mac": "98d5bd33a450d09bb899b12956662e96af315828df49d9a751ddda8ff1b03814"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Pre-registration code plus a passing test asserting all four series at 0 before any refresh.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3805"
+          ],
+          "recorded_at": "2026-11-27T12:01:11.586851306Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d5d4a7a88ab5c76f2ebc471fd4f9dc1481c74bb6a55739a3b46f2a827fc3e5f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:11.586851306Z",
+      "seal": {
+        "by": "server",
+        "mac": "c98fc50fe62a7f843c3af7b0bdad222847ce487b098fd549e8a18d7f88d795d6"
+      }
+    },
+    {
+      "id": "CLM-2147",
+      "statement": "docs/operations.md has a row for okf_oauth_refreshes_total in the metrics table and the example alert `increase(okf_oauth_refreshes_total{result=\"reused\"}[1h]) > 0`.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #887: a row in the metrics table in docs/operations.md plus an example alert; PR body: 'docs/operations.md: metrics-table row, and the example alert'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3806",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1668,4971-4977",
+          "summary": "Metrics-table row at line 1668 (counter, label result, four values); the example alert text at 4977 is exactly `increase(okf_oauth_refreshes_total{result=\"reused\"}[1h]) > 0`. The row links to #concurrent-refreshes, which exists (heading at line 4952).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4971,
+                "end": 4978
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:30.746686169Z",
+          "seal": {
+            "by": "server",
+            "mac": "38317f98ba1bb91db8947ec6ddb856c59571246317b96da45c478e0689310c69"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Table row and exact alert expression present; the anchor link target exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3806"
+          ],
+          "recorded_at": "2026-11-27T12:01:11.790078760Z",
+          "seal": {
+            "by": "server",
+            "mac": "cbbfd099e720f91a6f773d1427a8a970f44bc42cfbe788d815072f3487d222b5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:11.790078760Z",
+      "seal": {
+        "by": "server",
+        "mac": "607f4abba4ed2b022fe6d90c2453af50de9eb47aecf88e2fae080be16fd98bb5"
+      }
+    },
+    {
+      "id": "CLM-2148",
+      "statement": "One test per result checks the series: a first rotation counts rotated, a racing rotation in the window counts grace, a reuse with the window off counts reused, an unknown token counts unknown; each asserts all four counts.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #887 tests; PR body: 'Tests: one per result ... plus one that all four series exist before any refresh.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3807",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- oauth::token::tests::a_ oauth::token::tests::an_unknown oauth::token::tests::every_refresh (15 passed, 0 failed)",
+          "summary": "The four tests (token.rs:1022,1038,1056,1077) drive the real /oauth/token route and assert refresh_counts equal [1,0,0,0], [1,1,0,0], [1,0,1,0], [0,0,0,1] respectively, plus the 200/400 status. Reuse test sets refresh_reuse_grace to ZERO; use_refresh returns Reused when grace is zero (tokens.rs:427-431). All passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 1020,
+                "end": 1088
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:30.886728132Z",
+          "seal": {
+            "by": "server",
+            "mac": "282b79b42e1f19734ba2329982c41f95057fba961baa120278668b9ee18ed8b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each test asserts the exact four-count vector for its scenario and passed on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3807"
+          ],
+          "recorded_at": "2026-11-27T12:01:11.989792762Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fc4d1625873cba471c4484bba6ef5cead95537cfd420c8d62e7874239053268"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:11.989792762Z",
+      "seal": {
+        "by": "server",
+        "mac": "7dc57aca254e2c2e22895b79ae7fbdcaeef47f48dd39c724f4c4e1696a0218d8"
+      }
+    },
+    {
+      "id": "CLM-2149",
+      "statement": "examples/grafana/okf-mcp.json gains a panel 'OAuth refreshes by result' reading okf_oauth_refreshes_total, the panels below it move down 8 grid rows with no duplicate panel ids, and tests/grafana_dashboard.rs requires every exported family to be on the dashboard.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'examples/grafana/okf-mcp.json: a panel \"OAuth refreshes by result\" (the dashboard test requires every exported family); panels below it move down one row.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "examples/grafana/okf-mcp.json",
+        "tests/grafana_dashboard.rs"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3808",
+          "kind": "inspection",
+          "locator": "examples/grafana/okf-mcp.json:2222-2283; python json load; tests/grafana_dashboard.rs:100-115",
+          "summary": "New timeseries panel id 71 at y=104 with expr over okf_oauth_refreshes_total; every later gridPos y shifted by +8 in the diff (one panel height, one row of panels); JSON loads with 66 panels and 66 unique ids. The dashboard test fails if an exported family in ALL_FAMILIES is unused. I did not run the dashboard test (gate lock held by the full gate). 'One row' means one panel row (8 units), a loose but accurate reading.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "examples/grafana/okf-mcp.json",
+              "lines": {
+                "start": 2222,
+                "end": 2234
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:31.030904237Z",
+          "seal": {
+            "by": "server",
+            "mac": "1beed3cfad1cce7bb9e5f5481e183257b865285147f93aea3539cb3469795894"
+          }
+        },
+        {
+          "id": "EVD-3811",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test grafana_dashboard (8 passed, 0 failed)",
+          "summary": "The dashboard test suite passes on head, including every_metric_in_the_dashboard_is_one_the_server_exports and the check that every exported family is on the dashboard.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T12:00:29.120775719Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b6695235d8dc6e96c7b01c9312eac4ae304a58f5229f0aa43acbfc0853c9f94"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Panel present, y offsets consistently shifted by one panel height, ids unique, dashboard tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3808",
+            "EVD-3811"
+          ],
+          "recorded_at": "2026-11-27T12:01:12.192140023Z",
+          "seal": {
+            "by": "server",
+            "mac": "70fafa233228a17ffecbee5b85d889f01729b3ed4842187ab5c98959572db288"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:12.192140023Z",
+      "seal": {
+        "by": "server",
+        "mac": "bed14d5b1c1f1c55a9582a9d6c0494da7709d22f28d7efb4308de5aff0100f2a"
+      }
+    },
+    {
+      "id": "CLM-2150",
+      "statement": "The repository ships no alert rules (so the alert is documented only, not added as a rule file).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'The repository ships no alert rules.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3809",
+          "kind": "analysis",
+          "locator": "git ls-files | grep -iE 'alert|rules\\.ya?ml|prometheus'; grep -rniE '^\\s*(- )?alert:' (yml/yaml/json)",
+          "summary": "No tracked file name matches alert/rules/prometheus and no Prometheus-style `alert:` key appears in any yml/yaml/json file.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "^\\s*(- )?alert:",
+              "scope": [
+                "."
+              ],
+              "hits": 0,
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:31.318432274Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f9dacb50c42f14eac08c979b62ce9f065eca269d7b3d1fe707661bdaa389dca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search across the repo for alert rule keys and no rule-like files.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3809"
+          ],
+          "recorded_at": "2026-11-27T12:01:12.388492994Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd605181a1cd6cd334121d2f3ead3bf55ed0ff5f7769b6c147e2a48cba1fd6a0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:12.388492994Z",
+      "seal": {
+        "by": "server",
+        "mac": "63d3e023a7f1c86fdd0ef52da9635d016ff1c54c9a437585ec244dc9b16d5aa5"
+      }
+    },
+    {
+      "id": "CLM-2151",
+      "statement": "The docs/operations.md statement that okf_oauth_refreshes_total is exposed on the Prometheus listener and that a traces-and-logs-only OTLP deployment sees the result on the span only is true.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "docs/operations.md: 'The counter is on the Prometheus listener; a deployment that exports only traces and logs over OTLP sees the result on the span only.'",
+      "derived_from": [
+        "CLM-2143"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:887"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3810",
+          "kind": "inspection",
+          "locator": "src/telemetry/mod.rs:470-505; docs/operations.md:166,1375",
+          "summary": "build_meter_provider always attaches the Prometheus reader and adds a PeriodicReader (OTLP metrics) only when the otlp config enables the metrics signal; telemetry.otlp.signals can be [\"traces\",\"logs\"], so such a deployment has no OTLP metric push, the Prometheus reader still serves the counter. Statement holds (the Prometheus listener is itself configured under [telemetry], as the docs say elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/mod.rs",
+              "lines": {
+                "start": 479,
+                "end": 505
+              },
+              "commit": "47ba7d07998b3f3114bb25487d6331b812a75fdc"
+            }
+          },
+          "recorded_at": "2026-11-27T11:57:31.456072149Z",
+          "seal": {
+            "by": "server",
+            "mac": "6208c030e902f21295fafbeedadd20bcf691bd8ac0d2a91b8935aa19ae9634fa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Prometheus reader always built; OTLP metrics reader only when the metrics signal is enabled.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3810"
+          ],
+          "recorded_at": "2026-11-27T12:01:12.594754627Z",
+          "seal": {
+            "by": "server",
+            "mac": "010b9989134dd1860522ce016e8e3e29a44ce5efdde78564812c9689814328b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T11:57:00.644231008Z",
+      "updated_at": "2026-11-27T12:01:12.594754627Z",
+      "seal": {
+        "by": "server",
+        "mac": "57dc0be7e8560b4722ad74ae2011adf9f6bb2e4cfed032b6e959f66ba45c077e"
       }
     }
   ]

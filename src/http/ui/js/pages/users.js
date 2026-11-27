@@ -21,6 +21,15 @@ import { named } from '../core/labels.js';
 import { accountSections, loadAccount } from '../components/user-account.js';
 import { canAdministerPeople, keyUserChanged, refreshIdentity, refreshUnassigned } from '../core/shell.js';
 
+// The page now mounted, if any: a write that settles after the user left this
+// page and came back reloads the page shown now, not the one the write started
+// on (which is gone, so its list would keep showing the old rows).
+let mounted = null;
+
+function reloadMounted() {
+    return mounted?.main.isConnected ? mounted.load() : undefined;
+}
+
 const NEEDS_EVERY_CATALOG = 'Changing users needs an admin key that reaches every catalog.';
 
 export async function render(main, rest) {
@@ -77,6 +86,7 @@ export async function render(main, rest) {
     // Numbers the list's reads: a slower older read never draws over a
     // newer one, nor into another page once this one is left.
     const listReads = latest(main);
+    mounted = { main, load };
     await load();
 
     // The user drawer shown or loading ({name, ticket, last}), and the count
@@ -112,7 +122,7 @@ export async function render(main, rest) {
             } catch { return; /* toasted: an invalid or taken name */ }
             toast(`Created user ${name} and its personal team.`, 'ok');
             ticket.close();
-            if (main.isConnected) await load();
+            await reloadMounted();
         });
         ticket.open('New user', 'Creates its personal team of the same name.', form);
     }
@@ -181,7 +191,7 @@ export async function render(main, rest) {
             // An admin flag or session change of the signed-in user is
             // shell state (the Administer group, the session itself).
             if (name === store.session?.user) await refreshIdentity().catch(() => {});
-            if (main.isConnected) await load();
+            await reloadMounted();
             const view = shown;
             if (view?.name === name && view.ticket.current()) {
                 await openDetail(name, view.ticket, { refusal: refused, last: view.last });
@@ -247,13 +257,13 @@ export async function render(main, rest) {
             const view = shown;
             const redraw = view?.name === name && view.ticket.current()
                 ? openDetail(name, view.ticket, { refusal: error.message, last: view.last }) : null;
-            await Promise.allSettled([redraw, main.isConnected ? load() : null]);
+            await Promise.allSettled([redraw, reloadMounted()]);
             return;
         }
         toast(`Deleted user ${label}.`, 'ok');
         const view = shown;
         if (view?.name === name && view.ticket.current()) view.ticket.close();
-        if (main.isConnected) await load();
+        await reloadMounted();
     }
 }
 

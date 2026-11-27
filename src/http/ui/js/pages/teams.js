@@ -20,6 +20,15 @@ import { canAdministerPeople, refreshIdentity } from '../core/shell.js';
 import { guard, once } from '../core/pending.js';
 
 const ROLES = ['member', 'owner'];
+// The page now mounted, if any: a write that settles after the user left this
+// page and came back reloads the page shown now, not the one the write started
+// on (which is gone, so its list would keep showing the old rows).
+let mounted = null;
+
+function reloadMounted() {
+    return mounted?.main.isConnected ? mounted.load() : undefined;
+}
+
 const NEEDS_EVERY_CATALOG = 'Changing teams needs an admin key that reaches every catalog.';
 
 function roleSelect(attrs, selected) {
@@ -64,6 +73,7 @@ export async function render(main) {
     let shown = null;
     let reads = 0;
     const listReads = latest(main);
+    mounted = { main, load };
     await load();
 
     // Reads the list again; a slower older read never draws over a newer one.
@@ -100,7 +110,7 @@ export async function render(main) {
             } catch { return; /* toasted: an invalid or taken name, or an unknown owner */ }
             toast(`Created team ${name}.`, 'ok');
             ticket.close();
-            if (main.isConnected) await load();
+            await reloadMounted();
         });
         ticket.open('New team', 'A shared team; its owner is its first member.', form);
     }
@@ -122,7 +132,7 @@ export async function render(main) {
         const settled = shown;
         const read = settled?.name === name && settled.ticket.current() ? ++reads : null;
         if (message) toast(message, 'ok');
-        if (main.isConnected) await load();
+        await reloadMounted();
         if (read === null) return;
         const view = shown;
         if (view?.name === name && view.ticket.current()) {
@@ -206,8 +216,11 @@ export async function render(main) {
         const reason = team.personal_of
             ? `This is ${team.personal_of}'s personal team: it is deleted with its user.`
             : team.catalogs.length ? `It owns catalogs: ${team.catalogs.join(', ')}. Give them another owner first.` : '';
-        const remove = h('button', {
-            type: 'button', id: 'team-delete', class: 'danger', disabled: !manager || !!reason,
+        // A pending write keyed by the team (core/pending.js): a second click,
+        // in this drawer or one drawn again meanwhile, sends no second DELETE.
+        const deleting = `team:${team.name}:delete`;
+        const remove = guard(h('button', {
+            type: 'button', id: 'team-delete', class: 'danger',
             onclick: async () => {
                 const ok = await confirmDialog({
                     title: `Delete team ${team.label}?`,
@@ -215,12 +228,14 @@ export async function render(main) {
                     action: 'Delete',
                 });
                 if (!ok) return;
-                try { await api.del(`/teams/${enc(team.name)}`); } catch { return; }
-                toast(`Deleted team ${team.label}.`, 'ok');
-                ticket.close();
-                if (main.isConnected) await load();
+                await once(deleting, async () => {
+                    try { await api.del(`/teams/${enc(team.name)}`); } catch { return; }
+                    toast(`Deleted team ${team.label}.`, 'ok');
+                    ticket.close();
+                    await reloadMounted();
+                });
             },
-        }, 'Delete team');
+        }, 'Delete team'), deleting, manager && !reason);
         ticket.open(team.label, team.personal_of ? 'Personal team' : 'Team',
             teamStale || usersStale ? h('p', { id: 'team-stale', class: 'error small', role: 'status' },
                 teamStale

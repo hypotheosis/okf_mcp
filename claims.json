@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2049,
+  "next_claim_seq": 2062,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "21255ee21c8306e5f7d6f7ac84e1bbb36e6014070a6782780cc0c7d83d89b404"
+    "mac": "ece8f5a36a06adde11d24afaca7967dc4595a15b49657c0dfc1dd5d1067790a3"
   },
-  "next_evidence_seq": 3661,
+  "next_evidence_seq": 3675,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9234ba8fc8b56c38754cba983c3a832bbe0ba961e8f49456899c9068a3ee8670"
+    "mac": "73ba86c0c1d25fc76b3f7f73ae85e4b5882beb2a2ddb5c5278143d0c6fa535eb"
   },
   "claims": [
     {
@@ -182949,6 +182949,882 @@
       "seal": {
         "by": "server",
         "mac": "e93edc5b4a42493bccced9aa3ad34d394c88a8b12165f28230786713832cfb9c"
+      }
+    },
+    {
+      "id": "CLM-2049",
+      "statement": "Issue #1086 is delivered: a write on the console Teams, Users or Keys page that finishes after the user navigated away and back reloads the list shown now, the team delete is started through `once` with a resource-scoped key, and one ui_e2e journey per page covers it.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1086",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/teams.js",
+        "src/http/ui/js/pages/users.js",
+        "src/http/ui/js/pages/keys.js",
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3673",
+          "kind": "analysis",
+          "locator": "children of CLM-2049",
+          "summary": "The code children (reload through mounted on all three pages, team delete via once) and the journeys are supported by reading; whether the journeys fail before and pass after the fix is undecided (no rerun).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T05:05:14.490062637Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a22bdec75d9e0503f0a8caf4850be0e093d3356646310ac1665656a5b48dfa3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All code claims are supported by reading, but the journeys' red/green result on this head is undecided because no run was permitted. Fix: rerun the three journeys on head and with the page files restored to main, then re-audit the revert claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3673"
+          ],
+          "recorded_at": "2026-11-27T05:05:19.042229825Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc7cccb0f427856b9e0d0cd5655b2bbe90b19ccca61aef2119146a9aca75cedc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:19.042229825Z",
+      "seal": {
+        "by": "server",
+        "mac": "8a3e66eefc4b6a87caa8a833fed3f09dc4aa322de3bb3da2244377a822469388"
+      }
+    },
+    {
+      "id": "CLM-2050",
+      "statement": "teams.js reloads the list through the module-level `mounted` page after every write that reloads it: team create, member add/role change/removal and display-name/suspension changes (via changed()), and team delete.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"every write that reloads the list (create, member change, member removal and delete for teams ...) reloads through it\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/teams.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3661",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/teams.js:28-29,76,113,135,195-213,235",
+          "summary": "reloadMounted() calls mounted.load(); mounted set at render (76). Create (113), changed() (135, called for member role 185, removal 195, add 213, display name 285, suspension 313) and delete (235) all await reloadMounted(). git grep finds no other load() call site.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/teams.js",
+              "lines": {
+                "start": 23,
+                "end": 30
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:32.055915328Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0a3bd13aece2e9ee279201c39d9427d1c51372e7d4909d1b0ff1c7d631a5908"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every post-write reload site in teams.js goes through reloadMounted (create, changed() for all member/name/suspension writes, delete).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3661"
+          ],
+          "recorded_at": "2026-11-27T05:05:11.999467115Z",
+          "seal": {
+            "by": "server",
+            "mac": "52b2229f8222931343f4f7764ba4107b3461b5cd9cd152c89cd37a822dff2465"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:11.999467115Z",
+      "seal": {
+        "by": "server",
+        "mac": "4790be19a4823550622276cabe58d64cfccb1a7cf008bb88974ac5fa70882003"
+      }
+    },
+    {
+      "id": "CLM-2051",
+      "statement": "users.js reloads the list through the module-level `mounted` page after every write that reloads it: user create, the admin/session change write, and user delete (both the settled and the refused path).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"every write that reloads the list (... create and delete for users ...) reloads through it\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/users.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3662",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/users.js:29-30,89,125,194,260,266",
+          "summary": "Create (125), the admin/session change write (194), delete refused path (260, Promise.allSettled with reloadMounted()) and delete settled path (266) all reload via reloadMounted(); mounted set at 89. No bare load() call remains after writes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/users.js",
+              "lines": {
+                "start": 24,
+                "end": 31
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:32.278215144Z",
+          "seal": {
+            "by": "server",
+            "mac": "6282d0e7a0d56b87b1dd41faeac40fbce03fcf0c1f603143e2c559e8427ab889"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four post-write reload sites in users.js use reloadMounted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3662"
+          ],
+          "recorded_at": "2026-11-27T05:05:12.202407342Z",
+          "seal": {
+            "by": "server",
+            "mac": "1023ac525ca117b5d796e360ea7775b55f84706014444bd6dbdb5bf2f1c3ebe1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:12.202407342Z",
+      "seal": {
+        "by": "server",
+        "mac": "617e98f816e750482e8d8488932a8b734779c6537c16bb036fb08790fc6fd99d"
+      }
+    },
+    {
+      "id": "CLM-2052",
+      "statement": "keys.js reloads the keys list through the module-level `mounted` page after key create, grant, ungrant, reporting toggle, revoke and user change.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"create, grant, ungrant, reporting, revoke and user change for keys and sign-in codes\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/keys.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3663",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/keys.js:37,135-147,162,299,338,353,405",
+          "summary": "reloadKeys = reloadMounted('keys') is passed to newKey/showKey (135-139) and view.reload (147); mounted = {main, keys: load, codes: codes.load} (162). newKey (299), user change (338), change() used by grant/ungrant/reporting (353) and revoke (405) all `await reload()` unguarded by old main.isConnected.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/keys.js",
+              "lines": {
+                "start": 30,
+                "end": 37
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:32.471231274Z",
+          "seal": {
+            "by": "server",
+            "mac": "09d658cadda122401aca0e266351c4e8d5c8d0920a7cdb0852cf60bc5d62f67b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Keys writes reload through reloadKeys (mounted.keys); the old isConnected guards are gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3663"
+          ],
+          "recorded_at": "2026-11-27T05:05:12.402865041Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b9dcb8a103a3021a4a4019c247c2f87dc4c9a7c75fa1f2d558a70c5c8fd6441"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:12.402865041Z",
+      "seal": {
+        "by": "server",
+        "mac": "2fadfd07fe42696b744e7a6c1dbf8f22c353523cce2455a6a8b6d8b93d6fc36b"
+      }
+    },
+    {
+      "id": "CLM-2053",
+      "statement": "keys.js reloads the sign-in codes list through the module-level `mounted` page after sign-in code create, revoke and user change.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"create, grant, ungrant, reporting, revoke and user change for keys and sign-in codes\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/keys.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3664",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/keys.js:416-424,447,500,553,560",
+          "summary": "reloadCodes = reloadMounted('codes') is passed to showCode and newCode; newCode (500), showCode revoke (553) and user change (560) `await reload()` with no old-main guard.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/keys.js",
+              "lines": {
+                "start": 413,
+                "end": 424
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:32.659859615Z",
+          "seal": {
+            "by": "server",
+            "mac": "321296834e7114d072de95544bbb70e09440068e3ea5869b0108229f4d4d4813"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Sign-in code writes reload through reloadCodes (mounted.codes).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3664"
+          ],
+          "recorded_at": "2026-11-27T05:05:12.573227805Z",
+          "seal": {
+            "by": "server",
+            "mac": "29a93cfc865825ab19e2379d51afb65ca82ed6e72e2f5829b67acafcec895b2c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:12.573227805Z",
+      "seal": {
+        "by": "server",
+        "mac": "38b9e2515e5edea6c0a2f99064fba8ab5fabc6a51ce874b4a1f9468c6476d4d1"
+      }
+    },
+    {
+      "id": "CLM-2054",
+      "statement": "Nothing in teams.js, users.js or keys.js still guards a post-write list reload on the old page's `main.isConnected` (the remaining isConnected checks guard reads, draws and the Unassigned view only).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Task: check that nothing in teams.js/users.js/keys.js still guards a post-write list reload on the old page's main.isConnected",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/teams.js",
+        "src/http/ui/js/pages/users.js",
+        "src/http/ui/js/pages/keys.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3665",
+          "kind": "analysis",
+          "locator": "git grep -n \"isConnected\" src/http/ui/js/pages/{teams,users,keys}.js",
+          "summary": "8 matching lines: the 3 reloadMounted helpers (teams 29, users 30, keys 37) check the mounted page's main; keys 156 and 433 guard read draws; users 304 and 335 guard the Unassigned view draw; keys.js 8 is a comment. None guards a post-write reload on the old main.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "isConnected",
+              "scope": [
+                "src/http/ui/js/pages/keys.js",
+                "src/http/ui/js/pages/teams.js",
+                "src/http/ui/js/pages/users.js"
+              ],
+              "hits": 8,
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:50.509009232Z",
+          "seal": {
+            "by": "server",
+            "mac": "a84cbcaa9fa209640a6102054e164b98cd46e021298d3a53f6b95a96d9fc8198"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All 8 isConnected lines were classified; none is a post-write reload guard on the old main.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3665"
+          ],
+          "recorded_at": "2026-11-27T05:05:12.773611624Z",
+          "seal": {
+            "by": "server",
+            "mac": "a60792bc8c2215a07665bf2326ea9d137d96d1053d93c5184e869400157cb9d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:12.773611624Z",
+      "seal": {
+        "by": "server",
+        "mac": "7e8a74e4c4e73e547ae7d0c8a58a2540667bae194f39704a628468626ae1f611"
+      }
+    },
+    {
+      "id": "CLM-2055",
+      "statement": "The reload does nothing when no page is shown: reloadMounted returns undefined unless `mounted` is set and its main is connected.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"reloads through it, and does nothing when no page is shown\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/teams.js",
+        "src/http/ui/js/pages/users.js",
+        "src/http/ui/js/pages/keys.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3666",
+          "kind": "inspection",
+          "locator": "teams.js:28-29, users.js:29-30, keys.js:37",
+          "summary": "Each helper is `mounted?.main.isConnected ? mounted.load() : undefined` (keys: mounted[which]()), so it is a no-op when mounted is null or its page is detached.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/keys.js",
+              "lines": {
+                "start": 30,
+                "end": 37
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:50.687234161Z",
+          "seal": {
+            "by": "server",
+            "mac": "9163654522462afb1622f9a68c7aa2444abc336605666a4071bcca5f4cbd8797"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The helpers return undefined when mounted is null or detached.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3666"
+          ],
+          "recorded_at": "2026-11-27T05:05:12.989341610Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd762398aef49234acd78dc720eadbb3a4191219d006d018817d8a77e88bfdc6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:12.989341610Z",
+      "seal": {
+        "by": "server",
+        "mac": "1c4cf12e4d7f8cce53f26df33eae5d69da05c54bcf5dc98d05d29277057ee362"
+      }
+    },
+    {
+      "id": "CLM-2056",
+      "statement": "In teams.js, Delete is a pending write keyed `team:<name>:delete` started through `once`, and its button is guarded by that key.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Delete is a pending write keyed `team:<name>:delete`, with its button guarded by that key\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/teams.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3667",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/teams.js:219-238",
+          "summary": "`deleting = team:${team.name}:delete`; the button is wrapped in guard(..., deleting, manager && !reason) and the DELETE plus toast/close/reload run inside once(deleting, ...) after the confirm dialog. core/pending.js guard/update disables the control while the key is pending or `allowed` is false (same semantics as the removed disabled: !manager || !!reason).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/teams.js",
+              "lines": {
+                "start": 219,
+                "end": 238
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:50.870115795Z",
+          "seal": {
+            "by": "server",
+            "mac": "928b973b897651baa674060eba24a62f3e080aebeb94540f8b4defc2b999ac30"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Key, once() and guard() are all present as claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3667"
+          ],
+          "recorded_at": "2026-11-27T05:05:13.190126930Z",
+          "seal": {
+            "by": "server",
+            "mac": "a86a843b498930aa7765bf0b04155ca580a14153a30db0739a61a5bdfdd9e554"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:13.190126930Z",
+      "seal": {
+        "by": "server",
+        "mac": "7567461ebaeba48de356ad72f46e9206569cf381a42df5de55dafdd53cca4a9f"
+      }
+    },
+    {
+      "id": "CLM-2057",
+      "statement": "The teams journey checks that a second click on Delete sends one DELETE (held_matches == 1) and covers a member removal and the delete, each held while the page is left and come back.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"The teams journey covers a member removal and the delete, and checks that a second click sends one DELETE\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/teams.rs"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3668",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/teams.rs:988-1040",
+          "summary": "Journey holds DELETE /teams/family/members/alice, runs away_and_back, releases, polls for '1 member'; then holds DELETE /teams/family, confirms, waits for #team-delete[disabled], click_twice asserts disabled, asserts held_matches()==1, away_and_back, release, wait_hidden of the team row, held_matches()==1 again and that the team is gone in the DB.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/teams.rs",
+              "lines": {
+                "start": 984,
+                "end": 1040
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:51.067444734Z",
+          "seal": {
+            "by": "server",
+            "mac": "efe73cb54d4d20aac6b21a6c7ed632e5f87cb4dc8ed01c547cdc5a580d33c368"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading the test: it asserts one DELETE and covers both writes. (That it passes was not rerun here; see the revert claim.)",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3668"
+          ],
+          "recorded_at": "2026-11-27T05:05:13.415101636Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cef78789973d8e5a29b9eea186b2dab717bac5015af7e3c6cc3168f362989b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:13.415101636Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a828587ae5e8a6b313d115651021377ede44fc4aee73f547c74a1acd9fce0b3"
+      }
+    },
+    {
+      "id": "CLM-2058",
+      "statement": "tests/ui_e2e/teams.rs, users.rs and keys.rs each gain one journey that holds the write, leaves the page and comes back, releases the write and expects the list to be up to date.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"one journey per page that holds the write, leaves the page and comes back, releases the write and expects the list to be up to date\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/teams.rs",
+        "tests/ui_e2e/users.rs",
+        "tests/ui_e2e/keys.rs"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3669",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/teams.rs:988, users.rs:1009, keys.rs:1314",
+          "summary": "Each file adds one *_that_finishes_after_navigating_away_updates_the_list_shown test: hold_next, trigger write, leave page, return, release_held, then wait for the list row to change (users: wait_hidden user-alice; keys: wait_hidden key-victim; teams: poll '1 member' and wait_hidden team-family).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/users.rs",
+              "lines": {
+                "start": 1005,
+                "end": 1038
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:51.257845051Z",
+          "seal": {
+            "by": "server",
+            "mac": "b82dc4b779815282d69c95e61048f7dc97c358aaf27e804e5711a1a315e6f247"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One such journey exists in each file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3669"
+          ],
+          "recorded_at": "2026-11-27T05:05:13.629109457Z",
+          "seal": {
+            "by": "server",
+            "mac": "03a4cef363f7b7705385ef6f563eb3fbefcc7f6c8aae3f41da0de79e023b8a6a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:13.629109457Z",
+      "seal": {
+        "by": "server",
+        "mac": "f282b080c1483c96f9d7c2f0fba4c1ca6ec04049550f96b5bf30c5d78b2581ac"
+      }
+    },
+    {
+      "id": "CLM-2059",
+      "statement": "The three new journeys fail with the three page files restored to main and pass with the fix.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"The three new journeys fail with the three page files restored to main and pass with the fix.\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/teams.rs",
+        "tests/ui_e2e/users.rs",
+        "tests/ui_e2e/keys.rs"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3670",
+          "kind": "log",
+          "locator": "target/i1086-logs/revert.log (fail on main files) and target/i1086-logs/test-ui.log:572,740,767 (pass)",
+          "summary": "Author-produced logs (mtime 23:56 and 23:55, before the head commit's 00:03 timestamp): revert.log shows the 3 new journeys FAILED with timeouts waiting for the stale row; test-ui.log shows the 3 'ok'. I did not rerun (browser tests are barred) and cannot show the logs were made on this head.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T05:04:51.434385354Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c1cbf0e9c24594332a99e9d20b2c04b4a26757aa65084840673fa4a55ce75eb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only author-produced logs exist, older than the head commit's timestamp; the auditor was barred from running the browser tests. Fix: rerun `gate.sh test-ui` on head 24f8ab0d for the three journeys, and again with git checkout origin/main -- the three page files, and record both counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3670"
+          ],
+          "recorded_at": "2026-11-27T05:05:13.830769369Z",
+          "seal": {
+            "by": "server",
+            "mac": "3555d1576de9714beb873c0593770456ed2bffaa2809a3f3c2a1023aeb0bd9fe"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:13.830769369Z",
+      "seal": {
+        "by": "server",
+        "mac": "b293fb79aed81e99cbc55bc0265993be4a8c25c9d2d7eba4c27fc9ff8e8efe35"
+      }
+    },
+    {
+      "id": "CLM-2060",
+      "statement": "The Unassigned view of the users page still redraws only while its own `main` is connected (renderUnassigned is unchanged).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Not changed: the Unassigned view of the users page redraws only while its own `main` is connected.\"",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/users.js"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3671",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/users.js:304,335 and git diff origin/main..HEAD -- src/http/ui/js/pages/users.js",
+          "summary": "The diff's users.js hunks touch only the mounted/reloadMounted lines (24-31, 89, 125, 194, 260, 266); the Unassigned draw keeps `if (!main.isConnected) return;` (304) and `if (main.isConnected) await draw();` (335).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/users.js",
+              "lines": {
+                "start": 296,
+                "end": 337
+              },
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:51.586619682Z",
+          "seal": {
+            "by": "server",
+            "mac": "93eae3f81bfe3cc33fc8ac7adefd6d424de514f8a9bd6b4b128fb72ede41f6ad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff does not touch those lines; guards remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3671"
+          ],
+          "recorded_at": "2026-11-27T05:05:14.039305094Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d3aa8a447435245cc6f38a4b0ea3774803bffe6495539e2f3c0a93b58e23cf5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:05:14.039305094Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f7ea85e4bf9223f3668b3d605ee982386b874e7464619539680a9d6f7ae5ae3"
+      }
+    },
+    {
+      "id": "CLM-2061",
+      "statement": "The PR adds a changelog/ entry for issue 1086 and changes only teams.js, users.js, keys.js, the three ui_e2e files, that entry and claims.json (the audit ledger, which records this audit).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`changelog/` entry.\" and the Changes list",
+      "derived_from": [
+        "CLM-2049"
+      ],
+      "artifacts": [
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1086"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3672",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "7 files: changelog/2026-11-27T04-40-33Z-issue-1086-stale-lists.md, keys.js, teams.js, users.js, tests/ui_e2e/{keys,teams,users}.rs; 227 insertions, 26 deletions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T04-40-33Z-issue-1086-stale-lists.md",
+              "commit": "24f8ab0d2a57a8a1a4541b944c673ac5ba9cc1b3"
+            }
+          },
+          "recorded_at": "2026-11-27T05:04:51.742878332Z",
+          "seal": {
+            "by": "server",
+            "mac": "d19708e9be18021d20088434bfcff1a8ce91f9562ec079cdfe23f63610fe2692"
+          }
+        },
+        {
+          "id": "EVD-3674",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "8 files: the changelog entry, claims.json (the audit ledger), keys.js, teams.js, users.js and tests/ui_e2e/{keys,teams,users}.rs. Nothing else changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T04-40-33Z-issue-1086-stale-lists.md",
+              "commit": "b4d181474186eb85f57917647625854dbdc8ce67"
+            }
+          },
+          "recorded_at": "2026-11-27T05:12:04.886047080Z",
+          "seal": {
+            "by": "server",
+            "mac": "b18e7190ea64b12a79751b6b0e7d2b5e935b0d6f6393bb6739aaeaf1bb03d53e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff stat lists exactly those 7 files.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3672"
+          ],
+          "recorded_at": "2026-11-27T05:05:14.270723449Z",
+          "seal": {
+            "by": "server",
+            "mac": "0db6a0b47a32344cc3c2201a25134abc53c337c8133cd2b20099298302f7119b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The diff stat against origin/main lists exactly the eight files the restated claim names, claims.json included.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3674"
+          ],
+          "recorded_at": "2026-11-27T05:12:07.463534142Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fafeea759fd48ea46f216802c73be7e8daea57a5a54275c40c813b0209916de"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:04:13.842682487Z",
+      "updated_at": "2026-11-27T05:12:07.463534142Z",
+      "seal": {
+        "by": "server",
+        "mac": "baad7b305c9e4378de3a58fe328fbc6da8322b054cebbe3dde74e55f7f3787df"
       }
     }
   ]

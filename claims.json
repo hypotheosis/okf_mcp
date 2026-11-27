@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2330,
+  "next_claim_seq": 2332,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "885ee6efb99a633d3b5e8838c20e0a4737ed2949b784ffaa562268ed73869015"
+    "mac": "b822248b95ae0ffa103bc0da531f31c454dfcfdfa63ddc4f074d6f187b264f89"
   },
-  "next_evidence_seq": 4088,
+  "next_evidence_seq": 4096,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "79f7078f1dba4674ad84f394d9bd16712344ec07fb5e1d304a639d55a4e80cfe"
+    "mac": "580e05cf2700cf23aba0a90d25b09a67f3d4ba0367257de761c988a0194759a0"
   },
   "claims": [
     {
@@ -204532,6 +204532,18 @@
             "by": "server",
             "mac": "8b15961d01c3efeacf254abc7221951bb17da4b7874dceea5a88f04b4b97fab8"
           }
+        },
+        {
+          "id": "EVD-4095",
+          "kind": "analysis",
+          "locator": "children of CLM-2315",
+          "summary": "At head 47fe30f0 every issue-requirement child, including the new directory-handling children CLM-2330 and CLM-2331, is supported; only CLM-2329 (PR-description claim about revert behaviour) is not_enough_info.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T22:22:05.132804202Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fac1fdddc407dcd64357c7c82f5986482721ee9e5ff9dc55af59c765897a33b"
+          }
         }
       ],
       "verdicts": [
@@ -204560,13 +204572,26 @@
             "by": "server",
             "mac": "50fd98d1cbb6f5e9888ab0ac0d3f63f0ece85f9e1e9c5c88cddee8d3a818f376"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-rolled at 47fe30f0 with the directory children included.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4095"
+          ],
+          "recorded_at": "2026-11-27T22:22:08.514595510Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d691779c28749e5291617772ee8ff884e6387746b2ef05d1a66d7167fd1d2dc"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:57:56.029839017Z",
+      "updated_at": "2026-11-27T22:22:08.514595510Z",
       "seal": {
         "by": "server",
-        "mac": "6eceab8f1445660a120d1bb193559c6842505314f1af1cf28c7612482a8dfd2d"
+        "mac": "8a264d07637c95e14135868357f38c61b665dbd2e8b60d64c3e7e73f70a29afc"
       }
     },
     {
@@ -204813,6 +204838,28 @@
             "by": "server",
             "mac": "eda86cc2f8e651f8537a8043e9e75c5238f32ae99828db19e112abd0a3cf8463"
           }
+        },
+        {
+          "id": "EVD-4092",
+          "kind": "test",
+          "locator": "cargo test --lib create_concept_refusals at HEAD",
+          "summary": "Re-run at head: create_concept_refusals passes; taken file stays AlreadyExists, machinery InvalidPath, and the new directory case InvalidPath \"is a directory\" (content.rs:877).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/content.rs",
+              "lines": {
+                "start": 870,
+                "end": 880
+              },
+              "commit": "47fe30f05abc241950f43fd6c41d7349eebdb9f1"
+            }
+          },
+          "recorded_at": "2026-11-27T22:21:51.107826844Z",
+          "seal": {
+            "by": "server",
+            "mac": "09016ff35684956fcb87efa7678340afd5331087d3a20458dfde6ffd104f5873"
+          }
         }
       ],
       "verdicts": [
@@ -204829,13 +204876,26 @@
             "by": "server",
             "mac": "e144756cfbc7cf02ac400429479f3358da7c5c41f1bd59a91bc205bc7d61727d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: create_concept_refusals passes with taken file AlreadyExists, machinery and directory InvalidPath.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4092"
+          ],
+          "recorded_at": "2026-11-27T22:22:04.474916457Z",
+          "seal": {
+            "by": "server",
+            "mac": "785ceffb63ea881610591274d7dffe6253bc6bddab320818206a2427713b6f1b"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:48.682940959Z",
+      "updated_at": "2026-11-27T22:22:04.474916457Z",
       "seal": {
         "by": "server",
-        "mac": "6307d20194620a095930c54972eb03e9653e0405a7942cc2190dd7a49d90eaa5"
+        "mac": "83ac0d8b7bee3814ebc042e374f37e6c83ecc1863f3958e0e3b9a587086520e9"
       }
     },
     {
@@ -204881,6 +204941,28 @@
             "by": "server",
             "mac": "e2023470e971d37cf18e25463714c39c77730c88d57d0100f1b8791976b9a906"
           }
+        },
+        {
+          "id": "EVD-4093",
+          "kind": "test",
+          "locator": "okf::ops::split::tests::a_split_target_taken_is_already_exists_and_a_directory_is_invalid_path (passed at HEAD)",
+          "summary": "New test splits onto /splits/user.md (a file) and asserts AlreadyExists, and onto /dir.md (a directory) and asserts InvalidPath \"is a directory\". Closes the earlier gap that no split-specific test existed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/split.rs",
+              "lines": {
+                "start": 1121,
+                "end": 1135
+              },
+              "commit": "47fe30f05abc241950f43fd6c41d7349eebdb9f1"
+            }
+          },
+          "recorded_at": "2026-11-27T22:21:51.310743912Z",
+          "seal": {
+            "by": "server",
+            "mac": "e171a4b1a367a4b3e517fee7328610b7c6d9090904db9a7f8a4e2bbf98e85909"
+          }
         }
       ],
       "verdicts": [
@@ -204896,13 +204978,27 @@
             "by": "server",
             "mac": "bafc6bb35f2bd4388339d6e46f8d8da7cf1c7318bcca75271fa0ea97716be433"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Now backed by a passing split-specific test (file AlreadyExists, directory InvalidPath), in addition to the code reading.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4068",
+            "EVD-4093"
+          ],
+          "recorded_at": "2026-11-27T22:22:04.683194201Z",
+          "seal": {
+            "by": "server",
+            "mac": "2acfb7f8b86b89211b942dbe00c7cf25e7f571dde5c9b47e33897f81f2fdbbca"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:48.883712387Z",
+      "updated_at": "2026-11-27T22:22:04.683194201Z",
       "seal": {
         "by": "server",
-        "mac": "1f4b6891c4f22ed34e1fe4d8c50b4f10763f821a098ffcafbfe5308d0cee66a6"
+        "mac": "400e99cd116944c04b0615454ba619e093ab9a70259862d87912b11061395942"
       }
     },
     {
@@ -204970,6 +205066,28 @@
             "by": "server",
             "mac": "6a9797f8818e41e4f74153a3921e263a5705406964693525de10df5691b42c53"
           }
+        },
+        {
+          "id": "EVD-4091",
+          "kind": "test",
+          "locator": "cargo test --lib -- a_directory a_taken_reserved rename_keeps_bytes at HEAD",
+          "summary": "Re-run at head after the directory fix: moves a_taken_reserved_or_missing..., a_directory_target_named_like_a_concept... and workspace rename_keeps_bytes... all pass. A taken file target is still AlreadyExists; a directory target is InvalidPath \"is a directory\" (moves.rs:505-515).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/moves.rs",
+              "lines": {
+                "start": 486,
+                "end": 515
+              },
+              "commit": "47fe30f05abc241950f43fd6c41d7349eebdb9f1"
+            }
+          },
+          "recorded_at": "2026-11-27T22:21:50.918333593Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b534c308774aabef341e4802886ffabf6516384894903c86939ca081a4f3594"
+          }
         }
       ],
       "verdicts": [
@@ -204985,13 +205103,26 @@
             "by": "server",
             "mac": "b8010bd08479959e36526cbd8460dc9e72ef61efdab377067e34b749d22c6b5c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: tests still pass; taken file is AlreadyExists, directory target InvalidPath.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4091"
+          ],
+          "recorded_at": "2026-11-27T22:22:04.236101325Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2341741c83896d435b0b496ce449ce5b8a5cbf706bdbfffbe9b0087a70638d3"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:49.089664243Z",
+      "updated_at": "2026-11-27T22:22:04.236101325Z",
       "seal": {
         "by": "server",
-        "mac": "edd83cba90d45a652e9143fab27517a9d5812859f96c4397104855cbfaa552cf"
+        "mac": "e811ae6bad0f44241230076e0a6cc08e10e9e002ec0a99daf0e2aba150901e33"
       }
     },
     {
@@ -205658,6 +205789,18 @@
             "by": "server",
             "mac": "4577a8a8b1949ab473347c9652187b8868fdf78db5bfa435c669aa0a0cf7b5e7"
           }
+        },
+        {
+          "id": "EVD-4094",
+          "kind": "log",
+          "locator": "target/i929-logs/rev2.log (read, not re-run)",
+          "summary": "The second revert log covers only the four directory-fix tests (all fail without the fix). It does not change the gaps for the original list: the variant test passes under a behaviour-only revert, and the mcpjam scenario is in no log.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T22:22:04.909787980Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee7c12a72a38180c9bbd2e9586c95c42d8156f059263f9a957aaa1743a02bf2f"
+          }
         }
       ],
       "verdicts": [
@@ -205682,13 +205825,172 @@
             "by": "server",
             "mac": "e3af2380c46d7e3bdf6ad50a5850e5056aea8665938b961462aa990d111585b4"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Unchanged after the second revert log: it covers only the four directory-fix tests. The original list still has the variant test passing under a behaviour-only revert and the mcpjam scenario in no log. Fix: reword the PR heading to \"Rust tests fail with the behaviour reverted (the variant test needs the variant)\", or run the mcpjam scenario against a reverted server.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T22:22:17.754107673Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd2c11a4ec6f9ae483cacb9818c66061cf154db82a030394d5cec3ad64cecc34"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:57:52.351140105Z",
+      "updated_at": "2026-11-27T22:22:17.754107673Z",
       "seal": {
         "by": "server",
-        "mac": "a2aa9d16834e49d0694e726ed20212efb6cdd44b486a0a707818206ee414cbc5"
+        "mac": "588cbf39a17127e2fe2f2e6c9d4c39ea27d8e595c31383d71660dcde77c795c6"
+      }
+    },
+    {
+      "id": "CLM-2330",
+      "statement": "new_concept_path answers AlreadyExists only when the target is a file; a directory named like a concept (target.md/child.md exists) gets InvalidPath with reason \"is a directory\", and create_concept, move_concept and split_concept inherit both outcomes.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Review finding on #929 (Workspace::exists is true for directories, so \"edit it\" advice would be wrong); issue #929 Proposed fix 1 (InvalidPath kept for unusable paths)",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/okf/paths.rs",
+        "src/okf/ops/content.rs",
+        "src/okf/ops/moves.rs",
+        "src/okf/ops/split.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4088",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib -- a_directory create_concept_refusals a_split_target_taken (12 passed, 0 failed)",
+          "summary": "At head, okf::paths::tests::a_directory_named_like_a_concept_is_invalid_path_not_already_exists, moves::a_directory_target_named_like_a_concept..., content::create_concept_refusals and split::a_split_target_taken_is_already_exists_and_a_directory_is_invalid_path all pass; they assert file gives AlreadyExists and directory gives InvalidPath \"is a directory\" (split test at split.rs:1121-1135, content.rs:877, moves.rs:512, paths.rs:516-527).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/paths.rs",
+              "lines": {
+                "start": 361,
+                "end": 373
+              },
+              "commit": "47fe30f05abc241950f43fd6c41d7349eebdb9f1"
+            }
+          },
+          "recorded_at": "2026-11-27T22:21:50.327848869Z",
+          "seal": {
+            "by": "server",
+            "mac": "1375a995d5edd9fba4c32ed4e364462862461682abacd9c9156399162f35e5a7"
+          }
+        },
+        {
+          "id": "EVD-4089",
+          "kind": "log",
+          "locator": "target/i929-logs/rev2.log (author's revert run, read by me, not re-run)",
+          "summary": "With is_file swapped back to exists, 10 tests run: the four directory/taken tests FAILED, 6 other tests passed (4 failed, 6 passed). Shows the tests detect the directory behaviour. I did not reproduce the revert.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T22:21:50.536399196Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e3f04bc3476948af70f834444acca9a7c9777027dcef6454e6eca854afced9c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Four tests I re-ran at head pass and assert file gives AlreadyExists, directory gives InvalidPath \"is a directory\"; the author's revert log shows those four fail without the fix.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4088",
+            "EVD-4089"
+          ],
+          "recorded_at": "2026-11-27T22:22:03.737634723Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3b838631ae1c50c57d5992c13459bf96e061f4a9f539b35ac0d0ad2b797ed9a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:21:36.706874353Z",
+      "updated_at": "2026-11-27T22:22:03.737634723Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c1ee42fefd3be495325fca9e04a44b515d37e8aee70c8f365ed897df5fef0d1"
+      }
+    },
+    {
+      "id": "CLM-2331",
+      "statement": "MemWorkspace::rename answers AlreadyExists only when `to` is a file (contains_key); a directory or below-a-file target stays InvalidPath via placement_conflict.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Review finding on #929; PR body: MemWorkspace::rename returns AlreadyExists for a taken target",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/okf/workspace.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4090",
+          "kind": "inspection",
+          "locator": "src/okf/workspace.rs:827-841; cargo test --lib rename_keeps_bytes (passed)",
+          "summary": "rename returns AlreadyExists only under files.contains_key(&to_rel); otherwise placement_conflict yields InvalidPath (\"is a directory\" or \"a parent component is a file\"). The workspace test asserts taken is AlreadyExists, below-a-file and directory targets InvalidPath; passed at head. Unchanged by the new commits (git diff c4eebd18..HEAD does not touch workspace.rs).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/workspace.rs",
+              "lines": {
+                "start": 827,
+                "end": 841
+              },
+              "commit": "47fe30f05abc241950f43fd6c41d7349eebdb9f1"
+            }
+          },
+          "recorded_at": "2026-11-27T22:21:50.743464085Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b5edc6b5db9066aa590aec239624f10e142027e7f5d7f1b71435b11d73f2658"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "rename's AlreadyExists is gated on contains_key, the workspace test passes at head, and workspace.rs is unchanged by the new commits.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4090"
+          ],
+          "recorded_at": "2026-11-27T22:22:03.956771196Z",
+          "seal": {
+            "by": "server",
+            "mac": "3de9d1a1b2b6196c426352764791fe9c1859a4caa154882bffb62d7e07caf2c6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:21:36.706874353Z",
+      "updated_at": "2026-11-27T22:22:03.956771196Z",
+      "seal": {
+        "by": "server",
+        "mac": "51e3c3f100e6b20085e9c4558df11b0e0c478af828d58c9cb56b5a880770ad1a"
       }
     }
   ]

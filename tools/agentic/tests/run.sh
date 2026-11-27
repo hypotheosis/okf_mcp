@@ -397,18 +397,29 @@ test_merge_refuses_an_unknown_state_that_never_resolves() {
     [ "$(cat "$fx/clock")" -le 1100 ] || die "waited past the bound"
 }
 
-test_merge_state_wait_is_not_overrun_by_a_slow_lookup() {
+test_merge_state_wait_is_bounded_with_a_slow_lookup() {
     new_fixtures; good_pr "$head_a"
     printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
         >"$fx/pr-view.json"
-    # Each state lookup would take 20 s; the wait is 2 s, so the lookup must be
-    # cut off at the wait's end, not given the full call timeout.
+    # Each state lookup would take 20 s and ignores TERM, the worst cleanup that
+    # can be stopped. The documented bound (await_merge_state) is
+    # AGENTIC_STATE_WAIT + 2 + agentic_kill_after + agentic_reap_after
+    # = 2 + 2 + 1 + 1 = 6 s; the test allows 2 s more for the script's own
+    # start-up and the stub calls before the wait (a loaded machine).
     echo 20 >"$fx/lookup-sleep"
-    started=$SECONDS
-    out=$(cd "$repo" && AGENTIC_STATE_WAIT=2 timeout 30 "$tools/merge-reviewed.sh" 7 2>&1)
+    local bound_ms=6000 tolerance_ms=2000 started_ms elapsed_ms pgid
+    started_ms=$(($(date +%s%N) / 1000000))
+    out=$(cd "$repo" && AGENTIC_STATE_WAIT=2 agentic_kill_after=1 agentic_reap_after=1 \
+        timeout 30 "$tools/merge-reviewed.sh" 7 2>&1)
     rc=$?
+    elapsed_ms=$(($(date +%s%N) / 1000000 - started_ms))
     want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting"; want_not_merged
-    [ $((SECONDS - started)) -le 8 ] || die "took $((SECONDS - started)) s for a 2 s wait"
+    [ "$elapsed_ms" -le $((bound_ms + tolerance_ms)) ] \
+        || die "took $elapsed_ms ms; the bound is $bound_ms ms (+$tolerance_ms ms tolerance)"
+    # The lookup was cut off, not left to finish, and none of it is left running.
+    [ ! -e "$fx/lookup-finished" ] || die "the slow lookup ran to its end"
+    pgid=$(cat "$fx/lookup-pgid") || die "the slow lookup never ran"
+    ! kill -0 -- "-$pgid" 2>/dev/null || die "the lookup's process group $pgid is still running"
 }
 
 test_merge_says_what_it_checked_when_blocked_for_another_reason() {

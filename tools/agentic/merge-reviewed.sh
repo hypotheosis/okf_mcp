@@ -13,7 +13,8 @@
 #      resolved one. Threads a person started are never resolved; one that is
 #      still open is named in the refusal. After resolving, and while GitHub
 #      reports UNKNOWN, it re-reads the state for up to $AGENTIC_STATE_WAIT
-#      seconds (default 60, counted from the last resolve).
+#      seconds (default 60, counted from the last resolve). That is a polling
+#      budget, not a hard limit: see await_merge_state for the total bound.
 # The merge is pinned to the inspected head, so a concurrent push makes it fail.
 # Every gh and git call is bounded ($AGENTIC_CALL_TIMEOUT, default 60 s); a call
 # that runs out of time is a refusal.
@@ -65,9 +66,16 @@ fi
 # await_merge_state <also_blocked>: re-reads mergeStateStatus into $state until
 # it is no longer UNKNOWN (and, when <also_blocked> is 1, no longer BLOCKED:
 # GitHub may still hold the pre-resolve state), for at most $AGENTIC_STATE_WAIT
-# seconds from now. Each lookup and each sleep is capped by the time left
-# (agentic_deadline, scoped to this call), so the wait never overruns the bound;
-# a lookup that runs out of time ends the wait with the state as it was.
+# seconds from now: no sleep and no new lookup starts after that. Each lookup
+# and each sleep is capped by the time left (agentic_deadline, scoped to this
+# call); a lookup that runs out of time ends the wait with the state as it was.
+# The total is bounded, but not by $AGENTIC_STATE_WAIT alone: the last lookup
+# may run up to 2 s past it (1 s of grace, plus up to 1 s from the whole-second
+# clock), and stopping that lookup's process group (agentic_stop_group, lib.sh)
+# takes up to $agentic_kill_after + $agentic_reap_after more (5 + 5 s by
+# default). So the wait ends within AGENTIC_STATE_WAIT + 2 + 10 s by default
+# (72 s), never leaving the lookup's processes running except one that
+# survives KILL, which lib.sh abandons with a warning.
 # Sets $waited to the seconds spent.
 await_merge_state() {
     local started deadline left rc latest

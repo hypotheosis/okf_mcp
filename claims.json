@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "885ee6efb99a633d3b5e8838c20e0a4737ed2949b784ffaa562268ed73869015"
   },
-  "next_evidence_seq": 4083,
+  "next_evidence_seq": 4088,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "d0531d16e4356219f1f7b9e2c1b4db7ca62f0d26bf461b2887e8f11d19bee6ad"
+    "mac": "79f7078f1dba4674ad84f394d9bd16712344ec07fb5e1d304a639d55a4e80cfe"
   },
   "claims": [
     {
@@ -144536,6 +144536,28 @@
             "by": "server",
             "mac": "5bdc8d524900c20d8b9ded6ed0533c20f62c6f16c5a6b1b5714fb86e71abf387"
           }
+        },
+        {
+          "id": "EVD-4086",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:273,298,325 at e3052f18; git diff origin/main..HEAD -- src/mcp/writes.rs hunks",
+          "summary": "The #929 hunks in writes.rs are at lines 103, 242 (create_concept description) and tests; none touches edit_document, replace_body or set_frontmatter. All three descriptions still say \"nothing changes until `publish`, and `discard` drops it\" (shifted one line down).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 262,
+                "end": 326
+              },
+              "commit": "e3052f1882c4b910f3adf848e49353deccb86c03"
+            }
+          },
+          "recorded_at": "2026-11-27T21:57:40.515735968Z",
+          "seal": {
+            "by": "server",
+            "mac": "c76bd835f9192ba7cdbc58d2b41a28a1a7d20aacf2f64948657dff01388f35f8"
+          }
         }
       ],
       "verdicts": [
@@ -144551,13 +144573,26 @@
             "by": "server",
             "mac": "058323f6897b9b3cae17288967c937c6720fd28630aae10483b3ae779609a7bc"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at e3052f18: #929 does not touch those three descriptions and the staged/publish/discard text is intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4086"
+          ],
+          "recorded_at": "2026-11-27T21:57:52.484715103Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5cce4527ebcfe21b36b2265ebdb35f1ffebc0bbfc7c6ea8eaec78849a6196dc"
+          }
         }
       ],
       "created_at": "2026-11-25T23:37:48.941679546Z",
-      "updated_at": "2026-11-25T23:38:56.348439943Z",
+      "updated_at": "2026-11-27T21:57:52.484715103Z",
       "seal": {
         "by": "server",
-        "mac": "6e87f92860f536be45a80cde36b78d04f11bf49c216c1ead8d608d5cf6632014"
+        "mac": "1d3bc8f7dd4a67f1efa4e8ca2ba593f2a6f2802a8b65715374cc77e70e445000"
       }
     },
     {
@@ -204485,6 +204520,18 @@
             "by": "server",
             "mac": "c729bd4a84d73ca54725fd6d9ef19fed6a20420cecc5db8e3d64c01e49e09850"
           }
+        },
+        {
+          "id": "EVD-4087",
+          "kind": "analysis",
+          "locator": "children of CLM-2315",
+          "summary": "The issue's requirements (error code and 409, recovery message, InvalidPath kept, description, tools.md, error-code tables, tests) are covered by CLM-2316 to 2325, now all supported. CLM-2326 (PR statement) is supported. Only CLM-2329, a PR-description claim about revert behaviour and not an issue requirement, is not_enough_info.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T21:57:52.623768628Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b15961d01c3efeacf254abc7221951bb17da4b7874dceea5a88f04b4b97fab8"
+          }
         }
       ],
       "verdicts": [
@@ -204500,13 +204547,26 @@
             "by": "server",
             "mac": "d5801ceb60474cfac306efa513b0e68bf167c9ceb432548232ba80652bf1682f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All issue requirements are met by supported children at e3052f18; the only open child is a PR-description claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4087"
+          ],
+          "recorded_at": "2026-11-27T21:57:56.029839017Z",
+          "seal": {
+            "by": "server",
+            "mac": "50fd98d1cbb6f5e9888ab0ac0d3f63f0ece85f9e1e9c5c88cddee8d3a818f376"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:56.376148818Z",
+      "updated_at": "2026-11-27T21:57:56.029839017Z",
       "seal": {
         "by": "server",
-        "mac": "7abf1384318038efb1634f362d44071208edf8f089ac5759173877923822a41e"
+        "mac": "6eceab8f1445660a120d1bb193559c6842505314f1af1cf28c7612482a8dfd2d"
       }
     },
     {
@@ -205244,6 +205304,28 @@
             "by": "server",
             "mac": "6add18cd588e0750116524af0bf1a5b170cd2e8acfffdd198ff73b6398185b63"
           }
+        },
+        {
+          "id": "EVD-4083",
+          "kind": "inspection",
+          "locator": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md:648-649 at e3052f18",
+          "summary": "The InvalidPath row no longer lists \"already exists\" (it points to #929) and a new AlreadyExists { path } row names create_concept, move_concept, split_concept, the edit tools and HTTP 409. No other docs error table lists \"already exists\" under InvalidPath.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md",
+              "lines": {
+                "start": 648,
+                "end": 649
+              },
+              "commit": "e3052f1882c4b910f3adf848e49353deccb86c03"
+            }
+          },
+          "recorded_at": "2026-11-27T21:57:39.904393257Z",
+          "seal": {
+            "by": "server",
+            "mac": "58409b9324825db2d1e2ae5c97db1929c6eb69c58f639b3f161153b8f800a069"
+          }
         }
       ],
       "verdicts": [
@@ -205259,13 +205341,26 @@
             "by": "server",
             "mac": "3f4d9e25756d58a9a0c5974b0544c9f5b3838bcbe3d5474198861a9069583712"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "At e3052f18 the spec table no longer files \"already exists\" under InvalidPath and has an AlreadyExists row with 409.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4083"
+          ],
+          "recorded_at": "2026-11-27T21:57:52.019214678Z",
+          "seal": {
+            "by": "server",
+            "mac": "78f52fa01a913347ddfeeabd020e6708804f1ebd5e593724cf54ffbe84d039fa"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:50.154464557Z",
+      "updated_at": "2026-11-27T21:57:52.019214678Z",
       "seal": {
         "by": "server",
-        "mac": "ff428e979a7fa7c40116b84124afafe51d2567b73b2746cdc2b4c0093ac0864f"
+        "mac": "4744370c145b82f478e8639703f993c01aa8ca005199268d92b59cf96f3246db"
       }
     },
     {
@@ -205311,6 +205406,28 @@
             "by": "server",
             "mac": "27b42cec98b9008d40c6cbf2300100e44776e04eec6d54d136fa750e2bb50417"
           }
+        },
+        {
+          "id": "EVD-4084",
+          "kind": "inspection",
+          "locator": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md:648 at e3052f18",
+          "summary": "The spec line that asserted the old code is corrected in the same branch, so no doc left in the tree at head asserts the old code as current (dated plans under docs/superpowers/plans still quote it as history). No test asserts it. The PR sentence says \"outside this change\"; the spec is now inside the change, so the sentence holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md",
+              "lines": {
+                "start": 648,
+                "end": 649
+              },
+              "commit": "e3052f1882c4b910f3adf848e49353deccb86c03"
+            }
+          },
+          "recorded_at": "2026-11-27T21:57:40.077257713Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6ba7aa927cf32296ea5ac4e12add316ff55976e7b35b1706cc0bff6d7beb079"
+          }
         }
       ],
       "verdicts": [
@@ -205326,13 +205443,26 @@
             "by": "server",
             "mac": "c857b1e0b6cc814683b5bd52b4d70a0cf4ee2e6babed402c7a00cc77d78269c8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The one doc that asserted the old code is corrected in this branch; no test asserts it. Historical dated plans are not current docs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4084"
+          ],
+          "recorded_at": "2026-11-27T21:57:52.158850216Z",
+          "seal": {
+            "by": "server",
+            "mac": "9917cde2fcfb6da0d5c3e2241e82af4f0e550698b74d2f7a3787560489ca42d8"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:50.409171823Z",
+      "updated_at": "2026-11-27T21:57:52.158850216Z",
       "seal": {
         "by": "server",
-        "mac": "7b4ac4c2054a318e7709d7c4bb39e03966a078825ec14e9a85b63a7d945a25ff"
+        "mac": "6b8e85fbe0ded74e6218e854a6f9e203f783cc71254358aa6e6dcedcaf345a7d"
       }
     },
     {
@@ -205516,6 +205646,18 @@
             "by": "server",
             "mac": "57de36818b36505f90127c83b32ac47225f032fe144d6c2551f4bd23e5ca1dff"
           }
+        },
+        {
+          "id": "EVD-4085",
+          "kind": "log",
+          "locator": "target/i929-logs/revert.log (author's revert run, read by me, not re-run)",
+          "summary": "Log: 9 tests run, 7 FAILED, 2 passed. FAILED: http a_taken_path_is_a_conflict..., moves a_taken_reserved_or_missing..., workspace rename_keeps_bytes..., writes the_write_tools_have_object_output_schemas..., content create_concept_refusals, reference the_checked_in..., writes create_concept_on_an_existing_path.... Passed: error::tests::a_taken_path_is_already_exists... (it tests the variant alone; it cannot compile without the variant) and an unrelated store::keys rename test. The mcpjam scenario is not in the log. I did not reproduce the revert myself.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T21:57:40.306522609Z",
+          "seal": {
+            "by": "server",
+            "mac": "4577a8a8b1949ab473347c9652187b8868fdf78db5bfa435c669aa0a0cf7b5e7"
+          }
         }
       ],
       "verdicts": [
@@ -205529,13 +205671,24 @@
             "by": "server",
             "mac": "7f890d3d5b26fdbae91fa67601cadf9bc548a4a8f0eef7f84c83d545d76084cc"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The author's revert log shows 6 of the 7 Rust tests it covers failing, and the variant test cannot compile without the variant, but the log itself has that test passing under a behaviour-only revert and does not cover the mcpjam scenario, which the list also includes. I did not reproduce the revert. Fix: reword the PR heading to \"Rust tests fail with the behaviour reverted (the variant test needs the variant)\", or run the mcpjam scenario against a reverted server.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T21:57:52.351140105Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3af2380c46d7e3bdf6ad50a5850e5056aea8665938b961462aa990d111585b4"
+          }
         }
       ],
       "created_at": "2026-11-27T21:42:23.048568877Z",
-      "updated_at": "2026-11-27T21:43:51.124331361Z",
+      "updated_at": "2026-11-27T21:57:52.351140105Z",
       "seal": {
         "by": "server",
-        "mac": "cefb25f0378db1a32198f1566a5b511fe4594df5404bdee77d70b428a7bda514"
+        "mac": "a2aa9d16834e49d0694e726ed20212efb6cdd44b486a0a707818206ee414cbc5"
       }
     }
   ]

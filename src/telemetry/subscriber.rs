@@ -721,11 +721,6 @@ pub(crate) mod capture {
             // The helper keeps a first registration on another thread from
             // caching "disabled" for a callsite this test uses (issue #481).
             let guard = crate::test_tracing::set_default(subscriber);
-            // Callsites other tests on other threads registered earlier can
-            // hold a cached "never"; recompute every cached answer against
-            // this subscriber before the code under test runs (issues #481,
-            // #826, #836).
-            tracing::callsite::rebuild_interest_cache();
             Self {
                 span_exporter,
                 log_exporter,
@@ -1164,6 +1159,39 @@ mod tests {
             !logger_dropped.load(Ordering::SeqCst),
             "dropping the subscriber dropped its logger provider"
         );
+    }
+
+    /// A callsite that another thread reached first, with no subscriber of
+    /// its own, still records for an `Observer` started afterwards or while
+    /// the other thread runs (issues #481, #836): `test_tracing`'s anchor
+    /// keeps the answer computed from every live subscriber.
+    #[test]
+    fn a_callsite_another_thread_reached_first_still_records() {
+        use super::capture::Observer;
+
+        fn work(label: &'static str) {
+            let _ =
+                tracing::info_span!(target: "okf_mcp::first_elsewhere", "first_elsewhere", label)
+                    .entered();
+        }
+        // The other thread registers the callsite with no default subscriber.
+        std::thread::spawn(|| work("before"))
+            .join()
+            .expect("thread");
+
+        let observer = Observer::start("off", "trace", "off", LogFormat::Text);
+        std::thread::spawn(|| work("during"))
+            .join()
+            .expect("thread");
+        work("here");
+        let observed = observer.finish();
+
+        let seen: Vec<_> = observed
+            .spans
+            .iter()
+            .map(|span| span.name.as_ref())
+            .collect();
+        assert_eq!(seen, ["first_elsewhere"], "captured {seen:?}");
     }
 
     /// Issue #738: captures made and dropped on many threads at once, some

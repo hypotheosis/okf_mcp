@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2202,
+  "next_claim_seq": 2204,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "3d9966e0e4991449003a2583444bd66c310cf3f2207c8bfcc673c429f74be91c"
+    "mac": "29e482a185da1c52834de291456ac13c7acc1b3e022fb7c60933ba95e52139fd"
   },
-  "next_evidence_seq": 3884,
+  "next_evidence_seq": 3893,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "abd383a2258afd066f06556424db13fc664895228ee89c5f0d3f43f9dbe6af1b"
+    "mac": "38762e62c786316069b9a50bcf31b3d301528b92bfcd5d695b3af5a070fd9d98"
   },
   "claims": [
     {
@@ -193355,6 +193355,18 @@
             "by": "server",
             "mac": "7180f00f079482123dbfd4f54208d21041e2bdb924951e43b314bf73f5689513"
           }
+        },
+        {
+          "id": "EVD-3892",
+          "kind": "analysis",
+          "locator": "children of CLM-2184",
+          "summary": "At 2de62056 every active child (CLM-2185 to CLM-2196, CLM-2198 to CLM-2203) is supported. The unfiltered cited_by listing checks now run only under catalog isolation, which the issue's acceptance (local mode and the catalog-isolation key) covers; under folder isolation they are skipped and documented. Gate and staging runs remain the author's.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T14:26:12.718608867Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8c77178da810b48f7e4517a95f95ce342a1bd541def62b64956c5c1276f1d21"
+          }
         }
       ],
       "verdicts": [
@@ -193383,13 +193395,26 @@
             "by": "server",
             "mac": "b52253bc6d93b3dfef88ad08d970b7e7d1efa49a11a316b80a4282270d289d18"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported at 2de62056; gate and staging runs remain the author's.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3892"
+          ],
+          "recorded_at": "2026-11-27T14:26:15.647601949Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f15e6caac2164f64fc32a85766a29d92299750d752d10dc0ff73fb474687cee"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:12:16.744307534Z",
+      "updated_at": "2026-11-27T14:26:15.647601949Z",
       "seal": {
         "by": "server",
-        "mac": "b98b252efd001bb9b441ab2e8b092837fe24f1e004943566ac228b50cb22c360"
+        "mac": "c18fb266eb07e396403d30996069b141b33f2f6b078a29ecfe8ecf61b02ac856"
       }
     },
     {
@@ -193545,6 +193570,28 @@
             "by": "server",
             "mac": "0d5db8db3288607c5e06a86ec01128827413d366982b46a8415b564736777983"
           }
+        },
+        {
+          "id": "EVD-3887",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:225-243 at 2de62056",
+          "summary": "Count/order test body unchanged (hits [] and the four-row sequence with popular at 2); it is now test.skipIf(!ownCatalog), so it runs only under catalog isolation (local mode always; staging with the catalog-isolation key, as the issue's acceptance names). Skipped under folder isolation.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 225,
+                "end": 243
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:57.917811064Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec5bcc5803b87fc196cd42d13a05d2d4f4976b0325ebc33040437da63133109a"
+          }
         }
       ],
       "verdicts": [
@@ -193561,13 +193608,27 @@
             "by": "server",
             "mac": "2ff8b91e10e9605761c53602ffd9d576a3ae150f66e09f41a621ece200dbbf83"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Assertions unchanged; the test runs under catalog isolation (local mode and the issue's staging key), skipped under folder isolation as documented.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3887",
+            "EVD-3854"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.121742278Z",
+          "seal": {
+            "by": "server",
+            "mac": "42650dae3c095a5260f205da83de485ec0ab3367923bba8ed0c902db96bfaaba"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:51.511379178Z",
+      "updated_at": "2026-11-27T14:26:12.121742278Z",
       "seal": {
         "by": "server",
-        "mac": "a5da180d3e3796e7095bc18c9e6b8b2912801eeb726a28b1e771de2b8c46277a"
+        "mac": "534d2fe0366ac420ea97f7f8ccdd256bb1774e02b9250f88cba4c48a83b2868d"
       }
     },
     {
@@ -193634,6 +193695,28 @@
             "by": "server",
             "mac": "d0bcb54abd183f3314ce6e71913bed9417f7df72eec343a78731f759038f014f"
           }
+        },
+        {
+          "id": "EVD-3888",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:225-254 at 2de62056",
+          "summary": "Order assertion unchanged (225-243); cut test (245-254) still asserts limit 2 gives 2 sources with truncated true and limit 1 truncated true. Both are skipIf(!ownCatalog); the filtered-hits assertions moved to a separate test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 225,
+                "end": 254
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:58.046787368Z",
+          "seal": {
+            "by": "server",
+            "mac": "a028c7de37de6b710eccf8e56cb585d01df5d1bf5b7b158e9389d542e0032205"
+          }
         }
       ],
       "verdicts": [
@@ -193650,13 +193733,27 @@
             "by": "server",
             "mac": "060dbf0c3e77c52f2d33ec053c3fb741191f35382186188fb7758a4112b340fd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Order and truncation assertions intact in the two catalog-isolation tests; code ordering unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3888",
+            "EVD-3856"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.241591388Z",
+          "seal": {
+            "by": "server",
+            "mac": "801d9d769b12199878021ca4a311c7d9ea716535aa322abad1c0746439082c73"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:51.692709130Z",
+      "updated_at": "2026-11-27T14:26:12.241591388Z",
       "seal": {
         "by": "server",
-        "mac": "71f26504ed88bd733c421ae6c6ee5dc917d29201c6f6100e92b8fa2ec7dd93af"
+        "mac": "edce68c5dd5511fec214daa65ede76af7127b33f39d91f2b9f51d41211948f93"
       }
     },
     {
@@ -194409,6 +194506,28 @@
             "by": "server",
             "mac": "20036ca5a3691118d9e92ce8922b96fd6d3fe6e09e790afd0de530d1b0da9e67"
           }
+        },
+        {
+          "id": "EVD-3890",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/README.md:15-19 at 2de62056",
+          "summary": "The commit adds only an Isolation paragraph (lines 89-93); the file table rows are unchanged and still match the five files and describe names.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/README.md",
+              "lines": {
+                "start": 15,
+                "end": 19
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:58.303018446Z",
+          "seal": {
+            "by": "server",
+            "mac": "769d14b091b432bc8fcd118b6060b5b551ba6a4e5fbea1fddfd6573b02461379"
+          }
         }
       ],
       "verdicts": [
@@ -194424,13 +194543,26 @@
             "by": "server",
             "mac": "f37d93efc324157c257de5611b9483db37f09c4feec32b90a00d6297751bdd78"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "README table rows unchanged and accurate; only an Isolation paragraph was added.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3890"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.479786381Z",
+          "seal": {
+            "by": "server",
+            "mac": "04a23db9ad27666099a2f285dbea0683f4f7ce4a42c76e61d90cde93c76c0a49"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:52.956606856Z",
+      "updated_at": "2026-11-27T14:26:12.479786381Z",
       "seal": {
         "by": "server",
-        "mac": "12c2bd77d12663c3a54c2aa5ec5d794dfc833742f61c7ac51b2cc0fb12f29b91"
+        "mac": "26818686d07a2f7b349a64bfe05274959b28ec68981bdd097660dd02fce63dc9"
       }
     },
     {
@@ -194498,6 +194630,28 @@
             "by": "server",
             "mac": "695b9d0d861975d11801acf9bdbb8aac0ecf44d404b083a51e23fd97b0f5a7e8"
           }
+        },
+        {
+          "id": "EVD-3891",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:225-267 at 2de62056",
+          "summary": "The new filtered-hits test waits (vi.waitFor) for both hits before asserting; the two skipIf tests keep their waitFor on the four sources. No new post-publish read without a wait or changeset read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 225,
+                "end": 267
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:58.429153343Z",
+          "seal": {
+            "by": "server",
+            "mac": "376c9857c57353dc5da753d62c2f9d6e76dbe5139183dfe2579d25391f8d3d59"
+          }
         }
       ],
       "verdicts": [
@@ -194526,13 +194680,27 @@
             "by": "server",
             "mac": "fcd19b141339b807281f2b4bcf62a2449504a2a9a27e438bd493816f42b262cf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The restructured prober tests still wait or read through the changeset; the earlier curator waits remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3891",
+            "EVD-3879"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.597590839Z",
+          "seal": {
+            "by": "server",
+            "mac": "14fdeda2632aaddf2ec130223e2c1bcde9ffc85de9f008a75c8d33280bbfba20"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:12:13.029224678Z",
+      "updated_at": "2026-11-27T14:26:12.597590839Z",
       "seal": {
         "by": "server",
-        "mac": "b74422fd5017d6090455c8b1f3a166d98c2231b75f5bb5e4e0cbd4ceca76296b"
+        "mac": "84a6fef096e71f533c331dbbe68910f8c8dd3225f27a6ac25718582c8c36e65c"
       }
     },
     {
@@ -194553,7 +194721,9 @@
         "from-issue:1158"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: at 2de62056 the suite has 40 tests, not 39 (the cited_by listing test was split in two); replaced by a corrected claim.",
+        "retired_at": "2026-11-27T14:25:39.158384212Z"
       },
       "evidence": [
         {
@@ -194595,10 +194765,10 @@
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:53.233702142Z",
+      "updated_at": "2026-11-27T14:25:39.158384212Z",
       "seal": {
         "by": "server",
-        "mac": "f291d85cf3ec2551b8b89542adee7cd340cc6dc6055d7a7aca5b019a1b55c933"
+        "mac": "83b7f1bb9b438d75702bfb3b9a10bc21e2fbf6199d3ccee47834114da2b8c9f5"
       }
     },
     {
@@ -194857,6 +195027,28 @@
             "by": "server",
             "mac": "fc0b7f8b0707d747871dc2115c16ec4fded3831838298cb9bfe3a453d6f389ac"
           }
+        },
+        {
+          "id": "EVD-3889",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:256-267 at 2de62056",
+          "summary": "Separate unskipped test: waits for both citing concepts, then limit 1 gives [counted/first] with truncated true and limit 2 gives truncated false. Matches cited_by.rs:173-178.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 256,
+                "end": 267
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:58.175431670Z",
+          "seal": {
+            "by": "server",
+            "mac": "e06fc504bb402aa6d1f620ecda9b35b44d09e3adf1ea823be4ac77c6fa69fe8d"
+          }
         }
       ],
       "verdicts": [
@@ -194873,13 +195065,183 @@
             "by": "server",
             "mac": "87e988d07ab9f2b6a6e7402b8a94fb47b02d79e131facda5a309ff6146da8b24"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The filtered hits-limit check is now its own unskipped test with the same assertions; code agrees.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3889",
+            "EVD-3857"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.360749995Z",
+          "seal": {
+            "by": "server",
+            "mac": "f980f7c82ddea478513a1ff596c7bc90fee28b5eaf4249f61993107a90e1e4d3"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:54.006469442Z",
+      "updated_at": "2026-11-27T14:26:12.360749995Z",
       "seal": {
         "by": "server",
-        "mac": "cfeb45b7c2423cd59590c138ac6513bd13b1379734591b2b359b0595b53b7a09"
+        "mac": "2f2e2a919d0f9d7b96c1fc609e57b2b201310b9aa36c753affc39d88ec9c3519"
+      }
+    },
+    {
+      "id": "CLM-2202",
+      "statement": "The mcpjam scenarios define 29 tests on origin/main and 40 at HEAD (counting test( and test.skipIf(...)( calls in tests/mcpjam/scenarios)",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'mcpjam: 29 tests before, 39 after' (count updated to 40 after review commit 2de62056)",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3884",
+          "kind": "log",
+          "locator": "git grep -nE '(^|[^.a-zA-Z])test(\\.skipIf\\([^)]*\\))?\\(' HEAD -- tests/mcpjam/scenarios | wc -l  (40; origin/main: 29)",
+          "summary": "HEAD has 40 test declarations (38 plain test( plus 2 test.skipIf(...)( in the prober file); origin/main has 29. The earlier 39 is outdated by the split of one test into two.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "(^|[^.a-zA-Z])test(\\.skipIf\\([^)]*\\))?\\(",
+              "scope": [
+                "tests/mcpjam/scenarios"
+              ],
+              "hits": 40,
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:57.523448659Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ecb4c24e5e5730e6cfb6bdca2147341b6db3ff0db2b55f48e4129aacab38514"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search anchor counts 40 declarations at HEAD (29 on origin/main by the same pattern).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3884"
+          ],
+          "recorded_at": "2026-11-27T14:26:11.883555995Z",
+          "seal": {
+            "by": "server",
+            "mac": "389e6c312b865a9230efddd53b0f5ff6e29ec2d012f2734823ee1034a071f6bb"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:25:39.280361759Z",
+      "updated_at": "2026-11-27T14:26:11.883555995Z",
+      "seal": {
+        "by": "server",
+        "mac": "ef00642bff316c1e9fb57510a820ec0318e6c8d6ed6cb7f7789460beb243b97c"
+      }
+    },
+    {
+      "id": "CLM-2203",
+      "statement": "The two unfiltered cited_by listing tests (count/order and cut-at-limit) are declared with test.skipIf(!ownCatalog), so they run only under catalog isolation and are skipped under folder isolation; tests/mcpjam/README.md documents this",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Review commit 2de62056 and its changelog/README text",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+        "tests/mcpjam/README.md"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3885",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:219-256",
+          "summary": "ownCatalog = target().isolation === \"catalog\" (isolation is \"catalog\" | \"folder\", tests/mcpjam/src/okf.ts:24); the count/order test (225) and the cut-listing test (245) use test.skipIf(!ownCatalog); the filtered hits-limit test (257) and the resource-filter test are plain test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 219,
+                "end": 256
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:57.654356354Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e3a854aad41bd1b70a7c0ce6313bfac962005e1df620de1897ec91efafe6f21"
+          }
+        },
+        {
+          "id": "EVD-3886",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/README.md:89-93",
+          "summary": "README Isolation section states the unfiltered cited_by listing is capped at 200 sources catalog-wide and those tests are skipped under folder isolation (test.skipIf) and run under catalog isolation, which local mode always uses.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/README.md",
+              "lines": {
+                "start": 89,
+                "end": 93
+              },
+              "commit": "2de62056565e5e2a494f5fd8193cfdadeeede7ef"
+            }
+          },
+          "recorded_at": "2026-11-27T14:25:57.786386696Z",
+          "seal": {
+            "by": "server",
+            "mac": "56e05c8bd3c17f32ffe3fb31c5eeb5981686fdfb7d9fda90c268d890f22cb8ee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both listing tests use skipIf(!ownCatalog) tied to the isolation mode, and the README documents it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3885",
+            "EVD-3886"
+          ],
+          "recorded_at": "2026-11-27T14:26:12.003630297Z",
+          "seal": {
+            "by": "server",
+            "mac": "5733a23864916f5d96a0f99559a1098dabe477d1b237d414f20eaa064c2f9356"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:25:39.280361759Z",
+      "updated_at": "2026-11-27T14:26:12.003630297Z",
+      "seal": {
+        "by": "server",
+        "mac": "053663ab57da94161f0af095880b2298adf70d31da7e085f4e42d64e0540cdd6"
       }
     }
   ]

@@ -6,7 +6,14 @@
 #      already given the maximum number of review rounds (agentic_max_rounds;
 #      the final round's non-blocking findings go to follow-up issues);
 #   2. every top-level inline comment from the bot has a reply in its thread;
-#   3. GitHub reports the PR as CLEAN (mergeable, up to date as required).
+#   3. GitHub reports the PR as CLEAN (mergeable, up to date as required). When
+#      it is BLOCKED, the script first resolves the unresolved review threads the
+#      bot started (all of them answered, by 2.): a ruleset such as the default
+#      branch's requires resolved threads, and an answered thread is not a
+#      resolved one. Threads a person started are never resolved; one that is
+#      still open is named in the refusal. After resolving, and while GitHub
+#      reports UNKNOWN, it re-reads the state for up to $AGENTIC_STATE_WAIT
+#      seconds (default 60, counted from the last resolve).
 # The merge is pinned to the inspected head, so a concurrent push makes it fail.
 # Every gh and git call is bounded ($AGENTIC_CALL_TIMEOUT, default 60 s); a call
 # that runs out of time is a refusal.
@@ -55,8 +62,90 @@ if [ "$unreplied" != "[]" ]; then
     exit 1
 fi
 
+# await_merge_state <also_blocked>: re-reads mergeStateStatus into $state until
+# it is no longer UNKNOWN (and, when <also_blocked> is 1, no longer BLOCKED:
+# GitHub may still hold the pre-resolve state), for at most $AGENTIC_STATE_WAIT
+# seconds from now. Sets $waited to the seconds spent.
+await_merge_state() {
+    local started deadline
+    started=$(agentic_now)
+    deadline=$((started + ${AGENTIC_STATE_WAIT:-60}))
+    waited=0
+    while [ "$state" = UNKNOWN ] || { [ "$1" = 1 ] && [ "$state" = BLOCKED ]; }; do
+        [ "$(agentic_now)" -lt "$deadline" ] || break
+        agentic_sleep 3
+        state=$(agentic_gh pr view "$pr" -R "$repo" --json mergeStateStatus \
+            --jq .mergeStateStatus) \
+            || { echo "REFUSE: could not re-read the merge state of PR $pr"; exit 1; }
+        waited=$(($(agentic_now) - started))
+    done
+}
+
+# GitHub computes mergeStateStatus lazily; UNKNOWN means it has not finished.
+[ "$state" != UNKNOWN ] || await_merge_state 0
+
+waited=0
+resolved=0
+person_threads=""
+if [ "$state" = BLOCKED ]; then
+    # shellcheck disable=SC2016 # a GraphQL query: $vars are GraphQL's, not the shell's
+    pages=$(agentic_gh api graphql --paginate -f owner="${repo%%/*}" -f name="${repo#*/}" \
+        -F pr="$pr" -f query='
+        query($owner: String!, $name: String!, $pr: Int!, $endCursor: String) {
+          repository(owner: $owner, name: $name) {
+            pullRequest(number: $pr) {
+              reviewThreads(first: 100, after: $endCursor) {
+                pageInfo { hasNextPage endCursor }
+                nodes { id isResolved path comments(first: 1) { nodes { author { login } } } }
+              }
+            }
+          }
+        }') || { echo "REFUSE: could not read the review threads of PR $pr"; exit 1; }
+    threads=$(jq -s -e '
+            if length > 0 and all(.[]; (.data.repository.pullRequest.reviewThreads.nodes | type) == "array")
+            then [.[].data.repository.pullRequest.reviewThreads.nodes[]] else error end' \
+            <<<"$pages" 2>/dev/null) \
+        || { echo "REFUSE: could not read the review threads of PR $pr"; exit 1; }
+    # shellcheck disable=SC2016 # a jq program: $vars are jq's, not the shell's
+    bot_threads=$(agentic_jq_bot "$bot" '
+        .[] | select((.isResolved | not) and ((.comments.nodes[0].author.login // "") | is_bot))
+        | .id' -r <<<"$threads")
+    # shellcheck disable=SC2016
+    person_threads=$(agentic_jq_bot "$bot" '
+        .[] | select((.isResolved | not) and (((.comments.nodes[0].author.login // "") | is_bot) | not))
+        | "\(.path // "(no file)") by \(.comments.nodes[0].author.login // "an unknown user")"' \
+        -r <<<"$threads" | paste -sd, - | sed 's/,/, /g')
+    for thread_id in $bot_threads; do
+        # shellcheck disable=SC2016
+        agentic_gh api graphql -f id="$thread_id" -f query='
+            mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' \
+            >/dev/null \
+            || { echo "REFUSE: could not resolve review thread $thread_id ($resolved resolved" \
+                "before it); resolve the threads by hand or retry"; exit 1; }
+        resolved=$((resolved + 1))
+    done
+    [ "$resolved" = 0 ] || await_merge_state 1
+fi
+
 if [ "$state" != CLEAN ]; then
-    echo "REFUSE: mergeStateStatus=$state"
+    if [ "$state" = BLOCKED ]; then
+        if [ -n "$person_threads" ]; then
+            echo "REFUSE: mergeStateStatus=$state; unresolved review threads started by a person" \
+                "(never resolved by this script): $person_threads"
+        elif [ "$resolved" != 0 ]; then
+            echo "REFUSE: mergeStateStatus=$state still $waited s after resolving $resolved $bot" \
+                "review thread(s); no thread by a person is open, so the block is something else" \
+                "(a required check or approval, or a ruleset): see the PR's merge box"
+        else
+            echo "REFUSE: mergeStateStatus=$state; checked the review threads (none open) and found" \
+                "nothing for this script to resolve, so the block is something else (a required" \
+                "check or approval, or a ruleset): see the PR's merge box"
+        fi
+    elif [ "$state" = UNKNOWN ]; then
+        echo "REFUSE: mergeStateStatus=UNKNOWN after waiting $waited s for GitHub to compute it"
+    else
+        echo "REFUSE: mergeStateStatus=$state"
+    fi
     exit 1
 fi
 

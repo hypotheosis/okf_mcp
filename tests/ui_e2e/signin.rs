@@ -42,7 +42,8 @@ const FAIL_NEXT_SIGN_OUT: &str = "() => { const real = window.fetch; let failed 
 /// The status of `GET /api/v1/session` with the page's cookie.
 const SESSION_STATUS: &str = "async () => (await fetch('/api/v1/session')).status";
 
-/// What the journey reports when the stored key is not dropped in time: the
+/// What the journey reports when the account's identity does not show, or
+/// the stored key is not dropped, in time: the
 /// page's address (no query or fragment) and the session's status, never the
 /// key, a cookie or a token.
 const KEY_DROP_REPORT: &str = "async () => ({ href: location.origin + location.pathname, \
@@ -525,7 +526,7 @@ async fn an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both() {
         // Exactly "carol - read": the stored key's identity, "console-carol
         // - read", contains it, so a substring wait is met by the key's
         // page before the account session has taken over.
-        ui.wait_text_is("#whoami", "carol - read");
+        ui.wait_text_is("#whoami", "carol - read", KEY_DROP_REPORT);
         // Boot drops the key before it draws `#whoami`, so this holds at
         // once on the account session's page; the bounded poll keeps the
         // read from assuming it, and its timeout names the key.

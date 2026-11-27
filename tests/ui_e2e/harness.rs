@@ -482,15 +482,19 @@ impl Ui {
     }
 
     /// Waits until `selector`'s text is exactly `expected` (not merely
-    /// containing it: "carol - read" is inside "console-carol - read"),
-    /// and returns the text.
+    /// containing it: "carol - read" is inside "console-carol - read"). A
+    /// timeout reports what `report` (a JS function, no argument,
+    /// returning a value) says about the page then.
     ///
     /// # Panics
-    /// When the text is not `expected` after [`WAIT`].
-    pub fn wait_text_is(&self, selector: &str, expected: &str) {
-        self.poll(&format!("{selector} reading {expected:?}"), || {
-            self.text(selector).trim() == expected
-        });
+    /// When the text is not `expected` after [`WAIT`]; the message carries
+    /// `report`'s answer.
+    pub fn wait_text_is(&self, selector: &str, expected: &str, report: &str) {
+        self.poll_reporting(
+            &format!("{selector} reading {expected:?}"),
+            report,
+            || self.text(selector).trim() == expected,
+        );
     }
 
     /// Waits until `selector`'s text no longer contains `gone` (an absent
@@ -744,15 +748,23 @@ impl Ui {
     /// When `function` has not returned `true` within [`WAIT`]; the message
     /// carries `report`'s answer.
     pub fn poll_eval_reporting(&self, function: &str, report: &str) {
+        self.poll_reporting(function, report, || {
+            self.eval(function, serde_json::json!(null)) == serde_json::json!(true)
+        });
+    }
+
+    /// Polls `done` for [`WAIT`]; on a timeout panics with `what` and the
+    /// answer of the JS function `report`.
+    fn poll_reporting(&self, what: &str, report: &str, mut done: impl FnMut() -> bool) {
         let deadline = Instant::now() + WAIT;
         while Instant::now() < deadline {
-            if self.eval(function, serde_json::json!(null)) == serde_json::json!(true) {
+            if done() {
                 return;
             }
             std::thread::sleep(Duration::from_millis(50));
         }
         let state = self.eval(report, serde_json::json!(null));
-        panic!("timed out waiting for {function}; the page: {state}");
+        panic!("timed out waiting for {what}; the page: {state}");
     }
 
     /// Sends the page's next `method` request to a path ending in `suffix`

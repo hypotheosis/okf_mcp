@@ -736,6 +736,25 @@ impl Ui {
         });
     }
 
+    /// Like [`Ui::poll_eval`], but a timeout also reports what `report`
+    /// (a JS function, no argument, returning a string) says about the
+    /// page then, so a recurrence can be explained.
+    ///
+    /// # Panics
+    /// When `function` has not returned `true` within [`WAIT`]; the message
+    /// carries `report`'s answer.
+    pub fn poll_eval_reporting(&self, function: &str, report: &str) {
+        let deadline = Instant::now() + WAIT;
+        while Instant::now() < deadline {
+            if self.eval(function, serde_json::json!(null)) == serde_json::json!(true) {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+        let state = self.eval(report, serde_json::json!(null));
+        panic!("timed out waiting for {function}; the page: {state}");
+    }
+
     /// Sends the page's next `method` request to a path ending in `suffix`
     /// at once and holds only its answer in the page; `window.heldFetched`
     /// turns true when the answer arrives (see [`HOLD_NEXT`]). Unlike

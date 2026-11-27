@@ -42,6 +42,13 @@ const FAIL_NEXT_SIGN_OUT: &str = "() => { const real = window.fetch; let failed 
 /// The status of `GET /api/v1/session` with the page's cookie.
 const SESSION_STATUS: &str = "async () => (await fetch('/api/v1/session')).status";
 
+/// What the journey reports when the stored key is not dropped in time: the
+/// page's address (no query or fragment) and the session's status, never the
+/// key, a cookie or a token.
+const KEY_DROP_REPORT: &str = "async () => ({ href: location.origin + location.pathname, \
+    session: (await fetch('/api/v1/session')).status, \
+    whoami: document.getElementById('whoami')?.textContent ?? null })";
+
 /// A server whose `public_url` is its own address, so the login routes exist.
 async fn server() -> TestServer {
     TestServer::start_with(vec![("main", files(&[("index.md", "# Main\n")]))], |base| {
@@ -522,7 +529,10 @@ async fn an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both() {
         // Boot drops the key before it draws `#whoami`, so this holds at
         // once on the account session's page; the bounded poll keeps the
         // read from assuming it, and its timeout names the key.
-        ui.poll_eval("() => localStorage.getItem('okf.key') === null");
+        ui.poll_eval_reporting(
+            "() => localStorage.getItem('okf.key') === null",
+            KEY_DROP_REPORT,
+        );
         ui.click("#signout");
         ui.wait_visible("#login");
         assert_eq!(ui.eval(SESSION_STATUS, serde_json::json!(null)), 401);

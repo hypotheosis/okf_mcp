@@ -721,6 +721,11 @@ pub(crate) mod capture {
             // The helper keeps a first registration on another thread from
             // caching "disabled" for a callsite this test uses (issue #481).
             let guard = crate::test_tracing::set_default(subscriber);
+            // Callsites other tests on other threads registered earlier can
+            // hold a cached "never"; recompute every cached answer against
+            // this subscriber before the code under test runs (issues #481,
+            // #826, #836).
+            tracing::callsite::rebuild_interest_cache();
             Self {
                 span_exporter,
                 log_exporter,

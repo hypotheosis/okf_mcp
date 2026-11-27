@@ -1312,7 +1312,8 @@ async fn an_account_without_an_email_shows_no_null() {
         let drawn = ui.eval(
             "async () => { const me = await import('/read/js/screens/me.js'); \
              const view = document.createElement('section'); \
-             await me.render(view, { state: { session: { user: 'reader', email: null, csrf: 'x', expires_at: new Date().toISOString() } } }); \
+             const SESSION = { ANSWERED: 'answered', SIGNED_OUT: 'signed-out', OFFLINE: 'offline' }; \
+             await me.render(view, { SESSION, live: () => true, checkSession: async () => SESSION.ANSWERED, state: { session: { user: 'reader', email: null, csrf: 'x', expires_at: new Date().toISOString() } } }); \
              return view.textContent; }",
             json!(null),
         );

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2062,
+  "next_claim_seq": 2069,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "ece8f5a36a06adde11d24afaca7967dc4595a15b49657c0dfc1dd5d1067790a3"
+    "mac": "a8b00e2f4be20ca7549ea087201b971d06283bb73d3c0ad32e0a3f33b0a8ca6d"
   },
-  "next_evidence_seq": 3675,
+  "next_evidence_seq": 3685,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "73ba86c0c1d25fc76b3f7f73ae85e4b5882beb2a2ddb5c5278143d0c6fa535eb"
+    "mac": "b5c47dad902475cc4dbad8e93821ac9078a167bf8a211c402da535312f54552c"
   },
   "claims": [
     {
@@ -183825,6 +183825,544 @@
       "seal": {
         "by": "server",
         "mac": "baad7b305c9e4378de3a58fe328fbc6da8322b054cebbe3dde74e55f7f3787df"
+      }
+    },
+    {
+      "id": "CLM-2062",
+      "statement": "Issue #1095 is resolved: no test that dials a hard-coded dead port (127.0.0.1:1/:9) remains, and each such site uses a held refusing port",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1095",
+      "derived_from": [],
+      "artifacts": [
+        "src/",
+        "tests/"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3682",
+          "kind": "analysis",
+          "locator": "children of CLM-2062",
+          "summary": "Children on URLs, shared helper, changelog and the no-remaining-dialing-site search are supported; the bounded-wrapper child is refuted (telemetry_install shutdown unbounded), so the issue's requirement is not fully met.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T05:38:37.955784336Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f9b1427c3c022d2d3af42d10ad76d1ec1056381a228f11d9277f43962af0f60"
+          }
+        },
+        {
+          "id": "EVD-3684",
+          "kind": "analysis",
+          "locator": "children of CLM-2062",
+          "summary": "All six children are now supported (URLs, integration sites, bounded wrapping after df8f4b36, shared helper, changelog, no remaining dialing site).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T05:52:15.081000017Z",
+          "seal": {
+            "by": "server",
+            "mac": "84b6acc77b2ef6152db81fc145534452f43b91998d2116fc1cb995ed659d41b9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "One child (bounded wrapping, CLM-2065) is refuted by tests/telemetry_install.rs. Fix: wrap the shutdown in tests/telemetry_install.rs with support::refused::bounded, commit, and re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3682"
+          ],
+          "recorded_at": "2026-11-27T05:38:41.332413739Z",
+          "seal": {
+            "by": "server",
+            "mac": "122e5aac07abb185f58f790590247ccfe669fe0870c69d51304c80adadbe9986"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "With CLM-2065 now supported, every child is supported and together they cover the issue's requirements.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3684"
+          ],
+          "recorded_at": "2026-11-27T05:52:18.352743601Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c97f26f16eab041097fe78a40217f5f66ac85930a6d756e5dbcecd5852b9f12"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:52:18.352743601Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5118bb2e97e0797d5c17210ac62e3b1fefb9fbc4bfe7583ea4ad37d82c40c67"
+      }
+    },
+    {
+      "id": "CLM-2063",
+      "statement": "In-crate sites (src/mail/feedback.rs, src/shared/mod.rs x3, src/cli.rs, src/telemetry/mod.rs, src/investigator/client_tests.rs proxy env) build their URL from crate::test_net::Refused::address() instead of 127.0.0.1:1 or :9",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1095 'Possible fix': use test_net::Refused and put its address()/port() into the URL",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "src/mail/feedback.rs",
+        "src/shared/mod.rs",
+        "src/cli.rs",
+        "src/telemetry/mod.rs",
+        "src/investigator/client_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3675",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/",
+          "summary": "Diff replaces each fixed 127.0.0.1:1/:9 URL in feedback.rs, shared/mod.rs (3), cli.rs, telemetry/mod.rs (DSN and OTLP endpoint) and client_tests.rs proxy env with format!(..., refusing.address()) from crate::test_net::Refused::new().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/mod.rs",
+              "lines": {
+                "start": 630,
+                "end": 645
+              },
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:08.280566956Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6d087fbec3cbba755ba3e4484ecd9921a2b4359d3231bd2b3a585b6798dec91"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff shows each listed site now derives its URL from Refused::address(); grep finds no 127.0.0.1:1/9 in those files except non-dialling cases.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3675"
+          ],
+          "recorded_at": "2026-11-27T05:38:22.209171008Z",
+          "seal": {
+            "by": "server",
+            "mac": "530b00e9fd0c9b8ea9c04691d31eb4f32d70080daa7b9f6f23b00cb8622dd069"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:38:22.209171008Z",
+      "seal": {
+        "by": "server",
+        "mac": "203f8eb735a964ed5e2621bde2d9e1c477fcebb8c377f1427a49efeef2e48d8c"
+      }
+    },
+    {
+      "id": "CLM-2064",
+      "statement": "Integration-test sites that dial (tests/telemetry_install.rs DSN, tests/telemetry_privacy.rs CIMD client id URL) build their URL from a Refused address and no longer use 127.0.0.1:9 there",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1095 'Possible fix'",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "tests/telemetry_install.rs",
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3676",
+          "kind": "inspection",
+          "locator": "tests/telemetry_install.rs:59-61; tests/telemetry_privacy.rs:595-600",
+          "summary": "DSN and CIMD client-id URL are built from support::refused::Refused::new().address().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/telemetry_privacy.rs",
+              "lines": {
+                "start": 593,
+                "end": 600
+              },
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:08.424759293Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0b263f12333c7edfc1a7dc6a0e52cafd9cde6b5f71738fa792bdd6995154501"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both integration sites build URLs from support::refused::Refused.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3676"
+          ],
+          "recorded_at": "2026-11-27T05:38:22.334616022Z",
+          "seal": {
+            "by": "server",
+            "mac": "5bc469e40f3a2fd39aef93ad672cb631c79a97f548eb9a34656437e9b567d31e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:38:22.334616022Z",
+      "seal": {
+        "by": "server",
+        "mac": "2206c769b80d81a85dda4b94ff99ab36d6166bd3f3e499c7d257913f9aade281"
+      }
+    },
+    {
+      "id": "CLM-2065",
+      "statement": "Every call that dials a refusing address in the changed sites is wrapped in test_net::bounded (or the tests/ equivalent), excluding the sync proxy-env test whose child has its own timeouts",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1095: 'Wrap the call in test_net::bounded'",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "src/",
+        "tests/telemetry_install.rs",
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3677",
+          "kind": "inspection",
+          "locator": "src/mail/feedback.rs:1698-1704; src/shared/mod.rs; src/cli.rs:3865-3869; src/telemetry/mod.rs:1126; tests/telemetry_privacy.rs:609",
+          "summary": "The other changed dialing calls (feedback post, three Redis connects, cli announce, telemetry shutdown, privacy authorize) are wrapped in bounded; proxy test child has RPC_TIMEOUT (src/investigator/client.rs:87-88).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/mod.rs",
+              "lines": {
+                "start": 1124,
+                "end": 1127
+              },
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:08.663963766Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fa08a896e2d6907067270b6139e396ecaab9a60f48ac755299ec72db44e9df1"
+          }
+        },
+        {
+          "id": "EVD-3681",
+          "kind": "inspection",
+          "locator": "tests/telemetry_install.rs:104-111",
+          "summary": "tests/telemetry_install.rs points the exporter DSN at the refusing port (PR table: may dial at flush/shutdown) but the final .shutdown().await is not wrapped in bounded; the file never calls bounded. A hung shutdown would hang the test.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tests/telemetry_install.rs",
+              "lines": {
+                "start": 105,
+                "end": 111
+              },
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:12.266159219Z",
+          "seal": {
+            "by": "server",
+            "mac": "38ae395d0cf89528cc8d3534ad5c4ac4de322c47b7b8d4a558566118ed3bd983"
+          }
+        },
+        {
+          "id": "EVD-3683",
+          "kind": "inspection",
+          "locator": "tests/telemetry_install.rs:106-114 at df8f4b36",
+          "summary": "The final telemetry shutdown is now wrapped in support::refused::bounded(\"a telemetry shutdown\", ...). Only the sync start_up call remains unwrapped; it does not await a network call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/telemetry_install.rs",
+              "lines": {
+                "start": 106,
+                "end": 114
+              },
+              "commit": "df8f4b368a09bb00192d4730b97b821237feb5e8"
+            }
+          },
+          "recorded_at": "2026-11-27T05:52:10.403763675Z",
+          "seal": {
+            "by": "server",
+            "mac": "30871a5ddeb529bc577ce17fad729fd29b2071b129abfd17408fab0ce083c4cb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The issue requires wrapping the dialing call in bounded. tests/telemetry_install.rs holds a Refused for an exporter the PR itself says may dial at flush/shutdown, yet its shutdown (and start_up) run unbounded. Other sites are wrapped. Fix: in tests/telemetry_install.rs wrap the final `started.telemetry.expect(..).shutdown()` in `support::refused::bounded(\"a telemetry shutdown\", ...)`, then re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3681"
+          ],
+          "recorded_at": "2026-11-27T05:38:22.504287597Z",
+          "seal": {
+            "by": "server",
+            "mac": "58e06d5a6acb2f413701cfeffacc937526ae19df79d59cd8e9b613bb0d5b7e1a"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The earlier refutation (EVD-3681, unbounded shutdown) is fixed at df8f4b36: the shutdown is now bounded. All other dialing calls were already wrapped.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3683"
+          ],
+          "recorded_at": "2026-11-27T05:52:14.965449048Z",
+          "seal": {
+            "by": "server",
+            "mac": "272d9c387e4436bccdc3b42c1028af705cba3ee44405740e3bce3b25ef1e3395"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:52:14.965449048Z",
+      "seal": {
+        "by": "server",
+        "mac": "fce89cc5a49f63d44954b6716e4c677497bf05ce494a6f7d5897e75e95bbd127"
+      }
+    },
+    {
+      "id": "CLM-2066",
+      "statement": "A single shared helper for integration tests lives in tests/support/ (refused.rs, registered in tests/support/mod.rs), not one copy per test file",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1095: integration tests cannot import pub(crate) test_net, a shared tests/support helper is expected",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "tests/support/refused.rs",
+        "tests/support/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3678",
+          "kind": "inspection",
+          "locator": "tests/support/refused.rs; tests/support/mod.rs:8",
+          "summary": "One tests/support/refused.rs with Refused and bounded, registered in mod.rs, used via support:: by both integration files; no per-file copies. It omits port() (unneeded by the callers).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/refused.rs",
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:08.788500046Z",
+          "seal": {
+            "by": "server",
+            "mac": "1d6d30e33c553c2844a21c2dab1e2f1a9e18275140b2f60aa8eb33db50dc45a1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single shared module in tests/support, used by both files.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3678"
+          ],
+          "recorded_at": "2026-11-27T05:38:22.638902726Z",
+          "seal": {
+            "by": "server",
+            "mac": "c319e1c75beb6b696f32fcc79ca1fed9067a5939313d53db31075e23e1b65240"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:38:22.638902726Z",
+      "seal": {
+        "by": "server",
+        "mac": "4583433ec1ac59b69e3b46a2b9f31d59bd8419df979afc3f65a51965170e921c"
+      }
+    },
+    {
+      "id": "CLM-2067",
+      "statement": "A changelog/ entry for the change exists",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1095 requirements: a changelog/ entry is required",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "changelog/20261127T060000Z-issue-1095-refused-dead-ports.md"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3679",
+          "kind": "inspection",
+          "locator": "changelog/20261127T060000Z-issue-1095-refused-dead-ports.md",
+          "summary": "Dated changelog file added in the commit describing the change, changed sites and sites left alone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T060000Z-issue-1095-refused-dead-ports.md",
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:08.969714576Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e5fe408b13a06cc04f86f6357d8d84b3ed58b234a39d7dc22b4a3f3d4451799"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Changelog file present in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3679"
+          ],
+          "recorded_at": "2026-11-27T05:38:22.828358177Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7e660634c6d91d8290bb1f7efc3d7885976d03199e4b3483b9ae5b0232cfc77"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:38:22.828358177Z",
+      "seal": {
+        "by": "server",
+        "mac": "917461a036c93e5b44a77309d7fd18b4360037789ec7ed0aea9a0f5b7efd61c9"
+      }
+    },
+    {
+      "id": "CLM-2068",
+      "statement": "At HEAD, every remaining 127.0.0.1:1, 127.0.0.1:9 and localhost:1 site in src/ and tests/ is non-dialling (endpoint validation rejected before connect, lazy pool never used, URL parsed only, redirect URI only sent/compared)",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body triage table: 'rejected before any connect: left', 'lazy pools never used / URL parsed only: left', 'sent, never fetched: left', 'only compared: left'",
+      "derived_from": [
+        "CLM-2062"
+      ],
+      "artifacts": [
+        "src/investigator/client_tests.rs",
+        "src/stores/credentials.rs",
+        "src/stores/mod.rs",
+        "tests/server_oauth.rs",
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1095"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3680",
+          "kind": "analysis",
+          "locator": "grep -rnE '(127\\.0\\.0\\.1|localhost):(1|9)([^0-9]|$)' src tests",
+          "summary": "Remaining hits: client_tests.rs:522,533-535 (child asserts Err(Config) from validation: https-less/userinfo/fragment/upload gate), stores/credentials.rs:1328,1336 and stores/mod.rs:387 (connect_lazy, parsed base; spawn_keeper returns None for Refresh::Never), tests/telemetry_privacy.rs:604 (redirect_uri param, never fetched), tests/server_oauth.rs:18 (register only, used once at :52). None dial.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "(127\\.0\\.0\\.1|localhost):(1|9)([^0-9]|$)",
+              "scope": [
+                "src",
+                "tests"
+              ],
+              "hits": 10,
+              "commit": "faf0ed63a79db122a4611bfc56ccf272fbfa651f"
+            }
+          },
+          "recorded_at": "2026-11-27T05:38:09.150512964Z",
+          "seal": {
+            "by": "server",
+            "mac": "c67130426ff4751dc1058bf24430caa85ae2bd3fd25368c498a9669d980a7745"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Full-repo search at HEAD finds 10 hits, each read and classified as non-dialling; no missed dialing site. The PR table's left-alone rows are accurate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3680"
+          ],
+          "recorded_at": "2026-11-27T05:38:23.002551840Z",
+          "seal": {
+            "by": "server",
+            "mac": "31b46eaee2b857a69feef9bd91382d6c722b476516be60d8d8a39c3bbbb51b78"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T05:37:53.311524911Z",
+      "updated_at": "2026-11-27T05:38:23.002551840Z",
+      "seal": {
+        "by": "server",
+        "mac": "d92aef6f8f23e57ddcfdfb4e394e27f92aa4d6c7fce2ea4ea954d9b61995c0ac"
       }
     }
   ]

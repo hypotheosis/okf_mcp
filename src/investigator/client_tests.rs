@@ -485,18 +485,22 @@ async fn investigator_client_sse_cap_is_fatal_without_retry_or_timeout() {
 
 #[test]
 fn investigator_client_proxy_environment_is_not_inherited() {
+    // A held, unlistened port: a proxy that would be dialled is refused, and
+    // nothing else can answer there. Held until the child exits.
+    let refusing = crate::test_net::Refused::new();
+    let proxy = format!("http://{}", refusing.address());
     let result = std::process::Command::new(std::env::current_exe().unwrap())
         .args([
             "--ignored",
             "--exact",
             "investigator::client::tests::investigator_client_proxy_child",
         ])
-        .env("HTTP_PROXY", "http://127.0.0.1:1")
-        .env("http_proxy", "http://127.0.0.1:1")
-        .env("HTTPS_PROXY", "http://127.0.0.1:1")
-        .env("https_proxy", "http://127.0.0.1:1")
-        .env("ALL_PROXY", "http://127.0.0.1:1")
-        .env("all_proxy", "http://127.0.0.1:1")
+        .env("HTTP_PROXY", &proxy)
+        .env("http_proxy", &proxy)
+        .env("HTTPS_PROXY", &proxy)
+        .env("https_proxy", &proxy)
+        .env("ALL_PROXY", &proxy)
+        .env("all_proxy", &proxy)
         .env("NO_PROXY", "")
         .env("no_proxy", "")
         .env("OKF_MAINTENANCE_TOKEN", "synthetic-test-token")

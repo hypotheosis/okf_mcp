@@ -1695,9 +1695,12 @@ pub(crate) mod tests {
         for _ in 0..5 {
             answers.push(client.post(&sample_body("id")).await);
         }
-        let unreachable = client_on("http://127.0.0.1:9", None)
-            .post(&sample_body("id"))
-            .await;
+        let refusing = crate::test_net::Refused::new();
+        let unreachable = crate::test_net::bounded(
+            "a post to the refusing address",
+            client_on(&format!("http://{}", refusing.address()), None).post(&sample_body("id")),
+        )
+        .await;
 
         assert_eq!(
             answers,

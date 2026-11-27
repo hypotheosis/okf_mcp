@@ -25,7 +25,7 @@ use sqlx::{Connection as _, PgConnection};
 
 use crate::app::App;
 use crate::error::OkfError;
-use crate::http::console_session::{client_ip, cookie, session_cookie, COOKIE};
+use crate::http::console_session::{client_ip, cookie, session_cookie, signed_in_user, COOKIE};
 use crate::http::limits::ip_key;
 use crate::http::pages::{self, escape, safe_return_to};
 use crate::http::ui::CONTENT_SECURITY_POLICY;
@@ -320,10 +320,40 @@ struct SignInQuery {
     notice: Option<String>,
 }
 
-/// `GET /signin`.
+/// `GET /signin`: 303 to `return_to` (checked by [`safe_return_to`]) when the
+/// request carries a live console session, so a bookmark or home-screen icon
+/// that points here lands in the reader or console and not on the form;
+/// otherwise the form. A session that cannot be checked (a database error,
+/// logged without the cookie) draws the form, so nobody is locked out.
+///
+/// The redirect never loops: it is only sent for a session that
+/// [`signed_in_user`] accepts, which is the check `/api/v1` makes (the
+/// middleware's `touch`, then a user that still exists). The pages it
+/// leads to start from `/api/v1`, so they accept that session too; a
+/// session they would refuse is never redirected from here.
 #[tracing::instrument(level = "debug", skip_all)]
-async fn sign_in_page(State(app): State<Arc<App>>, Query(query): Query<SignInQuery>) -> Response {
-    let mut view = sign_in_view(&app, safe_return_to(query.return_to.as_deref()));
+async fn sign_in_page(
+    State(app): State<Arc<App>>,
+    headers: HeaderMap,
+    Query(query): Query<SignInQuery>,
+) -> Response {
+    let return_to = safe_return_to(query.return_to.as_deref());
+    match signed_in_user(&app, &headers).await {
+        // Same `no-store` as the page: the answer depends on the cookie.
+        Ok(Some(_)) => {
+            return (
+                [(header::CACHE_CONTROL, "no-store")],
+                Redirect::to(&return_to),
+            )
+                .into_response()
+        }
+        Ok(None) => {}
+        // The error's text can name a query; the cookie never reaches it.
+        Err(error) => {
+            tracing::warn!(%error, "sign-in page: session check failed, drawing the form")
+        }
+    }
+    let mut view = sign_in_view(&app, return_to);
     // Only a known notice is shown: the page never echoes text from its URL.
     view.notice = (query.notice.as_deref() == Some("reset")).then_some(PASSWORD_CHANGED);
     sign_in_response(StatusCode::OK, &view, &app.settings().brand())
@@ -3496,5 +3526,113 @@ mod tests {
         assert!(!cross_site(&with("none")));
         assert!(cross_site(&with("same-site")));
         assert!(cross_site(&with("cross-site")));
+    }
+
+    /// `GET /signin` as `browser`.
+    async fn get_sign_in(browser: &mut Browser, test: &TestApp, query: &str) -> Reply {
+        browser
+            .send(test, "GET", &format!("/signin{query}"), Payload::Empty)
+            .await
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_signed_in_browser_is_sent_on_to_its_return_to_and_not_to_the_form() {
+        let test = login_app().await;
+        user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
+        let mut browser = Browser::signed_in(&test, "alice@example.com", PASSWORD).await;
+
+        let reader = get_sign_in(&mut browser, &test, "?return_to=/read/").await;
+        let reset = get_sign_in(&mut browser, &test, "?return_to=/ui/&notice=reset").await;
+        let bare = get_sign_in(&mut browser, &test, "").await;
+
+        assert_eq!(reader.status, StatusCode::SEE_OTHER);
+        assert_eq!(reader.location(), "/read/");
+        assert_eq!(reader.headers["cache-control"], "no-store");
+        assert!(reader.body.is_empty(), "no form in a redirect");
+        assert_eq!(reset.status, StatusCode::SEE_OTHER, "a notice is no reason");
+        assert_eq!(reset.location(), "/ui/");
+        assert_eq!(bare.location(), "/ui/", "the default return_to");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_signed_in_browser_is_never_sent_off_site() {
+        let test = login_app().await;
+        user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
+        let mut browser = Browser::signed_in(&test, "alice@example.com", PASSWORD).await;
+
+        for hostile in [
+            "https://evil.example/",
+            "//evil.example",
+            "/\\evil.example",
+            "javascript:alert(1)",
+            "%2F%2Fevil.example",
+            "/read/%0d%0aSet-Cookie:%20x=y",
+        ] {
+            let reply = get_sign_in(&mut browser, &test, &format!("?return_to={hostile}")).await;
+            assert_eq!(reply.status, StatusCode::SEE_OTHER, "{hostile:?}");
+            assert_eq!(reply.location(), "/ui/", "{hostile:?}");
+        }
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn no_live_session_still_gets_the_form() {
+        let test = login_app().await;
+        let pool = test.app.accounts().executor();
+        let alice = user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
+        let bob = user_with_password(&test, "bob", "bob@example.com", Some(PASSWORD)).await;
+        let carol = user_with_password(&test, "carol", "carol@example.com", Some(PASSWORD)).await;
+        let mut idle = Browser::session_for(&test, "alice").await;
+        sqlx::query("UPDATE user_sessions SET last_seen_at = now() - interval '13 hours' WHERE user_id = $1")
+            .bind(&alice.id)
+            .execute(pool)
+            .await
+            .expect("age the session");
+        let mut expired = Browser::session_for(&test, "bob").await;
+        sqlx::query(
+            "UPDATE user_sessions SET expires_at = now() - interval '1 second' WHERE user_id = $1",
+        )
+        .bind(&bob.id)
+        .execute(pool)
+        .await
+        .expect("expire the session");
+        let mut revoked = Browser::session_for(&test, "carol").await;
+        user_sessions::revoke_all(pool, &carol.id, None)
+            .await
+            .expect("revoke");
+        let mut none = Browser::default();
+        let mut unknown = Browser::with_cookie(COOKIE, "not-a-session");
+
+        for (name, browser) in [
+            ("no cookie", &mut none),
+            ("an unknown cookie", &mut unknown),
+            ("an idle session", &mut idle),
+            ("an expired session", &mut expired),
+            ("a revoked session", &mut revoked),
+        ] {
+            let reply = get_sign_in(browser, &test, "?return_to=/read/").await;
+            assert_eq!(reply.status, StatusCode::OK, "{name}");
+            assert!(reply.text().contains(r#"id="signin-form""#), "{name}");
+        }
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_session_that_cannot_be_checked_still_gets_the_form() {
+        let test = login_app().await;
+        user_with_password(&test, "alice", "alice@example.com", Some(PASSWORD)).await;
+        let pool = test.app.accounts().executor();
+        let mut browser = Browser::session_for(&test, "alice").await;
+        fail_on(pool, "BEFORE UPDATE ON user_sessions FOR EACH STATEMENT").await;
+
+        let broken = get_sign_in(&mut browser, &test, "?return_to=/read/").await;
+        allow(pool, "user_sessions").await;
+        let healed = get_sign_in(&mut browser, &test, "?return_to=/read/").await;
+
+        assert_eq!(
+            broken.status,
+            StatusCode::OK,
+            "no lock-out on a store error"
+        );
+        assert!(broken.text().contains(r#"id="signin-form""#));
+        assert_eq!(healed.status, StatusCode::SEE_OTHER);
     }
 }

@@ -268,6 +268,33 @@ async fn sign_in_from_the_signed_out_screen_returns_to_the_same_route() {
     .await;
 }
 
+/// A signed-in browser that opens `/signin?return_to=/read/` (a bookmark or a
+/// home-screen icon) lands in the reader, not on the form.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_signed_in_browser_opening_the_sign_in_link_lands_in_the_reader() {
+    let (server, _) = server().await;
+    let base = server.base.clone();
+    drive(base.clone(), move |ui| {
+        ui.sign_in_reader("/me", EMAIL, PASSWORD);
+        ui.wait_text("#account-user", "reader");
+
+        ui.eval(
+            &format!("() => {{ location.assign('{base}/signin?return_to=%2Fread%2F'); }}"),
+            json!(null),
+        );
+
+        // Two catalogs, so the reader opens on its picker.
+        ui.wait_visible("[data-catalog=main]");
+        assert_eq!(
+            ui.eval("() => location.pathname", json!(null)),
+            json!("/read/")
+        );
+        assert!(!ui.present("#signin-email"), "the form was drawn");
+        assert_eq!(ui.eval(SESSION_STATUS, json!(null)), json!(200));
+    })
+    .await;
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn signing_in_returns_to_the_route_and_signing_out_wipes_the_caches() {
     let (server, _) = server().await;
@@ -1872,30 +1899,31 @@ async fn server_with_a_second_reader() -> TestServer {
     server
 }
 
-/// Signs in as `second` in another tab (the same cookies), at the console's
-/// sign-in page, so none of its answers go through the reader's worker; the
-/// reader tab stays open.
+/// Signs in as `second` in another tab (the same cookies), from the
+/// console's page, so none of its answers go through the reader's worker; the
+/// reader tab stays open. `GET /signin` sends a signed-in browser on to the
+/// console, so the tab posts the sign-in form itself, as the page would.
 fn sign_in_second_in_another_tab(ui: &Ui) {
     ui.in_second_tab(|tab| {
         tab.goto(
-            &format!("{}/signin", ui.base),
+            &format!("{}/ui/", ui.base),
             rustwright::GotoOptions::default(),
         )
-        .expect("open the sign-in page");
-        let options = rustwright::ActionOptions::default;
-        tab.fill("#signin-email", SECOND_EMAIL, options())
-            .expect("email");
-        tab.fill("#signin-password", PASSWORD, options())
-            .expect("password");
-        tab.click("#signin-submit", options()).expect("submit");
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !tab.url().contains("/ui/") {
-            assert!(
-                Instant::now() < deadline,
-                "the second sign-in never finished"
-            );
-            std::thread::sleep(Duration::from_millis(50));
-        }
+        .expect("open the console");
+        let post = format!(
+            "async () => (await fetch('/signin', {{ method: 'POST', body: new URLSearchParams({{ \
+             email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }})).status"
+        );
+        let status = tab
+            .evaluate(&post, None, rustwright::ActionOptions::default())
+            .expect("post the sign-in");
+        assert_eq!(status, json!(200), "the sign-in was refused");
+        // A new session, so the console is reloaded as `second`.
+        tab.goto(
+            &format!("{}/ui/", ui.base),
+            rustwright::GotoOptions::default(),
+        )
+        .expect("reload the console");
     });
 }
 

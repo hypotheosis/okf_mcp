@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2123,
+  "next_claim_seq": 2130,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "dbc1c9953071a6ff4c7333d2c549767178ed82adf6175be50c5548d7dd0f21c7"
+    "mac": "d256467572b66fb5e9592231d5ba2384e928ecfd28f9f69c05faa88ee3b4f659"
   },
-  "next_evidence_seq": 3766,
+  "next_evidence_seq": 3786,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "330e03fe56c91f0492b1480baee5f3b905a2851c67106e6eb264eb432fceee0c"
+    "mac": "8942a7e43e1e10b8b457513f2af0a777316539713d57806016edd2f3f48a81f8"
   },
   "claims": [
     {
@@ -175170,6 +175170,28 @@
             "by": "server",
             "mac": "e3c39eb0510374807e8e262c87f69c11ab48f98b202f1758be848ef2163d3484"
           }
+        },
+        {
+          "id": "EVD-3776",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:678-681; src/mcp/changesets.rs:992",
+          "summary": "At head RevertParams still has #[serde(default)] expected_revision: Option<i32>; the diff changed only its doc comment. Omitting it still yields an empty expected map. cargo test --lib revert: 15 passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 678,
+                "end": 681
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:59.632405723Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3980ce7b22e7c1ed68d1abdaf1ddc104c52e9205c8eb0c03b470c6251522d3a"
+          }
         }
       ],
       "verdicts": [
@@ -175186,13 +175208,26 @@
             "by": "server",
             "mac": "3e76352fa2b88cc771a75e2167ddbe932f2f80b694d05fa97bcb2c1549d984d9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head 3e5cfa47: field and default unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3776"
+          ],
+          "recorded_at": "2026-11-27T09:49:10.169620482Z",
+          "seal": {
+            "by": "server",
+            "mac": "db4dc777b4df939c039afb6459658f4eecf39e8d227ec61bad0ecce535e36f9e"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.241579562Z",
+      "updated_at": "2026-11-27T09:49:10.169620482Z",
       "seal": {
         "by": "server",
-        "mac": "b139f2d7b0384f6ab5343562946405ebba942251c20b32cd30bc40718ed0beac"
+        "mac": "e3c5a897402d942ab1ba2f96c0201d87bcab8074b5ce0576df194ddae108477f"
       }
     },
     {
@@ -175260,6 +175295,28 @@
             "by": "server",
             "mac": "c13b642ac03b54b4578487255a5da7dc7aa6234f2e7e85e39d74221d0d595ef7"
           }
+        },
+        {
+          "id": "EVD-3777",
+          "kind": "test",
+          "locator": "src/write.rs:246-262; cargo test --lib revert (15 passed)",
+          "summary": "For a live path the comparison and ConflictFile (base = passed value, current = live revision) are unchanged and the stale-guard test still passes; the check moved to a loop at 246-262 and now also uses the stored max when there is no live document.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 246,
+                "end": 262
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:59.787572508Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5861dfa4ec7157e72387b1de1e34bbe6138bcfc4021b3b49039656367fbe547"
+          }
         }
       ],
       "verdicts": [
@@ -175276,13 +175333,26 @@
             "by": "server",
             "mac": "7c5796e54f2130c8783360bd4235bb918e82eafabfb64f1909e9f7f84a0b7104"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: live-path behaviour the claim describes is unchanged and still tested (the claim's wording covers the live case; deleted-path semantics are CLM-2126).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3777"
+          ],
+          "recorded_at": "2026-11-27T09:49:10.313826929Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b0f4d7025100638dcfa52fd78aca5a435afe24dd3da383c3466e5afb5322423"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.346178957Z",
+      "updated_at": "2026-11-27T09:49:10.313826929Z",
       "seal": {
         "by": "server",
-        "mac": "5cb40fbab07805a60e7075a698b6c7c6a282442ba844f616698d7932c491b0c8"
+        "mac": "85dd1fae505c274581eafbf9e574c0a2c235a97a090bf4b346a404fca0cebdbf"
       }
     },
     {
@@ -175328,6 +175398,28 @@
             "by": "server",
             "mac": "c8395b4a3a36701f7957f0fface1eeebe12b7880338235858d308b80da5b4eea"
           }
+        },
+        {
+          "id": "EVD-3778",
+          "kind": "inspection",
+          "locator": "src/write.rs:246-262",
+          "summary": "The check still runs before any entry is stored and still reads overlay.base().revision(path) for live paths; the OpOutcome.expected map is still the carrier.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 246,
+                "end": 262
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:59.990629485Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f475990e9694d2a5987ccac794950d64ea92560e7751ad012fb580919798c01"
+          }
         }
       ],
       "verdicts": [
@@ -175343,13 +175435,26 @@
             "by": "server",
             "mac": "cfa7e1c38d6bdf760b5c1210002b39aa772d2a196bc23035aad17e486ad696b1"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: position and snapshot source unchanged for live paths.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3778"
+          ],
+          "recorded_at": "2026-11-27T09:49:10.446828324Z",
+          "seal": {
+            "by": "server",
+            "mac": "1563aa9dd66d5cea6397740a1d29fdf79329edc0806e704ba1298381c6171e7e"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.451161704Z",
+      "updated_at": "2026-11-27T09:49:10.446828324Z",
       "seal": {
         "by": "server",
-        "mac": "e2f140e4b6e3b790daab0d6e69b24fb8dcd0757f3d65560029a2e8ae5b4f95fa"
+        "mac": "fb9098ab0ffcb983712234796fba26e9dcd379d5e473b416772523d02413fd80"
       }
     },
     {
@@ -175416,6 +175521,28 @@
             "by": "server",
             "mac": "ad20d16e71fac788ca24c4568da66d8061bc043f9b694cef7d9ea6b5f814eca9"
           }
+        },
+        {
+          "id": "EVD-3779",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:82-86,325-326",
+          "summary": "current_revision is still state.current().revision(path), documented unchanged; latest_revision is added beside it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 80,
+                "end": 87
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:49:00.141986816Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e447ce5083a5d22f4cbeb6d2d18ca18a298467a479439d0bb9f2d1126642a6d"
+          }
         }
       ],
       "verdicts": [
@@ -175431,13 +175558,26 @@
             "by": "server",
             "mac": "95087f13b7467a4100d017b3cb4dcd7b77ca3358b9dd21a1b65df323a586fd52"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: current_revision field and meaning unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3779"
+          ],
+          "recorded_at": "2026-11-27T09:49:10.591764333Z",
+          "seal": {
+            "by": "server",
+            "mac": "2176b73516ead5084b48ae698c7a71b67841c3f9d3b37f993fb0b5444f85638f"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.554979905Z",
+      "updated_at": "2026-11-27T09:49:10.591764333Z",
       "seal": {
         "by": "server",
-        "mac": "58c9401b9536b430bb2d6748e5992a3f4674457b3df7fd07683bde874795e549"
+        "mac": "1cef9a506930041a89a11b37cb227d44a4178d65e79c1166578b59d7f1c6950c"
       }
     },
     {
@@ -175483,6 +175623,50 @@
             "by": "server",
             "mac": "ac654dc5dcd8b2098933fb899c040aa63724d702d930a5b1c8e02b0374501c6a"
           }
+        },
+        {
+          "id": "EVD-3775",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::reference (head 3e5cfa47): the_checked_in_tool_reference_matches_the_tool_list FAILED",
+          "summary": "The #1127 diff hand-edited docs/reference/tools.md without changing the tool description strings, so the page no longer matches the tool list and the checking test fails on head (it passed before the diff).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 578,
+                "end": 585
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:20.819492135Z",
+          "seal": {
+            "by": "server",
+            "mac": "92fb99296956fc440c8cc302bbf77b492a3df5547bf3335ed004d6c4d28f0abb"
+          }
+        },
+        {
+          "id": "EVD-3783",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::reference (4 passed) at 14106e86; src/investigator/contract_tools.json:447-454",
+          "summary": "The reference-matches-tool-list test passes again; the contract fixture contains history's current_revision and latest_revision. (The contract tests themselves were not run; the instruction limited me to mcp::reference.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 578,
+                "end": 585
+              },
+              "commit": "14106e86879ebba89bddaf62bf75b971cd0623b2"
+            }
+          },
+          "recorded_at": "2026-11-27T09:54:20.956313222Z",
+          "seal": {
+            "by": "server",
+            "mac": "661e80ab62abcf2e020613049753f5cfdd54c1b415a43d6403eadca47ef8bc09"
+          }
         }
       ],
       "verdicts": [
@@ -175498,13 +175682,39 @@
             "by": "server",
             "mac": "210e8eb8f6cafa06ac6ceadfcb1629f3b78416443dac6accaf68a2feb6df6617"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This diff broke it: the tool reference check test fails on head. Fix: update the history and revert tool description strings in src/mcp/history.rs and src/mcp/changesets.rs, regenerate docs/reference/tools.md with OKF_UPDATE_TOOL_REFERENCE=1 cargo test --lib mcp::reference, and re-run it green.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3775"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.941219542Z",
+          "seal": {
+            "by": "server",
+            "mac": "54779eabf7d2633f25744aa752e518b3ac87adcd64035a69bf7ad7bd4f7968cd"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 14106e86: the reference test passes and the fixture carries the fields; contract tests not run here.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3783"
+          ],
+          "recorded_at": "2026-11-27T09:54:28.512281564Z",
+          "seal": {
+            "by": "server",
+            "mac": "058332b2651969e94b8e4a5f8e827aadf545c038a6083600ad4a6e9598b2ba23"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.659293729Z",
+      "updated_at": "2026-11-27T09:54:28.512281564Z",
       "seal": {
         "by": "server",
-        "mac": "7455511cc6509ab4a61882c505dc6a4eae808cfdf7ee47a70c5fd9dcb40cddb2"
+        "mac": "a45f063b97110053ef64eac3032da947334c206042ac57c71bd3f969cd2562e9"
       }
     },
     {
@@ -175549,6 +175759,28 @@
             "by": "server",
             "mac": "1f88c561367e9e110684b39df310c3fa95ee206fdb6cbdc67bae4c1edb2abb8a"
           }
+        },
+        {
+          "id": "EVD-3780",
+          "kind": "test",
+          "locator": "cargo test --lib revert (15 passed); src/mcp/changesets.rs:2682",
+          "summary": "The #795 tests (match succeeds, stale refused with no entry, no argument) are unmodified by the diff and pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2678,
+                "end": 2727
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:49:00.341708901Z",
+          "seal": {
+            "by": "server",
+            "mac": "39c3a75cceae1b20a9e0aaa77e96124bcb38a15daec7b07c1ec77d72a01a82f2"
+          }
         }
       ],
       "verdicts": [
@@ -175564,13 +175796,26 @@
             "by": "server",
             "mac": "4a9d7f523a91fb7cece97b9a609682c4509c9b9ced8261575e5ee5afe15a8716"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the covering tests are unchanged and pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3780"
+          ],
+          "recorded_at": "2026-11-27T09:49:10.725989013Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ad7b8415835e043d0cb58784d1a856d2455d5edc4bb01d1225208d0976dfb4f"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.762603378Z",
+      "updated_at": "2026-11-27T09:49:10.725989013Z",
       "seal": {
         "by": "server",
-        "mac": "853658a51ab1e5d9abbe3378b3d18dba89b22516f0a43faaa95752c16be83f20"
+        "mac": "20311e464a82d61a666976995b949537d1f458aca059013618fa3a62878665f7"
       }
     },
     {
@@ -175615,6 +175860,28 @@
             "by": "server",
             "mac": "48a733773767f12e97b0d19a4417738d473b1afc1fab1c0b8c1dc1c281a2c173"
           }
+        },
+        {
+          "id": "EVD-3784",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:1259-1272",
+          "summary": "The revert description now recommends passing expected_revision as the `latest_revision` from `history`. It is a single long paragraph (about 110 words), so \"short\" is a subjective threshold the evidence cannot decide.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1259,
+                "end": 1272
+              },
+              "commit": "14106e86879ebba89bddaf62bf75b971cd0623b2"
+            }
+          },
+          "recorded_at": "2026-11-27T09:54:21.088665065Z",
+          "seal": {
+            "by": "server",
+            "mac": "6701deed97a71e4701f403fcbd86d985137b1a57a14d16a3ef9964fbe44a8085"
+          }
         }
       ],
       "verdicts": [
@@ -175628,13 +175895,26 @@
             "by": "server",
             "mac": "aa43ac7945b21acae8db0ec6eecc42787584f42d09b3d805f0b9ab009957b351"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The description recommends passing latest_revision from history, but \"short\" has no defined bound and the description is one long paragraph. Fix: have the issue owner state a length bound (or drop \"short\" from the claim), then judge the description against it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3784"
+          ],
+          "recorded_at": "2026-11-27T09:54:28.641960937Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0496d7cdbb082b77f1a7362293b0ee695963f2d285083364572daf79435c190"
+          }
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.866459040Z",
+      "updated_at": "2026-11-27T09:54:28.641960937Z",
       "seal": {
         "by": "server",
-        "mac": "ac581e1dfe387c8b28b3e0af59fac10776d872b46aa12d713da13c8180d736ec"
+        "mac": "32918bb04cf291a9a44f8c889eee18f4ecacd77de6db3f2c74199701348f091b"
       }
     },
     {
@@ -175656,7 +175936,9 @@
         "from-issue:795"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by issue #1127: a revert onto a deleted path can now be guarded with history's latest_revision, so the limitation it records no longer exists.",
+        "retired_at": "2026-11-27T09:49:00.535843805Z"
       },
       "evidence": [
         {
@@ -175698,10 +175980,10 @@
         }
       ],
       "created_at": "2026-11-26T23:07:06.847563893Z",
-      "updated_at": "2026-11-26T23:07:57.974558422Z",
+      "updated_at": "2026-11-27T09:49:00.535843805Z",
       "seal": {
         "by": "server",
-        "mac": "403b4696481bae1f3624478462866b2e30ddd9da684752b1d7b5670a6956d8a8"
+        "mac": "a6cdd512fb731cb602e32fdd23a0faae30e34f7517128c24cee9049803f2e6c2"
       }
     },
     {
@@ -188568,6 +188850,582 @@
       "seal": {
         "by": "server",
         "mac": "0a0d3500f9918731dc4e21498e02b2318daf44cb96664607b2de6b3f621aeff5"
+      }
+    },
+    {
+      "id": "CLM-2123",
+      "statement": "Issue #1127 is resolved: a revert onto a deleted path can be guarded by expected_revision through history's latest_revision, with the comparison decided in the write's own transaction.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1127",
+      "derived_from": [],
+      "artifacts": [
+        "src/write.rs",
+        "src/mcp/history.rs",
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3781",
+          "kind": "analysis",
+          "locator": "children of CLM-2123",
+          "summary": "Behaviour (history field, guarded revert, same-transaction check, tests) is delivered and supported, but the documentation child (CLM-2128) is refuted: the tool descriptions in source were not updated and the reference-page test fails on head, so the issue's docs requirement is unmet.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T09:49:10.855184695Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2b238434d1c87bde278e48b4c137178ef7ce64df06ef6d37e89711256446a8e"
+          }
+        },
+        {
+          "id": "EVD-3785",
+          "kind": "analysis",
+          "locator": "children of CLM-2123",
+          "summary": "All six children (CLM-2124 to CLM-2129) are now supported: the behaviour, same-transaction check and tests were supported earlier and the documentation child CLM-2128 is supported at 14106e86, so every item of the issue is covered.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T09:54:28.770552537Z",
+          "seal": {
+            "by": "server",
+            "mac": "cbe8de678d800dd32f4e21fab7373a07dd8d77f3e7a144c9ff08134e33998dee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behaviour is delivered, but the issue's docs requirement is unmet because CLM-2128 is refuted. Fix: update the history and revert #[tool(description)] strings, regenerate docs/reference/tools.md, and re-run the mcp::reference tests green.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3781"
+          ],
+          "recorded_at": "2026-11-27T09:49:13.613553374Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecaafddabef68dd83cc40fb76dcbcd5154dd6b1cd332693c2b9fb35790dcf8f0"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children supported at 14106e86; the docs gap that refuted it is closed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3785"
+          ],
+          "recorded_at": "2026-11-27T09:54:31.686755908Z",
+          "seal": {
+            "by": "server",
+            "mac": "da10e0f46ee4a6bb217abde014dcc47c35f9141823f97762d1f7a3c8a4991cee"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:54:31.686755908Z",
+      "seal": {
+        "by": "server",
+        "mac": "0fff28e200c811f2e4181814b016eade63e06f4dbdb95a12c55a1e6d4e4ee065"
+      }
+    },
+    {
+      "id": "CLM-2124",
+      "statement": "`history` returns `latest_revision`: the newest revision number of the path, a `delete` revision included, computed independently of limit, user and since; `current_revision` keeps its meaning (live revision, null when deleted).",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1127 required list; PR body: \"`history` result: new `latest_revision`, independent of `limit`, `user` and `since`.\"",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/store/history.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3766",
+          "kind": "inspection",
+          "locator": "src/store/history.rs:106-133; src/mcp/history.rs:326",
+          "summary": "latest_revision runs SELECT MAX(revision) by catalog_id and path (no limit/user/since, delete rows included) and is returned beside the unchanged current_revision (state.current().revision(path)).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 106,
+                "end": 133
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:14.141167325Z",
+          "seal": {
+            "by": "server",
+            "mac": "26427f110a8600450833ad7b1c56fc3bfc42de7ef2726a2614550a928aff5a65"
+          }
+        },
+        {
+          "id": "EVD-3767",
+          "kind": "test",
+          "locator": "cargo test --lib a_revert_onto_a_deleted_path (1 passed); src/mcp/changesets.rs:2773 asserts (current_revision, latest_revision) == (None, Some(2)) after a delete",
+          "summary": "After a delete, history reports current_revision None and latest_revision Some(2). The history unit test (src/mcp/history.rs:629) asserts latest_revision == current_revision == Some(1) for a live path. No test combines latest_revision with limit/user/since filters; independence rests on the query having no filter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2770,
+                "end": 2776
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:14.291634410Z",
+          "seal": {
+            "by": "server",
+            "mac": "c94979ec8b8d92ebed69de1d69c47acf97dc999406f0d3bdb9468381764b4c87"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Query is an unfiltered MAX over all revisions of the path incl. deletes; test shows (None, Some(2)) after delete and equality for a live path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3766",
+            "EVD-3767"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.135425697Z",
+          "seal": {
+            "by": "server",
+            "mac": "2558a0e623f9bb2664e3306c52e0ffd32499c5e3b39eed74fdb9a2ec527b4ed1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:48:34.135425697Z",
+      "seal": {
+        "by": "server",
+        "mac": "4958f6088abea034cf4d022520da83f2cf2c3eb5a485fe466eb868fa084f4b57"
+      }
+    },
+    {
+      "id": "CLM-2125",
+      "statement": "`revert`'s `expected_revision` is compared against the path's latest revision (the live revision for a live path, the newest stored revision incl. a delete for a deleted path); for a live path the outcome is the same as before.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1127; PR body: \"Live-path behaviour is unchanged (same number as `current_revision`).\"",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "src/write.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3768",
+          "kind": "inspection",
+          "locator": "src/write.rs:246-262",
+          "summary": "For each expected path, latest = overlay.base().revision(path) when live (identical to the old comparison), else history::latest_revision(&mut *tx, ...); a mismatch pushes a ConflictFile{base_revision: seen, current_revision: latest}.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 246,
+                "end": 262
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:14.445973248Z",
+          "seal": {
+            "by": "server",
+            "mac": "d23ceca7fe7f4d5e5ac853e5f62923fdeacd107921a2a277869af4365125a17b"
+          }
+        },
+        {
+          "id": "EVD-3769",
+          "kind": "test",
+          "locator": "cargo test --lib revert (15 passed, incl. a_revert_with_an_expected_revision_refuses_a_stale_one_and_writes_nothing)",
+          "summary": "The pre-existing live-path guard test (src/mcp/changesets.rs:2682, unmodified by the diff) still passes on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2678,
+                "end": 2700
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:14.638180525Z",
+          "seal": {
+            "by": "server",
+            "mac": "897bc20942c281ec757efd59eb2548d4b4f12be3eb5594b4be36950d9237b8e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Live paths use the same overlay.base() revision as before; deleted paths fall back to the stored max; old live-path guard test still passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3768",
+            "EVD-3769"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.280201922Z",
+          "seal": {
+            "by": "server",
+            "mac": "78a8e742a9b0ddd5ab9f8b0bcd6bccb92f66a56049455744e1ba0d5a78fc564d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:48:34.280201922Z",
+      "seal": {
+        "by": "server",
+        "mac": "ab88fa7ebac35804bbb6656e65eeabe6e8aee1299ea4cb7a7662b14fa6e04ce3"
+      }
+    },
+    {
+      "id": "CLM-2126",
+      "statement": "For a deleted path, a revert passing history's `latest_revision` succeeds, and a re-create in between makes it refuse with Conflict (base_revision = value passed, current_revision = latest now) writing nothing.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1127; PR body: \"A re-create or any publish in between is refused with `Conflict` and nothing is written.\"",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "src/write.rs",
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3770",
+          "kind": "test",
+          "locator": "cargo test --lib a_revert_onto_a_deleted_path (1 passed): src/mcp/changesets.rs:2751-2804",
+          "summary": "Deletes /a.md (revision 2), reverts with expected_revision=latest_revision=2: entry written. After a re-create (revision 3), the same call returns Conflict{path /a.md, base_revision Some(2), current_revision Some(3)}, asserts no changeset entry and published text unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2751,
+                "end": 2804
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:14.831015075Z",
+          "seal": {
+            "by": "server",
+            "mac": "8512a45cc24c211874bfceb847bbcafd495d0b330077739dd6d91e9f9c3bc049"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test asserts success with latest_revision, then Conflict with exact base/current revisions, no entry and unchanged published text after a re-create.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3770"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.438426183Z",
+          "seal": {
+            "by": "server",
+            "mac": "5108ca628ac6e5745fddcd1e59c12fdcfd794933d6dbbbcfc882fa8edab07ea7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:48:34.438426183Z",
+      "seal": {
+        "by": "server",
+        "mac": "c0b0c60987d23cc4610319312728679b335255b5348e44d6c09b6cd1e8c5392c"
+      }
+    },
+    {
+      "id": "CLM-2127",
+      "statement": "The latest-revision comparison runs in write::apply_audited on the transaction already open, after lock_catalog and the changeset row lock and before anything is stored, so no new lock is taken.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Lock order: the check runs after `lock_catalog` and the changeset row lock, in the transaction `apply_audited` already holds, so no new lock is taken.\"",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "src/write.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3771",
+          "kind": "analysis",
+          "locator": "src/write.rs:201-203 (begin, lock_catalog, changesets::lock) and :246-262 (check using &mut *tx), before upsert_entry at :285",
+          "summary": "The check reads through the same `tx` begun at line 201 after lock_catalog and the row lock, before any upsert/remove; no new lock call is added in the diff. Caveat: lock_catalog is FOR KEY SHARE (shared), so a concurrent publish is not excluded; the read sees what is committed when the query runs (READ COMMITTED), which is what the write's own snapshot rules already assume.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/write.rs",
+              "lines": {
+                "start": 201,
+                "end": 262
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:15.036225586Z",
+          "seal": {
+            "by": "server",
+            "mac": "4743b8c6a3e8cef9af36f8ff44b0d4368d229e0d797e4ec7f73a4c3bfe552d07"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The read goes through the already-open tx after the two locks and before stores; no lock added. The PR's own wording (\"no new lock\") holds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3771"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.597674627Z",
+          "seal": {
+            "by": "server",
+            "mac": "806482fc64f0bdef6dd0aa4d5a6237f7ee11f7354283f13ef4e5779655a6f4e7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:48:34.597674627Z",
+      "seal": {
+        "by": "server",
+        "mac": "dffb51d6e1aea9c5c74b2b7fcc399b5c757fbdfcf317c5f7aedce9b1e2d4151e"
+      }
+    },
+    {
+      "id": "CLM-2128",
+      "statement": "The docs, tool descriptions and schema text are updated: docs/reference/tools.md matches the tool list (its checking test passes), and the history and revert tool descriptions in source name latest_revision.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1127: \"Docs (docs/reference/tools.md, the tool description and schema text) updated.\"; PR body: \"Docs: `docs/reference/tools.md`, tool descriptions and schema text, investigator contract fixture regenerated\"",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "src/mcp/changesets.rs",
+        "src/mcp/history.rs",
+        "src/investigator/contract_tools.json"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3772",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::reference (3 passed, 1 failed: the_checked_in_tool_reference_matches_the_tool_list)",
+          "summary": "Fails with \"docs/reference/tools.md is out of date\": tools.md was edited to say latest_revision for history and revert, but the #[tool(description)] strings (src/mcp/history.rs:496-504 and src/mcp/changesets.rs:1261-1270) were not changed (revert still says `current_revision` from `history`; history's omits latest_revision), so the generated page differs.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1259,
+                "end": 1270
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:15.415145853Z",
+          "seal": {
+            "by": "server",
+            "mac": "062ff51cf9ccd632cc963b42fa1be0debc7d718617cf3a6a53a8949bf6b0863e"
+          }
+        },
+        {
+          "id": "EVD-3773",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:495-504; src/mcp/changesets.rs:678,1261-1270; src/investigator/contract_tools.json:447-454",
+          "summary": "Schema text is updated (History.latest_revision doc comment, RevertParams.expected_revision doc comment, contract fixture entry), but both tool description strings that the issue names are not.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T09:48:15.625636292Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0e8f1cb7be0aaeeb925ea37a204f3820b9a1ca2ff165452d8284fde651b3e8e"
+          }
+        },
+        {
+          "id": "EVD-3782",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- mcp::reference (4 passed, 0 failed) at 14106e86",
+          "summary": "the_checked_in_tool_reference_matches_the_tool_list now passes. The revert description (src/mcp/changesets.rs:1263-1266) names `latest_revision` from `history`; the history description (src/mcp/history.rs:500-503) defines latest_revision; schema comments and contract fixture were already updated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 496,
+                "end": 508
+              },
+              "commit": "14106e86879ebba89bddaf62bf75b971cd0623b2"
+            }
+          },
+          "recorded_at": "2026-11-27T09:54:20.833299392Z",
+          "seal": {
+            "by": "server",
+            "mac": "148bd2c541aad453c15d6eb27a88d99f81762aa39622ebdc047350e2a6969e89"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The reference-page check test fails on head: tools.md was hand-edited but the revert and history tool description strings in source still lack latest_revision (revert still says `current_revision`). Fix: update the description strings at src/mcp/changesets.rs:1261-1270 (revert: pass `latest_revision`) and src/mcp/history.rs:496-504 (history: describe latest_revision) to match, then run OKF_UPDATE_TOOL_REFERENCE=1 cargo test --lib mcp::reference and commit the regenerated docs/reference/tools.md.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3772"
+          ],
+          "recorded_at": "2026-11-27T09:48:34.782658860Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9b354886539d03313ad93f1b519163bef0a4923b031f71bb1ef283b85236721"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 14106e86: both description strings now name latest_revision and the reference-page test passes (4 passed).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3782"
+          ],
+          "recorded_at": "2026-11-27T09:54:28.379350349Z",
+          "seal": {
+            "by": "server",
+            "mac": "0dbbd347348e64bedc8ddd3eddfda3f9fde4830a9233bdd6ec92f92d55600980"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:54:28.379350349Z",
+      "seal": {
+        "by": "server",
+        "mac": "8135b958d5d9cea1d3c5ef8bea8b08db2ead7c6706b325601809eed1bd112f74"
+      }
+    },
+    {
+      "id": "CLM-2129",
+      "statement": "Tests cover: delete a path then history reports latest_revision; revert with it succeeds; a re-create in between gives Conflict with nothing written; and the existing live-path guard test is unchanged.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1127 Tests list",
+      "derived_from": [
+        "CLM-2123"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:1127"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3774",
+          "kind": "test",
+          "locator": "src/mcp/changesets.rs:2751 a_revert_onto_a_deleted_path_is_guarded_by_the_latest_revision (passes); src/mcp/changesets.rs:2682 unchanged",
+          "summary": "One test covers delete -> history latest_revision (None, Some(2)), revert with it succeeds, re-create -> Conflict with no entry. git diff shows only one removed doc-comment line in changesets.rs; the live-path guard test (2682) is untouched and passes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2751,
+                "end": 2804
+              },
+              "commit": "3e5cfa47bd748e62bd63c6edc863082d6a95ce76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:48:15.901450796Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c3117076a6f3af706398b33f7d5e9171b5caa64c1c8d040eb8d930b714dbac0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The new test covers the full required sequence and the old live-path test is untouched and passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3774"
+          ],
+          "recorded_at": "2026-11-27T09:48:35.109882659Z",
+          "seal": {
+            "by": "server",
+            "mac": "f247aafa5f251775c853a960b3197fe773ce1cba078881171f40d9d68df5cf1c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:47:54.241418527Z",
+      "updated_at": "2026-11-27T09:48:35.109882659Z",
+      "seal": {
+        "by": "server",
+        "mac": "469fb3797f5cbb397752492c235a814f3ff233799d7e054ef3b6454071550987"
       }
     }
   ]

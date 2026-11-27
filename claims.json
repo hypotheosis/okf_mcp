@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2332,
+  "next_claim_seq": 2342,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "b822248b95ae0ffa103bc0da531f31c454dfcfdfa63ddc4f074d6f187b264f89"
+    "mac": "0c07e111840102f4bc4a0d1d5aaf2d3c474976c5a0bdd6af289cb58bf4c17e9a"
   },
-  "next_evidence_seq": 4096,
+  "next_evidence_seq": 4117,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "580e05cf2700cf23aba0a90d25b09a67f3d4ba0367257de761c988a0194759a0"
+    "mac": "e394570bba83eb92d85013e0cff3f85f07832c5ea67519870ba735331e6749b8"
   },
   "claims": [
     {
@@ -53828,6 +53828,28 @@
             "by": "server",
             "mac": "7f863a342f219aaf5cfc1d287eaf7b3e21b603c8606be6cf80d72a7fa7892d0d"
           }
+        },
+        {
+          "id": "EVD-4114",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:346-361 at 5fbeb015",
+          "summary": "Re-audit at head: handler.subscribed().await still runs on every Subscribed (361), after the new state resets; the diff does not alter catch-up behavior.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 346,
+                "end": 361
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:14.187271497Z",
+          "seal": {
+            "by": "server",
+            "mac": "aeaab14580f40185d18dec600853e442250addb25dabf3feab6f457ad421bfe3"
+          }
         }
       ],
       "verdicts": [
@@ -53858,13 +53880,26 @@
             "by": "server",
             "mac": "dfdacc122942ba787960de7e9c1a74dac79a26140a47a6bbcd405935219b872a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: catch-up call unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4114"
+          ],
+          "recorded_at": "2026-11-27T22:43:48.273868151Z",
+          "seal": {
+            "by": "server",
+            "mac": "06fa1bb1eef18c48ef87518651314d102cbc445084461035106e6e91c5697d05"
+          }
         }
       ],
       "created_at": "2026-11-23T01:42:34.725422747Z",
-      "updated_at": "2026-11-26T13:04:03.601241580Z",
+      "updated_at": "2026-11-27T22:43:48.273868151Z",
       "seal": {
         "by": "server",
-        "mac": "232ecaa620780235e78a7e488ed6914cdbaac2ab9a793a3613c553fc0d28fe58"
+        "mac": "1d3ccbcd54273c52932058f720992f9862ab01ed8563803bcff615d0c8c96e0a"
       }
     },
     {
@@ -54634,6 +54669,28 @@
             "by": "server",
             "mac": "290bdbeac4078b16237129de0365149c85b74ae3fa790d9df4f626c3824b40bd"
           }
+        },
+        {
+          "id": "EVD-4106",
+          "kind": "test",
+          "locator": "src/shared/announce.rs:346-360 at 5fbeb015; tools/agentic/gate.sh narrow subscribe_disconnect_grace_failure_and_end_are_logged (1 passed)",
+          "summary": "Re-audit at head: info! on every Subscribed still carries resubscribe = subscribed_before (false first, true after) and disconnected_ms, now from outage_began filtered by subscribed_before. Test asserts 3 info lines, 2 resubscribe=true, and two disconnected_ms values.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 346,
+                "end": 360
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:12.979968577Z",
+          "seal": {
+            "by": "server",
+            "mac": "5718d8a7302216c2060bb5bd6519521e9794bf006ea48b9638cf6e3bf5b9e78a"
+          }
         }
       ],
       "verdicts": [
@@ -54677,13 +54734,26 @@
             "by": "server",
             "mac": "81b7c9c1f74644a586d9562280b74c29a061e3951a15efbb4682c2882d9e3c53"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the diff: still holds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4106"
+          ],
+          "recorded_at": "2026-11-27T22:43:46.622915701Z",
+          "seal": {
+            "by": "server",
+            "mac": "b52068a847d732dcde10cbd27224cf19f770e4ac1e5a9e49b0d8eb55b02a6716"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-26T13:04:15.727562976Z",
+      "updated_at": "2026-11-27T22:43:46.622915701Z",
       "seal": {
         "by": "server",
-        "mac": "7d4294340a3223aa231a9b9894888df4278ce3abbfd3e8d843f00879155c2659"
+        "mac": "7545911fcc09ebd87455931b569472abab415b1cdcbd77dbc507d1ac9a1352c9"
       }
     },
     {
@@ -54750,6 +54820,28 @@
             "by": "server",
             "mac": "a5c93a1c1127a49acb98de49b7a2ef7626b50b5972ef012c83b3490376d63238"
           }
+        },
+        {
+          "id": "EVD-4110",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:366-379 at 5fbeb015",
+          "summary": "Re-audit at head: the Disconnected arm still warns only when disconnected_at is none, so once per loss; the added outage_began line does not affect the gate. Test asserts 2 'connection lost' warnings.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 366,
+                "end": 379
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.589321495Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcf6f5c60bddc0f5be7589374f6e72ebcc15852db5d99f12460fca413097e7ad"
+          }
         }
       ],
       "verdicts": [
@@ -54766,13 +54858,26 @@
             "by": "server",
             "mac": "3f20bcdd7dfd802cb079a7e5908a08ddda5d0713b468117bf9f689c2458c224c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: still warns once per loss.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4110"
+          ],
+          "recorded_at": "2026-11-27T22:43:47.459444338Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5d0619e2a04a0e81e29708e980be31969cab59576afe3f5a3cf8f21ef16012e"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-23T02:20:43.452531035Z",
+      "updated_at": "2026-11-27T22:43:47.459444338Z",
       "seal": {
         "by": "server",
-        "mac": "fd7dd037763a8e2f69a2fec50629b06f6bafb5061ca764be7faf6c748ee57150"
+        "mac": "2f1bc9619b99c4015edde78b1e75a53e7d91acd7715fdeb5285dded587544e75"
       }
     },
     {
@@ -54817,6 +54922,28 @@
             "by": "server",
             "mac": "ced0c875ed4dcae73c39f9cdb3020a3236869b2266e52348ba454f9925c50cd2"
           }
+        },
+        {
+          "id": "EVD-4113",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:326-338 at 5fbeb015",
+          "summary": "Re-audit at head: the replace_at arm and its grace warn are unchanged by the diff. Test asserts 1 'past the grace' warn.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 326,
+                "end": 338
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:14.039534906Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7ce824acb16899fcc5c4d58bd51d7ea747e50dd0a7c44fcb25709c0b2257ba2"
+          }
         }
       ],
       "verdicts": [
@@ -54832,13 +54959,26 @@
             "by": "server",
             "mac": "a5519ac69e02fd1944d34dfd14ee7c8d835337fe989f135805097f02d7386ce5"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: unchanged grace warn.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4113"
+          ],
+          "recorded_at": "2026-11-27T22:43:48.140998083Z",
+          "seal": {
+            "by": "server",
+            "mac": "69f904a7c7aa35626e1b11750926fa731b162e883e6ca1d92088f3a62b9a2e80"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-23T02:20:43.546307404Z",
+      "updated_at": "2026-11-27T22:43:48.140998083Z",
       "seal": {
         "by": "server",
-        "mac": "5fad943815ba344e672577d40388cc5155a422d331244e59d773327c0b918885"
+        "mac": "6841c912817b1867a69ffba0b38b88db05073a8cf21da35e7121e5f4b50cece3"
       }
     },
     {
@@ -54883,6 +55023,28 @@
             "by": "server",
             "mac": "394379fbaad4131485a34e3311426d264da2c9407d18b479496933e2bcf8cc52"
           }
+        },
+        {
+          "id": "EVD-4111",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:392-399 at 5fbeb015",
+          "summary": "Re-audit at head: the Err arm still emits warn 'pub/sub subscribe failed; retrying after a backoff'; only an outage_began set was added. Test asserts the warn once.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 392,
+                "end": 399
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.729225624Z",
+          "seal": {
+            "by": "server",
+            "mac": "e6fce16546d9fe1a8e7879c23e6286877b61ec4329874f2ef428b9b4a25426ec"
+          }
         }
       ],
       "verdicts": [
@@ -54898,13 +55060,26 @@
             "by": "server",
             "mac": "28cf8ab6149ec1bee47c9db07f4844b196b0d0fdc91233787f1498cf06d09d43"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: unchanged warn.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4111"
+          ],
+          "recorded_at": "2026-11-27T22:43:47.676835010Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d8cf44229c5893d7cefca6b095084e6821aab9e3366a6595c7cc8bc6ecd020f"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-23T02:20:43.621755165Z",
+      "updated_at": "2026-11-27T22:43:47.676835010Z",
       "seal": {
         "by": "server",
-        "mac": "4f9b1bebdf0d1bb5939712156be9f4278d6f17eb3e437cd448ef0f7c4069f2e2"
+        "mac": "d5ffdf55f52168056a4562e65e81810ef9a5cf619c8d0076cd670d4163112c35"
       }
     },
     {
@@ -54949,6 +55124,28 @@
             "by": "server",
             "mac": "d2c02c7d5c2d5221798a459023667654c988330ae8b3577f25d7076dcec0dce2"
           }
+        },
+        {
+          "id": "EVD-4112",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:380-390 at 5fbeb015",
+          "summary": "Re-audit at head: the None arm still warns 'pub/sub subscription ended; subscribing again after a backoff' and breaks; an outage_began set precedes it. Test asserts 3 such warns.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 380,
+                "end": 390
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.882289927Z",
+          "seal": {
+            "by": "server",
+            "mac": "cef610028bc185332a746ed82f64a43462c4c6dbb5f8a6ca57397e0a0c751d74"
+          }
         }
       ],
       "verdicts": [
@@ -54964,13 +55161,26 @@
             "by": "server",
             "mac": "723e33d9befd54406c01e9b620640419fe00f21379f7fc152b21b3bf4be1daa3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: unchanged warn.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4112"
+          ],
+          "recorded_at": "2026-11-27T22:43:47.916745789Z",
+          "seal": {
+            "by": "server",
+            "mac": "7af227437a7447bdc6d80289ac395d3e0751c793613b3a45a8d2ee2089c9b667"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-23T02:20:43.699864139Z",
+      "updated_at": "2026-11-27T22:43:47.916745789Z",
       "seal": {
         "by": "server",
-        "mac": "c6becf3c278b6275a0e59c0a54401117161c448e86adae6b8500345310cba626"
+        "mac": "99235eaba99abaf23cf59d333987b35844e99805cbc3b667dc2d26eb20758fd1"
       }
     },
     {
@@ -55015,6 +55225,28 @@
             "by": "server",
             "mac": "162957e935ca6467b09daaaf753d5aeecbeaf7cf948461bc84eaddccb80b23ff"
           }
+        },
+        {
+          "id": "EVD-4109",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:306-400 at 5fbeb015",
+          "summary": "Re-audit at head: the diff adds no tracing call and no field; the events carry only subscriber, grace_ms, resubscribe, disconnected_ms; no error text or URL.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 306,
+                "end": 400
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.435766911Z",
+          "seal": {
+            "by": "server",
+            "mac": "1092738b9dcb905d33e99f8c69e971313b0f3001dfea8dd9e22443f2eaab76a3"
+          }
         }
       ],
       "verdicts": [
@@ -55030,13 +55262,26 @@
             "by": "server",
             "mac": "71b3739115a61753195ec6e0474fd372dadaf514130ee2ce4792ef994ebda75b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: no new fields or log calls.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4109"
+          ],
+          "recorded_at": "2026-11-27T22:43:47.235152554Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ee27f5a139e0784276162bd6dc41bc9d31d1d82b5180cdec61bebea1b9bab07"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-23T02:20:43.775374751Z",
+      "updated_at": "2026-11-27T22:43:47.235152554Z",
       "seal": {
         "by": "server",
-        "mac": "625c2494031ba22e55a0529e0c0338e0c20e050772007c01767acfc54e2936d8"
+        "mac": "7a64e394f9659ba1c1ee8f5fb3396197175d950e82b535f42664f347cf99c4d2"
       }
     },
     {
@@ -55429,6 +55674,28 @@
             "by": "server",
             "mac": "c5274b9f696a7b6692e252fbbb8696ec33e7cdfdbb479760cc684af59161a7c3"
           }
+        },
+        {
+          "id": "EVD-4107",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow subscribe_disconnect_grace_failure_and_end_are_logged (1 passed) at 5fbeb015; src/shared/announce.rs:560-620",
+          "summary": "Re-audit at head: the test still scripts four subscriptions through run(), asserts every line's level/text/subscriber name and no redis://, and passes; only the disconnected_ms assertion was extended.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 560,
+                "end": 620
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.119874456Z",
+          "seal": {
+            "by": "server",
+            "mac": "f256e0c00d62c9b77354377a9afce80942573188f6d67d9192ce48e6ae666c3f"
+          }
         }
       ],
       "verdicts": [
@@ -55470,13 +55737,26 @@
             "by": "server",
             "mac": "161268863bb3b42fc6f374310307ec57ebf2fdf85f78a110b448125411a88f5e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: test passes and keeps its assertions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4107"
+          ],
+          "recorded_at": "2026-11-27T22:43:46.755564707Z",
+          "seal": {
+            "by": "server",
+            "mac": "9fe4d5e421bcde55992b9bc9dbe7032a0f5159cea5e2e6167ebc10a9a3683d77"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-26T13:04:20.842775006Z",
+      "updated_at": "2026-11-27T22:43:46.755564707Z",
       "seal": {
         "by": "server",
-        "mac": "d8bc743f98711cbd26d4b993c0b0e1928b35859a61b2b64643c93ee02cd5754c"
+        "mac": "f4d844ef5b3a0cb8cca0934a9bb3f42c6497f50544748d9994a02e1338b70c36"
       }
     },
     {
@@ -55776,6 +56056,28 @@
             "by": "server",
             "mac": "f92a1fcb95d4241c694a50446982127d0f6343d4d5208c7a73887f5f0b899b11"
           }
+        },
+        {
+          "id": "EVD-4108",
+          "kind": "inspection",
+          "locator": "docs/operations.md:786-796 at 5fbeb015",
+          "summary": "Re-audit at head: the bullet's levels, subscriber, resubscribe and (updated) disconnected_ms wording match src/shared/announce.rs:346-396.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 786,
+                "end": 796
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:13.278790072Z",
+          "seal": {
+            "by": "server",
+            "mac": "13cec75f766fb1d9156d9e5e88deec3c15678bb83677b9ec1972f36c978e11ed"
+          }
         }
       ],
       "verdicts": [
@@ -55817,13 +56119,26 @@
             "by": "server",
             "mac": "d5fd9ab50500368b9f292d85b098c9f57e0c1a0bbf31fcc7c765c1176ab66e23"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: edited bullet matches the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4108"
+          ],
+          "recorded_at": "2026-11-27T22:43:46.999536991Z",
+          "seal": {
+            "by": "server",
+            "mac": "68e29b121c53409b2edd3e333634fbd28e20276677a0a521add4c3dee5a0ecaf"
+          }
         }
       ],
       "created_at": "2026-11-23T02:19:13.233877046Z",
-      "updated_at": "2026-11-26T13:04:51.139287741Z",
+      "updated_at": "2026-11-27T22:43:46.999536991Z",
       "seal": {
         "by": "server",
-        "mac": "dfebacc1e10f6b38da6ff25c670d7ed5879d7002a68792e8f3dc6424e96763b9"
+        "mac": "3591be61d8ab2efee156d293547603038d35a8a6d153f92c12e67b08376cc026"
       }
     },
     {
@@ -162587,6 +162902,28 @@
             "by": "server",
             "mac": "c6ca138219497e0ba4ec10da8718d9324edbf16c8227e1065ec9ed53694e8a54"
           }
+        },
+        {
+          "id": "EVD-4115",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:306-405 at 5fbeb015",
+          "summary": "Re-audit at head: the diff adds no timer or poll; the only timers remain the replace_at grace sleep and the backoff sleep.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 306,
+                "end": 405
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:43:14.332183106Z",
+          "seal": {
+            "by": "server",
+            "mac": "7eaadd3383dab59c6ac22c53cfed9304d09e081ccaf1b2d00f8d2716bcfc16b5"
+          }
         }
       ],
       "verdicts": [
@@ -162603,13 +162940,26 @@
             "by": "server",
             "mac": "ddae36b268af5be9370da7de2f7faa8e547f3e99d9289ce08ae1e6d15a1f56bb"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: no new timers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4115"
+          ],
+          "recorded_at": "2026-11-27T22:43:48.511792608Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fa450721e71426d7642ebdb6daf1110587b4ff18d980b04f0543da0536083f4"
+          }
         }
       ],
       "created_at": "2026-11-26T13:04:26.831506629Z",
-      "updated_at": "2026-11-26T13:04:35.313868074Z",
+      "updated_at": "2026-11-27T22:43:48.511792608Z",
       "seal": {
         "by": "server",
-        "mac": "38e42463e0daf6cc795d264eb63e337f565ee4c2e139940afdd88343c3da2ebd"
+        "mac": "b82fd9dd508abff37877e54632290d32c15e4b7fd263e483b1ea3df8bd10e281"
       }
     },
     {
@@ -205991,6 +206341,677 @@
       "seal": {
         "by": "server",
         "mac": "51e3c3f100e6b20085e9c4558df11b0e0c478af828d58c9cb56b5a880770ad1a"
+      }
+    },
+    {
+      "id": "CLM-2332",
+      "statement": "Issue #931 is delivered: the subscriber's recovery log line reports disconnected_ms for the whole outage, including one that spans a replaced subscription and failed subscribes.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/931",
+      "derived_from": [],
+      "artifacts": [
+        "src/shared/announce.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4116",
+          "kind": "analysis",
+          "locator": "children of CLM-2332",
+          "summary": "The hoisted, set-once, cleared-on-Subscribed timestamp, the first-subscribe suppression, the unchanged fields and levels, the passing extended test and the docs and changelog together deliver the issue's suggested fix and the task's extra requirements. Gap noted: the failed-startup case of the first-subscribe rule is untested.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T22:43:17.884846994Z",
+          "seal": {
+            "by": "server",
+            "mac": "cdf064e0d3ed16a507e89572af47c0f63575f30d37b69cdcb5a3a3947704756d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported (see roll-up evidence).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4116"
+          ],
+          "recorded_at": "2026-11-27T22:43:46.396645895Z",
+          "seal": {
+            "by": "server",
+            "mac": "618242f09d18de7d93c1419e4b72cfc6df2c3992c5e4093b35fdc9095493e468"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:46.396645895Z",
+      "seal": {
+        "by": "server",
+        "mac": "f201f28a9ee8fb0561b44daf99a7cc3c8a6bdac736608d22126772b50a386857"
+      }
+    },
+    {
+      "id": "CLM-2333",
+      "statement": "run() in src/shared/announce.rs holds the loss timestamp (outage_began) outside the per-subscription loop, next to subscribed_before, so it survives a replaced subscription and failed subscribes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #931 Suggested fix: 'Hoist the loss timestamp out of the per-subscription arm next to subscribed_before'; PR body: 'The loss timestamp (outage_began) is hoisted next to subscribed_before in run'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4096",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:307-320",
+          "summary": "outage_began is declared at line 313 directly after subscribed_before (309), above the while loop; disconnected_at (320) remains inside the Ok(subscription) arm.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 307,
+                "end": 320
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:50.061087472Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f7eec479fa85af6ebb12ebf519195bb9c35a46e089859b0da4ae82052e7504d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Declaration at line 313 is outside the while loop beside subscribed_before.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4096"
+          ],
+          "recorded_at": "2026-11-27T22:43:44.588236346Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9167f970b2a44e1d3b47b0c99757b4a5e255647a0854f6bda55fc833eeb39cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:44.588236346Z",
+      "seal": {
+        "by": "server",
+        "mac": "ddeda784095180c4d250faa3b40d74d390bb404c8ed958a04b9d9c183badd682"
+      }
+    },
+    {
+      "id": "CLM-2334",
+      "statement": "outage_began is set (if still unset) on a Disconnected event, on a stream end or grace expiry (the None event), and on a failed subscribe, and is never overwritten while set.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #931: 'set it on the first Disconnected (or on a grace expiry / subscribe failure when it is still unset)'; PR body: 'set on the first Disconnected, or, while unset, on a grace expiry, a stream that ended, or a failed subscribe'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4097",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:326-338,378,382,394",
+          "summary": "get_or_insert_with(Instant::now) is called in the Disconnected arm (378), the None arm (382) and the subscribe Err arm (394); it never overwrites a set value. The grace expiry (replace_at, 326-338) yields event None, so it reaches the None arm; it can only fire after a Disconnected, so the value is already set. No explicit set on grace expiry exists, but behaviour matches the issue's 'when still unset'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 326,
+                "end": 396
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:50.271853199Z",
+          "seal": {
+            "by": "server",
+            "mac": "95d9c60cb7ddef2abe07398e6111ebcd8a8821853defbb9804631448b408d4ff"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "get_or_insert_with in Disconnected, None (which includes grace expiry) and Err arms sets only when unset.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4097"
+          ],
+          "recorded_at": "2026-11-27T22:43:44.719127663Z",
+          "seal": {
+            "by": "server",
+            "mac": "0afb20cc5a013744a4f568981322e364192ca612d637424a1f7b5be4a96e606b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:44.719127663Z",
+      "seal": {
+        "by": "server",
+        "mac": "a12cb042e4c718b76f2cb1241a577d9492536d05ce28cad778d5be0dcc0fc164"
+      }
+    },
+    {
+      "id": "CLM-2335",
+      "statement": "outage_began is cleared to None on each Subscribed event, after the recovery info line is emitted.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #931: 'clear it on the next Subscribed'; PR body: 'it is cleared on the next Subscribed'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4098",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:346-360",
+          "summary": "The Subscribed arm reads outage_began in the info! call (352-355), then sets subscribed_before = true, disconnected_at = None and outage_began = None (357-359) before handler.subscribed().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 346,
+                "end": 360
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:50.482689116Z",
+          "seal": {
+            "by": "server",
+            "mac": "bca7ca27607556577162d82f48d1e6017df6d52f42b31850d1566529ede4ea90"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "outage_began = None at line 359 after the info line reads it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4098"
+          ],
+          "recorded_at": "2026-11-27T22:43:44.849291664Z",
+          "seal": {
+            "by": "server",
+            "mac": "58b8f806f9cb326cd32c444513a438392ed55a3e8454e3b1487462fa851f24e3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:44.849291664Z",
+      "seal": {
+        "by": "server",
+        "mac": "0619361f1a8dd3738b51eabc086f0b761ee08a70ade4672874117644bff2c149"
+      }
+    },
+    {
+      "id": "CLM-2336",
+      "statement": "The first Subscribed of the process never logs disconnected_ms, even when failed subscribe attempts or Disconnected events preceded it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Task requirement; PR body: 'The first subscribe of the process never reports disconnected_ms, even after failed startup attempts'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4099",
+          "kind": "inspection",
+          "locator": "src/shared/announce.rs:352-354",
+          "summary": "disconnected_ms = outage_began.filter(|_| subscribed_before).map(...): subscribed_before is false until the first Subscribed completes, so the value is None whatever outage_began holds (including after failed startup subscribes, which set it at 394). Not exercised by any test: the scripted test has no failure before the first Subscribed (its first subscribe is attempt 1, immediate).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 349,
+                "end": 356
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:50.751125348Z",
+          "seal": {
+            "by": "server",
+            "mac": "f925273724b1c7fdcf089da5185de05ea3bb19306738cb7942138da1fc8a2064"
+          }
+        },
+        {
+          "id": "EVD-4100",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow subscribe_disconnect_grace_failure_and_end_are_logged (1 passed); src/shared/announce.rs:592-607",
+          "summary": "Three INFO subscribed lines are asserted but exactly two disconnected_ms values ([7000..7010, 67000..67010]), so the first (startup) Subscribed carries none in the plain case. The failed-startup-attempts case has no test.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 592,
+                "end": 607
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:50.974681047Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e9c15c65cf370ed3e7cab772a4fe0e05e89ffd06aa7a993caf4cccf54af4df7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The filter on subscribed_before makes the value None for the first Subscribed regardless of earlier failures (code analysis); the plain case is covered by the test's two-value assertion. The failed-startup variant has no test, so it rests on analysis alone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4099"
+          ],
+          "recorded_at": "2026-11-27T22:43:45.074557304Z",
+          "seal": {
+            "by": "server",
+            "mac": "be567435b0f0057b4dcc7d7de4edec1ac1c0f5b943926bf1ec6ba71b2ca999fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:45.074557304Z",
+      "seal": {
+        "by": "server",
+        "mac": "37664e2ac77a97a7ab49d34353e339ff268f89aa31b3b2a78d629c384ef1b471"
+      }
+    },
+    {
+      "id": "CLM-2337",
+      "statement": "The per-subscription disconnected_at is kept and still times the grace and gates the 'connection lost' warning, and no log field name or level changed.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Task requirement; PR body: 'The per-subscription disconnected_at stays for the grace timer and the \"connection lost\" warning; every log field and level is unchanged.'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4101",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/shared/announce.rs",
+          "summary": "Diff adds no tracing call and changes no level or field name: only the disconnected_ms expression (disconnected_at.map -> outage_began.filter.map). disconnected_at still drives replace_at (324) and the is_none() gate on the 'connection lost' warn (369-377), is reset on Subscribed (358). The value semantics of disconnected_ms change deliberately.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 320,
+                "end": 380
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:51.176599518Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bb1b273b3dc157bf3e1d89ed58dbdfebe285040dd54a9385631ec35fb1ea038"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff changes only the disconnected_ms expression; disconnected_at and all tracing calls keep their roles, levels and fields.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4101"
+          ],
+          "recorded_at": "2026-11-27T22:43:45.297388649Z",
+          "seal": {
+            "by": "server",
+            "mac": "b7c29a870b1ff02e3c9dc23f274dd08da6296e0ff3990c965320b610c7c1f3fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:45.297388649Z",
+      "seal": {
+        "by": "server",
+        "mac": "2aa852a6d9ac5a4b59c49704aece13e7414ba30b68be1da64b7f93df8c7440e5"
+      }
+    },
+    {
+      "id": "CLM-2338",
+      "statement": "log_tests::subscribe_disconnect_grace_failure_and_end_are_logged asserts the two disconnected_ms values 7000..7010 ms (same-subscription recovery) and 67000..67010 ms (recovery after a grace expiry and a failed subscribe) on the paused clock, and passes at head.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #931: 'Extend log_tests::subscribe_disconnect_grace_failure_and_end_are_logged'; PR body: 'asserts both recoveries on the paused clock: 7000..7010 ms ... 67000..67010 ms'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4102",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow subscribe_disconnect_grace_failure_and_end_are_logged (1 passed, 3238 filtered out) at 5fbeb015",
+          "summary": "Test passes. Its assertion (lines 603-606) requires reported == [same, whole] with same in 7000..7010 and whole in 67_000..67_010; scripted attempt 4 recovers after attempt 2's grace expiry and attempt 3's failed subscribe.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 587,
+                "end": 609
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:51.386905334Z",
+          "seal": {
+            "by": "server",
+            "mac": "1fdfabd0c78a2b3a73a70146aad9bc15d6491e027fee2bbf8a8d215168094168"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ran the test at head: 1 passed; the assertion requires both ranges.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4102"
+          ],
+          "recorded_at": "2026-11-27T22:43:45.532659640Z",
+          "seal": {
+            "by": "server",
+            "mac": "eeb8ea0dd3e9e3db0f1125f05771432f9f2e169b61f87fbaa90b2dfbb2e5871e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:45.532659640Z",
+      "seal": {
+        "by": "server",
+        "mac": "6ebc54bd070909b20f2784c220c4c62a3cdc4d9c6b019472497a0aceeaa357eb"
+      }
+    },
+    {
+      "id": "CLM-2339",
+      "statement": "Reverting the fix (using the per-subscription disconnected_at for disconnected_ms) makes that test fail, because the old code logs only the 7 s value.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'Reverting the fix makes it fail (the old code logs only the 7 s one).'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "src/shared/announce.rs"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4103",
+          "kind": "analysis",
+          "locator": "git show origin/main:src/shared/announce.rs (Subscribed arm) vs src/shared/announce.rs:496-510",
+          "summary": "Old code logged disconnected_at.map(...) with disconnected_at declared per subscription; attempt 4 starts a fresh subscription, so disconnected_at is None and its line has no disconnected_ms. reported would be [~7000] and matches!([same, whole]) fails. Reasoned, not executed (a mutation run would disturb the worktree during the running gate).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/announce.rs",
+              "lines": {
+                "start": 349,
+                "end": 356
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:51.569513746Z",
+          "seal": {
+            "by": "server",
+            "mac": "090af21ec70f541d292b87a0c67327d7c3f96288caa7621db7e3bb2b3bca0ef4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By analysis the old per-subscription value is None for attempt 4's fresh subscription, so the two-value match fails. Not executed as a mutation run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4103"
+          ],
+          "recorded_at": "2026-11-27T22:43:45.777828161Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0673e9a4f89ac23e36686a71f188022b4ae77bfdf115b94de2d37625a1f4fc4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:45.777828161Z",
+      "seal": {
+        "by": "server",
+        "mac": "ddaca28bf48e039ab73519024fc50246e99207d427cdd141261d736ce11f69d3"
+      }
+    },
+    {
+      "id": "CLM-2340",
+      "statement": "docs/operations.md describes disconnected_ms as the outage's length covering a replaced subscription and failed subscribes and absent on the first subscribe.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task requirement; PR body: 'docs/operations.md and a changelog entry describe the new meaning of disconnected_ms.'",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4104",
+          "kind": "inspection",
+          "locator": "docs/operations.md:786-796",
+          "summary": "Bullet now says disconnected_ms 'says how long the outage lasted, counted from the first loss, so it covers a replaced subscription and failed subscribes, and is absent on the first subscribe'. Matches the code. Cosmetic: the line after the edit is over 100 columns.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 786,
+                "end": 796
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:51.771449997Z",
+          "seal": {
+            "by": "server",
+            "mac": "27e45952fbebb1da2c1c0132d746de22bd517d1a23dd7d23e7aae321a6a1a3f9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs bullet states all three properties and matches the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4104"
+          ],
+          "recorded_at": "2026-11-27T22:43:45.948347768Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f7bf389f7e802aa92c81ee5a22e54f55fdd5ae20ecaecb55a57ab47b9fba981"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:45.948347768Z",
+      "seal": {
+        "by": "server",
+        "mac": "79b0fa02c4b2f3f91f20bc7e03061d2744b998bbab7ca5b32a6fc07a1cd66db9"
+      }
+    },
+    {
+      "id": "CLM-2341",
+      "statement": "A dated changelog entry for issue 931 exists under changelog/ and describes the new disconnected_ms behaviour.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task requirement; repo CLAUDE.md changelog rule",
+      "derived_from": [
+        "CLM-2332"
+      ],
+      "artifacts": [
+        "changelog/20261127T223241Z-issue-931-subscriber-outage-duration.md"
+      ],
+      "tags": [
+        "from-issue:931"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4105",
+          "kind": "inspection",
+          "locator": "changelog/20261127T223241Z-issue-931-subscriber-outage-duration.md:1-20",
+          "summary": "Timestamp-named entry exists in the diff and describes outage_began, when it is set and cleared, the first-subscribe rule, the test change and the docs change; it matches the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T223241Z-issue-931-subscriber-outage-duration.md",
+              "lines": {
+                "start": 1,
+                "end": 20
+              },
+              "commit": "5fbeb0150d6aed83afd982ebfe99f0af771639d8"
+            }
+          },
+          "recorded_at": "2026-11-27T22:42:51.956156029Z",
+          "seal": {
+            "by": "server",
+            "mac": "23a3435d39c22f2d04015f8451321c20da2e6b4c0f69f619384f95530aa385ca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Entry exists, is timestamped and accurate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4105"
+          ],
+          "recorded_at": "2026-11-27T22:43:46.172098279Z",
+          "seal": {
+            "by": "server",
+            "mac": "c157d76320b370182eca69b48a75623286bda1938cad6f625338ee12d9437724"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T22:42:25.577835440Z",
+      "updated_at": "2026-11-27T22:43:46.172098279Z",
+      "seal": {
+        "by": "server",
+        "mac": "45f42673c709ada1197bf928600d3adbd73676d4123a7d21a9cf4ee4682a5df0"
       }
     }
   ]

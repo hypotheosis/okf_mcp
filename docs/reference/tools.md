@@ -484,7 +484,7 @@ Every queued open_questions entry in a catalog, grouped by concept and numbered 
 
 **Show Pending Changes** (read-only)
 
-The unpublished changeset `changeset` names: each changed path (create, update or delete), the revision it was based on and the one published now, whether that base is stale, whether publish can replay it, and a unified diff against the published text. A stale entry publish can replay is diffed as replayed onto the published text (replayed: true), the bytes publish would write; one whose replay would fail gets replay_error and a note instead.
+The unpublished changeset `changeset` names: each changed path (create, update or delete), the revision it was based on and the one published now, whether that base is stale, whether publish can replay it, and a unified diff against the published text. A stale entry publish can replay is diffed as replayed onto the published text (replayed: true), the bytes publish would write; one whose replay would fail gets replay_error and a note instead. A stale entry publish cannot replay at all (a free edit of a path published since) gets `conflict_note`: publish would refuse the changeset with Conflict until the path is discarded and the edit made again on the current text, and its `diff` is the entry's stored text against the text published now, not what publish would write. `conflict_note` is null for every other entry.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

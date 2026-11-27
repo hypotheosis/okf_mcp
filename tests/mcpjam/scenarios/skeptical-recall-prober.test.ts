@@ -318,6 +318,15 @@ describe(SCENARIOS.editConflicts.goal, () => {
         });
         await session().publish(winner, "My car is silver now");
 
+        // Issue #911: the stale free edit says it will be refused, before publish is tried.
+        const pending = await session().call<{
+            files: { path: string; stale: boolean; replayable: boolean; conflict_note: string | null }[];
+        }>("pending_changes", { changeset: stale });
+        expect(pending.files).toEqual([
+            expect.objectContaining({ path, stale: true, replayable: false }),
+        ]);
+        expect(pending.files[0].conflict_note).toContain("refuse this changeset with Conflict");
+
         const conflict = await session().fail("publish", { changeset: stale, message: "red" });
         expect(conflict.error).toBe("Conflict");
         expect((conflict as ToolError & { files: { path: string }[] }).files).toEqual([

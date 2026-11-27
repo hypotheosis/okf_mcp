@@ -103,9 +103,12 @@ async fn the_configured_subscriber_handles_events_after_start_up() {
     let again = install_with_writer(&started.config.telemetry, None, None, Capture::default());
     assert!(again.is_err());
 
-    started
-        .telemetry
-        .expect("serve starts telemetry")
-        .shutdown()
-        .await;
+    support::refused::bounded(
+        "a telemetry shutdown",
+        started
+            .telemetry
+            .expect("serve starts telemetry")
+            .shutdown(),
+    )
+    .await;
 }

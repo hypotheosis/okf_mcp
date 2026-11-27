@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2231,
+  "next_claim_seq": 2249,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f10bde80354c2e20a046ea1a96b2a5391c4ddfc1ecb3346a072374fc933ce061"
+    "mac": "c6a1204cd57358165267b41aae895107df393ab17810b7b6367e2867d2cceb54"
   },
-  "next_evidence_seq": 3932,
+  "next_evidence_seq": 3957,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "226d43cc48140120a5b093c615a91ccdc10684ace569f1ba22a5e3b619668e69"
+    "mac": "3e33d90c26614a411a96528bc6486650f06cb54bae8b5dbb9105b36a5f5971c6"
   },
   "claims": [
     {
@@ -4536,6 +4536,28 @@
             "by": "server",
             "mac": "d65ef172584ee657e9ab30a066d83d7f41c0f2f9f3f829497837549bbc1cb13e"
           }
+        },
+        {
+          "id": "EVD-3944",
+          "kind": "test",
+          "locator": "tools/agentic/merge-reviewed.sh:31-63,131-155; bash tools/agentic/tests/run.sh (123 passed, 0 failed)",
+          "summary": "At head 83093a44 the three preconditions still stand: review on head or round cap (lines 38-48), unreplied bot comments refuse (58-63), and the merge runs only when state ends CLEAN (line 131 refuses any non-CLEAN state; a BLOCKED PR can reach CLEAN only after bot threads are resolved and GitHub re-reports). Existing merge tests (refuses unreviewed head, unreplied, non-CLEAN) pass in the 123.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 31,
+                "end": 63
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:10.404656254Z",
+          "seal": {
+            "by": "server",
+            "mac": "8430b0792ef8a7f3bf1fd7dc2748ee42e5b812c19ba140f7e8280bccde3eb76e"
+          }
         }
       ],
       "verdicts": [
@@ -4551,13 +4573,26 @@
             "by": "server",
             "mac": "36cb9f299b157d3c13475770df10e601fd0979fdd802c4b2ed4aee0ba0f99cd3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head 83093a44 after its anchor changed: the three preconditions still hold; BLOCKED now gets thread resolution first but merging still requires CLEAN.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3944"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.708071008Z",
+          "seal": {
+            "by": "server",
+            "mac": "3fc4a650476ff19f8de2b64fc99020f94a24fa5e43f26891c25dd35f38b2f361"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:36.900182326Z",
-      "updated_at": "2026-11-21T19:09:15.155383702Z",
+      "updated_at": "2026-11-27T16:31:30.708071008Z",
       "seal": {
         "by": "server",
-        "mac": "774f5ce08def55838b1787cbe8ca95758dcf81025a41c29cf9d8e0c8ab685145"
+        "mac": "654ba0cb90bb76fc02ab8af36d3bcb56e29c19d6a7de1868b98528c9fd9d3410"
       }
     },
     {
@@ -197450,6 +197485,1395 @@
       "seal": {
         "by": "server",
         "mac": "31c5ac9435016e3c36037b0486dc22ee6fb7a785dab1f36cafb919ba8a057df5"
+      }
+    },
+    {
+      "id": "CLM-2231",
+      "statement": "Issue #906 is resolved: merge-reviewed.sh resolves answered bot review threads before merging into main, leaves a person's threads alone, says what it checked when still BLOCKED, and the stub-gh tests cover it.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/906",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3945",
+          "kind": "analysis",
+          "locator": "children of CLM-2231",
+          "summary": "The children cover each issue requirement: resolving bot threads (list + mutate), only after the reply check, bounded state re-read with UNKNOWN allowance, person's threads untouched and named, informative BLOCKED refusals, no token printing and merge-if-ready.sh untouched, README, and the stub-gh tests. All are supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T16:31:34.042294433Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3bbfe2a66c0d959cc249fb265dc9b6c74d37262536cc6594dbcb5123610ac72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All eight child claims are supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3945"
+          ],
+          "recorded_at": "2026-11-27T16:31:37.141621466Z",
+          "seal": {
+            "by": "server",
+            "mac": "6360b86a14f4db660eb0b3e7c4b6bd79561d7b8b8177c082da731484ffb29368"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T16:31:37.141621466Z",
+      "seal": {
+        "by": "server",
+        "mac": "1d781cc9271f404bd22d0fd38e351a60aa538355660e1158cf875e1140c458b8"
+      }
+    },
+    {
+      "id": "CLM-2232",
+      "statement": "When the PR is BLOCKED and every bot thread has a reply, merge-reviewed.sh lists the review threads with GraphQL reviewThreads (id, isResolved, first comment author, all pages) and calls resolveReviewThread on each unresolved thread whose first comment is the bot's.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #906: 'resolve the unresolved review threads whose first comment is the bot's. List them with GraphQL reviewThreads ..., then call resolveReviewThread on each.'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3932",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:87-127",
+          "summary": "Under state=BLOCKED it runs gh api graphql --paginate for reviewThreads(id,isResolved,path,first comment author login), selects unresolved threads whose first author is_bot, and runs the resolveReviewThread mutation per id. Runs after the unreplied check (line 58-63).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 87,
+                "end": 127
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:04.517756591Z",
+          "seal": {
+            "by": "server",
+            "mac": "84f0302c34f9c12d017c7c824953a78a8246ea7169918bb70f856f6fc3c470bf"
+          }
+        },
+        {
+          "id": "EVD-3933",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh: test_merge_resolves_answered_bot_threads_then_merges, test_merge_resolves_bot_threads_on_every_page (tests/run.sh:347-363)",
+          "summary": "Both ok. First: threads T1 (open, bot), T2 (resolved, bot), T3 (open, brooke-reviews) -> resolved exactly T1,T3 and MERGED. Second: bot threads on two pages -> T1,T2 resolved. Asserts the stub's resolved log.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 347,
+                "end": 363
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:04.657559010Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5c8d8849d7abeabddf18b1cf00d13a152f586ea86978f1e40eb24473a52e917"
+          }
+        },
+        {
+          "id": "EVD-3952",
+          "kind": "test",
+          "locator": "merge-reviewed.sh:114-150 at HEAD; run.sh at HEAD 124/0",
+          "summary": "At HEAD, under state=BLOCKED (line 114) after the unreplied check (61-64), paginated graphql reviewThreads (id,isResolved,path,first comment author), unresolved bot-first threads resolved via resolveReviewThread (142-150). test_merge_resolves_answered_bot_threads_then_merges and ..._on_every_page pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 114,
+                "end": 150
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.540310947Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc36de3c0186c4d9a53a899f2e457e2b4a92abe82bb6a264316cb17b310aa6a6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code lists threads via paginated reviewThreads and resolves only unresolved bot-started ones; tests show T1,T3 resolved, T2 (already resolved) skipped, and a second page covered.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3932",
+            "EVD-3933"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.147822250Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbc419202bcf111ffae6c028d16a4c68c6671b456d624cef66eb50704fffeb9b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-checked at HEAD: code and tests unchanged in behavior.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3952"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.561371086Z",
+          "seal": {
+            "by": "server",
+            "mac": "43492badf5d21afbe547f7becc49f4565b53300b7c6543670b567b37ac79845b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:26:07.561371086Z",
+      "seal": {
+        "by": "server",
+        "mac": "abd84436c9e3122c3fbfc3602d58455da249f4745b6e436721b95dabfb8fe839"
+      }
+    },
+    {
+      "id": "CLM-2233",
+      "statement": "Threads are listed and resolved only after the unreplied-bot-comment check passes: with an unanswered bot comment the script refuses and resolves nothing.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #906: 'Once the script has verified every bot thread has a reply'; test requirement 'unanswered one refuses with nothing resolved'.",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3934",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh: test_merge_resolves_nothing_when_a_bot_thread_is_unanswered (tests/run.sh:365-372)",
+          "summary": "ok. BLOCKED PR with an unreplied bot inline comment and an open bot thread: rc 1, output 'without a reply: [1]', resolved log absent (want_none_resolved), not merged. The unreplied check (merge-reviewed.sh:58-63) exits before the thread code at 87.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 365,
+                "end": 372
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:04.838612851Z",
+          "seal": {
+            "by": "server",
+            "mac": "ca28ae82fe79382919fb5095b058970b39c5959d10d5227c6d38341d27839880"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test passes and asserts nothing is resolved and no merge when a bot comment is unanswered; code order puts the unreplied exit before the thread code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3934"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.289455604Z",
+          "seal": {
+            "by": "server",
+            "mac": "70aa0e480d92180f77d079180c5add4710446954c02140118ea14acb96a12ed3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T16:31:29.289455604Z",
+      "seal": {
+        "by": "server",
+        "mac": "0494072ad52cc227001e82e7d43d8dab35ebb7986f3dc47afc8504acf8280ec3"
+      }
+    },
+    {
+      "id": "CLM-2234",
+      "statement": "mergeStateStatus is re-read after the resolves (and while UNKNOWN) for a bounded time ($AGENTIC_STATE_WAIT, default 60 s) before the CLEAN check, so an UNKNOWN state that becomes CLEAN merges and one that never resolves refuses after the bound.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #906: 'Only then read mergeStateStatus (allow for UNKNOWN while GitHub recomputes); bounded wait.'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Round 3 of PR #1167: \"for a bounded time ($AGENTIC_STATE_WAIT)\" read as a hard limit, which it is not. Replaced by a claim on the re-read and a separate performance claim on the total bound.",
+        "retired_at": "2026-11-27T17:15:35.979076322Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3935",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh: test_merge_waits_for_an_unknown_state_then_merges, test_merge_refuses_an_unknown_state_that_never_resolves, test_merge_resolves_answered_bot_threads_then_merges (tests/run.sh:347-352, 382-398)",
+          "summary": "All ok. UNKNOWN then (seq UNKNOWN,CLEAN) merges; UNKNOWN forever refuses 'after waiting' with fake clock <=1100 (bound ~60 s); BLOCKED, resolve, then CLEAN from merge-state-seq merges. Code: await_merge_state merge-reviewed.sh:65-83, called at 85 and 127. Note the first state is read once at the top (line 31-33), before thread resolution, and threads are resolved only if that state is BLOCKED; the post-resolve re-read is what the issue's 'only then read' needs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 65,
+                "end": 86
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.008762290Z",
+          "seal": {
+            "by": "server",
+            "mac": "7825afcb45395a70764408c01bd24f429b6ff7006d38b2c5b7fda5c4ba6b7801"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Three tests pass (UNKNOWN->CLEAN merges, UNKNOWN forever refuses within the bound, post-resolve BLOCKED->CLEAN merges); await_merge_state is bounded by AGENTIC_STATE_WAIT.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3935"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.423401164Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a854a3679e939942ebce39fcb46074358446d8be1c897fb341e806b1b040b6b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:15:35.979076322Z",
+      "seal": {
+        "by": "server",
+        "mac": "3abf2abc584bddfdaa2e685c82491af783e3f7897ea13b7492af77cc7a9eb997"
+      }
+    },
+    {
+      "id": "CLM-2235",
+      "statement": "The script never resolves an unresolved thread started by a person; if the PR is still BLOCKED the refusal names each such thread by path and author.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #906: 'Leave threads started by a person alone; if one blocks, refuse with a message naming it (path and author).'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3936",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh: test_merge_refuses_a_persons_unresolved_thread_and_leaves_it (tests/run.sh:374-380)",
+          "summary": "ok. Bot thread T1 plus alice's open thread on docs/a.md, BLOCKED throughout: rc 1, output contains 'unresolved review threads started by a person' and 'docs/a.md by alice', resolved log is exactly T1 (alice's T2 never resolved), not merged. Code merge-reviewed.sh:113-118 and 132-134 build the 'path by author' list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 113,
+                "end": 118
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.156876293Z",
+          "seal": {
+            "by": "server",
+            "mac": "eb1c0dd6fa8b2310b871de624a6a006eb706a518ba166b134a256f090614a2a3"
+          }
+        },
+        {
+          "id": "EVD-3953",
+          "kind": "test",
+          "locator": "merge-reviewed.sh:138-141,156-158; test_merge_refuses_a_persons_unresolved_thread_and_leaves_it (pass at HEAD)",
+          "summary": "Only bot-first threads are in the resolve loop; person threads become 'path by author' list in the refusal (line 157). Test passes at HEAD and fails on origin/main script.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 133,
+                "end": 158
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.666754063Z",
+          "seal": {
+            "by": "server",
+            "mac": "99b6eeb7841e3c873ab05b1dc6ad96f8e58d8a357fb167e1c10c2612adb2bf31"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test shows the person's thread is never in the resolved log and the refusal names 'docs/a.md by alice'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3936"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.584286136Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fe0d8c8a47cefd26ea268aa2f073c101cc2bc1531655de88c9beae0a81a1554"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-checked at HEAD: person threads never resolved and named by path and author.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3953"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.682335908Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa3406aeb436f42d450617c4a293553fa06c1b2d9ad1b10baf847ee08473f062"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:26:07.682335908Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f34e76cf3904f4604edf3d05cff5b116b868421ab5c6edfb943eacf08c26edb"
+      }
+    },
+    {
+      "id": "CLM-2236",
+      "statement": "When the PR is still BLOCKED for another reason, the refusal states what was checked (threads checked with none open, or N bot threads resolved and the wait) instead of a bare mergeStateStatus=BLOCKED.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #906: 'When still BLOCKED for another reason, the refusal says what was checked (not a bare BLOCKED).'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3937",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh: test_merge_says_what_it_checked_when_blocked_for_another_reason, test_merge_names_the_wait_when_still_blocked_after_resolving (tests/run.sh:400-415)",
+          "summary": "Both ok. Blocked with no open threads -> 'mergeStateStatus=BLOCKED; checked the review threads (none open) and found nothing ... block is something else'; blocked after resolving 1 -> 'still 6x s after resolving 1 ... review thread(s)'. Code merge-reviewed.sh:131-150.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 131,
+                "end": 150
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.317906485Z",
+          "seal": {
+            "by": "server",
+            "mac": "e69e9c4a75a0095c6d90e6474d708130c7e680a0c079ae62d3c668780348288d"
+          }
+        },
+        {
+          "id": "EVD-3954",
+          "kind": "test",
+          "locator": "merge-reviewed.sh:154-173; test_merge_says_what_it_checked_when_blocked_for_another_reason, test_merge_names_the_wait_when_still_blocked_after_resolving (pass at HEAD)",
+          "summary": "Refusal branches at 159-166 state 'still N s after resolving K ... review thread(s)' or 'checked the review threads (none open)'. Both tests pass at HEAD.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 154,
+                "end": 173
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.794937254Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5250bc2d5e543a7a3c37b7dbf9f5bd4502f8a3f0da29661d88ae8e875ce7963"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both non-person BLOCKED refusals state what was checked; tests assert the text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3937"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.752740210Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba6a86722bbf3885a6c646337d3580cb14b449fd9fabef48265e510d8bed9393"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-checked at HEAD: refusals state what was checked; tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3954"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.807345200Z",
+          "seal": {
+            "by": "server",
+            "mac": "a81a04ad36fe9d1ff90602716e27f28ba2d10beb810d8f8c9d63bc031e4a7eec"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:26:07.807345200Z",
+      "seal": {
+        "by": "server",
+        "mac": "1b8dd3de9a3f61e62836db2b2bad29335b210ab2ce0bae1296f09f9294e4ad2c"
+      }
+    },
+    {
+      "id": "CLM-2237",
+      "statement": "The change prints no tokens and does not change merge-if-ready.sh: merge-if-ready.sh is absent from the diff and the new code echoes only thread ids, paths, author logins and counts.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #906: 'Never print tokens; do not change merge-if-ready.sh behaviour'.",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh",
+        "tools/agentic/merge-if-ready.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3938",
+          "kind": "analysis",
+          "locator": "git diff --name-only origin/main..HEAD | grep merge-if-ready (0 hits); git grep -in 'token|authorization' tools/agentic/merge-reviewed.sh (0 hits)",
+          "summary": "merge-if-ready.sh is not in the 5-file diff. merge-reviewed.sh has no token/authorization reference; its echoes are REFUSE lines carrying thread id, path, author login, counts and the wait, and gh stderr is not echoed (calls go through agentic_gh at lib.sh:115 with output captured).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "token|authorization",
+              "case_insensitive": true,
+              "scope": [
+                "tools/agentic/merge-reviewed.sh"
+              ],
+              "hits": 0,
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.464597614Z",
+          "seal": {
+            "by": "server",
+            "mac": "2514f1a56b6af32f88aeee44d2d813e33658d67af2806180d91b5bf14921061d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "merge-if-ready.sh is not in the diff; merge-reviewed.sh has no token reference and prints only ids, paths, logins, counts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3938"
+          ],
+          "recorded_at": "2026-11-27T16:31:29.901155494Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6b0cf7238fd5ddfc0ae102b6ebb7d957adb6056113b14cfc1f3f3965b329b1f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T16:31:29.901155494Z",
+      "seal": {
+        "by": "server",
+        "mac": "b5c66b4975239a1772042eb7115700f20252b5d088251af2129b0e4c5c608891"
+      }
+    },
+    {
+      "id": "CLM-2238",
+      "statement": "tools/agentic/README.md describes the new steps: the merge-reviewed.sh row says BLOCKED PRs get their bot-started threads resolved, a person's thread is never resolved and is named, and the state is re-read for AGENTIC_STATE_WAIT; AGENTIC_STATE_WAIT is in the variables table.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #906: 'README updated if it describes the steps.'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3939",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:12 and :56",
+          "summary": "Row at line 12 says a BLOCKED PR first has its unresolved bot-started threads resolved, a person's thread is never resolved and is named in the refusal, state re-read up to AGENTIC_STATE_WAIT. Line 56 adds the AGENTIC_STATE_WAIT variable (60 s default).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 12,
+                "end": 12
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.637319691Z",
+          "seal": {
+            "by": "server",
+            "mac": "075f30520897337c4373691eb7ed7e68578375cf8adb02de6ea0b36fb3fe2ca1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README row and variable table updated as stated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3939"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.027939053Z",
+          "seal": {
+            "by": "server",
+            "mac": "77920b13e866532b18924ae6668f0f1173e15cd86ab20f7cb1d1ea80e7039958"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T16:31:30.027939053Z",
+      "seal": {
+        "by": "server",
+        "mac": "cdc7ec4c12bb3bf014d2a4b6ec0c7ed1182fbe34af5a45012b0a9ebb144db783"
+      }
+    },
+    {
+      "id": "CLM-2239",
+      "statement": "tools/agentic/tests/run.sh has stub-gh cases for: an answered bot thread resolved and merge proceeds; an unanswered one refuses with nothing resolved; a person's unresolved thread refuses clearly; and mergeStateStatus UNKNOWN then CLEAN.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #906: 'Stub-gh tests in tools/agentic/tests/run.sh: ...'",
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh",
+        "tools/agentic/tests/stub/gh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3940",
+          "kind": "test",
+          "locator": "tests/run.sh:347-420; run: bash tools/agentic/tests/run.sh (123 passed, 0 failed)",
+          "summary": "The four required scenarios exist and pass: resolve+merge (347), unanswered refuses with none resolved (365), person's thread refuses naming it (374), UNKNOWN then CLEAN (382). Six more cases cover paging, UNKNOWN forever, other-block, post-resolve block, read failure, resolve failure. Stub gh gained api graphql and merge-state-seq.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 347,
+                "end": 420
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:05.806122546Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a7226e8c69e91c0a5c69b052c08bc590f5dc2d71d3e9e17fd9a7e54e68fc574"
+          }
+        },
+        {
+          "id": "EVD-3955",
+          "kind": "test",
+          "locator": "tests/run.sh:347-400 at HEAD; suite 124 passed, 0 failed",
+          "summary": "Cases exist and pass: resolves_answered_bot_threads_then_merges (347), resolves_nothing_when_a_bot_thread_is_unanswered (365), refuses_a_persons_unresolved_thread (374), waits_for_an_unknown_state_then_merges (382).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 347,
+                "end": 400
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.924379227Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c2c4c408c2098ae432f7bf6d144324d3517128bf87aec1dbadfa4c316c7309f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four required scenarios have tests that pass in my run, with assertions on the resolved log and output.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3940"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.174965523Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7283a43c1de4387533a681f265282efe3fbe5a7725a1f87fc9cec408c2a7e3f"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All four scenarios present and passing at HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3955"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.940158223Z",
+          "seal": {
+            "by": "server",
+            "mac": "6875023b48d67bfa6ad2d481a293c34bc25920a1b67ed09d78f0d22441e8563a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:26:07.940158223Z",
+      "seal": {
+        "by": "server",
+        "mac": "6ddf9d36f3c36e6b38fccc6d876b5f60c91390b886176ac14597c6cc2533e289"
+      }
+    },
+    {
+      "id": "CLM-2240",
+      "statement": "tools/agentic/tests/run.sh: 123 passed, 0 failed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #906 description, Validation: 'tools/agentic/tests/run.sh: 123 passed, 0 failed.'",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:906",
+        "pr-description"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Stale count from code head 83093a44 (123); the suite now has 124 cases. Replaced.",
+        "retired_at": "2026-11-27T17:15:36.106320116Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3941",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh > target/i906-audit/run.out (head 83093a44, stub gh)",
+          "summary": "Ran it myself: last lines '123 passed, 0 failed', exit=0; 123 'ok' lines, 0 failures.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T16:31:05.954913501Z",
+          "seal": {
+            "by": "server",
+            "mac": "7585e40c7ffb183037d96a0da26b0fadfd22647414e2359a93f71dd4a37594d3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I reran the suite on head and it printed 123 passed, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3941"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.308621623Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c945d70d540347b4d310c0677f719595d8d45dcef1bfcf144ff5e76b6d585d0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:15:36.106320116Z",
+      "seal": {
+        "by": "server",
+        "mac": "07ec9b19b2adcb4cc4ca02af472ed5d6a18e4bc060ced71dce36e5408f6f871e"
+      }
+    },
+    {
+      "id": "CLM-2241",
+      "statement": "With merge-reviewed.sh reverted to origin/main, 9 of the 10 new test cases fail.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #906 description, Validation: 'With the script reverted to origin/main, 9 of the 10 new cases fail.'",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:906",
+        "pr-description"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Stale revert figures from 83093a44 (9 of 10); there are now 11 new cases. Replaced.",
+        "retired_at": "2026-11-27T17:15:36.233630990Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3942",
+          "kind": "analysis",
+          "locator": "tools/agentic/tests/run.sh:347-427 read against origin/main's merge-reviewed.sh (not executed)",
+          "summary": "Reading only: on the old script every case except test_merge_resolves_nothing_when_a_bot_thread_is_unanswered would fail (no thread resolving, no wait, bare 'mergeStateStatus=BLOCKED'), and that one would pass, which agrees with 9 of 10. I did not run the reverted script, so this is not confirmed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T16:31:06.107314147Z",
+          "seal": {
+            "by": "server",
+            "mac": "19db9b8cddfe3b3f108f6ed6ef199917a65139ebb36bad20e48e0c3a37028f3b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Reading the cases against the old script agrees with 9 of 10, but I was not to run the reverted script, so it is unconfirmed. Fix: run tools/agentic/tests/run.sh with merge-reviewed.sh checked out from origin/main and confirm exactly 9 of the 10 new test_merge_* cases fail (all but test_merge_resolves_nothing_when_a_bot_thread_is_unanswered).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3942"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.446487145Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3e0970f245ac60ca690f745395c0f49a25587032280dfc704440cb9f9cc1940"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:15:36.233630990Z",
+      "seal": {
+        "by": "server",
+        "mac": "f222a071ba6b65fcf978d3578999b43f0c1be7e8b283f5098b985a8f4c3bec45"
+      }
+    },
+    {
+      "id": "CLM-2242",
+      "statement": "Threads are only listed when mergeStateStatus is BLOCKED, so a CLEAN PR (milestone branch) is unchanged by the script's new code.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR #906 description: 'Threads are only listed when the state is BLOCKED; a CLEAN PR (milestone branches) is unchanged.'",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3943",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:85-129",
+          "summary": "The graphql listing and resolving sit inside 'if [ \"$state\" = BLOCKED ]' (line 90); the pre-existing CLEAN check and merge are untouched, and the new wait loop at 85 runs only when state is UNKNOWN. A CLEAN PR makes no graphql call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 85,
+                "end": 129
+              },
+              "commit": "83093a447dd2370810483d3923b567dfd60761bf"
+            }
+          },
+          "recorded_at": "2026-11-27T16:31:06.256375103Z",
+          "seal": {
+            "by": "server",
+            "mac": "b050876e21f34241ad0417fcba29b8ccd3a20f5c70d9ae727cc0cfcec6a211e2"
+          }
+        },
+        {
+          "id": "EVD-3956",
+          "kind": "inspection",
+          "locator": "merge-reviewed.sh:108-152",
+          "summary": "At HEAD, thread listing/resolving is inside 'if [ \"$state\" = BLOCKED ]' (114-152); await_merge_state at 110 only when UNKNOWN. For a CLEAN state neither runs, no graphql call; falls to the CLEAN merge path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 108,
+                "end": 152
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:51.052511818Z",
+          "seal": {
+            "by": "server",
+            "mac": "581977cdaeeb647d98b8721a3f7328113207d8d26d2b680cfa345fb1ce544e1a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All thread handling is inside the BLOCKED branch; CLEAN path unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3943"
+          ],
+          "recorded_at": "2026-11-27T16:31:30.580716287Z",
+          "seal": {
+            "by": "server",
+            "mac": "7984b8a38da50f89e5cdbd9d926364b3a6a20cea751aa9ea38fd53c23979f543"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-checked at HEAD: thread code only under BLOCKED; wait only under UNKNOWN or after resolves.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3956"
+          ],
+          "recorded_at": "2026-11-27T17:26:08.074561779Z",
+          "seal": {
+            "by": "server",
+            "mac": "1b2a83e9ace8a8bd0ebab44757de26415a2561c769e156e1149de1c55630eea7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T16:30:29.452381032Z",
+      "updated_at": "2026-11-27T17:26:08.074561779Z",
+      "seal": {
+        "by": "server",
+        "mac": "1cc6f83c41c08797e96fd10c6fdbe78c664c6897c3eef56d1f96a645cd02d0c3"
+      }
+    },
+    {
+      "id": "CLM-2243",
+      "statement": "mergeStateStatus is re-read after the resolves (and while UNKNOWN) before the CLEAN check, with $AGENTIC_STATE_WAIT (default 60 s) as the polling budget: no sleep and no new lookup starts after it, so an UNKNOWN state that becomes CLEAN merges and one that never resolves refuses, naming the seconds waited.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #906: 'Only then read mergeStateStatus (allow for UNKNOWN while GitHub recomputes); bounded wait.'; PR #1167 round 3",
+      "source_anchor": {
+        "path": "tools/agentic/merge-reviewed.sh",
+        "lines": {
+          "start": 65,
+          "end": 106
+        },
+        "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+      },
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3946",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:80-110,151; tests/run.sh test_merge_waits_for_an_unknown_state_then_merges, test_merge_refuses_an_unknown_state_that_never_resolves, test_merge_names_the_wait_when_still_blocked_after_resolving",
+          "summary": "await_merge_state runs after resolves (line 151, arg 1) and while UNKNOWN (line 110); loop re-reads, breaks on left<=0 so no sleep/lookup after deadline (default 60). Refusal says 'after waiting N s'. Full suite at HEAD: 124 passed, 0 failed, including these three.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 65,
+                "end": 110
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:49.767657504Z",
+          "seal": {
+            "by": "server",
+            "mac": "9cc73df6d3a8017508f0ff95fb8e6c58cd0c144bf37f1eb7665cb6d0da085dee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and passing tests show re-read after resolves/UNKNOWN with a deadline-capped loop.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3946"
+          ],
+          "recorded_at": "2026-11-27T17:26:06.831287294Z",
+          "seal": {
+            "by": "server",
+            "mac": "00a71fda2c4dce77baa8609d5c8b66086cf411a4829bc57ecb283f9e090083e0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:06.831287294Z",
+      "seal": {
+        "by": "server",
+        "mac": "9461c52a959bd649209f56d54daf91207e241486f0dcfac6aeefa87595462b3a"
+      }
+    },
+    {
+      "id": "CLM-2244",
+      "statement": "The state wait in merge-reviewed.sh ends within AGENTIC_STATE_WAIT + 2 s + agentic_kill_after + agentic_reap_after (72 s with the defaults 60, 5, 5), even when a state lookup stalls and ignores TERM, and the stalled lookup's process group is stopped, leaving no process running (one that survives KILL is abandoned with a warning by lib.sh).",
+      "kind": "performance",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR #1167 round 3 (review 6091371558): document the wait as a polling budget plus grace and cleanup",
+      "source_anchor": {
+        "path": "tools/agentic/merge-reviewed.sh",
+        "lines": {
+          "start": 65,
+          "end": 79
+        },
+        "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+      },
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh",
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3947",
+          "kind": "analysis",
+          "locator": "merge-reviewed.sh:80-106; lib.sh:17-36,49-100,103-111",
+          "summary": "Timing: deadline=floor(t0)+W <= t0+W. agentic_deadline=deadline+1. A lookup starts only if budget=agentic_deadline-floor(r)>0, and gets exactly that budget, so ends < deadline+2 (floor loses <1 s). After a sleep the loop ends at <= deadline, and left<=0 breaks, so no lookup starts later. Timeout -> agentic_stop_group: TERM, <=kill_after s wait, KILL, <=reap_after s wait (only when KILL survived), then returns; leader gone -> wait returns at once; survivor is disowned/warned. Total < W+2+kill_after+reap_after = 72 s. Test with TERM-ignoring 20 s lookup bounded (below). Only theoretical caveat: 0.1 s tick loops add ms of fork overhead, absorbed by the strict '<' slack except at pathological clock phase.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 17,
+                "end": 36
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:49.899215695Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d1a74ef474608216f143894529df8cfcdee154a9192c0bae5b656fb4c10535a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Traced floor-clock, +1 s grace, TERM/KILL/reap waits: end < W+2+5+5; leader dead after KILL is reaped at once; survivors abandoned. Only ms-scale tick overhead caveat.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3947"
+          ],
+          "recorded_at": "2026-11-27T17:26:06.951873925Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ef3900a0317ff881a746bf6d6a481c24d10bfe43a6e902527ee3d89091b21c8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:06.951873925Z",
+      "seal": {
+        "by": "server",
+        "mac": "73be6afe22fd33a17a18dc9a4c9f5dbc4fc1e288eafccb89d0951b096c618db2"
+      }
+    },
+    {
+      "id": "CLM-2245",
+      "statement": "The changelog entry for #906 and tools/agentic/README.md (the merge-reviewed.sh row and the AGENTIC_STATE_WAIT row) describe AGENTIC_STATE_WAIT as a polling budget, not a hard limit, and give the same total bound as the script's comment (the setting + 2 s + up to 10 s to stop the lookup's group); none claims the wait never overruns AGENTIC_STATE_WAIT.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR #1167 round 3 (review 6091371558)",
+      "source_anchor": {
+        "path": "changelog/20261127T160000Z-issue-906-merge-reviewed-resolve-threads.md",
+        "lines": {
+          "start": 6,
+          "end": 6
+        },
+        "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+      },
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "changelog/20261127T160000Z-issue-906-merge-reviewed-resolve-threads.md",
+        "tools/agentic/README.md"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3948",
+          "kind": "inspection",
+          "locator": "changelog/...issue-906...md:6; tools/agentic/README.md:12,56",
+          "summary": "Changelog line 6 and README row 56 say 'polling budget, not a hard limit', last lookup up to 2 s past, up to 10 s more to stop the group, so within setting + 12 s (72 s default); README line 12 points to that row. Matches the script comment (W+2+10). No text claims the wait never overruns.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 56,
+                "end": 56
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.029016679Z",
+          "seal": {
+            "by": "server",
+            "mac": "7fd3d0307eeed05506d0857f9832933d3bc490c76426511c23631d8754e6ecd5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs call it a polling budget and give W+2+10 (72 s); none claims no overrun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3948"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.073609499Z",
+          "seal": {
+            "by": "server",
+            "mac": "373064e07afa4474d532e68cb683d1d1ff2a8c619862cc071bf1643ed08e9938"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:07.073609499Z",
+      "seal": {
+        "by": "server",
+        "mac": "919ffff8477be847a57af490be0a7b722d11b9ac654f8c7bb485f819fa0253a7"
+      }
+    },
+    {
+      "id": "CLM-2246",
+      "statement": "test_merge_state_wait_is_bounded_with_a_slow_lookup asserts the elapsed time against the documented bound (6000 ms for AGENTIC_STATE_WAIT=2, agentic_kill_after=1, agentic_reap_after=1) plus a stated 2000 ms tolerance, with a lookup that sleeps 20 s ignoring TERM, and asserts the lookup was cut off and its process group is gone; it fails with merge-reviewed.sh at 83093a44 (lookups not capped by the wait).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1167 round 3 (review 6091371558): update the slow-lookup test",
+      "source_anchor": {
+        "path": "tools/agentic/tests/run.sh",
+        "lines": {
+          "start": 400,
+          "end": 424
+        },
+        "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+      },
+      "derived_from": [
+        "CLM-2231"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh",
+        "tools/agentic/tests/stub/gh"
+      ],
+      "tags": [
+        "from-issue:906"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3949",
+          "kind": "test",
+          "locator": "tests/run.sh:400-424 at HEAD (ok) and with merge-reviewed.sh from 83093a44 in a scratch copy of tools/agentic (target/i906-audit/rev83.log)",
+          "summary": "Test code asserts bound_ms=6000 + tolerance_ms=2000 with W=2, kill=1, reap=1, a 20 s TERM-ignoring lookup (stub trap '' TERM), lookup-finished absent and lookup pgid gone. At HEAD it passes (124/0). With 83093a44's script: 'took 23034 ms; the bound is 6000 ms (+2000 ms tolerance)' FAIL (122 passed, 2 failed; the other failure is test_merge_refuses_an_unknown_state_that_never_resolves). worktree not modified.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 400,
+                "end": 424
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.158429413Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b9a2ad0b81072b301ba5544153d4f2a174de2104c932ea4b1f883be4e7ab97b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test content matches statement; fails (23034 ms) with the 83093a44 script in a scratch copy.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3949"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.195197102Z",
+          "seal": {
+            "by": "server",
+            "mac": "989ee151631939452334a2079de26a54ee493644c428c73cb05419104f47ae4c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:07.195197102Z",
+      "seal": {
+        "by": "server",
+        "mac": "0e0f0721ab0491b122a1491be0f0f272c6e0393590e648a25c56044ccee8dfd5"
+      }
+    },
+    {
+      "id": "CLM-2247",
+      "statement": "tools/agentic/tests/run.sh: 124 passed, 0 failed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1167 description, Validation",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:906",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3950",
+          "kind": "test",
+          "locator": "bash tools/agentic/tests/run.sh at HEAD 6c717875 (target/i906-audit/head.log)",
+          "summary": "Last line: '124 passed, 0 failed'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.284824479Z",
+          "seal": {
+            "by": "server",
+            "mac": "06014f31cce3cd159377510d004391a328b16b4322bd0d6e647a2e844e3f4bf3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "My run: 124 passed, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3950"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.317906229Z",
+          "seal": {
+            "by": "server",
+            "mac": "37bd1097eb2e8066c81ffa0b0c7748dbd27df208f53bba4dd470609b047b3614"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:07.317906229Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf8db780446b4f7288ef7b3ed707306bd445b2b8ff3ea53ea578ba37153b0393"
+      }
+    },
+    {
+      "id": "CLM-2248",
+      "statement": "With merge-reviewed.sh reverted to origin/main, 10 of the 11 new test_merge_* cases fail; test_merge_resolves_nothing_when_a_bot_thread_is_unanswered passes on both.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR #1167 description and changelog, Added",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:906",
+        "pr-description"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3951",
+          "kind": "test",
+          "locator": "scratch copy of tools/agentic with merge-reviewed.sh from origin/main; bash its tests/run.sh (target/i906-audit/revmain.log)",
+          "summary": "114 passed, 10 failed. Failed: names_the_wait_when_still_blocked_after_resolving, refuses_a_persons_unresolved_thread, refuses_an_unknown_state_that_never_resolves, refuses_when_a_thread_cannot_be_resolved, refuses_when_the_threads_cannot_be_read, resolves_answered_bot_threads_then_merges, resolves_bot_threads_on_every_page, says_what_it_checked_when_blocked, state_wait_is_bounded_with_a_slow_lookup, waits_for_an_unknown_state_then_merges. test_merge_resolves_nothing_when_a_bot_thread_is_unanswered passes (ok) on origin/main and at HEAD. 11 new test_merge_* cases in total.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 347,
+                "end": 470
+              },
+              "commit": "6c7178755eb81e231aae47cfb741593e034c79c8"
+            }
+          },
+          "recorded_at": "2026-11-27T17:25:50.411562975Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6ca3aa56bdf3ecff4766adac3db9e9c7421cf4a4f06c7b69f066a264d30fb1f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reverted script: exactly the 10 listed of 11 fail; the unanswered-thread test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3951"
+          ],
+          "recorded_at": "2026-11-27T17:26:07.440207094Z",
+          "seal": {
+            "by": "server",
+            "mac": "50f0fac5cc5011a4c0cbfc755c81aeddcb82657848594063a27e8da63cd4b6d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:15:53.144098274Z",
+      "updated_at": "2026-11-27T17:26:07.440207094Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c0eac74064e93697002df64ee7fd0057d9a7cdc445b9a78f510633b37fd0500"
       }
     }
   ]

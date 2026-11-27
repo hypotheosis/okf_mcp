@@ -125,6 +125,38 @@ run_watch() {
 
 # --- merge-reviewed.sh ---
 
+# thread <id> <resolved: true|false> <author> [<path>]: one reviewThreads node.
+thread() {
+    jq -n --arg id "$1" --argjson r "$2" --arg who "$3" --arg path "${4:-src/lib.rs}" \
+        '{id: $id, isResolved: $r, path: $path, comments: {nodes: [{author: {login: $who}}]}}'
+}
+
+# threads_page <page> <thread json>...: a GraphQL reviewThreads page.
+threads_page() {
+    local page=$1
+    shift
+    printf '%s\n' "$@" | jq -s '{data: {repository: {pullRequest: {reviewThreads: {nodes: .}}}}}' \
+        >"$fx/graphql-threads.$page.json"
+}
+
+# blocked_pr <head>: good_pr, but GitHub reports BLOCKED until threads are resolved.
+blocked_pr() {
+    good_pr "$1"
+    printf '{"headRefOid":"%s","mergeStateStatus":"BLOCKED","baseRefName":"main"}\n' "$1" \
+        >"$fx/pr-view.json"
+}
+
+# run_merge_fake_clock: run_merge with the fake clock, so waits take no real time.
+run_merge_fake_clock() {
+    echo 1000 >"$fx/clock"
+    out=$(cd "$repo" && AGENTIC_NOW_CMD=fake-now AGENTIC_SLEEP_CMD=fake-sleep \
+        timeout 15 "$tools/merge-reviewed.sh" 7 2>&1)
+    rc=$?
+}
+
+want_resolved() { [ "$(cat "$fx/resolved" 2>/dev/null | paste -sd,)" = "$1" ] || die "resolved '$(paste -sd, "$fx/resolved" 2>/dev/null)', want '$1'"; }
+want_none_resolved() { [ ! -e "$fx/resolved" ] || die "resolved $(paste -sd, "$fx/resolved")"; }
+
 test_merge_refuses_unreviewed_head() {
     new_fixtures; good_pr "$head_a"
     printf '[{"user":{"login":"%s"},"commit_id":"%s"}]\n' "$bot" "$head_b" \
@@ -310,6 +342,113 @@ test_merge_warns_when_no_merge_commit_can_be_found() {
     run_merge
     want_rc 0
     want_out "MERGED PR 7 -> milestone/absent; warning: could not find the merge commit"
+}
+
+test_merge_resolves_answered_bot_threads_then_merges() {
+    new_fixtures; blocked_pr "$head_a"
+    threads_page 1 "$(thread T1 false "$bot")" "$(thread T2 true "$bot")" \
+        "$(thread T3 false brooke-reviews)"
+    echo CLEAN >"$fx/merge-state-seq"
+    run_merge_fake_clock
+    want_rc 0; want_out "MERGED PR 7 -> main"; want_resolved "T1,T3"
+}
+
+test_merge_resolves_bot_threads_on_every_page() {
+    new_fixtures; blocked_pr "$head_a"
+    threads_page 1 "$(thread T1 false "$bot")"
+    threads_page 2 "$(thread T2 false "$bot")"
+    echo CLEAN >"$fx/merge-state-seq"
+    run_merge_fake_clock
+    want_rc 0; want_out "MERGED PR 7"; want_resolved "T1,T2"
+}
+
+test_merge_resolves_nothing_when_a_bot_thread_is_unanswered() {
+    new_fixtures; blocked_pr "$head_a"
+    printf '[{"id":1,"in_reply_to_id":null,"user":{"login":"%s"}}]\n' "$bot" \
+        >"$fx/api/pulls_7_comments.1.json"
+    threads_page 1 "$(thread T1 false "$bot")"
+    run_merge
+    want_rc 1; want_out "without a reply: [1]"; want_none_resolved; want_not_merged
+}
+
+test_merge_refuses_a_persons_unresolved_thread_and_leaves_it() {
+    new_fixtures; blocked_pr "$head_a"
+    threads_page 1 "$(thread T1 false "$bot")" "$(thread T2 false alice docs/a.md)"
+    run_merge_fake_clock
+    want_rc 1; want_out "unresolved review threads started by a person"
+    want_out "docs/a.md by alice"; want_resolved "T1"; want_not_merged
+}
+
+test_merge_waits_for_an_unknown_state_then_merges() {
+    new_fixtures; good_pr "$head_a"
+    printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
+        >"$fx/pr-view.json"
+    printf 'UNKNOWN\nCLEAN\n' >"$fx/merge-state-seq"
+    run_merge_fake_clock
+    want_rc 0; want_out "MERGED PR 7"; want_none_resolved
+}
+
+test_merge_refuses_an_unknown_state_that_never_resolves() {
+    new_fixtures; good_pr "$head_a"
+    printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
+        >"$fx/pr-view.json"
+    run_merge_fake_clock
+    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting 60 s"; want_not_merged
+    [ "$(cat "$fx/clock")" -le 1100 ] || die "waited past the bound"
+}
+
+test_merge_state_wait_is_bounded_with_a_slow_lookup() {
+    new_fixtures; good_pr "$head_a"
+    printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
+        >"$fx/pr-view.json"
+    # Each state lookup would take 20 s and ignores TERM, the worst cleanup that
+    # can be stopped. The documented bound (await_merge_state) is
+    # AGENTIC_STATE_WAIT + 2 + agentic_kill_after + agentic_reap_after
+    # = 2 + 2 + 1 + 1 = 6 s; the test allows 2 s more for the script's own
+    # start-up and the stub calls before the wait (a loaded machine).
+    echo 20 >"$fx/lookup-sleep"
+    local bound_ms=6000 tolerance_ms=2000 started_ms elapsed_ms pgid
+    started_ms=$(($(date +%s%N) / 1000000))
+    out=$(cd "$repo" && AGENTIC_STATE_WAIT=2 agentic_kill_after=1 agentic_reap_after=1 \
+        timeout 30 "$tools/merge-reviewed.sh" 7 2>&1)
+    rc=$?
+    elapsed_ms=$(($(date +%s%N) / 1000000 - started_ms))
+    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting"; want_not_merged
+    [ "$elapsed_ms" -le $((bound_ms + tolerance_ms)) ] \
+        || die "took $elapsed_ms ms; the bound is $bound_ms ms (+$tolerance_ms ms tolerance)"
+    # The lookup was cut off, not left to finish, and none of it is left running.
+    [ ! -e "$fx/lookup-finished" ] || die "the slow lookup ran to its end"
+    pgid=$(cat "$fx/lookup-pgid") || die "the slow lookup never ran"
+    ! kill -0 -- "-$pgid" 2>/dev/null || die "the lookup's process group $pgid is still running"
+}
+
+test_merge_says_what_it_checked_when_blocked_for_another_reason() {
+    new_fixtures; blocked_pr "$head_a"
+    threads_page 1 "$(thread T1 true "$bot")"
+    run_merge_fake_clock
+    want_rc 1; want_out "mergeStateStatus=BLOCKED; checked the review threads (none open)"
+    want_none_resolved; want_not_merged
+}
+
+test_merge_names_the_wait_when_still_blocked_after_resolving() {
+    new_fixtures; blocked_pr "$head_a"
+    threads_page 1 "$(thread T1 false "$bot")"
+    run_merge_fake_clock
+    want_rc 1; want_out "still 6"; want_out "s after resolving 1"; want_resolved "T1"
+    want_not_merged
+}
+
+test_merge_refuses_when_the_threads_cannot_be_read() {
+    new_fixtures; blocked_pr "$head_a"; touch "$fx/graphql-threads.fail"
+    run_merge
+    want_rc 1; want_out "REFUSE: could not read the review threads"; want_not_merged
+}
+
+test_merge_refuses_when_a_thread_cannot_be_resolved() {
+    new_fixtures; blocked_pr "$head_a"; touch "$fx/graphql-resolve.fail"
+    threads_page 1 "$(thread T1 false "$bot")"
+    run_merge
+    want_rc 1; want_out "REFUSE: could not resolve review thread T1"; want_not_merged
 }
 
 # --- watch-review.sh ---

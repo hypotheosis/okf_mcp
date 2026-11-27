@@ -7,6 +7,15 @@
 #                         (the head at merge time; default: pr-view.json's);
 #                         on success writes the merged SHA to merged
 #   pr comment            logged; the fake clock's time goes to comment-times
+#   pr view --json mergeStateStatus (that field alone)
+#                         pops the first line of merge-state-seq, if any, as
+#                         the state (a state that changes between reads);
+#                         first sleeps lookup-sleep seconds, if set, ignoring
+#                         TERM (pgid to lookup-pgid, then lookup-finished)
+#   api graphql           a query with resolveReviewThread logs its `id=` to
+#                         resolved (fails if graphql-resolve.fail exists);
+#                         any other query is served from graphql-threads.<page>.json
+#                         (fails if graphql-threads.fail exists)
 #   api repos/O/R/<path>  api/<path with / as _>.<page>.json; every page with
 #                         --paginate, only page 1 without; fails if
 #                         api/<name>.fail exists; [] when there are no pages
@@ -47,7 +56,43 @@ case "$1 ${2:-}" in
         if [ -e "$fixtures/merge-state.fail" ] && [[ " ${args[*]} " == *mergeStateStatus* ]]; then
             echo "stub gh: merge state lookup failed" >&2; exit 1
         fi
-        emit "$fixtures/pr-view.json"
+        if [ "${args[*]: -2}" = "--json mergeStateStatus" ] && [ -s "$fixtures/lookup-sleep" ]; then
+            # A slow state lookup, in real seconds, that ignores TERM (so it is
+            # only stopped by KILL, the slowest cleanup) and says whether it
+            # was cut off: its group id (setsid made it the leader) goes to
+            # lookup-pgid, and lookup-finished appears only if it ran out.
+            echo "$$" >"$fixtures/lookup-pgid"
+            trap '' TERM
+            sleep "$(cat "$fixtures/lookup-sleep")"
+            touch "$fixtures/lookup-finished"
+        fi
+        if [ "${args[*]: -2}" = "--json mergeStateStatus" ] && [ -s "$fixtures/merge-state-seq" ]; then
+            jq -n --arg s "$(head -n1 "$fixtures/merge-state-seq")" '{mergeStateStatus: $s}' \
+                >"$fixtures/state-now.json"
+            sed -i 1d "$fixtures/merge-state-seq"
+            emit "$fixtures/state-now.json"
+        else
+            emit "$fixtures/pr-view.json"
+        fi
+        ;;
+    "api graphql")
+        if [[ " ${args[*]} " == *resolveReviewThread* ]]; then
+            [ -e "$fixtures/graphql-resolve.fail" ] && { echo "stub gh: resolve failed" >&2; exit 1; }
+            for arg in "${args[@]}"; do
+                case "$arg" in id=*) printf '%s\n' "${arg#id=}" >>"$fixtures/resolved" ;; esac
+            done
+            exit 0
+        fi
+        [ -e "$fixtures/graphql-threads.fail" ] && { echo "stub gh: HTTP 502 on graphql" >&2; exit 1; }
+        shopt -s nullglob
+        pages=("$fixtures"/graphql-threads.*.json)
+        if [ "${#pages[@]}" = 0 ]; then
+            echo '{"data":{"repository":{"pullRequest":{"reviewThreads":{"nodes":[]}}}}}' \
+                >"$fixtures/graphql-empty.json"
+            pages=("$fixtures/graphql-empty.json")
+        fi
+        [ "$paginate" = 1 ] || pages=("${pages[0]}")
+        for page in "${pages[@]}"; do emit "$page"; done
         ;;
     "pr merge")
         want=""

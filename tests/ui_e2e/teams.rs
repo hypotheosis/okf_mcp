@@ -962,3 +962,80 @@ async fn an_older_list_read_that_answers_late_never_redraws_the_teams_table() {
     })
     .await;
 }
+
+/// Whether the row of the team named by `cell` (a `data-test` selector)
+/// shows `text`, as the body of a poll for [`Ui::poll_eval`].
+fn row_shows(cell: &str, text: &str) -> String {
+    format!(
+        "() => (document.querySelector('{cell}')?.closest('tr')?.textContent ?? '').includes('{text}')"
+    )
+}
+
+/// Leaves the Teams page for the Users page and comes back, with no drawer
+/// open: what a person does while a slow write is still running.
+fn away_and_back(ui: &Ui) {
+    ui.click("#drawer-close");
+    ui.open("/users");
+    ui.wait_visible(&format!("[data-test=user-{OWNER}]"));
+    ui.open("/teams");
+    ui.wait_visible("[data-test=team-family]");
+}
+
+/// Issue #1086: a member removal or a team delete that finishes after the
+/// user left the Teams page and came back reloads the list shown now, so it
+/// is up to date; and a second click on Delete sends no second DELETE.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_team_write_that_finishes_after_navigating_away_updates_the_list_shown() {
+    let server = server().await;
+    let admin = server.key("console-admin", Access::Admin, &[], None).await;
+    let alice = NewUser {
+        name: "alice",
+        display_name: &okf_mcp::labels::DisplayName::default(),
+    };
+    users::create(&server.db.pool, &alice, &AuditActor::cli(), Utc::now())
+        .await
+        .expect("create alice");
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.login(&admin);
+        ui.open("/teams");
+        ui.click("#team-new");
+        ui.fill("#team-form input[name=name]", "family");
+        ui.select("#team-form select[name=owner]", OWNER);
+        ui.click("#team-form button[type=submit]");
+        ui.click("[data-test=team-family]");
+        ui.wait_text("#team-members", OWNER);
+        ui.select("#member-form select[name=user]", "alice");
+        ui.click("#member-form button[type=submit]");
+        ui.wait_text("#team-members", "alice");
+        ui.click("#drawer-close");
+        ui.poll_eval(&row_shows("[data-test=team-family]", "2 members"));
+
+        // The member's removal is held while the page is left and come back.
+        ui.click("[data-test=team-family]");
+        ui.wait_visible("[data-test=member-remove-alice]:not([disabled])");
+        ui.hold_next("DELETE", "/teams/family/members/alice");
+        ui.click("[data-test=member-remove-alice]");
+        away_and_back(ui);
+        ui.release_held();
+        ui.poll_eval(&row_shows("[data-test=team-family]", "1 member"));
+
+        // The same for the team's delete, which is also sent once.
+        ui.click("[data-test=team-family]");
+        ui.wait_visible("#team-delete:not([disabled])");
+        ui.hold_next("DELETE", "/teams/family");
+        ui.click("#team-delete");
+        ui.click("#confirm-ok");
+        ui.wait_visible("#team-delete[disabled]");
+        assert!(ui.click_twice("#team-delete"), "Delete is disabled");
+        assert_eq!(ui.held_matches(), 1, "a second DELETE was sent");
+        away_and_back(ui);
+        ui.release_held();
+        ui.wait_hidden("[data-test=team-family]");
+        assert_eq!(ui.held_matches(), 1);
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert!(teams::find(&server.db.pool, "family").await.is_err());
+}

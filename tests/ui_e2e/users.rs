@@ -1002,3 +1002,41 @@ async fn an_older_list_read_that_answers_late_never_redraws_the_users_table() {
     })
     .await;
 }
+
+/// Issue #1086: a user delete that finishes after the person left the Users
+/// page and came back reloads the list shown now, so the user is gone from it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_user_delete_that_finishes_after_navigating_away_updates_the_list_shown() {
+    let server = server().await;
+    let admin = server.key("console-admin", Access::Admin, &[], None).await;
+    let alice = NewUser {
+        name: "alice",
+        display_name: &okf_mcp::labels::DisplayName::default(),
+    };
+    users::create(&server.db.pool, &alice, &AuditActor::cli(), Utc::now())
+        .await
+        .expect("create alice");
+    let ran = drive(server.base.clone(), move |ui| {
+        ui.login(&admin);
+        ui.open("/users");
+        ui.click("[data-test=user-alice]");
+        ui.wait_visible("#user-delete:not([disabled])");
+        ui.hold_next("DELETE", "/users/alice");
+        ui.click("#user-delete");
+        ui.click("#confirm-ok");
+        ui.wait_visible("#user-delete[disabled]");
+        // Away from the page and back: the new page lists alice still.
+        ui.click("#drawer-close");
+        ui.open("/teams");
+        ui.wait_visible(&format!("[data-test=team-{OWNER}]"));
+        ui.open("/users");
+        ui.wait_visible("[data-test=user-alice]");
+        ui.release_held();
+        ui.wait_hidden("[data-test=user-alice]");
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert!(users::find(&server.db.pool, "alice").await.is_err());
+}

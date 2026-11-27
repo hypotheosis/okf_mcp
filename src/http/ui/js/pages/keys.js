@@ -7,7 +7,8 @@
 // The server enforces every rule; this page only hides what cannot work.
 // Each helper takes the page's `main` and checks `main.isConnected` after an
 // await before touching the table: once the user has navigated away, the
-// page is gone. Each drawer holds a drawerTicket from the moment it is asked
+// page is gone. A write's reload goes through `mounted` instead (below), so
+// it reaches the page shown now. Each drawer holds a drawerTicket from the moment it is asked
 // for: it opens, re-renders and closes only through that ticket, and only
 // while it is current, so a late answer never replaces a newer drawer or
 // reopens a dismissed one.
@@ -25,6 +26,15 @@ import { assignControl, picker, rowsOf, userChoices } from '../components/picker
 import { showOnce } from '../components/secret.js';
 import { ACCESS_KIND } from '../components/levels.js';
 import { keyUserChanged, refreshUnassigned } from '../core/shell.js';
+
+// The page now mounted, if any: a write that settles after the user left this
+// page and came back reloads the lists of the page shown now, not those of the
+// page the write started on (which is gone, so its lists would stay stale).
+let mounted = null;
+
+// A reload function for the helpers: it reads list `which` ('keys' or 'codes')
+// of the page mounted now, and does nothing once no page is shown.
+const reloadMounted = which => () => (mounted?.main.isConnected ? mounted[which]() : undefined);
 
 const LEVELS = ['read', 'write', 'admin'];
 const CODE_LEVELS = ['read', 'write'];
@@ -122,18 +132,19 @@ export async function render(main) {
         return;
     }
     const showRevoked = h('input', { type: 'checkbox', id: 'keys-show-revoked' });
-    const table = listTable(COLUMNS, [], { onRow: key => showKey(main, key, load), empty: 'No keys.' });
+    const table = listTable(COLUMNS, [], { onRow: key => showKey(main, key, reloadKeys), empty: 'No keys.' });
     table.id = 'keys-table';
     const applyFilter = () => table.setFilter(showRevoked.checked ? null : key => !key.revoked_at);
     showRevoked.addEventListener('change', applyFilter);
     head.append(h('div', { class: 'actions' },
-        h('button', { type: 'button', id: 'key-new', onclick: () => newKey(main, load) }, 'New key')));
+        h('button', { type: 'button', id: 'key-new', onclick: () => newKey(main, reloadKeys) }, 'New key')));
+    const reloadKeys = reloadMounted('keys');
     const view = { rows: new Map(), reload: null, latest: 0 };
     keysViews.set(main, view);
     const codes = codesPanel(main);
     main.append(h('label', { class: 'small muted' }, showRevoked, ' Show revoked keys'), table, codes.section);
 
-    view.reload = load;
+    view.reload = reloadKeys;
     async function load() {
         // Numbered, so a read overtaken by a newer one draws nothing.
         const mine = ++view.latest;
@@ -148,6 +159,7 @@ export async function render(main) {
         } catch { /* toasted; a 401 has already signed the browser out */ }
     }
     applyFilter();
+    mounted = { main, keys: load, codes: codes.load };
     await Promise.all([load(), codes.load()]);
 }
 
@@ -284,7 +296,7 @@ async function newKey(main, reload) {
                 warning: 'Copy this key now. It is not stored anywhere and cannot be shown again.',
                 secret: created.secret,
             });
-            if (main.isConnected) await reload();
+            await reload();
         } catch { /* the server's reason is toasted; the form stays filled */ }
         });
     });
@@ -323,7 +335,7 @@ async function showKey(main, key, reload, ticket = drawerTicket(main), previous 
     const user = userAssign(main, users, {
         prefix: 'key', row: key, path: `${base}/user`, ticket,
         after: async (updated, draw) => {
-            if (main.isConnected) await reload();
+            await reload();
             if (ticket.current()) await showKey(main, updated, reload, ticket, users, draw);
         },
     });
@@ -338,7 +350,7 @@ async function showKey(main, key, reload, ticket = drawerTicket(main), previous 
             const updated = await request();
             const draw = nextDraw(ticket);
             toast(message, 'ok');
-            if (main.isConnected) await reload();
+            await reload();
             if (ticket.current()) await showKey(main, updated, reload, ticket, users, draw);
         } catch { /* toasted */ }
     };
@@ -390,7 +402,7 @@ async function showKey(main, key, reload, ticket = drawerTicket(main), previous 
                 await api.post(`${base}/revoke`);
                 toast(`Revoked ${key.name}.`, 'ok');
                 ticket.close();
-                if (main.isConnected) await reload(); // for the signed-in key this is a 401: back to the login card
+                await reload(); // for the signed-in key this is a 401: back to the login card
             } catch { /* toasted */ }
         },
     }, 'Revoke');
@@ -401,12 +413,13 @@ async function showKey(main, key, reload, ticket = drawerTicket(main), previous 
 // section and its loader, which `render` awaits beside the keys'.
 function codesPanel(main) {
     const showAll = h('input', { type: 'checkbox', id: 'codes-show-all' });
-    const table = listTable(CODE_COLUMNS, [], { onRow: code => showCode(main, code, load), empty: 'No sign-in codes to show.' });
+    const table = listTable(CODE_COLUMNS, [], { onRow: code => showCode(main, code, reloadCodes), empty: 'No sign-in codes to show.' });
     table.id = 'codes-table';
     // The longest expiry the server allows, from the last list; null until
     // one has been read (the code form is not offered before that).
     let maxExpirySecs = null;
     let latest = 0;
+    const reloadCodes = reloadMounted('codes');
     const applyFilter = () => table.setFilter(showAll.checked ? null : code => code.state === 'live');
     showAll.addEventListener('change', applyFilter);
     applyFilter();
@@ -431,7 +444,7 @@ function codesPanel(main) {
         const ticket = drawerTicket(main);
         if (maxExpirySecs === null && !(await load())) return;
         if (!ticket.current()) return;
-        await newCode(main, load, () => maxExpirySecs, ticket);
+        await newCode(main, reloadCodes, () => maxExpirySecs, ticket);
     }
     const section = h('section', { id: 'codes-panel', class: 'codes-panel' },
         h('header', { class: 'page-head' },
@@ -484,7 +497,7 @@ async function newCode(main, reload, maxExpiry = () => null, ticket = drawerTick
                 warning: 'Give this code to the person connecting now. It works once, is not stored anywhere and cannot be shown again.',
                 secret: created.secret,
             });
-            if (main.isConnected) await reload();
+            await reload();
         } catch { /* the server's reason is toasted; the form stays filled */ }
     });
     ticket.open('New sign-in code', 'The code is shown once, right after creation.', form);
@@ -537,14 +550,14 @@ async function showCode(main, code, reload, ticket = drawerTicket(main), previou
                 await api.del(`/oauth/codes/${enc(code.id)}`);
                 toast(`Revoked sign-in code ${code.name}.`, 'ok');
                 ticket.close();
-                if (main.isConnected) await reload();
+                await reload();
             } catch { /* toasted */ }
         },
     }, 'Revoke') : null;
     const user = userAssign(main, users, {
         prefix: 'code', row: code, path: `/oauth/codes/${enc(code.id)}/user`, ticket,
         after: async (updated, draw) => {
-            if (main.isConnected) await reload();
+            await reload();
             if (ticket.current()) await showCode(main, updated, reload, ticket, users, draw);
         },
     });

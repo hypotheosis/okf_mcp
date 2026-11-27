@@ -1307,3 +1307,30 @@ async fn a_late_labels_answer_never_replaces_a_newer_one() {
     })
     .await;
 }
+
+/// Issue #1086: a revoke that finishes after the person left the Keys page
+/// and came back reloads the list shown now, so the revoked key leaves it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_revoke_that_finishes_after_navigating_away_updates_the_list_shown() {
+    let server = server().await;
+    let admin = server.key("console-admin", Access::Admin, &[], None).await;
+    server.key("victim", Access::Read, &["main"], None).await;
+    drive(server.base.clone(), move |ui| {
+        ui.login(&admin);
+        ui.open("/keys");
+        ui.click("[data-test=key-victim]");
+        ui.wait_visible("#key-revoke");
+        ui.hold_next("POST", "/revoke");
+        ui.click("#key-revoke");
+        ui.click("#confirm-ok");
+        // Away from the page and back: the new page lists the key still.
+        ui.click("#drawer-close");
+        ui.open("/teams");
+        ui.wait_visible(&format!("[data-test=team-{OWNER}]"));
+        ui.open("/keys");
+        ui.wait_visible("[data-test=key-victim]");
+        ui.release_held();
+        ui.wait_hidden("[data-test=key-victim]");
+    })
+    .await;
+}

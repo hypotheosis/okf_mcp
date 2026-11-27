@@ -57,6 +57,7 @@ A PR gets at most `AGENTIC_MAX_REVIEW_ROUNDS` (default 3) reviews from the bot, 
 | `AGENTIC_MAX_REVIEW_ROUNDS` | 3 | Most bot reviews a PR gets before it merges without another |
 | `AGENTIC_TIMEOUT_<GATE>` | 5m / 30m / 75m / 60m / 45m / 5m / 5m / 20m / 15m | Per-gate limits for `gate.sh`: fmt, lint, test, test-ui, dylint, worker, release, mcpjam, narrow |
 | `AGENTIC_GATE_KILL_AFTER` | 60 (seconds) | How long what is left of a gate's process group gets between TERM and KILL, after a timeout or once the gate exits. `gate.sh` returns only once the group is empty, so the lock is free |
+| `AGENTIC_SEED_CMD` | `cargo-warm` | Command that building gates (all but fmt, worker and release) run as `<cmd> seed .` before the gate, to fill a new worktree's empty cargo build dir from a warm build of main. A machine-local tool, not part of this repository: when it is not on `PATH` nothing happens, and when it fails the gate builds from scratch as before (bounded at 300 s). Empty turns it off; the tests set it empty |
 | `AGENTIC_CLEAN_TIMEOUT` | 600 (seconds) | Most `remove-worktree.sh` gives `cargo clean`; a clean that runs out of time keeps the worktree |
 | `AGENTIC_BASE_REF` | `origin/main` | The ref `remove-worktree.sh --branch` requires the branch to be merged into, unless `--base <ref>` names another (a milestone branch) |
 | `AGENTIC_WATCHDOG_TEST`, `_GATE`, `_IDLE`, `_INTERVAL` | 1200, 4800, 600, 300 (seconds) | Watchdog limits and check interval |

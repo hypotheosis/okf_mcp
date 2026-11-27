@@ -20,7 +20,10 @@ describe(SCENARIOS.toolDescriptions.goal, () => {
     });
 
     test("get_concept on an index.md names read_document", async () => {
-        const error = await session().fail("get_concept", { path: "/index.md" });
+        const error = await session().fail("get_concept", {
+            path: "/index.md",
+            catalog: session().catalog,
+        });
 
         expect(error.error).toBe("InvalidPath");
         expect(error.message).toContain("read_document");

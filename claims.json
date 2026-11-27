@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "29e482a185da1c52834de291456ac13c7acc1b3e022fb7c60933ba95e52139fd"
   },
-  "next_evidence_seq": 3893,
+  "next_evidence_seq": 3895,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "38762e62c786316069b9a50bcf31b3d301528b92bfcd5d695b3af5a070fd9d98"
+    "mac": "90f91fa17c2d65d065ace6985641c105b992543b3815ae6df8b9333ea6f6006a"
   },
   "claims": [
     {
@@ -193367,6 +193367,18 @@
             "by": "server",
             "mac": "a8c77178da810b48f7e4517a95f95ce342a1bd541def62b64956c5c1276f1d21"
           }
+        },
+        {
+          "id": "EVD-3894",
+          "kind": "analysis",
+          "locator": "children of CLM-2184",
+          "summary": "At a04c7daa every active child (CLM-2185 to CLM-2196, CLM-2198 to CLM-2203) is supported; the only code change since 2de62056 is the resource-filter test's tagged resources and prefix query. Every new query value carries the run tag or a run-unique path. Gate and staging runs remain the author's.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T14:34:34.688636128Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f8e7fd167de874f3c8ba0ef26602a8c7f5167c41c9b07e15c87efc8ff1c281a"
+          }
         }
       ],
       "verdicts": [
@@ -193408,13 +193420,26 @@
             "by": "server",
             "mac": "2f15e6caac2164f64fc32a85766a29d92299750d752d10dc0ff73fb474687cee"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All active children supported at a04c7daa; gate and staging runs remain the author's.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3894"
+          ],
+          "recorded_at": "2026-11-27T14:34:39.178417617Z",
+          "seal": {
+            "by": "server",
+            "mac": "a370172bddcaa402d469f764b1409e5c8ff2277f9bda42ce5ebf7fc9efb1ef46"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:26:15.647601949Z",
+      "updated_at": "2026-11-27T14:34:39.178417617Z",
       "seal": {
         "by": "server",
-        "mac": "c18fb266eb07e396403d30996069b141b33f2f6b078a29ecfe8ecf61b02ac856"
+        "mac": "e2f7e6acc7556e2b2909c9642deeea2cc96eb6b241e94fa8fcb7d53b475470a6"
       }
     },
     {
@@ -193481,6 +193506,28 @@
             "by": "server",
             "mac": "af021c328719bf0774fe09fb0a8090ce24bf99d885fe1b430397b112fdfade46"
           }
+        },
+        {
+          "id": "EVD-3893",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:143-183 at a04c7daa",
+          "summary": "Resources now lead with the tag (`Register${tag}: parish`, `Ledger${tag}: estate`). Assertions: each resource alone matches its two concepts; register.toUpperCase() finds nothing (case-sensitive); the strict prefix `Register${tag}` finds nothing (exact match); source_id (upper-case) plus resource gives [one] only; id+other resource gives [both]; id with `Other${tag}` gives []. Code semantics unchanged (search.rs:459-471 exact resource match).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 143,
+                "end": 183
+              },
+              "commit": "a04c7daadeb92b14fd1b89b9b540624652e3c2e7"
+            }
+          },
+          "recorded_at": "2026-11-27T14:34:34.487142373Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d541cd920db1dbd052e580eb4b77a85987d1ac4ee592f287f49ef9bf0969410"
+          }
         }
       ],
       "verdicts": [
@@ -193497,13 +193544,27 @@
             "by": "server",
             "mac": "6cc395b95e67f68d2c84a00a9aa8a2923503bfd67baa1ae51f28c834dbf55a93"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The tagged-prefix negative query and all other assertions match the exact, case-sensitive resource semantics.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3893",
+            "EVD-3852"
+          ],
+          "recorded_at": "2026-11-27T14:34:38.984259374Z",
+          "seal": {
+            "by": "server",
+            "mac": "33f97841d30661f3efa23db0ee7da2eb38231cf2f0786bb12e9f34b3c8ccc9f7"
+          }
         }
       ],
       "created_at": "2026-11-27T14:02:01.342187777Z",
-      "updated_at": "2026-11-27T14:03:51.345268670Z",
+      "updated_at": "2026-11-27T14:34:38.984259374Z",
       "seal": {
         "by": "server",
-        "mac": "a8116f11e3e8e5f488e8d16dbb7439fd9c96cc897cc8e29b41682650540ece72"
+        "mac": "fc6c1339885513384f82c4cdaa19003bd2f1170bce414de2d3cc787b440b1852"
       }
     },
     {

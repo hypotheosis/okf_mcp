@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2077,
+  "next_claim_seq": 2095,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6c092494cb7ba181e2a37d2d360659fda005cd3011ebbce7276989ca4da51cb7"
+    "mac": "296ab483c15ca6675c0b6113be284cefed3b6f05c57b4bf0a373779d35cc288a"
   },
-  "next_evidence_seq": 3700,
+  "next_evidence_seq": 3728,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "78c4bba9edbfd55ed17c2d15d8ac947f1cdc8cbfc12bdeb329d28fe517ac9628"
+    "mac": "48e2022e97c74ec4d5531bf7eae40fe08fcf40eff86b0888c62b8888f936411d"
   },
   "claims": [
     {
@@ -160412,6 +160412,28 @@
             "by": "server",
             "mac": "7228d3fb91c743cf59d3179ed0b7e33afcb8a3938fb9d0f68d66a503070e9a6d"
           }
+        },
+        {
+          "id": "EVD-3726",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:708-735 judge_reauth",
+          "summary": "Re-audit on head: the user-id and constant-time session-hash check moved verbatim into judge_reauth, still run by take_reauth. Binding intact.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 708,
+                "end": 735
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:59:19.058211437Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c23557939154ed7657fbe376c64c3b2a9328701ba77fd161b2741864af1338b"
+          }
         }
       ],
       "verdicts": [
@@ -160442,13 +160464,26 @@
             "by": "server",
             "mac": "81f9356ca680c5f73de4441ad5bbcb2806df0247c4fc835e51605bce44277cd3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the refactor; session and user binding intact in judge_reauth.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3726"
+          ],
+          "recorded_at": "2026-11-27T06:59:24.709438272Z",
+          "seal": {
+            "by": "server",
+            "mac": "10bd1d2e0180ff404133d1d440f9d7be0392cf135324529894dded4cfead49e2"
+          }
         }
       ],
       "created_at": "2026-11-26T12:14:49.647453026Z",
-      "updated_at": "2026-11-26T13:03:31.846490570Z",
+      "updated_at": "2026-11-27T06:59:24.709438272Z",
       "seal": {
         "by": "server",
-        "mac": "eddab9edf3d9ec87464a112574b7cbeaffd3f134a721626d888965b3a9fbfd64"
+        "mac": "8f7c6db6dd0ac98834553b1c0fd955e199a73f6481661b9029917d0dc386c9bd"
       }
     },
     {
@@ -160516,6 +160551,28 @@
             "by": "server",
             "mac": "6e4008e08a631b366e1e2a44d03df65b9fb34869490f1950040cf6a7697bd6aa"
           }
+        },
+        {
+          "id": "EVD-3725",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:677-695 take_reauth; src/oidc.rs take_reauth_proof",
+          "summary": "Re-audit on head 6d837b7d: take_reauth still calls take_reauth_proof (single use) and maps None to Gone before judging; the new status path uses peek and never reaches take. Unchanged semantics.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 677,
+                "end": 695
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:59:18.909769132Z",
+          "seal": {
+            "by": "server",
+            "mac": "43b767ab1ce383c581f0f7425e2e195ba799481e394d4716998af90aba9bab52"
+          }
         }
       ],
       "verdicts": [
@@ -160532,13 +160589,26 @@
             "by": "server",
             "mac": "0e369673716cd99cd4be7c8a09f0fc81e224eae4da54edf3de311f4be4d9cd2a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the refactor; single-use take unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3725"
+          ],
+          "recorded_at": "2026-11-27T06:59:24.567202025Z",
+          "seal": {
+            "by": "server",
+            "mac": "faa0ec13ce3d578d1548aca6707ec73f72ce87020073c308885f15c383d76965"
+          }
         }
       ],
       "created_at": "2026-11-26T12:14:49.647453026Z",
-      "updated_at": "2026-11-26T12:16:20.557557044Z",
+      "updated_at": "2026-11-27T06:59:24.567202025Z",
       "seal": {
         "by": "server",
-        "mac": "55426eab90945dd576098929a75146a861788999b8d94601c271d9d8fdc5ca54"
+        "mac": "cc2d56fea88770ba4d788d88b115bdf01237decb991c8c862d0d97eeee817c78"
       }
     },
     {
@@ -161243,6 +161313,28 @@
             "by": "server",
             "mac": "bdb2bf30345f182786730237c17c780a3413fd85f7ab779120e1f227bc7b9de6"
           }
+        },
+        {
+          "id": "EVD-3727",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:405-452; tests/ui_e2e/account.rs:1325-1375",
+          "summary": "Re-audit on head: Re-authenticate offer and the Try again retry button are still drawn (now earlier, on stale status; the deletion-time ReauthStale path via deleteStale remains). The e2e journey still asserts Try again.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 405,
+                "end": 452
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:59:19.216427851Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc9a20358e4aa67652ef37281aef203d9178f3270944c65babaa3defe56c0061"
+          }
         }
       ],
       "verdicts": [
@@ -161259,13 +161351,26 @@
             "by": "server",
             "mac": "2b334aec88bbe36c0947a86906a5557df74da2646df530abf8b2f8002de6ed73"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited after the page change; offer and retry button remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3727"
+          ],
+          "recorded_at": "2026-11-27T06:59:24.841547689Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b53d463222038f25f30fd0ee68d7380ac4b040905f4a385c115f5c23657c391"
+          }
         }
       ],
       "created_at": "2026-11-26T12:14:49.647453026Z",
-      "updated_at": "2026-11-26T12:16:21.287324252Z",
+      "updated_at": "2026-11-27T06:59:24.841547689Z",
       "seal": {
         "by": "server",
-        "mac": "0a132d8666b404ffd17318204921297bc4b5da8fd4a044451b50c2c784a40134"
+        "mac": "b840ca65423b7590411bc80b5092ee11c46e591c69f91f6d8c9b81e4e00d5b4b"
       }
     },
     {
@@ -185042,6 +185147,1341 @@
       "seal": {
         "by": "server",
         "mac": "1c9af1040f1f45253b5d4d512579becf48b4593a0ad0cb209254bebeae45af8d"
+      }
+    },
+    {
+      "id": "CLM-2077",
+      "statement": "Issue #1099 is delivered: the Account page shows the stale-reauth guidance on return from the provider, before any delete attempt, via a new read-only status endpoint.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1099",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/oidc.rs",
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3724",
+          "kind": "analysis",
+          "locator": "children of CLM-2077",
+          "summary": "All direct children are supported: endpoint and shape, no proof spent, session binding, access control, shared judge, page behaviour, e2e journey, docs, changelog. Together they cover each requirement of the issue.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:58:54.062203025Z",
+          "seal": {
+            "by": "server",
+            "mac": "b839de6a0fd52ab443fab59755b692a4a88fefa4689c67f3f949860733ccd360"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3724"
+          ],
+          "recorded_at": "2026-11-27T06:59:02.410965442Z",
+          "seal": {
+            "by": "server",
+            "mac": "b576c2bb290d597161e355b61847b56e5f12e77773ba36e333056c56de05ac56"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:59:02.410965442Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d86b280c8da6583dea79763fa1537e902663cbf402caee2eba740c72f3ab429"
+      }
+    },
+    {
+      "id": "CLM-2078",
+      "statement": "GET /api/v1/me/identities/{provider}/reauth is routed to a handler (reauth_status) beside the POST start route and answers one of the states none, ready or stale.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1099: 'e.g. GET /api/v1/me/identities/{provider}/reauth ... returns one of none, ready or stale'; PR: 'answers {\"state\": \"none\" | \"ready\" | \"stale\"}'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3700",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:143-147,971-1000",
+          "summary": "Route /me/identities/{provider}/reauth is post(reauth_start).get(reauth_status); handler maps proof to none/ready/stale only, any other error propagates.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 971,
+                "end": 1000
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.147070161Z",
+          "seal": {
+            "by": "server",
+            "mac": "dfee88080170814a464ba518f7572703b42345ccfeb5c029753d52b4831f567c"
+          }
+        },
+        {
+          "id": "EVD-3701",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:1955 the_status_call_never_spends_the_proof (asserts none, none, ready, ready)",
+          "summary": "Test reads the status over HTTP and asserts json() equals {\"state\":\"none\"} / {\"state\":\"ready\"}; stale asserted in the stale test. Read the assertions; did not run the test (gates run elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1955,
+                "end": 1982
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.319341190Z",
+          "seal": {
+            "by": "server",
+            "mac": "99b04a93f52d60b4acb81dab7ec4bf4fca0e87aef8f56cb58b8c50ebf7f9a08e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Route and handler exist and tests assert the three states over HTTP.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3700",
+            "EVD-3701"
+          ],
+          "recorded_at": "2026-11-27T06:58:47.415296334Z",
+          "seal": {
+            "by": "server",
+            "mac": "1618d0dbef72c0fdee65a7ed0a5e011dd542e27284e472ff2908cc1697c7a0e4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:47.415296334Z",
+      "seal": {
+        "by": "server",
+        "mac": "0dbb38806c833311150bc84ffe09df8a56fdcdb6ad553f6b16827a2bf78a79f3"
+      }
+    },
+    {
+      "id": "CLM-2079",
+      "statement": "The status response body is exactly {\"state\": <state>}: no subject, issuer, label or time.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1099: 'and nothing else: no subject, issuer or times'; PR: 'and nothing else (no subject, issuer, label or time)'",
+      "derived_from": [
+        "CLM-2078"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3702",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:996-999",
+          "summary": "Response is Json(json!({\"state\": state})) where state is a &'static str literal; no proof field is serialized.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 990,
+                "end": 999
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.457533500Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a3f7ea834e5106e892c709be299fe6c4045597b9055dfe7426fca0ecf04c8d4"
+          }
+        },
+        {
+          "id": "EVD-3703",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:1985-2016 (assert_eq!(first.json(), json!({\"state\":\"stale\"})))",
+          "summary": "Stale test compares the whole body to exactly {\"state\":\"stale\"} for four causes; ready/none tests compare whole bodies too, so extra fields would fail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1985,
+                "end": 2016
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.614542455Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c15bb1ce741db780bf25fd37f1ee0a95511f9b68aceeb960f0d2d6f73428e87"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Body is built from a literal state only; tests compare the full body for equality.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3702",
+            "EVD-3703"
+          ],
+          "recorded_at": "2026-11-27T06:58:47.551592564Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cba06ed047475e8182dec0a6c338ac2ff5cee49bf270f50a2c5d16a0e4e2d33"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:47.551592564Z",
+      "seal": {
+        "by": "server",
+        "mac": "eea95f2582a0f1b3c42bb7e7adc4883b95ac2e03c8f4d552011205acd1f185c1"
+      }
+    },
+    {
+      "id": "CLM-2080",
+      "statement": "The status call does not consume the proof: after any number of status calls the DELETE /api/v1/me still succeeds.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1099: 'must not consume the proof'; PR test 'the_status_call_never_spends_the_proof (none, ready twice, then the delete succeeds)'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3704",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:1955-1982 the_status_call_never_spends_the_proof",
+          "summary": "Two ready status calls then DELETE returns 204 and the user count is 0; so status left the single-use proof. Handler uses peek_reauth_proof (not take) at src/http/oidc.rs:986.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1955,
+                "end": 1982
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.737837062Z",
+          "seal": {
+            "by": "server",
+            "mac": "fed4acaaa016bc18cbdd3f255ec3de29523d08bde97612e98f1ba98548480330"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Handler uses peek, and the test shows a delete succeeds after two ready reads.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3704"
+          ],
+          "recorded_at": "2026-11-27T06:58:47.685270725Z",
+          "seal": {
+            "by": "server",
+            "mac": "12f0fc15b4692fb0d0d3918520333830f77b27d765ccd8e0b76e255522f6ab77"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:47.685270725Z",
+      "seal": {
+        "by": "server",
+        "mac": "ab98d4a9b306f93f20cce11c20374be2ef2c26205dfb6d2e58bfa504fd954b08"
+      }
+    },
+    {
+      "id": "CLM-2081",
+      "statement": "Ephemeral::peek (and ExpiringMap::peek) writes nothing and does not renew the lifetime: in Redis it is a plain GET with no write, and a test checks the remaining PTTL does not grow.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR: 'a new Ephemeral::peek (plain GET in Redis, a lookup in memory) neither takes the proof nor renews its lifetime'; Issue #1099: 'change no state (no proof spent, no timer reset)'",
+      "derived_from": [
+        "CLM-2080"
+      ],
+      "artifacts": [
+        "src/shared/ephemeral.rs",
+        "src/oauth/expiring.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3705",
+          "kind": "inspection",
+          "locator": "src/shared/ephemeral.rs:589-600; src/oauth/expiring.rs:227-234",
+          "summary": "redis_peek issues only GET (no GETDEL/GETEX/EXPIRE/SET); ExpiringMap::peek takes the lock, reads, returns, with no mutation of expires or bookkeeping.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/ephemeral.rs",
+              "lines": {
+                "start": 587,
+                "end": 600
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.863058045Z",
+          "seal": {
+            "by": "server",
+            "mac": "58012542a26123ea75a40b3a1ddd9f3211c27d44d93e7d22c9c973ac84503b0b"
+          }
+        },
+        {
+          "id": "EVD-3706",
+          "kind": "test",
+          "locator": "src/shared/ephemeral.rs:816-846 peek_reads_without_consuming_or_renewing (in_both_modes, line 1303)",
+          "summary": "Memory arm: peek at now+TTL returns None (expiry not extended). Redis: PTTL before/after peek, asserts after <= before. Registered in in_both_modes (standalone and cluster). Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/shared/ephemeral.rs",
+              "lines": {
+                "start": 816,
+                "end": 846
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:38.990138053Z",
+          "seal": {
+            "by": "server",
+            "mac": "847934b0ce93290de3e62e3e5a9c5472daeb02a031f93be256a8a9d71fc1870c"
+          }
+        },
+        {
+          "id": "EVD-3711",
+          "kind": "analysis",
+          "locator": "src/shared/ephemeral.rs:834-845",
+          "summary": "The Redis PTTL check runs immediately after insert with no elapsed time and asserts only after <= before; a hypothetical renewal back to the full TTL would yield an almost equal value and could pass, so this test cannot detect renewal. The no-renewal property rests on the code (GET only) and the memory-arm check. Weak, not wrong.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/shared/ephemeral.rs",
+              "lines": {
+                "start": 834,
+                "end": 845
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:11.141733703Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f910b42d5dc29aee623896e8ef7dbb694ad8bae0b556df6b8a7d55dca1d4a47"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code is GET-only in Redis and a pure read in memory; the memory test proves non-renewal. Caveat (EVD-3711): the Redis PTTL assertion is weak because no time elapses between insert and the check, so it could not detect a renewal; the property rests on the code. Non-blocking.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3705",
+            "EVD-3706"
+          ],
+          "recorded_at": "2026-11-27T06:58:47.817026611Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a6569cf702bc9709b25af5b8d4e44a675a483aa06765c69ecacb68a55fa45a8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:47.817026611Z",
+      "seal": {
+        "by": "server",
+        "mac": "1dc52f5f78b5fff92a01f4edff193339b9d579062083653ffa11d38ec01c726a"
+      }
+    },
+    {
+      "id": "CLM-2082",
+      "statement": "A session can only read its own proof: the proof is looked up by the asking session's hash, so another signed-in session sees none, never the first session's state.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1099: 'It must refuse a request from another session'; PR: 'A session only ever reads its own proof (keyed by its session hash); another session sees none'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3707",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:985-996",
+          "summary": "Lookup key is session_hash(&session.id) of the caller's own ConsoleSession; the proof is then judged with user_id and hash, so a different session's key is never read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 985,
+                "end": 996
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:39.125319634Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e7854d9aa28cbc1392d31b2d76380e8026aa3a244b69d8eec5528b49b9d921d"
+          }
+        },
+        {
+          "id": "EVD-3708",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:2020-2056 the_status_call_refuses_other_callers_and_shows_nothing_of_another_session",
+          "summary": "Alice holds a stale proof; bob (a different user and session) gets {\"state\":\"none\"}, alice gets stale. Covers other user; not a second session of the same user (key-by-hash makes that structural). Note: other session sees 'none' (200), not a refusal, as the PR describes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 2020,
+                "end": 2056
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:39.254716348Z",
+          "seal": {
+            "by": "server",
+            "mac": "abc38c65567921295e84ebd90868f3b27a27ebdf0a780057b8012b7a6211267f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lookup is by the caller's own session hash; test shows another user's session gets none while the owner gets stale.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3707",
+            "EVD-3708"
+          ],
+          "recorded_at": "2026-11-27T06:58:47.952215077Z",
+          "seal": {
+            "by": "server",
+            "mac": "972a3b1b1dfa24582df5efd08bffa64e655256490b72a6d3ec902dc999f4e85f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:47.952215077Z",
+      "seal": {
+        "by": "server",
+        "mac": "a0c7ab9bf8372acfc019cef632a89274f257205756d93beab07b93bb4f6579ae"
+      }
+    },
+    {
+      "id": "CLM-2083",
+      "statement": "The status endpoint refuses a request with no console session, and a key or grant caller (403 via reauth_session), with 401 when there are no credentials at all.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1099: 'refuse a request ... without one [session]'; PR: 'It needs a console session (403 for a key, a grant or no session; 401 without credentials)'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3709",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:883-898 reauth_session; used at :977",
+          "summary": "Only (CredentialKind::Session, Some(ConsoleSession)) passes; every other pairing (key, grant, session kind without console session) is Forbidden (403). Router route_layer require_principal precedes the handler.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 883,
+                "end": 898
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:39.383788482Z",
+          "seal": {
+            "by": "server",
+            "mac": "5bce22065002dc8438f21d420db566a7da5bee65f49b6e11c7ce463c1ffbb55e"
+          }
+        },
+        {
+          "id": "EVD-3710",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:2036-2053 (by_nobody assertion)",
+          "summary": "The no-session caller is asserted to be 401 OR 403, which does not pin 401 versus 403. No test sends a key or grant (bearer) to the status route (grep for key/grant near reauth in src/http/oidc.rs: none; the 403-bearer test is only for DELETE /me, me.rs:3457). Gap in test rigor for a level-4 claim.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 2036,
+                "end": 2053
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:57:39.532606223Z",
+          "seal": {
+            "by": "server",
+            "mac": "5954b864e54b776ff7d5e15b0d5ded3a82ed35385cc2ee9c4b078a863980e96b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "reauth_session is a closed match: only a Session credential with a ConsoleSession passes, so keys, grants and no session get 403; anonymous gets 401 from the require_principal layer. Caveat (EVD-3710): the test accepts 401 or 403 for no session and no test sends a key or grant to this route, so those two cases rest on code reading. Non-blocking; a test would harden it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3709"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.096191659Z",
+          "seal": {
+            "by": "server",
+            "mac": "2beb88ce873502442b5499dbdb027cf01ba194b6cef52cf6d7c3bf5b4f110b57"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.096191659Z",
+      "seal": {
+        "by": "server",
+        "mac": "afe7f442367a89764778efd2ec685e039a9bd1b3000f463dcdc5cf8550070535"
+      }
+    },
+    {
+      "id": "CLM-2084",
+      "statement": "The status call and DELETE /api/v1/me judge the stored proof with one shared function, judge_reauth (session binding and stale check); take_reauth and reauth_status both call it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1099: 'same freshness rule as DELETE /api/v1/me ... by sharing code'; PR: 'take_reauth (the deletion) and the status share one function, judge_reauth'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3712",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:694 and :993 call judge_reauth; definition :708",
+          "summary": "take_reauth ends with judge_reauth(oidc, proof, user_id, &hash); reauth_status calls judge_reauth(oidc, proof, &user_id, &hash). Only one definition holds the session/user check and the proof.stale check. grep shows no other copy of the stale check.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "judge_reauth\\(|ReauthStale \\{",
+              "scope": [
+                "src/http/oidc.rs"
+              ],
+              "hits": 5,
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:11.354287999Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5e8c8cb5f10a913f4058f6969ac691de990dab44f60b2e5295a38ffe74facd1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both callers invoke the single judge_reauth; no duplicate stale check.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3712"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.232327848Z",
+          "seal": {
+            "by": "server",
+            "mac": "95bac372f2ce96e949cc769042d49169275198bc2048594ff7ea3a1b51f4be01"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.232327848Z",
+      "seal": {
+        "by": "server",
+        "mac": "52b9ab908cded95125c7db986dd71734d81d56f89ad54becf168205043686012"
+      }
+    },
+    {
+      "id": "CLM-2085",
+      "statement": "The status answers stale for each stale cause (auth_time missing, older than REAUTH_AUTH_TIME_WINDOW, in the future) exactly when the deletion answers ReauthStale, and the stale marker is left intact by status calls.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1099: 'stale for each stale cause'; PR test 'the_status_call_says_stale_for_every_stale_cause_and_leaves_the_marker (no, old and future auth_time; body is exactly {\"state\":\"stale\"}; the delete still answers ReauthStale afterwards)'",
+      "derived_from": [
+        "CLM-2084"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs",
+        "src/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3713",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:1985-2016 the_status_call_says_stale_for_every_stale_cause_and_leaves_the_marker",
+          "summary": "Loops over Absent, window+30s ago, 3600s ago, 600s in the future (skew is 60 s so 600 s is clearly future): each time two status reads give stale, then DELETE is 403 ReauthStale, then status is none (taken by the delete); user count stays 1. Boundary of the 60 s skew not exercised here.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 1985,
+                "end": 2016
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:11.566455243Z",
+          "seal": {
+            "by": "server",
+            "mac": "97417c52f37069c9ee48eee4a76337fddf87f83eee1babc98b97aee26ca26f7d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test loops over missing, old (two ages) and future auth_time, asserting stale on repeated reads and ReauthStale on delete.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3713"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.359429830Z",
+          "seal": {
+            "by": "server",
+            "mac": "677ea8a0cacd1b8105c6c01d21c2aac50255f4b87e9d69fac6dfd2017286a3ee"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.359429830Z",
+      "seal": {
+        "by": "server",
+        "mac": "0470f5d75e9f8673aabb741acefef43b9e35645fc3f2ef4e2d6fd1b5a110d08b"
+      }
+    },
+    {
+      "id": "CLM-2086",
+      "statement": "The Account page calls the status on load after the return from the provider: stale shows the sign-out/sign-in guidance with the 'Try again' button and no delete button; ready shows the delete button.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "Issue #1099: 'The Account page calls it on load after the return from the provider: stale shows the existing sign-out/sign-in guidance with the Try again button at once; ready shows the delete button'; PR: 'stale draws the guidance ... with the Try again button and no delete button; ready draws the delete button'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3714",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:544-557,565,405-452",
+          "summary": "checkReauth runs in the load Promise.all, GETs /me/identities/{provider}/reauth for the remembered return provider; staleBack (state==='stale') shows staleGuidance in #account-delete-reason with data-kind ReauthStale and, in the else branch, the 'Try again' reauth button; the delete button branch requires state not stale and not none (so ready/unknown). Only a stale or none state removes the delete button.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 405,
+                "end": 452
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:11.752355931Z",
+          "seal": {
+            "by": "server",
+            "mac": "99ba7754ca2064d4a06da44585a91eca1a3146224b6a4e8017621b34a9e4280f"
+          }
+        },
+        {
+          "id": "EVD-3723",
+          "kind": "test",
+          "locator": "tests/ui_e2e/account.rs:1325-1375",
+          "summary": "Journey covers stale (guidance + Try again, no delete button) and, after the retry with an honest provider, ready (#account-delete-oidc visible, #account-delete-reason hidden, then deletes). Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1325,
+                "end": 1375
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:20.019496330Z",
+          "seal": {
+            "by": "server",
+            "mac": "cac24bc3ac2956ccd94f29d463d15b0ad06e810892cecd010f8f8843a2560609"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Page code and the e2e journey cover stale and ready.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3714",
+            "EVD-3723"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.489516571Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec49dde7ddd322502c109a0b179652d0e59c0c0b6264e7f90563a8f39fa74d7f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.489516571Z",
+      "seal": {
+        "by": "server",
+        "mac": "2246ea8d40f9bfc2c565d8d3b1d88a3888e06a4f75afc2504b72f38e649cd429"
+      }
+    },
+    {
+      "id": "CLM-2087",
+      "statement": "The ui_e2e journey a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in_guidance asserts the guidance, the Try again button, no delete button and zero DELETE /api/v1/me requests before any delete attempt, then the retry deletes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR: 'ui_e2e a_provider_that_does_not_vouch... now asserts the guidance, \"Try again\" and no delete button before any delete attempt (a held DELETE /api/v1/me counts zero requests), then the retry deletes.'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3715",
+          "kind": "test",
+          "locator": "tests/ui_e2e/account.rs:1325-1372",
+          "summary": "After the return: wait_visible #account-delete-reason, hold_next DELETE /api/v1/me, asserts guidance text, Try again, no #account-delete-oidc, no #account-delete-reauthed, held_matches()==0; then retry deletes. Caveat: hold_next is armed after the guidance is visible, but no click on delete is possible since the button is absent; no delete is clicked between.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1325,
+                "end": 1372
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:11.929748915Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7d30ae659bdf49c8d81f93a0d071bb84e1ec09626c1a92eaeeca50ea02ec625"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The journey asserts each listed property before any delete click. Pass/fail was not rerun by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3715"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.642439689Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d9d4f62a839260e999cd3be94e7c51a58ba44eeb146ad03ef214f61c9107b75"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.642439689Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d5a9a25a0303206c49229ac51947030a7a78259e4a4b1dffa6f1f901b4eaf28"
+      }
+    },
+    {
+      "id": "CLM-2088",
+      "statement": "docs/operations.md documents the new endpoint in the API table and in the account deletion section.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1099: 'Documented where the API is documented (docs/operations.md)'; PR: 'docs/operations.md documents the endpoint (API table and the account deletion section)'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3716",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2912-2928 and :4305",
+          "summary": "Account-deletion bullet and the API table row both describe GET .../reauth, its three states, read-only behaviour, 403/404 and 401. Statement 'never takes or extends the proof' matches the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 4305,
+                "end": 4305
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.092505706Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4d61686b6b81078af694b00bff6499f3f0f0d83b410581d504e373efe75b6fe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both the table row and the deletion section document it, consistent with the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3716"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.783887653Z",
+          "seal": {
+            "by": "server",
+            "mac": "ab9021acb9734e8b70fa5ed0326da4390032128d21773aac365d061cbcfc6d5f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.783887653Z",
+      "seal": {
+        "by": "server",
+        "mac": "9c82d57508776e46fd791961626a94fd1dd359f2102f13da803668f658929cbb"
+      }
+    },
+    {
+      "id": "CLM-2089",
+      "statement": "The status answers 404 for an unknown provider or with OIDC off.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: 'and answers 404 for an unknown provider or with OIDC off'",
+      "derived_from": [
+        "CLM-2078"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3717",
+          "kind": "test",
+          "locator": "src/http/oidc.rs:2036-2056 (unknown provider 'nowhere' asserted 404); code at :978-982",
+          "summary": "Unknown provider is tested as 404. OIDC-off 404 is by code only (app.oidc().ok_or_else(not_found)); no test for the GET with OIDC off.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 975,
+                "end": 984
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.258011026Z",
+          "seal": {
+            "by": "server",
+            "mac": "751b90d544cefe9ff5d379621f450cd2fed2cc886a6960536b602fb0ff1a98e5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Unknown provider tested 404; OIDC-off by code (untested).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3717"
+          ],
+          "recorded_at": "2026-11-27T06:58:48.961935045Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcd8ea6d0bc083e4754033f7c675cc84ec3c080d8877258be0c5b14c8b339a97"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:48.961935045Z",
+      "seal": {
+        "by": "server",
+        "mac": "b840a544c1776c6c31cc9eff7db34283e2757b1a61949c30030354628f104cf3"
+      }
+    },
+    {
+      "id": "CLM-2090",
+      "statement": "A proof stored for another provider than the one in the path reads as none.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "changelog: 'A proof stored for another provider than the one in the path reads as none.'",
+      "derived_from": [
+        "CLM-2078"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3718",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:986-989",
+          "summary": ".filter(|proof| proof.provider == provider) turns another provider's proof into None, hence 'none'. No test exercises two providers (the test fixture has one provider 'example').",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 984,
+                "end": 990
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.428191188Z",
+          "seal": {
+            "by": "server",
+            "mac": "9138d5c3313e839a40a667c76b97a8f92f7e65d6600d34bb738a13d8ce9861ba"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The filter does it; untested (single-provider fixture) but direct.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3718"
+          ],
+          "recorded_at": "2026-11-27T06:58:49.131769343Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a2e881bbc7522ae894adf97e505ebeee3a7084bcf4f98c5a373cc8a7b012e1f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:49.131769343Z",
+      "seal": {
+        "by": "server",
+        "mac": "1d9e5440dc45cc73ea5b249481c87fd9b3b42403ea71fad9a2454a3e6aa80667"
+      }
+    },
+    {
+      "id": "CLM-2091",
+      "statement": "If the status call fails (not 401), the page falls back to the old behaviour: the delete button is offered and the deletion answers as before; while the call is pending a 'Checking' line is shown.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR: 'a pending call shows a \"Checking\" line; a failed call falls back to the old behaviour (delete button, the deletion answers as before)'",
+      "derived_from": [
+        "CLM-2086"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3719",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:432-436,544-557",
+          "summary": "reauthState===null draws the 'Checking your re-authentication with <label>...' line; a non-401 error sets state 'unknown', which is neither stale nor none, so the delete button branch is drawn. A 401 returns silently (session ended). Not exercised by a browser journey.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 544,
+                "end": 557
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.602015402Z",
+          "seal": {
+            "by": "server",
+            "mac": "55cb5824f98b78956c40960fd4e6de0bd67b0eb7df0da2ff3d561816af00d2bd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code draws the Checking line while null and the delete button on an unknown state. Not browser-tested.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3719"
+          ],
+          "recorded_at": "2026-11-27T06:58:49.322843292Z",
+          "seal": {
+            "by": "server",
+            "mac": "49261f2293f0c8693a663e9e982d2bf03a9c79d3b08272822c5a9596e84c6b23"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:49.322843292Z",
+      "seal": {
+        "by": "server",
+        "mac": "73017c5a39101419a4a3c08340e271f177c82f39c3dae9853480c2d8328dd113"
+      }
+    },
+    {
+      "id": "CLM-2092",
+      "statement": "The auth_time window (REAUTH_AUTH_TIME_WINDOW: missing, old or future) is still judged once, at the callback, and stored as the proof's stale flag; both the status and the deletion read that flag.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR: 'The auth_time window ... is still judged once, at the callback, and stored as the proof's stale flag; both calls read that flag.'",
+      "derived_from": [
+        "CLM-2084"
+      ],
+      "artifacts": [
+        "src/oidc.rs",
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3720",
+          "kind": "inspection",
+          "locator": "src/http/oidc.rs:389,646; src/oidc.rs:894-905,950-980; src/http/oidc.rs:722",
+          "summary": "Callback calls identify_fresh -> check_auth_time (absent, older than REAUTH_AUTH_TIME_WINDOW, later than REAUTH_CLOCK_SKEW ahead => not fresh); proof stored with stale: !fresh; judge_reauth reads proof.stale. The window is not re-evaluated at status or delete time. Matches the PR statement.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oidc.rs",
+              "lines": {
+                "start": 950,
+                "end": 980
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.797720578Z",
+          "seal": {
+            "by": "server",
+            "mac": "12ec544780e381237bbed716a98abca54e88460a2ef7e8cd85abd61d8add727b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The chain identify_fresh, check_auth_time, stale flag, judge_reauth confirms it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3720"
+          ],
+          "recorded_at": "2026-11-27T06:58:49.522052286Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd9d70b4137cfcccd812f6a5f822910f07451bdf78a2d3888599e56628bd9d88"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:49.522052286Z",
+      "seal": {
+        "by": "server",
+        "mac": "133d7afde39dd8d431b8749f2b9f4a2f0061dfe312de125bbf55dc1b40b664ca"
+      }
+    },
+    {
+      "id": "CLM-2093",
+      "statement": "The deletion path's behaviour is unchanged by the refactor: take_reauth still takes the proof first (single use), then applies the same session and stale checks with the same errors (Gone, Forbidden, ReauthStale).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR: 'take_reauth (the deletion) and the status share one function' (no change to deletion semantics); existing CLM-1735, CLM-1742",
+      "derived_from": [
+        "CLM-2084"
+      ],
+      "artifacts": [
+        "src/http/oidc.rs"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3721",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/http/oidc.rs (take_reauth hunk @@ -688)",
+          "summary": "The diff moves the session/user check and the stale check verbatim into judge_reauth and calls it right after the take and Gone mapping; no change to errors or order (take, Gone, Forbidden, ReauthStale). Existing tests (a_used_proof_cannot_be_replayed..., ReauthStale assertions in the new stale test after DELETE) still describe it. Not rerun.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 677,
+                "end": 735
+              },
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:12.970358778Z",
+          "seal": {
+            "by": "server",
+            "mac": "c2b29a06fcd285a464843dec7749cde23ac7a2c9c0f00fc48f529510bb658a58"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff is a pure extraction with the same order and errors.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3721"
+          ],
+          "recorded_at": "2026-11-27T06:58:49.694268820Z",
+          "seal": {
+            "by": "server",
+            "mac": "57da985c13ff1ee10d110c2db2fc98ced6a0410d7fe583df086c0a1bd064d34a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:49.694268820Z",
+      "seal": {
+        "by": "server",
+        "mac": "e6affab64e3f228b2d69edf5c559a3610a091b89a48c7ca6c0a07dce2ace4735"
+      }
+    },
+    {
+      "id": "CLM-2094",
+      "statement": "A changelog entry for the change is added under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: 'changelog entry added'",
+      "derived_from": [
+        "CLM-2077"
+      ],
+      "artifacts": [
+        "changelog/20261127T063105Z-issue-1099-reauth-status.md"
+      ],
+      "tags": [
+        "from-issue:1099"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3722",
+          "kind": "inspection",
+          "locator": "changelog/20261127T063105Z-issue-1099-reauth-status.md",
+          "summary": "File added in the commit range with Added/Changed/Notes for the endpoint, peek and page.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T063105Z-issue-1099-reauth-status.md",
+              "commit": "6d837b7d8712284b03bbce697c155d456fd3fe40"
+            }
+          },
+          "recorded_at": "2026-11-27T06:58:13.157443020Z",
+          "seal": {
+            "by": "server",
+            "mac": "3afbf35f732f4fac158eb9f09fc95e3a79f4ed881b51be7292d5bd0fd438e1d7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present in the range.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3722"
+          ],
+          "recorded_at": "2026-11-27T06:58:49.878474540Z",
+          "seal": {
+            "by": "server",
+            "mac": "52cf16043c0d4e43aa0f77b2ab47d4170b54ccb201c2b1120add4380b6fe3fcf"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:57:02.880966690Z",
+      "updated_at": "2026-11-27T06:58:49.878474540Z",
+      "seal": {
+        "by": "server",
+        "mac": "36ebaea78c0ec2ce4130ba53918776b977461ffc6a584bf474e958b16ee4591c"
       }
     }
   ]

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1990,
+  "next_claim_seq": 2003,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "e6f4130bb6b40cba694b1f9745acac2b6f99146be58925fc03227a645e1cf3b9"
+    "mac": "35f68089d3c01d83e76e9bdea0f1b4ce2c18fb28bf6ed3c1c539ad3ca0bc5877"
   },
-  "next_evidence_seq": 3557,
+  "next_evidence_seq": 3571,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "744deaeb42f531aa2963d97852078208e49ea1c42067366d3621ba3ec131a8ad"
+    "mac": "ca20c7844a1812fad49bb19d5e4ec3d33d10667201e474e8fc9b350626a2f9dd"
   },
   "claims": [
     {
@@ -177707,7 +177707,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: PR reworked to diagnostics only; no fix is claimed.",
+        "retired_at": "2026-11-27T01:25:24.652554328Z"
       },
       "evidence": [
         {
@@ -177737,10 +177739,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:53.859579666Z",
+      "updated_at": "2026-11-27T01:25:24.652554328Z",
       "seal": {
         "by": "server",
-        "mac": "9f6010be563d3af67414854f91456ef4c5b9add8e42168a94da70180cf141cf1"
+        "mac": "1e15f4f61c206f9f9e820683b94300f19511d5ffd7a7eecbf64ac002a58efa1a"
       }
     },
     {
@@ -177761,7 +177763,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "False at head: the rebuild_interest_cache call was removed from Observer::start.",
+        "retired_at": "2026-11-27T01:25:24.775514510Z"
       },
       "evidence": [
         {
@@ -177803,10 +177807,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.408371038Z",
+      "updated_at": "2026-11-27T01:25:24.775514510Z",
       "seal": {
         "by": "server",
-        "mac": "b732640ff1017ec61fd1c48903cd8b29f73d17221a6973ec0c205bb5a0ea91e1"
+        "mac": "b0e2c350d9586f60cec8595e6fdaf02bd597b012fc5ea337b8c401b9674ba358"
       }
     },
     {
@@ -177828,7 +177832,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Described the old diff (rebuild call hunk); replaced by a claim on the new diff.",
+        "retired_at": "2026-11-27T01:25:24.904264239Z"
       },
       "evidence": [
         {
@@ -177870,10 +177876,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.524976582Z",
+      "updated_at": "2026-11-27T01:25:24.904264239Z",
       "seal": {
         "by": "server",
-        "mac": "e7d6cf3c8855c9692708290059ef46aca2fa97b3f6cf8c2cfee002c47d384e73"
+        "mac": "1ba75007f54537ee38969bac61f04c62497898f2e729b971df45aa8e3b430301"
       }
     },
     {
@@ -177885,7 +177891,7 @@
       "verification_method": "test",
       "source": "PR body: \"the test asserts `caller` count and `okf.clock.check` count with the captured span names in the failure message\"",
       "derived_from": [
-        "CLM-1983"
+        "CLM-1990"
       ],
       "artifacts": [
         "src/app.rs"
@@ -177894,7 +177900,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Duplicate of CLM-1993, which covers the same assertions at the reworked head.",
+        "retired_at": "2026-11-27T01:26:48.925421978Z"
       },
       "evidence": [
         {
@@ -177918,6 +177926,28 @@
             "by": "server",
             "mac": "8d573af748dcff1f8efc682453cc61468cd0e513a45a1ef50963b2690c7c95f5"
           }
+        },
+        {
+          "id": "EVD-3569",
+          "kind": "inspection",
+          "locator": "src/app.rs:2756-2765 at 5921d24e",
+          "summary": "Re-read at the reworked head: both count assertions still use \"{filter}: captured {seen:?}\" with seen built from every captured span name. Unchanged by the rework.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2756,
+                "end": 2765
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:27.816850456Z",
+          "seal": {
+            "by": "server",
+            "mac": "5395a1211d5dc4b63f0a72a58c9b7ea57ebfceb75162dbd22b7c0ad71e669d36"
+          }
         }
       ],
       "verdicts": [
@@ -177936,10 +177966,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.639937949Z",
+      "updated_at": "2026-11-27T01:26:48.925421978Z",
       "seal": {
         "by": "server",
-        "mac": "85b09f97e82a75ee908d6da19ff55f17f36a70e9f0a483444d23e48848ad8c10"
+        "mac": "da67207f4ead08c13dc6cd3b25db490f4df269300fa38c8ea02e5c7ad7b70ea6"
       }
     },
     {
@@ -177962,7 +177992,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Described the old fix (rebuild call reusing rows_returned pattern); no longer applies.",
+        "retired_at": "2026-11-27T01:25:25.056792241Z"
       },
       "evidence": [
         {
@@ -178004,10 +178036,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.755968541Z",
+      "updated_at": "2026-11-27T01:25:25.056792241Z",
       "seal": {
         "by": "server",
-        "mac": "13a2d3dabcbbd57d7b9a238328ffbd1e020510a185dee335391ec5e756960b48"
+        "mac": "fa6d7807c4befbdf4a46d3f481e15ca45dadc294f2faebe766841dcb00b0f96a"
       }
     },
     {
@@ -178028,7 +178060,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "The PR no longer claims this cause; it was tested and ruled out as reproducible, recorded in a new claim.",
+        "retired_at": "2026-11-27T01:25:25.217478732Z"
       },
       "evidence": [
         {
@@ -178070,10 +178104,10 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.994566004Z",
+      "updated_at": "2026-11-27T01:25:25.217478732Z",
       "seal": {
         "by": "server",
-        "mac": "a0da83acc59d7b75edc2e8f4d19a5846c5ab2d5cb45aa12a9a969722cdf7590a"
+        "mac": "191a4b19aca7a309b683be0b01a2e5c1271e8493ab4dba2afc967d38968df4e3"
       }
     },
     {
@@ -178095,7 +178129,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Referred to the new call in Observer::start, now removed; replaced by new run claims.",
+        "retired_at": "2026-11-27T01:25:25.375157048Z"
       },
       "evidence": [
         {
@@ -178140,10 +178176,817 @@
         }
       ],
       "created_at": "2026-11-27T01:09:15.512940677Z",
-      "updated_at": "2026-11-27T01:09:49.873445949Z",
+      "updated_at": "2026-11-27T01:25:25.375157048Z",
       "seal": {
         "by": "server",
-        "mac": "6cfb60eb94bb0ba5e6bfeb305eb06a5cbe507b4b837aeada93d693fdb9472671"
+        "mac": "f7ded6bce56ea5fdcabc236deb06129982f5debe4e749db2d942bae41c854b2f"
+      }
+    },
+    {
+      "id": "CLM-1990",
+      "statement": "The PR adds diagnostics for the flaky app::tests::each_clock_check_is_its_own_trace and claims no fix: no non-test code changes.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Diagnostics for the flaky `app::tests::each_clock_check_is_its_own_trace` ... No fix is claimed.\"; issue hypotheosis/okf_mcp#836",
+      "derived_from": [],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3570",
+          "kind": "analysis",
+          "locator": "children of CLM-1990",
+          "summary": "Children show the src diff is test-only, Observer::start has no rebuild call, the clock-test assertions and new test exist and pass, no timeout or serialisation was added, the body says Refs. One child, the PR body's \"three plain runs\" statement, is not independently confirmed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T01:26:55.456749740Z",
+          "seal": {
+            "by": "server",
+            "mac": "1d763bb13afab1d6aff3bce373bd9306c9a70a653e547857b36f26bd0a46d7f7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every substantive child is supported, but the \"three plain runs\" statement in the PR body is unconfirmed, so the roll-up is not closed. Fix: rerun the narrow filter three times on head and cite the counts, or remove \"(three plain runs)\" from the PR body, then re-adjudicate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T01:26:59.660088704Z",
+          "seal": {
+            "by": "server",
+            "mac": "520f460381f4f57c912ff0345107158bb53f61587be7510c0967da3c1896e358"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:59.660088704Z",
+      "seal": {
+        "by": "server",
+        "mac": "57667f1ff3ddc7c02a703c4d78a9a5395ce5bfe63f95f9957c2d8cc2176ab737"
+      }
+    },
+    {
+      "id": "CLM-1991",
+      "statement": "Every src hunk in origin/main..HEAD lies inside a #[cfg(test)] mod tests (src/app.rs tests module, src/telemetry/subscriber.rs tests module); no production function changed.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"No fix is claimed.\" and Changes list",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3557",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src; src/app.rs:1533-1534; src/telemetry/subscriber.rs:791",
+          "summary": "src diff is 42 insertions, 2 deletions in two hunks: app.rs hunk at 2753-2768 and subscriber.rs hunk at 1161-1196. app.rs tests module spans 1534-2880 and subscriber.rs tests module begins at 791, so both hunks are inside #[cfg(test)] mod tests. No production code touched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2753,
+                "end": 2768
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.124461152Z",
+          "seal": {
+            "by": "server",
+            "mac": "6487e9880330de3ea13e98a4b7378a864e8948d9600f7f657550ee62ea5b2951"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both src hunks fall inside tests modules (app.rs 1534-2880; subscriber.rs from 791).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3557"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.036918323Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ee52f37e1ad7ddc2af003272cf7e929dc7767395309e9b899401863991cffb0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.036918323Z",
+      "seal": {
+        "by": "server",
+        "mac": "bfad3fb67bd9edc2671ad4bd1ab784cdacc4f2de42107ef9e851fddc21c0cd3c"
+      }
+    },
+    {
+      "id": "CLM-1992",
+      "statement": "Observer::start in src/telemetry/subscriber.rs does not call rebuild_interest_cache; it installs its subscriber only via crate::test_tracing::set_default.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"with no extra `rebuild_interest_cache()`\"; \"the rebuild_interest_cache call was removed\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3558",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:698-731",
+          "summary": "Observer::start builds the subscriber, calls crate::test_tracing::set_default(subscriber) and returns Self; no rebuild_interest_cache call in the function. The only subscriber.rs match of rebuild_interest_cache is at line 1235, in a different, pre-existing test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 698,
+                "end": 731
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.242968346Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e07bca8afd05aae56238168ea412169bdd15b37343bdbbf6a72bfb6c70c4ac3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The function body has no rebuild call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3558"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.146476445Z",
+          "seal": {
+            "by": "server",
+            "mac": "32fdc0b5e292fe86daec48319699ec5f6dcfabfb782d758e80096dae2adfdd5d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.146476445Z",
+      "seal": {
+        "by": "server",
+        "mac": "86b7a2af0641415b568a3c25a3cbdb9c7b56df836b3b4f3a3d9a15c701adc965"
+      }
+    },
+    {
+      "id": "CLM-1993",
+      "statement": "each_clock_check_is_its_own_trace asserts that exactly one 'caller' span and exactly one 'okf.clock.check' span were captured, and both assertion messages include the filter and every captured span name.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The clock test's assertions now check the `caller` and `okf.clock.check` span counts and print every captured span name\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3559",
+          "kind": "inspection",
+          "locator": "src/app.rs:2756-2765",
+          "summary": "`seen` collects every captured span name; assert_eq!(callers.len(), 1, \"{filter}: captured {seen:?}\") and assert_eq!(checks.len(), 1, \"{filter}: captured {seen:?}\"). The failure path is read, not run (the test passes).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2756,
+                "end": 2765
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.360979228Z",
+          "seal": {
+            "by": "server",
+            "mac": "260cc9ea4dfc61f3f2c4bc4d854549befa44c428d156d9683d41a1894aee65e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both assertions check len == 1 and print filter plus all span names (read; failure path not exercised).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3559"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.254976069Z",
+          "seal": {
+            "by": "server",
+            "mac": "428f272126b93d18a1e557d54063280be77d72f67389f81265752a2091da27c5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.254976069Z",
+      "seal": {
+        "by": "server",
+        "mac": "a8f4199ee78eb79b92df64ce0c4ed34abc82592caa5180e440639a7f56c8a7bb"
+      }
+    },
+    {
+      "id": "CLM-1994",
+      "statement": "The test a_callsite_another_thread_reached_first_still_records exists in src/telemetry/subscriber.rs; it registers a callsite on another thread with no subscriber, then starts an Observer, runs the callsite again on another thread and on the test thread, and asserts the captured span names equal [\"first_elsewhere\"].",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"registers a callsite on another thread with no subscriber, before and while an `Observer` is live, and the span is still captured\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3560",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:1164-1196",
+          "summary": "Test spawns a thread calling work(\"before\") with no subscriber, starts Observer::start(\"off\",\"trace\",\"off\",Text), spawns work(\"during\"), calls work(\"here\") on the test thread, finishes, and asserts seen == [\"first_elsewhere\"]. Note: since the Observer default is thread-local, only the test-thread \"here\" call is captured, so the single captured span is that one; the \"before\" and \"during\" spans on other threads are not captured by design.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 1164,
+                "end": 1196
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.480996268Z",
+          "seal": {
+            "by": "server",
+            "mac": "14b198820942f31d342cc70138a603c014da759580ae0008b5710938b2f1e3c5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test body matches the statement and its assertion is assert_eq!(seen, [\"first_elsewhere\"]). Caveat: the captured span is the test-thread call, since the default is thread-local.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3560"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.364118041Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f0603c1e64d927b36cb1465998d76908003ef381175e9b72cd3ee45add8ced9"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.364118041Z",
+      "seal": {
+        "by": "server",
+        "mac": "2946cec08b62195d65fd9a8ae4f0e499e7ea2949941635364f490576dc421692"
+      }
+    },
+    {
+      "id": "CLM-1995",
+      "statement": "a_callsite_another_thread_reached_first_still_records passes at head (1 passed), where Observer::start has no rebuild_interest_cache call.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"the span is still captured, with no extra `rebuild_interest_cache()`\"; \"it passes without any rebuild call\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3561",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib a_callsite_another_thread_reached_first",
+          "summary": "At head 5921d24e: telemetry::subscriber::tests::a_callsite_another_thread_reached_first_still_records ... ok; 1 passed; 0 failed; 3193 filtered out.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:26:21.593701309Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac4e7e8828a5e8bb928cde41dbb19e569bfb8dd08691b130f89c0d7c6308c890"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test run on head passed, and Observer::start has no rebuild call at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3561"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.471827987Z",
+          "seal": {
+            "by": "server",
+            "mac": "e678d705873650bbed2968e804bc4159967ab9a1edfaf2aa3363949093a6ccb3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.471827987Z",
+      "seal": {
+        "by": "server",
+        "mac": "6dc1821963e9249130512afa263f77c4596a9dcba144f0bf8687ef59863df872"
+      }
+    },
+    {
+      "id": "CLM-1996",
+      "statement": "app::tests::each_clock_check_is_its_own_trace passes at head (1 passed).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: Summary and Changes (clock test assertions)",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3562",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib each_clock_check_is_its_own_trace",
+          "summary": "At head 5921d24e: app::tests::each_clock_check_is_its_own_trace ... ok; 1 passed; 0 failed; 3193 filtered out; 3.33 s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:26:21.709318911Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e5221c885189e0017b79d4d61ec610248f219240e8c2a53e367b60d0be7b0be"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Narrow run at head: 1 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3562"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.581446578Z",
+          "seal": {
+            "by": "server",
+            "mac": "40226824e5abdb42ed5ab4d0fb715a5999dae274e6f0f9eda3bf8f234b4997a8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.581446578Z",
+      "seal": {
+        "by": "server",
+        "mac": "06ef59fffc6bc6ddbee29515676ccab7e3c1ed424ae2edafa89e6468f3e6c369"
+      }
+    },
+    {
+      "id": "CLM-1997",
+      "statement": "The diff adds no timeout increase, sleep, serialisation or lock to any test.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Task requirement: no timeout/serialisation added; issue #836 possible fix",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3563",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src | grep -iE 'sleep|serial|timeout|Mutex' (0 matches on added/removed lines)",
+          "summary": "Added and removed lines in the src diff contain no sleep, serial, timeout or Mutex. The clock test's existing 10 s and 15 s timeouts and 20 ms sleep (src/app.rs:2739-2754) are unchanged context, not in the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/app.rs",
+              "lines": {
+                "start": 2753,
+                "end": 2768
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.825548666Z",
+          "seal": {
+            "by": "server",
+            "mac": "863aa781f3e593f0ff61b18fc5b4c47f1bf99ff7fedec3815eb12fa9d68ef4a2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No matching tokens in added or removed src lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3563"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.691544368Z",
+          "seal": {
+            "by": "server",
+            "mac": "b71938c81f456c3d160b5089c10d852719b7cf72b533d0bfb3fc069db47297b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.691544368Z",
+      "seal": {
+        "by": "server",
+        "mac": "03718f4ed68d3f4d3ae89c992c9aba56d5f181504e46fd5b39521719ce87ee25"
+      }
+    },
+    {
+      "id": "CLM-1998",
+      "statement": "Installing a subscriber (test_tracing::set_default, which forces the ANCHOR dispatcher first) already causes tracing-core to rebuild the callsite interest cache, so an extra rebuild_interest_cache() call in Observer::start is not needed for a callsite registered earlier on another thread.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"(the `test_tracing` anchor and subscriber installation already cover it)\"; changelog: \"installing the subscriber already rebuilds the cache\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/test_tracing.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3564",
+          "kind": "analysis",
+          "locator": "src/test_tracing.rs:21-47; tracing-core 0.1.36 (Cargo.lock) src/dispatcher.rs:479, src/callsite.rs:484-488",
+          "summary": "set_default forces ANCHOR then calls tracing::subscriber::set_default, which builds a Dispatch; tracing-core Dispatch::new calls callsite::register_dispatch(&me), which calls CALLSITES.rebuild_interest. With the anchor plus the new subscriber live, interest is computed from all live subscribers (module doc, test_tracing.rs:1-14). Dependency source read, not run; the new test passes at head as behavioral confirmation for that scenario.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_tracing.rs",
+              "lines": {
+                "start": 1,
+                "end": 47
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:21.943382267Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcff08014f584994aaa8854d4c770d54eccedd094f76dd4e8e9508200dff22a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Dispatch::new registers the dispatch, which rebuilds interest; set_default forces the anchor first; the new test passes without a rebuild call. Based on reading the dependency, not a test that fails when the anchor is removed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3564"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.802338525Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fe385735721500d26f62a06490d8f905b4bef1a8ccd6a0d4416e058c27fbe0f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.802338525Z",
+      "seal": {
+        "by": "server",
+        "mac": "594db95b613377f75425b10dd20210556188a122e71c671f83abb811f2d5151e"
+      }
+    },
+    {
+      "id": "CLM-1999",
+      "statement": "The PR body says \"Refs #836\" and does not close the issue (no Closes/Fixes/Resolves keyword for #836).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Refs #836. The issue stays open until it recurs or is closed as unreproduced.\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "/tmp/claude-1000/pr836/pr-836-body.md"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3565",
+          "kind": "inspection",
+          "locator": "/tmp/claude-1000/pr836/pr-836-body.md; grep -nE 'Closes|Fixes|Resolves' (0 matches)",
+          "summary": "Body contains \"Refs #836. The issue stays open until it recurs or is closed as unreproduced.\"; no Closes/Fixes/Resolves keyword anywhere. File is outside the repository, so no anchor.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:26:22.054365550Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7ec7c1363e5166dfbe86c9fa066954691b789e20512845360e23ca8eaec095e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Body says Refs and has no closing keyword.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3565"
+          ],
+          "recorded_at": "2026-11-27T01:26:49.912914534Z",
+          "seal": {
+            "by": "server",
+            "mac": "94dd325ed8fe734e976b36b7deaae7fcba82187350682bf585b5b3ba073ab381"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:49.912914534Z",
+      "seal": {
+        "by": "server",
+        "mac": "657322b84a932dcca5378c63d5d9bbe360d5d43189f4d5b67c09ef1385f6a1f4"
+      }
+    },
+    {
+      "id": "CLM-2000",
+      "statement": "The changelog file changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md exists, states that no fix is claimed, and does not state a root cause.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes list: \"`changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md`\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3566",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md:1-20",
+          "summary": "File exists, tracked at head. Says \"So no fix is claimed\", lists the stale-interest guess as \"Ruled out\", and states no root cause.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md",
+              "lines": {
+                "start": 1,
+                "end": 20
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:22.169031038Z",
+          "seal": {
+            "by": "server",
+            "mac": "b957ef69acf31dcd0d11efe1de9d357a21d5f8dc83c26cbfbebe86c27f5c1523"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File exists and says no fix is claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3566"
+          ],
+          "recorded_at": "2026-11-27T01:26:50.021502147Z",
+          "seal": {
+            "by": "server",
+            "mac": "52cad820c5661f1a6ce856b9761dcf937363cd2a5c95a565d95779564e60bb69"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:50.021502147Z",
+      "seal": {
+        "by": "server",
+        "mac": "2e73a5af11f2006e5f07b8cc541637852fd633094863c0005794c20249c3b953"
+      }
+    },
+    {
+      "id": "CLM-2001",
+      "statement": "The test's capture is thread-local: Observer installs its subscriber through test_tracing::set_default (a per-thread default), so spans from other tests' threads cannot reach it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "changelog: \"the test's capture is thread-local (`Observer`, through `test_tracing::set_default` and its anchor subscriber), so other tests' spans can't reach it\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/test_tracing.rs",
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3567",
+          "kind": "analysis",
+          "locator": "src/test_tracing.rs:45-48; src/telemetry/subscriber.rs:724-726",
+          "summary": "Observer::start installs via test_tracing::set_default, which calls tracing::subscriber::set_default, documented and implemented as a per-thread default (guard restores the thread's previous default). Other threads keep their own defaults, so their spans do not reach this subscriber. The one gap is that the anchor is a global NoSubscriber and routes nothing. The changelog's \"ruled out\" is about the thread-local capture, not a proof that no other cause exists.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_tracing.rs",
+              "lines": {
+                "start": 45,
+                "end": 48
+              },
+              "commit": "5921d24eae603253fd8467e0b449eedfdc13702d"
+            }
+          },
+          "recorded_at": "2026-11-27T01:26:22.286112657Z",
+          "seal": {
+            "by": "server",
+            "mac": "98d46df2dd245fd61a3f747fb49a308182dd5d9de61576832518eb1a2dc24947"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "set_default is a per-thread default; other threads' spans are not routed to it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3567"
+          ],
+          "recorded_at": "2026-11-27T01:26:50.130707500Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3e5e9df2325ec613a42bc0dbbdaae6c8be50cbee8abbc90700540d75a40463f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:50.130707500Z",
+      "seal": {
+        "by": "server",
+        "mac": "1cf508b1733ea9ad26b6cba1911d2f9f4acde54ec5a11511cde755cfaf403377"
+      }
+    },
+    {
+      "id": "CLM-2002",
+      "statement": "The failure of each_clock_check_is_its_own_trace did not reproduce in three plain runs of the narrow filter.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body: \"failed once and never reproduced (three plain runs)\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/app.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3568",
+          "kind": "log",
+          "locator": "tools/agentic/gate.sh narrow --lib each_clock_check_is_its_own_trace (one run at head)",
+          "summary": "One run at head passed (1 passed). I did not rerun it three times, and the earlier three runs happened before this audit, so the count of three is not independently confirmed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T01:26:22.398694996Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a6dd4a12153386b0a8800af06d2e4f30da6747ecc757b6ccba9d90743ff94b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The three earlier runs are the author's report and were not repeated by me; one run at head passed. Fix: either rerun the narrow filter three times on head and cite the counts, or drop the number three from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T01:26:50.239768832Z",
+          "seal": {
+            "by": "server",
+            "mac": "2de1dadd810410edd7a52b347970d458d53b19d09a0146665ccac33bec07af5e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:25:47.462084495Z",
+      "updated_at": "2026-11-27T01:26:50.239768832Z",
+      "seal": {
+        "by": "server",
+        "mac": "611beb2b423731a42e84f1e6ee4a93956743afde5382ddc88eb60d9778a37746"
       }
     }
   ]

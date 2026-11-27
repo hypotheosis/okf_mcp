@@ -281,7 +281,7 @@ impl std::fmt::Debug for ReauthRequest {
 /// linked identity is here. Stored under the session's [`session_hash`],
 /// taken (single use) by the deletion, which then rechecks under the user's
 /// row lock that the identity is still linked to the user.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ReauthProof {
     /// The user's id.
     pub user_id: String,
@@ -619,6 +619,31 @@ impl OidcProviders {
         now: Instant,
     ) -> Result<Option<ReauthProof>, OkfError> {
         self.reauth_proofs.take(session_hash, now).await
+    }
+
+    /// Reads (never takes) the session's finished re-authentication, for
+    /// the read-only status call: the proof stays, single use and lifetime
+    /// untouched, and nothing is written.
+    ///
+    /// # Arguments
+    /// * `session_hash` - [`session_hash`] of the asking session.
+    /// * `now` - the current instant.
+    ///
+    /// # Returns
+    /// A copy of the proof, or `None` when there is none, it expired or it
+    /// was used.
+    ///
+    /// # Errors
+    /// [`OkfError::Busy`] when Redis fails.
+    #[tracing::instrument(level = "debug", skip_all)]
+    pub async fn peek_reauth_proof(
+        &self,
+        session_hash: &str,
+        now: Instant,
+    ) -> Result<Option<ReauthProof>, OkfError> {
+        self.reauth_proofs
+            .peek(session_hash, now, ReauthProof::clone)
+            .await
     }
 
     /// Takes one link start from the user's allowance.

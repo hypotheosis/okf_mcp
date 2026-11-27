@@ -72,6 +72,12 @@ export async function render(main) {
     // from, remembered across the redirect in sessionStorage.
     let deleteReauth = null;
     let reauthedWith = takeReauthMarker();
+    // What the server says waits for this session after that return:
+    // `ready`, `stale` (the provider did not vouch for a fresh sign-in),
+    // `none` (nothing waits any more) or `unknown` (the status call failed,
+    // so the server decides at deletion); `null` until it answers. It comes
+    // from a read-only call that never spends the proof.
+    let reauthState = null;
     // The ceiling table, a page at a time: drawn once, then redrawn with
     // each committed page. `shownPrefix` is the prefix the drawn rows
     // answer (null before the first page), for the empty text.
@@ -399,9 +405,14 @@ export async function render(main) {
             return;
         }
         const key = 'account:delete';
-        const refusal = h('p', { id: 'account-delete-reason', class: 'error', role: 'alert' }, deleteRefusal ?? '');
-        refusal.hidden = !deleteRefusal;
-        if (deleteStale) refusal.dataset.kind = 'ReauthStale';
+        // Back from a provider that did not vouch for a fresh sign-in: the
+        // guidance shows now, before any deletion attempt.
+        const returned = (deleteReauth ?? []).find(identity => identity.id === reauthedWith);
+        const staleBack = returned !== undefined && reauthState === 'stale';
+        const shown = deleteRefusal ?? (staleBack ? staleGuidance(returned.label) : '');
+        const refusal = h('p', { id: 'account-delete-reason', class: 'error', role: 'alert' }, shown);
+        refusal.hidden = !shown;
+        if (deleteStale || staleBack) refusal.dataset.kind = 'ReauthStale';
         const parts = [refusal];
         if (deleteAccount?.has_password) {
             const typed = h('input', { type: 'password', id: 'account-delete-password', autocomplete: 'current-password',
@@ -418,7 +429,10 @@ export async function render(main) {
             parts.push(h('div', { class: 'inline-form' }, go));
         }
         for (const identity of deleteReauth ?? []) {
-            if (reauthedWith === identity.id) {
+            if (reauthedWith === identity.id && reauthState === null) {
+                parts.push(h('p', { class: 'muted small', id: 'account-delete-checking' },
+                    `Checking your re-authentication with ${identity.label}...`));
+            } else if (reauthedWith === identity.id && reauthState !== 'stale' && reauthState !== 'none') {
                 // Back from the provider: the server holds a single-use
                 // proof for this session, good for a few minutes.
                 const go = guard(h('button', { type: 'button', id: 'account-delete-oidc', class: 'danger' },
@@ -430,7 +444,7 @@ export async function render(main) {
             } else {
                 const go = guard(h('button', { type: 'button', id: `account-delete-reauth-${identity.id}`,
                                                class: 'danger' },
-                    deleteStale
+                    deleteStale || staleBack
                         ? `Try again: re-authenticate with ${identity.label}`
                         : `Re-authenticate with ${identity.label} to delete my account`), key);
                 go.addEventListener('click', () => reauthenticate(key, identity.id));
@@ -453,6 +467,8 @@ export async function render(main) {
     async function reauthenticate(key, provider) {
         await once(key, async () => {
             deleteStale = false;
+            // A new attempt replaces the one the status described.
+            reauthedWith = null;
             let answer;
             try {
                 answer = await api.post(`/me/identities/${enc(provider)}/reauth`, {}, { quiet: true });
@@ -520,13 +536,33 @@ export async function render(main) {
         if (main.isConnected) drawDelete();
     }
 
+    // After the return from the provider, asks the server what waits for
+    // this session (a read-only call: it never spends the proof), so a
+    // stale outcome shows its guidance at once and the delete button only
+    // comes when a fresh proof waits. A failed call leaves the old
+    // behaviour: the button, and the deletion's own answer.
+    async function checkReauth() {
+        const provider = reauthedWith;
+        if (!provider) return;
+        let state;
+        try {
+            ({ state } = await api.get(`/me/identities/${enc(provider)}/reauth`, { quiet: true }));
+        } catch (error) {
+            if (error.status === 401) return;
+            state = 'unknown';
+        }
+        if (!main.isConnected || reauthedWith !== provider) return;
+        reauthState = state;
+        drawDelete();
+    }
+
     async function drawSignIns() {
         let list;
         try { ({ sign_ins: list } = await api.get('/me/sign-ins')); } catch { return; }
         if (main.isConnected) fill(signIns.body, signInTable({ id: 'sign-in-table', signIns: list }));
     }
 
-    await Promise.all([drawAccount(), ceilingPage.start(), drawPasskeys(), drawIdentities(), drawSessions(), drawSignIns()]);
+    await Promise.all([drawAccount(), ceilingPage.start(), drawPasskeys(), drawIdentities(), drawSessions(), drawSignIns(), checkReauth()]);
     // Every section has now drawn (each draw settles on its own, a failed
     // read included). The sections load in any order and each one moves the
     // controls below it, so a browser journey waits for this marker
@@ -555,6 +591,14 @@ function takeReauthMarker() {
     } catch {
         return null;
     }
+}
+
+// The guidance for a provider that did not vouch for a fresh sign-in, as
+// `DELETE /api/v1/me` words it (`OkfError::ReauthStale`), shown on the
+// return from the provider before any deletion is tried.
+function staleGuidance(label) {
+    return `${label} did not confirm a fresh sign-in, so the account cannot be deleted yet; `
+        + `sign out of ${label}, sign back in, then try again`;
 }
 
 // A refusal's reason as the server gave it, without the "forbidden: "

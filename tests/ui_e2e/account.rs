@@ -1325,13 +1325,13 @@ async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in
         idp_handle.will_authenticate(idp::AuthTime::Absent);
         ui.wait_visible("#account-delete-reauth-example");
         ui.click("#account-delete-reauth-example");
-        ui.wait_visible("#account-delete-oidc");
+        // Back from the provider, the page asks the server what waits for
+        // this session and shows the guidance at once: no delete button, no
+        // typed confirmation, no deletion attempted (issue #1099).
+        ui.wait_visible("#account-delete-reason");
         wait_loaded(ui);
-        ui.click("#account-delete-oidc");
-        ui.fill("#confirm-typed", "alice");
-        ui.click("#confirm-ok");
-        // The guidance, from the server's own message: the provider by its
-        // label, what to do, and nothing about the issuer or the subject.
+        // Any deletion request from here on is held and counted.
+        ui.hold_next("DELETE", "/api/v1/me");
         ui.wait_text(
             "#account-delete-reason",
             "Example ID did not confirm a fresh sign-in",
@@ -1356,13 +1356,17 @@ async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in
             ),
             json!("ReauthStale")
         );
-        // Nothing was deleted; a retry button replaces the first one.
+        // The guidance came with the retry button, not the delete button.
         ui.wait_text("#account-delete-reauth-example", "Try again");
+        assert!(!ui.present("#account-delete-oidc"));
+        assert!(!ui.present("#account-delete-reauthed"));
+        assert_eq!(ui.held_matches(), 0, "no deletion was attempted");
         // The person signs back in at the provider, which now vouches for it.
         idp_handle.will_authenticate(idp::AuthTime::Honest);
         ui.click("#account-delete-reauth-example");
         ui.wait_visible("#account-delete-oidc");
         wait_loaded(ui);
+        ui.wait_hidden("#account-delete-reason");
         ui.click("#account-delete-oidc");
         ui.fill("#confirm-typed", "alice");
         ui.click("#confirm-ok");

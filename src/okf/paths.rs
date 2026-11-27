@@ -334,10 +334,7 @@ pub fn new_concept_path(
     workspace: &dyn Workspace,
     reference: &str,
 ) -> Result<(String, Option<String>), OkfError> {
-    let invalid = |reason: &str| OkfError::InvalidPath {
-        path: reference.to_string(),
-        reason: reason.to_string(),
-    };
+    let invalid = |reason: &str| invalid_at(reference, reason);
     let mut path = py_strip(reference).trim_start_matches('/').to_string();
     if !path.ends_with(".md") {
         path.push_str(".md");
@@ -358,14 +355,28 @@ pub fn new_concept_path(
             "that's repository machinery, not a place for concepts",
         ));
     }
-    if workspace.exists(&path) {
+    // Only a file is a taken concept. `exists` is also true for a directory
+    // (`target.md/child.md` makes `target.md` one), where "edit it" would be
+    // wrong advice, so that stays an `InvalidPath`, worded as `check_placement` does.
+    if workspace.is_file(&path) {
         return Err(OkfError::AlreadyExists { path: path.clone() });
+    }
+    if workspace.is_dir(&path) {
+        return Err(invalid_at(&path, "is a directory"));
     }
     // `bool::then` runs the closure only when the bool is true, giving `Some(..)`
     // (else `None`): Python's `x if cond else None`.
     let note = (!KEBAB_NAME.is_match(name))
         .then(|| format!("{name} isn't short, lowercase and hyphenated"));
     Ok((path, note))
+}
+
+/// An [`OkfError::InvalidPath`] for `path` with `reason`.
+fn invalid_at(path: &str, reason: &str) -> OkfError {
+    OkfError::InvalidPath {
+        path: path.to_string(),
+        reason: reason.to_string(),
+    }
 }
 
 #[cfg(test)]
@@ -501,6 +512,21 @@ mod tests {
         ] {
             assert!(new_concept_path(&ws, bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn a_directory_named_like_a_concept_is_invalid_path_not_already_exists() {
+        let ws = MemWorkspace::from_files([("target.md/child.md", "x"), ("a.md", "x")]);
+
+        let directory = new_concept_path(&ws, "/target").unwrap_err();
+        let file = new_concept_path(&ws, "/a").unwrap_err();
+
+        assert!(
+            matches!(&directory, OkfError::InvalidPath { path, reason }
+                if path == "target.md" && reason == "is a directory"),
+            "{directory:?}"
+        );
+        assert!(matches!(file, OkfError::AlreadyExists { .. }));
     }
 
     #[test]

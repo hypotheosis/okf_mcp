@@ -870,6 +870,13 @@ mod tests {
         let taken = create_concept(&ws, &ctx(), &concept("infra/x", &untitled, "")).unwrap_err();
         let machinery =
             create_concept(&ws, &ctx(), &concept("tools/x", &untitled, "")).unwrap_err();
+        let dir_ws = MemWorkspace::from_files([("index.md", ROOT_INDEX), ("dir.md/c.md", "x\n")]);
+        let directory =
+            create_concept(&dir_ws, &ctx(), &concept("dir", &untitled, "")).unwrap_err();
+        assert!(
+            matches!(&directory, OkfError::InvalidPath { reason, .. } if reason == "is a directory"),
+            "{directory:?}"
+        );
 
         assert_eq!(
             errors.map(refusal),

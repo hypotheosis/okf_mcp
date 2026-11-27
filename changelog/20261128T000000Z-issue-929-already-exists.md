@@ -28,3 +28,12 @@ Tests: `error::tests::a_taken_path_is_already_exists_not_invalid_path_and_names_
 the `move_concept` and `MemWorkspace::rename` taken-target tests, the description assertions in
 `the_write_tools_have_object_output_schemas...`, and an mcpjam scenario in
 `careful-fact-curator.test.ts`.
+
+Review round 1 (Brooke): `Workspace::exists` is true for a directory too, so a directory named like a
+concept (`target.md/child.md`) answered `AlreadyExists` and advised editing a concept that does not
+exist. `new_concept_path` now answers `AlreadyExists` only for a file (`is_file`); a directory is
+`InvalidPath` "is a directory", the same wording `check_placement` and `MemWorkspace::rename` use for
+it (before this PR `new_concept_path` said "already exists" for both). `rename` and `split_concept`'s
+`to` were already right or go through the helper. Tests with a `.md` directory: `a_directory_named_like_a_concept_is_invalid_path_not_already_exists`
+(paths and moves), `create_concept_refusals`, `a_split_target_taken_is_already_exists_and_a_directory_is_invalid_path`;
+all four fail with `exists` restored.

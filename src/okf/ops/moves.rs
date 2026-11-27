@@ -502,6 +502,20 @@ mod tests {
     }
 
     #[test]
+    fn a_directory_target_named_like_a_concept_is_invalid_path_not_already_exists() {
+        let workspace =
+            MemWorkspace::from_files(FILES.iter().copied().chain([("dir.md/c.md", "x\n")]));
+
+        let error = move_concept(&workspace, "infra/time.md", "dir.md", None).unwrap_err();
+
+        assert!(
+            matches!(&error, OkfError::InvalidPath { reason, .. } if reason == "is a directory"),
+            "{error:?}"
+        );
+        assert!(workspace.is_file("infra/time.md"));
+    }
+
+    #[test]
     fn a_target_below_a_file_is_refused_with_its_own_path() {
         let workspace = MemWorkspace::from_files(FILES);
 

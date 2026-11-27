@@ -1118,6 +1118,24 @@ mod tests {
     }
 
     #[test]
+    fn a_split_target_taken_is_already_exists_and_a_directory_is_invalid_path() {
+        let workspace =
+            MemWorkspace::from_files(FILES.iter().copied().chain([("dir.md/c.md", "x\n")]));
+
+        let taken =
+            split_concept(&workspace, &ctx(), &split("last-bit", "/splits/user.md")).unwrap_err();
+        let directory =
+            split_concept(&workspace, &ctx(), &split("last-bit", "/dir.md")).unwrap_err();
+
+        assert!(matches!(taken, OkfError::AlreadyExists { .. }), "{taken:?}");
+        assert!(
+            matches!(&directory, OkfError::InvalidPath { reason, .. } if reason == "is a directory"),
+            "{directory:?}"
+        );
+        assert_eq!(text(&workspace, "splits/parent.md"), PARENT);
+    }
+
+    #[test]
     fn a_split_refuses_a_folder_summary_for_an_existing_folder_before_writing() {
         let workspace = MemWorkspace::from_files(FILES);
         let args = Split {

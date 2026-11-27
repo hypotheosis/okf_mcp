@@ -6,6 +6,6 @@
 - `tests/mcpjam/scenarios/careful-fact-curator.test.ts`, "Organize facts into folders": `index` re-describing a listed concept (only that bullet changes), the unchanged summary being a no-op ("already lists"), and the re-describe replaying at publish after another changeset published the same `index.md`.
 
 ## Notes
-- Every id, resource and path carries the run's folder. The two unfiltered `cited_by` listing checks (counts and order, cut) need a catalog of the scenario's own, since the listing is capped at 200 sources catalog-wide: they run under catalog isolation (local mode, or an admin key) and are skipped under folder isolation. The resource-filter check and the filtered `limit` checks hold in a shared catalog. README, "Isolation", says so.
+- Every id, resource and path carries the run's folder, and so does every query's value (the negative prefix query is a strict prefix of a tagged resource, tag included). The two unfiltered `cited_by` listing checks (counts and order, cut) need a catalog of the scenario's own, since the listing is capped at 200 sources catalog-wide: they run under catalog isolation (local mode, or an admin key) and are skipped under folder isolation. The resource-filter check and the filtered `limit` checks hold in a shared catalog. README, "Isolation", says so.
 - Reads of published state after a `publish` go through `vi.waitFor` (README, "Reads after a publish"); the body read before the revert's publish goes through the changeset.
 - No product code changed. The staging run is left to the owner.

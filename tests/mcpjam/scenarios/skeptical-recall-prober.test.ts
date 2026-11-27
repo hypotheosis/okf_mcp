@@ -144,8 +144,10 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
         const one = paths.at("cited/resource-one");
         const two = paths.at("cited/resource-two");
         const both = paths.at("cited/resource-both");
-        const register = `Parish register${tag}`;
-        const ledger = `Estate ledger${tag}`;
+        // The run's tag leads, so a strict prefix of each resource still carries it.
+        const registerPrefix = `Register${tag}`;
+        const register = `${registerPrefix}: parish`;
+        const ledger = `Ledger${tag}: estate`;
         const idOne = `entry-one${tag}`;
         const idTwo = `entry-two${tag}`;
         // `both` cites idOne under one resource and idTwo under the other: each filter alone
@@ -166,9 +168,9 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
             );
         });
         expect(hitPaths(await citedBy({ resource: ledger })).sort()).toEqual(sorted([two, both]));
-        // The resource is matched exactly: another case and a prefix find nothing.
+        // The resource is matched exactly: another case and a strict prefix (tag included) find nothing.
         expect((await citedBy({ resource: register.toUpperCase() })).hits).toEqual([]);
-        expect((await citedBy({ resource: register.slice(0, 6) })).hits).toEqual([]);
+        expect((await citedBy({ resource: registerPrefix })).hits).toEqual([]);
         // Together, both must match one entry; the id still ignores case.
         const together = await citedBy({ source_id: idOne.toUpperCase(), resource: register });
         expect(hitPaths(together)).toEqual([one]);

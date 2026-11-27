@@ -617,7 +617,7 @@ impl Metrics {
     ///
     /// # Arguments
     /// * `tool` - a [`tool_label`] value.
-    /// * `catalog` - a loaded catalog's name, or `none`.
+    /// * `catalog` - a loaded catalog's name, `(multiple)` or `(none)`.
     /// * `outcome` - how the call ended.
     /// * `elapsed` - how long it took.
     #[tracing::instrument(level = "trace", skip_all)]

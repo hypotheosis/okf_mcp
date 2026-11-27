@@ -11,6 +11,7 @@ use tracing::Instrument;
 use super::*;
 use crate::config::Config;
 use crate::mcp::testing::{app_with_metrics, render, McpProbe, TestApp};
+use crate::store::catalogs::{is_valid_name, CATALOG_LABEL_MULTIPLE, CATALOG_LABEL_NONE};
 use crate::store::keys::{self, Access, Grants, NewKey};
 use crate::telemetry::config::LogFormat;
 use crate::telemetry::subscriber::capture::{attribute, Observer};
@@ -40,24 +41,27 @@ impl Served {
 
     /// [`Served::start`] under `config`.
     async fn start_with(config: Config) -> Self {
-        let (test, registry) = app_with_metrics(
-            &[(
-                "pg",
-                &[(
-                    "a.md",
-                    "---\ntype: Note\ntitle: Alpha\n---\n# Alpha\nText.\n",
-                )],
-            )],
-            config,
-        )
-        .await;
+        Self::start_catalogs(config, &["pg"]).await
+    }
+
+    /// [`Served::start`] under `config`, with one catalog per name and a key granted all of
+    /// them.
+    async fn start_catalogs(config: Config, names: &[&str]) -> Self {
+        let files: &[(&str, &str)] = &[(
+            "a.md",
+            "---\ntype: Note\ntitle: Alpha\n---\n# Alpha\nText.\n",
+        )];
+        let catalogs: Vec<(&str, &[(&str, &str)])> =
+            names.iter().map(|name| (*name, files)).collect();
+        let (test, registry) = app_with_metrics(&catalogs, config).await;
+        let granted: Vec<String> = names.iter().map(ToString::to_string).collect();
         let key = keys::create(
             test.app.accounts().executor(),
             &NewKey {
                 name: "reader",
                 access: Access::Read,
                 maintenance_report: false,
-                grants: Grants::Catalogs(&["pg".into()]),
+                grants: Grants::Catalogs(&granted),
                 default_catalog: None,
                 actor: "reader",
                 user: crate::db::TEST_USER,
@@ -167,7 +171,7 @@ async fn every_tool_call_opens_one_mcp_span() {
                 attribute(span, "okf.catalog")
                     .map(ToString::to_string)
                     .as_deref()
-                    == Some("none")
+                    == Some(CATALOG_LABEL_NONE)
             })
             .unwrap_or_else(|| panic!("{filter}: a span for no catalog"));
         assert_eq!(none.name, "mcp get_concept");
@@ -590,7 +594,7 @@ async fn the_tool_span_records_the_session_the_changeset_and_the_resolved_catalo
     served.stop().await;
 }
 
-/// Issue #834: the metrics label is the resolved catalog too, and `none` when nothing resolved.
+/// Issue #834: the metrics label is the resolved catalog too, and `(none)` when nothing resolved.
 #[tokio::test]
 async fn the_metrics_label_is_the_resolved_catalog() {
     let served = Served::start().await;
@@ -615,7 +619,7 @@ async fn the_metrics_label_is_the_resolved_catalog() {
         })
     };
     assert!(counted("search", "pg"), "{text}");
-    assert!(counted("get_concept", "none"), "{text}");
+    assert!(counted("get_concept", CATALOG_LABEL_NONE), "{text}");
     assert!(!text.contains(SENTINEL), "{text}");
     served.stop().await;
 }
@@ -639,11 +643,50 @@ fn a_call_without_a_session_has_no_session_digest() {
     assert_ne!(digest_token("session", "x"), digest_token("changeset", "x"));
 }
 
-/// Issue #834: one catalog is its name, two are `multiple`, none is `none`.
+/// Issue #1117: the sentinels are literally `(none)` and `(multiple)`, and no catalog name
+/// can equal either.
+#[test]
+fn the_sentinel_labels_cannot_be_catalog_names() {
+    assert_eq!(CATALOG_LABEL_NONE, "(none)");
+    assert_eq!(CATALOG_LABEL_MULTIPLE, "(multiple)");
+    assert!(!is_valid_name(CATALOG_LABEL_NONE));
+    assert!(!is_valid_name(CATALOG_LABEL_MULTIPLE));
+}
+
+/// Issue #1117: a call that reaches two catalogs records `(multiple)` on the span and the
+/// metrics label.
+#[tokio::test]
+async fn a_call_reaching_several_catalogs_records_the_multiple_sentinel() {
+    let served = Served::start_catalogs(Config::default(), &["pg", "other"]).await;
+    let observer = Observer::start("off", "info", "off", LogFormat::Text);
+    let probe = McpProbe::open(&served.endpoint, &served.key).await;
+    let listed = probe.call("list_catalogs", serde_json::json!({})).await;
+    assert_eq!(listed["result"]["isError"], false, "{listed}");
+    probe.close().await;
+    let observed = observer.finish();
+
+    let span = &observed.spans_named("mcp list_catalogs")[0];
+    assert_eq!(
+        text_of(span, "okf.catalog").as_deref(),
+        Some(CATALOG_LABEL_MULTIPLE)
+    );
+    let text = render(&served.registry);
+    assert!(
+        text.lines().any(|line| {
+            line.starts_with("okf_mcp_tool_duration_seconds_count{")
+                && line.contains(r#"tool="list_catalogs""#)
+                && line.contains(&format!(r#"catalog="{CATALOG_LABEL_MULTIPLE}""#))
+        }),
+        "{text}"
+    );
+    served.stop().await;
+}
+
+/// Issue #834: one catalog is its name, two are `(multiple)`, none is `(none)`.
 #[tokio::test]
 async fn note_catalog_tracks_one_name_then_multiple() {
     let seen = Arc::new(Mutex::new(CatalogSeen::default()));
-    assert_eq!(seen.lock().expect("lock").label(), "none");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_NONE);
     TOOL_CATALOG
         .scope(Arc::clone(&seen), async {
             note_catalog("pg");
@@ -652,10 +695,10 @@ async fn note_catalog_tracks_one_name_then_multiple() {
             note_catalog("other");
         })
         .await;
-    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_MULTIPLE);
     // Outside a call it does nothing.
     note_catalog("ignored");
-    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_MULTIPLE);
 }
 
 /// Issue #834 (review of PR #1116): a handle another key owns resolves nothing, and must not
@@ -692,7 +735,7 @@ async fn a_foreign_changeset_handle_records_no_catalog() {
         let span = &observed.spans_named("mcp pending_changes")[0];
         assert_eq!(
             text_of(span, "okf.catalog").as_deref(),
-            Some("none"),
+            Some(CATALOG_LABEL_NONE),
             "{filter}"
         );
         assert_eq!(
@@ -706,7 +749,7 @@ async fn a_foreign_changeset_handle_records_no_catalog() {
         text.lines().any(|line| {
             line.starts_with("okf_mcp_tool_duration_seconds_count{")
                 && line.contains(r#"tool="pending_changes""#)
-                && line.contains(r#"catalog="none""#)
+                && line.contains(&format!(r#"catalog="{CATALOG_LABEL_NONE}""#))
                 && line.contains(r#"outcome="error""#)
         }),
         "{text}"

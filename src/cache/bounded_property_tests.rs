@@ -10,6 +10,12 @@
 //! `Poll` step at a time. No timer, sleep or thread is involved, so a failure
 //! replays exactly and hegel can shrink the schedule.
 //!
+//! The model also tracks which keys owe a refresh: a key resident when
+//! `mark_all_stale` ran is owed one until a lookup of it starts or an
+//! invalidation removes it. A lookup of an owed key must not finish at once
+//! (its loader and check are parked, so finishing means it served the stale
+//! entry), and no owed key may be fresh (issue #1084).
+//!
 //! What the schedule can interleave is the points where a loader is parked.
 //! The windows inside the cache after a loader returns (insert, then the
 //! second `current()` check) run to completion within one poll and stay
@@ -123,6 +129,10 @@ fn poll_once(fut: &mut OpFuture<'_>) -> Poll<Result<u64, OkfError>> {
 
 /// Runs one schedule, asserting the properties after every step.
 async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
+    // `owed[key]`: resident when `mark_all_stale` last ran, and neither
+    // looked up nor invalidated since, so its next lookup must reload or
+    // check.
+    let mut owed = [false; KEYS as usize];
     let mut pending: Vec<Pending<'_>> = Vec::new();
     for step in steps {
         match *step {
@@ -136,7 +146,8 @@ async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
                     parked(gated).await;
                     Ok(version)
                 });
-                start(&mut pending, Box::pin(fut), gate, key, world);
+                let was_pending = start(&mut pending, Box::pin(fut), gate, key, world);
+                take_debt(&mut owed, key, was_pending);
             }
             Step::Revalidate { key } => {
                 let gate = Arc::new(AtomicBool::new(false));
@@ -155,7 +166,8 @@ async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
                         Ok((version != held).then_some(version))
                     },
                 );
-                start(&mut pending, Box::pin(fut), gate, key, world);
+                let was_pending = start(&mut pending, Box::pin(fut), gate, key, world);
+                take_debt(&mut owed, key, was_pending);
             }
             Step::Release { index } => {
                 if !pending.is_empty() {
@@ -181,11 +193,15 @@ async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
             Step::Invalidate { key } => {
                 world.bump(key);
                 cache.invalidate(&key).await;
+                owed[usize::from(key)] = false;
             }
             Step::InvalidateWhere { modulus, remainder } => {
                 (0..KEYS)
                     .filter(|key| key % modulus == remainder)
-                    .for_each(|key| world.bump(key));
+                    .for_each(|key| {
+                        world.bump(key);
+                        owed[usize::from(key)] = false;
+                    });
                 cache
                     .invalidate_where(|key, _| key % modulus == remainder)
                     .await;
@@ -194,30 +210,69 @@ async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
                 world.weights[usize::from(key)].store(weight, Ordering::SeqCst);
                 cache.reweigh(&key).await;
             }
-            Step::MarkAllStale => cache.mark_all_stale(),
+            Step::MarkAllStale => {
+                for key in 0..KEYS {
+                    if cache.peek(&key).await.is_some() {
+                        owed[usize::from(key)] = true;
+                    }
+                }
+                cache.mark_all_stale();
+            }
         }
         check_properties(cache, world, &format!("after {step:?}")).await;
+        check_owed(cache, &owed, &format!("after {step:?}")).await;
     }
     drain(cache, world, pending).await;
 }
 
-/// Polls a new operation once. If it finishes at once the cache answered it
-/// without loading (every loader is parked), so the value must be current.
+/// Settles `key`'s debt when a lookup of it has started: an owed key's lookup
+/// must still be pending, because the cache may neither serve a stale entry
+/// nor run a parked loader or check to the end within one poll.
+fn take_debt(owed: &mut [bool; KEYS as usize], key: u8, was_pending: bool) {
+    let owes = std::mem::take(&mut owed[usize::from(key)]);
+    assert!(
+        was_pending || !owes,
+        "key {key}: a lookup after mark_all_stale was answered without a reload or a check"
+    );
+}
+
+/// No key still owed a refresh may read as fresh: only a lookup that started
+/// after the marking can make its entry current.
+async fn check_owed(cache: &Bounded<u8, u64>, owed: &[bool; KEYS as usize], when: &str) {
+    for key in (0..KEYS).filter(|key| owed[usize::from(*key)]) {
+        assert_eq!(
+            cache.peek_fresh(&key).await,
+            None,
+            "key {key} is fresh though it was resident at mark_all_stale and not looked up \
+             since, {when}"
+        );
+    }
+}
+
+/// Polls a new operation once and says whether it is still pending. If it
+/// finishes at once the cache answered it without loading (every loader is
+/// parked), so the value must be current.
 fn start<'a>(
     pending: &mut Vec<Pending<'a>>,
     mut fut: OpFuture<'a>,
     gate: Arc<AtomicBool>,
     key: u8,
     world: &World,
-) {
+) -> bool {
     match poll_once(&mut fut) {
-        Poll::Ready(served) => assert_eq!(
-            served.expect("the loader never fails"),
-            world.version(key),
-            "key {key}: a lookup answered from the cache served a value from before an \
-             invalidation"
-        ),
-        Poll::Pending => pending.push(Pending { fut, gate, key }),
+        Poll::Ready(served) => {
+            assert_eq!(
+                served.expect("the loader never fails"),
+                world.version(key),
+                "key {key}: a lookup answered from the cache served a value from before an \
+                 invalidation"
+            );
+            false
+        }
+        Poll::Pending => {
+            pending.push(Pending { fut, gate, key });
+            true
+        }
     }
 }
 
@@ -304,8 +359,9 @@ fn draw_step(tc: &hegel::TestCase) -> Step {
 
 /// Property: under any interleaving of loads, revalidations, invalidations,
 /// predicate invalidations (the fence), reweighs and stale marking, no cached
-/// value predates an invalidation of its key, and the cached weight never
-/// exceeds the budget. 1000 cases of up to 60 steps run in about a second.
+/// value predates an invalidation of its key, the cached weight never
+/// exceeds the budget, and a key resident at `mark_all_stale` is reloaded or
+/// checked by its next lookup. 1000 cases of up to 60 steps run in about a second.
 #[hegel::test(test_cases = 1000, derandomize = true)]
 fn loads_overtaken_by_an_invalidation_are_never_cached_and_weight_stays_in_budget(
     tc: hegel::TestCase,

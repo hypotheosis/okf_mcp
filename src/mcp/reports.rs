@@ -376,7 +376,7 @@ impl OkfServer {
     /// The `open_questions` tool.
     #[tool(
         title = "List Open Questions",
-        description = "Every queued open_questions entry in a catalog, grouped by concept \
+        description = "List questions left on notes. Every queued open_questions entry in a catalog, grouped by concept \
                           and numbered from 1 (the number `unquestion` takes).",
         annotations(
             title = "List Open Questions",
@@ -398,7 +398,7 @@ impl OkfServer {
     /// The `oldest` tool.
     #[tool(
         title = "Oldest Concepts",
-        description = "The stalest concepts: last stamp, by whom, \
+        description = "Find notes not checked lately. The stalest concepts: last stamp, by whom, \
                           age in days, stale flag and queued questions.",
         annotations(
             title = "Oldest Concepts",
@@ -420,7 +420,7 @@ impl OkfServer {
     /// The `sprawl` tool.
     #[tool(
         title = "Sprawl Report",
-        description = "Sprawl scores: which concepts have grown too \
+        description = "Find notes that grew too long. Sprawl scores: which concepts have grown too \
                           long or volatile, with sections and split candidates.",
         annotations(
             title = "Sprawl Report",
@@ -442,7 +442,7 @@ impl OkfServer {
     /// The `links_report` tool.
     #[tool(
         title = "Links Report",
-        description = "The link report: broken links and anchors, \
+        description = "Find broken or missing links. The link report: broken links and anchors, \
                           relative links, orphans, dead ends, index drift and (unless \
                           `mentions` is false) unlinked mentions.",
         annotations(
@@ -465,7 +465,7 @@ impl OkfServer {
     /// The `lint` tool.
     #[tool(
         title = "Lint Catalog",
-        description = "Lint a catalog: errors and warnings with file, \
+        description = "Check notes for mistakes. Lint a catalog: errors and warnings with file, \
                           line, rule and message. Without `changeset`, the published catalog; \
                           with `changeset` (a handle from open_changeset), that changeset's \
                           drafts applied to it, the changed paths counted as uncommitted.",

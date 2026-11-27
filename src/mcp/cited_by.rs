@@ -31,7 +31,8 @@ use crate::store::audit::AccessKind;
 const MAX_LIMIT: usize = 200;
 
 /// The tool's description: short, since every client loads it up front.
-const DESCRIPTION: &str = "List the concepts that cite a source, exactly: `source_id` \
+const DESCRIPTION: &str =
+    "Find notes citing a source. List the concepts that cite a source, exactly: `source_id` \
     (case-insensitive) and/or `resource` (case-sensitive); both must match one entry. Returns \
     catalog, path, title and the matching `sources` entries, by catalog then path, at most \
     `limit` (default and maximum 200; `truncated` says more exist). With neither, lists the \

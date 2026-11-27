@@ -37,8 +37,8 @@ const PRODUCT: &str = "this server";
 /// product instead ([`description`]). A test checks the third-party
 /// disclosure and the "ask the user first" guidance are in it.
 pub(crate) const DESCRIPTION: &str = concat!(
-    "Send feedback about using this server (something confusing, broken, missing or good) to \
-     this server's team. ",
+    "Send feedback to the team. Report something confusing, broken, missing or good about using \
+     this server to this server's team. ",
     // The same disclosure the console's feedback form shows.
     feedback::third_party_disclosure!(),
     " Ask the user before including catalog \

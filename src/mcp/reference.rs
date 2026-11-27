@@ -29,6 +29,8 @@ ends with a link to its section here.
 
 How a session usually goes:
 
+- `guide` returns the server's instructions, the same text it sends when a session starts. Call it
+  first if your client does not show them to you.
 - `search` for a concept, then `get_concept` to read it.
 - A concept path looks like `/infra/time-server.md`; the leading slash and the `.md` are
   optional.
@@ -437,7 +439,7 @@ fn the_reference_lists_every_tool_with_a_heading_its_link_points_at() {
     let page = render();
     let tools = OkfServer::tools().list_all();
 
-    assert_eq!(tools.len(), 46);
+    assert_eq!(tools.len(), 47);
     for tool in &tools {
         assert!(
             page.contains(&format!("\n## `{}`\n", tool.name)),

@@ -493,7 +493,7 @@ impl OkfServer {
     // sees `Json<...>` and builds the output schema.
     #[tool(
         title = "Document History",
-        description = "A document's revisions, newest first: revision, op (create, update, \
+        description = "See how a note has changed. A document's revisions, newest first: revision, op (create, update, \
                        delete, import), actor, user, user_label, message and time. `user` is the \
                        person whose credential published the revision (null for an import or a \
                        key no user owned); `actor` names the credential. Deleted documents keep \
@@ -528,7 +528,7 @@ impl OkfServer {
     /// The `recent_changes` tool.
     #[tool(
         title = "Recent Changes",
-        description = "A catalog's published revisions across every document, newest first: \
+        description = "See what changed lately. A catalog's published revisions across every document, newest first: \
                        path, revision, op (create, update, delete, import), actor, user, \
                        user_label, message and time. `user` is the person whose credential \
                        published it (null for an import or a key no user owned); `actor` names \

@@ -23,7 +23,7 @@ use crate::mcp::context::ToolContext;
 use crate::mcp::{reply, OkfServer};
 
 /// The tool's description: short, since every client loads it up front.
-const DESCRIPTION: &str = "Who this connection acts for and the server's current time: the \
+const DESCRIPTION: &str = "Who you act for, and the time. Who this connection acts for and the server's current time: the \
     user (id and label), the actor writes are recorded as (what `by` defaults to), the \
     credential (`api_key`, or `oauth` with its client's name), its access, the catalogs it \
     reaches with each level, its default catalog, and `now` (UTC, as stamps are written). \

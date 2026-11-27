@@ -314,11 +314,11 @@ same JSON as the text block); errors are results with `isError: true` and
 
 Every tool also has a `title` and the hints `readOnlyHint`,
 `destructiveHint`, `idempotentHint` and `openWorldHint`. `idempotentHint` is
-true only for the 20 read tools, and `openWorldHint` only for `send_feedback`.
+true only for the 21 read tools, and `openWorldHint` only for `send_feedback`.
 Following the MCP spec, `destructiveHint: false` means the tool performs only
-additive updates, whether or not its change is staged. Of the 46 tools:
+additive updates, whether or not its change is staged. Of the 47 tools:
 
-- 20 read-only: they change nothing.
+- 21 read-only: they change nothing.
 - 9 additive (`destructiveHint: false`): `open_changeset`, `create_concept`,
   `add_source`, `question`, `log` and the maintenance lease, report and
   disposition steps `maintenance_claim`, `maintenance_renew`,

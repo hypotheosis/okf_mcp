@@ -368,7 +368,7 @@ impl OkfServer {
     /// The `list_changesets` tool.
     #[tool(
         title = "List Changesets",
-        description = "List the open changesets this key may use (an admin: every key's, in the \
+        description = "Find drafts that are still open. List the open changesets this key may use (an admin: every key's, in the \
                        catalogs it reaches), with their handles, paths and last change; idle \
                        means nothing changed within the idle timeout. Empty changesets are \
                        listed too, but one with no write within 24 hours is discarded and no \
@@ -501,7 +501,7 @@ impl OkfServer {
     /// The `open_changeset` tool.
     #[tool(
         title = "Open Changeset",
-        description = "Open a changeset in a catalog and return its handle: the first step \
+        description = "Step 1 of saving to memory. Open a changeset in a catalog and return its handle: the first step \
                        to saving what the person shares or asks you to remember, which the \
                        catalog keeps across conversations. Every edit, \
                        publish, discard, revert and pending_changes needs a handle, and the \
@@ -610,7 +610,7 @@ impl OkfServer {
     /// The `publish` tool.
     #[tool(
         title = "Publish Changeset",
-        description = "Publish the changeset `changeset` names: its edits become the \
+        description = "Final step of saving to memory. Publish the changeset `changeset` names: its edits become the \
                        published documents, each with a new revision carrying `message`. Refused \
                        with Conflict when a document changed since this changeset read it \
                        (log.md and index.md bookkeeping, and the stamp, review, question, unquestion, \
@@ -1260,7 +1260,7 @@ impl OkfServer {
     /// The `discard` tool.
     #[tool(
         title = "Discard Changeset Entries",
-        description = "Drop entries from the changeset `changeset` names: the named `paths`, or \
+        description = "Throw away unsaved changes. Drop entries from the changeset `changeset` names: the named `paths`, or \
                        every entry, which closes the changeset for good (its handle is refused \
                        from then on; call open_changeset for new work). Published documents are \
                        not touched. Write access.",
@@ -1284,7 +1284,7 @@ impl OkfServer {
     /// The `revert` tool.
     #[tool(
         title = "Revert Document",
-        description = "Add a document's content at an earlier revision (from `history`), or its \
+        description = "Undo a change to a saved note. Add a document's content at an earlier revision (from `history`), or its \
                        deletion for a `delete` revision, to the changeset `changeset` names, for \
                        review and publish like any other edit. Every write rule applies, so \
                        machinery cannot be reverted. Prefer passing `expected_revision` (the \
@@ -1315,7 +1315,7 @@ impl OkfServer {
     /// The `pending_changes` tool.
     #[tool(
         title = "Show Pending Changes",
-        description = "The unpublished changeset `changeset` names: each changed path \
+        description = "Preview what you are saving. The unpublished changeset `changeset` names: each changed path \
                        (create, update or delete), the revision it was based on and the one \
                        published now, whether that base is stale, whether publish can replay \
                        it, and a unified diff against the published text. A stale entry \

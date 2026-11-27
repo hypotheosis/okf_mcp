@@ -230,14 +230,15 @@ impl OkfServer {
     /// The `create_concept` tool.
     #[tool(
         title = "Create Concept",
-        description = "Create a concept in the changeset `changeset` names (open one with \
-                       open_changeset). Use it whenever the person shares something worth \
-                       keeping (a fact about themselves, a preference, a decision, a note), \
-                       and certainly when they ask you to remember it: the catalog keeps it \
-                       across conversations, so save it without asking first and tell them \
-                       what you saved. Nothing is published until `publish`; a published \
-                       concept is visible only to those with access to the catalog (a personal \
-                       catalog's owner unless they share it, a team catalog's team). `path` is \
+        description = "Save what the person wants kept. Use it whenever the person shares \
+                       something worth keeping (a fact about themselves, a preference, a \
+                       decision, a note), and certainly when they ask you to remember it: the \
+                       catalog keeps it across conversations, so save it without asking first \
+                       and tell them what you saved. Creates a concept in the changeset \
+                       `changeset` names (open one with open_changeset). Nothing is published \
+                       until `publish`; a published concept is visible only to those with \
+                       access to the catalog (a personal catalog's owner unless they share it, \
+                       a team catalog's team). `path` is \
                        the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in \
                        `frontmatter`; the server writes `generated: { by, at }` itself. With \
                        `index_summary`, also lists it in its folder's index.md (creating folder \
@@ -263,7 +264,7 @@ impl OkfServer {
     /// The `edit_document` tool.
     #[tool(
         title = "Edit Document",
-        description = "Replace exact text in a concept or an index.md, in the changeset \
+        description = "Change wording in a saved note. Replace exact text in a concept or an index.md, in the changeset \
                        `changeset` names (open one with open_changeset). `path` is a full path \
                        with .md (e.g. /infra/ntp.md or /infra/index.md). `old_str` must occur \
                        exactly once unless `replace_all`; the edit may not add or change \
@@ -290,7 +291,7 @@ impl OkfServer {
     /// The `replace_body` tool.
     #[tool(
         title = "Replace Concept Body",
-        description = "Replace a concept's body, keeping its frontmatter byte for byte, in the \
+        description = "Rewrite the text of a note. Replace a concept's body, keeping its frontmatter byte for byte, in the \
                        changeset `changeset` names (open one with open_changeset). `path` is a \
                        concept reference, .md optional (/infra/ntp or /infra/ntp.md). Staged in \
                        the changeset: nothing changes until `publish`, and `discard` drops it. \
@@ -315,7 +316,7 @@ impl OkfServer {
     /// The `set_frontmatter` tool.
     #[tool(
         title = "Set Frontmatter",
-        description = "Set (or, with a null value, delete) one descriptive frontmatter key of a \
+        description = "Edit a note's tags and details. Set (or, with a null value, delete) one descriptive frontmatter key of a \
                        concept, in the changeset `changeset` names (open one with \
                        open_changeset). `path` is a concept reference, .md optional (/infra/ntp \
                        or /infra/ntp.md). The stamps, open_questions and sources have their own \
@@ -761,7 +762,7 @@ impl OkfServer {
     /// The `stamp` tool.
     #[tool(
         title = "Stamp Concept",
-        description = "Set a concept's `generated` (content written) or append to \
+        description = "Mark a note written or checked. Set a concept's `generated` (content written) or append to \
                        its `verified` (checked against the real system) with { by, at: now }, in \
                        the changeset `changeset` names (open one with open_changeset). `by` \
                        defaults to the key's actor. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). \
@@ -786,7 +787,7 @@ impl OkfServer {
     /// The `review` tool.
     #[tool(
         title = "Record Review",
-        description = "Replace a concept's `reviewed` with { by, at: now, outcome, \
+        description = "Record that a note was checked. Replace a concept's `reviewed` with { by, at: now, outcome, \
                        note } and queue any `questions` in open_questions, in the changeset \
                        `changeset` names (open one with open_changeset). `by` defaults to the \
                        key's actor. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). \
@@ -811,7 +812,7 @@ impl OkfServer {
     /// The `question` tool.
     #[tool(
         title = "Add Question",
-        description = "Queue one question in a concept's open_questions without \
+        description = "Flag a doubt on a saved note. Queue one question in a concept's open_questions without \
                        recording a review, in the changeset `changeset` names (open one with \
                        open_changeset). Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). \
                        Write access.",
@@ -835,7 +836,7 @@ impl OkfServer {
     /// The `unquestion` tool.
     #[tool(
         title = "Resolve Question",
-        description = "Remove one queued question, by its 1-based number in \
+        description = "Clear a doubt on a saved note. Remove one queued question, by its 1-based number in \
                        open_questions or its exact text, deleting the key when none are left, in \
                        the changeset `changeset` names (open one with open_changeset). Write \
                        access. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result).",
@@ -859,7 +860,7 @@ impl OkfServer {
     /// The `add_source` tool.
     #[tool(
         title = "Add Source",
-        description = "Append an entry (id, resource, title, author) to a \
+        description = "Note where a fact came from. Append an entry (id, resource, title, author) to a \
                        concept's `sources`, refusing a duplicate id, in the changeset `changeset` \
                        names (open one with open_changeset); `cited_by` finds a source's citations. Replayed at publish onto text published meanwhile, unless a free edit of the concept follows (`pending_changes` shows the result). \
                        Write access.",
@@ -883,7 +884,7 @@ impl OkfServer {
     /// The `remove_source` tool.
     #[tool(
         title = "Remove Source",
-        description = "Remove the entry with `id` from a concept's `sources`, deleting the key \
+        description = "Drop a source from a note. Remove the entry with `id` from a concept's `sources`, deleting the key \
                        when none are left, in the changeset `changeset` names (open one with \
                        open_changeset). Refused while a footnote in the body still cites it (its \
                        label is the id, or its definition names the id, title or resource): \
@@ -909,7 +910,7 @@ impl OkfServer {
     /// The `log` tool.
     #[tool(
         title = "Add Log Entry",
-        description = "Add `* **<kind>:** <text>` under today's UTC date in log.md, \
+        description = "Add a line to the change log. Add `* **<kind>:** <text>` under today's UTC date in log.md, \
                        the only way to write log.md, in the changeset `changeset` names (open one \
                        with open_changeset). Replayed at publish onto a log.md that changed \
                        meanwhile, so concurrent entries never conflict. Write access.",
@@ -933,7 +934,7 @@ impl OkfServer {
     /// The `index` tool.
     #[tool(
         title = "Add Index Entry",
-        description = "List a concept in its folder's index.md as `* \
+        description = "List a note in its folder. List a concept in its folder's index.md as `* \
                        [Title](name.md) - summary`, in the changeset `changeset` names (open one \
                        with open_changeset); if it is already linked, only its summary is set to `summary` (a name with a space, `)`, `#` or `:` is written percent-encoded, e.g. `a%20b.md`; an older raw bullet for it counts as linked, with a note; repair_indexes rewrites it). Replayed at \
                        publish onto an index.md that changed meanwhile, unless a free edit of \
@@ -960,7 +961,7 @@ impl OkfServer {
     /// The `repair_indexes` tool.
     #[tool(
         title = "Repair Indexes",
-        description = "Create whatever bookkeeping the catalog is missing, in the changeset \
+        description = "Fix missing index and log files. Create whatever bookkeeping the catalog is missing, in the changeset \
                        `changeset` names (open one with open_changeset): the root index.md and \
                        log.md, an index.md for every folder holding concepts, each folder's \
                        listing in its parent's # Sections, and each concept's listing in its \

@@ -183,7 +183,7 @@ impl OkfServer {
     /// The `move_concept` tool.
     #[tool(
         title = "Move Concept",
-        description = "Move or rename a concept in the changeset \
+        description = "Move or rename a saved note. Move or rename a concept in the changeset \
                        `changeset` names (open one with open_changeset): its folder listing moves \
                        with it \
                        (creating folder indexes as needed) and every link to it is rewritten, \
@@ -211,7 +211,7 @@ impl OkfServer {
     /// The `split_concept` tool.
     #[tool(
         title = "Split Concept",
-        description = "Carve a section (and its subsections) out of a concept into a new concept, \
+        description = "Split a long note in two. Carve a section (and its subsections) out of a concept into a new concept, \
                        in the changeset `changeset` names (open one with open_changeset); the \
                        new concept gets type, title, description, the \
                        parent's status, generated, and the sources the section's footnotes cite \
@@ -238,7 +238,7 @@ impl OkfServer {
     /// The `delete_concept` tool.
     #[tool(
         title = "Delete Concept",
-        description = "Delete a concept and its listing in its folder's index.md, in the \
+        description = "Remove a note from memory. Delete a concept and its listing in its folder's index.md, in the \
                        changeset `changeset` names (open one with open_changeset). Links to it \
                        in log.md become plain text (the link text stays, the target goes), \
                        replayed at publish so concurrent log entries never conflict. Refused \

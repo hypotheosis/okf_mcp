@@ -491,7 +491,7 @@ mod tests {
             move_concept(&workspace, "infra/time.md", "infra/index.md", None).unwrap_err();
         let missing = move_concept(&workspace, "infra/none.md", "infra/x.md", None).unwrap_err();
 
-        assert_eq!(taken.to_string(), "infra/ntp.md: already exists");
+        assert!(matches!(taken, OkfError::AlreadyExists { ref path } if path == "infra/ntp.md"));
         assert_eq!(
             reserved.to_string(),
             "infra/index.md: index.md is a reserved name, not a concept"

@@ -41,6 +41,26 @@ describe(SCENARIOS.createAndSource.goal, () => {
         ]);
     });
 
+    // Issue #929: a taken path is its own error, so a client that branches on `error` knows to
+    // edit the concept instead.
+    test("create_concept on an existing path is AlreadyExists, naming the edit tools", async () => {
+        const path = paths.at("history/second-bike");
+        const changeset = await session().openChangeset();
+        const fields = { path, title: "Second bike", body: "# Second bike\n\nBlue.\n", summary: "Blue." };
+        await create(session(), changeset, fields);
+        const error = await session().fail("create_concept", {
+            path,
+            frontmatter: { type: "note", title: "Second bike" },
+            body: "# Second bike\n\nGreen.\n",
+            changeset,
+        });
+        expect(error.error).toBe("AlreadyExists");
+        expect(String(error.path)).toContain("history/second-bike");
+        expect(error.message).toContain("edit_document");
+        expect(error.message).toContain("replace_body");
+        await session().call("discard", { changeset });
+    });
+
     test("a source on a concept that does not exist is NotFound, naming the path", async () => {
         const path = paths.at("history/never-written");
         const changeset = await session().openChangeset();

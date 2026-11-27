@@ -327,7 +327,8 @@ pub fn resolve_concept(workspace: &dyn Workspace, reference: &str) -> Result<Str
 ///
 /// # Errors
 /// [`OkfError::InvalidPath`] when the path leaves the catalog, uses a
-/// reserved name, sits in machinery or a dot-directory, or already exists.
+/// reserved name, or sits in machinery or a dot-directory;
+/// [`OkfError::AlreadyExists`] when a concept is already there.
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn new_concept_path(
     workspace: &dyn Workspace,
@@ -358,10 +359,7 @@ pub fn new_concept_path(
         ));
     }
     if workspace.exists(&path) {
-        return Err(OkfError::InvalidPath {
-            path: path.clone(),
-            reason: "already exists".to_string(),
-        });
+        return Err(OkfError::AlreadyExists { path: path.clone() });
     }
     // `bool::then` runs the closure only when the bool is true, giving `Some(..)`
     // (else `None`): Python's `x if cond else None`.

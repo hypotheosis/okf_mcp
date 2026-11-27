@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1968,
+  "next_claim_seq": 1983,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "27f4646351dbcca4c996ec425d42af75c4a4a255e76e077c50d959117c7f52a7"
+    "mac": "83b2152b4b3ec04d04052087c77afe2ac1e3c8efa496a668091769f68513f1c8"
   },
-  "next_evidence_seq": 3529,
+  "next_evidence_seq": 3549,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "868701707dfc03961ad3a5c89e15d08263b7fc1def914bc686c8656a26d960c7"
+    "mac": "61ebca05e0f37fe355263dc6369f939a9694a01e0ac4ef6b203f1515ede90ea1"
   },
   "claims": [
     {
@@ -176664,6 +176664,1030 @@
       "seal": {
         "by": "server",
         "mac": "6aa57d5e3e7228be8dcee98d11a82dc64bf94406851588b93710ed6fc937459e"
+      }
+    },
+    {
+      "id": "CLM-1968",
+      "statement": "Issue #829 is resolved: console browse routes can tell a folder named x.md from a document section, with old-form links still working.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "hypotheosis/okf_mcp#829 \"Console browse routes cannot tell a folder named x.md from a section\"",
+      "derived_from": [],
+      "artifacts": [
+        "src/render.rs",
+        "src/http/ui/js/core/router.js",
+        "src/http/ui/js/pages/browse.js",
+        "src/http/read/js/route.js"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3548",
+          "kind": "analysis",
+          "locator": "children of CLM-1968",
+          "summary": "Children CLM-1969 to CLM-1976 (route writer, console router, locate, reader, other builders, Rust, worker and browser tests) are supported. CLM-1977 (direct unit tests of the console's parse and locate) is refuted: only the browser journeys cover them. The behavior the issue asked for is delivered; the gap is test coverage at the unit level, and whether the issue requires it is ambiguous.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T00:45:51.335541214Z",
+          "seal": {
+            "by": "server",
+            "mac": "39f68af77c67af5c4161d5c17ee81029d7b2d63015aa48b19bc3394acaa13d46"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Roll-up: every behavioral child is supported; the one refuted child (CLM-1977) is a unit-test gap, not a behavior defect. Fix: add the worker test for the console's parse and locate, or settle that the browser journeys are the intended coverage and retire that child.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3548"
+          ],
+          "recorded_at": "2026-11-27T00:45:54.981874911Z",
+          "seal": {
+            "by": "server",
+            "mac": "23a5718d8279450a308ebf89f0d1350d8de0edb496010a14447ec60282c6a549"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:54.981874911Z",
+      "seal": {
+        "by": "server",
+        "mac": "b28da8452bb24c95bb6aa91fa40619e72c4269669a3253870118479222cd6120"
+      }
+    },
+    {
+      "id": "CLM-1969",
+      "statement": "render.rs browse_route writes the section as a parameter, '#/browse/<catalog>/<path>?s=<slug>' (slug percent-encoded), and no trailing '/<slug>' segment.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 1; PR body: \"`browse_route` (src/render.rs) writes `?s=<slug>` instead of a trailing `/<slug>` segment.\"",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/render.rs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3529",
+          "kind": "inspection",
+          "locator": "src/render.rs:557-573",
+          "summary": "browse_route pushes \"?s=\" then the percent-encoded slug when a non-empty section is given; no '/' is pushed before the slug. Callers at render.rs:503 and :520 both go through it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/render.rs",
+              "lines": {
+                "start": 557,
+                "end": 573
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.025614093Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d2f2d6e35859ba4be85c03f475cd01cb8bfb1427d8793e9e17072b33640d327"
+          }
+        },
+        {
+          "id": "EVD-3530",
+          "kind": "test",
+          "locator": "cargo test --lib render:: (21 passed); cargo test --doc browse_route (1 passed)",
+          "summary": "Reran on head: all 21 render tests pass including a_section_is_a_parameter_so_a_folder_named_dot_md_is_unambiguous and routes_percent_encode_each_segment; the browse_route doctest asserts \"#/browse/main/a%20b/c.md?s=notes\" and passes.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:44:48.137934184Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8ccc43afa2ef981869b564a386f18d16a7000043c91cc0fb752867f8f13e212"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and tests show ?s=<encoded slug> with no trailing segment.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3529",
+            "EVD-3530"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.125939467Z",
+          "seal": {
+            "by": "server",
+            "mac": "501f3712338cc2c8e73d2dbe6f0fea53a641cf598f6180491af64ddefe7025df"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.125939467Z",
+      "seal": {
+        "by": "server",
+        "mac": "d2988b138925469e60a7e80d583ad7bd3abd80f96c00dd174d97bc136a1123ae"
+      }
+    },
+    {
+      "id": "CLM-1970",
+      "statement": "core/router.js browseHash writes the section as '?s=<encoded slug>' and parse() splits the hash at '?' and returns the parameters, which route()/mount() pass to the page as a third argument.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 2; PR body: \"`parse` splits the hash at `?` and returns the parameters; `route`/`mount` pass them to the page as a third argument; `browseHash` writes `?s=`.\"",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/router.js"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3531",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/router.js:16-57,80",
+          "summary": "parse splits the hash at '?' and returns query as URLSearchParams; browseHash appends ?s=<encodeURIComponent(section)>; route() passes query to mount(), which passes it to render(view, rest, query). Run in node with the functions extracted verbatim: browseHash('main','a b/c.md','x y') = '#/browse/main/a%20b/c.md?s=x%20y', no section gives no '?'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/router.js",
+              "lines": {
+                "start": 16,
+                "end": 35
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.265225169Z",
+          "seal": {
+            "by": "server",
+            "mac": "231580125a67d105fdd9291ad8fbf187e2beae81ea156dbd0161bc8b3c169d78"
+          }
+        },
+        {
+          "id": "EVD-3532",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- a_folder_named_dot_md the_tree_opens_a_concept (2 passed)",
+          "summary": "Reran via scripts/test-pg.sh on head: both browse journeys pass; they read outline links '#/browse/...?s=config' written by browseHash and open sections from '?s=' hashes, so query reaches the page.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:44:48.385622014Z",
+          "seal": {
+            "by": "server",
+            "mac": "a141a283180eaa21419ca258d70c3945992c9f82e7bf1b47f57330fd5f21a74f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Source read and run in node, and the journeys that use the query pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3531",
+            "EVD-3532"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.235944323Z",
+          "seal": {
+            "by": "server",
+            "mac": "e811f92258e0cf7b09259024aeb4421107cb0ac76c149e4b7ea33fbcaa8328e1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.235944323Z",
+      "seal": {
+        "by": "server",
+        "mac": "db2f141bda3c603a2a0c8b59801f9c34d364a6072025da4cfddd9b5af887fa80"
+      }
+    },
+    {
+      "id": "CLM-1971",
+      "statement": "pages/browse.js locate ends a document at the last '.md' segment (was the first) and takes the section from '?s=', else from the segments after the document (old form), so '<path>.md/<slug>' links keep working.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 2; PR body: \"`pages/browse.js` `locate` ends a document at the last `.md` segment (was the first) and takes the section from `?s=`, else from the segments after the document (old form).\"",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/browse.js"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3533",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/browse.js:30-41",
+          "summary": "locate uses findLastIndex for the '.md' segment and sets section to query.get('s') || the joined segments after the document || null. Run in node (functions extracted verbatim): '#/browse/main/archive.md/topic.md' -> path archive.md/topic.md, no section; '...topic.md?s=notes' and '...topic.md/notes' -> section notes; 'a%20b/c.md?s=caf%C3%A9' -> 'a b/c.md', 'café'; 'alpha.md/config' -> alpha.md at config.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/browse.js",
+              "lines": {
+                "start": 30,
+                "end": 41
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.516862451Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd0f82291d85015b7bcc02463880726e617e1e46ca6950123d3a1b544859f6e6"
+          }
+        },
+        {
+          "id": "EVD-3534",
+          "kind": "test",
+          "locator": "tests/ui_e2e/browse.rs:86-96,457-502; reran 2 journeys on head (2 passed)",
+          "summary": "Journeys open '/browse/main/systems/alpha.md/config' (old form) and '/browse/main/archive.md/topic.md/details' and wait for the concept title, and open the ?s= form; all pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browse.rs",
+              "lines": {
+                "start": 457,
+                "end": 502
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.641494509Z",
+          "seal": {
+            "by": "server",
+            "mac": "a845dc091367a9be9ba764f98720cc57ba636beba73b4f9b4188fe46abeb3ed4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "locate behaves as claimed for new and old forms (node run) and the journeys for both forms pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3533",
+            "EVD-3534"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.344244815Z",
+          "seal": {
+            "by": "server",
+            "mac": "dff0d5245899949e2531ce9ce261e5d21b4208eb4397764c9831ba4f49bc2aec"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.344244815Z",
+      "seal": {
+        "by": "server",
+        "mac": "4de2484121619288a87f4107b50bf4bb8cbe120ab8a2895a380189f6f599bad7"
+      }
+    },
+    {
+      "id": "CLM-1972",
+      "statement": "The reader's fromBrowse (src/http/read/js/route.js) reads '?s=' as the section and still reads the old '<path>.md/<slug>' form.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 3; PR body: \"Reader `fromBrowse` (src/http/read/js/route.js) reads `?s=` and keeps reading the old form.\"",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/http/read/js/route.js"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3535",
+          "kind": "inspection",
+          "locator": "src/http/read/js/route.js:79-87",
+          "summary": "fromBrowse splits the href at '?', ends the document at the last .md segment, and takes the section from URLSearchParams 's' else from the segments after the document.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/route.js",
+              "lines": {
+                "start": 79,
+                "end": 87
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.766501707Z",
+          "seal": {
+            "by": "server",
+            "mac": "90df0ac42a32407f0fc1e11df2799046035a0469baaaf6210175d3fc3df28708"
+          }
+        },
+        {
+          "id": "EVD-3536",
+          "kind": "test",
+          "locator": "just test-worker (ℹ pass 115, fail 0); tests/read_worker/route.test.mjs:96-125",
+          "summary": "Assertions map '#/browse/main/archive.md/topic.md?s=notes' to '#/v/main/archive.md/topic.md?s=notes', the percent-encoded form to '#/v/main/a%20b/c.md?s=caf%C3%A9', and the old '.../topic.md/notes' to '?s=notes'. Reran on head: 115 pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/read_worker/route.test.mjs",
+              "lines": {
+                "start": 96,
+                "end": 125
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:44:48.892087377Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee2276f7e313cf1fa20a4928b7fa44c81e48b58cd858356680bc5f59889536f1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fromBrowse reads ?s= and the old form; worker assertions for both pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3535",
+            "EVD-3536"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.452946718Z",
+          "seal": {
+            "by": "server",
+            "mac": "53b08562f028db4716a316d35bd3c3ad22eefe96dbb235120dd0f375e935c631"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.452946718Z",
+      "seal": {
+        "by": "server",
+        "mac": "453f4951abe01dd54a5fde92fc12e32227fca90ca0da2b188d1919b8f4e0f559"
+      }
+    },
+    {
+      "id": "CLM-1973",
+      "statement": "No other code in src/ builds or parses a '#/browse/' link by hand: every other console builder uses browseHash and the only other parsers are router.parse, browse.js locate and the reader's fromBrowse.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #829 requirement 4 (other builders/parsers stay consistent)",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/http/ui/js",
+        "src/http/read/js",
+        "src/render.rs",
+        "src/http/api/browse.rs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3537",
+          "kind": "analysis",
+          "locator": "git grep -nE \"browse/|#/browse\" -- src (excluding the four owning files)",
+          "summary": "Only hits outside render.rs, route.js, browse.js and router.js are two test assertions in src/http/api/browse.rs (rendered links without a section) and the nav link '#/browse' in index.html. Every other console link goes through browseHash (tree.js:42, search.js:118, health.js:146, findings.js:134, runs.js:59, browse.js:119,208,244). Hand-built '#/search/', '#/runs/' etc. use encodeURIComponent (enc), so a '?' in them is %3F and parse() does not split it; main.js:41 and syncSidebarSearch only read page and rest.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "#/browse",
+              "scope": [
+                "src/http/api",
+                "src/http/ui/js/components",
+                "src/http/ui/js/main.js"
+              ],
+              "hits": 2,
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:12.138381351Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce80f4b725cabc68cce20763ca349e5c1f63a40b7fbd6ea09329eb60cb511fe0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide search of src shows no other hand-built or hand-parsed browse link; other hash builders encode '?'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3537"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.565541150Z",
+          "seal": {
+            "by": "server",
+            "mac": "33b91937ea638ea80d0e4f5bf6f674ce545938b6306163125694ee6da60c0e81"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.565541150Z",
+      "seal": {
+        "by": "server",
+        "mac": "d9fb1e94acf65c2b103b014fbf93e8a2f16f6801ba0980205c0c56d92a490ec6"
+      }
+    },
+    {
+      "id": "CLM-1974",
+      "statement": "Rust unit tests assert browse_route's new form, including a folder named archive.md with a section, no section, and a percent-encoded slug.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 5; PR body Changes",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/render.rs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3538",
+          "kind": "test",
+          "locator": "src/render.rs:855-871 (a_section_is_a_parameter_so_a_folder_named_dot_md_is_unambiguous); cargo test --lib render:: (21 passed)",
+          "summary": "The test asserts browse_route(\"main\",\"archive.md/topic.md\",Some(\"notes\")) == \".../archive.md/topic.md?s=notes\", None gives no '?', and \"caf\\u{e9}\" gives ?s=caf%C3%A9. routes_percent_encode_each_segment also asserts ?s=x%20y. Passes on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/render.rs",
+              "lines": {
+                "start": 855,
+                "end": 871
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:12.250457422Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e7bacb43f4a95da8f91ce13d33cec609f24cb29a8ae66be9631b71c459b47b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The new test asserts the three cases and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3538"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.673039540Z",
+          "seal": {
+            "by": "server",
+            "mac": "02d687df1b4f8f45da84ae9c170bd8fb2c9438f8b713fe8f255c02dc89ef119d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.673039540Z",
+      "seal": {
+        "by": "server",
+        "mac": "71d2000afd6e7f24ffbb6eb0e562125abb7318298b41a53ed9b286aaf01e3b4a"
+      }
+    },
+    {
+      "id": "CLM-1975",
+      "statement": "Worker tests in tests/read_worker/route.test.mjs assert fromBrowse on the '?s=' form (plain, folder named x.md, percent-encoded) and on the old form, and pass.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 5 (worker tests for parsers); PR body: \"`gate.sh ... worker` (115 tests) ... pass\"",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "tests/read_worker/route.test.mjs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3539",
+          "kind": "test",
+          "locator": "tests/read_worker/route.test.mjs:96-125; just test-worker (pass 115, fail 0)",
+          "summary": "New assertions: '?s=config', folder 'archive.md/topic.md?s=notes', percent-encoded 'a%20b/c.md?s=caf%C3%A9', no-section 'archive.md/topic.md', and 'topic.md?s=notes.md' staying a section; the old-form assertions at lines 99-102 and 108-120 are kept. Reran: 115 pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/read_worker/route.test.mjs",
+              "lines": {
+                "start": 96,
+                "end": 125
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:12.363665435Z",
+          "seal": {
+            "by": "server",
+            "mac": "86d6a4c5645c0362380eb34a4d64686c90a5f1212bf4096d0dc77b9a20f2fc54"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions for the parameter and old forms exist and pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3539"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.780594990Z",
+          "seal": {
+            "by": "server",
+            "mac": "9450aea3d524294d2aff52887e71914a73ed72c64158eb2ebdc3e6180670be7d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.780594990Z",
+      "seal": {
+        "by": "server",
+        "mac": "10c9b68efcd8145c0647b2f3a85fea3c8044b6fef0e100cf641df9534ce40362"
+      }
+    },
+    {
+      "id": "CLM-1976",
+      "statement": "A console browser journey, browse::a_folder_named_dot_md_is_not_mistaken_for_a_document_with_a_section, opens a document inside a folder named archive.md from a body link, opens it at a section from a '?s=' link, and opens the old '<path>.md/<slug>' form; it fails under the old first-.md rule.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 5 (console browser journey for a folder named x.md)",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browse.rs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3540",
+          "kind": "test",
+          "locator": "scripts/test-pg.sh run cargo test --test ui_e2e -- a_folder_named_dot_md (passed); tests/ui_e2e/browse.rs:460-502",
+          "summary": "Journey builds a catalog with archive.md/topic.md, clicks the body link '#/browse/main/archive.md/topic.md' (title Topic), clicks '...topic.md?s=details' and checks the outline link, then opens '/browse/main/archive.md/topic.md/details'. Reran on head: ok. Under the old first-.md locate the first click resolves path 'archive.md' with section 'topic.md', so the title wait would not see Topic (reasoned, not mutation-run).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browse.rs",
+              "lines": {
+                "start": 460,
+                "end": 502
+              },
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:12.478944625Z",
+          "seal": {
+            "by": "server",
+            "mac": "e68ee9b0c062f08bd7e27e2684694e868949088ce3f119eede7e9bde50abf942"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Journey exists with the three steps and passes on head; failure under the old rule is reasoned, not mutation-run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3540"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.887599478Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a531be0c086b0025e5c69ab66e899b8271b6bb29130eeb33ae72011500d5b5c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.887599478Z",
+      "seal": {
+        "by": "server",
+        "mac": "0cf71593a19d33d0b2c160087f3a3fc50cf7a5d19ff9bbf2be1c2b109dab0842"
+      }
+    },
+    {
+      "id": "CLM-1977",
+      "statement": "Console router parse() and browse.js locate() themselves, apart from the browser journeys, have direct unit tests (worker tests) of the '?s=' and old-form inputs.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #829 requirement 5 (\"worker tests for parsers\"), read as covering the console's parsers",
+      "derived_from": [
+        "CLM-1968"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/router.js",
+        "src/http/ui/js/pages/browse.js",
+        "tests/read_worker"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3541",
+          "kind": "analysis",
+          "locator": "git grep -nE \"locate|router|browse\\.js\" -- tests/read_worker (zero relevant hits)",
+          "summary": "No worker test imports core/router.js or pages/browse.js; the only parse() tests in tests/read_worker are the reader's own parse. locate was exported by this PR but nothing imports it in a test. The console parsers are exercised only through the browser journeys (browse.rs).",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "core/router|pages/browse|locate\\(",
+              "scope": [
+                "tests/read_worker"
+              ],
+              "hits": 0,
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:12.593275602Z",
+          "seal": {
+            "by": "server",
+            "mac": "f41408135ec186448aae86c329f15157fa697b2145bffce19c543c8149e3f09a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "No worker or other direct unit test covers router.parse or browse.locate; they are covered only by browser journeys. Whether the issue's \"worker tests for parsers\" requires this is ambiguous (the reader's fromBrowse parser is tested), so this is a gap, not a clear defect. Fix: add a worker test that loads src/http/ui/js/core/router.js parse and the exported pages/browse.js locate (with stubbed DOM and store imports) and asserts '?s=', the old '<path>.md/<slug>' form and a folder named archive.md, or tell the reviewer the journeys are the intended coverage.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3541"
+          ],
+          "recorded_at": "2026-11-27T00:45:45.995399988Z",
+          "seal": {
+            "by": "server",
+            "mac": "79413b8ef3fe1969944b2169ea12edd7cd0c40550a4a15723d58101eef16c5be"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:45.995399988Z",
+      "seal": {
+        "by": "server",
+        "mac": "3e31efc480b190a27334130d075d65947b43e1e38cd98683beb84af5ab591196"
+      }
+    },
+    {
+      "id": "CLM-1978",
+      "statement": "gate.sh worker passes 115 tests and 0 failures.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`worker` (115 tests) ... pass\"",
+      "derived_from": [],
+      "artifacts": [
+        "tests/read_worker"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3542",
+          "kind": "test",
+          "locator": "just test-worker (rerun on head 4175924); target/i829-logs/worker-final.log",
+          "summary": "Printed \"ℹ pass 115\", \"ℹ fail 0\" in both the rerun and the logged gate run.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:45:12.702773995Z",
+          "seal": {
+            "by": "server",
+            "mac": "c66d94ea15e85e4b149743279a57ca01bce2011a8a1e5c357de6155e5965a9dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 115 pass, 0 fail.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3542"
+          ],
+          "recorded_at": "2026-11-27T00:45:46.104529602Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e6f3ad98ec871ee9519ef48d86cd7c1aeb17712118a8873f2ab646254b9461f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:46.104529602Z",
+      "seal": {
+        "by": "server",
+        "mac": "a328d798f00d9e0ebafb252f920f412d80ea8d5959572f2a60e4cfca55fd294f"
+      }
+    },
+    {
+      "id": "CLM-1979",
+      "statement": "gate.sh test-ui passes 310 tests with 1 ignored.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`test-ui` (310 passed, 1 ignored): pass\"",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3543",
+          "kind": "log",
+          "locator": "target/i829-logs/ui.log (last result line); not rerun in full (about 11 minutes)",
+          "summary": "Log written after the head commit (file 19:39, commit 19:25) ends \"test result: ok. 310 passed; 0 failed; 1 ignored\". Auditor reran only the two browse journeys (pass).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:45:12.810151802Z",
+          "seal": {
+            "by": "server",
+            "mac": "c07fa56b1d72d7dca47dad679cc69edddc3860ebea6332beef28db365d3ee13f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Post-commit log shows 310 passed, 1 ignored; not rerun in full by the auditor.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3543"
+          ],
+          "recorded_at": "2026-11-27T00:45:46.212156072Z",
+          "seal": {
+            "by": "server",
+            "mac": "53b371ff70be623d584a7f33e8c51881b2e5eb15903f4c5a5d4258430193ba6c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:46.212156072Z",
+      "seal": {
+        "by": "server",
+        "mac": "c443da3a3e5f1a7a4977d868d4551b81a35d3b05467de3a85e48e4c70724e403"
+      }
+    },
+    {
+      "id": "CLM-1980",
+      "statement": "gate.sh test ran 3700 tests: 3699 passed and 1 failed, the known flake tls verify_full_refuses_a_server_another_ca_signed (#1083), which passes alone.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh test`: 3699 passed, 1 failed (known flake tls `verify_full_refuses_a_server_another_ca_signed`, #1083; passes alone).\"",
+      "derived_from": [],
+      "artifacts": [
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3544",
+          "kind": "log",
+          "locator": "target/i829-logs/test2.log Summary lines",
+          "summary": "First summary: \"3700 tests run: 3699 passed, 1 failed, 20 skipped\" with FAIL okf_mcp::tls verify_full_refuses_a_server_another_ca_signed; a second summary in the same log reads \"3700 tests run: 3700 passed, 20 skipped\" (the rerun alone). The log does not show the issue number #1083; the flake name is the only match. Not rerun by the auditor (full suite).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:45:12.916727886Z",
+          "seal": {
+            "by": "server",
+            "mac": "072731a7ce20a98ece0f3ab14bf3ad998bbd9f0055740b973ee349f04d8e594f"
+          }
+        },
+        {
+          "id": "EVD-3547",
+          "kind": "inspection",
+          "locator": "target/i829-logs/test2.log:3849,7595; gh issue view 1083",
+          "summary": "Correction to the previous item: the log holds two store-mode runs, not a rerun. One run (line 3849) is 3699 passed, 1 failed (the tls flake); the other (line 7595) is 3700 passed. Issue #1083 is open and titled \"tls tests flake in the full gate: Docker start errors outlast start_with_retry's one retry\". The PR's 3699/1 figure covers one mode; \"passes alone\" was not run by anyone in this record.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T00:45:23.865952886Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d59410ac10a4503e1852b86213f7a7bcf798d33ff05f7a3e9f5426ae9e2c16f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The log shows one store-mode run with 3699 passed and 1 failed (the tls flake, #1083 open), and a second mode with 3700 passed. That the failing test passes alone was not run by anyone in the record. Fix: run the test alone (cargo nextest run verify_full_refuses_a_server_another_ca_signed) and record the pass, or change the PR line to say 3699 passed and 1 failed in one store mode and 3700 passed in the other.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3544",
+            "EVD-3547"
+          ],
+          "recorded_at": "2026-11-27T00:45:46.318462809Z",
+          "seal": {
+            "by": "server",
+            "mac": "34e98d32f63d3d482e670573540814b328f5b9e26268435487491ff0f2224f42"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:46.318462809Z",
+      "seal": {
+        "by": "server",
+        "mac": "1a6b99558ec9738a86ec6c11ec90c45de49f251e483d3759685388fb22281296"
+      }
+    },
+    {
+      "id": "CLM-1981",
+      "statement": "gate.sh fmt, lint, dylint and mcpjam (29 tests) pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh fmt`, `lint`, `dylint`, `mcpjam` (29 tests) ... pass\"",
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3545",
+          "kind": "test",
+          "locator": "cargo fmt --all --check (rerun, exit 0); target/i829-logs/{lint-final,dylint,mcpjam}.log",
+          "summary": "fmt check passes on rerun. lint-final.log ends with clippy -D warnings and cargo doc Finished with no errors; dylint.log ends Finished with no lint output; mcpjam.log reports \"Tests 29 passed (29)\". Lint, dylint and mcpjam taken from logs, not rerun.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:45:13.024094492Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ce002a4e35453fe87e2a7f803d6e1ddf73a8ef84baa83ee1161d287e1cc9ba3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fmt rerun passes; logs show clippy/doc, dylint and 29 mcpjam tests passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3545"
+          ],
+          "recorded_at": "2026-11-27T00:45:46.428180554Z",
+          "seal": {
+            "by": "server",
+            "mac": "a22e7ce1f9b380a1b487eb8f92ce36eedf552d8ddd35c9d4b5af5657aed7cd78"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:46.428180554Z",
+      "seal": {
+        "by": "server",
+        "mac": "887922232f382f01fa0231c876c2ce704884fe84833bc01a3a7cca9c13d7a24b"
+      }
+    },
+    {
+      "id": "CLM-1982",
+      "statement": "No okf.py parity fixture covers the browse route; tests/parity.rs compares value renderings only.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"No okf.py parity fixture covers the browse route (tests/parity.rs compares value renderings only).\"",
+      "derived_from": [],
+      "artifacts": [
+        "tests/parity.rs",
+        "tests/parity"
+      ],
+      "tags": [
+        "from-issue:829"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3546",
+          "kind": "analysis",
+          "locator": "git grep -niE \"browse\" -- tests/parity.rs tests/parity (0 hits)",
+          "summary": "No parity test or fixture mentions browse, so none covers the browse route. The \"value renderings only\" half of the statement was not checked beyond that.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "browse",
+              "case_insensitive": true,
+              "scope": [
+                "tests/parity",
+                "tests/parity.rs"
+              ],
+              "hits": 0,
+              "commit": "4175924048e8f33390060ea7bfcec9a66e1224c9"
+            }
+          },
+          "recorded_at": "2026-11-27T00:45:13.139790944Z",
+          "seal": {
+            "by": "server",
+            "mac": "04fe31d04368d6d113cf78e74237612a06f64474b6380af280a6e0f56a78497e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero mentions of browse in parity tests and fixtures.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3546"
+          ],
+          "recorded_at": "2026-11-27T00:45:46.547180273Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bcb700247774e662b1f56a2ab355b2cef87403dbd95eac70d0ba23f159ef0b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:44:14.597422466Z",
+      "updated_at": "2026-11-27T00:45:46.547180273Z",
+      "seal": {
+        "by": "server",
+        "mac": "4bcae004ed460683ebe51fb224421e4d8f0ff437f643353b5bedd3dda80f75f5"
       }
     }
   ]

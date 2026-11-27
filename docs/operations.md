@@ -2909,6 +2909,23 @@ again that it is them, in the same request:
   that text with a "Try again" button. Every other refusal (another
   identity, a used or expired proof, another session's proof) stays generic
   and never says this.
+- **Telling the person on their return, before any delete attempt** (issue
+  #1099). When the Account page loads after the return from the provider, it
+  asks `GET /api/v1/me/identities/{provider}/reauth`, which answers
+  `{"state": "none" | "ready" | "stale"}` and nothing else (no subject,
+  issuer or time): `ready` when a fresh proof waits for this session,
+  `stale` when the marker above waits, `none` when nothing waits (never
+  started, expired, already used, made for another provider, or another
+  session's, which a session cannot see). On `stale` the page shows the
+  sign-out/sign-in text and the "Try again" button at once and offers no
+  delete button; on `ready` it offers the delete button. The call is
+  read-only: it does not take the proof, write anything or extend its 5
+  minutes, so a delete after `ready` still succeeds, and it applies the same
+  rule as the deletion (one function judges the stored outcome for both). It
+  needs a console session (403 for a key, a grant or no session; 401
+  without credentials) and answers 404 for an unknown provider or with OIDC
+  off. If the call fails, the page falls back to offering the delete
+  button, and the deletion answers as before.
 
 The page offers each way the account has. An account with no password, no
 passkey and no linked account at a configured provider cannot confirm, and
@@ -4285,6 +4302,7 @@ does. Limits are in [Signing in and self-service](#signing-in-and-self-service).
 | `GET /api/v1/me/identities` | console session | `{identities, providers}`: the linked identities (`provider`, `email_at_link`, `created_at`, `last_used_at`; never the subject) and the configured providers (`id`, `label`) |
 | `POST /api/v1/me/identities/{provider}/link` | console session | Body `{keep_sessions}`. Starts linking: answers `{url}`, the provider's sign-in URL (the flow cookie is set); the callback links the identity and returns to `/ui/#/account`. 404 for an unknown provider or with no providers, 429 past the per-user allowance, 503 when the provider cannot be reached |
 | `POST /api/v1/me/identities/{provider}/reauth` | console session | Starts re-authenticating at the provider where you have an identity linked, to delete your account: answers `{url}`, the provider's sign-in URL with `prompt=login` and `max_age=0` (the flow cookie is set). The callback verifies the ID token (it must carry an `auth_time` within 5 minutes, and the subject you linked), keeps a single-use proof for this session for 5 minutes and returns to `/ui/#/account`; it never signs in or links. 404 for an unknown provider, with OIDC off, or when you have no identity linked there; 429 past the per-user allowance shared with link starts, 503 when the provider cannot be reached |
+| `GET /api/v1/me/identities/{provider}/reauth` | console session | Read-only status of this session's provider re-authentication for deleting your account: `{"state": "none"}`, `{"state": "ready"}` (a fresh proof waits) or `{"state": "stale"}` (the provider did not vouch for a fresh sign-in), and nothing else. Never takes or extends the proof; the same rule as `DELETE /api/v1/me`. 403 for a key, a grant or no console session; 404 for an unknown provider or with OIDC off |
 | `DELETE /api/v1/me/identities/{provider}` | console session | Unlinks it; 204. 404 when none is linked there, 409 for the last sign-in method |
 | `GET /api/v1/me/sessions` | console session | `{sessions}`, most recently used first: `id_prefix` (12 hex characters, never the id), `created_at`, `last_seen_at`, `ip`, `user_agent`, `current` (this browser's) |
 | `DELETE /api/v1/me/sessions/{id_prefix}` | console session | Signs one session out, this browser's included; 204. 404 for a malformed prefix or one none of the user's sessions has; 409 for one several share (none is ended) |

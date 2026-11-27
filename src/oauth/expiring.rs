@@ -206,6 +206,33 @@ impl<V> ExpiringMap<V> {
         (entry.expires > now).then_some(entry.value)
     }
 
+    /// Reads a live entry without removing or renewing it.
+    ///
+    /// # Arguments
+    /// * `key` - its key.
+    /// * `now` - the current instant.
+    /// * `read` - what to read from the value; its result is returned.
+    ///
+    /// # Returns
+    /// `read`'s result, or `None` if the entry is absent or expired. The
+    /// entry, its lifetime and the map's bookkeeping are left as they were.
+    // `impl FnOnce(&V) -> R`: a callback that only borrows the value.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+        )
+    )]
+    pub fn peek<R>(&self, key: &str, now: Instant, read: impl FnOnce(&V) -> R) -> Option<R> {
+        let entries = self.lock();
+        let entry = entries
+            .by_key
+            .get(key)
+            .filter(|entry| entry.expires > now)?;
+        Some(read(&entry.value))
+    }
+
     /// Changes a live entry in place.
     ///
     /// # Arguments

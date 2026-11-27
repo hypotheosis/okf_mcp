@@ -141,7 +141,10 @@ pub(crate) fn api_routes() -> Router<Arc<App>> {
     // parameter name at this position, or the router refuses to build.
     Router::new()
         .route("/me/identities/{provider}/link", post(link))
-        .route("/me/identities/{provider}/reauth", post(reauth_start))
+        .route(
+            "/me/identities/{provider}/reauth",
+            post(reauth_start).get(reauth_status),
+        )
 }
 
 /// The sign-in page's provider buttons.
@@ -688,6 +691,26 @@ pub(crate) async fn take_reauth(
                      re-authenticate again"
                 .to_string(),
         })?;
+    judge_reauth(oidc, proof, user_id, &hash)
+}
+
+/// What a finished re-authentication is worth to this session: the one
+/// rule `DELETE /api/v1/me` ([`take_reauth`]) and the read-only status call
+/// ([`reauth_status`]) both apply, so they can never disagree. (The
+/// `auth_time` window itself is judged once, when the provider answers, in
+/// `Oidc::identify_fresh`; its verdict is the proof's `stale` flag.)
+///
+/// # Errors
+/// [`OkfError::Forbidden`] when the proof belongs to another user or
+/// session; [`OkfError::ReauthStale`] when the provider did not vouch for a
+/// fresh sign-in (no `auth_time`, an old one, or one in the future).
+#[tracing::instrument(level = "debug", skip_all)]
+fn judge_reauth(
+    oidc: &OidcProviders,
+    proof: ReauthProof,
+    user_id: &str,
+    hash: &str,
+) -> Result<ReauthProof, OkfError> {
     // The key was this session's hash already; both are checked anyway, in
     // constant time, so a proof stored under the wrong key could not pass.
     let same_session = bool::from(proof.session_hash.as_bytes().ct_eq(hash.as_bytes()));
@@ -846,6 +869,31 @@ async fn link(
     Ok((flow_cookie, Json(serde_json::json!({ "url": url }))).into_response())
 }
 
+/// The user and console session a re-authentication call is bound to.
+///
+/// # Errors
+/// [`OkfError::Forbidden`] for a key, a grant, or no session at all.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+    )
+)]
+fn reauth_session(
+    principal: &Principal,
+    session: Option<Extension<ConsoleSession>>,
+) -> Result<(String, ConsoleSession), OkfError> {
+    match (&principal.kind, session) {
+        (CredentialKind::Session { user_id }, Some(Extension(session))) => {
+            Ok((user_id.clone(), session))
+        }
+        _ => Err(OkfError::Forbidden {
+            reason: "re-authenticating needs a console session".to_string(),
+        }),
+    }
+}
+
 /// `POST /api/v1/me/identities/{provider}/reauth`: `{"url": <authorize
 /// URL>}` and the flow cookie, to re-authenticate at the provider the user
 /// has linked (`prompt=login`, `max_age=0`) before deleting their account
@@ -866,17 +914,7 @@ async fn reauth_start(
     session: Option<Extension<ConsoleSession>>,
     headers: HeaderMap,
 ) -> Result<Response, AppError> {
-    let (user_id, session) = match (&principal.kind, session) {
-        (CredentialKind::Session { user_id }, Some(Extension(session))) => {
-            (user_id.clone(), session)
-        }
-        _ => {
-            return Err(OkfError::Forbidden {
-                reason: "re-authenticating needs a console session".to_string(),
-            }
-            .into())
-        }
-    };
+    let (user_id, session) = reauth_session(&principal, session)?;
     let not_found = || OkfError::NotFound {
         path: format!("me/identities/{provider}/reauth"),
     };
@@ -909,6 +947,56 @@ async fn reauth_start(
     };
     let (url, flow_cookie) = begin(&app, oidc, &headers, new).await?;
     Ok((flow_cookie, Json(serde_json::json!({ "url": url }))).into_response())
+}
+
+/// `GET /api/v1/me/identities/{provider}/reauth`: `{"state": ...}`, what
+/// `DELETE /api/v1/me` with `{"oidc_reauth": true}` would find now, so the
+/// console can tell the person at once, on their return from the provider,
+/// that signing in again is needed. One of:
+/// - `none`: no finished re-authentication waits for this session at this
+///   provider (never started, expired, already used, or another session's);
+/// - `ready`: a fresh one waits;
+/// - `stale`: one waits, but the provider did not vouch for a fresh sign-in
+///   (no `auth_time`, an old one, or one in the future), the very case the
+///   deletion answers `ReauthStale` for ([`judge_reauth`] is the one rule).
+///
+/// Read-only: the proof is not taken, nothing is written and no lifetime
+/// is renewed. The body holds the state and nothing else: no subject,
+/// issuer or time.
+///
+/// # Errors
+/// 403 for a key, a grant or no console session; 404 for an unknown
+/// provider or with OIDC off; 503 when Redis fails.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn reauth_status(
+    State(app): State<Arc<App>>,
+    Path(provider): Path<String>,
+    Extension(principal): Extension<Arc<Principal>>,
+    session: Option<Extension<ConsoleSession>>,
+) -> Result<Response, AppError> {
+    let (user_id, session) = reauth_session(&principal, session)?;
+    let not_found = || OkfError::NotFound {
+        path: format!("me/identities/{provider}/reauth"),
+    };
+    let oidc = app.oidc().ok_or_else(not_found)?;
+    if oidc.label(&provider).is_none() {
+        return Err(not_found().into());
+    }
+    let hash = session_hash(&session.id);
+    let proof = oidc
+        .peek_reauth_proof(&hash, Instant::now())
+        .await?
+        // A proof for another provider is not an answer about this one.
+        .filter(|proof| proof.provider == provider);
+    let state = match proof {
+        None => "none",
+        Some(proof) => match judge_reauth(oidc, proof, &user_id, &hash) {
+            Ok(_) => "ready",
+            Err(OkfError::ReauthStale { .. }) => "stale",
+            Err(other) => return Err(other.into()),
+        },
+    };
+    Ok(Json(serde_json::json!({ "state": state })).into_response())
 }
 
 #[cfg(test)]
@@ -1849,6 +1937,177 @@ mod tests {
         }
         assert_eq!(user_count(&test, &id).await, 1);
         assert_eq!(user_count(&test, &bob.id).await, 1);
+    }
+
+    /// `GET /api/v1/me/identities/example/reauth` from `browser`'s session.
+    async fn reauth_status_of(test: &TestApp, browser: &mut Browser) -> Reply {
+        browser
+            .send_to(
+                &test.app,
+                "GET",
+                "/api/v1/me/identities/example/reauth",
+                Payload::Empty,
+            )
+            .await
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_status_call_never_spends_the_proof() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_PEEK").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(5));
+
+        // Nothing waits before the person returns from the provider.
+        let before = reauth_status_of(&test, &mut browser).await;
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        let started = reauth_status_of(&test, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        let first = reauth_status_of(&test, &mut browser).await;
+        let second = reauth_status_of(&test, &mut browser).await;
+        let deleted = delete_with_reauth(&test, &mut browser).await;
+        let after = reauth_status_of(&test, &mut browser).await;
+
+        // The answer holds the state and nothing else, and asking twice
+        // left the proof for the deletion.
+        assert_eq!(before.status, StatusCode::OK, "{}", before.text());
+        assert_eq!(before.json(), json!({"state": "none"}));
+        assert_eq!(started.json(), json!({"state": "none"}));
+        assert_eq!(first.json(), json!({"state": "ready"}));
+        assert_eq!(second.json(), json!({"state": "ready"}));
+        assert_eq!(deleted.status, StatusCode::NO_CONTENT, "{}", deleted.text());
+        assert_eq!(user_count(&test, &id).await, 0);
+        // Her session ended with the account: nothing to ask as.
+        assert_ne!(after.status, StatusCode::OK);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_status_call_says_stale_for_every_stale_cause_and_leaves_the_marker() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_PEEKSTALE").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        let window = i64::try_from(REAUTH_AUTH_TIME_WINDOW.as_secs()).expect("seconds");
+
+        for (what, auth_time) in [
+            ("no auth_time", AuthTime::Absent),
+            ("just past the window", ago(window + 30)),
+            ("an hour old", ago(3600)),
+            ("in the future", ago(-600)),
+        ] {
+            idp.will_authenticate(auth_time);
+            let query = start_reauth(&test, &idp, &mut browser).await;
+            callback(&test, &mut browser, &query["state"]).await;
+
+            let first = reauth_status_of(&test, &mut browser).await;
+            let second = reauth_status_of(&test, &mut browser).await;
+            let deleted = delete_with_reauth(&test, &mut browser).await;
+            let after = reauth_status_of(&test, &mut browser).await;
+
+            // Only the state: no provider label, issuer, subject or time.
+            assert_eq!(first.status, StatusCode::OK, "{what}: {}", first.text());
+            assert_eq!(first.json(), json!({"state": "stale"}), "{what}");
+            assert_eq!(second.json(), json!({"state": "stale"}), "{what}");
+            // The deletion agrees with what the status said, and still finds
+            // the marker after two reads.
+            assert_eq!(deleted.status, StatusCode::FORBIDDEN, "{what}");
+            assert_eq!(deleted.json()["error"], "ReauthStale", "{what}");
+            assert_eq!(after.json(), json!({"state": "none"}), "{what}");
+        }
+        assert_eq!(user_count(&test, &id).await, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_status_call_refuses_other_callers_and_shows_nothing_of_another_session() {
+        let idp = idp::start().await;
+        let test = oidc_app(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_PEEKOTHER").await;
+        let (id, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(3600));
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        user_with_password(&test, "bob", "bob@example.com", Some(PASSWORD)).await;
+        let mut bob = Browser::session_for(&test, "bob").await;
+        let mut nobody = Browser::default();
+
+        let by_bob = reauth_status_of(&test, &mut bob).await;
+        let by_nobody = reauth_status_of(&test, &mut nobody).await;
+        let unknown = browser
+            .send_to(
+                &test.app,
+                "GET",
+                "/api/v1/me/identities/nowhere/reauth",
+                Payload::Empty,
+            )
+            .await;
+        let by_alice = reauth_status_of(&test, &mut browser).await;
+
+        // Another signed-in session sees only its own (empty) state, never
+        // alice's stale marker; no session is refused outright; an unknown
+        // provider is a 404.
+        assert_eq!(by_bob.json(), json!({"state": "none"}));
+        assert_eq!(by_nobody.status, StatusCode::UNAUTHORIZED);
+        assert_eq!(unknown.status, StatusCode::NOT_FOUND);
+        assert_eq!(by_alice.json(), json!({"state": "stale"}));
+        assert_eq!(user_count(&test, &id).await, 1);
+    }
+
+    /// A real OAuth access token for `test`, from the authorization code
+    /// flow and the token endpoint (no handler is mocked).
+    async fn oauth_access_token(test: &TestApp) -> String {
+        use crate::oauth::testing::{
+            authorization_code, form, send, CLIENT_ID, REDIRECT_URI, RESOURCE, VERIFIER,
+        };
+        let code = authorization_code(test).await;
+        let body = form(&[
+            ("grant_type", "authorization_code"),
+            ("code", &code),
+            ("client_id", CLIENT_ID),
+            ("redirect_uri", REDIRECT_URI),
+            ("code_verifier", VERIFIER),
+            ("resource", RESOURCE),
+        ]);
+        let (status, _, text) = send(test, "POST", "/oauth/token", Some(body)).await;
+        assert_eq!(status, StatusCode::OK, "{text}");
+        let json: serde_json::Value = serde_json::from_str(&text).expect("JSON");
+        json["access_token"].as_str().expect("a token").to_string()
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_status_route_answers_each_kind_of_caller_with_its_own_exact_status() {
+        // Arrange: OIDC and OAuth both on, a console session with a stale
+        // marker waiting, an API key and an OAuth grant.
+        let idp = idp::start().await;
+        let mut config =
+            crate::store::oauth::testing::oauth_config(crate::oauth::testing::PUBLIC_URL);
+        std::env::set_var("OKF_TEST_OIDC_SECRET_REAUTH_CALLERS", SECRET);
+        config.auth.oidc = vec![idp::provider(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_CALLERS")];
+        let test = crate::oauth::testing::oauth_app_with(config).await;
+        let (_, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(3600));
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        let api_key = keys(&test).await.admin;
+        let grant = oauth_access_token(&test).await;
+        let uri = "/api/v1/me/identities/example/reauth";
+
+        // Act: the real route, once per kind of caller.
+        let anonymous = crate::http::api::testing::send(&test, "GET", uri, None, None).await;
+        let key = crate::http::api::testing::send(&test, "GET", uri, Some(&api_key), None).await;
+        let oauth = crate::http::api::testing::send(&test, "GET", uri, Some(&grant), None).await;
+        let session = reauth_status_of(&test, &mut browser).await;
+
+        // Assert: only the console session reads a state.
+        assert_eq!(anonymous.0, StatusCode::UNAUTHORIZED, "{}", anonymous.1);
+        assert_eq!(key.0, StatusCode::FORBIDDEN, "{}", key.1);
+        assert_eq!(oauth.0, StatusCode::FORBIDDEN, "{}", oauth.1);
+        for (what, body) in [
+            ("anonymous", &anonymous.1),
+            ("key", &key.1),
+            ("grant", &oauth.1),
+        ] {
+            assert_ne!(body.get("state"), Some(&json!("stale")), "{what}: {body}");
+        }
+        assert_eq!(session.status, StatusCode::OK, "{}", session.text());
+        assert_eq!(session.json(), json!({"state": "stale"}));
     }
 
     #[tokio::test(flavor = "multi_thread")]

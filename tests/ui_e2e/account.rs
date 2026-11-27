@@ -1325,13 +1325,13 @@ async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in
         idp_handle.will_authenticate(idp::AuthTime::Absent);
         ui.wait_visible("#account-delete-reauth-example");
         ui.click("#account-delete-reauth-example");
-        ui.wait_visible("#account-delete-oidc");
+        // Back from the provider, the page asks the server what waits for
+        // this session and shows the guidance at once: no delete button, no
+        // typed confirmation, no deletion attempted (issue #1099).
+        ui.wait_visible("#account-delete-reason");
         wait_loaded(ui);
-        ui.click("#account-delete-oidc");
-        ui.fill("#confirm-typed", "alice");
-        ui.click("#confirm-ok");
-        // The guidance, from the server's own message: the provider by its
-        // label, what to do, and nothing about the issuer or the subject.
+        // Any deletion request from here on is held and counted.
+        ui.hold_next("DELETE", "/api/v1/me");
         ui.wait_text(
             "#account-delete-reason",
             "Example ID did not confirm a fresh sign-in",
@@ -1356,13 +1356,17 @@ async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in
             ),
             json!("ReauthStale")
         );
-        // Nothing was deleted; a retry button replaces the first one.
+        // The guidance came with the retry button, not the delete button.
         ui.wait_text("#account-delete-reauth-example", "Try again");
+        assert!(!ui.present("#account-delete-oidc"));
+        assert!(!ui.present("#account-delete-reauthed"));
+        assert_eq!(ui.held_matches(), 0, "no deletion was attempted");
         // The person signs back in at the provider, which now vouches for it.
         idp_handle.will_authenticate(idp::AuthTime::Honest);
         ui.click("#account-delete-reauth-example");
         ui.wait_visible("#account-delete-oidc");
         wait_loaded(ui);
+        ui.wait_hidden("#account-delete-reason");
         ui.click("#account-delete-oidc");
         ui.fill("#confirm-typed", "alice");
         ui.click("#confirm-ok");
@@ -1374,6 +1378,84 @@ async fn a_provider_that_does_not_vouch_for_a_fresh_sign_in_gets_sign_out_and_in
         return;
     }
     assert_eq!(alices(&pool).await, 0, "the retry deleted the account");
+}
+
+/// What the page remembers across the provider's redirect, set by hand so
+/// a journey can arm a hook on the status read first: a full-page return
+/// would drop it. Then leaves the Account page and comes back, which draws
+/// it again exactly as the return does (same document, so the hook stays).
+///
+/// # Arguments
+/// * `ui` - the browser the journey drives.
+fn return_from_the_provider(ui: &Ui) {
+    ui.eval(
+        "() => sessionStorage.setItem('okf:delete-reauth', 'example')",
+        json!(null),
+    );
+    // A hash change, not `ui.open`, whose navigation may reload the page
+    // and drop a hook armed on it.
+    ui.eval("() => { location.hash = '#/'; }", json!(null));
+    ui.wait_hidden("#main .view[data-loaded=true]");
+    ui.eval("() => { location.hash = '#/account'; }", json!(null));
+}
+
+/// The status read the page makes on its return from the provider.
+const REAUTH_STATUS: &str = "/api/v1/me/identities/example/reauth";
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_return_from_the_provider_waits_for_the_status_and_falls_back_when_it_fails() {
+    let provider = idp::start().await;
+    provider.will_issue("subject-1", Some(EMAIL), Some(true));
+    let server = oidc_server(&provider).await;
+    member(&server, Access::Write).await;
+    let pool = server.db.pool.clone();
+    sqlx::query("UPDATE users SET password_hash = NULL WHERE name = 'alice'")
+        .execute(&pool)
+        .await
+        .expect("remove alice's password");
+    let ran = drive(console_base(&server), |ui| {
+        ui.page
+            .goto(
+                &format!("{}/signin?return_to=%2Fui%2F%23%2Faccount", ui.base),
+                GotoOptions::default(),
+            )
+            .expect("open the sign-in page");
+        ui.click("#signin-oidc-example");
+        ui.wait_visible("#app");
+        wait_loaded(ui);
+
+        // While the status read is held, the page only says it is checking:
+        // no delete button, and no retry button either.
+        ui.hold_next("GET", REAUTH_STATUS);
+        return_from_the_provider(ui);
+        ui.wait_visible("#account-delete-checking");
+        assert!(!ui.present("#account-delete-oidc"));
+        assert!(!ui.present("#account-delete-reauth-example"));
+        // The server has nothing waiting (no re-authentication was made), so
+        // the answer is `none`: the plain re-authentication button comes back.
+        ui.release_held();
+        wait_loaded(ui);
+        ui.wait_text(
+            "#account-delete-reauth-example",
+            "Re-authenticate with Example ID",
+        );
+        assert!(!ui.present("#account-delete-checking"));
+        assert!(!ui.present("#account-delete-oidc"));
+
+        // A status read that fails leaves the old behaviour: the delete
+        // button, whose own answer then says what is wrong.
+        ui.fail_next("GET", REAUTH_STATUS, 503, "the status is unavailable");
+        return_from_the_provider(ui);
+        ui.wait_visible("#account-delete-oidc");
+        wait_loaded(ui);
+        assert!(!ui.present("#account-delete-checking"));
+        assert!(!ui.present("#account-delete-reauth-example"));
+    })
+    .await;
+    if !ran {
+        return;
+    }
+    assert_eq!(alices(&pool).await, 1, "nothing was deleted");
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

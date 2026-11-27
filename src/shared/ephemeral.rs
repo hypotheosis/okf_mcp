@@ -328,6 +328,41 @@ where
         }
     }
 
+    /// Reads a live entry without removing it or changing its lifetime: a
+    /// plain `GET` in Redis, a lookup in memory. Nothing is written.
+    ///
+    /// # Arguments
+    /// * `key` - its key.
+    /// * `now` - the current instant (memory only).
+    /// * `read` - what to read from the value; its result is returned.
+    ///
+    /// # Returns
+    /// `read`'s result, or `None` if absent, expired, or stored in a shape
+    /// this version cannot read (counted as `decode`).
+    ///
+    /// # Errors
+    /// [`OkfError::Busy`] when Redis fails (counted as `get`).
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "dispatch to the arm: each arm's own call is the span"
+        )
+    )]
+    pub async fn peek<R>(
+        &self,
+        key: &str,
+        now: Instant,
+        read: impl FnOnce(&V) -> R,
+    ) -> Result<Option<R>, OkfError> {
+        match self {
+            Self::Memory(map) => Ok(map.peek(key, now, read)),
+            Self::Redis { redis, space, .. } => Ok(redis_peek::<V>(redis, *space, key)
+                .await?
+                .map(|value| read(&value))),
+        }
+    }
+
     /// Changes a live entry, keeping its lifetime.
     ///
     /// In memory, `change` runs once under the map's lock. In Redis it runs
@@ -549,6 +584,21 @@ async fn redis_take<V: DeserializeOwned>(
     Ok(bytes.and_then(|bytes| decode(redis, space, &bytes)))
 }
 
+/// `GET`, decoded; nothing is written.
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "redis", db.operation.name = "get"))]
+async fn redis_peek<V: DeserializeOwned>(
+    redis: &Redis,
+    space: Keyspace,
+    key: &str,
+) -> Result<Option<V>, OkfError> {
+    let bytes: Option<Vec<u8>> = redis::cmd("GET")
+        .arg(redis.key(space.name(), &hashed(key)))
+        .query_async(&mut redis.connection())
+        .await
+        .map_err(|error| redis.failed(RedisOp::Get, &error))?;
+    Ok(bytes.and_then(|bytes| decode(redis, space, &bytes)))
+}
+
 /// `GET`, change a decoded copy, then [`COMPARE_AND_SET`] the old bytes for
 /// the new; up to [`UPDATE_ATTEMPTS`] times.
 #[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "redis", db.operation.name = "update"))]
@@ -761,6 +811,38 @@ mod tests {
                 assert_eq!(store.len(), 0);
             }
         }
+    }
+
+    async fn peek_reads_without_consuming_or_renewing(server: TestRedis) {
+        let redis = testing::connect(&server).await;
+        for store in stores(&redis, TTL) {
+            let now = Instant::now();
+            assert!(store.insert("a", ONE, now).await.unwrap());
+            let later = now + Duration::from_secs(30);
+            // Two reads see the value; neither consumes it.
+            assert_eq!(store.peek("a", later, |s| s.n).await.unwrap(), Some(1));
+            assert_eq!(store.peek("a", later, |s| s.n).await.unwrap(), Some(1));
+            assert_eq!(store.peek("absent", later, |s| s.n).await.unwrap(), None);
+            // The lifetime was not renewed: the memory arm's entry still
+            // expires at `now + TTL`; the Redis arm is checked below.
+            if let Ephemeral::Memory(_) = store {
+                assert_eq!(store.peek("a", now + TTL, |s| s.n).await.unwrap(), None);
+            }
+            assert_eq!(store.take("a", later).await.unwrap(), Some(ONE));
+            assert_eq!(store.peek("a", later, |s| s.n).await.unwrap(), None);
+        }
+        // Redis: a peek leaves the remaining lifetime alone.
+        let store = Ephemeral::<Sample>::new(Some(&redis), Keyspace::OauthCode, TTL, 10);
+        let now = Instant::now();
+        assert!(store.insert("b", ONE, now).await.unwrap());
+        let key = redis.key(Keyspace::OauthCode.name(), &hashed("b"));
+        let before: i64 = raw(&redis, redis::cmd("PTTL").arg(&key)).await;
+        assert_eq!(store.peek("b", now, |s| s.n).await.unwrap(), Some(1));
+        let after: i64 = raw(&redis, redis::cmd("PTTL").arg(&key)).await;
+        assert!(
+            after <= before && after > 0,
+            "peek must not renew: {before} then {after}"
+        );
     }
 
     async fn two_takes_racing_get_one_value(server: TestRedis) {
@@ -1218,6 +1300,7 @@ mod tests {
 
     in_both_modes!(
         insert_then_take_is_single_use,
+        peek_reads_without_consuming_or_renewing,
         two_takes_racing_get_one_value,
         concurrent_updates_all_apply_once,
         update_keeps_the_fixed_lifetime_and_an_expired_entry_is_gone,

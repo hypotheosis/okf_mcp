@@ -645,7 +645,8 @@ One `thiserror` enum, `OkfError`:
 | `NotFound { path }` | No such concept or document |
 | `Forbidden { reason }` | Key lacks access to the catalog or operation |
 | `CatalogNotSelected { catalog }` | Named catalog does not exist or is not granted |
-| `InvalidPath { path, reason }` | Outside the catalog, reserved, machinery, already exists |
+| `InvalidPath { path, reason }` | Outside the catalog, reserved, machinery (issue #929: a taken path is `AlreadyExists`, not this) |
+| `AlreadyExists { path }` | A concept is already at the target of `create_concept`, `move_concept` or `split_concept`; the message names `edit_document` and `replace_body`; HTTP 409 (issue #929) |
 | `FrontmatterParse { path, line, message }` | Existing or edited frontmatter does not parse |
 | `SecretDetected { path, line, rule, message }` | Write refused by the secret scan; `message` shows the value masked |
 | `EditMismatch { path, matches }` | `old_str` found 0 or more than 1 times |

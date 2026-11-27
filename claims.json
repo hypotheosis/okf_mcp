@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2315,
+  "next_claim_seq": 2330,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "114e56ed82c642d488056665c574bdb4559f045d64740a599cf28424aa4c7bf6"
+    "mac": "885ee6efb99a633d3b5e8838c20e0a4737ed2949b784ffaa562268ed73869015"
   },
-  "next_evidence_seq": 4062,
+  "next_evidence_seq": 4083,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ef8c0395052fcbe0d73540afbff5557e72c35213a56b355cc3efd736cd81e5a9"
+    "mac": "d0531d16e4356219f1f7b9e2c1b4db7ca62f0d26bf461b2887e8f11d19bee6ad"
   },
   "claims": [
     {
@@ -196134,6 +196134,28 @@
             "by": "server",
             "mac": "7a1224423b8fc197430428614a43f3f8e3158cac32dfd61011c03e02d68462d5"
           }
+        },
+        {
+          "id": "EVD-4081",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:233-246 at 2f25d373",
+          "summary": "The save-by-default and remember sentences are unchanged; #929 only inserts \"; it must not exist yet (...)\" after \"(e.g. /infra/ntp)\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 233,
+                "end": 246
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:44:16.774956521Z",
+          "seal": {
+            "by": "server",
+            "mac": "924e43abc398bf433032f3d47282f752f416f0ba9e37f2b859a6f1a776ab6675"
+          }
         }
       ],
       "verdicts": [
@@ -196162,13 +196184,26 @@
             "by": "server",
             "mac": "a79bb526fc1bd2b8b1684555903b5e11b598caadcd6403d5b27a73b1798fa381"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head 2f25d373: wording intact, #929 only adds a clause.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4081"
+          ],
+          "recorded_at": "2026-11-27T21:44:20.690777623Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b4cf16490e13783ad41c6a5f1ab10a7de285effbfbf015ef339da9a6497b106"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T20:15:11.025010996Z",
+      "updated_at": "2026-11-27T21:44:20.690777623Z",
       "seal": {
         "by": "server",
-        "mac": "9330f5e618cd06d4a4c9f8ae5f86200ba7ab06df0ee986b818e135b63eed175b"
+        "mac": "bf3224e5069eda0309bbe63c875fb839512a84ef017d456f46d743f077f8eabf"
       }
     },
     {
@@ -196345,6 +196380,28 @@
             "by": "server",
             "mac": "932d646ba3629d872d4519ab4670f4dc0a4050b340b2693d0f9780d7be1ca71b"
           }
+        },
+        {
+          "id": "EVD-4082",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:238-246 at 2f25d373",
+          "summary": "The visibility sentence is byte-for-byte unchanged in the diff context; the new clause follows the \"(e.g. /infra/ntp)\" text, after it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 238,
+                "end": 246
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:44:16.987903706Z",
+          "seal": {
+            "by": "server",
+            "mac": "d90979756eac09274a95f27594e14125f9e442b5ae63ab67b5864c6f8dfa3fd6"
+          }
         }
       ],
       "verdicts": [
@@ -196373,13 +196430,26 @@
             "by": "server",
             "mac": "33224b286d86503c1150639149711e236e52837822ccb4843c6f71805a8d9572"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head 2f25d373: visibility wording unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4082"
+          ],
+          "recorded_at": "2026-11-27T21:44:20.913511962Z",
+          "seal": {
+            "by": "server",
+            "mac": "3865a9acc81bd82ff0f91a28455da15e7b071af82914b04df7c29dd33976e332"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T20:15:11.277833388Z",
+      "updated_at": "2026-11-27T21:44:20.913511962Z",
       "seal": {
         "by": "server",
-        "mac": "173ed5e0555b3c341ae45617cb7221efa9794408520ca12541cbfae4f4f98cbc"
+        "mac": "f27fd390273b579fa9a0938fbcc9ed7a215791aa4de15f4db666f84934a5f1a1"
       }
     },
     {
@@ -204380,6 +204450,1092 @@
       "seal": {
         "by": "server",
         "mac": "14e29bc8122b33d8ace9ead0e5ebd307dcacbb8386e7d6243be0ff71877240e9"
+      }
+    },
+    {
+      "id": "CLM-2315",
+      "statement": "Issue #929 is delivered: a taken concept path is reported as its own error (AlreadyExists, 409 on REST) with a message that says how to recover, InvalidPath is kept for other bad paths, create_concept's description says the path must be new, the docs and error-code tables are updated, and tests cover the new code and message.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/929 (Proposed fix 1-4, Acceptance)",
+      "derived_from": [],
+      "artifacts": [
+        "src/error.rs",
+        "src/okf/paths.rs",
+        "src/mcp/writes.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4080",
+          "kind": "analysis",
+          "locator": "children of CLM-2315",
+          "summary": "The code, REST status, description, tools.md, operations.md and README requirements are met by their children, but CLM-2325 (error-code tables updated) and CLM-2326 (no doc asserted the old code) are refuted by the design spec's error table still listing \"already exists\" under InvalidPath.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T21:43:48.042039209Z",
+          "seal": {
+            "by": "server",
+            "mac": "c729bd4a84d73ca54725fd6d9ef19fed6a20420cecc5db8e3d64c01e49e09850"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Everything but the error-code table requirement holds; the design spec's error table still files \"already exists\" under InvalidPath. Ours. Fix: update the spec error table row for InvalidPath and add AlreadyExists, then re-audit CLM-2325 and CLM-2326.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4080"
+          ],
+          "recorded_at": "2026-11-27T21:43:56.376148818Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5801ceb60474cfac306efa513b0e68bf167c9ceb432548232ba80652bf1682f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:56.376148818Z",
+      "seal": {
+        "by": "server",
+        "mac": "7abf1384318038efb1634f362d44071208edf8f089ac5759173877923822a41e"
+      }
+    },
+    {
+      "id": "CLM-2316",
+      "statement": "OkfError::AlreadyExists { path } has kind \"AlreadyExists\", is not internal, and its JSON body is {error: AlreadyExists, path: <slash-prefixed path>, message} where the message starts with \"<path> already exists\" and names edit_document or replace_body and get_concept.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #929 Proposed fix 1-2; PR body: \"New OkfError::AlreadyExists { path } (src/error.rs): kind and JSON body {\\\"error\\\": \\\"AlreadyExists\\\", \\\"path\\\": \\\"/x.md\\\", \\\"message\\\": ...}, not internal\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4062",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib a_taken_path (error::tests::a_taken_path_is_already_exists_not_invalid_path_and_names_the_recovery)",
+          "summary": "Test asserts kind AlreadyExists, not internal, body error/path (/preferences/favorite-color.md)/message starts with the path + \"already exists\" and contains \"edit_document or replace_body\" and \"get_concept reads it\". Ran at head: 2 passed (this and the http test), 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 858,
+                "end": 872
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:08.138229936Z",
+          "seal": {
+            "by": "server",
+            "mac": "0631cc61eddaa45b3f36fd816d6440c1d8cb114a3853f5b76a6c470ce1f02622"
+          }
+        },
+        {
+          "id": "EVD-4063",
+          "kind": "inspection",
+          "locator": "src/error.rs:22-35, 394, 514",
+          "summary": "Variant with thiserror message \"{path} already exists; to change it use edit_document or replace_body (get_concept reads it); ...\", kind() arm \"AlreadyExists\", and the to_json path arm shared with NotFound (client_path, slash-prefixed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 22,
+                "end": 35
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:08.861357337Z",
+          "seal": {
+            "by": "server",
+            "mac": "e06e60e7a4d4565e7e7fa1885e7773f290e002457726b287e2b82207eccd4b58"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The passing unit test asserts every property and the variant code matches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4062",
+            "EVD-4063"
+          ],
+          "recorded_at": "2026-11-27T21:43:48.275818132Z",
+          "seal": {
+            "by": "server",
+            "mac": "2239a9abdd3228584d833a4dabfb729ddd3e9da96e13559db3f00f816df54c6f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:48.275818132Z",
+      "seal": {
+        "by": "server",
+        "mac": "04a96515e131d5e504f57b393c61ff69730c323bbe88b6cb2e1a87b059b7edc3"
+      }
+    },
+    {
+      "id": "CLM-2317",
+      "statement": "AppError::status maps OkfError::AlreadyExists to 409 CONFLICT while a malformed InvalidPath stays 400 BAD_REQUEST.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #929 Proposed fix 1 (\"HTTP 409 on the REST side\"); PR body: \"status 409 in AppError::status\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4064",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib a_taken_path (http::tests::a_taken_path_is_a_conflict_and_a_malformed_one_a_bad_request)",
+          "summary": "Asserts AppError(AlreadyExists).status()==CONFLICT and AppError(InvalidPath ../a.md).status()==BAD_REQUEST. Passed at head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1489,
+                "end": 1501
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:09.548581794Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5f4c9e6a91286693ff6b53e17ba8a063b37e3d81610fac70d44d05a73ddcf18"
+          }
+        },
+        {
+          "id": "EVD-4065",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:150-157",
+          "summary": "AlreadyExists joins Refused, Conflict and StillLinked in the CONFLICT arm of AppError::status.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 150,
+                "end": 157
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:10.179025447Z",
+          "seal": {
+            "by": "server",
+            "mac": "7bff1ecec06373457d22ae6add12b73491fbcf736c6693e86edbba3d09e8cdc0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Match arm plus passing test asserting 409 for AlreadyExists and 400 for malformed InvalidPath.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4064",
+            "EVD-4065"
+          ],
+          "recorded_at": "2026-11-27T21:43:48.482238520Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd252393813e99e04ee14fdbd42afbb54f603755b4e74ae6ff5cd4e0cf1378d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:48.482238520Z",
+      "seal": {
+        "by": "server",
+        "mac": "92f4b8a173b864975602e1aac18bbc2f06dbb39c1354e73e0c5e521975677743"
+      }
+    },
+    {
+      "id": "CLM-2318",
+      "statement": "create_concept on a path that already holds a concept fails with AlreadyExists, while a reserved name (index.md) and a machinery path (.git/...) still fail with InvalidPath.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #929 Acceptance 1 and Proposed fix 1; PR body: \"new_concept_path returns it for a taken path, so create_concept ... get it. InvalidPath stays for malformed, escaping, reserved and machinery paths\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/okf/paths.rs",
+        "src/okf/ops/content.rs",
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4066",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib create_concept_refusals (okf::ops::content::tests::create_concept_refusals)",
+          "summary": "Op-level test asserts a taken path is OkfError::AlreadyExists and a machinery path is InvalidPath. Passed at head (1 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/content.rs",
+              "lines": {
+                "start": 885,
+                "end": 897
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:10.624030545Z",
+          "seal": {
+            "by": "server",
+            "mac": "68eded43a2a996aff2226eec9f26a4d688fb5e26f22986eac69e08b23afe22e5"
+          }
+        },
+        {
+          "id": "EVD-4067",
+          "kind": "inspection",
+          "locator": "src/okf/paths.rs:341-363; src/mcp/writes.rs:1125-1163",
+          "summary": "new_concept_path keeps the InvalidPath returns for escape, reserved name and machinery/dot paths and returns AlreadyExists only at the final exists() check. The MCP-level test (create_concept on /a.md, /infra/index.md, /.git/x.md) asserts AlreadyExists, body path /a.md, message naming edit_document or replace_body, then InvalidPath for the other two. That test needs Postgres; I did not run it (read only).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/paths.rs",
+              "lines": {
+                "start": 341,
+                "end": 363
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:11.157206830Z",
+          "seal": {
+            "by": "server",
+            "mac": "eda86cc2f8e651f8537a8043e9e75c5238f32ae99828db19e112abd0a3cf8463"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The passing op-level test and code reading show taken is AlreadyExists and machinery/reserved stay InvalidPath; the MCP-level test was read, not run (needs Postgres).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4066",
+            "EVD-4067"
+          ],
+          "recorded_at": "2026-11-27T21:43:48.682940959Z",
+          "seal": {
+            "by": "server",
+            "mac": "e144756cfbc7cf02ac400429479f3358da7c5c41f1bd59a91bc205bc7d61727d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:48.682940959Z",
+      "seal": {
+        "by": "server",
+        "mac": "6307d20194620a095930c54972eb03e9653e0405a7942cc2190dd7a49d90eaa5"
+      }
+    },
+    {
+      "id": "CLM-2319",
+      "statement": "split_concept's `to` target that is already taken gets AlreadyExists, because it resolves `to` through new_concept_path.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"new_concept_path returns it for a taken path, so create_concept and split_concept's `to` get it\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/okf/ops/split.rs",
+        "src/okf/paths.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4068",
+          "kind": "analysis",
+          "locator": "src/okf/ops/split.rs:139",
+          "summary": "split_concept calls new_concept_path(workspace, split.to)? so a taken `to` propagates AlreadyExists. No test in the diff exercises split onto a taken path specifically.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/split.rs",
+              "lines": {
+                "start": 139,
+                "end": 139
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:11.712308571Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2023470e971d37cf18e25463714c39c77730c88d57d0100f1b8791976b9a906"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "split.rs:139 routes `to` through new_concept_path, which returns AlreadyExists for a taken path (proved by the create tests). No split-specific test exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4068"
+          ],
+          "recorded_at": "2026-11-27T21:43:48.883712387Z",
+          "seal": {
+            "by": "server",
+            "mac": "bafc6bb35f2bd4388339d6e46f8d8da7cf1c7318bcca75271fa0ea97716be433"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:48.883712387Z",
+      "seal": {
+        "by": "server",
+        "mac": "1f4b6891c4f22ed34e1fe4d8c50b4f10763f821a098ffcafbfe5308d0cee66a6"
+      }
+    },
+    {
+      "id": "CLM-2320",
+      "statement": "move_concept onto a taken target returns AlreadyExists (and so does MemWorkspace::rename onto a taken file), while a target below a file or a directory target stays InvalidPath.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Brief requirement and issue #929 Proposed fix 1 (workspace.rs rename/move_concept); PR body: \"MemWorkspace::rename returns it too, so move_concept's taken target moves as well ... InvalidPath stays ... for a target below a file or a directory\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/okf/ops/moves.rs",
+        "src/okf/workspace.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4069",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib okf::ops::moves ; cargo test --jobs 4 --lib rename_keeps_bytes",
+          "summary": "moves: 14 passed, including a_taken_reserved_or_missing_path_is_refused_before_anything_is_written (asserts AlreadyExists with path infra/ntp.md) and a_target_below_a_file_is_refused_with_its_own_path. workspace: rename_keeps_bytes_and_execute_bit_and_refuses_a_bad_target passed (taken is AlreadyExists, below_a_file stays InvalidPath \"a parent component is a file\", directory target InvalidPath).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/workspace.rs",
+              "lines": {
+                "start": 827,
+                "end": 841
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:12.083973463Z",
+          "seal": {
+            "by": "server",
+            "mac": "c21266120eea3ce7d427e5fc87907c7a66a27b899e48cac81ee88670748d292c"
+          }
+        },
+        {
+          "id": "EVD-4070",
+          "kind": "inspection",
+          "locator": "src/okf/ops/moves.rs:72,105",
+          "summary": "move_concept reaches the taken check through new_concept_path (line 72) before MemWorkspace::rename (line 105), so the AlreadyExists a move returns comes from new_concept_path; rename's own check is a second layer. Outcome matches the claim. (PR body attributes it to rename, which is only partly the mechanism.)",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/moves.rs",
+              "lines": {
+                "start": 72,
+                "end": 73
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:12.599169186Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a9797f8818e41e4f74153a3921e263a5705406964693525de10df5691b42c53"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The moves and workspace tests passed at head and assert AlreadyExists for a taken target and InvalidPath for below-a-file/directory targets.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4069"
+          ],
+          "recorded_at": "2026-11-27T21:43:49.089664243Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8010bd08479959e36526cbd8460dc9e72ef61efdab377067e34b749d22c6b5c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:49.089664243Z",
+      "seal": {
+        "by": "server",
+        "mac": "edd83cba90d45a652e9143fab27517a9d5812859f96c4397104855cbfaa552cf"
+      }
+    },
+    {
+      "id": "CLM-2321",
+      "statement": "create_concept's registered description says `path` must not exist yet and names edit_document or replace_body (and get_concept) for changing an existing concept.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #929 Proposed fix 3 and Acceptance 2; PR body: \"create_concept's description says path must not exist yet and names edit_document / replace_body / get_concept\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4071",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:233-246, 1244-1257",
+          "summary": "Description now reads \"...(e.g. /infra/ntp); it must not exist yet (to change an existing concept use edit_document or replace_body; get_concept reads it).\" The schema test asserts contains \"must not exist yet\" and \"edit_document or replace_body\". The test needs Postgres and I did not run it; mcp::reference test (below) renders the same sentence in tools.md.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 233,
+                "end": 246
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:13.040358230Z",
+          "seal": {
+            "by": "server",
+            "mac": "b039b075ae4ae8728e3c691177cb1b93e685bd3264de18b8d3ca9cca557e515b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The description string in source says it; its asserting test was read, not run (needs Postgres), but the generated tools.md equality test passes with the same sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4071"
+          ],
+          "recorded_at": "2026-11-27T21:43:49.301406120Z",
+          "seal": {
+            "by": "server",
+            "mac": "0823829d22bbd8763fc8584b0f9923d4534b631e009d1c1ced5c1d3144afea0d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:49.301406120Z",
+      "seal": {
+        "by": "server",
+        "mac": "302df1125bb209b4282b2a15b5b805f53257f1b287eafb48c7ae659485cabba3"
+      }
+    },
+    {
+      "id": "CLM-2322",
+      "statement": "The first 31 characters of create_concept's description are still \"Save what the person wants kept\", and the `path` parameter text is unchanged.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Brief requirement; PR body: \"its 31-character opening (\\\"Save what the person wants kept\\\") is unchanged. The `path` parameter text is unchanged.\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/mcp/writes.rs",
+        "src/mcp/openings_tests.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4072",
+          "kind": "inspection",
+          "locator": "src/mcp/openings_tests.rs:13,22; src/mcp/writes.rs:233; git diff origin/main..HEAD -- src/mcp/writes.rs",
+          "summary": "SHOWN is 31 and the pinned opening for create_concept is \"Save what the person wants kept\" (31 chars, python len). The diff touches only the later part of the description string and the doc comment; CreateConceptParams and its `path` field docs are not in any hunk. The writes.rs test also asserts starts_with the opening.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/openings_tests.rs",
+              "lines": {
+                "start": 13,
+                "end": 22
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:13.419813530Z",
+          "seal": {
+            "by": "server",
+            "mac": "08cd08e3673254508f4230127f9b969b5fa08004edc58154bbab8f6394bc9fed"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Opening is 31 chars, pinned by openings_tests, and no diff hunk touches the opening or the params struct.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4072"
+          ],
+          "recorded_at": "2026-11-27T21:43:49.520668472Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bb87700d4eaa8501f696d82cf8f2b7ebcd98869f7593fc623aef4ec8e564d86"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:49.520668472Z",
+      "seal": {
+        "by": "server",
+        "mac": "a38fd08fcd017877eb0a7783d3728677cf118ffb3b58b965d337c2f9a374024d"
+      }
+    },
+    {
+      "id": "CLM-2323",
+      "statement": "docs/reference/tools.md is regenerated and matches the tool list, and its create_concept entry carries the same new sentence as the registered description.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #929 Proposed fix 4; PR body: \"docs/reference/tools.md regenerated\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "src/mcp/reference.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4073",
+          "kind": "test",
+          "locator": "cargo test --jobs 4 --lib reference::the_checked_in (mcp::reference::the_checked_in_tool_reference_matches_the_tool_list)",
+          "summary": "Passed at head (1 passed): the checked-in tools.md equals the page generated from the tool list. tools.md:154 contains the new \"it must not exist yet ...\" sentence.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 154,
+                "end": 154
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:13.734955406Z",
+          "seal": {
+            "by": "server",
+            "mac": "817853c15cf9528e972f51bc767cb36c49360a0ad82fe8eeebcf9d8cfc4ca240"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The reference-vs-tool-list test passes and tools.md:154 has the sentence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4073"
+          ],
+          "recorded_at": "2026-11-27T21:43:49.719438014Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a3a48a64eff81ec90210dafe32053b51fc616730c8b184914d54e135ff61c93"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:49.719438014Z",
+      "seal": {
+        "by": "server",
+        "mac": "50e32f9f34d7e0d136b7d9443c354062063cee36ed3406173efb416816b5986a"
+      }
+    },
+    {
+      "id": "CLM-2324",
+      "statement": "docs/operations.md's troubleshooting table has a row for AlreadyExists (create_concept, move_concept, split_concept; 409 on REST; recovery named), README.md names the code, and a dated changelog entry exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"docs/operations.md troubleshooting table and README.md name the new code; changelog entry added\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "README.md",
+        "changelog/20261128T000000Z-issue-929-already-exists.md"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4074",
+          "kind": "inspection",
+          "locator": "docs/operations.md:5726; README.md:339-341; changelog/20261128T000000Z-issue-929-already-exists.md",
+          "summary": "The troubleshooting row names create_concept, move_concept and split_concept, 409 on REST, the recovery and the body path; README.md names AlreadyExists vs InvalidPath; the changelog file is tracked and dated. README line 341 is a long unwrapped line (cosmetic).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5726,
+                "end": 5726
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:14.076006572Z",
+          "seal": {
+            "by": "server",
+            "mac": "31c2fd4e67c123f31d6028fabafa803002cf8f4314aadc42b116b46677b66244"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three items are present as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4074"
+          ],
+          "recorded_at": "2026-11-27T21:43:49.945840581Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f7e71ca425f769561c73b6b055e7e26c1a37ad66de4b9c129b728fccf79471e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:49.945840581Z",
+      "seal": {
+        "by": "server",
+        "mac": "a1f00716bef843f3d6d03871032818f03afeb43cb0ec431ea46293fcb32400ad"
+      }
+    },
+    {
+      "id": "CLM-2325",
+      "statement": "The error-code tables in the repository's docs list AlreadyExists and no longer list \"already exists\" under InvalidPath.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #929 Proposed fix 4: \"Update docs/reference/tools.md and any error-code tables\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4075",
+          "kind": "inspection",
+          "locator": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md:648",
+          "summary": "The design spec's OkfError variant table (the only error-code table in the docs besides the operations troubleshooting table) still says \"InvalidPath { path, reason } | Outside the catalog, reserved, machinery, already exists\" and has no AlreadyExists row. The diff does not touch this file.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md",
+              "lines": {
+                "start": 648,
+                "end": 648
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:14.432954604Z",
+          "seal": {
+            "by": "server",
+            "mac": "6add18cd588e0750116524af0bf1a5b170cd2e8acfffdd198ff73b6398185b63"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The design spec's OkfError table at line 648 still lists \"already exists\" under InvalidPath and has no AlreadyExists row; the issue asked for error-code tables to be updated. Ours: an issue requirement. Fix: in docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md edit the `InvalidPath` row to drop \"already exists\" and add a row `AlreadyExists { path }` (a concept already at the target of create_concept, move_concept or split_concept; HTTP 409), or state in the PR that the dated spec is deliberately left historical.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4075"
+          ],
+          "recorded_at": "2026-11-27T21:43:50.154464557Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f4d9e25756d58a9a0c5974b0544c9f5b3838bcbe3d5474198861a9069583712"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:50.154464557Z",
+      "seal": {
+        "by": "server",
+        "mac": "ff428e979a7fa7c40116b84124afafe51d2567b73b2746cdc2b4c0093ac0864f"
+      }
+    },
+    {
+      "id": "CLM-2326",
+      "statement": "No test or doc outside this change asserted the old code (InvalidPath) for a taken path.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"Breaking change: ... No test or doc outside this change asserted the old code (tests/mcpjam did not).\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md",
+        "tests/mcpjam"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4076",
+          "kind": "inspection",
+          "locator": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md:648",
+          "summary": "A doc outside the change still asserts the old behavior: the design spec lists \"already exists\" under InvalidPath. (Historical plans under docs/superpowers/plans, e.g. m6 plan lines 1620/1900, also quote it but are dated records.) No test outside the change asserts it: git grep of src and tests found no assertion of InvalidPath for a taken concept path left, and tests/mcpjam's only InvalidPath assertion (tool-descriptions.test.ts:57) is get_concept.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/superpowers/specs/2026-10-26-okf-mcp-server-design.md",
+              "lines": {
+                "start": 648,
+                "end": 648
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:15.008110355Z",
+          "seal": {
+            "by": "server",
+            "mac": "27b42cec98b9008d40c6cbf2300100e44776e04eec6d54d136fa750e2bb50417"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "No test asserts the old code, but the design spec (line 648) is a doc outside the change that does. Ours: a PR description statement. Fix: update the spec's error table (see the error-table fix) or reword the PR body to \"no test asserted the old code; the design spec's error table, updated here, did\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4076"
+          ],
+          "recorded_at": "2026-11-27T21:43:50.409171823Z",
+          "seal": {
+            "by": "server",
+            "mac": "c857b1e0b6cc814683b5bd52b4d70a0cf4ee2e6babed402c7a00cc77d78269c8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:50.409171823Z",
+      "seal": {
+        "by": "server",
+        "mac": "7b4ac4c2054a318e7709d7c4bb39e03966a078825ec14e9a85b63a7d945a25ff"
+      }
+    },
+    {
+      "id": "CLM-2327",
+      "statement": "No REST route creates concepts, so the 409 for AlreadyExists is pinned by an AppError::status unit test rather than a route test.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"No REST route creates concepts, so the 409 is pinned by an AppError::status test, not a route test.\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/http"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4077",
+          "kind": "analysis",
+          "locator": "git grep -lE \"create_concept|move_concept|split_concept|new_concept_path\" src (no file under src/http)",
+          "summary": "None of the files that use the concept-creating ops is under src/http; the only concept route in src/http/api/browse.rs:52 is a GET. The 409 is pinned by http::tests::a_taken_path_is_a_conflict_and_a_malformed_one_a_bad_request (passed).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "create_concept|move_concept|split_concept|new_concept_path",
+              "scope": [
+                "src/http"
+              ],
+              "hits": 0,
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:16.023954528Z",
+          "seal": {
+            "by": "server",
+            "mac": "9434abad722277bca2ace58da4201ff5b7300e62760886ffaa5374cf698b1216"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero hits for the concept ops under src/http, only a GET concept route exists, and the status test pins 409.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4077"
+          ],
+          "recorded_at": "2026-11-27T21:43:50.640646428Z",
+          "seal": {
+            "by": "server",
+            "mac": "49461269a34d85031f3978acfb9ec3d7047a85ec362a2501f24331e5579667a5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:50.640646428Z",
+      "seal": {
+        "by": "server",
+        "mac": "1972804d120aab3fb72d549a8e6a2f2d7e048be8d8e04bc7619fc9b465e32f43"
+      }
+    },
+    {
+      "id": "CLM-2328",
+      "statement": "Each test the PR body lists as added or updated exists in the tree, including the mcpjam scenario \"create_concept on an existing path is AlreadyExists, naming the edit tools\".",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Tests added\" list",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/error.rs",
+        "src/http/mod.rs",
+        "src/mcp/writes.rs",
+        "src/okf/ops/moves.rs",
+        "src/okf/workspace.rs",
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4078",
+          "kind": "inspection",
+          "locator": "src/error.rs:859; src/http/mod.rs:1490; src/mcp/writes.rs:1126; src/okf/ops/moves.rs:486-494; src/okf/workspace.rs:1020-1036; src/okf/ops/content.rs:895; tests/mcpjam/scenarios/careful-fact-curator.test.ts:44-62",
+          "summary": "All listed tests exist with the named functions and assertions. The mcpjam scenario creates a path twice and asserts error \"AlreadyExists\", path, and message containing edit_document and replace_body; I did not run it (needs a live server).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 44,
+                "end": 62
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:17.402336083Z",
+          "seal": {
+            "by": "server",
+            "mac": "15dee3204a6d670cdabe53f7c150625600b20a82d01a20b1425cac4ef0962e04"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every listed test was found in the tree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4078"
+          ],
+          "recorded_at": "2026-11-27T21:43:50.862476550Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fb26ca3f2ec67b785a09020fd95bbc8add46ad061dcb96e1149591a45a8ad4c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:50.862476550Z",
+      "seal": {
+        "by": "server",
+        "mac": "dd274cbd21cc773077c04842a87ed556f121def7c5390f0e3d2e5606ddb8d7f8"
+      }
+    },
+    {
+      "id": "CLM-2329",
+      "statement": "Each test listed under \"Tests added\" fails when the change is reverted.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Tests added (each fails with the change reverted)\"",
+      "derived_from": [
+        "CLM-2315"
+      ],
+      "artifacts": [
+        "src/error.rs",
+        "src/http/mod.rs",
+        "src/mcp/writes.rs"
+      ],
+      "tags": [
+        "from-issue:929"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4079",
+          "kind": "analysis",
+          "locator": "src/error.rs:859-873; src/http/mod.rs:1490; src/mcp/writes.rs:1126",
+          "summary": "By reading, each test names the new variant or its 409 status, so it would fail to compile or assert-fail on the old code. I did not revert the change (auditors may not edit code) and did not run the Postgres-backed writes test, so the claim is not demonstrated.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 859,
+                "end": 873
+              },
+              "commit": "2f25d373860a2895b6a4215489901048f4ccf803"
+            }
+          },
+          "recorded_at": "2026-11-27T21:43:17.981941359Z",
+          "seal": {
+            "by": "server",
+            "mac": "57de36818b36505f90127c83b32ac47225f032fe144d6c2551f4bd23e5ca1dff"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Reading suggests it, but the change was not reverted and the Postgres-backed test was not run. Fix: in a scratch worktree revert the src changes, run the six listed tests and record which fail.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T21:43:51.124331361Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f890d3d5b26fdbae91fa67601cadf9bc548a4a8f0eef7f84c83d545d76084cc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T21:42:23.048568877Z",
+      "updated_at": "2026-11-27T21:43:51.124331361Z",
+      "seal": {
+        "by": "server",
+        "mac": "cefb25f0378db1a32198f1566a5b511fe4594df5404bdee77d70b428a7bda514"
       }
     }
   ]

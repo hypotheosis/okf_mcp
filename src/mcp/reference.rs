@@ -23,7 +23,7 @@ const INTRO: &str = "# Telekin tool reference
 run `OKF_UPDATE_TOOL_REFERENCE=1 cargo test --lib mcp::reference` to refresh it. -->
 
 Telekin serves Open Knowledge Format (OKF) catalogs over MCP: concepts (markdown files with YAML
-frontmatter) about systems, projects, people and decisions. This page lists every tool the
+frontmatter): whatever the person may want again in a later conversation. This page lists every tool the
 server offers, with its parameters. Each tool's description, as a client sees it in `tools/list`,
 ends with a link to its section here.
 
@@ -38,12 +38,14 @@ How a session usually goes:
   selection, pass `catalog`.
 - To write, call `open_changeset` first and pass the handle it returns as `changeset` to every
   edit, `publish`, `discard`, `revert` and `pending_changes`. Reads take it too, to see the
-  drafts. Nothing is visible to others until `publish`.
+  drafts. Nothing is published until `publish`, and `revert` undoes a publish.
 - A call that depends on an earlier one (an edit to a concept you are creating, a read after
   `publish`) must wait for its result: parallel calls on one changeset run in no fixed order.
-- When the person asks you to remember something, save it to the catalog (under a fitting
-  folder) rather than only in the conversation; asking is their consent, so don't ask again.
-  Don't save what they didn't ask you to keep.
+- When the person shares something worth keeping, or asks you to remember it, save it to the
+  catalog (under a fitting folder) rather than only in the conversation; asking is their
+  consent, so don't ask again. Save what they share without asking first, and tell them what you
+  saved (the concept and a line on what it says) so they can say if they don't want it kept.
+  When they ask what you remember, or refer to something they told you before, `search` first.
 - A catalog's data lives on a store, and a store can be unreachable (a separate database that
   is down). Then a call that needs it fails with `StoreUnavailable` (retry later; the message
   never names the store), and the other catalogs keep working:

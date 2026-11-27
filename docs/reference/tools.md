@@ -4,7 +4,7 @@
 run `OKF_UPDATE_TOOL_REFERENCE=1 cargo test --lib mcp::reference` to refresh it. -->
 
 Telekin serves Open Knowledge Format (OKF) catalogs over MCP: concepts (markdown files with YAML
-frontmatter) about systems, projects, people and decisions. This page lists every tool the
+frontmatter): whatever the person may want again in a later conversation. This page lists every tool the
 server offers, with its parameters. Each tool's description, as a client sees it in `tools/list`,
 ends with a link to its section here.
 
@@ -19,12 +19,14 @@ How a session usually goes:
   selection, pass `catalog`.
 - To write, call `open_changeset` first and pass the handle it returns as `changeset` to every
   edit, `publish`, `discard`, `revert` and `pending_changes`. Reads take it too, to see the
-  drafts. Nothing is visible to others until `publish`.
+  drafts. Nothing is published until `publish`, and `revert` undoes a publish.
 - A call that depends on an earlier one (an edit to a concept you are creating, a read after
   `publish`) must wait for its result: parallel calls on one changeset run in no fixed order.
-- When the person asks you to remember something, save it to the catalog (under a fitting
-  folder) rather than only in the conversation; asking is their consent, so don't ask again.
-  Don't save what they didn't ask you to keep.
+- When the person shares something worth keeping, or asks you to remember it, save it to the
+  catalog (under a fitting folder) rather than only in the conversation; asking is their
+  consent, so don't ask again. Save what they share without asking first, and tell them what you
+  saved (the concept and a line on what it says) so they can say if they don't want it kept.
+  When they ask what you remember, or refer to something they told you before, `search` first.
 - A catalog's data lives on a store, and a store can be unreachable (a separate database that
   is down). Then a call that needs it fails with `StoreUnavailable` (retry later; the message
   never names the store), and the other catalogs keep working:
@@ -146,7 +148,7 @@ List the concepts that cite a source, exactly: `source_id` (case-insensitive) an
 
 **Create Concept** (additive)
 
-Create a concept in the changeset `changeset` names (open one with open_changeset); nothing is visible to others until `publish`. `path` is the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in `frontmatter`; the server writes `generated: { by, at }` itself. With `index_summary`, also lists it in its folder's index.md (creating folder indexes as needed); `folder_summary` describes a new folder there. Write access.
+Create a concept in the changeset `changeset` names (open one with open_changeset). Use it whenever the person shares something worth keeping (a fact about themselves, a preference, a decision, a note), and certainly when they ask you to remember it: the catalog keeps it across conversations, so save it without asking first and tell them what you saved. Nothing is published until `publish`; a published concept is visible only to those with access to the catalog (a personal catalog's owner unless they share it, a team catalog's team). `path` is the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in `frontmatter`; the server writes `generated: { by, at }` itself. With `index_summary`, also lists it in its folder's index.md (creating folder indexes as needed); `folder_summary` describes a new folder there. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -215,7 +217,7 @@ Get a concept: its frontmatter as JSON, its body and the body's size (`lines`, `
 
 **Document History** (read-only)
 
-A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too. `latest_revision` is the newest revision number, a deletion included (it equals `current_revision` for a live document; `current_revision` is null for a deleted one); pass it to `revert` as `expected_revision`. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
+A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too, but no tool reads an old revision's text of an index.md directly: `read_document` gives the current one, and `revert` puts an old one in a changeset as a draft, which `read_document` with `changeset` shows. `latest_revision` is the newest revision number, a deletion included (it equals `current_revision` for a live document; `current_revision` is null for a deleted one); pass it to `revert` as `expected_revision`. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -461,7 +463,7 @@ The stalest concepts: last stamp, by whom, age in days, stale flag and queued qu
 
 **Open Changeset** (additive)
 
-Open a changeset in a catalog and return its handle. Every edit, publish, discard, revert and pending_changes needs a handle, and the reads take one to see its drafts. Nothing is visible to anyone else until publish. Several changesets may be open at once. A changeset with no edits is discarded after 24 hours. Write access.
+Open a changeset in a catalog and return its handle: the first step to saving what the person shares or asks you to remember, which the catalog keeps across conversations. Every edit, publish, discard, revert and pending_changes needs a handle, and the reads take one to see its drafts. Nothing is published until publish; a published concept is visible only to those with access to the catalog (a personal catalog's owner unless they share it, a team catalog's team). Several changesets may be open at once. A changeset with no edits is discarded after 24 hours. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -603,7 +605,7 @@ Replace a concept's `reviewed` with { by, at: now, outcome, note } and queue any
 
 **Search Concepts** (read-only)
 
-Search concepts across this connection's catalogs (or `catalogs`). Every term of `query` must occur, as a case-insensitive substring, in a concept's title or aliases, tags, description or body; free text matches tags by substring. The `tags` filter matches whole tags only. Returns catalog, path, title, description, a snippet and the concept's size (`lines` and `chars` of the whole file, as a read returns it), best first: check the size before a `get_concept`, since a large concept stays in context once read. With `changeset` (a handle from open_changeset), its catalog is searched through that changeset's drafts, and is listed in `skipped` if they cannot be applied. A catalog whose store cannot be reached is left out and listed in `unavailable`; the others still answer.
+Search the person's catalogs for what they have kept: use it when they ask what you remember about them, refer to something they told you before, or ask about their own notes. Searches this connection's catalogs (or `catalogs`). Every term of `query` must occur, as a case-insensitive substring, in a concept's title or aliases, tags, description or body; free text matches tags by substring. The `tags` filter matches whole tags only. Returns catalog, path, title, description, a snippet and the concept's size (`lines` and `chars` of the whole file, as a read returns it), best first: check the size before a `get_concept`, since a large concept stays in context once read. With `changeset` (a handle from open_changeset), its catalog is searched through that changeset's drafts, and is listed in `skipped` if they cannot be applied. A catalog whose store cannot be reached is left out and listed in `unavailable`; the others still answer.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

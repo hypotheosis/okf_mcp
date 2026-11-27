@@ -276,8 +276,10 @@ impl OkfServer {
     // the output schema.
     #[tool(
         title = "Search Concepts",
-        description = "Search concepts across this connection's catalogs (or `catalogs`). \
-                       Every term of `query` must occur, as a case-insensitive substring, in \
+        description = "Search the person's catalogs for what they have kept: use it when \
+                       they ask what you remember about them, refer to something they told \
+                       you before, or ask about their own notes. Searches this connection's \
+                       catalogs (or `catalogs`). Every term of `query` must occur, as a case-insensitive substring, in \
                        a concept's title or aliases, tags, description or body; free text \
                        matches tags by substring. The `tags` filter matches whole tags only. \
                        Returns catalog, path, title, description, a snippet and the \

@@ -497,7 +497,10 @@ impl OkfServer {
                        delete, import), actor, user, user_label, message and time. `user` is the \
                        person whose credential published the revision (null for an import or a \
                        key no user owned); `actor` names the credential. Deleted documents keep \
-                       their history; log.md, indexes and other files have one too. \
+                       their history; log.md, indexes and other files have one too, but no \
+                       tool reads an old revision's text of an index.md directly: \
+                       `read_document` gives the current one, and `revert` puts an old one in a \
+                       changeset as a draft, which `read_document` with `changeset` shows. \
                        `latest_revision` is the newest revision number, a deletion included (it \
                        equals `current_revision` for a live document; `current_revision` is \
                        null for a deleted one); pass it to `revert` as `expected_revision`. \

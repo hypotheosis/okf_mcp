@@ -100,6 +100,20 @@ pub struct OAuth {
     pub token_limit: GlobalLimit,
     /// `POST /oauth/authorize`'s limit, likewise.
     pub consent_limit: GlobalLimit,
+    // Test hook: the next authorization-code generation fails the way a
+    // failed OS random source would (see `ForcedGenerationFailure`).
+    #[cfg(test)]
+    forced_generation_failure: std::sync::atomic::AtomicU8,
+}
+
+/// Which id [`OAuth::force_generation_failure`] makes fail (tests only).
+#[cfg(test)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ForcedGenerationFailure {
+    /// The authorization code itself.
+    Code = 1,
+    /// The refresh-token family id minted with it.
+    FamilyId = 2,
 }
 
 impl OAuth {
@@ -193,7 +207,31 @@ impl OAuth {
                 CONSENT_PER_SEC,
                 redis,
             ),
+            #[cfg(test)]
+            forced_generation_failure: std::sync::atomic::AtomicU8::new(0),
         }))
+    }
+
+    /// Makes the next authorization-code generation fail on `which` (tests
+    /// only: the OS random source cannot be made to fail).
+    #[cfg(test)]
+    pub(crate) fn force_generation_failure(&self, which: ForcedGenerationFailure) {
+        self.forced_generation_failure
+            .store(which as u8, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    /// The failure [`OAuth::force_generation_failure`] armed, cleared as it
+    /// is read, if any.
+    #[cfg(test)]
+    pub(crate) fn take_forced_generation_failure(&self) -> Option<ForcedGenerationFailure> {
+        match self
+            .forced_generation_failure
+            .swap(0, std::sync::atomic::Ordering::SeqCst)
+        {
+            1 => Some(ForcedGenerationFailure::Code),
+            2 => Some(ForcedGenerationFailure::FamilyId),
+            _ => None,
+        }
     }
 }
 

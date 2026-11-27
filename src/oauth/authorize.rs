@@ -1247,12 +1247,9 @@ async fn finish(
     }
     // The credential cache reads the new grant on first use, so nothing
     // needs loading here.
-    let (code, family_id) = match (
-        keys::generate_with(keys::AUTHORIZATION_CODE_PREFIX),
-        new_id(),
-    ) {
-        (Ok(code), Ok(family_id)) => (code, family_id),
-        (Err(error), _) | (_, Err(error)) => {
+    let (code, family_id) = match mint_ids(oauth) {
+        Ok(ids) => ids,
+        Err(error) => {
             revoke_unused_grant(app, &grant_id).await;
             return server_error(&error, &brand);
         }
@@ -1295,6 +1292,46 @@ async fn finish(
         (pending.state.as_deref(), &oauth.settings.issuer),
         Hop::Forward,
     )
+}
+
+/// Generates the authorization code and the refresh-token family id bound
+/// to it.
+///
+/// # Arguments
+/// * `oauth` - the OAuth state (only a test build reads it, for the hook
+///   that forces a failure).
+///
+/// # Errors
+/// [`OkfError::Io`] if the OS random source fails.
+#[cfg_attr(
+    not(test),
+    allow(unused_variables, reason = "only the test hook reads `oauth`")
+)]
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "two calls to the instrumented generators: each is its own span"
+    )
+)]
+fn mint_ids(oauth: &OAuth) -> Result<(String, String), OkfError> {
+    #[cfg(test)]
+    let forced = oauth.take_forced_generation_failure();
+    #[cfg(test)]
+    let forced_error = || OkfError::Io {
+        path: "<forced generation failure>".to_string(),
+        source: std::io::Error::other("forced by a test"),
+    };
+    #[cfg(test)]
+    if forced == Some(super::ForcedGenerationFailure::Code) {
+        return Err(forced_error());
+    }
+    let code = keys::generate_with(keys::AUTHORIZATION_CODE_PREFIX)?;
+    #[cfg(test)]
+    if forced == Some(super::ForcedGenerationFailure::FamilyId) {
+        return Err(forced_error());
+    }
+    Ok((code, new_id()?))
 }
 
 /// Revokes the grant this request created and could not finish with a code,
@@ -3740,7 +3777,7 @@ mod tests {
             authorize_query, exchange_for_tokens, form, forwarded, hidden, oauth_replica_pair_on,
             send, send_on, sign_in_code,
         };
-        use crate::oauth::App;
+        use crate::oauth::{App, ForcedGenerationFailure};
         use crate::shared::ephemeral::Keyspace;
         use crate::shared::hashed;
         use crate::store::keys::{self as key_rows, Access, KeyKind};
@@ -4088,6 +4125,37 @@ mod tests {
             (hidden(&page, "pending"), hidden(&page, "csrf"))
         }
 
+        /// Starts a consent on `a`, signs in and submits the code on `b`, and
+        /// returns the summary's approval form, ready to post.
+        async fn approval_form(a: &TestApp, b: &Arc<App>) -> String {
+            let (approved, approved_csrf) = start_consent(a).await;
+            let code = sign_in_code(a, Access::Read).await;
+            let (_, _, summary) = send_on(
+                b,
+                "POST",
+                "/oauth/authorize",
+                Some(code_form(&approved, &approved_csrf, &code)),
+                None,
+            )
+            .await;
+            form(&[
+                ("pending", &approved),
+                ("csrf", &approved_csrf),
+                ("summary", &hidden(&summary, "summary")),
+                ("action", "approve"),
+            ])
+        }
+
+        /// How many OAuth grants are revoked.
+        async fn revoked_grants(test: &TestApp) -> usize {
+            key_rows::list(test.app.accounts().executor())
+                .await
+                .expect("list the grants")
+                .into_iter()
+                .filter(|row| row.kind == KeyKind::OAuth && row.revoked_at.is_some())
+                .count()
+        }
+
         /// Completes one consent (started on `a`, finished on `b`) so a grant
         /// exists before a failing one, and returns the live grants, which
         /// must be that one grant.
@@ -4228,22 +4296,7 @@ mod tests {
             let (a, b, _server) = oauth_replica_pair_on(server).await;
             let before = complete_earlier_consent(&a, &b).await;
 
-            let (approved, approved_csrf) = start_consent(&a).await;
-            let code = sign_in_code(&a, Access::Read).await;
-            let (_, _, summary) = send_on(
-                &b,
-                "POST",
-                "/oauth/authorize",
-                Some(code_form(&approved, &approved_csrf, &code)),
-                None,
-            )
-            .await;
-            let approval = form(&[
-                ("pending", &approved),
-                ("csrf", &approved_csrf),
-                ("summary", &hidden(&summary, "summary")),
-                ("action", "approve"),
-            ]);
+            let approval = approval_form(&a, &b).await;
             // Writes to the code keys are refused (`NOPERM`); every other key
             // stays writable, so only the code insert fails.
             for rule in [
@@ -4267,13 +4320,60 @@ mod tests {
                 before,
                 "the failed approval's grant is revoked and the earlier one survives"
             );
-            let revoked = key_rows::list(a.app.accounts().executor())
-                .await
-                .expect("list the grants")
-                .into_iter()
-                .filter(|row| row.kind == KeyKind::OAuth && row.revoked_at.is_some())
-                .count();
-            assert_eq!(revoked, 1, "the approval created a grant, then revoked it");
+            assert_eq!(
+                revoked_grants(&a).await,
+                1,
+                "the approval created a grant, then revoked it"
+            );
+        }
+
+        /// Approving a consent while the generator named by `which` fails
+        /// answers the 500 page, forwards no code, and revokes the grant the
+        /// approval created; an earlier consent's grant stays live (#925).
+        async fn a_failed_generation_revokes_the_new_grant(
+            server: TestRedis,
+            which: ForcedGenerationFailure,
+        ) {
+            let (a, b, _server) = oauth_replica_pair_on(server).await;
+            let before = complete_earlier_consent(&a, &b).await;
+            let approval = approval_form(&a, &b).await;
+            b.oauth()
+                .expect("OAuth is on")
+                .force_generation_failure(which);
+
+            let failed = send_on(&b, "POST", "/oauth/authorize", Some(approval), None).await;
+
+            assert_eq!(
+                failed.0,
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "{which:?}: {}",
+                failed.2
+            );
+            assert!(
+                failed.2.contains("could not complete sign-in"),
+                "{which:?}: {}",
+                failed.2
+            );
+            assert!(!failed.2.contains("code="), "no code is forwarded");
+            assert_eq!(
+                live_grants(&a).await,
+                before,
+                "{which:?}: the new grant is revoked and the earlier one survives"
+            );
+            assert_eq!(
+                revoked_grants(&a).await,
+                1,
+                "{which:?}: the approval created a grant, then revoked it"
+            );
+        }
+
+        async fn a_failed_code_generation_revokes_the_new_grant(server: TestRedis) {
+            a_failed_generation_revokes_the_new_grant(server, ForcedGenerationFailure::Code).await;
+        }
+
+        async fn a_failed_family_id_generation_revokes_the_new_grant(server: TestRedis) {
+            a_failed_generation_revokes_the_new_grant(server, ForcedGenerationFailure::FamilyId)
+                .await;
         }
 
         // `macro_rules!` writes a standalone and a cluster `#[tokio::test]`
@@ -4314,6 +4414,8 @@ mod tests {
             a_redis_outage_answers_the_busy_page,
             a_failed_removal_answers_the_busy_page,
             a_refused_code_insert_revokes_the_new_grant,
+            a_failed_code_generation_revokes_the_new_grant,
+            a_failed_family_id_generation_revokes_the_new_grant,
         );
     }
 

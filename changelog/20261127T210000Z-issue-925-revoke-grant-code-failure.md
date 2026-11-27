@@ -13,5 +13,12 @@ longer says the grant stays.
 
 Test: `a_refused_code_insert_revokes_the_new_grant` (standalone and cluster Redis, `SET` refused
 with `NOPERM`) asserts the busy page, no code, and that only the earlier grant stays live. The
-earlier-consent setup of `a_failed_removal_answers_the_busy_page` moved into shared helpers. The
-id-generation failure has no seam (it needs the OS random source to fail), so it has no test.
+earlier-consent setup of `a_failed_removal_answers_the_busy_page` moved into shared helpers.
+
+Review round 1: the generation failure now has tests. `mint_ids` in `src/oauth/authorize.rs` generates
+the code and the family id (same order and errors as before); a test build lets
+`OAuth::force_generation_failure(ForcedGenerationFailure::Code | FamilyId)` fail the next call, a
+per-`OAuth` atomic like `SessionStore::fail_next_store`, compiled only under `cfg(test)`, so production
+code and its performance are unchanged. `a_failed_code_generation_revokes_the_new_grant` and
+`a_failed_family_id_generation_revokes_the_new_grant` assert the 500 page, no code, one newly revoked
+grant and the earlier grant still live.

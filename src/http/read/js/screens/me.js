@@ -1,4 +1,4 @@
-// Account: who is signed in, until when, the theme choice, sign-out (which
+// Account: who is signed in (read again on every open), until when, the theme choice, sign-out (which
 // deletes every offline copy and the remembered catalog first, even if the
 // server cannot be reached), and a local "Delete offline copies" that works
 // with no connection at all. Both delete through main.js (`ctx.signOut`,
@@ -35,7 +35,14 @@ function appearance() {
 }
 
 export async function render(view, ctx) {
-    const session = ctx.state.session;
+    // The session is read again each time Account opens: an online start
+    // does not mean the connection is still there. A failed read leaves
+    // ctx.state.session as it was.
+    const status = await ctx.checkSession();
+    // Left for another screen (or for sign-in) while the read was out: draw
+    // nothing over it.
+    if (!ctx.live() || status === ctx.SESSION.SIGNED_OUT) return;
+    const session = status === ctx.SESSION.ANSWERED ? ctx.state.session : null;
     if (!session) {
         fill(view, pageTitle('Account'),
             message('Account details and sign-out need a connection.', null, 'account-offline'),

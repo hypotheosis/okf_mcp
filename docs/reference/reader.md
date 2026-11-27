@@ -80,8 +80,10 @@ Details worth knowing:
   ends, an Appearance choice (System, Light, Dark; kept on the device and
   applied before the first paint, and it also sets the colour of the system
   bars), a **Sign out** button and a **Delete offline copies** button.
-  Offline it shows the Appearance choice and the latter button, because the
-  account details and sign-out need the server. The choice survives signing
+  Account asks the server for the session each time it opens; when the
+  server cannot be reached (also after a start that was online), it shows
+  the Appearance choice and the latter button, because the account details
+  and sign-out need the server. The choice survives signing
   out.
 - The header shows the current catalog's label (its name until the catalog
   list has been read) after a mark with its first letter, opens the picker,

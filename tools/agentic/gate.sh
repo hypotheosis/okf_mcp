@@ -18,6 +18,9 @@
 #   release  just test-release            5m   (no lock; scripts/test_release.py, the release tooling's tests)
 #   mcpjam   just test-mcpjam             20m  (the MCPJam scenarios against a local server, tests/mcpjam/)
 #
+# Before a gate that builds, an installed seeding command (AGENTIC_SEED_CMD,
+# default cargo-warm) may fill an empty cargo build dir; see below.
+#
 # The limit counts time spent waiting for the lock (flock -w), so a gate stuck
 # behind a hung holder also fails instead of waiting forever.
 #
@@ -75,6 +78,25 @@ case "$gate" in
                   -u OKF_MCP_CATALOG -u OKF_MCP_BIN -u DATABASE_URL just test-mcpjam "$@") ;;
     narrow)  limit=${AGENTIC_TIMEOUT_NARROW:-15m}; locked=0; cmd=(cargo test "$@") ;;
     *) echo "gate.sh: unknown gate '$gate'" >&2; exit 2 ;;
+esac
+
+# A new worktree has no cargo build dir, so its first build compiles every
+# dependency. If a seeding command is installed (AGENTIC_SEED_CMD, default
+# `cargo-warm`: a machine-local tool, not part of this repository), gates that
+# build run `<cmd> seed .` first, which copies a warm build of main into the
+# build dir when there is none yet. It is optional and best effort: when the
+# command is missing nothing happens, and when it fails the gate builds from
+# scratch as before. An empty AGENTIC_SEED_CMD turns it off.
+seed_cmd=${AGENTIC_SEED_CMD-cargo-warm}
+case "$gate" in
+    fmt | worker | release) ;;
+    *)
+        if [ -n "$seed_cmd" ] && command -v "$seed_cmd" >/dev/null 2>&1; then
+            agentic_kill_after=5
+            agentic_run_bounded 300 "$seed_cmd" seed . \
+                || echo "gate.sh: '$seed_cmd seed' failed; building from scratch" >&2
+        fi
+        ;;
 esac
 
 # A limit such as 90, 90s, 30m or 2h, in seconds.

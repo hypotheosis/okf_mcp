@@ -481,6 +481,18 @@ impl Ui {
         last
     }
 
+    /// Waits until `selector`'s text is exactly `expected` (not merely
+    /// containing it: "carol - read" is inside "console-carol - read"),
+    /// and returns the text.
+    ///
+    /// # Panics
+    /// When the text is not `expected` after [`WAIT`].
+    pub fn wait_text_is(&self, selector: &str, expected: &str) {
+        self.poll(&format!("{selector} reading {expected:?}"), || {
+            self.text(selector).trim() == expected
+        });
+    }
+
     /// Waits until `selector`'s text no longer contains `gone` (an absent
     /// element has no text, so that counts too).
     ///

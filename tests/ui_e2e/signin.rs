@@ -508,11 +508,19 @@ async fn an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both() {
     drive(server.base.clone(), move |ui| {
         // A key pasted earlier stays stored in this browser.
         ui.login(&key);
-        ui.wait_text("#whoami", "console-carol");
+        let before = ui.wait_text("#whoami", "console-carol");
+        // The pitfall the exact wait below avoids: the key's identity
+        // contains the account's.
+        assert!(before.contains("carol - read") && before.trim() != "carol - read");
         // Then an account sign-in: its session wins at boot, and the key
         // is dropped.
         ui.sign_in_password("carol@example.com", PASSWORD);
-        ui.wait_text("#whoami", "carol - read");
+        // Exactly "carol - read": the stored key's identity, "console-carol
+        // - read", contains it, so a substring wait is met by the key's
+        // page before the account session has taken over.
+        ui.wait_text_is("#whoami", "carol - read");
+        // Boot drops the key before it draws `#whoami`, so no wait is
+        // needed: this read is of the account session's page.
         assert_eq!(
             ui.eval(
                 "() => localStorage.getItem('okf.key')",

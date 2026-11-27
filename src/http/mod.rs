@@ -862,7 +862,7 @@ pub async fn serve(
 /// Test-only: wraps a worker's task so it ends only once the test lets go
 /// of the queue's [`crate::app::WorkerProbe`] hold, then sets its stopped
 /// flag (issues #773 and #1096). Without `cfg(test)` it returns `worker`
-/// unchanged and costs nothing.
+/// unchanged (its only cost is one trace-level span at worker start).
 ///
 /// # Arguments
 /// * `app` - the shared state, which holds the probes.

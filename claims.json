@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2069,
+  "next_claim_seq": 2077,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "a8b00e2f4be20ca7549ea087201b971d06283bb73d3c0ad32e0a3f33b0a8ca6d"
+    "mac": "6c092494cb7ba181e2a37d2d360659fda005cd3011ebbce7276989ca4da51cb7"
   },
-  "next_evidence_seq": 3685,
+  "next_evidence_seq": 3700,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b5c47dad902475cc4dbad8e93821ac9078a167bf8a211c402da535312f54552c"
+    "mac": "78c4bba9edbfd55ed17c2d15d8ac947f1cdc8cbfc12bdeb329d28fe517ac9628"
   },
   "claims": [
     {
@@ -159595,6 +159595,28 @@
             "by": "server",
             "mac": "b97f991105e8550b764d2acd3adf6d71afadfa8f102cc3ef24c77e1dabd9da0d"
           }
+        },
+        {
+          "id": "EVD-3696",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1998-2057 at e8b0c3f5; gate.sh narrow --lib -- serve_returns_only_after (2 passed)",
+          "summary": "Re-audit after #1096 moved the body into assert_serve_waits_for_worker(queue): the mail test still holds the worker (now via App::worker_probes), asserts pending and flag unset after 3 s, releases, asserts Ok(Ok(Ok(()))) and flag set. Behaviour of the claim holds; only the hook's name changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1998,
+                "end": 2050
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:19.155232483Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ca5bbb46c3973108bea6233ef2d5f569140c5e16a17a6e3e1f739c2d78585d0"
+          }
         }
       ],
       "verdicts": [
@@ -159611,13 +159633,26 @@
             "by": "server",
             "mac": "b9518f77c4cc61a2fc5940051649fd0e0b6e786f1200a367c7ca8291b90e4c94"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at e8b0c3f5: behaviour unchanged through the shared helper.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3696"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.896783494Z",
+          "seal": {
+            "by": "server",
+            "mac": "91f2f3f50b2356be0703269e11f33b2eb646d54a9baf582824de2ba32670b642"
+          }
         }
       ],
       "created_at": "2026-11-26T11:26:29.003530966Z",
-      "updated_at": "2026-11-26T11:26:59.084896470Z",
+      "updated_at": "2026-11-27T06:11:36.896783494Z",
       "seal": {
         "by": "server",
-        "mac": "08e382094ee659ba6f37cb870e449ded8ca30684be6e92a8dae990da701de74f"
+        "mac": "defcccf9998ce159ea7d33fe0a9c46296c4a26bca7c6367f00e42b149153ae0a"
       }
     },
     {
@@ -159662,6 +159697,28 @@
             "by": "server",
             "mac": "4866b294935e6aef883cc09e6dac988017e5342d204b857fe5155890eb5f184a"
           }
+        },
+        {
+          "id": "EVD-3697",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:2034-2037",
+          "summary": "Re-audit at head: `returned = timeout(20s, served).await;` is followed directly by `probe.stopped.load(SeqCst)` with no sleep or polling.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 2032,
+                "end": 2038
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:19.430659545Z",
+          "seal": {
+            "by": "server",
+            "mac": "ddb5b07b691e9f11c784405b1c4a5f638d5ecd4b5ddf0049e0ddd0cd4e9a4306"
+          }
         }
       ],
       "verdicts": [
@@ -159677,13 +159734,26 @@
             "by": "server",
             "mac": "472b81b809418270590899064f81718ef1004c680be8e1997f3910b4f20d54a8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at e8b0c3f5: flag read immediately after serve returns.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3697"
+          ],
+          "recorded_at": "2026-11-27T06:11:37.061445765Z",
+          "seal": {
+            "by": "server",
+            "mac": "8908b8890c737ba75942a29f7be9ba1588e499ca3b72d4d7799aa1b71838e4cc"
+          }
         }
       ],
       "created_at": "2026-11-26T11:26:29.003530966Z",
-      "updated_at": "2026-11-26T11:26:59.177857096Z",
+      "updated_at": "2026-11-27T06:11:37.061445765Z",
       "seal": {
         "by": "server",
-        "mac": "5fbb35fde777f54a79e43b19d374ded3ae106103f8f817eb5c75b2543f4e0872"
+        "mac": "997a6ec2eca95b0c54d79736d8c8b54969fb45a0b0fc6b5d83f7379b7afb8a4a"
       }
     },
     {
@@ -159771,7 +159841,9 @@
         "from-issue:773"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by issue #1096: the mail-specific hooks were replaced by the generic cfg(test) worker probe (CLM-2071).",
+        "retired_at": "2026-11-27T06:12:47.749520766Z"
       },
       "evidence": [
         {
@@ -159795,6 +159867,28 @@
             "by": "server",
             "mac": "1cf9362fe8ec44a04d5a8e96251123fcf05806524c2df9ddaf753ddde38994c3"
           }
+        },
+        {
+          "id": "EVD-3698",
+          "kind": "analysis",
+          "locator": "git grep -E 'mail_worker_exit_hold|\\.mail_worker_stopped|mail_worker_stopped:' -- src",
+          "summary": "At head the named App fields and the spawn_worker wrapper no longer exist (0 hits; queue.rs:796-800 ends with run_worker(...)), so the statement as worded describes removed code. Its intent (test hook is cfg(test)) still holds for the replacement; see CLM-2071.",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "mail_worker_exit_hold|\\.mail_worker_stopped|mail_worker_stopped:",
+              "scope": [
+                "src"
+              ],
+              "hits": 0,
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:19.684086394Z",
+          "seal": {
+            "by": "server",
+            "mac": "a881fb72308985da79fff41cfad65bdc5a1a85057f60ebd3cdcbd240e90e6dbf"
+          }
         }
       ],
       "verdicts": [
@@ -159810,13 +159904,26 @@
             "by": "server",
             "mac": "d097dfa0798b0e93ad1b94db30013b1ff261f6b4564ceb379054d6346163561c"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This diff removed the fields and wrapper the statement names, so it no longer describes the code; the intent now lives in the cfg(test) probe (see CLM-2071). Ours: an existing claim this diff superseded. Fix: retire CLM-1728 as superseded by the generalised cfg(test) probe (the new claim about the test-only worker probe covers it) and commit the ledger.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3698"
+          ],
+          "recorded_at": "2026-11-27T06:11:37.217111438Z",
+          "seal": {
+            "by": "server",
+            "mac": "424c25f8ab997f9f25533283597389ffdd61641fd20a9f00a3d9ced0e6a2bf25"
+          }
         }
       ],
       "created_at": "2026-11-26T11:26:29.003530966Z",
-      "updated_at": "2026-11-26T11:26:59.359668901Z",
+      "updated_at": "2026-11-27T06:12:47.749520766Z",
       "seal": {
         "by": "server",
-        "mac": "182b309c55cd6f3c3baf78a8a5fde44545d806a2c5f8a484ed0ab3ca07bb3aba"
+        "mac": "003848fb7282cee78080e60d507d30a79259e4bfa85017cdc8eece5c96371dfc"
       }
     },
     {
@@ -184363,6 +184470,578 @@
       "seal": {
         "by": "server",
         "mac": "d92aef6f8f23e57ddcfdfb4e394e27f92aa4d6c7fce2ea4ea954d9b61995c0ac"
+      }
+    },
+    {
+      "id": "CLM-2069",
+      "statement": "Issue #1096 is delivered: the #773 test hook is generic, the mail test uses it, a housekeeping twin test exists, both are revert-checked against the supervisor await, and the await carries a doc comment.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1096",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/app.rs",
+        "src/mail/queue.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3699",
+          "kind": "analysis",
+          "locator": "children of CLM-2069",
+          "summary": "The children cover each requirement of the issue: generic hook, test-only, mail test migrated, housekeeping test added, both revert-checks, the comment at the await. All are supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:11:40.197586935Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0f66a743f2d7427dd81b0abadd1e2dcdd6b0dcfe74de3640424df8b851e0d41"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3699"
+          ],
+          "recorded_at": "2026-11-27T06:11:43.248250441Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a23187d9b139c977d34dd0d1e608bdaa2ee97a7ea86010610445b073b0b1f8f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:43.248250441Z",
+      "seal": {
+        "by": "server",
+        "mac": "ad475da9e81efcd35f9f4ea0dabe72c5c4d3e158ce950c2663dce9168ea0dbdb"
+      }
+    },
+    {
+      "id": "CLM-2070",
+      "statement": "The #773 test hook is no longer mail-specific: App::mail_worker_exit_hold and mail_worker_stopped are gone, replaced by one per-queue probe (App::worker_probes) that wraps both the mail and housekeeping workers' tasks in serve_with.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "issue #1096: 'generalise the #773 test-only hook so it isn't mail-specific'; PR body: 'Removed App::mail_worker_exit_hold, mail_worker_stopped and the wrapper in mail::queue::spawn_worker.'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/http/mod.rs",
+        "src/mail/queue.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3685",
+          "kind": "inspection",
+          "locator": "src/app.rs:179-221; src/http/mod.rs:1010-1032",
+          "summary": "WorkerProbes keyed by queue name holds one hold/stopped probe per queue; serve_with wraps both mail and housekeeping spawn_worker results in probe_worker with their QUEUE constants.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1010,
+                "end": 1032
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:01.535122700Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0dbbe41adb0ba48fa62c1f232174ba6a5ad52933891b2a932887396709f629a"
+          }
+        },
+        {
+          "id": "EVD-3686",
+          "kind": "analysis",
+          "locator": "git grep -E 'mail_worker_exit_hold|mail_worker_stopped' -- src",
+          "summary": "Zero hits in src at head except the test function name serve_returns_only_after_the_mail_worker_stopped is excluded by pattern (it does not contain these tokens); old fields and queue.rs wrapper are gone (queue.rs:796-800 now just returns run_worker).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "mail_worker_exit_hold|mail_worker_stopped[^_a-z]|\\.mail_worker_stopped",
+              "scope": [
+                "src"
+              ],
+              "hits": 1,
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:01.766479298Z",
+          "seal": {
+            "by": "server",
+            "mac": "72b24d2a95bf05f2180071a10979417530f888acc15c2c1f74517994d2e1ecdd"
+          }
+        },
+        {
+          "id": "EVD-3695",
+          "kind": "analysis",
+          "locator": "git grep -E 'mail_worker_exit_hold|\\.mail_worker_stopped|mail_worker_stopped:' -- src",
+          "summary": "Zero hits: no field, access or initialiser of the old hook remains in src (the single hit of the looser pattern in the previous item is only the test function's name at src/http/mod.rs:2048).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "mail_worker_exit_hold|\\.mail_worker_stopped|mail_worker_stopped:",
+              "scope": [
+                "src"
+              ],
+              "hits": 0,
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:09.645468161Z",
+          "seal": {
+            "by": "server",
+            "mac": "48a0ae271637159755b50cf4f7ba991978a86a94c52176de6412e717c84c3ae0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Probe is keyed by queue and wraps both workers; old fields have zero remaining uses.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3685",
+            "EVD-3695"
+          ],
+          "recorded_at": "2026-11-27T06:11:35.684356013Z",
+          "seal": {
+            "by": "server",
+            "mac": "d045e5afdf8014ee3818e0356835190b39d2f09d999e80a60bacee19ec6e7620"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:35.684356013Z",
+      "seal": {
+        "by": "server",
+        "mac": "fba18b51163d06a6c03c6bf5157e8b28d21e65dc56b503f811b06b11f13dacdd"
+      }
+    },
+    {
+      "id": "CLM-2071",
+      "statement": "The generalised hook is test-only: WorkerProbe, WorkerProbes, the App field and the wrapping probe_worker are #[cfg(test)], and the non-test probe_worker returns the worker task unchanged, so the library builds without warnings outside tests.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "issue #1096: 'test-only, no runtime cost in production'; PR body: 'The non-test version returns the task unchanged (no runtime cost).'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/app.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3687",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:862-901; src/app.rs:179-221",
+          "summary": "cfg(test) probe_worker at 862-885 and cfg(not(test)) probe_worker at 891-901 returning `worker` unchanged; WorkerProbe/WorkerProbes/App field each have #[cfg(test)]. Neutral nuance: both variants carry #[tracing::instrument(level = \\\"trace\\\", skip_all)], so the release fn is not literally empty (a trace-level span check once per worker at startup), and the doc says 'costs nothing'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 862,
+                "end": 901
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:01.976302767Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff4874d1e4c7c197098fda14597fd4e42f2233bfdc884552c9181dd1a28ae526"
+          }
+        },
+        {
+          "id": "EVD-3688",
+          "kind": "log",
+          "locator": "cargo check --lib (head e8b0c3f5, non-test cfg)",
+          "summary": "Finished dev profile with no warnings or errors, so the non-test probe_worker and unused-parameter handling compile cleanly.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:11:02.157414964Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cb4f7003216e74bc553834295efe7c3cb6cc27dce7f7af7f491ba5400eb2526"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All hook items are cfg(test); the non-test probe_worker returns the task unchanged and cargo check --lib is warning-free. Caveat: it keeps a trace-level tracing::instrument span, so 'costs nothing' is marginally overstated (negligible, once per worker at startup).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3687",
+            "EVD-3688"
+          ],
+          "recorded_at": "2026-11-27T06:11:35.870220644Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d690da3fab4be84a052b0f7cc96e9b2c95d87ede9c9fde58348e384d341313f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:35.870220644Z",
+      "seal": {
+        "by": "server",
+        "mac": "9fa118eb2223b4e45cecbbb93d6ddd6afd3169a74283db79e24165c6356dc7cc"
+      }
+    },
+    {
+      "id": "CLM-2072",
+      "statement": "The mail test serve_returns_only_after_the_mail_worker_stopped now runs through the shared helper assert_serve_waits_for_worker with the mail queue, which holds the worker's exit, asserts serve has not returned after 3 s, releases it, and asserts serve returns Ok and the stopped flag is set.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #1096: 'migrate the mail test to it'; PR body: 'The mail test and the new housekeeping test share assert_serve_waits_for_worker.'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3689",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1998-2057",
+          "summary": "Helper takes the queue's hold, cancels shutdown, asserts serve still pending after 3 s and flag unset, drops hold, asserts serve returns Ok(Ok(Ok(()))) and flag set; mail test at 2046-2050 calls it with mail::queue::QUEUE.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1998,
+                "end": 2057
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:02.356272163Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b4ead4a394fde4b8d6fff20eb28b9fb8f64c078326498bca4d4f3d99b33183d"
+          }
+        },
+        {
+          "id": "EVD-3690",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- serve_returns_only_after",
+          "summary": "At head: serve_returns_only_after_the_mail_worker_stopped ... ok; test result: ok. 2 passed; 0 failed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:11:02.533370652Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3558393c356ae13dd00a5d6790b16f53936d5dc51c4dcd312031e1c2b7cc286"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Helper body read; the mail test calls it and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3689",
+            "EVD-3690"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.034297473Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6ec0889901ecb87b9382eb48ae50102780439e9ec979f749c1019664f2dce56"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:36.034297473Z",
+      "seal": {
+        "by": "server",
+        "mac": "aad570c61dbbac5b96d3d5e345accf284c01d738b775163771731c5685f0ebba"
+      }
+    },
+    {
+      "id": "CLM-2073",
+      "statement": "A new test http::tests::serve_returns_only_after_the_housekeeping_worker_stopped calls the same helper with the housekeeping queue and passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #1096: 'add serve_returns_only_after_the_housekeeping_worker_stopped mirroring the mail test'; PR body Manual Test Plan: '-> 2 passed'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3691",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- serve_returns_only_after",
+          "summary": "At head: http::tests::serve_returns_only_after_the_housekeeping_worker_stopped ... ok; 2 passed; 0 failed. Test body (src/http/mod.rs:2052-2056) calls assert_serve_waits_for_worker(crate::housekeeping::QUEUE), QUEUE = \\\"housekeeping\\\" (src/housekeeping/mod.rs:95).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 2051,
+                "end": 2057
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:02.711903988Z",
+          "seal": {
+            "by": "server",
+            "mac": "62f05cde24009f0be13dbf1d5610ca4ab773d96b09e94221bb0d8b6350168646"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test exists, uses the housekeeping queue, passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3691"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.228725481Z",
+          "seal": {
+            "by": "server",
+            "mac": "7050f7f662149f5db7fd584a77a0bbfed0073d3aa817c961155dcbc86c6ab201"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:36.228725481Z",
+      "seal": {
+        "by": "server",
+        "mac": "497d55aa44ede901a8e088beee97cc6be3ae22d158aae9b66726583d1715aeed"
+      }
+    },
+    {
+      "id": "CLM-2074",
+      "statement": "Dropping the mail supervisor's await in serve_with makes serve_returns_only_after_the_mail_worker_stopped fail while the housekeeping test still passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'dropping the mail supervisor's await made the mail test fail ... (each other test still passed)'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3692",
+          "kind": "test",
+          "locator": "temp edit of src/http/mod.rs supervisor loop (skip index 0), then tools/agentic/gate.sh narrow --lib -- serve_returns_only_after; restored with git checkout",
+          "summary": "Result: mail test FAILED (panicked at src/http/mod.rs:2025 'serve returned while the send_mail worker's task was held: Ok(Ok(Ok(())))'); housekeeping test ok; 1 passed, 1 failed. Tree clean afterwards.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:11:02.884072715Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a45d7a9c390035bb83f59ef010df83380f859291c29e0deb123d9a9dd60c038"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran the revert-check myself: only the mail test failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3692"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.388183289Z",
+          "seal": {
+            "by": "server",
+            "mac": "d177e80b3231b163f733d0026eceaf583c641ee34d74f44254ba6572cca68aee"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:36.388183289Z",
+      "seal": {
+        "by": "server",
+        "mac": "9406911da5234cc65dac5670f6156d5e2b7196103aba395fc7ec62a99024e178"
+      }
+    },
+    {
+      "id": "CLM-2075",
+      "statement": "Dropping the housekeeping supervisor's await in serve_with makes serve_returns_only_after_the_housekeeping_worker_stopped fail while the mail test still passes.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'dropping the housekeeping supervisor's await made the housekeeping test fail (each other test still passed)'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3693",
+          "kind": "test",
+          "locator": "temp edit of src/http/mod.rs supervisor loop (skip index 1), then tools/agentic/gate.sh narrow --lib -- serve_returns_only_after; restored with git checkout",
+          "summary": "Result: housekeeping test FAILED (panicked at src/http/mod.rs:2025 'serve returned while the housekeeping worker's task was held: Ok(Ok(Ok(())))'); mail test ok; 1 passed, 1 failed. Tree clean afterwards.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T06:11:03.054712985Z",
+          "seal": {
+            "by": "server",
+            "mac": "126e13deb81ca726ffa58a390ebb4c5dbf2c73dd83e33b661fb548dd1dfa6f5a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran the revert-check myself: only the housekeeping test failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3693"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.562854923Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec596cd24f20cc32ca10d44eea754396efac7f84584c0e5f62f478e061c40b66"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:36.562854923Z",
+      "seal": {
+        "by": "server",
+        "mac": "35bdc62b1a3dda0016f0180cb61bf2e093c19f0237a0c4a0516d5c0884e4afab"
+      }
+    },
+    {
+      "id": "CLM-2076",
+      "statement": "The supervisor await loop in serve_with has a doc comment saying it guarantees each worker task has ended (for example its LISTEN connection dropped), beyond what worker_pool.close() gives.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "issue #1096: 'add a doc comment at the supervisor await saying it guarantees the worker task ends (e.g. its LISTEN connection) beyond worker_pool.close()'",
+      "derived_from": [
+        "CLM-2069"
+      ],
+      "artifacts": [
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1096"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3694",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:1101-1112",
+          "summary": "Comment directly above the `for supervisor in supervisors` await: 'Keep this await even though worker_pool.close() ... says nothing about the worker's task. Awaiting the supervisors guarantees each task has ended (its LISTEN connection dropped, no job running against the closing pool)'. Placed with regular // comments, not /// doc comments (not attachable to a statement).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 1101,
+                "end": 1112
+              },
+              "commit": "e8b0c3f5301efe57e325d305dd4fc179ce48d83a"
+            }
+          },
+          "recorded_at": "2026-11-27T06:11:03.228452418Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a3af71ca6f8089f8bcb0b8d1bda61ca6ba143e823ae241625874aabc8c831bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Comment at the await states the guarantee beyond pool close, naming the LISTEN connection.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3694"
+          ],
+          "recorded_at": "2026-11-27T06:11:36.733027297Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3d26fc570d97b9bf3506208224c4d7ce74e39492fb13daf97f0c92aadbf7858"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T06:10:41.778457556Z",
+      "updated_at": "2026-11-27T06:11:36.733027297Z",
+      "seal": {
+        "by": "server",
+        "mac": "1c9af1040f1f45253b5d4d512579becf48b4593a0ad0cb209254bebeae45af8d"
       }
     }
   ]

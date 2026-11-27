@@ -393,8 +393,22 @@ test_merge_refuses_an_unknown_state_that_never_resolves() {
     printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
         >"$fx/pr-view.json"
     run_merge_fake_clock
-    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting"; want_not_merged
+    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting 60 s"; want_not_merged
     [ "$(cat "$fx/clock")" -le 1100 ] || die "waited past the bound"
+}
+
+test_merge_state_wait_is_not_overrun_by_a_slow_lookup() {
+    new_fixtures; good_pr "$head_a"
+    printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
+        >"$fx/pr-view.json"
+    # Each state lookup would take 20 s; the wait is 2 s, so the lookup must be
+    # cut off at the wait's end, not given the full call timeout.
+    echo 20 >"$fx/lookup-sleep"
+    started=$SECONDS
+    out=$(cd "$repo" && AGENTIC_STATE_WAIT=2 timeout 30 "$tools/merge-reviewed.sh" 7 2>&1)
+    rc=$?
+    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting"; want_not_merged
+    [ $((SECONDS - started)) -le 8 ] || die "took $((SECONDS - started)) s for a 2 s wait"
 }
 
 test_merge_says_what_it_checked_when_blocked_for_another_reason() {

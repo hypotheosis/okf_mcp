@@ -54,6 +54,9 @@ case "$1 ${2:-}" in
         if [ -e "$fixtures/merge-state.fail" ] && [[ " ${args[*]} " == *mergeStateStatus* ]]; then
             echo "stub gh: merge state lookup failed" >&2; exit 1
         fi
+        if [ "${args[*]: -2}" = "--json mergeStateStatus" ] && [ -s "$fixtures/lookup-sleep" ]; then
+            sleep "$(cat "$fixtures/lookup-sleep")" # a slow state lookup, in real seconds
+        fi
         if [ "${args[*]: -2}" = "--json mergeStateStatus" ] && [ -s "$fixtures/merge-state-seq" ]; then
             jq -n --arg s "$(head -n1 "$fixtures/merge-state-seq")" '{mergeStateStatus: $s}' \
                 >"$fixtures/state-now.json"

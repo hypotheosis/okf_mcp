@@ -65,26 +65,42 @@ fi
 # await_merge_state <also_blocked>: re-reads mergeStateStatus into $state until
 # it is no longer UNKNOWN (and, when <also_blocked> is 1, no longer BLOCKED:
 # GitHub may still hold the pre-resolve state), for at most $AGENTIC_STATE_WAIT
-# seconds from now. Sets $waited to the seconds spent.
+# seconds from now. Each lookup and each sleep is capped by the time left
+# (agentic_deadline, scoped to this call), so the wait never overruns the bound;
+# a lookup that runs out of time ends the wait with the state as it was.
+# Sets $waited to the seconds spent.
 await_merge_state() {
-    local started deadline
+    local started deadline left rc latest
     started=$(agentic_now)
     deadline=$((started + ${AGENTIC_STATE_WAIT:-60}))
+    # One second of grace, so the read after the last sleep still gets a budget.
+    agentic_deadline=$((deadline + 1))
     waited=0
-    while [ "$state" = UNKNOWN ] || { [ "$1" = 1 ] && [ "$state" = BLOCKED ]; }; do
-        [ "$(agentic_now)" -lt "$deadline" ] || break
-        agentic_sleep 3
-        state=$(agentic_gh pr view "$pr" -R "$repo" --json mergeStateStatus \
-            --jq .mergeStateStatus) \
-            || { echo "REFUSE: could not re-read the merge state of PR $pr"; exit 1; }
+    while :; do
+        rc=0
+        latest=$(agentic_gh pr view "$pr" -R "$repo" --json mergeStateStatus \
+            --jq .mergeStateStatus) || rc=$?
+        if [ "$rc" = 124 ]; then
+            waited=$(($(agentic_now) - started))
+            break
+        fi
+        [ "$rc" = 0 ] || { echo "REFUSE: could not re-read the merge state of PR $pr"; exit 1; }
+        state=$latest
         waited=$(($(agentic_now) - started))
+        if [ "$state" != UNKNOWN ] && { [ "$1" != 1 ] || [ "$state" != BLOCKED ]; }; then
+            break
+        fi
+        left=$((deadline - $(agentic_now)))
+        [ "$left" -gt 0 ] || break
+        agentic_sleep "$((left < 3 ? left : 3))"
     done
+    agentic_deadline=""
 }
 
 # GitHub computes mergeStateStatus lazily; UNKNOWN means it has not finished.
+waited=0
 [ "$state" != UNKNOWN ] || await_merge_state 0
 
-waited=0
 resolved=0
 person_threads=""
 if [ "$state" = BLOCKED ]; then

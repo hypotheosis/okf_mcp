@@ -1899,30 +1899,31 @@ async fn server_with_a_second_reader() -> TestServer {
     server
 }
 
-/// Signs in as `second` in another tab (the same cookies), at the console's
-/// sign-in page, so none of its answers go through the reader's worker; the
-/// reader tab stays open.
+/// Signs in as `second` in another tab (the same cookies), from the
+/// console's page, so none of its answers go through the reader's worker; the
+/// reader tab stays open. `GET /signin` sends a signed-in browser on to the
+/// console, so the tab posts the sign-in form itself, as the page would.
 fn sign_in_second_in_another_tab(ui: &Ui) {
     ui.in_second_tab(|tab| {
         tab.goto(
-            &format!("{}/signin", ui.base),
+            &format!("{}/ui/", ui.base),
             rustwright::GotoOptions::default(),
         )
-        .expect("open the sign-in page");
-        let options = rustwright::ActionOptions::default;
-        tab.fill("#signin-email", SECOND_EMAIL, options())
-            .expect("email");
-        tab.fill("#signin-password", PASSWORD, options())
-            .expect("password");
-        tab.click("#signin-submit", options()).expect("submit");
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while !tab.url().contains("/ui/") {
-            assert!(
-                Instant::now() < deadline,
-                "the second sign-in never finished"
-            );
-            std::thread::sleep(Duration::from_millis(50));
-        }
+        .expect("open the console");
+        let post = format!(
+            "async () => (await fetch('/signin', {{ method: 'POST', body: new URLSearchParams({{ \
+             email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }})).status"
+        );
+        let status = tab
+            .evaluate(&post, None, rustwright::ActionOptions::default())
+            .expect("post the sign-in");
+        assert_eq!(status, json!(200), "the sign-in was refused");
+        // A new session, so the console is reloaded as `second`.
+        tab.goto(
+            &format!("{}/ui/", ui.base),
+            rustwright::GotoOptions::default(),
+        )
+        .expect("reload the console");
     });
 }
 

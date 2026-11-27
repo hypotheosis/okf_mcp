@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2249,
+  "next_claim_seq": 2263,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c6a1204cd57358165267b41aae895107df393ab17810b7b6367e2867d2cceb54"
+    "mac": "8004025241f537651c1236443dc6e9978782072e8d2c352903cf04454a793b69"
   },
-  "next_evidence_seq": 3957,
+  "next_evidence_seq": 3978,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "3e33d90c26614a411a96528bc6486650f06cb54bae8b5dbb9105b36a5f5971c6"
+    "mac": "26e43c06ae43874843392820d9963abcee60906d88eedfd9c46e2fedf5df2123"
   },
   "claims": [
     {
@@ -36890,6 +36890,28 @@
             "by": "server",
             "mac": "bb382769d929642c9d58086ae192507d1e139cc188cdf60c783131b80fd53078"
           }
+        },
+        {
+          "id": "EVD-3977",
+          "kind": "inspection",
+          "locator": "docs/reference/reader.md:21-37 at fdc13327",
+          "summary": "The signed-out screen text is intact; the PR only inserts a paragraph (27-32) about GET /signin redirecting a signed-in browser, which says nothing about the reader redirecting signed-out visits. Anchor drift is from that insertion.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/reader.md",
+              "lines": {
+                "start": 21,
+                "end": 37
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:46:36.634993413Z",
+          "seal": {
+            "by": "server",
+            "mac": "a00f1de70f1ac728788edbf6f9b789dd4952267ad9816695006bf15cc48bd6b6"
+          }
         }
       ],
       "verdicts": [
@@ -36905,13 +36927,26 @@
             "by": "server",
             "mac": "64c3a408094d009fd28f7118b0c710df566612f39a41249b58fb613343f07e8b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at fdc13327 after reader.md changed: the added paragraph does not contradict it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3977"
+          ],
+          "recorded_at": "2026-11-27T17:46:40.118473409Z",
+          "seal": {
+            "by": "server",
+            "mac": "33bed6d365f53b5576dbb0b370a2295ab0fe88e162a903a6ae80299ea297ba62"
+          }
         }
       ],
       "created_at": "2026-11-21T22:56:19.448666366Z",
-      "updated_at": "2026-11-21T22:57:48.717144704Z",
+      "updated_at": "2026-11-27T17:46:40.118473409Z",
       "seal": {
         "by": "server",
-        "mac": "1382375c12462e84dc27b8116f75ad59dcb861c73b8965ae00df9ce305d90db5"
+        "mac": "55c7cf43ae41819526114375f036d520eb9da5ca70a9666d0cd6e10bb7e80347"
       }
     },
     {
@@ -198874,6 +198909,1063 @@
       "seal": {
         "by": "server",
         "mac": "4c0eac74064e93697002df64ee7fd0057d9a7cdc445b9a78f510633b37fd0500"
+      }
+    },
+    {
+      "id": "CLM-2249",
+      "statement": "GET /signin sends a browser that already has a live console session straight on to return_to, as the issue and PR describe.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1168",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3976",
+          "kind": "analysis",
+          "locator": "children of CLM-2249",
+          "summary": "Thirteen of the fourteen children hold: redirect, form cases, notice=reset, safe_return_to, journey, docs, same session check, no-store, store-error, no-loop and test/doc inventory. The refuted child CLM-2255 (issue wording that every listed test fails on revert) does not affect the behavior, only a criterion on the tests.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T17:46:28.132696291Z",
+          "seal": {
+            "by": "server",
+            "mac": "66d22c7a8585af9574db0e4fe759cc95f235bcbefe1aaaadd5e04435ca03f80a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Roll-up: every behavior child holds, but CLM-2255 (issue criterion that each listed test fails on revert) is refuted for the guard test, so the parent cannot be supported as a whole. Behavior is delivered; only that test criterion is unmet. Fix: say in the PR description which tests fail on revert and that the no/expired/revoked-session test is a guard that passes before and after, then re-audit CLM-2255.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3976"
+          ],
+          "recorded_at": "2026-11-27T17:46:33.165724149Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcb5751f4aa5707f03a1d1f4cc2299de7d5f76c7c3aaacf6fbfc28d9676b8480"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:33.165724149Z",
+      "seal": {
+        "by": "server",
+        "mac": "17c30d4bc96efa0dcb1eae5aceecac154f7404c1f510b289e69ed72be661bd06"
+      }
+    },
+    {
+      "id": "CLM-2250",
+      "statement": "sign_in_page answers 303 See Other to safe_return_to(return_to) when signed_in_user finds a live session.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#1168 Fix: 'If the request has a live session ..., answer 303 See Other to safe_return_to(return_to).'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3957",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:335-359",
+          "summary": "sign_in_page computes return_to = safe_return_to(query.return_to), calls signed_in_user, and on Ok(Some(_)) returns Redirect::to(&return_to) (303 See Other in axum) with Cache-Control: no-store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 335,
+                "end": 359
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:29.826411514Z",
+          "seal": {
+            "by": "server",
+            "mac": "c40bca7371e68e3579953d07aa17755b70ab34850f003f378f47b7f8e3c084e1"
+          }
+        },
+        {
+          "id": "EVD-3958",
+          "kind": "test",
+          "locator": "src/http/signin.rs:3538-3555 a_signed_in_browser_is_sent_on_to_its_return_to_and_not_to_the_form (read, not run)",
+          "summary": "Test signs in a real session, GETs /signin?return_to=/read/ and asserts status SEE_OTHER and Location /read/ with an empty body. I read the assertions; I did not run the test (gates run elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3538,
+                "end": 3555
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:29.980675260Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5d31ff9d3edc0b8dcf1b90f33f41e618d8f733765c7750bd0add4bb3d20e36a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Handler redirects on a live session via Redirect::to (303) to safe_return_to; test asserts 303 and Location /read/. Tests read, not run by this auditor.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3957",
+            "EVD-3958"
+          ],
+          "recorded_at": "2026-11-27T17:46:25.729389031Z",
+          "seal": {
+            "by": "server",
+            "mac": "3316248480a9dbac0307e46035e799d20363648327d4c4edc07b8475e051179f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:25.729389031Z",
+      "seal": {
+        "by": "server",
+        "mac": "920e00e8e1df12d2f8b4b8587288bc3d724077ccc4c68f90882901b05be746f1"
+      }
+    },
+    {
+      "id": "CLM-2251",
+      "statement": "sign_in_page still answers 200 with the form for a request with no cookie, an unknown session, an idle-expired session, an expired session or a revoked session.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#1168 Fix: 'Keep drawing the form when there is no session, or when the session is expired or revoked.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3959",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:350-358; src/store/user_sessions.rs touch (373-431)",
+          "summary": "Ok(None) from signed_in_user falls through to the form. signed_in_user returns None with no cookie; touch returns None for an unknown id and, via the idle_cutoff / expires_at conditions, deletes and returns None for idle-expired or expired sessions; a revoked session row is gone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 350,
+                "end": 358
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.120647668Z",
+          "seal": {
+            "by": "server",
+            "mac": "350e7539d30ff959366b6d510f71cc009637f2311e914d878273e7bd95df7efb"
+          }
+        },
+        {
+          "id": "EVD-3960",
+          "kind": "test",
+          "locator": "src/http/signin.rs:3577-3615 no_live_session_still_gets_the_form (read, not run)",
+          "summary": "Builds five browsers (no cookie, unknown cookie, session aged 13h idle, expires_at in the past, revoke_all) and asserts each GET /signin?return_to=/read/ is 200 and contains id=signin-form. Assertion read; not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3577,
+                "end": 3615
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.290853379Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fb082f631162cac3274cc30215f0d266aa30b99456d57e92bf29721ec205f2a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "None falls through to the form; touch ends idle/expired sessions; test covers all five cases with 200 and the form id.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3959",
+            "EVD-3960"
+          ],
+          "recorded_at": "2026-11-27T17:46:25.919586386Z",
+          "seal": {
+            "by": "server",
+            "mac": "fae80ff7e302c856984445aa5ea87ebaddae1f3553cba4786a7f648ab89216dc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:25.919586386Z",
+      "seal": {
+        "by": "server",
+        "mac": "46d8775de70fdf06b6dd62e9943ac5721b0053dfbaa9f6a10d8fc8e00091bb91"
+      }
+    },
+    {
+      "id": "CLM-2252",
+      "statement": "With a live session, ?notice=reset does not stop the redirect.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "#1168 Fix: '?notice=reset is not a reason to show the form to someone who is signed in: the redirect still applies.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3961",
+          "kind": "test",
+          "locator": "src/http/signin.rs:3538-3555 (the reset reply)",
+          "summary": "The handler computes the redirect before notice is read (notice only set on the form view at line ~356). The test GETs ?return_to=/ui/&notice=reset signed in and asserts SEE_OTHER to /ui/. Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3538,
+                "end": 3555
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.437546234Z",
+          "seal": {
+            "by": "server",
+            "mac": "e063b5f3495c25ba8b9575df272a0bca158f8a35a72f1e78c657373daa59d395"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The redirect is decided before notice is read, and the test asserts 303 for notice=reset.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3961"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.128834130Z",
+          "seal": {
+            "by": "server",
+            "mac": "258e6ec0640d9612f6a6e559d2c1264e1b2c3b2d4a12e1587846ff55c4303a19"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.128834130Z",
+      "seal": {
+        "by": "server",
+        "mac": "f1ecbf8d57c55c50814ced10ae8d5028812d39f6c3dfd8d48ccfd439d7ae067b"
+      }
+    },
+    {
+      "id": "CLM-2253",
+      "statement": "The redirect target always goes through safe_return_to, so a hostile or off-site return_to sends a signed-in browser to /ui/ and never off-site.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "#1168 Fix: 'return_to keeps going through safe_return_to, so this adds no open redirect.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs",
+        "src/http/pages.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3962",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:341,343-348; src/http/pages.rs:218-238",
+          "summary": "The only value passed to Redirect::to is safe_return_to's output, which returns the input only when it is visible ASCII without backslash and starts with /ui/, /read/ or /oauth/authorize?, else /ui/.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/pages.rs",
+              "lines": {
+                "start": 218,
+                "end": 238
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.608039487Z",
+          "seal": {
+            "by": "server",
+            "mac": "7bd2878bed01fa173bbc8ff4a4be00e469df61e64be459f659aa9536f4d74c52"
+          }
+        },
+        {
+          "id": "EVD-3963",
+          "kind": "test",
+          "locator": "src/http/signin.rs:3557-3575 a_signed_in_browser_is_never_sent_off_site (read, not run)",
+          "summary": "Signed-in browser GETs /signin with six hostile return_to values (absolute URL, //host, /\\host, javascript:, encoded //host, CRLF injection) and asserts 303 with Location /ui/ each time. Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3557,
+                "end": 3575
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.754695242Z",
+          "seal": {
+            "by": "server",
+            "mac": "579d650d89daf1f1c7ea3c225b3fcb4cf2b02aad4264df3cc9be6fe7766bec05"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only safe_return_to output reaches Redirect::to; the test sends six hostile values and asserts /ui/ each time.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3962",
+            "EVD-3963"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.323418731Z",
+          "seal": {
+            "by": "server",
+            "mac": "78a430c80e85e388bbac270b04234f57db3df271d80b306f87f3b2a7d0d1321d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.323418731Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c98d72d7ed83fab5bec06b56f38a935d21d7ea1a932802673e76fec0ff74b45"
+      }
+    },
+    {
+      "id": "CLM-2254",
+      "statement": "A browser journey signs in, opens /signin?return_to=%2Fread%2F again and asserts it lands on /read/ without the sign-in form.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#1168 Tests: 'A browser journey: sign in, open /signin?return_to=/read/ again, and land in the reader without the form.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3964",
+          "kind": "test",
+          "locator": "tests/ui_e2e/read.rs:271-296 a_signed_in_browser_opening_the_sign_in_link_lands_in_the_reader (read, not run)",
+          "summary": "Signs in via sign_in_reader, location.assign(/signin?return_to=%2Fread%2F), waits for [data-catalog=main], asserts pathname /read/, asserts #signin-email absent, and that /api/v1/session is 200. Not run by me (browser journey; gates elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 271,
+                "end": 296
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:30.900972665Z",
+          "seal": {
+            "by": "server",
+            "mac": "1d018940958f140483d8fd6be2fe6a5ada4a91cc0c8f32da43b8ded9207ec1e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Journey signs in, reopens the sign-in link, and asserts /read/, no form and a live session. Read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3964"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.492910830Z",
+          "seal": {
+            "by": "server",
+            "mac": "224ed109d460ad767d54972f2717e0a78c9eb598401b341287fb9fd980519c1a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.492910830Z",
+      "seal": {
+        "by": "server",
+        "mac": "6a3c88736c41c3ceab5bb77cd22def9142894a2401517cfd08a59447bdc71124"
+      }
+    },
+    {
+      "id": "CLM-2255",
+      "statement": "Each test the issue lists (the 303 to /read/, the off-site return_to, the no-cookie/expired/revoked form cases, the journey) fails when the change is reverted.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "#1168 Tests: 'Each of these should fail with the change reverted.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs",
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3965",
+          "kind": "analysis",
+          "locator": "git show origin/main:src/http/signin.rs sign_in_page (line 325) vs src/http/signin.rs:3577-3615",
+          "summary": "Before the change sign_in_page always drew the form (200, signin-form) whatever the cookie. no_live_session_still_gets_the_form asserts exactly that for no/unknown/idle/expired/revoked sessions, so it passes with the change reverted. The issue's 'each should fail with the change reverted' cannot hold for these guard cases (it holds for the 303 tests, the hostile return_to test, the journey, and the healed step of the store-error test).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3577,
+                "end": 3615
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:57.477355806Z",
+          "seal": {
+            "by": "server",
+            "mac": "8cfebe5f2533141983b16a756b011260be3f47e3d0c0029a07812ea0584d44b7"
+          }
+        },
+        {
+          "id": "EVD-3966",
+          "kind": "analysis",
+          "locator": "src/http/signin.rs:3538-3575, 3619-3637; tests/ui_e2e/read.rs:271-296",
+          "summary": "The redirect tests assert SEE_OTHER, the hostile-return_to test asserts SEE_OTHER to /ui/, the store-error test asserts SEE_OTHER after healing, and the journey waits for the reader catalog and no #signin-email: all would fail against the old always-form handler.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3538,
+                "end": 3575
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:57.705044629Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb48895f59b7b577c5bdf14a3900945d3da5c59f1cb539b00fb28b560e92329f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The issue asks that each listed test fail with the change reverted. no_live_session_still_gets_the_form asserts the old always-form behavior (200 and signin-form for no cookie, expired and revoked sessions), so it passes on the reverted code. The other tests do fail on revert. Fix: say in the PR description and the changelog that the no/expired/revoked-session test is a guard that passes before and after, and that the 303 tests, hostile-return_to test, the store-error healed step and the journey are the ones that fail on revert; or ask pgrace to narrow the issue criterion.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3965"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.668546512Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6767634480f1e2a20ac8882cb4b3633b1979472ac827a170d8c59f89b16db8c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.668546512Z",
+      "seal": {
+        "by": "server",
+        "mac": "8575385227d1c50f2a99f2168f4e92ef40101c7d0f5e2acfc31c82bedb3473f1"
+      }
+    },
+    {
+      "id": "CLM-2256",
+      "statement": "docs/reference/reader.md says, where it describes the sign-in page, that a browser already signed in is sent straight on to return_to.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "#1168 Docs: 'Say in docs/reference/ where the sign-in page is described that an already-signed-in browser is sent straight on.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "docs/reference/reader.md"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3967",
+          "kind": "inspection",
+          "locator": "docs/reference/reader.md:27-32",
+          "summary": "The paragraph in the reader page's sign-in description says a signed-in browser is sent straight on: GET /signin with a live session answers 303 to return_to (or /ui/), with expired/idle/ended/unchecked sessions still getting the form.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/reader.md",
+              "lines": {
+                "start": 27,
+                "end": 32
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:57.930925836Z",
+          "seal": {
+            "by": "server",
+            "mac": "883eb6e0ae29af7bda5f22cbbcf439696c4d44e0ba586d573fec0facce1be8a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "reader.md lines 27-32 state it in the sign-in description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3967"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.828319626Z",
+          "seal": {
+            "by": "server",
+            "mac": "50eae0026479d05dfbf3f8479431365a3cb13b2269ef8311d1a82cc85de778c3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.828319626Z",
+      "seal": {
+        "by": "server",
+        "mac": "e1207a42819da4a71e1d2ca8a1ad6d67e9bf9a8dcabeaca0ed92ae9daf4c8018"
+      }
+    },
+    {
+      "id": "CLM-2257",
+      "statement": "signed_in_user is the same check /oauth/authorize uses, and it makes the /api/v1 middleware's check: user_sessions::touch, then a user that still exists.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR #1168 description: 'calls signed_in_user, the same check /oauth/authorize uses (the /api/v1 middleware's user_sessions::touch, then a user that still exists)'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/console_session.rs",
+        "src/oauth/authorize.rs",
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3968",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:405-417, 497-516; src/oauth/authorize.rs:811-817; src/cache/credentials.rs:277-290",
+          "summary": "signed_in_user does user_sessions::touch(idle, now) then credentials.user(id) (None once the user is gone). The /api/v1 middleware does the same touch then session_principal, which is credentials.user(id) wrapped in Principal::for_session (None only when the user is gone). /oauth/authorize calls signed_in_user. Equivalent checks.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 405,
+                "end": 417
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:58.168151351Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f382a9f504a9c4b950d2b2ce2c9e04b7347cdc43f263b5ad7d227656c9e8647"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both paths touch the session and then require the user to exist; /oauth/authorize calls signed_in_user.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3968"
+          ],
+          "recorded_at": "2026-11-27T17:46:26.987490127Z",
+          "seal": {
+            "by": "server",
+            "mac": "da94f11586ba0f126a4b8bbed196b8f94287ca81a85788e4637b8579da94b605"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:26.987490127Z",
+      "seal": {
+        "by": "server",
+        "mac": "093562f91a44bc43e97dc514a1e87c8704850b25599fef43e3ada6d91be9a3f3"
+      }
+    },
+    {
+      "id": "CLM-2258",
+      "statement": "The redirect response carries Cache-Control: no-store.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1168 description: 'A live session gets 303 to safe_return_to(return_to) with Cache-Control: no-store'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3969",
+          "kind": "test",
+          "locator": "src/http/signin.rs:342-348 and :3550 (read, not run)",
+          "summary": "The redirect tuple sets header::CACHE_CONTROL no-store, and the first test asserts reader.headers[cache-control] == no-store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3548,
+                "end": 3552
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:58.379252208Z",
+          "seal": {
+            "by": "server",
+            "mac": "4bbbca5f3420f4d0464b1332c175d2e6af7b0735ef63a3b9b2b92a75946cfcce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code sets no-store on the redirect; the first test asserts it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3969"
+          ],
+          "recorded_at": "2026-11-27T17:46:33.005593764Z",
+          "seal": {
+            "by": "server",
+            "mac": "85c3f585dbc15ff1d3f8dd4e05c1ee9154d59ee5fe75262abaef7a8c57dfe91d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:33.005593764Z",
+      "seal": {
+        "by": "server",
+        "mac": "32aedddc0f1db14e10ee07ac85941a06ce0853601a8c26051128172db1a73da1"
+      }
+    },
+    {
+      "id": "CLM-2259",
+      "statement": "A database error while checking the session is logged at warn with only the error (never the cookie) and the form is drawn.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR #1168 description: 'A database error while checking is logged at warn (the error only, never the cookie) and the form is drawn'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3970",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:350-358",
+          "summary": "The Err arm calls tracing::warn!(%error, ...) with only the error and then falls through to the form; the cookie is never passed to the log. The warn is not asserted by any test; the error text itself (OkfError::Database) is not guaranteed free of SQL text, but the cookie is not in it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 350,
+                "end": 358
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:58.586534362Z",
+          "seal": {
+            "by": "server",
+            "mac": "689940ed39f8eb91bc8b1efc4ec4b63cebff00deacdfa5fe38379ccf2ee7715f"
+          }
+        },
+        {
+          "id": "EVD-3971",
+          "kind": "test",
+          "locator": "src/http/signin.rs:3618-3637 a_session_that_cannot_be_checked_still_gets_the_form (read, not run)",
+          "summary": "Installs a BEFORE UPDATE ON user_sessions FOR EACH STATEMENT failing trigger (fires even when no row matches, so touch's UPDATE errors), asserts 200 plus signin-form, then drops it and asserts SEE_OTHER. Form-on-error is tested; the warn log line and its content are not asserted.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3618,
+                "end": 3637
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:58.789587532Z",
+          "seal": {
+            "by": "server",
+            "mac": "be29ceffd161d92a3d6f39d6c25498deea6353ad77ceea1c85e12ec42b0d6f95"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Err arm logs only the error at warn and draws the form; the injected-failure test asserts the form then a redirect once healed. The warn line itself is untested, which the claim's test-style wording leans on but the code reading shows.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3970",
+            "EVD-3971"
+          ],
+          "recorded_at": "2026-11-27T17:46:27.229126900Z",
+          "seal": {
+            "by": "server",
+            "mac": "3fe8595c0bd2aef739bc7db7abb0506e494a8503099ff69017628e03162c363b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:27.229126900Z",
+      "seal": {
+        "by": "server",
+        "mac": "3f585727daa22936cb179b18bea3c865a9f52db02352905a7319b5e43fd9c2b9"
+      }
+    },
+    {
+      "id": "CLM-2260",
+      "statement": "On a 401 the reader shows its own signed-out screen with a Sign in link and the console shows its login card, and neither navigates to /signin by itself, so the new redirect cannot loop.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR #1168 description: 'No redirect loop: on a 401 the reader shows its own signed-out screen ... and the console shows its login card; neither navigates to /signin by itself.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/read/js/main.js",
+        "src/http/ui/js/main.js"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3972",
+          "kind": "inspection",
+          "locator": "src/http/read/js/main.js:87-90,100-115,120-130; src/http/ui/js/main.js:27-36,68-75",
+          "summary": "Reader: the 401 handler calls showSignedOut(), which only draws a screen with an href link; location.assign is only in leaveFor, used by account sign-out after the server confirmed the session ended. Console: the unauthorized handler calls showLogin(), which only sets an href. No script navigates to /signin on a 401.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 85,
+                "end": 130
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:58.994585908Z",
+          "seal": {
+            "by": "server",
+            "mac": "636f0e873fb30c54a94ed222d3394b4052116c0c27dbeb055200e7db1e680d90"
+          }
+        },
+        {
+          "id": "EVD-3973",
+          "kind": "analysis",
+          "locator": "search: location.assign|replace|href in src/http/ui/js, src/http/read/js",
+          "summary": "Only navigation calls in the two front ends: read/js/main.js:89 (leaveFor) and :229 (location.replace to catalogs). None goes to /signin on a 401.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "location\\.(assign|replace|href)|window\\.location",
+              "scope": [
+                "src/http/read/js",
+                "src/http/ui/js"
+              ],
+              "hits": 6,
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:59.196905295Z",
+          "seal": {
+            "by": "server",
+            "mac": "035360a6b496aec57f255b7ef4330d1c2e812306ac4fbd1231534cf962228713"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Neither front end navigates to /signin on a 401 (only draw a screen with a link); the only location.assign is after confirmed sign-out. Together with equal session checks this rules out a loop.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3972",
+            "EVD-3973"
+          ],
+          "recorded_at": "2026-11-27T17:46:27.450135047Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e5f43cb5791a5ff25ed4dd7d9204bb2639c2ce98db2f17e9d34d45dae63255d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:27.450135047Z",
+      "seal": {
+        "by": "server",
+        "mac": "4f4bd1b4add211a9fd8419b988f0d61053634d4a22cb45c1bdd4fa2c4cea360e"
+      }
+    },
+    {
+      "id": "CLM-2261",
+      "statement": "The PR adds four Rust tests in src/http/signin.rs (redirect and no-store, off-site return_to, no live session, store error) and one browser journey in tests/ui_e2e/read.rs.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #1168 description: 'Four Rust tests in src/http/signin.rs (...) and a browser journey in tests/ui_e2e/read.rs.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "src/http/signin.rs",
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3974",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/http/signin.rs tests/ui_e2e/read.rs",
+          "summary": "Four #[tokio::test] fns added in signin.rs (3538, 3557, 3577, 3618) matching the named topics, plus one journey in read.rs:271-296. get_sign_in is a helper, not a test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 3530,
+                "end": 3638
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:59.390369642Z",
+          "seal": {
+            "by": "server",
+            "mac": "129d6c98454ce813adedfc2e8739e98186b9b4da735d0487804438c3741ebfc1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Counted from the diff: four tests plus the journey.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3974"
+          ],
+          "recorded_at": "2026-11-27T17:46:27.630353356Z",
+          "seal": {
+            "by": "server",
+            "mac": "929cb66d3942a4fb22c36384798a8ef98df38161b41a3475a01b732fe1e15d80"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:27.630353356Z",
+      "seal": {
+        "by": "server",
+        "mac": "1fe4ac2f156ba7050da5c0b0d9ab36f5a8875049014cb9b33dc1e9fffe432173"
+      }
+    },
+    {
+      "id": "CLM-2262",
+      "statement": "The PR updates docs/operations.md (the sign-in page section) and adds a changelog entry.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR #1168 description: 'Docs: docs/reference/reader.md, docs/operations.md; changelog entry.'",
+      "derived_from": [
+        "CLM-2249"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/20261127T174500Z-issue-1168-signin-redirect-signed-in.md"
+      ],
+      "tags": [
+        "from-issue:1168"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3975",
+          "kind": "inspection",
+          "locator": "docs/operations.md:2819; changelog/20261127T174500Z-issue-1168-signin-redirect-signed-in.md",
+          "summary": "operations.md's sign-in page paragraph now says a browser with a live session gets 303 to the checked return_to and that expired, idle, revoked or unchecked sessions get the form; the changelog file exists and describes the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 2818,
+                "end": 2821
+              },
+              "commit": "fdc133277b8c1156f4533cd35ee0c2b5bc5f0bad"
+            }
+          },
+          "recorded_at": "2026-11-27T17:45:59.605841094Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3ee0189e82349bb5e7c991e01d9b08de28568b5ef8013a842f3c9605c5f4b57"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "operations.md and the changelog carry the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3975"
+          ],
+          "recorded_at": "2026-11-27T17:46:27.836800890Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcd6e83ae2690c72c5d059a35d5ac090092bd288c52efdf538b33482170d7dea"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T17:45:03.142311904Z",
+      "updated_at": "2026-11-27T17:46:27.836800890Z",
+      "seal": {
+        "by": "server",
+        "mac": "9db88653f9a893bc985ea40f253d5d0cd866b2c43d2a4c14230e72d795869f18"
       }
     }
   ]

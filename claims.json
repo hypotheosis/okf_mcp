@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2018,
+  "next_claim_seq": 2039,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "ca2e3870202ba5e846bc436d78e11987310f62351f2881c18fe81ef8b6cf64aa"
+    "mac": "d3ca699692beabab73b393b49f1adc6faedb071425518e1ff802cfd2e5047386"
   },
-  "next_evidence_seq": 3593,
+  "next_evidence_seq": 3633,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b2d7a02869673d574ef47f8b47ce3fd99dcbe8b397681319fca5564e425572b7"
+    "mac": "463b5873ad2c7d532af2a294d92e4a6753ea0ae8d87cdc0e45450ac3d7065b43"
   },
   "claims": [
     {
@@ -149528,6 +149528,18 @@
             "by": "server",
             "mac": "f111341a884189230a7e6e42e4eed76f135ad2485549a2440d6d649d852961f0"
           }
+        },
+        {
+          "id": "EVD-3615",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs launcher_script (working tree, ~lines 125-140); git diff origin/main shows no hunk touching it",
+          "summary": "The recheck 'changed' flag on EVD-2371 comes from line shift (+14 import and constant lines above). launcher_script text is identical: exec setpriv --pdeathsig KILL -- {quoted} \"$@\" when setpriv supports it. The diff only adds imports, constants, one call in create() and the sweep functions.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:57:05.502521981Z",
+          "seal": {
+            "by": "server",
+            "mac": "53bd2b57f3dd41f9cc2aae5da42a896de80d2c83a31f88552715453085b3a439"
+          }
         }
       ],
       "verdicts": [
@@ -149557,13 +149569,26 @@
             "by": "server",
             "mac": "3f84d510bcbc6e8c914661ab3060c40eaa2824ca91cc9fcb5fdb0b9f0b7734b6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: launcher_script unchanged by this diff; recheck flag is a line shift.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3615"
+          ],
+          "recorded_at": "2026-11-27T02:57:42.179588928Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cf7538c4299fe45b5ee66dbc1a7ac5500c54fbc24077874f5bbf1295bb73b75"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T13:10:35.318788705Z",
+      "updated_at": "2026-11-27T02:57:42.179588928Z",
       "seal": {
         "by": "server",
-        "mac": "4f613f2f981a6fe7a3da14b81ec69c3af7142de6a6fe240301b9c58cf1caba37"
+        "mac": "a8a83a9f5111b5c16ecc334c96cd89a5d6df42c50bb365290a2ed91e09552fd2"
       }
     },
     {
@@ -149842,6 +149867,40 @@
             "by": "server",
             "mac": "2cd54fc5ab35b7789d7e838ce3ea4776b4633f6fdcaf4fa74709e76b6a775131"
           }
+        },
+        {
+          "id": "EVD-3617",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs processes_using (~lines 160-177) and the new all_cmdlines; grep for print statements",
+          "summary": "processes_using is untouched by the diff and still only compares /proc/<pid>/cmdline in memory. The new all_cmdlines also keeps cmdlines in memory only; the new eprintln calls print a count and a spawn error. The claim still holds.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:57:05.728130688Z",
+          "seal": {
+            "by": "server",
+            "mac": "96da96e4bd08e7ff0dfdb94dab89242e515e1b2bccdb33bd467b2b921f6dc3c5"
+          }
+        },
+        {
+          "id": "EVD-3624",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:164-177,182-224 @ 6aa474df",
+          "summary": "processes_using and all_cmdlines read /proc/<pid>/cmdline into memory and only compare bytes. The file has no println!, dbg! or tracing; the two eprintln! lines (199, 203) print only the removed count and a thread-spawn error, never cmdline contents. Replaces the old 0-hit search anchor, which no longer matches because of those two eprintln! lines.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 164,
+                "end": 224
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.708506942Z",
+          "seal": {
+            "by": "server",
+            "mac": "aca195221b5bc159aac24da4ffe42a014aaa97d8de692ffc1f8d5e991959dc67"
+          }
         }
       ],
       "verdicts": [
@@ -149857,13 +149916,39 @@
             "by": "server",
             "mac": "95ae45de3d0e0db579bdbda2b86e5abf2c7f33168d7197f0f1ef433fc7ee0dc7"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: still in-memory only after the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3617"
+          ],
+          "recorded_at": "2026-11-27T02:57:42.397617849Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d6e90436df2139115fdf37659c2db78bee2194d205b2abf2efb9b088cc80ac7"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on HEAD with an anchored inspection; cmdlines are never printed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3624"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.670403160Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3d3e70e22d58e1881d395311be9eceeadf7e4687070d52120b9cb4fb08f6791"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T06:24:28.933287713Z",
+      "updated_at": "2026-11-27T03:19:48.670403160Z",
       "seal": {
         "by": "server",
-        "mac": "15b40e9d6625ab93f03b80793013b64f977cd97649f8ca894880b71cdaeebab7"
+        "mac": "43f8ec2bb171598175a242b34310006de92cd48e93a74e55ff8faac0a423ce4e"
       }
     },
     {
@@ -149964,6 +150049,18 @@
             "by": "server",
             "mac": "f3cb8134647e410e3980f7751173862dd3c3a2b6edf5b9a9c22d28e13df1f089"
           }
+        },
+        {
+          "id": "EVD-3616",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (no_setpriv_takes_the_direct_launch, a_setpriv_without_pdeathsig_takes_the_direct_launch)",
+          "summary": "Rerun on the working tree: both fallback tests pass (9 passed). launcher_script is unchanged by this diff; the recheck 'changed' flag on EVD-2376 is a line shift only.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:57:05.618064237Z",
+          "seal": {
+            "by": "server",
+            "mac": "65358cf2379153b2757fbeb8cdb2c0f9d034a93f67fabec2130920b66402dae0"
+          }
         }
       ],
       "verdicts": [
@@ -150006,13 +150103,26 @@
             "by": "server",
             "mac": "c0d005440d4490cd617f79227109d38855e50d6d4e0d1f6308d7c01e7f5f6058"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: fallback tests pass on the working tree; recheck flag is a line shift.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3616"
+          ],
+          "recorded_at": "2026-11-27T02:57:42.288456288Z",
+          "seal": {
+            "by": "server",
+            "mac": "15e12a50b86a41a24059d4924ae0ef882c672a338c3b687642ee077fe6f81888"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T13:10:35.417853215Z",
+      "updated_at": "2026-11-27T02:57:42.288456288Z",
       "seal": {
         "by": "server",
-        "mac": "76f9bf90db97bc8762cb487e0826143891a486286e5bc772f9be2a83594413d3"
+        "mac": "06100a459fd7cf07898ddffa87717ce85fdfd8ba32e73d572418f3958fda9a48"
       }
     },
     {
@@ -180085,6 +180195,1590 @@
       "seal": {
         "by": "server",
         "mac": "d898f942c81e1d8c98f8a41a2659bcb1fb1c30e469489158f6f49fd2f974c9be"
+      }
+    },
+    {
+      "id": "CLM-2018",
+      "statement": "Issue #1078 is resolved: the browser test harness sweeps old okf-ui-browser-* and rustwright-profile-* folders from the temp dir under the issue's safety and time limits.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1078",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3618",
+          "kind": "analysis",
+          "locator": "children of CLM-2018",
+          "summary": "Every requirement of the issue (prefixes and age, in-use, once per process, symlinks, ownership, failure handling, time bound, no cmdline printing, unit tests on a fake dir) has a supported child; the PR description claims are also supported. Non-blocking weakness: the in-use check fails open when /proc cannot be read.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:57:08.508734947Z",
+          "seal": {
+            "by": "server",
+            "mac": "05c3d1fe5709f1966570e8a16912f0b54e7823b53443e43e3c5c34e0d2b80ecd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported; see roll-up evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3618"
+          ],
+          "recorded_at": "2026-11-27T02:57:42.069049411Z",
+          "seal": {
+            "by": "server",
+            "mac": "5bf3d5ec4c6e6c819c8e14b63bd929d8dc92f07602893afbf36d838139663c25"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:42.069049411Z",
+      "seal": {
+        "by": "server",
+        "mac": "5f5c256cf4e073aeef1af8d23608ba89a3fd4211dc6464fd7f3b5e8bb9d0e855"
+      }
+    },
+    {
+      "id": "CLM-2019",
+      "statement": "The sweep selects only direct children of the temp dir named okf-ui-browser-* or rustwright-profile-* whose mtime is at least one day old (SWEEP_MIN_AGE = 24h).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1078: 'sweep okf-ui-browser-* and rustwright-profile-* folders directly under the temp dir, older than one day by mtime'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3593",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs stale_folders (working tree, uncommitted; ~lines 223-268)",
+          "summary": "stale_folders reads only temp's direct entries (fs::read_dir), keeps names starting with FOLDER_PREFIX or RUSTWRIGHT_PREFIX, and requires now - mtime >= min_age; SWEEP_MIN_AGE is 24*60*60 s; sweep_once passes SystemTime::now() and SWEEP_MIN_AGE. A future mtime gives duration_since Err, so it is not selected.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:37.688374939Z",
+          "seal": {
+            "by": "server",
+            "mac": "885bdaf0600d1ee0d635e474e9048252f54dd1180a717500879ca3ffa77bc649"
+          }
+        },
+        {
+          "id": "EVD-3594",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (only_old_prefixed_folders_are_selected)",
+          "summary": "Rerun by me on the working tree: 9 passed, 0 failed. The test makes a 2-day okf-ui-browser-, a 2-day rustwright-profile-, a 12-hour okf-ui-browser- and a 2-day unrelated folder, and asserts exactly the first two are selected (assert_eq on the sorted list).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:37.797702501Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c51568257d5d6e2727a5d4895a901c9a18c21542984f013965d55bbc3121898"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code filters on the two prefixes and an age check; the test asserts the exact selected set across old, new and unrelated folders.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3593",
+            "EVD-3594"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.089895133Z",
+          "seal": {
+            "by": "server",
+            "mac": "44d5a2a031de60f06030326241cd13f86cd5f76007affb3da0de1c2c4cdbb122"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:40.089895133Z",
+      "seal": {
+        "by": "server",
+        "mac": "04611c4c2f3663e4da850dbf4ebbeccdb9286c68d1783b9ea133ede41fd3c0b4"
+      }
+    },
+    {
+      "id": "CLM-2020",
+      "statement": "The sweep never deletes a folder whose path appears in the command line of a running process.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1078: 'not used by any running process'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3595",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (a_folder_named_by_a_running_process_is_kept)",
+          "summary": "Rerun by me: 9 passed. The test gives one cmdline containing --user-data-dir=<live path> and asserts only the other old folder is selected. The assertion reads as the claim says.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:37.907272574Z",
+          "seal": {
+            "by": "server",
+            "mac": "1658fc8e5ec5fbe349b4da69ffb637227d30316d6267392a6cb561ec9b17927a"
+          }
+        },
+        {
+          "id": "EVD-3596",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_stale + all_cmdlines (working tree, ~lines 207-283)",
+          "summary": "sweep_stale re-runs stale_folders with the real cmdlines from all_cmdlines (every numeric /proc entry's cmdline) and deletes only that result; a byte-substring match of the folder path anywhere in a cmdline keeps it. Weakness (not blocking): all_cmdlines fails open. If /proc cannot be listed it returns an empty Vec, and a per-process cmdline that cannot be read is skipped, so such folders would be treated as unused. A process that starts after the read is also not seen, but the folder must already be a day old.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T02:56:38.017890999Z",
+          "seal": {
+            "by": "server",
+            "mac": "89045d3ab66e2850143bfdcea3bcaaae08871068d5274a0f59ace60683de4bd5"
+          }
+        },
+        {
+          "id": "EVD-3619",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:182-224,279-298 @ 6aa474df",
+          "summary": "The sweep thread reads all_cmdlines() and passes it to sweep_stale, which returns 0 when the list is empty and otherwise deletes only folders that stale_folders keeps after the in-use check (path bytes found in any cmdline). This closes the earlier fail-open when /proc is unreadable; a single unreadable process cmdline is still skipped (the list stays non-empty because this process itself is readable).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 298
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.111237326Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d17f83f42d5e4adb7e2d36a03161ef17be63969260fd2fa78cfed0504d78981"
+          }
+        },
+        {
+          "id": "EVD-3620",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: @ 6aa474df (nothing_is_deleted_when_no_process_could_be_read, a_folder_named_by_a_running_process_is_kept)",
+          "summary": "Rerun by me on HEAD: 10 passed, 0 failed. The new test sweeps an old okf-ui-browser- folder with an empty cmdline list and asserts 0 removed and the folder still exists; the in-use test still asserts the live folder is not selected.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 394,
+                "end": 456
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.231249500Z",
+          "seal": {
+            "by": "server",
+            "mac": "3530c572818e4fc373b7af826a46810a3afe4d96b8029b7f04a100f8837c9328"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A folder whose path is in any readable cmdline is dropped from the delete set, and the test asserts it. Caveat recorded as neutral EVD-3596: unreadable /proc fails open.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3595"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.198828663Z",
+          "seal": {
+            "by": "server",
+            "mac": "36d00e3e80e56c62992dd0eb1ae4a1a066b6564f3bf153ed7d51b49c86796e6d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "In-use check unchanged, and the fail-open on an unreadable /proc is now closed by the empty-cmdlines guard with a passing test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3619",
+            "EVD-3620"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.232962541Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4481f9efbccb6c0b8fb1df878bc294998aec363ec790d9489d2aa4726eb6127"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.232962541Z",
+      "seal": {
+        "by": "server",
+        "mac": "5d7d222f3fd0912d7164f8fe2e3c5ab2d28a6cc57078788ef01106186981eae9"
+      }
+    },
+    {
+      "id": "CLM-2021",
+      "statement": "The sweep starts at most once per test process.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1078: 'at most once per test process'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3597",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_once (working tree, ~lines 183-206); BrowserHome::create line ~73",
+          "summary": "sweep_once holds `static STARTED: OnceLock<()>` and does all work inside get_or_init, so the body runs at most once per process however many threads call create. create() calls sweep_once() first; grep shows no other caller of sweep_stale outside tests. Under nextest each test is its own process, so each sweeps once.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.129721939Z",
+          "seal": {
+            "by": "server",
+            "mac": "e884ec26e99e9bc35a3e6c6482aa976ae6124b6993192f2c510f1a76e55c5262"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The whole body is inside a static OnceLock get_or_init, called only from create.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3597"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.310439754Z",
+          "seal": {
+            "by": "server",
+            "mac": "f494ccf36d9eb5293fdbe888fe3cf1b34f6fabe3ea1166d5fd70408d77b340a1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:40.310439754Z",
+      "seal": {
+        "by": "server",
+        "mac": "5135927c387096d3b638893557f3e5a2194feb5eb2f940b70576b53cd1ccf596"
+      }
+    },
+    {
+      "id": "CLM-2022",
+      "statement": "The sweep never follows or deletes a symlink named like a leftover folder.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1078: 'never follow symlinks'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3598",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (a_symlink_is_never_selected_or_followed)",
+          "summary": "Rerun by me: passed. A 2-day-old okf-ui-browser-link symlink to an old directory is not selected by stale_folders, and sweep_stale returns 0. The test's last assert (target file still exists) is weak because the target is named \"precious\" and has no prefix, so it would survive anyway; the found.is_empty() and removed == 0 asserts are what show the symlink is skipped.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.239190331Z",
+          "seal": {
+            "by": "server",
+            "mac": "f97f7cc6c292db1d010860cf24151e063b0dccc61d0a51dee0736bb2fbea45a3"
+          }
+        },
+        {
+          "id": "EVD-3599",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs stale_folders (fs::symlink_metadata, metadata.is_dir()) and sweep_stale (fs::remove_dir_all)",
+          "summary": "Selection uses fs::symlink_metadata (does not follow), and requires metadata.is_dir(), which is false for a symlink, so a symlink is never selected, hence never passed to remove_dir_all. remove_dir_all does not follow symlinks inside a folder (std documents this). A folder swapped for a symlink between selection and delete would be unlinked, not followed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.348548253Z",
+          "seal": {
+            "by": "server",
+            "mac": "9051a90ee427126f0da33d27e3e7405af517b03cba4f003fe99e8bd0a7f57162"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "symlink_metadata plus is_dir excludes symlinks from selection; the test asserts none selected and zero removed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3598",
+            "EVD-3599"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.420269288Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b984aac3d22b9ef8a38b155e9f9a5f949dfc62cd46db98e247f91861fbf9054"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:40.420269288Z",
+      "seal": {
+        "by": "server",
+        "mac": "6543ab5c84b80f9c8a9bcc99a9b1a1798e641a921a1ff387843e30b525d1912f"
+      }
+    },
+    {
+      "id": "CLM-2023",
+      "statement": "The sweep skips any folder not owned by the current effective user.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1078: 'skip anything not owned by the current user'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3600",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (a_folder_of_another_owner_is_skipped)",
+          "summary": "Rerun by me: passed. A 2-day-old okf-ui-browser- folder owned by me is not selected when the sweep's uid is me()+1. The test cannot create a really foreign-owned folder without root, so it varies the uid argument; the code compares metadata.uid() == uid, and sweep_once passes libc::geteuid().",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.457867975Z",
+          "seal": {
+            "by": "server",
+            "mac": "971f50e3e87fc5b547ef2eac65a765b4cb5fa9a61eac8050246ada7dbfb3b5ef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Selection requires metadata.uid() == uid with the effective uid; the test shows a different uid selects nothing. A truly foreign-owned folder is not exercised (needs root).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3600"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.531868519Z",
+          "seal": {
+            "by": "server",
+            "mac": "97fd8b11684ae4d4e27362cd13774443924c1ce0dfef3107919aaf3f01b8a31b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:40.531868519Z",
+      "seal": {
+        "by": "server",
+        "mac": "735c3ff98e212516d62a82e7a266f28218c68c4aae162520e9ffafa6f7f13f2b"
+      }
+    },
+    {
+      "id": "CLM-2024",
+      "statement": "A failed delete in the sweep is ignored (skipped, not counted) and never fails or panics a test; a failure to spawn the sweep thread only prints a line.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1078: 'delete failures logged/ignored and never fail a test'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3601",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_stale, sweep_once (working tree)",
+          "summary": "Delete is `.filter(|path| fs::remove_dir_all(path).is_ok()).count()`, so an Err is dropped, not propagated or unwrapped; the return is usize, not Result. The thread closure has no unwrap/expect; a spawn error only goes to eprintln. A panic in the detached thread could not fail a test either (not joined). No test forces a delete failure.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.566259364Z",
+          "seal": {
+            "by": "server",
+            "mac": "9fe21414ddb46d0a2b899d9a9c32f864cd46e2ecf3434bc4763d4e7e0f0ac279"
+          }
+        },
+        {
+          "id": "EVD-3621",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs:182-207,279-298 @ 6aa474df",
+          "summary": "Delete is still `.filter(|path| fs::remove_dir_all(path).is_ok()).count()`; the thread closure has no unwrap or expect; a spawn error only goes to eprintln. The new early return for empty cmdlines also returns a plain usize. No test forces a delete failure.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 298
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.348773881Z",
+          "seal": {
+            "by": "server",
+            "mac": "61b15fd519f03ab4df4642638efd10692d0de84b2294275a232018f03872a6e4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Delete errors are filtered out, no unwrap in the thread, spawn errors only print; the thread is detached. Read from code only (no failing-delete test).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3601"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.640252897Z",
+          "seal": {
+            "by": "server",
+            "mac": "3900524d5b5e507e9f742fdc5ad95fbbc7512a3d8a8bb2800a72e5d3bd08a53b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Delete errors are still dropped and nothing in the thread can fail a test; read from code only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3621"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.341969076Z",
+          "seal": {
+            "by": "server",
+            "mac": "59ae7144eae4d449bd27da529a9ee625dbcf2ebbc837484e483a205d479532d4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.341969076Z",
+      "seal": {
+        "by": "server",
+        "mac": "8e7dcddd2c6d1863e0bc548905da1ed7be113fe95d3b49a0b969b0e41e134f69"
+      }
+    },
+    {
+      "id": "CLM-2025",
+      "statement": "The sweep is time bounded: it runs on a detached background thread that nothing joins, and deletes at most SWEEP_CAP = 500 folders per process.",
+      "kind": "performance",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1078: 'time bounded (background thread or cap)'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3602",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_once (std::thread::Builder::spawn, handle dropped) and sweep_stale (.take(cap))",
+          "summary": "sweep_once spawns a named thread and discards the JoinHandle, so no journey waits on it. sweep_stale applies take(cap) before the delete filter, so at most 500 delete attempts, hence at most 500 removals, per process; SWEEP_CAP = 500. The scan is a single read_dir plus one /proc pass, run twice for candidates.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.675260585Z",
+          "seal": {
+            "by": "server",
+            "mac": "428fa02ae3c9b00435548b33b048e544269ff3a5537516b70a5d032771b2ced2"
+          }
+        },
+        {
+          "id": "EVD-3603",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (the_sweep_removes_old_folders_up_to_the_cap)",
+          "summary": "Rerun by me: passed. With 5 old and 1 fresh folder and cap 3, sweep_stale returns 3, 3 entries remain, and the fresh one is intact.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.784396346Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fd509a564ce10d185eb456e310009bdb9319ea205db074f69cab832c5f8819e"
+          }
+        },
+        {
+          "id": "EVD-3622",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/browser_home.rs:182-207,279-298 @ 6aa474df; cargo test --test ui_e2e -- browser_home::",
+          "summary": "The sweep still runs on a detached thread (JoinHandle dropped) and uses .take(cap) with SWEEP_CAP 500 before the delete filter. The cap test now passes &[vec![0]] as cmdlines and still asserts removed == 3, 3 entries left, the fresh folder intact (10 passed on my rerun). The /proc read now happens inside the thread, so it does not delay a journey.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 298
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.468224442Z",
+          "seal": {
+            "by": "server",
+            "mac": "74b4928d2612756d062f1d73b3aa19878cc21be7be10eae1982142592ccce839"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Detached thread and take(cap) in code; cap test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3602",
+            "EVD-3603"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.748445724Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3e4ca86f3ffe3cf28c4e44cca3648dfd8a4d4a74c0a1ad19f4fd4a189aa5d34"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Detached thread and take(cap) remain; cap test passes on HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3622"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.451362494Z",
+          "seal": {
+            "by": "server",
+            "mac": "603f87f835c7837085afe43859abbbf31dc75236e49b674aa712bf225d6fc6de"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.451362494Z",
+      "seal": {
+        "by": "server",
+        "mac": "1156a6fa4f7638a1423578131e624c45cd69f28994f42edcdd255d9744468e75"
+      }
+    },
+    {
+      "id": "CLM-2026",
+      "statement": "The sweep never prints or logs /proc/<pid>/cmdline contents; they are read into memory and only compared.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1078: 'never print or log /proc/*/cmdline contents'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3604",
+          "kind": "analysis",
+          "locator": "grep -n 'cmdline\\|println\\|eprintln' tests/ui_e2e/browser_home.rs",
+          "summary": "The only print statements are eprintln of the removed count (usize) and of a thread-spawn io::Error. all_cmdlines returns Vec<Vec<u8>> that is only passed to stale_folders for a windows() byte comparison; no cmdline bytes reach a format string, panic message, assert message or log. The new tests build a cmdline in memory and pass it in; assert_eq compares paths, not cmdlines.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:38.895354473Z",
+          "seal": {
+            "by": "server",
+            "mac": "94760b17b9139a0bb3b41e59f43ec92dac45b3bfe0b16e500d142b9c297bb434"
+          }
+        },
+        {
+          "id": "EVD-3623",
+          "kind": "analysis",
+          "locator": "grep -n 'println\\|dbg!\\|tracing\\|log::' tests/ui_e2e/browser_home.rs @ 6aa474df; tests/ui_e2e/browser_home.rs:182-224",
+          "summary": "The only print statements are two eprintln! (lines 199 and 203): the removed count and a spawn io::Error. The cmdline Vec from all_cmdlines is passed by reference into sweep_stale and only used in a byte comparison; no cmdline bytes reach a format string, assert message or log. No println!, dbg! or tracing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 224
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.588926880Z",
+          "seal": {
+            "by": "server",
+            "mac": "1dad84ab4ba4b048027788f4620456a1df734a3843b594f98688d7184bdaeb0a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The only prints are a count and a spawn error; cmdline bytes are only compared.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3604"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.856964202Z",
+          "seal": {
+            "by": "server",
+            "mac": "24794f192eeafca0d8aeaa51476403984cf6f4d0af32272f531bf5ba124728a9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Only a count and a spawn error are printed; cmdlines are only compared.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3623"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.560728891Z",
+          "seal": {
+            "by": "server",
+            "mac": "178ca5c0433f26c5670cdd8daee1b8c2f5dbdc8b37454e50fe0986f58699872d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.560728891Z",
+      "seal": {
+        "by": "server",
+        "mac": "082f147668bf8cc4f23c21f16c52c1545d94322188f413d75ef14ba7a51d9f9e"
+      }
+    },
+    {
+      "id": "CLM-2027",
+      "statement": "Unit tests of the selection logic (age, prefix, in-use, symlink, ownership) run against a fake tempfile temp dir, not the real /tmp, and pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1078: 'unit tests of selection logic (age, prefix, in-use, symlink, ownership) against a fake temp dir, not the real /tmp'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3605",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: (9 passed); test-ui and test logs list the 5 new tests ok",
+          "summary": "The 5 selection/sweep tests each use tempfile::tempdir() as the temp argument; stale_folders/sweep_stale take the dir as a parameter, so the real /tmp is not scanned by them. Age, prefix, in-use, symlink, ownership each have a test. Note: the older test a_home_is_deleted_on_drop_and_holds_the_launcher calls BrowserHome::create, which now starts the real sweep of the real temp dir in the background; that is the feature working, not a selection test.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:39.003823972Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a4569f373b9a7c26391ff77c59966b4b56a2482dda872d777cd5e030d89e676"
+          }
+        },
+        {
+          "id": "EVD-3627",
+          "kind": "test",
+          "locator": "cargo test --test ui_e2e -- browser_home:: @ 6aa474df; target/i1078-logs/ui.log:64",
+          "summary": "10 passed on my rerun; the six sweep tests all work on tempfile::tempdir() directories passed as the temp argument, covering age, prefix, in-use, symlink, ownership, cap and the empty-cmdlines guard. sweep_stale tests that must delete pass a non-empty dummy cmdline list (&[vec![0]]).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 372,
+                "end": 456
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:28.058029648Z",
+          "seal": {
+            "by": "server",
+            "mac": "b14a3c1a05e4000f453c6bf20ea79aab9d3bce6604e0c2c8bf91e80ed580e714"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One test per listed dimension, all on tempfile::tempdir(), all passing in my rerun and in the logs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3605"
+          ],
+          "recorded_at": "2026-11-27T02:57:40.967151548Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e452a02bbd5f6e38bf8541a2580a9015c4d81f73298160ff5581803ad3d2e5a"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All sweep tests use fake temp dirs and pass on HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3627"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.998994434Z",
+          "seal": {
+            "by": "server",
+            "mac": "08a77d5d8b8019bc93f00465012bd62384a9ee82630247253572897a06411f5f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.998994434Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa14cad1860a0ce3cbfc69631a360f0d18ecb9930c4d685d717559e0990474fe"
+      }
+    },
+    {
+      "id": "CLM-2028",
+      "statement": "BrowserHome::create calls sweep_once(), which uses a OnceLock and spawns a thread running sweep_stale on the system temp dir.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: '`BrowserHome::create` calls `sweep_once()` (a `OnceLock`), which spawns a thread running `sweep_stale`.'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3606",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs: create() line ~73 `sweep_once();`; sweep_once ~183-206",
+          "summary": "create starts with sweep_once(); sweep_once uses a static OnceLock and, inside get_or_init, spawns a thread that calls sweep_stale(&std::env::temp_dir(), SystemTime::now(), SWEEP_MIN_AGE, uid, SWEEP_CAP).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.258990519Z",
+          "seal": {
+            "by": "server",
+            "mac": "ffa1f828eaa5d1f2b81026a85795cfbea370b2e08a25d1ae0a93171b517494b2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Matches the code as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3606"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.076071928Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa8c049711bf66924139743e181a6880d4b8a67a9c4479ed4a51c299ca7c6366"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:41.076071928Z",
+      "seal": {
+        "by": "server",
+        "mac": "e2ed70e7904bd00271b0857b572a4c6426a7ad4673c9fd94c5a913be68b0ed32"
+      }
+    },
+    {
+      "id": "CLM-2029",
+      "statement": "Command lines are read once per sweep into memory (all_cmdlines) and never printed or logged.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'Command lines are read once into memory and never printed or logged.'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3607",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_stale (~lines 272-283) and all_cmdlines (~209-224)",
+          "summary": "sweep_stale calls all_cmdlines() once, after a first pass with an empty cmdline list finds candidates (and returns early when there are none); the Vec is held in memory and never formatted. See EVD-3604 for the print search.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.368469047Z",
+          "seal": {
+            "by": "server",
+            "mac": "3175a44fb7ff7cc605fa8393a84355f5013e7fe38c8a05c100d547c0160c07c9"
+          }
+        },
+        {
+          "id": "EVD-3625",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs:182-224 @ 6aa474df",
+          "summary": "all_cmdlines() is called once, in the sweep thread closure, and its result is passed to sweep_stale as &[Vec<u8>]; there is no second /proc pass (the old double scan is gone). The Vec is never formatted or printed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 182,
+                "end": 224
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.825388120Z",
+          "seal": {
+            "by": "server",
+            "mac": "a2515eba7f194f1275847d589ac0a9f974287e52e62a5eed5d2cee63be3ff552"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One all_cmdlines call per sweep; never printed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3607"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.184889608Z",
+          "seal": {
+            "by": "server",
+            "mac": "96f62f6523351a8b6707f78443c5238073a50319c346ad50d1c4f90297038dc5"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "One all_cmdlines call per process, in the sweep thread, never printed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3625"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.780306519Z",
+          "seal": {
+            "by": "server",
+            "mac": "05ed46fe2ee0ea703a7f1117c334bfc4d787660991ab6167c4ec54c682bdfa31"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.780306519Z",
+      "seal": {
+        "by": "server",
+        "mac": "2e9d08edcf4c81a1f7b8c79d06975cb987944e2dbe6acb480dd1508ebfa6c6e6"
+      }
+    },
+    {
+      "id": "CLM-2030",
+      "statement": "The sweep prints one line with the count when it removed anything, and nothing otherwise.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'One line with the count is printed when anything was removed.'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3608",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browser_home.rs sweep_once closure: `if removed > 0 { eprintln!(\"swept {removed} old browser folders from the temp dir\"); }`",
+          "summary": "One eprintln, guarded by removed > 0, carrying the count. The only other print is the spawn-error line.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.476894709Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb37d5b34c76afe1869bfbc3023566c86185f4512f81d8152e4cc5bc03921b95"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The count line is guarded by removed > 0.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3608"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.294184509Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b9774ab4b0ee143ae65253961871eaac3220119d76c438637f1813df54a3a0d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:41.294184509Z",
+      "seal": {
+        "by": "server",
+        "mac": "0078da1b44db60db7008a0dc32771048df88e7144081bfd5176ea34b7c4465ce"
+      }
+    },
+    {
+      "id": "CLM-2031",
+      "statement": "The PR's unit tests cover prefix and age, in-use, symlink, ownership and the cap, on a fake temp dir (5 new tests, all passing).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: 'Unit tests on a fake temp dir: prefix and age, in-use, symlink, ownership, cap.'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3609",
+          "kind": "test",
+          "locator": "git diff origin/main -- tests/ui_e2e/browser_home.rs; cargo test --test ui_e2e -- browser_home::",
+          "summary": "The diff adds exactly five tests: only_old_prefixed_folders_are_selected (prefix and age), a_folder_named_by_a_running_process_is_kept, a_symlink_is_never_selected_or_followed, a_folder_of_another_owner_is_skipped, the_sweep_removes_old_folders_up_to_the_cap. All use tempfile::tempdir(). My rerun: 9 passed (4 older + 5 new).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.585775354Z",
+          "seal": {
+            "by": "server",
+            "mac": "fbb5fcba37e5ce4484765f0c45dd2f986da811d94d350b386d4733cbaad59075"
+          }
+        },
+        {
+          "id": "EVD-3626",
+          "kind": "test",
+          "locator": "grep -n 'fn ' tests/ui_e2e/browser_home.rs (tests module); cargo test --test ui_e2e -- browser_home:: @ 6aa474df",
+          "summary": "The change now adds six tests: only_old_prefixed_folders_are_selected, a_folder_named_by_a_running_process_is_kept, a_symlink_is_never_selected_or_followed, a_folder_of_another_owner_is_skipped, the_sweep_removes_old_folders_up_to_the_cap, nothing_is_deleted_when_no_process_could_be_read. All use tempfile::tempdir(). My rerun: 10 passed (4 older + 6 new). The PR body says \"5 new\" nowhere in numbers, but its test list omits the sixth (empty-cmdlines) test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browser_home.rs",
+              "lines": {
+                "start": 372,
+                "end": 456
+              },
+              "commit": "6aa474df2e223feca16cae13f9345a4340fba9be"
+            }
+          },
+          "recorded_at": "2026-11-27T03:19:27.942037656Z",
+          "seal": {
+            "by": "server",
+            "mac": "985b1c5b86018964b2b889a7b7dce0803b7fdd56b38993172e5ee196b24775fb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff adds exactly five tests covering the listed areas; all pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3609"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.402699618Z",
+          "seal": {
+            "by": "server",
+            "mac": "b72cf78c4a82fdc2e3cfa3653a95a857ab66754861a4ac79ccc87f6428c9ac90"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The listed areas are all covered and passing. The statement's \"5 new tests\" is now 6 (the PR body lists areas, not a count, so it stays true), but see Fix.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3626"
+          ],
+          "recorded_at": "2026-11-27T03:19:48.889554516Z",
+          "seal": {
+            "by": "server",
+            "mac": "ebf50554131227c0b8981c514db8d94ea2afc36ef5d6cbcea1bb6108a8e054c6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:48.889554516Z",
+      "seal": {
+        "by": "server",
+        "mac": "2cc62b4f626479be0b3ee69deb5b6ce27d5b5f0ccbc68cf92b1f339e381de17a"
+      }
+    },
+    {
+      "id": "CLM-2032",
+      "statement": "A changelog entry for the change exists under changelog/ with a dated file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'Changelog entry.'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "changelog/2026-11-27T03-10-00Z-issue-1078-sweep-browser-homes.md"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3610",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-27T03-10-00Z-issue-1078-sweep-browser-homes.md (untracked in the working tree; to be committed)",
+          "summary": "The file exists with a timestamped name and describes the sweep: prefixes, symlinks, owner, one day, in-use check, 500 cap, detached thread, one count line, the five test areas. It matches the code. It is not yet tracked by git.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.694907950Z",
+          "seal": {
+            "by": "server",
+            "mac": "19a86d7cba04e34ea560170a45eb5f912e5030ae73f71995b5245a3091c29c4b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File exists and matches the code; it must be committed with the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3610"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.513736326Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed6f366bf36247d040d583c941e6ed52517ede9893ab8b6b9160c61500102cbc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:41.513736326Z",
+      "seal": {
+        "by": "server",
+        "mac": "6abfd99a819962de257276a9dfcc90673d837d01e4670e7d6b9161c79ecc8cca"
+      }
+    },
+    {
+      "id": "CLM-2033",
+      "statement": "gate.sh fmt, lint and dylint pass on the change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: '`gate.sh fmt`, `lint`, `dylint`: pass'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/lint.log",
+        "target/i1078-logs/dylint.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3611",
+          "kind": "log",
+          "locator": "target/i1078-logs/lint.log; target/i1078-logs/dylint.log; `cargo fmt --check` (my rerun, exit 0)",
+          "summary": "lint.log: `cargo clippy --all-targets -- -D warnings` Finished, then `cargo doc --no-deps` with -D warnings Finished and generated docs; no warning or error lines (the only grep hits are command text). dylint.log ends `Finished dev profile`; its error/warning grep hits are crate names only. No fmt log exists; I ran cargo fmt --check on the working tree and it exited 0.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.803383833Z",
+          "seal": {
+            "by": "server",
+            "mac": "5170a0133d487bcd97c5f3011c4bbc69bd3d18707b4ff9894bc14932fd7e898b"
+          }
+        },
+        {
+          "id": "EVD-3628",
+          "kind": "log",
+          "locator": "target/i1078-logs/fmt.log, lint.log, dylint.log; my reruns of cargo fmt --check, cargo clippy --all-targets -- -D warnings, RUSTDOCFLAGS=-D warnings cargo doc --no-deps on HEAD 6aa474df",
+          "summary": "The logs were written after the last edit of browser_home.rs (file mtime 21:58:10; fmt/lint/dylint logs 21:58:11-21:58:22). lint.log and dylint.log end in Finished with no warning or error lines. My reruns on HEAD: fmt exit 0, clippy Finished, doc Finished and generated. I did not rerun dylint.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:19:28.171778689Z",
+          "seal": {
+            "by": "server",
+            "mac": "773f33cce2e650280e901148ff10707f2795cc9a22fe71fb635f3f57f84c66f9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lint and dylint logs end in Finished with no diagnostics; fmt check rerun passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3611"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.626445892Z",
+          "seal": {
+            "by": "server",
+            "mac": "462a88c12d671226f64b3842170b037cdb31d04e3d0b9357b1833d46083737a7"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Logs postdate the last source edit, show no diagnostics, and my fmt/clippy/doc reruns on HEAD pass. Dylint not rerun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3628"
+          ],
+          "recorded_at": "2026-11-27T03:19:49.110060140Z",
+          "seal": {
+            "by": "server",
+            "mac": "a2abe01b34ec27474e635ba0bd891c50d7dbefcc6710d618ac874e5c94bc3aa6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:49.110060140Z",
+      "seal": {
+        "by": "server",
+        "mac": "07960f4c860c30eb63fdfe34ff524bc4d684a13545825707a287af649818631e"
+      }
+    },
+    {
+      "id": "CLM-2034",
+      "statement": "gate.sh test ran 3706 tests with 3706 passed and 20 skipped (nextest), and doctests 30 passed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: '`gate.sh test`: 3706 passed, 20 skipped (nextest); doctests 30 passed'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/test.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded by CLM-2037: the test count changed from 3706 to 3707 when a sixth sweep test was added.",
+        "retired_at": "2026-11-27T03:19:59.318092344Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3612",
+          "kind": "log",
+          "locator": "target/i1078-logs/test.log lines 3837 and 7587 (nextest Summary); doctest result lines",
+          "summary": "Both nextest runs in the log print `Summary ... 3706 tests run: 3706 passed, 20 skipped`. Both doctest runs print `test result: ok. 30 passed; 0 failed; 1 ignored`. No FAIL lines. Matches the PR text; the log holds two runs with identical counts.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:57.912436459Z",
+          "seal": {
+            "by": "server",
+            "mac": "baf3af68014fb680d25257f64dc48db0939aef0b99c48e90a55a6c5009692d6a"
+          }
+        },
+        {
+          "id": "EVD-3629",
+          "kind": "log",
+          "locator": "target/i1078-logs/test.log:3837 and :7588 (nextest Summary); doctest result lines",
+          "summary": "Both nextest runs print `3707 tests run: 3707 passed, 20 skipped`; doctests `30 passed; 0 failed; 1 ignored`. The log lists nothing_is_deleted_when_no_process_could_be_read as PASS. The statement as registered says 3706, so it is refuted by the current log; the PR body must say 3707.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T03:19:28.283397518Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2f79e8b4ee674b234a74dfaa6495f33f410b61daedf08e46428c3c61e67ee40"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Numbers match the log exactly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3612"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.737336861Z",
+          "seal": {
+            "by": "server",
+            "mac": "43ee21a89f0d70b269159a64b5cf5466a3c21c731c344019edc939b0c6678d1f"
+          }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The first PR body said 3706 tests; the log now shows 3707 passed, 20 skipped. Fix: change the PR body's gate.sh test line to \"3707 passed, 20 skipped (nextest); doctests 30 passed\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3629"
+          ],
+          "recorded_at": "2026-11-27T03:19:49.220626393Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d094839e9b6fb52027538c80cd743fbd80b992246e82b384fcfa9d37cd3a097"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:59.318092344Z",
+      "seal": {
+        "by": "server",
+        "mac": "9291056611adf1b4ffc14c430a0e46c2afebbbddcb9a940d342c2acd5d803268"
+      }
+    },
+    {
+      "id": "CLM-2035",
+      "statement": "gate.sh test-ui: 315 passed, 1 ignored.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: '`gate.sh test-ui`: 315 passed, 1 ignored'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/ui.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Superseded by CLM-2038: the test-ui count changed from 315 to 316 when a sixth sweep test was added.",
+        "retired_at": "2026-11-27T03:19:59.428815353Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3613",
+          "kind": "log",
+          "locator": "target/i1078-logs/ui.log final result line",
+          "summary": "`test result: ok. 315 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 654.88s`. The log lists the 5 new browser_home tests as ok.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:58.021582485Z",
+          "seal": {
+            "by": "server",
+            "mac": "08d71426829b23b1cb582cb690ae28827b72f63dc74e950da8ae967f26af9d8e"
+          }
+        },
+        {
+          "id": "EVD-3630",
+          "kind": "log",
+          "locator": "target/i1078-logs/ui.log final result line",
+          "summary": "`test result: ok. 316 passed; 0 failed; 1 ignored`. The registered statement says 315, so it is refuted by the current log; the PR body must say 316.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T03:19:28.395580011Z",
+          "seal": {
+            "by": "server",
+            "mac": "b42822e43391fc339eb277d5dd1abd72c42e7bc117208d7a5667690053c47fd3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Numbers match ui.log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3613"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.847003964Z",
+          "seal": {
+            "by": "server",
+            "mac": "78456e633ea342c4a8fd1371c7d9071895f387a45522745adbd24e4040498954"
+          }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The first PR body said 315 passed; ui.log now shows 316 passed, 1 ignored. Fix: change the PR body's gate.sh test-ui line to \"316 passed, 1 ignored\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3630"
+          ],
+          "recorded_at": "2026-11-27T03:19:49.331539089Z",
+          "seal": {
+            "by": "server",
+            "mac": "54309f07fc561c0dcb28bfc2850272cddc3ef1a3cfb973e35b69d320be5cb6da"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T03:19:59.428815353Z",
+      "seal": {
+        "by": "server",
+        "mac": "2318d3bd9f000895701eb2c05983e5ab456fbca8594dc2b5c6a3379c62599d1c"
+      }
+    },
+    {
+      "id": "CLM-2036",
+      "statement": "gate.sh mcpjam: 29 passed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: '`gate.sh mcpjam`: 29 passed'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/mcpjam.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3614",
+          "kind": "log",
+          "locator": "target/i1078-logs/mcpjam.log tail",
+          "summary": "`Test Files 5 passed (5)`, `Tests 29 passed (29)`.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:56:58.132427739Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0f8af31bcb5323b7eaf459009121b79cf00a6f632d9b0c74c88ff416e724ea5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Numbers match mcpjam.log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3614"
+          ],
+          "recorded_at": "2026-11-27T02:57:41.959479358Z",
+          "seal": {
+            "by": "server",
+            "mac": "83f58d4b08a4ff07ff9494407425ac702fb5b93450ad39aa0f7692b3a5159d74"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:56:00.384161719Z",
+      "updated_at": "2026-11-27T02:57:41.959479358Z",
+      "seal": {
+        "by": "server",
+        "mac": "1529dccd3e55f285d804607e54bd460e22f7801611cec9ab3095339b921bb575"
+      }
+    },
+    {
+      "id": "CLM-2037",
+      "statement": "gate.sh test ran 3707 tests with 3707 passed and 20 skipped (nextest), and doctests 30 passed.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body (updated): '`gate.sh test`: 3707 passed, 20 skipped (nextest); doctests 30 passed'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/test.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3631",
+          "kind": "log",
+          "locator": "target/i1078-logs/test.log:3837 and :7588; doctest result lines",
+          "summary": "Both nextest runs: `3707 tests run: 3707 passed, 20 skipped`; doctests `30 passed; 0 failed; 1 ignored`.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:19:59.097882203Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c2954935cf9bc30d66b9c34c26c945ac71b19441eb0e05fe21f4de066eebd64"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Numbers match test.log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3631"
+          ],
+          "recorded_at": "2026-11-27T03:20:03.139168854Z",
+          "seal": {
+            "by": "server",
+            "mac": "ced4f291d68ac52597dc9545ec5f70c49e3f31bc09c622c436d08f6ad19bc339"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T03:19:53.028625755Z",
+      "updated_at": "2026-11-27T03:20:03.139168854Z",
+      "seal": {
+        "by": "server",
+        "mac": "815e84ab2d3a3303e013b7e5a104afad199ee33835238ab7889924a64feca218"
+      }
+    },
+    {
+      "id": "CLM-2038",
+      "statement": "gate.sh test-ui: 316 passed, 1 ignored.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body (updated): '`gate.sh test-ui`: 316 passed, 1 ignored'",
+      "derived_from": [
+        "CLM-2018"
+      ],
+      "artifacts": [
+        "target/i1078-logs/ui.log"
+      ],
+      "tags": [
+        "from-issue:1078",
+        "pr-body"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3632",
+          "kind": "log",
+          "locator": "target/i1078-logs/ui.log final result line",
+          "summary": "`test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 655.09s`.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T03:19:59.208489331Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee5896aa7c24b4019ea2e226a4f9461407df87655210730ef71ed0492bb8e56b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Numbers match ui.log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3632"
+          ],
+          "recorded_at": "2026-11-27T03:20:03.252697088Z",
+          "seal": {
+            "by": "server",
+            "mac": "5935b71f15061c28e4dd2d34c252c37c4b540da0bba50c1dc69aa8b620dd95fe"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T03:19:53.028625755Z",
+      "updated_at": "2026-11-27T03:20:03.252697088Z",
+      "seal": {
+        "by": "server",
+        "mac": "ca05aeb0c5986310b245c438dba379a0e9dba4dca0ea8769b8b648260092cc74"
       }
     }
   ]

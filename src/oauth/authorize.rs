@@ -1252,19 +1252,25 @@ async fn finish(
         new_id(),
     ) {
         (Ok(code), Ok(family_id)) => (code, family_id),
-        (Err(error), _) | (_, Err(error)) => return server_error(&error, &brand),
+        (Err(error), _) | (_, Err(error)) => {
+            revoke_unused_grant(app, &grant_id).await;
+            return server_error(&error, &brand);
+        }
     };
     // A full map refuses the code, and so does a Redis failure (counted and
     // logged by `Ephemeral`; never a fallback to memory, spec Decision 16):
     // `unwrap_or(false)` sends an `Err` to the busy page, as a full map.
-    // The grant stays and can be revoked, and the person starts again from
+    // No code is minted, so the grant just created is revoked (issue #925),
+    // as when the pending removal fails, and the person starts again from
     // their client.
     let stored = oauth
         .codes
         .insert(
             &code_key(&code),
             AuthorizationCode {
-                grant_id,
+                // The code takes its own copy: the id is still needed below
+                // to revoke the grant if the code is not stored.
+                grant_id: grant_id.clone(),
                 client_id: pending.client.client_id.clone(),
                 redirect_uri: pending.redirect_uri.clone(),
                 code_challenge: pending.code_challenge.clone(),
@@ -1278,6 +1284,7 @@ async fn finish(
         .await
         .unwrap_or(false);
     if !stored {
+        revoke_unused_grant(app, &grant_id).await;
         return consent::error_page(StatusCode::SERVICE_UNAVAILABLE, BUSY, &brand);
     }
     decision.accept();
@@ -3720,6 +3727,7 @@ mod tests {
     mod replicas {
         use std::collections::BTreeMap;
         use std::sync::atomic::{AtomicUsize, Ordering};
+        use std::sync::Arc;
         use std::time::{Duration, Instant};
 
         use axum::http::StatusCode;
@@ -3732,6 +3740,7 @@ mod tests {
             authorize_query, exchange_for_tokens, form, forwarded, hidden, oauth_replica_pair_on,
             send, send_on, sign_in_code,
         };
+        use crate::oauth::App;
         use crate::shared::ephemeral::Keyspace;
         use crate::shared::hashed;
         use crate::store::keys::{self as key_rows, Access, KeyKind};
@@ -4067,32 +4076,26 @@ mod tests {
                 .collect()
         }
 
-        /// When the removal after a successful update fails (`DEL` refused
-        /// with `NOPERM`, `GET` and the compare-and-set still allowed), Deny
-        /// and Approve answer the busy page: Deny does not forward the
-        /// denial, and Approve mints no authorization code. The grant the
-        /// failed approval created is revoked (issue #589), and a grant made
-        /// by an earlier, completed consent is left as it was.
-        async fn a_failed_removal_answers_the_busy_page(server: TestRedis) {
-            // Restricting the default user would break every test sharing it.
-            let server = server.dedicated().await;
-            let mut admin = admin_of(&server).await;
-            let (a, b, _server) = oauth_replica_pair_on(server).await;
-            let start = || async {
-                let (_, _, page) = send(
-                    &a,
-                    "GET",
-                    &format!("/oauth/authorize?{}", authorize_query()),
-                    None,
-                )
-                .await;
-                (hidden(&page, "pending"), hidden(&page, "csrf"))
-            };
-            // An earlier consent that completed: its grant must survive.
-            let (earlier, earlier_csrf) = start().await;
-            let earlier_code = sign_in_code(&a, Access::Read).await;
+        /// Starts a consent on `a`: its pending id and CSRF token.
+        async fn start_consent(a: &TestApp) -> (String, String) {
+            let (_, _, page) = send(
+                a,
+                "GET",
+                &format!("/oauth/authorize?{}", authorize_query()),
+                None,
+            )
+            .await;
+            (hidden(&page, "pending"), hidden(&page, "csrf"))
+        }
+
+        /// Completes one consent (started on `a`, finished on `b`) so a grant
+        /// exists before a failing one, and returns the live grants, which
+        /// must be that one grant.
+        async fn complete_earlier_consent(a: &TestApp, b: &Arc<App>) -> Vec<String> {
+            let (earlier, earlier_csrf) = start_consent(a).await;
+            let earlier_code = sign_in_code(a, Access::Read).await;
             let (_, _, earlier_summary) = send_on(
-                &b,
+                b,
                 "POST",
                 "/oauth/authorize",
                 Some(code_form(&earlier, &earlier_csrf, &earlier_code)),
@@ -4100,7 +4103,7 @@ mod tests {
             )
             .await;
             let (earlier_status, earlier_headers, earlier_page) = send_on(
-                &b,
+                b,
                 "POST",
                 "/oauth/authorize",
                 Some(form(&[
@@ -4117,8 +4120,24 @@ mod tests {
                 param(&earlier_target, "code").is_some(),
                 "the earlier consent completed"
             );
-            let before = live_grants(&a).await;
+            let before = live_grants(a).await;
             assert_eq!(before.len(), 1, "one grant before the failed approval");
+            before
+        }
+
+        /// When the removal after a successful update fails (`DEL` refused
+        /// with `NOPERM`, `GET` and the compare-and-set still allowed), Deny
+        /// and Approve answer the busy page: Deny does not forward the
+        /// denial, and Approve mints no authorization code. The grant the
+        /// failed approval created is revoked (issue #589), and a grant made
+        /// by an earlier, completed consent is left as it was.
+        async fn a_failed_removal_answers_the_busy_page(server: TestRedis) {
+            // Restricting the default user would break every test sharing it.
+            let server = server.dedicated().await;
+            let mut admin = admin_of(&server).await;
+            let (a, b, _server) = oauth_replica_pair_on(server).await;
+            let start = || start_consent(&a);
+            let before = complete_earlier_consent(&a, &b).await;
 
             let (denied, denied_csrf) = start().await;
             let (approved, approved_csrf) = start().await;
@@ -4199,6 +4218,64 @@ mod tests {
             assert_eq!(param(&target, "error").as_deref(), Some("access_denied"));
         }
 
+        /// When the code cannot be stored (a write to the code key refused with
+        /// `NOPERM`, the pending removal still allowed), Approve answers the busy page with
+        /// no code, and the grant it created is revoked (issue #925); a grant
+        /// made by an earlier, completed consent is left as it was.
+        async fn a_refused_code_insert_revokes_the_new_grant(server: TestRedis) {
+            let server = server.dedicated().await;
+            let mut admin = admin_of(&server).await;
+            let (a, b, _server) = oauth_replica_pair_on(server).await;
+            let before = complete_earlier_consent(&a, &b).await;
+
+            let (approved, approved_csrf) = start_consent(&a).await;
+            let code = sign_in_code(&a, Access::Read).await;
+            let (_, _, summary) = send_on(
+                &b,
+                "POST",
+                "/oauth/authorize",
+                Some(code_form(&approved, &approved_csrf, &code)),
+                None,
+            )
+            .await;
+            let approval = form(&[
+                ("pending", &approved),
+                ("csrf", &approved_csrf),
+                ("summary", &hidden(&summary, "summary")),
+                ("action", "approve"),
+            ]);
+            // Writes to the code keys are refused (`NOPERM`); every other key
+            // stays writable, so only the code insert fails.
+            for rule in [
+                "resetkeys",
+                "~*oauth:pending:*",
+                "~*oidc:*",
+                "~*passkey:*",
+                "~*mcp:*",
+                "%R~*oauth:code:*",
+            ] {
+                default_user_may(&mut admin, rule).await;
+            }
+            let refused = send_on(&b, "POST", "/oauth/authorize", Some(approval), None).await;
+            default_user_may(&mut admin, "~*").await;
+
+            assert_eq!(refused.0, StatusCode::SERVICE_UNAVAILABLE, "{}", refused.2);
+            assert!(refused.2.contains(BUSY), "{}", refused.2);
+            assert!(!refused.2.contains("code="), "no code is forwarded");
+            assert_eq!(
+                live_grants(&a).await,
+                before,
+                "the failed approval's grant is revoked and the earlier one survives"
+            );
+            let revoked = key_rows::list(a.app.accounts().executor())
+                .await
+                .expect("list the grants")
+                .into_iter()
+                .filter(|row| row.kind == KeyKind::OAuth && row.revoked_at.is_some())
+                .count();
+            assert_eq!(revoked, 1, "the approval created a grant, then revoked it");
+        }
+
         // `macro_rules!` writes a standalone and a cluster `#[tokio::test]`
         // for every body named (Python: a parametrized test).
         macro_rules! in_both_modes {
@@ -4236,6 +4313,7 @@ mod tests {
             a_lost_race_reruns_the_consent_change_on_a_fresh_copy,
             a_redis_outage_answers_the_busy_page,
             a_failed_removal_answers_the_busy_page,
+            a_refused_code_insert_revokes_the_new_grant,
         );
     }
 

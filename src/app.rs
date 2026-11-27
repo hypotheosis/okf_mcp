@@ -2753,9 +2753,16 @@ mod tests {
             .expect("the loop stops when cancelled");
             let observed = observer.finish();
 
-            let caller = &observed.spans_named("caller")[0];
+            let seen: Vec<_> = observed
+                .spans
+                .iter()
+                .map(|span| span.name.as_ref())
+                .collect();
+            let callers = observed.spans_named("caller");
+            assert_eq!(callers.len(), 1, "{filter}: captured {seen:?}");
+            let caller = callers[0];
             let checks = observed.spans_named("okf.clock.check");
-            assert_eq!(checks.len(), 1, "{filter}");
+            assert_eq!(checks.len(), 1, "{filter}: captured {seen:?}");
             assert_eq!(
                 checks[0].parent_span_id,
                 opentelemetry::trace::SpanId::INVALID

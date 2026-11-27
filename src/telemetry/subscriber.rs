@@ -1161,6 +1161,49 @@ mod tests {
         );
     }
 
+    /// A callsite another thread reached first still records for an
+    /// `Observer`, whether that thread registered it before the Observer
+    /// started or after (issues #481, #836): `test_tracing`'s anchor keeps the
+    /// answer computed from every live subscriber. A callsite is one macro
+    /// site, so each case has its own function, and nothing reaches `during`
+    /// before the Observer starts.
+    #[test]
+    fn a_callsite_another_thread_reached_first_still_records() {
+        use super::capture::Observer;
+
+        fn before(label: &'static str) {
+            let _ =
+                tracing::info_span!(target: "okf_mcp::first_elsewhere", "before", label).entered();
+        }
+        fn during(label: &'static str) {
+            let _ =
+                tracing::info_span!(target: "okf_mcp::first_elsewhere", "during", label).entered();
+        }
+        // Registered by another thread with no default subscriber, before
+        // the Observer exists.
+        std::thread::spawn(|| before("elsewhere"))
+            .join()
+            .expect("thread");
+
+        let observer = Observer::start("off", "trace", "off", LogFormat::Text);
+        // First registered by another thread while the Observer is live.
+        std::thread::spawn(|| during("elsewhere"))
+            .join()
+            .expect("thread");
+        // The observing thread reaches both; the other threads' own spans
+        // go to their (absent) defaults, not to the Observer.
+        before("here");
+        during("here");
+        let observed = observer.finish();
+
+        let seen: Vec<_> = observed
+            .spans
+            .iter()
+            .map(|span| span.name.as_ref())
+            .collect();
+        assert_eq!(seen, ["before", "during"], "captured {seen:?}");
+    }
+
     /// Issue #738: captures made and dropped on many threads at once, some
     /// dropped without `finish` (so the subscriber holds the last handle on
     /// its providers), while other threads install plain scoped subscribers

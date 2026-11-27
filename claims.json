@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2152,
+  "next_claim_seq": 2164,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "01511478f788f2a9b539b533f3273b9a1a8fac7512593daa3c329b6e93492515"
+    "mac": "4ca42665f63848c918d08cfb406705f0188d0b4dfef900d09afb9119648371af"
   },
-  "next_evidence_seq": 3815,
+  "next_evidence_seq": 3827,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "007c04beffc8cfa0acd79ec1455fbdcd0eea3b7edf43daa9e6ab18eaf652e494"
+    "mac": "ca8109bbb070c945f2457ad258a46ef65fc74a83802f89fb006fee65dfa09bc1"
   },
   "claims": [
     {
@@ -191051,6 +191051,807 @@
       "seal": {
         "by": "server",
         "mac": "57dc0be7e8560b4722ad74ae2011adf9f6bb2e4cfed032b6e959f66ba45c077e"
+      }
+    },
+    {
+      "id": "CLM-2152",
+      "statement": "PR for #898 leaves the cause of the post-submit '#app' timeouts unproven, and makes Ui::sign_in_password report page state on timeout without longer timeouts or blind retries.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/898",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs",
+        "tests/ui_e2e/signin.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3826",
+          "kind": "analysis",
+          "locator": "children of CLM-2152",
+          "summary": "Children show the diff adds only a report (SIGN_IN_REPORT) printed on timeout via poll_reporting, with identical predicates and the same 60 s bound; no retry or longer timeout was added; the PR body and changelog say the cause is unproven and the nextest concurrency is only a likely, untested trigger. Issue comment (gh issue view 898) states the Detached click no longer reproduces, matching the PR body.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T12:16:44.901913468Z",
+          "seal": {
+            "by": "server",
+            "mac": "686e9aaf7c4a832a42870270561f425439564800321190d8ff6c1d91a5540368"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "See parent roll-up evidence EVD-3826.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3826"
+          ],
+          "recorded_at": "2026-11-27T12:17:02.926604164Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6584a9d75f34ed27b55a1ea0ed36ed31722d069c4db28de8af81061eb65485a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:02.926604164Z",
+      "seal": {
+        "by": "server",
+        "mac": "ea1003ed6121f80b7a9d36d9f40da38fbb75057274c67e2e996e564b9008714e"
+      }
+    },
+    {
+      "id": "CLM-2153",
+      "statement": "The per-address password sign-in limit is 30 per 15 minutes (src/http/limits.rs).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"the per-address sign-in limit is 30 per 15 minutes, in memory, per server\"",
+      "source_anchor": {
+        "path": "src/http/limits.rs",
+        "lines": {
+          "start": 18,
+          "end": 21
+        },
+        "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+      },
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "src/http/limits.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3815",
+          "kind": "inspection",
+          "locator": "src/http/limits.rs:18-21",
+          "summary": "SIGN_IN_PER_IP = 30; SIGN_IN_WINDOW = 15*60 s; held in KeyedLimit, in memory when redis is None (limits.rs:107-140).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/limits.rs",
+              "lines": {
+                "start": 18,
+                "end": 21
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.213209823Z",
+          "seal": {
+            "by": "server",
+            "mac": "76cb4279e4608d48428210826f2b39fa67a6baf2f88402b21e278c474e88ec0e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "limits.rs:19,21 define 30 and 15 minutes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3815"
+          ],
+          "recorded_at": "2026-11-27T12:17:00.915001973Z",
+          "seal": {
+            "by": "server",
+            "mac": "c267f1f2d3be6b92990d44ae9a5e83b9937087f6c50f253ea84363e0e6cb0cdd"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:00.915001973Z",
+      "seal": {
+        "by": "server",
+        "mac": "e53f7141f637acc26b73bbc6551bb0cf1627779fb52b7e6e6b574af8b1b15c74"
+      }
+    },
+    {
+      "id": "CLM-2154",
+      "statement": "The ui_e2e journeys start their servers without Redis, so the sign-in limit is held in memory per server.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"in memory, per server, and every journey has its own server and database\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e",
+        "tests/support/server.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3816",
+          "kind": "inspection",
+          "locator": "git grep -i redis tests/ui_e2e (0 hits); tests/support/server.rs:156,308,314",
+          "summary": "No ui_e2e file mentions Redis. Journeys call TestServer::start_with (account/login via their own server helper), which goes to start_inner with redis None and a fresh TestDb::start_migrated() per server.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "redis",
+              "case_insensitive": true,
+              "scope": [
+                "tests/ui_e2e"
+              ],
+              "hits": 0,
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.355085278Z",
+          "seal": {
+            "by": "server",
+            "mac": "49415b316640297c6ceda725b885dc3fcc0c87a1b1bbc8e10d53e443fa0de055"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero Redis mentions in tests/ui_e2e; servers start with redis None and a fresh database each.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3816"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.044864030Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1cbd74ea4e4bd26443fea9607d3e09a084e5c847366a5d27d60a6020c277b3c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.044864030Z",
+      "seal": {
+        "by": "server",
+        "mac": "26169c90018784b6a3b10c92bb13d33acc16493a85582197f6e3edb172d44f2b"
+      }
+    },
+    {
+      "id": "CLM-2155",
+      "statement": "The argon2 package is built at opt-level 3 in the dev profile ([profile.dev.package.argon2]) and password hashing/verification runs through spawn_blocking.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"argon2 runs on tokio's blocking pool and the `argon2` package is built at opt-level 3 in the dev profile\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "Cargo.toml",
+        "src/store/passwords.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3817",
+          "kind": "inspection",
+          "locator": "Cargo.toml:246-249; src/store/passwords.rs:186-200",
+          "summary": "[profile.dev.package.argon2] opt-level = 3; matches_off_thread verifies via tokio::task::spawn_blocking.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "Cargo.toml",
+              "lines": {
+                "start": 246,
+                "end": 249
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.506241973Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d3b9336f7a24bc14a04cf7b007df845868fdd0c3c2829f0cfeff93311e66c17"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Cargo.toml profile entry and spawn_blocking in passwords.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3817"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.239249593Z",
+          "seal": {
+            "by": "server",
+            "mac": "89d5bcb927cb830b691f9f459809171e54124bfba368abeb1a5a90a26860b59e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.239249593Z",
+      "seal": {
+        "by": "server",
+        "mac": "02d927f0281ca8c179ecc2ae6ab76581c00e23241d77a375ffb13be637691f73"
+      }
+    },
+    {
+      "id": "CLM-2156",
+      "statement": "The password sign-in transaction takes only the signing-in user's own row (FOR SHARE) among user rows.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"the sign-in transaction takes only the user's own row\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3818",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:452-466; src/store/user_sessions.rs:241-290",
+          "summary": "begin() opens one transaction; start_in inserts the session reading the user's row FOR SHARE (user_sessions.rs:241,290) and then deletes the old session row. No other user rows are locked. Based on reading only, not a lock trace.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/user_sessions.rs",
+              "lines": {
+                "start": 241,
+                "end": 250
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.641307535Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e645bc581c394f26f06d05ecd228e0aaf156aa3cda0ca5f802daaac6fa73c96"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows one transaction reading only the user's own row FOR SHARE; not a runtime lock trace, which is acceptable at integrity level 1.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3818"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.416328258Z",
+          "seal": {
+            "by": "server",
+            "mac": "6460f1a64e0ae6ba6ba9a744629f15c26add677c86734e2f11bebabde43699bc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.416328258Z",
+      "seal": {
+        "by": "server",
+        "mac": "1965f1771ba16899b0a1496e5f4bd3de248d9dfd86feb69bac46b526acea3db3"
+      }
+    },
+    {
+      "id": "CLM-2157",
+      "statement": "justfile `test` runs `cargo nextest run` and `test-ui` runs ui_e2e with --test-threads=2.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"`just test` runs `cargo nextest run` ... `just test-ui` caps them at `--test-threads=2`\"",
+      "source_anchor": {
+        "path": "justfile",
+        "lines": {
+          "start": 30,
+          "end": 32
+        },
+        "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+      },
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "justfile"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3819",
+          "kind": "inspection",
+          "locator": "justfile:30-32,57-58",
+          "summary": "`test` runs `cargo nextest run` per store mode; `test-ui` runs `cargo test --test ui_e2e -- --test-threads=2`.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 30,
+                "end": 32
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.781362524Z",
+          "seal": {
+            "by": "server",
+            "mac": "eae1004e9af89822a9f2ce12abad7158e50eae63815fb99d0247e7c972133c14"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "justfile lines match both statements.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3819"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.596729444Z",
+          "seal": {
+            "by": "server",
+            "mac": "39b707ccb3c5141b9ddbafdc2e092e16f8771d8230dbdc10b83541067987df56"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.596729444Z",
+      "seal": {
+        "by": "server",
+        "mac": "243240b36a0bf1f1d14ffe8caa697cb315c1cddba6250f74699289c9142d5fda"
+      }
+    },
+    {
+      "id": "CLM-2158",
+      "statement": ".config/nextest.toml defines no test group (no ui_e2e concurrency cap).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \".config/nextest.toml has no test group for `ui_e2e`\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        ".config/nextest.toml"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3820",
+          "kind": "inspection",
+          "locator": "git grep -E \"test-groups|threads-required|max-threads\" .config (0 hits); .config/nextest.toml (whole file)",
+          "summary": "The file has only [profile.default] with fail-fast, slow-timeout and final-status-level; no test-groups or overrides.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "test-groups|threads-required|max-threads|overrides",
+              "case_insensitive": true,
+              "scope": [
+                ".config"
+              ],
+              "hits": 0,
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:14.925593227Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f5674fde8abc63f41b847741df2e7cf0bb524c4bbe44fb666c1c278a97006fb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search plus whole-file read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3820"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.787096584Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d7209a663e565f9f648cfdd033e990de3c0ba84d44d65cd95b07e90287d320d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.787096584Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a9a70406641a78c110acc22249e05624439ecbab7d55bc918cadc9e3fc9e025"
+      }
+    },
+    {
+      "id": "CLM-2159",
+      "statement": "#1101's fix is on this branch: launch_options passes --remote-debugging-port=0 with a unit test.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Findings: \"`launch_options` passes `--remote-debugging-port=0`, with a unit test\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3821",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:38,43-47,1441-1443",
+          "summary": "CHROMIUM_CHOOSES_DEBUGGING_PORT = \"--remote-debugging-port=0\" is passed by launch_options, and a unit test asserts port_args == [\"--remote-debugging-port=0\"]. This is in the pre-existing code (not in the PR diff), so it is on main.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 38,
+                "end": 47
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:15.059702405Z",
+          "seal": {
+            "by": "server",
+            "mac": "52d117cdafc058cf1a36c7f5a85946666a1ebcbc64916d2490157af7266ca8fe"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Argument and its unit test exist at head and are not in the PR diff, so they came from main.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3821"
+          ],
+          "recorded_at": "2026-11-27T12:17:01.977187723Z",
+          "seal": {
+            "by": "server",
+            "mac": "f75111d1dc02410ac93a10ace1445fe981b570c93a44e348da3afa80a4f7a482"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:01.977187723Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe0e19b3fbdc96bdbbc8b24f1e9f9b5b30c6f916327a7bec7ef8daa7ca39d479"
+      }
+    },
+    {
+      "id": "CLM-2160",
+      "statement": "SIGN_IN_REPORT's output never contains a cookie, key, token or the typed password.",
+      "kind": "security",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body Changes: \"no cookie, key, token or typed password\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3822",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:124-141; src/http/signin.rs:219",
+          "summary": "The report reads only: origin+pathname (no query/fragment), navigation responseStatus, readyState, #app/#whoami presence and hidden flag, #whoami text (identity), #signin-error text (server-fixed message, SIGN_IN_FAILED etc.), and the status number of GET /api/v1/session. No cookie, header, storage or input value is read. The test also asserts the typed password is absent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 124,
+                "end": 141
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:15.196630423Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e7bb54121dd8951e28a5f1a36675fd5c9aea28b859af2c2ba5b2adad276a13b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The script reads no cookie, storage or input value; only fixed server text, identity text and numeric statuses.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3822"
+          ],
+          "recorded_at": "2026-11-27T12:17:02.156453566Z",
+          "seal": {
+            "by": "server",
+            "mac": "508c447972ec990ed7a66773c45c40c1e6aa36632742a79a26bfa1bb76d8c2f8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:02.156453566Z",
+      "seal": {
+        "by": "server",
+        "mac": "e6bc6025e825acbc3f44f91585a1867c0ea37f315ebf1a27a5f250594c5ec5b5"
+      }
+    },
+    {
+      "id": "CLM-2161",
+      "statement": "sign_in_password's waits and the 60 s bound are unchanged by the PR (the same two conditions, polled for WAIT, only the panic message gains a report).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body Changes: \"Waits and the 60 s bound are unchanged\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3823",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- tests/ui_e2e/harness.rs; harness.rs:15,475-484,796-806",
+          "summary": "Before: wait_visible(\"#app\") (is_visible unwrap_or(false)) and wait_text(\"#whoami\",\" - \") (text().contains). After: poll_reporting with identical predicates and the same WAIT (60 s) deadline and 50 ms sleep. Only change: after the deadline an eval of the report (up to 2 s fetch abort) precedes the panic.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 796,
+                "end": 806
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:15.378517512Z",
+          "seal": {
+            "by": "server",
+            "mac": "c406c8ebfa01e81adfd6dccde4e6d6b7c87b6876d0b2eb362a6761f4f18e26c1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Predicates and WAIT are identical; only the panic message gains the report (up to 2 s extra after the 60 s).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3823"
+          ],
+          "recorded_at": "2026-11-27T12:17:02.350510298Z",
+          "seal": {
+            "by": "server",
+            "mac": "8cb1141d70a1bfc7e5c003f92b2b78eac6bd17eb2c7a0da08aa301fe87bf3f1f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:02.350510298Z",
+      "seal": {
+        "by": "server",
+        "mac": "de7dd76f70268f6fffee7d631cb4f830a96ce748a04e0b474892c87715e48bf9"
+      }
+    },
+    {
+      "id": "CLM-2162",
+      "statement": "The report includes the page address, sign-in response (navigation) status, session status, and #app and #whoami presence, as issue #898 requirement 3 asks.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #898 requirement: report page address, sign-in response status if reachable, #app and #whoami presence",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3824",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:124-141",
+          "summary": "Fields: href, navigation_status (the sign-in POST answer when the page is the POST's response), app_present/app_hidden, whoami_present/whoami, session status. All items the issue names are present.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 124,
+                "end": 141
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:15.549379274Z",
+          "seal": {
+            "by": "server",
+            "mac": "f33c9a36cc01433f372cc3d18d932ab236bcab5c5505f711b8bf2116aea04f8d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All requested fields are present in the script.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3824"
+          ],
+          "recorded_at": "2026-11-27T12:17:02.524823994Z",
+          "seal": {
+            "by": "server",
+            "mac": "06863c5ceea5ff7ef5dcc56c41e7c3c26a0a9394596471052eb1db56821c7930"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:02.524823994Z",
+      "seal": {
+        "by": "server",
+        "mac": "953e6bb2f1a1d9a69b02d3637f899e6bf7a48e35a0cda66d91b4d902a4adc26a"
+      }
+    },
+    {
+      "id": "CLM-2163",
+      "statement": "The test the_sign_in_report_names_the_refusal_the_page_shows asserts navigation status 401, the error line, no #app, session 401, and the typed password absent.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body Changes: \"pins the report on a refused sign-in (navigation status 401, error line, no `#app`, session 401, password absent)\"",
+      "derived_from": [
+        "CLM-2152"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/signin.rs"
+      ],
+      "tags": [
+        "from-issue:898"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3825",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/signin.rs:592-624",
+          "summary": "Asserts href==signin address, navigation_status==401, ready_state complete, app_present false, whoami_present false, signin_error contains \"incorrect\", session==401, and report string lacks the typed password. Not run by me (instructed not to run tests).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 592,
+                "end": 624
+              },
+              "commit": "9289c0a391e6ec7d45cf324ebfaa5e42054df2a6"
+            }
+          },
+          "recorded_at": "2026-11-27T12:16:15.695443332Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff20db71c860b3752652bebab500297e365bb73749c1678ca3e7e201c12a01dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I read the assertions: every listed item is asserted. Whether the test passes is for the gate run, not me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3825"
+          ],
+          "recorded_at": "2026-11-27T12:17:02.704465487Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6f9e5fd0c985fa8f6e9dc3664f794ad591a675c9677517f21b985ac6dbc2e6d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T12:15:46.408453272Z",
+      "updated_at": "2026-11-27T12:17:02.704465487Z",
+      "seal": {
+        "by": "server",
+        "mac": "11729b945765aecee9d225b2a58ed79754f5b666413db463d4f366a468fe5741"
       }
     }
   ]

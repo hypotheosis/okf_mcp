@@ -565,7 +565,7 @@ impl OkfServer {
     // schema.
     #[tool(
         title = "Get Concept",
-        description = "Get a concept: its frontmatter as JSON, its body and the body's size \
+        description = "Read one saved note in full. Get a concept: its frontmatter as JSON, its body and the body's size \
                        (`lines`, `chars`). A body over the server's limit (20,000 characters \
                        by default) comes back as an `outline` instead, with `truncated: true` \
                        and a `note`: each heading's text, slug, level, line and section size. \
@@ -598,7 +598,7 @@ impl OkfServer {
     /// The `read_document` tool.
     #[tool(
         title = "Read Document",
-        description = "Read the raw text of an index.md (default /index.md), log.md or \
+        description = "Read a catalog's index or log. Read the raw text of an index.md (default /index.md), log.md or \
                        AGENTS.md. Without `catalog`, the first selected catalog that has it \
                        answers. With `changeset` (a handle from open_changeset), its catalog \
                        reads through that changeset's drafts; a stale log or index entry is shown \

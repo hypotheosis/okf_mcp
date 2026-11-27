@@ -486,3 +486,22 @@ async fn whoami_names_the_user_the_reach_and_the_clock() {
     let text = me.to_string();
     assert!(!text.contains(&key), "the secret must not appear");
 }
+
+/// Issue #1174: `guide` over a real session returns the instructions the server sent at
+/// `initialize`, byte for byte, for a client that drops them.
+#[tokio::test(flavor = "multi_thread")]
+async fn guide_returns_the_instructions_sent_at_initialize() {
+    let server = TestServer::start(two_catalogs(), Config::default()).await;
+    let key = server
+        .key("guide-key", Access::Read, &["pg"], Some("pg"))
+        .await;
+    let client = server.client(&key, None).await.unwrap();
+
+    let sent = client
+        .peer_info()
+        .and_then(|info| info.instructions.clone())
+        .expect("the server sends instructions");
+    let result = call(&client, "guide", serde_json::json!({})).await;
+
+    assert_eq!(structured(&result)["instructions"], sent);
+}

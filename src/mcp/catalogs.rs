@@ -198,7 +198,7 @@ impl OkfServer {
     // written type, and an alias hides it.
     #[tool(
         title = "List Catalogs",
-        description = "List the catalogs this connection offers (name, display name, label, \
+        description = "See which catalogs you can use. List the catalogs this connection offers (name, display name, label, \
                        description, file count, last change). Pass `name` (the id) in other \
                        tools and say `label` to people: those the API key can reach, limited to the \
                        connection's X-OKF-Catalogs list when it has one. A catalog whose \

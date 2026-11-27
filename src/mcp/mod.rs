@@ -15,12 +15,15 @@ pub(crate) mod feedback;
 // `tool_error` and `reply` below, are used by later tool modules, and a
 // public item is never flagged as dead code meanwhile.
 pub mod context;
+pub(crate) mod guide;
 pub(crate) mod history;
 #[cfg(test)]
 mod history_people_tests;
 #[cfg(test)]
 mod labels_tests;
 pub(crate) mod maintenance;
+#[cfg(test)]
+mod openings_tests;
 #[cfg(test)]
 mod overlay_stores_tests;
 #[cfg(test)]
@@ -221,6 +224,29 @@ pub fn feedback_instructions(product_name: &str) -> String {
     )
 }
 
+/// The instructions a session sends (`get_info`) and the `guide` tool returns: one source, so
+/// the two cannot differ (issue #1174).
+///
+/// # Arguments
+/// * `feedback_product` - the product name when `send_feedback` is offered (`[feedback]` is
+///   set), else `None`.
+///
+/// # Returns
+/// [`INSTRUCTIONS`], plus [`feedback_instructions`] when the tool is offered.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial conversion: pure arithmetic or formatting on its arguments, no I/O"
+    )
+)]
+pub fn compose_instructions(feedback_product: Option<&str>) -> String {
+    match feedback_product {
+        Some(product_name) => format!("{INSTRUCTIONS} {}", feedback_instructions(product_name)),
+        None => INSTRUCTIONS.to_string(),
+    }
+}
+
 /// The public tool reference (`docs/reference/tools.md`), generated from the tool list by a test.
 /// Each tool's description ends with a link to its heading here (the tool's name is the anchor).
 pub const TOOL_REFERENCE_URL: &str =
@@ -289,11 +315,15 @@ impl OkfServer {
                     with_reference(&feedback::description(&product_name), feedback::TOOL).into(),
                 );
             }
-            format!("{INSTRUCTIONS} {}", feedback_instructions(&product_name))
+            compose_instructions(Some(&product_name))
         } else {
             tool_router.remove_route(feedback::TOOL);
-            INSTRUCTIONS.to_string()
+            compose_instructions(None)
         };
+        if let Some(route) = tool_router.map.get_mut(guide::TOOL) {
+            route.attr.description =
+                Some(with_reference(&guide::description(&product_name), guide::TOOL).into());
+        }
         Self {
             _session: app.metrics().mcp_session(),
             app,
@@ -301,6 +331,18 @@ impl OkfServer {
             instructions,
             server_info,
         }
+    }
+
+    /// The instructions this session sends and `guide` returns.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "trivial accessor: returns a field, no I/O"
+        )
+    )]
+    pub(crate) fn instructions(&self) -> &str {
+        &self.instructions
     }
 
     /// Every tool: each module's router, joined with `+`.
@@ -324,6 +366,7 @@ impl OkfServer {
             + Self::maintenance_router()
             + Self::feedback_router()
             + Self::whoami_router()
+            + Self::guide_router()
             + Self::cited_by_router();
         // Point every description at the tool's heading in the public reference. `map` holds
         // each tool as `{ call, attr }`; `attr` is the `Tool` that `tools/list` sends.

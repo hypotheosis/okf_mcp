@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2285,
+  "next_claim_seq": 2301,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "4d2e79827fc099a01aaf55c3365382f9a3e981c9b6ca24713ea5c34689dfb02e"
+    "mac": "cd7b8c7036795bed3ddd2b8f23780aa4d1f7c81b63ab6bdb722adb7fd075fa36"
   },
-  "next_evidence_seq": 4004,
+  "next_evidence_seq": 4032,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "babc874fae7c8117ac96e9f2e411d339a282afd9fb3d7f2e54b6e3e9e8b47953"
+    "mac": "fb0b13941436e433b2918c1e6708d8321184a493374f02d7df15bfeed2cbc98a"
   },
   "claims": [
     {
@@ -137062,7 +137062,9 @@
         "from-issue:986"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the 47-tool count (issue #1174 adds guide); see CLM-2292.",
+        "retired_at": "2026-11-27T20:17:38.707350Z"
       },
       "evidence": [
         {
@@ -137108,6 +137110,28 @@
             "by": "server",
             "mac": "b4365740a21c4cc6db5d312bbb8fc986121fb80c079481786d62b5b12ff51fac"
           }
+        },
+        {
+          "id": "EVD-4026",
+          "kind": "inspection",
+          "locator": "docs/reference/tools.md:69-114 at c3a6f7aa",
+          "summary": "The tool table in docs/reference/tools.md now lists 47 tools (guide added), and the registry test asserts 47, so \"exactly 46 tools\" is false at head.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 69,
+                "end": 114
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.313080198Z",
+          "seal": {
+            "by": "server",
+            "mac": "985356f668a586289611aa3de01eebdf915565841686e4fb2781d7fa33fdffe0"
+          }
         }
       ],
       "verdicts": [
@@ -137136,13 +137160,26 @@
             "by": "server",
             "mac": "68852562f2132c21b70f4e196ad625184ad73868cbe9bbb0d0f805181188feea"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The reference lists 47 tools at head, not 46. Point-in-time claim made false by this diff (ours). Fix: retire this claim as superseded by the 47-tool count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4026"
+          ],
+          "recorded_at": "2026-11-27T20:15:10.769837163Z",
+          "seal": {
+            "by": "server",
+            "mac": "7aa6552f7d433640fcd9d0f8ee322402bdc02520a3dc167affbbeaf4bf0c993e"
+          }
         }
       ],
       "created_at": "2026-11-25T12:52:23.376028669Z",
-      "updated_at": "2026-11-26T13:12:56.629094474Z",
+      "updated_at": "2026-11-27T20:17:38.707350Z",
       "seal": {
         "by": "server",
-        "mac": "d83aee3ceaaff0b50e36a98207ef6b752171cf3d913c220fc0951d07cbdb82ac"
+        "mac": "19694da354ececa3bb6c834770ef8fbb9b90abb029816f3c809c8bbbec6bdc42"
       }
     },
     {
@@ -144543,7 +144580,9 @@
         "from-issue:1062"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the 47-tool count (issue #1174 adds guide); see CLM-2295.",
+        "retired_at": "2026-11-27T20:17:38.456706810Z"
       },
       "evidence": [
         {
@@ -144611,6 +144650,28 @@
             "by": "server",
             "mac": "80a00b763e3bb2de632dea54ea2a00cbf1bd39d9337f1b4ee54deeb6e41b9b0d"
           }
+        },
+        {
+          "id": "EVD-4024",
+          "kind": "inspection",
+          "locator": "README.md:314-331 at c3a6f7aa",
+          "summary": "README now says 21 read-only and 47 tools in all (was 20 and 46), so the statement \"20 read-only ... 46 in all\" no longer matches the README; the counts are internally consistent (21+9+16+1) and match annotations.rs, but not the numbers this claim names.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 314,
+                "end": 331
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.026851191Z",
+          "seal": {
+            "by": "server",
+            "mac": "722e519f1f5f235f0f58a94ba74d325a611b55739177334e0d2e0db3d6e5d16d"
+          }
         }
       ],
       "verdicts": [
@@ -144652,13 +144713,26 @@
             "by": "server",
             "mac": "ddf42b1327a630d660508587f2dd2be3a55d18d4d6b744017cbd7861ff64e4e1"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The README at head says 21 read-only and 47 in all, so the claim's numbers (20, 46) are false now. Point-in-time claim made false by this diff (ours). Fix: retire this claim with a reason \"superseded by the 47-tool count\" (the current counts are covered by the new tool-count claim).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4024"
+          ],
+          "recorded_at": "2026-11-27T20:15:10.518364937Z",
+          "seal": {
+            "by": "server",
+            "mac": "2831affb5904e2bfe4d9656319ed56648d35cc669b7073c48563fdd276eae42d"
+          }
         }
       ],
       "created_at": "2026-11-25T23:37:48.941679546Z",
-      "updated_at": "2026-11-26T13:05:28.557457242Z",
+      "updated_at": "2026-11-27T20:17:38.456706810Z",
       "seal": {
         "by": "server",
-        "mac": "7f0a7fc388e76b641e0490910df6007ba8a418bdbd733f31e98ebaa184fa6f50"
+        "mac": "918ac91133f015ed85b008929443ee953a6c122511885a4e368c7a735e9faee1"
       }
     },
     {
@@ -144679,7 +144753,9 @@
         "from-issue:1062"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the 47-tool count (issue #1174 adds guide); see CLM-2295.",
+        "retired_at": "2026-11-27T20:17:38.581498932Z"
       },
       "evidence": [
         {
@@ -144703,6 +144779,28 @@
             "by": "server",
             "mac": "9aaf295da2fb7951581e727bf8cc63effb60fbb90b521a45201982ef91478a71"
           }
+        },
+        {
+          "id": "EVD-4025",
+          "kind": "inspection",
+          "locator": "README.md:314-331 at c3a6f7aa",
+          "summary": "The README sentence the claim describes now says 21 read-only and 47 tools, so \"20 read-only ... 46 tools in all\" is no longer accurate at head. A point-in-time claim about an earlier PR body, superseded by this change.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 314,
+                "end": 331
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.169089017Z",
+          "seal": {
+            "by": "server",
+            "mac": "c28f4dd89c1c39fc08a60e748ecbbd62dce8b7177060573906a3dd988093b294"
+          }
         }
       ],
       "verdicts": [
@@ -144718,13 +144816,26 @@
             "by": "server",
             "mac": "1bed4a49775e331b3523e9c705d25792441b0a6eb7b2e3938a49738a13c6346d"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The README sentence now reads 21 read-only and 47 tools, not 20 and 46. Point-in-time claim made false by this diff (ours). Fix: retire this claim as superseded by the 47-tool count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4025"
+          ],
+          "recorded_at": "2026-11-27T20:15:10.644711203Z",
+          "seal": {
+            "by": "server",
+            "mac": "58600036cae7195319df4231f365f72618eb79c9727c8edfd63f22484bed041c"
+          }
         }
       ],
       "created_at": "2026-11-25T23:37:48.941679546Z",
-      "updated_at": "2026-11-25T23:38:56.897969617Z",
+      "updated_at": "2026-11-27T20:17:38.581498932Z",
       "seal": {
         "by": "server",
-        "mac": "e76951d0498a915998683fd93b56785752abbcd75838248e54a3f96db2f89079"
+        "mac": "7357ac59a60a524ce1840eee57c9ab124be322de7ee6c1af4c801ea396b1d9d4"
       }
     },
     {
@@ -195819,6 +195930,28 @@
             "by": "server",
             "mac": "0931503061858580a3ec530bb9b8874ce25face6c26b8fad9729bb0a7299f427"
           }
+        },
+        {
+          "id": "EVD-4027",
+          "kind": "inspection",
+          "locator": "src/mcp/search.rs:279-283 at c3a6f7aa",
+          "summary": "Search description still says to use it when they ask what you remember about them, refer to something they told you before, or ask about their own notes (text reordered after the new opening).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/search.rs",
+              "lines": {
+                "start": 279,
+                "end": 283
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.459957121Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f14d6594648f613c8b3c92569b2af0579c28fa2dd2f582bf91e1deb714bd510"
+          }
         }
       ],
       "verdicts": [
@@ -195834,13 +195967,26 @@
             "by": "server",
             "mac": "1b754380ae100e2f6f2de4a1dfd3c5c3a7cd917576eaffe41a6c48100c3dbf86"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the rewrite: the guidance is still in the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4027"
+          ],
+          "recorded_at": "2026-11-27T20:15:10.896495130Z",
+          "seal": {
+            "by": "server",
+            "mac": "dfa004717ff3983f74fca86570ae337db18cd7eadb5c56a11c97672490defc85"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T15:43:45.260383470Z",
+      "updated_at": "2026-11-27T20:15:10.896495130Z",
       "seal": {
         "by": "server",
-        "mac": "c1568cbe14f4bc99a7abe0628bb020e2fc9a0d59576021fb1e11135412106b28"
+        "mac": "2e79732992633af806cefd542beedd41bce6c254267c4b3ac296c61419d5f1d9"
       }
     },
     {
@@ -195893,6 +196039,28 @@
             "by": "server",
             "mac": "d1f60a72bda501ac879e7c975eb17b93a789913a141829481978d559136ad0d0"
           }
+        },
+        {
+          "id": "EVD-4028",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:233-241 at c3a6f7aa",
+          "summary": "create_concept description keeps: use whenever the person shares something worth keeping (fact, preference, decision, note), certainly when asked to remember, catalog keeps it across conversations, save without asking first and tell them what you saved.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 233,
+                "end": 241
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.602612773Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a1224423b8fc197430428614a43f3f8e3158cac32dfd61011c03e02d68462d5"
+          }
         }
       ],
       "verdicts": [
@@ -195908,13 +196076,26 @@
             "by": "server",
             "mac": "3f0ce7508e5f1d6e8dbe65efaa0c503598d61a753ac5bfe30cdf3a0216856cc6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the save-by-default guidance is intact after the reorder.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4028"
+          ],
+          "recorded_at": "2026-11-27T20:15:11.025010996Z",
+          "seal": {
+            "by": "server",
+            "mac": "a79bb526fc1bd2b8b1684555903b5e11b598caadcd6403d5b27a73b1798fa381"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T15:43:47.926762692Z",
+      "updated_at": "2026-11-27T20:15:11.025010996Z",
       "seal": {
         "by": "server",
-        "mac": "bc76cfe920811957cb5aeca39673f294e7be4b833203849a44a19771cd064033"
+        "mac": "9330f5e618cd06d4a4c9f8ae5f86200ba7ab06df0ee986b818e135b63eed175b"
       }
     },
     {
@@ -195967,6 +196148,28 @@
             "by": "server",
             "mac": "fa7b01ce4e991a802398efa473e2f242384e58b06a2a2b0a5c0c7cf0cfb9ce5e"
           }
+        },
+        {
+          "id": "EVD-4029",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:504-506 at c3a6f7aa",
+          "summary": "open_changeset description still says \"the first step to saving what the person shares or asks you to remember, which the catalog keeps across conversations\", after the new opening.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 504,
+                "end": 506
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.789146756Z",
+          "seal": {
+            "by": "server",
+            "mac": "46d2dfbd82bc19b18d2b4384b69d840befc3baa19ba851b8d9723f6de0fcfad3"
+          }
         }
       ],
       "verdicts": [
@@ -195982,13 +196185,26 @@
             "by": "server",
             "mac": "308c95719bf0a925b068585c9369b07c6ac725c687bc271f3132a6688ade2868"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the sentence is still there.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4029"
+          ],
+          "recorded_at": "2026-11-27T20:15:11.152446427Z",
+          "seal": {
+            "by": "server",
+            "mac": "586c6fd00da6adc2b09d22cc0e227fb67124f0f42ad3fae48b9f254008f4dfcc"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T15:43:49.882627631Z",
+      "updated_at": "2026-11-27T20:15:11.152446427Z",
       "seal": {
         "by": "server",
-        "mac": "dd7c2f1f1452eb1935af375a210e432fd45b998756703dac2519cfd418ecfe70"
+        "mac": "70a168224c0795d250c28732a080417f3a51e0aacdea7f7813a94d1b389f39eb"
       }
     },
     {
@@ -196034,6 +196250,28 @@
             "by": "server",
             "mac": "dfbc6a73a936f114f4423639fdd5e35d7c6570b761012c404b17c3ced7015678"
           }
+        },
+        {
+          "id": "EVD-4030",
+          "kind": "inspection",
+          "locator": "src/mcp/writes.rs:238-241 and src/mcp/changesets.rs:504-512 at c3a6f7aa",
+          "summary": "The visibility sentence \"a published concept is visible only to those with access to the catalog (a personal catalog's owner unless they share it, a team catalog's team)\" is unchanged in create_concept (writes.rs:238-241); only its position moved. The diff of open_changeset adds only a prefix.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/writes.rs",
+              "lines": {
+                "start": 238,
+                "end": 241
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:14:56.963699837Z",
+          "seal": {
+            "by": "server",
+            "mac": "932d646ba3629d872d4519ab4670f4dc0a4050b340b2693d0f9780d7be1ca71b"
+          }
         }
       ],
       "verdicts": [
@@ -196049,13 +196287,26 @@
             "by": "server",
             "mac": "7494e362ad34047772519aa3d46b2a27eb241a7f8d1d02d33370232093ab5eaf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the visibility wording is unchanged, only moved.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4030"
+          ],
+          "recorded_at": "2026-11-27T20:15:11.277833388Z",
+          "seal": {
+            "by": "server",
+            "mac": "33224b286d86503c1150639149711e236e52837822ccb4843c6f71805a8d9572"
+          }
         }
       ],
       "created_at": "2026-11-27T15:42:30.458724855Z",
-      "updated_at": "2026-11-27T15:43:51.870560531Z",
+      "updated_at": "2026-11-27T20:15:11.277833388Z",
       "seal": {
         "by": "server",
-        "mac": "81e7e5346d4de7dfdda31b242f77540f5e73551368a5c3c663b285e4acab5b80"
+        "mac": "173ed5e0555b3c341ae45617cb7221efa9794408520ca12541cbfae4f4f98cbc"
       }
     },
     {
@@ -201517,6 +201768,1177 @@
       "seal": {
         "by": "server",
         "mac": "2aff30a29255a2a639d2e3a6e57d321a78d513bebf383064515190116cb59c1f"
+      }
+    },
+    {
+      "id": "CLM-2285",
+      "statement": "Issue #1174 is delivered: clients that defer tools see plain-words 31-character openings on every tool, and a read-only guide tool returns the server instructions.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1174",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/guide.rs",
+        "src/mcp/openings_tests.rs",
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4031",
+          "kind": "analysis",
+          "locator": "children of CLM-2285",
+          "summary": "The guide tool, single-source instructions, openings for all tools, early words, the pinning test and regenerated docs are supported by tests I ran. The deferred-loading acceptance criterion (a save session reaches a write tool) is only partly covered: label checks exist, the model-driven or manual Claude app run has not been done, so that child is not_enough_info.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T20:15:11.403084958Z",
+          "seal": {
+            "by": "server",
+            "mac": "20ef7100348ee28c99e0ec73387fa191391499d7bf25863d82b42659e077d32f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All children are supported except the deferred-loading acceptance criterion, which is not_enough_info (no model or manual run), and one PR-body claim that is refuted. Fix: run the manual Claude app check and record it, then fix the PR body's default-product-name statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4031"
+          ],
+          "recorded_at": "2026-11-27T20:15:15.141717207Z",
+          "seal": {
+            "by": "server",
+            "mac": "a760c87fa9eabb49dc303541347b8903446a38995d9fd74e0ab55ef60b335c41"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:15:15.141717207Z",
+      "seal": {
+        "by": "server",
+        "mac": "810506fb2baa9b33ce743c454d5aeb83d3c7630f170b4f8c9faa058bb2d53558"
+      }
+    },
+    {
+      "id": "CLM-2286",
+      "statement": "A read-only tool named `guide` is registered, takes no catalog, and works for a read-only credential.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1174 Changes 1: 'Add a read-only tool for clients that drop instructions'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp/guide.rs",
+        "tests/server.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4004",
+          "kind": "inspection",
+          "locator": "src/mcp/guide.rs:59-82",
+          "summary": "guide is a #[tool] with read_only_hint = true, destructive false, idempotent true; takes only Extension<Parts> (no catalog parameter); calls self.context(&parts) for the credential only; joined into OkfServer::tools via guide_router (mod.rs).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/guide.rs",
+              "lines": {
+                "start": 59,
+                "end": 82
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:43.601977966Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f6fdd23cb9284f355ebecf3bf22053dc9bab6f94c06e4a43efb6dac685c7892"
+          }
+        },
+        {
+          "id": "EVD-4005",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --test server guide_returns",
+          "summary": "guide_returns_the_instructions_sent_at_initialize passed (1 passed; 0 failed): a Read-access key bound to catalog pg calls guide with empty arguments and gets a result. I read tests/server.rs:490-507: it uses Access::Read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/server.rs",
+              "lines": {
+                "start": 490,
+                "end": 507
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:43.801382294Z",
+          "seal": {
+            "by": "server",
+            "mac": "7749932bb32fd3702dc010f0c91e9a5ab5951980965cb8304db6922ae999381f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "guide has read_only_hint true, no catalog parameter, and an integration test with a Read key calls it successfully.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4004",
+            "EVD-4005"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.083724279Z",
+          "seal": {
+            "by": "server",
+            "mac": "c029a6143766b3d31313901ab951d4e7496f4084abc072b3098491953c52aa0e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.083724279Z",
+      "seal": {
+        "by": "server",
+        "mac": "b56c8b27c783924e42e06a57dcaa503f5bf5604be5cef10bb69491f79be7f781"
+      }
+    },
+    {
+      "id": "CLM-2287",
+      "statement": "The guide tool returns exactly the text get_info sends as instructions, with and without [feedback] set, and both read one stored string built by compose_instructions (no second copy).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1174 Changes 1 and Acceptance criteria 2: 'There must be one source, with no copy that can drift'; 'returns exactly what get_info sends ... with and without [feedback]. A test pins this.'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp/guide.rs",
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4006",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib mcp::guide::tests",
+          "summary": "3 passed: the_guide_text_is_what_get_info_sends_without_feedback and ..._with_feedback assert server.get_info().instructions == server.instructions() and equal compose_instructions(None / Some(\"Telekin\")); the without case also equals INSTRUCTIONS.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/guide.rs",
+              "lines": {
+                "start": 113,
+                "end": 135
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:43.998321613Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff9a4e3de7380ead6f904a03c08d65a77e72441c60cf43238dc6d28caf6cd085"
+          }
+        },
+        {
+          "id": "EVD-4007",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:243-247,312-322,336-346,510",
+          "summary": "compose_instructions is the only builder: called once in OkfServer::new for both feedback branches and stored in self.instructions; get_info uses with_instructions(self.instructions.clone()) and guide returns self.instructions(). No other format!(INSTRUCTIONS...) remains.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 243,
+                "end": 247
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:44.197582712Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3b6f180d31ea0fddf3cbd945a4772992b1ff33fade27d2acd446ec684d3d98d"
+          }
+        },
+        {
+          "id": "EVD-4008",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --test server guide_returns",
+          "summary": "Over a real session, guide's structured instructions equals the instructions in the initialize peer_info byte for byte (1 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/server.rs",
+              "lines": {
+                "start": 490,
+                "end": 507
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:44.404477868Z",
+          "seal": {
+            "by": "server",
+            "mac": "bad6636c43f2fe85cf8edf439b4cd85de146baa1e3939515f7a978d53904bcfd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One compose_instructions builder, one stored field read by get_info and guide; unit tests pin equality with and without feedback, and an integration test pins equality with the initialize text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4006",
+            "EVD-4007",
+            "EVD-4008"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.232819680Z",
+          "seal": {
+            "by": "server",
+            "mac": "866ae9444beb4e49fb1c75fbe2ce73662169ab4e7de4896249d53e25056f43a5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.232819680Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c00ffeb26fcb450a7704869ef59329e9f3de74c5a93c22882036353c76c352e"
+      }
+    },
+    {
+      "id": "CLM-2288",
+      "statement": "The guide tool's description opens with a label of at most 31 characters that says to read it first (\"Read first: how to use <product>\").",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1174 Changes 1: 'Its description should open with a 31-character label that says to read it first'",
+      "derived_from": [
+        "CLM-2286"
+      ],
+      "artifacts": [
+        "src/mcp/guide.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4009",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib mcp::guide::tests::the_guide_opens_with_a_read_first_label_naming_the_product",
+          "summary": "Passed. Asserts shown[..30] == \"Read first: how to use Telekin\" and no 'this server' left; the label is 30 characters (within 31). The unbranded form \"Read first: how to use this\" is in OPENINGS (28 chars).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/guide.rs",
+              "lines": {
+                "start": 137,
+                "end": 146
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:44.595043133Z",
+          "seal": {
+            "by": "server",
+            "mac": "73b6a002a6ef0f1f54143b77126903d6f9de433412657de3f4bcabfe432c2e9c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test passes and asserts the 30-character \"Read first: how to use <product>\" opening for a branded session; the unbranded form is also within 31.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4009"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.380536441Z",
+          "seal": {
+            "by": "server",
+            "mac": "b63293999c62d6d1ffa4fa1f1147a183e5197834cb8d8a600e8e3694b907cbe5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.380536441Z",
+      "seal": {
+        "by": "server",
+        "mac": "40f91f1275179f2b7cdae2e0390d7dc16da3feff86cd69a317642aaff48b9e1e"
+      }
+    },
+    {
+      "id": "CLM-2289",
+      "statement": "Every one of the tools' descriptions opens with a plain-words sentence of at most 31 characters saying what the tool is for, with the old text following; create_concept opens \"Save what the person wants kept\" and search opens \"Recall what the person told you\".",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1174 Changes 2: 'Front-load every tool description ... create_concept: \"Save what the person wants kept\" ... search: \"Recall what the person told you\"'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp/openings_tests.rs",
+        "src/mcp/writes.rs",
+        "src/mcp/search.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4012",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib openings_tests",
+          "summary": "4 passed. every_tool_has_exactly_one_approved_opening asserts registered tool set == OPENINGS names; every_description_opens_with... asserts each description starts with its opening (<=31 chars) followed by '. ' or ' '; the_save_and_recall_tools_open_as_pinned asserts create_concept shown(31) == \"Save what the person wants kept\" and search == \"Recall what the person told you\". I also checked all 47 OPENINGS lengths <= 31 by script (none long).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/openings_tests.rs",
+              "lines": {
+                "start": 88,
+                "end": 148
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:17.532160603Z",
+          "seal": {
+            "by": "server",
+            "mac": "978d3403a8e943623280100accd9d24b303929401314437c3101003e145960a8"
+          }
+        },
+        {
+          "id": "EVD-4013",
+          "kind": "inspection",
+          "locator": "src/mcp/search.rs:279; src/mcp/writes.rs:233",
+          "summary": "search description begins \"Recall what the person told you. Look up their saved notes...\"; create_concept begins \"Save what the person wants kept. Use it whenever...\". The diff of every other tool shows only a prefix sentence added, with the old text following.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/search.rs",
+              "lines": {
+                "start": 279,
+                "end": 283
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:17.748530199Z",
+          "seal": {
+            "by": "server",
+            "mac": "243b49d8aded5b09b7d16bb5b84403bc87c2faa65a8e353dba350f4b4f2f998f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "openings_tests passes (4) and enforces an approved <=31-char opening for every registered tool; save and recall openings are pinned exactly and match the issue's examples.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4012",
+            "EVD-4013"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.523111087Z",
+          "seal": {
+            "by": "server",
+            "mac": "15a2fee7f20c7200adf098210dcc5d1739025fd52c04168e5aa5226b31fb1f2b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.523111087Z",
+      "seal": {
+        "by": "server",
+        "mac": "c12b844956eb5541214560ea8726d1496b7bb5523a0277741e72f18a03866b47"
+      }
+    },
+    {
+      "id": "CLM-2290",
+      "statement": "The descriptions of create_concept, search and open_changeset contain 'remember'/'save'/'recall'/'notes' early (within the first 300 characters): create_concept save and remember; search recall, remember and notes; open_changeset saving and remember.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1174 Changes 3: 'remember, save, recall and notes should appear early in the descriptions of the save and recall tools'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp/search.rs",
+        "src/mcp/writes.rs",
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4014",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib openings_tests::the_save_and_recall_tools_use_the_words_people_use_early",
+          "summary": "Passed (part of 4 passed): lowercases the first 300 characters and asserts create_concept has save+remember, search has recall+remember+notes, open_changeset has saving+remember. I read the descriptions at changesets.rs:504-506 (\"saving\", \"remember\" in the first lines), search.rs:279-283 and writes.rs:233-240 too.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/openings_tests.rs",
+              "lines": {
+                "start": 150,
+                "end": 176
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:17.945006814Z",
+          "seal": {
+            "by": "server",
+            "mac": "db5939a166241a92eafb5b245be85132b0178c017c8a6467572daede5e366467"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A passing test checks the words within the first 300 characters for the three tools.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4014"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.670152454Z",
+          "seal": {
+            "by": "server",
+            "mac": "c411fe3fa402b7c310c559b2c34ac45d752ab750601c0e48113fc8991ddd87cb"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.670152454Z",
+      "seal": {
+        "by": "server",
+        "mac": "049fb426df5aaf158d4b12cd1046be89f66123759532a7f50b40ff8090255467"
+      }
+    },
+    {
+      "id": "CLM-2291",
+      "statement": "A unit test pins the first 31 characters of the save and recall tools' descriptions and checks no description opens with only mechanics.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1174 Acceptance criteria 1",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp/openings_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4015",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib openings_tests",
+          "summary": "4 passed. Pinning: the_save_and_recall_tools_open_as_pinned asserts exact first 31 characters for create_concept, search, open_changeset and publish. Mechanics: every_description_opens... rejects ` / { ( _ and \"changeset `\", \"Replace exact\", \"Report-only\" in the shown 31 characters, and requires an approved opening for each tool.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/openings_tests.rs",
+              "lines": {
+                "start": 97,
+                "end": 148
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:18.156811795Z",
+          "seal": {
+            "by": "server",
+            "mac": "4100c8bb8b71c7c01915b4bf58092815418e836dcd4bd5b9d2e4fc30dd34ad7d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The tests pin the exact 31 characters of the save and recall tools and reject mechanics-only openings via the approved list and character checks.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4015"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.822977019Z",
+          "seal": {
+            "by": "server",
+            "mac": "1349c1849616e7799eca04c4e04c65357c963c7ddfeb435393257fc26e4ab0fb"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.822977019Z",
+      "seal": {
+        "by": "server",
+        "mac": "8d0f8b88b339d255e16d116fa6ff2ac5350a58fe3f909d104281b2b2a02d9e6c"
+      }
+    },
+    {
+      "id": "CLM-2292",
+      "statement": "docs/reference/tools.md is regenerated and matches the tool list, including a guide section.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1174 Acceptance criteria 3",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4017",
+          "kind": "test",
+          "locator": "gate.sh narrow --jobs 4 --lib mcp::reference",
+          "summary": "4 passed, including the_checked_in_tool_reference_matches_the_tool_list (the page equals the generated text) and the_reference_lists_every_tool_with_a_heading. docs/reference/tools.md:219-223 has the guide section; the file is in the diff (58 insertions, 46 deletions).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 219,
+                "end": 223
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:18.567768335Z",
+          "seal": {
+            "by": "server",
+            "mac": "54d6a785d6644d11e2d3ea9240b84a3b637ad9234a9c52be13b557a4bfb3e00d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The reference-matches-tool-list test passes on head and the guide section is present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4017"
+          ],
+          "recorded_at": "2026-11-27T20:13:51.975617844Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f4b40e4a8b338151386db09432f1e81be76a3a4e5d6fb3324ecf99270a7ee11"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:51.975617844Z",
+      "seal": {
+        "by": "server",
+        "mac": "7b2ac872ef004af23eb4da3705e02d001a4401c7c57cf2a520f8e4515f6102a8"
+      }
+    },
+    {
+      "id": "CLM-2293",
+      "statement": "A check simulates deferred loading, showing only name and the first 31 characters until a tool loads, and a 'save this for later' session reaches a write tool.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "Issue #1174 Acceptance criteria 4: 'A \"save this for later\" session must reach a write tool. This can be an MCPJam variant or a manual run in the Claude app.'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/tool-descriptions.test.ts"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4018",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/tool-descriptions.test.ts:22-49; tests/mcpjam/README.md:10",
+          "summary": "The new test slices each live description to 31 characters (the deferred view) and checks labels, but no model runs (README: \"No model is involved\"), so nothing shows that a \"save this for later\" session reaches a write tool. The test's own comment and the PR say that part is a manual Claude app run, which is not yet done (PR Manual Test Plan unchecked). I did not run the mcpjam suite.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/tool-descriptions.test.ts",
+              "lines": {
+                "start": 22,
+                "end": 49
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:18.773408770Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9cd086c048b598782d69ea8b575a9cc300995bcb63b4fc917dcfc1e896445b0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mcpjam test only checks the 31-character labels; no model runs, and the manual Claude app run (PR Manual Test Plan) is unchecked, so nothing shows a save session reaching a write tool. Fix: run the manual Claude app check (\"save this for later: ...\" in a new chat, expect create_concept or open_changeset to load) and record the result in the PR.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4018"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.128685391Z",
+          "seal": {
+            "by": "server",
+            "mac": "ccdbb3261358b1782ca3eca13815ea55d7920c69df4100b4cbd6de76a16f7fba"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:52.128685391Z",
+      "seal": {
+        "by": "server",
+        "mac": "96d9d5541d264dabe7b651a10d265b385b0fe9b2094a842ec4a2e2c0d40e96eb"
+      }
+    },
+    {
+      "id": "CLM-2294",
+      "statement": "PR body: the guide description opens \"Read first: how to use <product>\" and is 30 characters with the default product name Telekin.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: '(30 characters with the default product name Telekin; the `product_name` setting, as `send_feedback` does)'",
+      "derived_from": [
+        "CLM-2288"
+      ],
+      "artifacts": [
+        "src/store/settings.rs",
+        "src/mcp/guide.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "PR-body statement corrected: 30 characters with product_name Telekin, 26 with the default okf.",
+        "retired_at": "2026-11-27T20:17:38.831296429Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4010",
+          "kind": "inspection",
+          "locator": "src/store/settings.rs:70",
+          "summary": "DEFAULT_PRODUCT_NAME is \"okf\", not \"Telekin\"; with the default the label is \"Read first: how to use okf\" (26 characters). Telekin is only the deployment's configured product_name (the test sets it explicitly at guide.rs:104-106). The 30-character figure holds only for product_name = Telekin.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/store/settings.rs",
+              "lines": {
+                "start": 70,
+                "end": 70
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:12:44.798284427Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc3cabc754f5f70228f9a918af217c7a4fdf9f09f946f6b826fe1de8a851585a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "DEFAULT_PRODUCT_NAME is \"okf\", so with the default the label is \"Read first: how to use okf\" (26 characters); 30 characters holds only when product_name is Telekin. Ours (PR description). Fix: change the PR body to say \"30 characters with product_name Telekin (26 with the default okf)\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4010"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.305528848Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ea3d714f6631fb5cf9a9bc0370dd872f7e73cf7445299e5e876375a3063e708"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:17:38.831296429Z",
+      "seal": {
+        "by": "server",
+        "mac": "60dcb62a40db0bd96f7c256cd95a94b9c77704f27be83436360b946c17f36267"
+      }
+    },
+    {
+      "id": "CLM-2295",
+      "statement": "PR body: the server now has 47 tools, 21 of them read-only, and README.md says so.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: 'README tool counts (47 tools, 21 read-only) ... updated'; '47 tool descriptions (46 existing plus guide)'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "README.md",
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4020",
+          "kind": "inspection",
+          "locator": "README.md:314-331; src/mcp/mod.rs registry test; grep read_only_hint = true src/mcp",
+          "summary": "README says 47 tools, 21 read-only; breakdown 21+9+16+1 = 47. `read_only_hint = true` occurs 21 times across src/mcp (guide has 1). No stale \"46 tools\" or \"20 read\" text remains in the repo outside changelog. The registry test asserts 47 (diff of mod.rs/tests).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 314,
+                "end": 331
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:19.193778314Z",
+          "seal": {
+            "by": "server",
+            "mac": "867d511d5a552e68774d352d5e82f863a7d16f36e7c60adf57e6b6c6ccb5fc88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README breakdown sums to 47, the read_only_hint count is 21, and no stale counts remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4020"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.465925954Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b81ba8ef59c660576dcbbf7926ccac903441f8cfb577772d59cc959c389ce47"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:52.465925954Z",
+      "seal": {
+        "by": "server",
+        "mac": "30b0acc4cccf7c493354cdacc6274af3b6f034d7b2e2f3a95b63a81188af38ac"
+      }
+    },
+    {
+      "id": "CLM-2296",
+      "statement": "PR body: besides the added opening, only the create_concept, search and send_feedback descriptions had their old text changed (reordered or merged); all other descriptions keep their old text unchanged.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'ahead of the unchanged old text ... create_concept, search and send_feedback also had their first sentences reordered or merged'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src/mcp"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4021",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/mcp (description lines)",
+          "summary": "For 43 existing tools the diff only prepends the opening sentence to the old first line (wrapping moved on cited_by); the text after it is identical. create_concept (writes.rs:233) and search (search.rs:279) have reordered/extended text and send_feedback (feedback.rs:40) was merged/reworded. whoami also gets a prefix only. No other description was altered. Note: the 'Report-only' maintenance texts keep their old text after the \"Upkeep: ...\" opening.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/feedback.rs",
+              "lines": {
+                "start": 39,
+                "end": 42
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:19.400015593Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f7125e2710de4e2d39204ecc1e590ea334f1def7e323ae73e6a51010be44137"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The description diff shows only a prepended opening for the other tools; the three named ones were reworded. Caveat: the PR sentence also implies send_feedback now has 'save/remember/recall/notes' early; it has none of them, only a reworded opening (not a defect, but the sentence overstates).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4021"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.635372981Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3a75c0e09a6ffc58cf7a01a69e16b7d016094cf03eeb14a1352cb48983ff454"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:52.635372981Z",
+      "seal": {
+        "by": "server",
+        "mac": "af34b47c59ce31babd49990ccc52d8be096139857517a9c9b5155b67ce1afcc4"
+      }
+    },
+    {
+      "id": "CLM-2297",
+      "statement": "PR body: the opening rule in openings_tests.rs fails for a tool without an approved opening, requires the description to start with it, requires at most 31 characters followed by a sentence or word boundary, and rejects backtick, slash, brace, parenthesis and underscore in the shown 31 characters.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body 'Opening rule' bullet",
+      "derived_from": [
+        "CLM-2291"
+      ],
+      "artifacts": [
+        "src/mcp/openings_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4016",
+          "kind": "test",
+          "locator": "src/mcp/openings_tests.rs:88-129; gate.sh narrow --lib openings_tests (4 passed)",
+          "summary": "Read the assertions: set equality of registered vs OPENINGS fails for an unlisted tool; starts_with(opening); chars().count() <= 31; rest starts with \". \" or ' '; shown() must not contain backtick, slash, brace, parenthesis or underscore. All as the PR bullet states. Passes on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/openings_tests.rs",
+              "lines": {
+                "start": 88,
+                "end": 129
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:18.374199507Z",
+          "seal": {
+            "by": "server",
+            "mac": "48b1f7b3a044a3b0f20c6f3012a08c5af32248e02c726e1d1609e463d5a11e35"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test code implements each listed check and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4016"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.814479863Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5f2400a4e150a234ec710da232fe2e1bfcd0914f16d0d1db4e0567e6a44d666"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:52.814479863Z",
+      "seal": {
+        "by": "server",
+        "mac": "2eead9d6b462fcdf5fd4a3ca64deb095dc1b780d428d72dccb1958312d94cf7d"
+      }
+    },
+    {
+      "id": "CLM-2298",
+      "statement": "PR body: the MCPJam gate runs no model, and tool-descriptions.test.ts builds the deferred view from the live tool list, checks the labels, and checks that guide returns the save-by-default guidance.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body 'Deferred-loading check'",
+      "derived_from": [
+        "CLM-2293"
+      ],
+      "artifacts": [
+        "tests/mcpjam/README.md",
+        "tests/mcpjam/scenarios/tool-descriptions.test.ts"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4019",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/README.md:10; tests/mcpjam/scenarios/tool-descriptions.test.ts:22-49",
+          "summary": "README says no model is involved. The new tests build deferred = description.slice(0, 31) from session().toolDescriptions(), assert labels (create_concept, search, open_changeset, publish, guide pattern, no backtick/underscore/brace), and a second test calls guide and matches the save-by-default phrases in instructions. As described. (Not executed here.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/tool-descriptions.test.ts",
+              "lines": {
+                "start": 22,
+                "end": 49
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:18.990171379Z",
+          "seal": {
+            "by": "server",
+            "mac": "a933c8d3c45e7c760e2832c29e0c1bc95771bd6a431bf3e550d58687e2d0ef8e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README and the test source match the description (read, not executed).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4019"
+          ],
+          "recorded_at": "2026-11-27T20:13:52.993421024Z",
+          "seal": {
+            "by": "server",
+            "mac": "f58bac811dfcaba50ac45086b6ccbb427aad3948be98117bb8b4f617a18a4aa4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:52.993421024Z",
+      "seal": {
+        "by": "server",
+        "mac": "d7af5f5cbb37b5a134a0d8db8285a2658bb2ec5ec2ce0c19749c75cfa2dd7812"
+      }
+    },
+    {
+      "id": "CLM-2299",
+      "statement": "PR body: test-ui is not needed because no console or reader page lists tool descriptions.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'test-ui not run: no console or reader page lists tool descriptions'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "src"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4011",
+          "kind": "analysis",
+          "locator": "git grep -iE 'OkfServer|list_all|tool_router|tools/list|tool.?description' -- src/http src/render.rs src/labels",
+          "summary": "No console, reader or render code under src/http, src/render.rs or src/labels references the MCP tool list or tool descriptions, so no web page shows them. (Scope is the HTTP/render layer; I did not audit templates elsewhere.)",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "OkfServer|list_all|tool_router|tools/list|tool.?description",
+              "case_insensitive": true,
+              "scope": [
+                "src/http",
+                "src/labels",
+                "src/render.rs"
+              ],
+              "hits": 5,
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:17.335427527Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a567b28cbe789e7afe0573ef8af7b4e1fd303fec7b679f419ec56b7930dc6c4"
+          }
+        },
+        {
+          "id": "EVD-4023",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:46,340-389",
+          "summary": "Correction to the search above: its 5 hits are all in src/http/mod.rs and are the MCP streamable-HTTP service wiring (OkfServer::new per session, a comment on tools/list), not a console or reader page; src/render.rs and src/labels have 0 hits. So no web page lists tool descriptions in the scanned layer.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 340,
+                "end": 366
+              },
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:25.293866796Z",
+          "seal": {
+            "by": "server",
+            "mac": "188a3f7b70295bf056ff968b9e8df586a32b2dad13094a1675274f0dc7904b64"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The scanned HTTP/render/labels layer has only MCP service wiring hits, no page listing tool descriptions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4011",
+            "EVD-4023"
+          ],
+          "recorded_at": "2026-11-27T20:13:53.215449613Z",
+          "seal": {
+            "by": "server",
+            "mac": "59d8550cc23ff63f310be76f76b0535e62f2c2fce691eec220594a8b00382784"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:53.215449613Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf7eece07cc905df8a38c125d4d241552d3937bfc37a5eb9eecb1e36a357fba6"
+      }
+    },
+    {
+      "id": "CLM-2300",
+      "statement": "PR body: a changelog entry for the change is added under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'changelog entry added'",
+      "derived_from": [
+        "CLM-2285"
+      ],
+      "artifacts": [
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1174"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4022",
+          "kind": "inspection",
+          "locator": "changelog/20261127T200330Z-issue-1174-deferred-tool-openings.md",
+          "summary": "Timestamped changelog file for issue 1174 exists in the commit (23 lines), describing guide, openings, the test rule and docs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T200330Z-issue-1174-deferred-tool-openings.md",
+              "commit": "c3a6f7aa49f3dfe4e48574a60c41d444d9e2d189"
+            }
+          },
+          "recorded_at": "2026-11-27T20:13:19.613523663Z",
+          "seal": {
+            "by": "server",
+            "mac": "14a8b71d38d51b6ac709179e81d8361536d4524fec7e3da6e24b8321f481988e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file exists in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4022"
+          ],
+          "recorded_at": "2026-11-27T20:13:53.429186647Z",
+          "seal": {
+            "by": "server",
+            "mac": "361a43d9f520261e16643cbd59993686dc66dfa1eb92d39fbffd3e537f5f3962"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T20:11:57.319398137Z",
+      "updated_at": "2026-11-27T20:13:53.429186647Z",
+      "seal": {
+        "by": "server",
+        "mac": "021d18ace2762f57388ddb372ecb21b8f0a48ba8f881d43e3e852d32614c7a5a"
       }
     }
   ]

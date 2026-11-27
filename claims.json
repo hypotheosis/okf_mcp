@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2113,
+  "next_claim_seq": 2123,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "13426d9a27f6db576fbc68c481f0101ce08685f675d3c36b06e88eadbff418d9"
+    "mac": "dbc1c9953071a6ff4c7333d2c549767178ed82adf6175be50c5548d7dd0f21c7"
   },
-  "next_evidence_seq": 3752,
+  "next_evidence_seq": 3766,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "31321c4302876690ded85933e4b3daf30aaea0c76701738e031140a4b015e9de"
+    "mac": "330e03fe56c91f0492b1480baee5f3b905a2851c67106e6eb264eb432fceee0c"
   },
   "claims": [
     {
@@ -187785,6 +187785,789 @@
       "seal": {
         "by": "server",
         "mac": "a65460a35695e12194f6730212b7acf1bd433c7e2ff0d005f252231afa452f2d"
+      }
+    },
+    {
+      "id": "CLM-2113",
+      "statement": "Issue #1117 is resolved: the okf.catalog span attribute and the tool metrics catalog label use sentinels that cannot be catalog names, and every writer and matcher of the old values for them is updated.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1117",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/store/catalogs.rs",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3761",
+          "kind": "analysis",
+          "locator": "children of CLM-2113",
+          "summary": "Refuted children: CLM-2117 (a metrics test still expects catalog=\"none\") and CLM-2122 (stale doc comments). CLM-2118 is undecided (no end-to-end multi test). Code, docs, changelog, constants and is_valid_name test are fine.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T09:21:52.033792133Z",
+          "seal": {
+            "by": "server",
+            "mac": "bedda1150c236f7ccde47750b56fba17cba072fab4b1e5e58bbb91e06abd60f8"
+          }
+        },
+        {
+          "id": "EVD-3765",
+          "kind": "analysis",
+          "locator": "children of CLM-2113",
+          "summary": "After 44816848 all children are supported (CLM-2114 to CLM-2122 re-audited or unchanged), so the writer, constants, is_valid_name tests, docs, changelog, dashboard, stale-test and stale-comment checks together cover the issue.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T09:26:10.789390838Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d55ef3b5e93009f2359499309560184de915cac7b2ebd054295653b06ee5646"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Children CLM-2117 and CLM-2122 are refuted: a metrics test still matches the old value and doc comments are stale. Fix: apply the fixes of those two claims, then re-audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3761"
+          ],
+          "recorded_at": "2026-11-27T09:21:53.971794034Z",
+          "seal": {
+            "by": "server",
+            "mac": "87f485650e8346989aa890f795c176da66d762d54dcf662a1a3cdd0e9e76fcd5"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children are now supported; together they cover sentinels, constants, validity test, tests, docs, changelog and dashboard.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3765"
+          ],
+          "recorded_at": "2026-11-27T09:26:13.983940760Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f2928b6f33977e73834af949bf11f6129b80f1fa489ed8a6bf5fa827eb6a934"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:26:13.983940760Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a0fc14f4af68f069b1ce4f7d03e13e2771379318d919fcb72a62b701a9970eb"
+      }
+    },
+    {
+      "id": "CLM-2114",
+      "statement": "A tool call that resolved no catalog reports `(none)`, and one that reached several reports `(multiple)`, on both the `okf.catalog` span attribute and the `catalog` label of okf_mcp_tool_duration_seconds.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1117: sentinels become `(none)` and `(multiple)` for the span attribute and the metric label; PR body: 'now report `(none)` and `(multiple)`'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3752",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:94-101,440-456",
+          "summary": "CatalogSeen::label returns CATALOG_LABEL_NONE/MULTIPLE; the call's label is recorded on okf.catalog (span.record) and passed to Metrics::tool_call, so one value feeds both. Constants are \"(none)\" and \"(multiple)\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 440,
+                "end": 456
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:32.387844370Z",
+          "seal": {
+            "by": "server",
+            "mac": "020f823d89c18dd4b5ef3151d7abeb650faff6afd2be30d6dcebf4a518679d0d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading: one label() value feeds the span and the metric, and returns the new constants. Tests not run (gates elsewhere).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3752"
+          ],
+          "recorded_at": "2026-11-27T09:21:52.194420349Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed4129c38cb8b384131815c42e0816258ed5ebb28a0e8fa06ce7cc28ac1ff482"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:52.194420349Z",
+      "seal": {
+        "by": "server",
+        "mac": "6692755d94a412d8cc9d7d0ecca746bdb354e5723a6aa0abcd3c4871cf3843f3"
+      }
+    },
+    {
+      "id": "CLM-2115",
+      "statement": "The two sentinels are defined once, as CATALOG_LABEL_NONE and CATALOG_LABEL_MULTIPLE in src/store/catalogs.rs, and CatalogSeen::label in src/mcp/mod.rs is the only non-test code that writes them.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'constants in src/store/catalogs.rs, used by CatalogSeen::label in src/mcp/mod.rs (the only place that writes the values)'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/store/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3753",
+          "kind": "analysis",
+          "locator": "git grep -nE 'CATALOG_LABEL_(NONE|MULTIPLE)' src; src/store/catalogs.rs:77-84",
+          "summary": "Constants defined once at catalogs.rs:77-84; non-test uses are only the import at mod.rs:53 and the three match arms in CatalogSeen::label (mod.rs:96-101). No other literal \"(none)\"/\"(multiple)\" outside tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/catalogs.rs",
+              "lines": {
+                "start": 77,
+                "end": 84
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:32.513664615Z",
+          "seal": {
+            "by": "server",
+            "mac": "579960393a61ba244ac5a43a133e57e55d1d81424a9c18130c0edaee66dfe4c0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single definition site; only CatalogSeen::label uses the constants outside tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3753"
+          ],
+          "recorded_at": "2026-11-27T09:21:52.393167275Z",
+          "seal": {
+            "by": "server",
+            "mac": "4bf5a70f66e2d0e8bc8f12624adfad11813073a110c2b9c4899cb11a72cb68cb"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:52.393167275Z",
+      "seal": {
+        "by": "server",
+        "mac": "7a0b950dc6a6c16928755815c057530e1ff845207844add274bd461f40001376"
+      }
+    },
+    {
+      "id": "CLM-2116",
+      "statement": "is_valid_name rejects both `(none)` and `(multiple)`, and a test asserts it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1117: 'a test that is_valid_name rejects both'; PR body: 'the sentinels fail is_valid_name'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/store/catalogs.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3754",
+          "kind": "test",
+          "locator": "src/store/catalogs.rs tests::the_telemetry_sentinels_are_not_valid_catalog_names; src/mcp/telemetry_tests.rs::the_sentinel_labels_cannot_be_catalog_names (not run, read only)",
+          "summary": "Both tests assert !is_valid_name for each constant. is_valid_name (catalogs.rs:94-99) accepts only [a-z0-9-] bytes and non-empty, so parentheses are rejected. Read, not run (gates run elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/catalogs.rs",
+              "lines": {
+                "start": 94,
+                "end": 99
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:32.638277447Z",
+          "seal": {
+            "by": "server",
+            "mac": "5abe4e491eef6012ae681712490e6da4be7c395fb5c38757a6b1291596e13a35"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Two tests assert rejection, and is_valid_name's byte rule rejects parentheses. Read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3754"
+          ],
+          "recorded_at": "2026-11-27T09:21:52.569653647Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b497396050627051b3345f864c0723644fd1a84264e0690d36617ebd3aa93e9"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:52.569653647Z",
+      "seal": {
+        "by": "server",
+        "mac": "98f310d5187abc6c405267a94e3e21671e0c9e0026358ed7d1262957abf95f83"
+      }
+    },
+    {
+      "id": "CLM-2117",
+      "statement": "Every existing test that matches the old `none` value of okf.catalog or the catalog label asserts the new value, so no test still expects `none`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'existing no-catalog span and metric tests and the CatalogSeen unit test use the new values'; issue: 'every place that writes or matches the old none/multiple values ... updated (code, tests, ...)'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3755",
+          "kind": "inspection",
+          "locator": "src/mcp/telemetry_tests.rs:619",
+          "summary": "the_metrics_label_is_the_resolved_catalog still asserts counted(\"get_concept\", \"none\"), which looks for catalog=\"none\"; the label is now \"(none)\", so this assertion fails. The diff did not touch this test.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 594,
+                "end": 620
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:32.764425583Z",
+          "seal": {
+            "by": "server",
+            "mac": "5705db4e5c440db8934b6302a5108cdee76f6d3784c321d44e76f7676ef5f94a"
+          }
+        },
+        {
+          "id": "EVD-3762",
+          "kind": "inspection",
+          "locator": "src/mcp/telemetry_tests.rs:622,174,738,752 at 44816848",
+          "summary": "Line 622 now asserts counted(\"get_concept\", CATALOG_LABEL_NONE); every other matcher uses the constants. grep of telemetry_tests.rs finds no literal \"none\" matcher left.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 593,
+                "end": 623
+              },
+              "commit": "448168489821e86685eb27dd5abf5b4b44731483"
+            }
+          },
+          "recorded_at": "2026-11-27T09:26:03.376770214Z",
+          "seal": {
+            "by": "server",
+            "mac": "f95dbb78c05d51a5bd7af8c352d91f61bd9420dd09f79149c701b8174faeb893"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "telemetry_tests.rs:619 still expects catalog=\"none\" for a call naming an unknown catalog, which is now \"(none)\"; the test will fail. Fix: change the assertion at src/mcp/telemetry_tests.rs:619 to counted(\"get_concept\", CATALOG_LABEL_NONE) and the doc comment at line 594 to say `(none)`.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3755"
+          ],
+          "recorded_at": "2026-11-27T09:21:52.709472642Z",
+          "seal": {
+            "by": "server",
+            "mac": "9bd570e8a291d30e9afd2c54941a40bc9ffec0e439e1e1f11ae7075228b357f0"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The stale assertion now uses CATALOG_LABEL_NONE; no literal old-value matcher remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3762"
+          ],
+          "recorded_at": "2026-11-27T09:26:10.922483380Z",
+          "seal": {
+            "by": "server",
+            "mac": "258f3267215661e0cb8288de2d9e11d7860e69b27974abaa6adf5550c4491f65"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:26:10.922483380Z",
+      "seal": {
+        "by": "server",
+        "mac": "dbe7488ad829d638d5fdbe78fb066a3e90d7d0fb96a9a53f8fc9e8ffa1ca5674"
+      }
+    },
+    {
+      "id": "CLM-2118",
+      "statement": "A test drives a multi-catalog resolution and asserts the label is `(multiple)`, and a no-catalog call test asserts `(none)` on the span and on the metric label.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1117: 'tests that a no-catalog call and a multi-catalog call record the new values'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3756",
+          "kind": "inspection",
+          "locator": "src/mcp/telemetry_tests.rs:163-173,653-670,703-723",
+          "summary": "No-catalog is asserted end to end on a span (every_tool_call_opens_one_mcp_span, a_foreign_changeset_handle...) and on the metric in a_foreign_changeset_handle_records_no_catalog. Multiple is asserted only on the CatalogSeen accumulator via note_catalog (lines 653-670); no real multi-catalog tool call asserts it.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 653,
+                "end": 670
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:32.890771009Z",
+          "seal": {
+            "by": "server",
+            "mac": "90ec9a7cd243395b9aa9cb9e295f2cdd17fae2610a890c2e6b60fd380fccacfb"
+          }
+        },
+        {
+          "id": "EVD-3764",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:656-683 a_call_reaching_several_catalogs_records_the_multiple_sentinel (read, not run)",
+          "summary": "Real list_catalogs call over MCP with a key granted pg and other; asserts span okf.catalog == CATALOG_LABEL_MULTIPLE and the tool_duration metric line has tool=\"list_catalogs\" and catalog=\"(multiple)\". list_catalogs resolves each catalog through ctx.listed_states, which calls note_catalog (context.rs:1318 region). No-catalog is covered at 174 (span) and 622/752 (metric).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 656,
+                "end": 683
+              },
+              "commit": "448168489821e86685eb27dd5abf5b4b44731483"
+            }
+          },
+          "recorded_at": "2026-11-27T09:26:03.696372977Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3b81081117300aa382e71029c6ed6ef68fcccc34e43cd59501bba977c7f37c1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No-catalog is covered end to end, but (multiple) is asserted only on the CatalogSeen accumulator, not through a real multi-catalog tool call; the issue's wording is ambiguous on whether that suffices. Fix: add (optional) a test that makes one tool call reaching two catalogs (for example search over two) and asserts okf.catalog and the metric label equal CATALOG_LABEL_MULTIPLE.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3756"
+          ],
+          "recorded_at": "2026-11-27T09:21:52.916662464Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ff04bb04d00b9cb68ab56a2184cee8c9346bbe735882693de16ff74eaef075c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "A real multi-catalog tool call test asserts (multiple) on span and metric, and no-catalog is asserted on both. Read, not run; the author reports it passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3764"
+          ],
+          "recorded_at": "2026-11-27T09:26:11.191581374Z",
+          "seal": {
+            "by": "server",
+            "mac": "2456bebf12fd6480016cf53e6abeff3159bb2f0158b94259eeedeb043c14ac67"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:26:11.191581374Z",
+      "seal": {
+        "by": "server",
+        "mac": "fd0ce9f4e17571722633cdd90d615cd9846d22e18fc55ec986e3c3d1454a372c"
+      }
+    },
+    {
+      "id": "CLM-2119",
+      "statement": "docs/operations.md names `(none)` and `(multiple)` in the tool metric row and the mcp span row, and has an upgrade note that dashboards and alerts matching `okf.catalog:none` or `catalog=\"none\"` must change to `(none)`.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1117: docs note that dashboards/alerts matching okf.catalog:none must change to (none); PR body: 'docs/operations.md: ... plus an upgrade note'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3757",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1589-1596,1648,1698",
+          "summary": "Upgrade note at 1589-1596 names okf.catalog:none and catalog=\"none\" -> (none), multiple -> (multiple). Metric row 1648 and span row 1698 name (multiple)/(none).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1589,
+                "end": 1596
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:33.019528893Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fe788349f8a1afac367d877813dcd882379e892a90222d2a98fd12854ec79f5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three doc locations present with the stated content.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3757"
+          ],
+          "recorded_at": "2026-11-27T09:21:53.129493201Z",
+          "seal": {
+            "by": "server",
+            "mac": "495bbb9c25b1ec324e1f2fd25e046227d9dcc436bb07594f618655d9ccb2e9bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:53.129493201Z",
+      "seal": {
+        "by": "server",
+        "mac": "844ce1f688be5adac7a27567f9fc5bb730cda2862a6e08d0f4f14b762b70a452"
+      }
+    },
+    {
+      "id": "CLM-2120",
+      "statement": "A new changelog entry says the same upgrade note (dashboards and alerts matching `okf.catalog:none` or `catalog=\"none\"` must change to `(none)`).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1117: 'the same in the changelog'; PR body: 'Changelog entry says the same'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "changelog/20261127T100000Z-issue-1117-catalog-sentinels.md"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3758",
+          "kind": "inspection",
+          "locator": "changelog/20261127T100000Z-issue-1117-catalog-sentinels.md:5",
+          "summary": "Line 5 says anything matching okf.catalog:none or catalog=\"none\" must change to (none), and multiple to (multiple).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T100000Z-issue-1117-catalog-sentinels.md",
+              "lines": {
+                "start": 1,
+                "end": 6
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:33.146575361Z",
+          "seal": {
+            "by": "server",
+            "mac": "92e0a06832ea3703d33e894fe4e9c024a042d1da6c877e1f842d2e24f8cf24b6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Changelog carries the breaking-change note.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3758"
+          ],
+          "recorded_at": "2026-11-27T09:21:53.368634355Z",
+          "seal": {
+            "by": "server",
+            "mac": "08d7f6a0ed9715dd347a3c0dddaa6cadc331dfc3f8c5a0cb3e3aba98a6192982"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:53.368634355Z",
+      "seal": {
+        "by": "server",
+        "mac": "1613d4d386935c0275f8607802c9bc9ad9a71b87f529bb85720e505c23b8b334"
+      }
+    },
+    {
+      "id": "CLM-2121",
+      "statement": "The example Grafana dashboard filters tool metrics with `catalog=~\"$catalog\"` whose All value is `.*`, so it needs no change and contains no match on `none` or `multiple`.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'The example Grafana dashboard filters with catalog=~\"$catalog\", so it needs no change.'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "examples/grafana/okf-mcp.json"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3759",
+          "kind": "inspection",
+          "locator": "examples/grafana/okf-mcp.json:92-118 and git grep",
+          "summary": "catalog variable has includeAll true, allValue \".*\"; tool-metric panels use catalog=~\"$catalog\". Search for catalog=\"none\"/\"multiple\" in examples/ finds nothing (no alert rules or other dashboards exist in the repo).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "examples/grafana/okf-mcp.json",
+              "lines": {
+                "start": 92,
+                "end": 118
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:33.272986248Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb100a6d2653ff3165020a8cd8a0448c5289a96ff3a1abdaf52964341d27765c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Selectors use the variable with All = .*; no literal none/multiple matcher in examples/.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3759"
+          ],
+          "recorded_at": "2026-11-27T09:21:53.601816281Z",
+          "seal": {
+            "by": "server",
+            "mac": "e85d372443534baf5e5a2bc048490744a1a3c6bfb27d187371d9d38ad5b6b7b5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:21:53.601816281Z",
+      "seal": {
+        "by": "server",
+        "mac": "8c64f9192a877da08bc5f60f679cd37bf3f4c5111acc147756d9f1351f10f7ff"
+      }
+    },
+    {
+      "id": "CLM-2122",
+      "statement": "No code comment, doc comment or non-historical doc in the repo still describes the okf.catalog attribute or catalog label values as `none` or `multiple` without parentheses.",
+      "kind": "documentation",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1117: 'every place that writes or matches the old none/multiple values for this attribute/label updated'",
+      "derived_from": [
+        "CLM-2113"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3760",
+          "kind": "inspection",
+          "locator": "src/telemetry/metrics.rs:620; src/mcp/telemetry_tests.rs:594,653",
+          "summary": "metrics.rs:620 doc says \"`catalog` - a loaded catalog's name, or `none`\"; telemetry_tests.rs:594 and 653 comments say `none`/`multiple`. Also docs/superpowers/specs/2026-11-15-okf-observability-design.md:275 says \"else `none`\" (historical design doc with dated corrections).",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 618,
+                "end": 621
+              },
+              "commit": "17563901fb4aa546096918aad0c66f632cd20b76"
+            }
+          },
+          "recorded_at": "2026-11-27T09:21:33.400021196Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f38cd021073bb74404c6b7cea0f27d98cde1f771226059bd273478e8adaab22"
+          }
+        },
+        {
+          "id": "EVD-3763",
+          "kind": "inspection",
+          "locator": "src/telemetry/metrics.rs:620; src/mcp/telemetry_tests.rs:593,685",
+          "summary": "metrics.rs:620 now says \"a loaded catalog's name, `(multiple)` or `(none)`\"; test comments at 593 and 685 say `(none)`/`(multiple)`. Remaining grep hits of `none` in src/telemetry are headers_env, unrelated. Historical spec line 275 untouched (optional).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 618,
+                "end": 621
+              },
+              "commit": "448168489821e86685eb27dd5abf5b4b44731483"
+            }
+          },
+          "recorded_at": "2026-11-27T09:26:03.558887531Z",
+          "seal": {
+            "by": "server",
+            "mac": "bfcc480eaaa78b8964042cac8c9a3052c6b9731304b2c573c0ba440c376fb755"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Stale `none`/`multiple` wording remains in metrics.rs:620 and the comments at telemetry_tests.rs:594,653. Fix: edit src/telemetry/metrics.rs:620 to \"a loaded catalog's name, `(multiple)` or `(none)`\", and the two test doc comments; optionally add a dated correction to the observability design spec line 275.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3760"
+          ],
+          "recorded_at": "2026-11-27T09:21:53.776524538Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9c381dba49ee8918c948a74ce958113e7a49d28ced87f94d48ebd3e0cf02bd2"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Doc comment and test comments reworded; only the historical design spec still says none (a dated-corrections document, outside this claim's non-historical scope).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3763"
+          ],
+          "recorded_at": "2026-11-27T09:26:11.059055993Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3c9e8f8416b3c7b5c488dbe9070bed2f7391ab4129686b28d68e1dd36e152d9"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T09:21:11.967327531Z",
+      "updated_at": "2026-11-27T09:26:11.059055993Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a0d3500f9918731dc4e21498e02b2318daf44cb96664607b2de6b3f621aeff5"
       }
     }
   ]

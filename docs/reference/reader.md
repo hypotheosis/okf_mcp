@@ -24,6 +24,13 @@ manifest and worker there, so Chrome offers to install it before anyone has
 signed in. The button goes to the sign-in page and comes back to the same
 screen afterwards (`return_to`, which accepts same-origin `/read/` paths).
 
+A browser that is already signed in is sent straight on: `GET /signin` with a
+live session answers 303 to `return_to` (or `/ui/` when it is missing or not
+allowed) instead of drawing the form. A shortcut or bookmark that points at
+`/signin?return_to=/read/` therefore opens the reader. An expired, idle or
+ended session, or one that cannot be checked because the database fails, still
+gets the form.
+
 ### Name
 
 The installed app is named after the server's `product_name` setting

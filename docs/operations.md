@@ -2816,7 +2816,7 @@ route answers 404 (`POST /signin` included).
 - **Use an API key instead**: the console's pasted-key card.
 
 It takes `return_to`, a same-origin path starting `/ui/`, `/read/` (the
-mobile reader) or `/oauth/authorize?`; anything else becomes `/ui/`. The console's card links
+mobile reader) or `/oauth/authorize?`; anything else becomes `/ui/`. A browser with a live session is not shown the form: the page answers 303 to that same checked `return_to`. (A session that is expired, idle, revoked or cannot be checked gets the form.) The console's card links
 to it with "Sign in with your account", carrying the page you were on.
 
 - **One refusal for everything.** Every refused password sign-in (a wrong

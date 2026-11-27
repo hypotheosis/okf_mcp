@@ -268,6 +268,33 @@ async fn sign_in_from_the_signed_out_screen_returns_to_the_same_route() {
     .await;
 }
 
+/// A signed-in browser that opens `/signin?return_to=/read/` (a bookmark or a
+/// home-screen icon) lands in the reader, not on the form.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_signed_in_browser_opening_the_sign_in_link_lands_in_the_reader() {
+    let (server, _) = server().await;
+    let base = server.base.clone();
+    drive(base.clone(), move |ui| {
+        ui.sign_in_reader("/me", EMAIL, PASSWORD);
+        ui.wait_text("#account-user", "reader");
+
+        ui.eval(
+            &format!("() => {{ location.assign('{base}/signin?return_to=%2Fread%2F'); }}"),
+            json!(null),
+        );
+
+        // Two catalogs, so the reader opens on its picker.
+        ui.wait_visible("[data-catalog=main]");
+        assert_eq!(
+            ui.eval("() => location.pathname", json!(null)),
+            json!("/read/")
+        );
+        assert!(!ui.present("#signin-email"), "the form was drawn");
+        assert_eq!(ui.eval(SESSION_STATUS, json!(null)), json!(200));
+    })
+    .await;
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn signing_in_returns_to_the_route_and_signing_out_wipes_the_caches() {
     let (server, _) = server().await;

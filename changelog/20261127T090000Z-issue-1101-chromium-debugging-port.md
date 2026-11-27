@@ -8,4 +8,4 @@ With port 0, rustwright waits for the `DevToolsActivePort` file in the profile f
 
 The launch options are now built by `launch_options`, with a unit test that the port argument is `=0`, appears once, and that the profile folder and IPv4 host rule stay.
 
-Not changed: rustwright builds the endpoint as `ws://127.0.0.1:<port>`. Chromium listens on `[::1]` only when its `127.0.0.1` bind fails, which an ephemeral port of its own choosing does not do in practice.
+Not changed: rustwright always builds the endpoint as `ws://127.0.0.1:<port>` and has no host override, so a Chromium listening on `[::1]` only could not be reached. That case was seen with the old, raced port; whether it can still happen with a port Chromium chose itself is not established, and the harness cannot work around it without bypassing rustwright.

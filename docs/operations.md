@@ -1601,9 +1601,12 @@ series, with the remaining labels unchanged.
 
 **Upgrading: the `catalog` metric label is gone.** Dashboards, recording rules
 and alerts that filter (`catalog="pg"`), match (`catalog=~"$catalog"`) or group
-(`sum by (catalog)`) on it must drop that matcher or grouping: a selector on a
-label the series no longer has matches nothing, and a `sum by (catalog)` now
-yields one series with an empty label. The example Grafana dashboard no longer
+(`sum by (catalog)`) on it must drop that matcher or grouping. PromQL reads a
+missing label as empty, so a matcher that needs a value (`catalog="pg"`,
+`catalog=~"pg|other"`) matches no new series, while `catalog=~".*"` still
+matches all of them; a `sum by (catalog)` now yields one series with an empty
+label, and a `label_values(..., catalog)` variable lists nothing for new
+samples. The example Grafana dashboard no longer
 has a `catalog` variable or per-catalog panels. **Samples already stored in
 Prometheus (or any OTLP backend) are not scrubbed:** series recorded before the
 upgrade keep their `catalog` label and its values until your retention drops

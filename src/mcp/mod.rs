@@ -74,8 +74,8 @@ tokio::task_local! {
     static TOOL_CATALOG: Arc<Mutex<CatalogSeen>>;
 }
 
-/// The catalogs one tool call resolved, as the `okf.catalog` attribute and
-/// report them (issue #834). Metrics carry no catalog (issue #1157).
+/// The catalogs one tool call resolved, as the `okf.catalog` attribute
+/// reports them (issue #834). Metrics carry no catalog (issue #1157).
 #[derive(Debug, Default, PartialEq, Eq)]
 enum CatalogSeen {
     /// Nothing resolved: the label is [`CATALOG_LABEL_NONE`].

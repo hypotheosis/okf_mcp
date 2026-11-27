@@ -1261,7 +1261,8 @@ impl OkfServer {
                        deletion for a `delete` revision, to the changeset `changeset` names, for \
                        review and publish like any other edit. Every write rule applies, so \
                        machinery cannot be reverted. Prefer passing `expected_revision` (the \
-                       `current_revision` from `history`): it refuses with Conflict, writing \
+                       `latest_revision` from `history`, which also guards restoring a deleted \
+                       document): it refuses with Conflict, writing \
                        nothing, if the document was published since. The revert is based on the revision \
                        published now, even if this changeset edited the document before, so \
                        publish conflicts only if the document is published again after it. \

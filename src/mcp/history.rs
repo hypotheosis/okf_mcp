@@ -497,8 +497,11 @@ impl OkfServer {
                        delete, import), actor, user, user_label, message and time. `user` is the \
                        person whose credential published the revision (null for an import or a \
                        key no user owned); `actor` names the credential. Deleted documents keep \
-                       their history; log.md, indexes and other files have one too. Without \
-                       `catalog`, the first selected catalog with any revision of the path \
+                       their history; log.md, indexes and other files have one too. \
+                       `latest_revision` is the newest revision number, a deletion included (it \
+                       equals `current_revision` for a live document; `current_revision` is \
+                       null for a deleted one); pass it to `revert` as `expected_revision`. \
+                       Without `catalog`, the first selected catalog with any revision of the path \
                        answers. At most `limit` revisions (default 20, at most 200); filter with \
                        `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's \
                        changes across documents, use `recent_changes`.",

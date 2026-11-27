@@ -2,7 +2,7 @@
 // does nothing invented turn up?
 import { describe, expect, test, vi } from "vitest";
 
-import { create, remember, useScenario } from "../src/harness.js";
+import { create, remember, target, useScenario } from "../src/harness.js";
 import type { ToolError } from "../src/okf.js";
 import { SCENARIOS } from "../src/scenarios.js";
 
@@ -216,7 +216,13 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
             ...(limit === undefined ? {} : { limit }),
         });
 
-    test("cited_by lists a source once, each citing concept counted once, in count order", async () => {
+    // The unfiltered listing is capped at 200 sources for the whole catalog, so this run's
+    // sources are only sure to come back when the catalog is the scenario's own (catalog
+    // isolation: local mode, or an admin key). In a shared catalog they could fall below the
+    // cap whatever the server does, so the next two tests are skipped there.
+    const ownCatalog = target().isolation === "catalog";
+
+    test.skipIf(!ownCatalog)("cited_by lists a source once, each citing concept counted once, in count order", async () => {
         await seedCounts();
         let listed: Listing | undefined;
         await vi.waitFor(async () => {
@@ -236,7 +242,7 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
         ]);
     });
 
-    test("cited_by cuts the listing and the hits at limit, and says so", async () => {
+    test.skipIf(!ownCatalog)("cited_by cuts the listing at limit and says so", async () => {
         await seedCounts();
         await vi.waitFor(async () => {
             expect((await listSources()).sources.filter((source) => mine(source.source_id))).toHaveLength(4);
@@ -246,7 +252,15 @@ describe(SCENARIOS.sourceAttribution.goal, () => {
         expect(cut.sources).toHaveLength(2);
         expect(cut.truncated).toBe(true);
         expect((await listSources(1)).truncated).toBe(true);
-        // `limit` also cuts the hits of a filtered call: two concepts cite `popular`.
+    });
+
+    // A filtered call is not capped by other sources, so this one holds in a shared catalog too.
+    test("cited_by cuts the hits of a filtered call at limit and says so", async () => {
+        await seedCounts();
+        await vi.waitFor(async () => {
+            expect(hitPaths(await citedBy({ source_id: popular }))).toHaveLength(2);
+        });
+        // Two concepts cite `popular`.
         const one = await citedBy({ source_id: popular, limit: 1 });
         expect(hitPaths(one)).toEqual([paths.at("counted/first")]);
         expect(one.truncated).toBe(true);

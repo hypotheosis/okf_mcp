@@ -334,7 +334,10 @@ pub fn new_concept_path(
     workspace: &dyn Workspace,
     reference: &str,
 ) -> Result<(String, Option<String>), OkfError> {
-    let invalid = |reason: &str| invalid_at(reference, reason);
+    let invalid = |reason: &str| OkfError::InvalidPath {
+        path: reference.to_string(),
+        reason: reason.to_string(),
+    };
     let mut path = py_strip(reference).trim_start_matches('/').to_string();
     if !path.ends_with(".md") {
         path.push_str(".md");
@@ -362,21 +365,16 @@ pub fn new_concept_path(
         return Err(OkfError::AlreadyExists { path: path.clone() });
     }
     if workspace.is_dir(&path) {
-        return Err(invalid_at(&path, "is a directory"));
+        return Err(OkfError::InvalidPath {
+            path: path.clone(),
+            reason: "is a directory".to_string(),
+        });
     }
     // `bool::then` runs the closure only when the bool is true, giving `Some(..)`
     // (else `None`): Python's `x if cond else None`.
     let note = (!KEBAB_NAME.is_match(name))
         .then(|| format!("{name} isn't short, lowercase and hyphenated"));
     Ok((path, note))
-}
-
-/// An [`OkfError::InvalidPath`] for `path` with `reason`.
-fn invalid_at(path: &str, reason: &str) -> OkfError {
-    OkfError::InvalidPath {
-        path: path.to_string(),
-        reason: reason.to_string(),
-    }
 }
 
 #[cfg(test)]

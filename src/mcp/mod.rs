@@ -456,6 +456,9 @@ impl ServerHandler for OkfServer {
             okf.catalog = tracing::field::Empty,
             okf.outcome = tracing::field::Empty,
             okf.error.kind = tracing::field::Empty,
+            // The OTel semantic-convention twin of `okf.error.kind`, which
+            // backends such as Sentry read for their error column (#1009).
+            error.type = tracing::field::Empty,
             enduser.id = tracing::field::Empty,
             okf.key.id = tracing::field::Empty,
         );
@@ -497,6 +500,11 @@ impl ServerHandler for OkfServer {
         if outcome == Outcome::Error {
             span.record("otel.status_code", "error");
         }
+        // An `isError` result got its kind from `tool_error`; a protocol error,
+        // or rmcp's turning of bad arguments into an `isError` result, gets it here.
+        if let Some(kind) = protocol_error_kind(&result) {
+            record_error_kind(&span, kind);
+        }
         self.app
             .metrics()
             .tool_call(tool, outcome, started.elapsed());
@@ -525,6 +533,61 @@ fn outcome_of(result: &Result<CallToolResponse, rmcp::ErrorData>) -> Outcome {
         Ok(CallToolResponse::Complete(done)) if done.is_error != Some(true) => Outcome::Ok,
         _ => Outcome::Error,
     }
+}
+
+/// The text rmcp's `isError` result starts with when a tool's arguments do not deserialize
+/// (its own private constant, pinned by a test against the real router).
+const ARGUMENT_ERROR_PREFIX: &str = "failed to deserialize parameters:";
+
+/// The error kind for a failed call that never reached [`tool_error`]: a protocol error,
+/// by its code, or rmcp's `isError` result for arguments that don't parse.
+///
+/// rmcp 3.8 reports an unknown tool as `INVALID_PARAMS` ("tool not found"), so that case
+/// is `InvalidParams` too; `UnknownTool` is kept for `METHOD_NOT_FOUND`.
+///
+/// # Arguments
+/// * `result` - what the router returned.
+///
+/// # Returns
+/// The kind, or `None` for a success or an error `tool_error` already recorded.
+#[tracing::instrument(level = "trace", skip_all)]
+fn protocol_error_kind(
+    result: &Result<CallToolResponse, rmcp::ErrorData>,
+) -> Option<&'static str> {
+    match result {
+        Err(error) => Some(kind_of_code(error.code)),
+        Ok(CallToolResponse::Complete(done)) if done.is_error == Some(true) => done
+            .content
+            .first()
+            .and_then(|block| block.as_text())
+            .filter(|text| text.text.starts_with(ARGUMENT_ERROR_PREFIX))
+            .map(|_| kind_of_code(rmcp::model::ErrorCode::INVALID_PARAMS)),
+        Ok(_) => None,
+    }
+}
+
+/// The error kind a JSON-RPC error code maps to.
+///
+/// # Arguments
+/// * `code` - the code of an `rmcp::ErrorData`.
+///
+/// # Returns
+/// `InvalidParams`, `UnknownTool` or `Internal` for their codes, else `Protocol`.
+#[tracing::instrument(level = "trace", skip_all)]
+fn kind_of_code(code: rmcp::model::ErrorCode) -> &'static str {
+    match code {
+        rmcp::model::ErrorCode::INVALID_PARAMS => "InvalidParams",
+        rmcp::model::ErrorCode::METHOD_NOT_FOUND => "UnknownTool",
+        rmcp::model::ErrorCode::INTERNAL_ERROR => "Internal",
+        _ => "Protocol",
+    }
+}
+
+/// Records `kind` on `span` as `okf.error.kind` and as the semantic-convention `error.type`.
+/// Never the error's message: serde's can echo argument values.
+fn record_error_kind(span: &tracing::Span, kind: &str) {
+    span.record("okf.error.kind", kind);
+    span.record("error.type", kind);
 }
 
 /// What every tool returns: a structured result, or an `isError` result.
@@ -571,9 +634,7 @@ pub(crate) const PARALLEL_CALL_HINT: &str =
 pub(crate) fn tool_error_with_hint(error: &OkfError, hint: Option<&str>) -> CallToolResult {
     // The kind goes on the tool's root span through the task-local handle
     // (a no-op outside a tool call, as in the unit tests that call this).
-    let _ = TOOL_SPAN.try_with(|span| {
-        span.record("okf.error.kind", error.kind());
-    });
+    let _ = TOOL_SPAN.try_with(|span| record_error_kind(span, error.kind()));
     if error.is_internal() {
         // The detail (`Display`) can name a path or echo input, so it stays
         // on stderr; the exported event keeps the kind.

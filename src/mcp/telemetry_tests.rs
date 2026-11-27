@@ -214,6 +214,12 @@ async fn a_tool_error_records_its_kind_not_its_message() {
             Some("NotFound"),
             "{filter}"
         );
+        // Issue #1009: the semantic-convention twin, under that exact name.
+        assert_eq!(
+            text_of(span, "error.type"),
+            text_of(span, "okf.error.kind"),
+            "{filter}"
+        );
         assert!(matches!(span.status, Status::Error { .. }), "{filter}");
         assert!(
             !format!("{:?}", observed.spans).contains(SENTINEL),
@@ -340,6 +346,66 @@ async fn a_served_internal_error_quotes_the_trace_id_and_points_at_send_feedback
         }
         served.stop().await;
     }
+}
+
+/// Issue #1009: each JSON-RPC code maps to its kind; any other is `Protocol`.
+#[test]
+fn error_codes_map_to_kinds() {
+    use rmcp::model::ErrorCode;
+    let cases = [
+        (ErrorCode::INVALID_PARAMS, "InvalidParams"),
+        (ErrorCode::METHOD_NOT_FOUND, "UnknownTool"),
+        (ErrorCode::INTERNAL_ERROR, "Internal"),
+        (ErrorCode::INVALID_REQUEST, "Protocol"),
+        (ErrorCode::PARSE_ERROR, "Protocol"),
+    ];
+    for (code, kind) in cases {
+        assert_eq!(kind_of_code(code), kind, "{code:?}");
+    }
+}
+
+/// Issue #1009: arguments that do not parse, and a tool name that is not registered, leave
+/// the tool span with a kind and `error.type`, and no message (serde's echoes the value).
+#[tokio::test]
+async fn a_protocol_error_records_its_kind_and_error_type_not_its_message() {
+    let served = Served::start().await;
+    for filter in FILTERS {
+        let observer = Observer::start("off", filter, "off", LogFormat::Text);
+        let probe = McpProbe::open(&served.endpoint, &served.key).await;
+        // rmcp 3.8 answers bad arguments with an `isError` result.
+        let bad_arguments = probe
+            .call(
+                "stamp",
+                serde_json::json!({"path": "/x.md", "field": SENTINEL, "changeset": "c"}),
+            )
+            .await;
+        assert_eq!(bad_arguments["result"]["isError"], true, "{bad_arguments}");
+        // rmcp 3.8 answers an unknown tool with a JSON-RPC `INVALID_PARAMS` error.
+        let unknown = probe.call(SENTINEL, serde_json::json!({})).await;
+        assert_eq!(unknown["error"]["code"], -32602, "{unknown}");
+        probe.close().await;
+        let observed = observer.finish();
+
+        for name in ["mcp stamp", "mcp other"] {
+            let span = &observed.spans_named(name)[0];
+            assert_eq!(
+                text_of(span, "okf.error.kind").as_deref(),
+                Some("InvalidParams"),
+                "{filter} {name}"
+            );
+            assert_eq!(
+                text_of(span, "error.type").as_deref(),
+                Some("InvalidParams"),
+                "{filter} {name}"
+            );
+            assert!(matches!(span.status, Status::Error { .. }), "{filter} {name}");
+        }
+        let exported = format!("{:?}", observed.spans);
+        assert!(!exported.contains(SENTINEL), "{filter}: an argument value leaked");
+        assert!(!exported.contains("unknown variant"), "{filter}: serde's message leaked");
+        assert!(!exported.contains("tool not found"), "{filter}: the message leaked");
+    }
+    served.stop().await;
 }
 
 #[tokio::test]

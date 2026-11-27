@@ -704,6 +704,7 @@ pub(crate) async fn take_reauth(
 /// [`OkfError::Forbidden`] when the proof belongs to another user or
 /// session; [`OkfError::ReauthStale`] when the provider did not vouch for a
 /// fresh sign-in (no `auth_time`, an old one, or one in the future).
+#[tracing::instrument(level = "debug", skip_all)]
 fn judge_reauth(
     oidc: &OidcProviders,
     proof: ReauthProof,

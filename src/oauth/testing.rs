@@ -89,9 +89,22 @@ pub(crate) async fn oauth_app_with(config: Config) -> TestApp {
 /// # Panics
 /// As [`oauth_app`].
 pub(crate) async fn oauth_app_with_metrics() -> (TestApp, prometheus::Registry) {
+    oauth_app_with_metrics_config(oauth_config(PUBLIC_URL)).await
+}
+
+/// [`oauth_app_with_metrics`] on `config`.
+///
+/// # Arguments
+/// * `config` - the configuration (OAuth on).
+///
+/// # Panics
+/// If the app or the client cannot be set up: a broken test setup.
+pub(crate) async fn oauth_app_with_metrics_config(
+    config: crate::config::Config,
+) -> (TestApp, prometheus::Registry) {
     let (test, registry) = app_with_metrics(
         &[("main", MAIN), ("other", &[("index.md", "# Other\n")])],
-        oauth_config(PUBLIC_URL),
+        config,
     )
     .await;
     insert_test_client(

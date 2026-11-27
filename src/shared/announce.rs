@@ -307,11 +307,16 @@ async fn run<H: Handler, S: Source>(
     let mut backoff = Backoff::new(BACKOFF_MIN, BACKOFF_MAX);
     // Whether any subscription of this loop has been reported before.
     let mut subscribed_before = false;
+    // When the loop lost its subscription, until the next `Subscribed`. It
+    // outlives a replaced subscription and failed subscribes, so the recovery
+    // line reports the whole outage.
+    let mut outage_began: Option<tokio::time::Instant> = None;
     while !shutdown.is_cancelled() {
         match source.subscribe().await {
             Ok(mut subscription) => {
                 // When the library reported the connection lost, until it
-                // reports the subscription again.
+                // reports the subscription again; it times this subscription's
+                // grace, while `outage_began` times the log's outage.
                 let mut disconnected_at: Option<tokio::time::Instant> = None;
                 loop {
                     // Never ready while connected; `pending` waits forever.
@@ -344,12 +349,14 @@ async fn run<H: Handler, S: Source>(
                             tracing::info!(
                                 subscriber = H::NAME,
                                 resubscribe = subscribed_before,
-                                disconnected_ms =
-                                    disconnected_at.map(|since| duration_ms(since.elapsed())),
+                                disconnected_ms = outage_began
+                                    .filter(|_| subscribed_before)
+                                    .map(|since| duration_ms(since.elapsed())),
                                 "pub/sub subscribed; catching up on missed announcements"
                             );
                             subscribed_before = true;
                             disconnected_at = None;
+                            outage_began = None;
                             handler.subscribed().await;
                         }
                         Some(SubscriptionEvent::Message(payload)) => {
@@ -368,9 +375,11 @@ async fn run<H: Handler, S: Source>(
                                 );
                                 disconnected_at = Some(tokio::time::Instant::now());
                             }
+                            outage_began.get_or_insert_with(tokio::time::Instant::now);
                         }
                         None => {
                             redis.count(RedisOp::Subscribe);
+                            outage_began.get_or_insert_with(tokio::time::Instant::now);
                             tracing::warn!(
                                 subscriber = H::NAME,
                                 "pub/sub subscription ended; subscribing again after a backoff"
@@ -382,6 +391,7 @@ async fn run<H: Handler, S: Source>(
             }
             Err(error) => {
                 let _ = redis.failed(RedisOp::Subscribe, &error);
+                outage_began.get_or_insert_with(tokio::time::Instant::now);
                 tracing::warn!(
                     subscriber = H::NAME,
                     "pub/sub subscribe failed; retrying after a backoff"
@@ -574,8 +584,12 @@ mod log_tests {
         // Two losses (attempts 1 and 2); attempt 1's repeated `Disconnected`
         // adds no warning.
         assert_eq!(count("WARN", "connection lost"), 2, "{logged}");
-        // The recovery line carries the loss's length on the paused clock,
-        // counted from the first `Disconnected`.
+        // Each recovery line carries its outage's length on the paused clock,
+        // and the first subscribe none. Attempt 1's recovery counts from its
+        // first `Disconnected`: 7 s. Attempt 4's outage spans a replaced
+        // subscription and a failed subscribe, and counts from the end of
+        // attempt 1's stream: that stream's 1 s backoff, attempt 2's 60 s
+        // grace and 2 s backoff, and attempt 3's 4 s backoff: 67 s.
         // (The timer rounds each sleep up to a millisecond, so allow a few.)
         let reported: Vec<u64> = lines
             .iter()
@@ -587,7 +601,8 @@ mod log_tests {
             })
             .collect();
         assert!(
-            matches!(reported.as_slice(), [ms] if (7000..7010).contains(ms)),
+            matches!(reported.as_slice(), [same, whole]
+                if (7000..7010).contains(same) && (67_000..67_010).contains(whole)),
             "{reported:?} in {logged}"
         );
         assert_eq!(count("WARN", "past the grace"), 1, "{logged}");

@@ -150,9 +150,10 @@ impl AppError {
             | OkfError::MaintenanceOff { .. } => StatusCode::FORBIDDEN,
             OkfError::Unauthenticated { .. } => StatusCode::UNAUTHORIZED,
             OkfError::Gone { .. } => StatusCode::GONE,
-            OkfError::Refused { .. } | OkfError::Conflict { .. } | OkfError::StillLinked { .. } => {
-                StatusCode::CONFLICT
-            }
+            OkfError::Refused { .. }
+            | OkfError::Conflict { .. }
+            | OkfError::StillLinked { .. }
+            | OkfError::AlreadyExists { .. } => StatusCode::CONFLICT,
             OkfError::LintFailed { .. } | OkfError::LimitExceeded { .. } => {
                 StatusCode::UNPROCESSABLE_ENTITY
             }
@@ -1483,6 +1484,20 @@ mod tests {
         });
 
         assert_eq!(still_linked.status(), StatusCode::CONFLICT);
+    }
+
+    #[test]
+    fn a_taken_path_is_a_conflict_and_a_malformed_one_a_bad_request() {
+        let taken = AppError(OkfError::AlreadyExists {
+            path: "a.md".to_string(),
+        });
+        let malformed = AppError(OkfError::InvalidPath {
+            path: "../a.md".to_string(),
+            reason: "not a path inside the catalog".to_string(),
+        });
+
+        assert_eq!(taken.status(), StatusCode::CONFLICT);
+        assert_eq!(malformed.status(), StatusCode::BAD_REQUEST);
     }
 
     #[test]

@@ -336,7 +336,9 @@ Every catalog path in an error body (`path`, `files[].path`,
 `links[].source`, `errors[].file`, `warnings[].file`) has a leading `/`
 (`/infra/x.md`), like the paths in tool results such as `touched`. An
 `InvalidPath` whose path climbs out of the catalog (`../x`) echoes it as
-given. The report results (`lint`, `oldest`, `sprawl`, `links_report`) keep
+given. A path that is valid but taken (`create_concept`, `move_concept` or
+`split_concept` onto an existing concept) is `AlreadyExists` (409 on REST), not
+`InvalidPath`; its message names `edit_document` and `replace_body`. The report results (`lint`, `oldest`, `sprawl`, `links_report`) keep
 the paths without the `/`, so the same lint finding names `/a.md` in
 a `LintFailed` error and `a.md` in `lint`'s result, on purpose.
 

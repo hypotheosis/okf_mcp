@@ -818,8 +818,9 @@ impl MemWorkspace {
     }
 
     /// # Errors
+    /// [`OkfError::AlreadyExists`] if a file is at `to`;
     /// [`OkfError::InvalidPath`] if either path escapes the catalog or is
-    /// the root, or `to` already exists, is a directory, or sits below a
+    /// the root, or `to` is a directory or sits below a
     /// file; [`OkfError::NotFound`] if there is no file at `from`. `to` is
     /// checked first, so a missing `from` with a bad `to` is `InvalidPath`.
     #[tracing::instrument(level = "debug", skip_all)]
@@ -827,8 +828,12 @@ impl MemWorkspace {
         let (from_rel, to_rel) = (checked_file(from)?, checked_file(to)?);
         let mut files = self.files.write().expect("MemWorkspace lock poisoned");
         // `or_else` only runs the placement check when the path is not taken.
-        let taken = files.contains_key(&to_rel).then_some("already exists");
-        if let Some(reason) = taken.or_else(|| placement_conflict(&files, &to_rel)) {
+        if files.contains_key(&to_rel) {
+            return Err(OkfError::AlreadyExists {
+                path: to.to_string(),
+            });
+        }
+        if let Some(reason) = placement_conflict(&files, &to_rel) {
             return Err(OkfError::InvalidPath {
                 path: to.to_string(),
                 reason: reason.to_string(),
@@ -1028,10 +1033,7 @@ mod tests {
         assert_eq!(workspace.stored("c/y.md"), Some(stored(b"x", true)));
         // Directories exist only as prefixes, so the emptied `a` is gone.
         assert!(!workspace.is_file("a/x.md") && !workspace.is_dir("a"));
-        assert!(matches!(
-            taken,
-            OkfError::InvalidPath { ref reason, .. } if reason == "already exists"
-        ));
+        assert!(matches!(taken, OkfError::AlreadyExists { .. }));
         assert!(matches!(
             below_a_file,
             OkfError::InvalidPath { ref reason, .. } if reason == "a parent component is a file"

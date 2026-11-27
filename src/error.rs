@@ -19,7 +19,20 @@ pub enum OkfError {
         path: String,
     },
 
-    /// The path is outside the catalog, reserved, machinery, or already taken.
+    /// A concept already exists at the path (a `create_concept`, `move_concept`
+    /// or `split_concept` target that is taken). The path itself is valid, so
+    /// this is not [`OkfError::InvalidPath`]; the message names the recovery.
+    #[error(
+        "{path} already exists; to change it use edit_document or replace_body \
+         (get_concept reads it); to put another concept there, choose another path \
+         or delete or move the existing one first"
+    )]
+    AlreadyExists {
+        /// The taken path, normalized (`/`-prefixed in the payload).
+        path: String,
+    },
+
+    /// The path is outside the catalog, reserved, machinery, or otherwise unusable.
     #[error("{path}: {reason}")]
     InvalidPath {
         /// The path as the caller gave it, or normalized. The payload
@@ -378,6 +391,7 @@ impl OkfError {
         // a new variant fails to compile here until it is given a name.
         match self {
             OkfError::NotFound { .. } => "NotFound",
+            OkfError::AlreadyExists { .. } => "AlreadyExists",
             OkfError::InvalidPath { .. } => "InvalidPath",
             OkfError::FrontmatterParse { .. } => "FrontmatterParse",
             OkfError::SecretDetected { .. } => "SecretDetected",
@@ -497,6 +511,7 @@ impl OkfError {
         // has a field of that name and type.
         match self {
             OkfError::NotFound { path }
+            | OkfError::AlreadyExists { path }
             | OkfError::FrontmatterParse { path, .. }
             | OkfError::Shape { path, .. } => body["path"] = client_path(path).into(),
             OkfError::InvalidPath { path, .. } => {
@@ -841,6 +856,24 @@ mod tests {
     }
 
     #[test]
+    fn a_taken_path_is_already_exists_not_invalid_path_and_names_the_recovery() {
+        let error = OkfError::AlreadyExists {
+            path: "preferences/favorite-color.md".to_string(),
+        };
+
+        let body = error.to_json();
+
+        assert_eq!(error.kind(), "AlreadyExists");
+        assert!(!error.is_internal());
+        assert_eq!(body["error"], "AlreadyExists");
+        assert_eq!(body["path"], "/preferences/favorite-color.md");
+        let message = body["message"].as_str().expect("a message");
+        assert!(message.starts_with("preferences/favorite-color.md already exists"));
+        assert!(message.contains("edit_document or replace_body"));
+        assert!(message.contains("get_concept reads it"));
+    }
+
+    #[test]
     fn still_linked_lists_its_links_and_is_a_conflict_not_internal() {
         let error = OkfError::StillLinked {
             path: "/infra/x.md".to_string(),
@@ -1178,7 +1211,7 @@ mod tests {
             reason: "refused".to_string(),
         };
 
-        // A normalized catalog path (machinery, "already exists").
+        // A normalized catalog path (machinery, "is not a concept document").
         assert_eq!(invalid("AGENTS.md").to_json()["path"], "/AGENTS.md");
         assert_eq!(invalid("infra/x.md").to_json()["path"], "/infra/x.md");
         // A path that climbs out is not a catalog path: as given.

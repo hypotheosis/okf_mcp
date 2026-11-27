@@ -100,8 +100,8 @@ pub struct SetFrontmatterParams {
 /// The write's report.
 ///
 /// # Errors
-/// As [`apply`]; the op's [`OkfError::InvalidPath`] (taken, reserved,
-/// machinery) or [`OkfError::Refused`] (a missing `type`, a stamp key, a
+/// As [`apply`]; the op's [`OkfError::AlreadyExists`] (taken),
+/// [`OkfError::InvalidPath`] (reserved, machinery) or [`OkfError::Refused`] (a missing `type`, a stamp key, a
 /// listing it cannot make).
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) async fn create_concept(
@@ -239,7 +239,8 @@ impl OkfServer {
                        until `publish`; a published concept is visible only to those with \
                        access to the catalog (a personal catalog's owner unless they share it, \
                        a team catalog's team). `path` is \
-                       the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in \
+                       the new concept's path, `.md` optional (e.g. /infra/ntp); it must not exist yet (to change an existing concept \
+                       use edit_document or replace_body; get_concept reads it). Needs `type` in \
                        `frontmatter`; the server writes `generated: { by, at }` itself. With \
                        `index_summary`, also lists it in its folder's index.md (creating folder \
                        indexes as needed); `folder_summary` describes a new folder there. \
@@ -1122,6 +1123,46 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
+    async fn create_concept_on_an_existing_path_is_already_exists_and_a_bad_path_is_not() {
+        let test = pg().await;
+        let ctx = writer(&test, "writer-a", "pg").await;
+        let handle = open(&ctx).await;
+        let create = |path: &str| CreateConceptParams {
+            path: path.to_string(),
+            frontmatter: serde_json::json!({"type": "System", "title": "A"})
+                .as_object()
+                .unwrap()
+                .clone(),
+            body: "# A\n".to_string(),
+            index_summary: None,
+            index_section: None,
+            folder_summary: None,
+            by: None,
+            changeset: handle.clone(),
+        };
+
+        // `/a.md` is in the seeded catalog.
+        let taken = create_concept(&ctx, create("/a.md")).await.unwrap_err();
+        let reserved = create_concept(&ctx, create("/infra/index.md"))
+            .await
+            .unwrap_err();
+        let machinery = create_concept(&ctx, create("/.git/x.md"))
+            .await
+            .unwrap_err();
+
+        assert_eq!(taken.kind(), "AlreadyExists");
+        let body = taken.to_json();
+        assert_eq!(body["path"], "/a.md");
+        let message = body["message"].as_str().unwrap();
+        assert!(
+            message.contains("edit_document or replace_body"),
+            "{message}"
+        );
+        assert_eq!(reserved.kind(), "InvalidPath");
+        assert_eq!(machinery.kind(), "InvalidPath");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
     async fn edit_document_refuses_log_md() {
         let test = pg().await;
         let ctx = writer(&test, "writer-a", "pg").await;
@@ -1203,6 +1244,15 @@ mod tests {
         let by = create.input_schema["properties"]["by"]["description"]
             .as_str()
             .unwrap();
+        // The description says the path must be new and names the edit tools (issue #929), and
+        // keeps the opening the deferred view shows.
+        let description = create.description.as_deref().unwrap();
+        assert!(description.starts_with("Save what the person wants kept"));
+        assert!(description.contains("must not exist yet"), "{description}");
+        assert!(
+            description.contains("edit_document or replace_body"),
+            "{description}"
+        );
         // The phrase sits on one doc-comment line (schemars keeps line breaks).
         assert!(by.contains("default: the key's actor"), "{by}");
         // The catalog comes from the changeset (M8 Decision 5).

@@ -135,7 +135,7 @@ fn checked_key(key: &str) -> Result<(), OkfError> {
 ///
 /// # Errors
 /// [`OkfError::InvalidPath`] from [`new_concept_path`] (outside the catalog,
-/// reserved, machinery, taken); [`OkfError::Refused`] without a non-blank
+/// reserved, machinery) or [`OkfError::AlreadyExists`] (taken); [`OkfError::Refused`] without a non-blank
 /// string `type`, for a stamp key, an invalid key, for `index_section` or
 /// `folder_summary` without `index_summary`, a `folder_summary` for a folder
 /// that exists (or the root), or a listing without a non-blank `title`;
@@ -870,6 +870,13 @@ mod tests {
         let taken = create_concept(&ws, &ctx(), &concept("infra/x", &untitled, "")).unwrap_err();
         let machinery =
             create_concept(&ws, &ctx(), &concept("tools/x", &untitled, "")).unwrap_err();
+        let dir_ws = MemWorkspace::from_files([("index.md", ROOT_INDEX), ("dir.md/c.md", "x\n")]);
+        let directory =
+            create_concept(&dir_ws, &ctx(), &concept("dir", &untitled, "")).unwrap_err();
+        assert!(
+            matches!(&directory, OkfError::InvalidPath { reason, .. } if reason == "is a directory"),
+            "{directory:?}"
+        );
 
         assert_eq!(
             errors.map(refusal),
@@ -892,7 +899,7 @@ mod tests {
             "a.md: index_section needs index_summary"
         );
         assert!(!ws.exists("a.md"));
-        assert!(matches!(taken, OkfError::InvalidPath { .. }));
+        assert!(matches!(taken, OkfError::AlreadyExists { .. }));
         assert!(matches!(machinery, OkfError::InvalidPath { .. }));
         for key in ["generated", "verified", "reviewed"] {
             let mut stamped = untitled.clone();

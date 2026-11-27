@@ -327,7 +327,8 @@ pub fn resolve_concept(workspace: &dyn Workspace, reference: &str) -> Result<Str
 ///
 /// # Errors
 /// [`OkfError::InvalidPath`] when the path leaves the catalog, uses a
-/// reserved name, sits in machinery or a dot-directory, or already exists.
+/// reserved name, or sits in machinery or a dot-directory;
+/// [`OkfError::AlreadyExists`] when a concept is already there.
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn new_concept_path(
     workspace: &dyn Workspace,
@@ -357,10 +358,16 @@ pub fn new_concept_path(
             "that's repository machinery, not a place for concepts",
         ));
     }
-    if workspace.exists(&path) {
+    // Only a file is a taken concept. `exists` is also true for a directory
+    // (`target.md/child.md` makes `target.md` one), where "edit it" would be
+    // wrong advice, so that stays an `InvalidPath`, worded as `check_placement` does.
+    if workspace.is_file(&path) {
+        return Err(OkfError::AlreadyExists { path: path.clone() });
+    }
+    if workspace.is_dir(&path) {
         return Err(OkfError::InvalidPath {
             path: path.clone(),
-            reason: "already exists".to_string(),
+            reason: "is a directory".to_string(),
         });
     }
     // `bool::then` runs the closure only when the bool is true, giving `Some(..)`
@@ -503,6 +510,21 @@ mod tests {
         ] {
             assert!(new_concept_path(&ws, bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn a_directory_named_like_a_concept_is_invalid_path_not_already_exists() {
+        let ws = MemWorkspace::from_files([("target.md/child.md", "x"), ("a.md", "x")]);
+
+        let directory = new_concept_path(&ws, "/target").unwrap_err();
+        let file = new_concept_path(&ws, "/a").unwrap_err();
+
+        assert!(
+            matches!(&directory, OkfError::InvalidPath { path, reason }
+                if path == "target.md" && reason == "is a directory"),
+            "{directory:?}"
+        );
+        assert!(matches!(file, OkfError::AlreadyExists { .. }));
     }
 
     #[test]

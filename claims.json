@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2130,
+  "next_claim_seq": 2143,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "d256467572b66fb5e9592231d5ba2384e928ecfd28f9f69c05faa88ee3b4f659"
+    "mac": "fe2d614a03d5692b2af630ec5e40f51445567704014361d943529c28df7566b0"
   },
-  "next_evidence_seq": 3786,
+  "next_evidence_seq": 3803,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "8942a7e43e1e10b8b457513f2af0a777316539713d57806016edd2f3f48a81f8"
+    "mac": "843f4f962c803ac18f8b5fd89327afbce5d918f619744f953e1f89720e4e1f0b"
   },
   "claims": [
     {
@@ -189426,6 +189426,965 @@
       "seal": {
         "by": "server",
         "mac": "469fb3797f5cbb397752492c235a814f3ff233799d7e054ef3b6454071550987"
+      }
+    },
+    {
+      "id": "CLM-2130",
+      "statement": "The change fixes the flake in signin::an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both, where the okf.key read saw the stored key.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/885",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/signin.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3794",
+          "kind": "analysis",
+          "locator": "children of CLM-2130",
+          "summary": "Mechanical children (boot order, exact-wait helper, its use, no src change, changelog, other reads) hold, but CLM-2138 (the causal story the fix rests on) is refuted: a console booted on the key never becomes the account page, so the exact wait cannot absorb that case; the fix is only shown to be sound if the stale text comes from a replaced document, which nothing here demonstrates.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T10:10:45.549441043Z",
+          "seal": {
+            "by": "server",
+            "mac": "05d1d12674844ae5e81c22ad67d3cc5e79c48de0a74ed70d6ba59a54816bfac2"
+          }
+        },
+        {
+          "id": "EVD-3801",
+          "kind": "analysis",
+          "locator": "children of CLM-2130",
+          "summary": "On 9a39160b the test now waits for the exact account text and polls okf.key to null under a bound (the issue's first option), and the description no longer asserts a wrong mechanism. But the issue's hypothesis (key dropped after whoami is drawn) is contradicted by boot(), and no cause of the original failure is established, so a pass cannot show the flake gone; one child (the slow-navigation statement) is undecided.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T10:44:53.251189885Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bd8eb81ff6d26b7d02a1f164d32953b527573a042c9206c69a817cd7ae297aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mechanical changes are correct, but the fix is only sound if the stale key text lives on a document that is later replaced, which neither the code nor any captured failure shows (and the stated cause, a key-booted console, would make the new wait time out). A deterministic or captured reproduction does not exist. Fix: make the journey robust to either cause, by polling okf.key until null under a bound after the exact wait (or instead of it), and add failure diagnostics (#whoami text, location.href, session status) so a recurrence names its cause.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T10:11:04.310121235Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e08f1a7053dda734f24bee41783d11bedc8e9f90d5a5dc378194d4a6b5e6fa6"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The change now matches the issue's suggested fix (a bounded wait for the key to be gone, plus an exact whoami wait) and the description is honest about the unknown cause. But boot() contradicts the issue's hypothesis (key dropped after #whoami is drawn), so the original failure is still unexplained and a green run cannot show it gone. Fix: on the next recurrence read the failure message (it now names #whoami or okf.key) and record which document the key text came from; optionally add location.href and the GET /api/v1/session status to the poll_eval timeout message.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T10:44:54.137926100Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f6010488b825664b8026ac346a1a6cf249a1f8370342fd71ca8b0373168bbca"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:44:54.137926100Z",
+      "seal": {
+        "by": "server",
+        "mac": "fb7f445e5485567c95b47bba1ede452ac57935e4a57608355bef4b63cb086afe"
+      }
+    },
+    {
+      "id": "CLM-2131",
+      "statement": "boot() in src/http/ui/js/main.js sets store.key = null, which removes localStorage okf.key synchronously, before enterOrRecover() draws #whoami.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"boot() sets store.key = null, which calls localStorage.removeItem synchronously, before enterOrRecover() draws #whoami\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "src/http/ui/js/core/store.js"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3786",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/main.js:170-184; src/http/ui/js/core/store.js:22-30,44; src/http/ui/js/core/shell.js:34",
+          "summary": "In boot()'s session branch, store.key = null runs (line 178) before await enterOrRecover() (179) -> enter() -> refreshIdentity(), the only place #whoami textContent is set (shell.js:34). The key setter calls write(), which runs localStorage.removeItem synchronously with no await in between.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 170,
+                "end": 184
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:23.611728910Z",
+          "seal": {
+            "by": "server",
+            "mac": "74c2fd13ebe9346c263378d86fb93233f87840f5b5a44f1144c1b12c36d84e38"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code order in boot() and the synchronous setter show the key is removed before #whoami is drawn on the session path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3786"
+          ],
+          "recorded_at": "2026-11-27T10:11:02.933889289Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d066f3d6bf1d0c47ade0637cbc14ee449822e25974cbc15a1144fb1ad07642f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:11:02.933889289Z",
+      "seal": {
+        "by": "server",
+        "mac": "b77ed253a7e3460c7999cdc875c98410c68a7e1b312ab9ffdd9a0a071c3630e0"
+      }
+    },
+    {
+      "id": "CLM-2132",
+      "statement": "The #whoami text drawn for the stored key (\"console-carol - read\") contains the account session's text (\"carol - read\") without equalling it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the stored key's own identity (console-carol - read) also contains\" carol - read",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "src/http/ui/js/core/shell.js",
+        "tests/ui_e2e/signin.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3787",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/core/shell.js:34-36; tests/ui_e2e/signin.rs:511-515",
+          "summary": "A session draws `${who} - ${access}` (\"carol - read\"); a key draws `[${who} / ]${name} - ${access}`, with name \"console-carol\", so \"console-carol - read\" (or \"carol / console-carol - read\") contains \"carol - read\" and differs from it. The new assertion at signin.rs:515 checks exactly this (not run: gates are running elsewhere).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/core/shell.js",
+              "lines": {
+                "start": 34,
+                "end": 36
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:23.738890760Z",
+          "seal": {
+            "by": "server",
+            "mac": "de6e155eb3b9d0f9586595b06073b042e3942dd824eb61818aa06d2fa63ca6fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The renderer's two formats make the key text a strict superstring of the session text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3787"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.093266396Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6bb322d77c89dadeb3102e48ba6f4e73178f848fd5af1268c67927aac211df0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:11:03.093266396Z",
+      "seal": {
+        "by": "server",
+        "mac": "8df8c02b6d1d1b49ca255e0e63cfa1fd1d21503307c3a5a7a42ee26016ef15c4"
+      }
+    },
+    {
+      "id": "CLM-2133",
+      "statement": "Ui::wait_text_is polls until the trimmed text of the selector equals the expected string exactly, and panics after WAIT otherwise.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"new Ui::wait_text_is waits for exact text\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3788",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:490-494",
+          "summary": "wait_text_is polls (50 ms, up to WAIT, panics \"timed out waiting for ...\") until self.text(selector).trim() == expected.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 490,
+                "end": 494
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:23.864928314Z",
+          "seal": {
+            "by": "server",
+            "mac": "7205c4379f8490d8daa28a843b718455944d1dd790c299e8867ca8605890c012"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the function body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3788"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.275437473Z",
+          "seal": {
+            "by": "server",
+            "mac": "d305d8f17e13cba8b2c91b10ba73f2d1e6118501184f94ef0a0b99f541f2a67d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:11:03.275437473Z",
+      "seal": {
+        "by": "server",
+        "mac": "4b4e82a058e05dc69d903f0da0ee9eae90d039c821c74373c417f32ff2a67843"
+      }
+    },
+    {
+      "id": "CLM-2134",
+      "statement": "The journey waits with wait_text_is for \"carol - read\" before reading localStorage okf.key, and first asserts the key's whoami text contains \"carol - read\" without equalling it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"the journey uses it for carol - read, and first asserts that the key's whoami text contains carol - read without equalling it\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/signin.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3789",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/signin.rs:511-521",
+          "summary": "Line 511 captures the key's whoami text, 515 asserts contains(\"carol - read\") && trim() != \"carol - read\", 521 calls ui.wait_text_is(\"#whoami\", \"carol - read\"), and the localStorage okf.key read follows at 524-529.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 508,
+                "end": 530
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:23.993034577Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd84997552a7dfb76b379252b63ec9100c9d24af99a2fe0d8ffe635741918bb0"
+          }
+        },
+        {
+          "id": "EVD-3798",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/signin.rs:508-527 at 9a39160b",
+          "summary": "On the new head the contains-but-not-equal assertion (515) and wait_text_is (521) are unchanged, and the okf.key read (525) still follows them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 508,
+                "end": 527
+              },
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:34.494154665Z",
+          "seal": {
+            "by": "server",
+            "mac": "a96f1dc9e6fb23ac53c5b3d3c254489c592b38f4b9cc9605658dc2d412b99e23"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the journey; the assertion and the exact wait are present before the key read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3789"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.449787580Z",
+          "seal": {
+            "by": "server",
+            "mac": "77ae41f649b0071101db3bd5231efb26fda283ec760ced6bec1f2d53b578b245"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a39160b; the assertion and exact wait are unchanged and still precede the key read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3798"
+          ],
+          "recorded_at": "2026-11-27T10:44:53.724123516Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f6d1c85b859bfbc573f1054caa1999443fcdef9528ec04719d23fa5d6cd5a53"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:44:53.724123516Z",
+      "seal": {
+        "by": "server",
+        "mac": "9325b8bf923ae6357e5a796ef7aaf1cf0dc8346df9a022d69c0e868eab02b647"
+      }
+    },
+    {
+      "id": "CLM-2135",
+      "statement": "src/http/ui/js/main.js is unchanged by the commits origin/main..HEAD.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"src/http/ui/js/main.js is unchanged\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3790",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD",
+          "summary": "The range touches only the changelog entry, tests/ui_e2e/harness.rs and tests/ui_e2e/signin.rs; `git diff origin/main..HEAD --stat -- src` is empty.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T10:10:24.115598776Z",
+          "seal": {
+            "by": "server",
+            "mac": "46877018079381cbf849a132b9c860c6ef2660d8b258fd6c4c7885d449361dc1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff stat lists no src file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3790"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.580802733Z",
+          "seal": {
+            "by": "server",
+            "mac": "4563203489b528f42ae8b8d76f966c25f63ec0ed010827bd5c39747df3036d8f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:11:03.580802733Z",
+      "seal": {
+        "by": "server",
+        "mac": "180a71ee8b7d92ccbaf0737a415965bb022bbb23d7262b41a86a98ee50cb40ba"
+      }
+    },
+    {
+      "id": "CLM-2136",
+      "statement": "No other read in tests/ui_e2e/signin.rs assumes an async effect has finished without waiting for it: the sign-out reads follow wait_visible(\"#login\"), which the console shows only after the key is cleared and the session ended.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Other reads in that file that assume an async effect: none found (sign-out reads follow wait_visible(\\\"#login\\\"), shown only after the key is cleared and the session ended)\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/signin.rs",
+        "src/http/ui/js/main.js"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3793",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/signin.rs:524-529,563-571,605-613; src/http/ui/js/main.js:117-126,129-140",
+          "summary": "Three okf.key reads in the file. Line 526 follows the new exact wait. Line 568 follows ui.wait_visible(\"#login\"); #login starts hidden (index.html:15) and only showLogin() shows it, which signedOut() calls after store.key = null and after endCookieSession() resolved. Line 610 follows a reload and wait_text \"erin - admin\" in a test that never stores a key (reads null trivially). No unwaited async dependence found.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 563,
+                "end": 571
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:41.588013629Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e9195176afc1fb9a9e5cdb502e9c019b1829a0d25679dc9560da08fa9835793"
+          }
+        },
+        {
+          "id": "EVD-3799",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/signin.rs:525,563-571,605-613 at 9a39160b",
+          "summary": "The three okf.key reads are now: 525 a bounded poll after the exact wait; 563 immediately after wait_visible(\"#login\") (sign-out); 605 in a test that never stores a key. The earlier ordering analysis is unchanged, and the first read no longer assumes anything.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 558,
+                "end": 568
+              },
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:34.649130436Z",
+          "seal": {
+            "by": "server",
+            "mac": "16dd09b1117b0f01b7e5f152446f7611482d1d668f3b2d8c8f8bbba882c485bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three okf.key reads in signin.rs are ordered after a wait on the state they depend on.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3793"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.708085551Z",
+          "seal": {
+            "by": "server",
+            "mac": "27b5cdb332454dc1d1cccbcd6d8ba39d8ad1ec8ef68084868a1d0b025c5bfbc8"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a39160b; every okf.key read still follows a wait on the state it depends on (the first now polls).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3799"
+          ],
+          "recorded_at": "2026-11-27T10:44:53.841807580Z",
+          "seal": {
+            "by": "server",
+            "mac": "85d41852cf7527ed7e0537fb879369aa4eb5833f566d116e1713113d33415fc0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:44:53.841807580Z",
+      "seal": {
+        "by": "server",
+        "mac": "fad39f55f528e61605878aa617dcc0a18475f7bd87885696bd8959351aa52e91"
+      }
+    },
+    {
+      "id": "CLM-2137",
+      "statement": "A changelog entry for #885 was added under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry added.\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "changelog/20261127T130000Z-issue-885-signin-key-wait.md"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3791",
+          "kind": "inspection",
+          "locator": "changelog/20261127T130000Z-issue-885-signin-key-wait.md",
+          "summary": "The file exists in the commit, is timestamped and describes #885's cause and test fix.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T130000Z-issue-885-signin-key-wait.md",
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:24.244473863Z",
+          "seal": {
+            "by": "server",
+            "mac": "87dc58f8a62f7add9dba71a99252d3cdbee1ce78f24e082996fe4142d59fb64a"
+          }
+        },
+        {
+          "id": "EVD-3802",
+          "kind": "inspection",
+          "locator": "changelog/20261127T130000Z-issue-885-signin-key-wait.md at 9a39160b",
+          "summary": "The changelog entry is still present and was updated in 9a39160b.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T130000Z-issue-885-signin-key-wait.md",
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:57.390036455Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e3fc1d9d3300156c651e939844bb925a3a1372d7e2d54cde9520ab58b71ed9e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file is in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3791"
+          ],
+          "recorded_at": "2026-11-27T10:11:03.882891479Z",
+          "seal": {
+            "by": "server",
+            "mac": "537f9aaf26c3ea89ad5a4d89b2b928e73000dce10500a57cc8791d2a01ba3a61"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 9a39160b; the file is present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3802"
+          ],
+          "recorded_at": "2026-11-27T10:45:00.500931898Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee1a2e95a012727505526aca5444d472b12f4cbacb52d0cf32f242e42b5c9f22"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:45:00.500931898Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c8dd07dfb90f858dde0b8ee2a7997f0e17f1213365b1fdcf3b65869e6a91cef"
+      }
+    },
+    {
+      "id": "CLM-2138",
+      "statement": "The flake was caused by the #whoami wait being met by a console booted on the stored key, which only appears when the session fetch at boot fails or the navigation is slow, and which the new exact wait then outlasts until the account session's page shows.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Under load the wait was met by a console booted on the key\" and \"the stale console only appears when the session fetch at boot fails or the navigation is slow\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "tests/ui_e2e/signin.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "The PR body and changelog no longer assert that the exact wait outlasts a key-booted console (commit 9a39160b); replaced by claims on the corrected wording. Its refutation stays in the history.",
+        "retired_at": "2026-11-27T10:44:18.920371877Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3792",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/main.js:170-190 (boot) and grep of boot()/location.reload in src/http/ui/js",
+          "summary": "boot() runs once per document load (called only at line 190) and picks either the session branch (key dropped, whoami = \"carol - read\") or the stored-key branch (whoami = key text). Nothing switches a key-booted console to the account session without a new document load (no location.reload; the login-form handler and the 401 handler never adopt a cookie session). So if the console booted on the key, #whoami stays \"console-carol - read\" and wait_text_is(\"#whoami\",\"carol - read\") would time out, not wait it out. The stated mechanism cannot be cured by the exact wait; the exact wait helps only if the key text is on a document that is then replaced.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 170,
+                "end": 190
+              },
+              "commit": "9ec019b0df9f49951bfb9a60e236031399f97f06"
+            }
+          },
+          "recorded_at": "2026-11-27T10:10:41.448071121Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c7e4422e1157fdff19c87b15a9940a895e858878add2e50306cdb2f69bc1036"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "boot() decides once per document: a console that booted on the stored key keeps the key's #whoami text for the life of that document, so the exact wait would time out rather than outlast it. The description's mechanism (key-booted console, exact wait rides it out) is therefore self-contradictory. Fix: replace the causal sentences in the PR body and changelog with what is shown (the substring wait could be met by key text), and before claiming the flake fixed, either poll localStorage okf.key until null under a bound (the issue's first option), or add failure diagnostics (#whoami text, location.href, GET /api/v1/session status) to the journey to identify which document the key text came from.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3792"
+          ],
+          "recorded_at": "2026-11-27T10:11:04.012958559Z",
+          "seal": {
+            "by": "server",
+            "mac": "8fa8f771b1a88bdb9c0436cb2e54c6899710b290e48f729e2e603fec53158a36"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:44:18.920371877Z",
+      "seal": {
+        "by": "server",
+        "mac": "bb45d52998423fd79cbc1660a2fd90b12d1a1eb28a071a7be849e077ed92a03c"
+      }
+    },
+    {
+      "id": "CLM-2139",
+      "statement": "The fmt, lint, dylint, test, test-ui and mcpjam gates pass on the head commit.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Gates run through tools/agentic/gate.sh: fmt, lint, dylint, test, test-ui, mcpjam\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3800",
+          "kind": "log",
+          "locator": "author-reported gate.sh results on 9a39160b (not rerun by the auditor)",
+          "summary": "Reported by the authoring session, not observed: fmt exit 0, lint 0, dylint 0, test-ui 0 (327 passed, signin journey ok), mcpjam 0 (29 passed), test: first run 2 browse:: failures (known flake #1047), re-run exit 0 (3730 passed). No log was provided.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T10:44:34.770130551Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e5377bd7ac5c9f0e4339ec15a2487ec8a4ebbbc3bd52e53942d98827e61ed7f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Gates are running elsewhere and were not run by this audit. Fix: record the gate.sh results (counts per gate) for the head commit as evidence once the run finishes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T10:11:04.182061714Z",
+          "seal": {
+            "by": "server",
+            "mac": "151568bf91c4cf178ba02cbc8b6efe0010194f1d917f80ec3deb99f00b50ed4d"
+          }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the authoring session's own report exists; the auditor did not run or see the gates, and test needed a re-run after 2 browse:: failures attributed to #1047. Fix: attach the gate.sh logs (or their report path) for 9a39160b as evidence, or have the auditor rerun gate.sh test-ui and test on that head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T10:44:54.021253691Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd3d75175964185e48732fe15d612272cc26d16f3347de815698927148ef4cd3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:10:06.292043262Z",
+      "updated_at": "2026-11-27T10:44:54.021253691Z",
+      "seal": {
+        "by": "server",
+        "mac": "cb0acf254922c71e7cd39ffe9751281c811ef5ab9a4d4c8fbdd965aa23916c62"
+      }
+    },
+    {
+      "id": "CLM-2140",
+      "statement": "The journey reads localStorage okf.key through ui.poll_eval(\"() => localStorage.getItem('okf.key') === null\"), which polls under the WAIT bound, after the exact whoami wait and before sign-out.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"the key read is a bounded poll_eval\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/signin.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3795",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/signin.rs:521-525; tests/ui_e2e/harness.rs:728-737",
+          "summary": "Line 521 wait_text_is, line 525 ui.poll_eval(\"() => localStorage.getItem('okf.key') === null\"), then line 526 click #signout. poll_eval polls the function until it returns true and panics after WAIT.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/signin.rs",
+              "lines": {
+                "start": 519,
+                "end": 527
+              },
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:34.116538234Z",
+          "seal": {
+            "by": "server",
+            "mac": "0195771312b8aecc496907773ba536488fcef1135c094b1e91d6f15be4754022"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The source line shows the bounded poll in place after the exact wait.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3795"
+          ],
+          "recorded_at": "2026-11-27T10:44:53.370490154Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b4fd2dddf281574047e255781cb51673cc1b231529f61953537ed3bf0abe282"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:44:19.037968780Z",
+      "updated_at": "2026-11-27T10:44:53.370490154Z",
+      "seal": {
+        "by": "server",
+        "mac": "a791f31b6a5b3cbd0adc5d32e10698973cc63dafe162d9ea80e0dffb8f3f11e8"
+      }
+    },
+    {
+      "id": "CLM-2141",
+      "statement": "The PR body and the changelog say that why a console booted on the key after the account sign-in is not established, and do not claim the exact wait outlasts the key's page.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Why the console had booted on the key is not established\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "changelog/20261127T130000Z-issue-885-signin-key-wait.md",
+        "target/pr-885-body.md"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3796",
+          "kind": "inspection",
+          "locator": "changelog/20261127T130000Z-issue-885-signin-key-wait.md:3; target/pr-885-body.md:2",
+          "summary": "The changelog Cause bullet says why a console booted on the key is \"not established\" and that a recurrence fails at the exact wait; the PR body summary says the same. Neither says the exact wait outlasts the key page. (The PR body is untracked under target/, so it has no anchor.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T130000Z-issue-885-signin-key-wait.md",
+              "lines": {
+                "start": 3,
+                "end": 3
+              },
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:34.241615445Z",
+          "seal": {
+            "by": "server",
+            "mac": "e302aecdefd945c5cb6512e6e3d7053d7c13b10711aacbdcbfba005b2433943c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog and PR body now state the cause is not established and no longer claim the exact wait outlasts the key page.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3796"
+          ],
+          "recorded_at": "2026-11-27T10:44:53.488498609Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6c81e10d01b5e8fca3956efffee4a944156cd9def6d014e0f4d1b73c76668bc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:44:19.037968780Z",
+      "updated_at": "2026-11-27T10:44:53.488498609Z",
+      "seal": {
+        "by": "server",
+        "mac": "41e4c7849cd3365c473f27a1099b6984dc25ee79b4f1b8771b81895e8b840ec2"
+      }
+    },
+    {
+      "id": "CLM-2142",
+      "statement": "The stale console only appears when the session fetch at boot fails or the navigation is slow.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the stale console only appears when the session fetch at boot fails or the navigation is slow\"",
+      "derived_from": [
+        "CLM-2130"
+      ],
+      "artifacts": [
+        "src/http/ui/js/main.js",
+        "target/pr-885-body.md"
+      ],
+      "tags": [
+        "from-issue:885"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3797",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/main.js:170-184; target/pr-885-body.md:10",
+          "summary": "boot() takes the stored-key branch exactly when the session fetch throws or returns non-ok, so \"session fetch fails\" is consistent with the code. Nothing in the code or the test ties a slow navigation to the key branch: a slow navigation delays the new document, and the old /signin document has no #whoami. Neither cause is observed in any captured failure.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/main.js",
+              "lines": {
+                "start": 170,
+                "end": 184
+              },
+              "commit": "9a39160b6e673d5d4a2e8aef1022a136bcf9ea53"
+            }
+          },
+          "recorded_at": "2026-11-27T10:44:34.370108388Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c6a6fcd27992d636d4da32b86af2490e5f93d4fce198af0d0dc6955167a24aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "A failed session fetch fits the code, but \"or the navigation is slow\" has no support, and the sentence says \"only\". Fix: delete \"or the navigation is slow\" from the last Changes bullet of the PR body (say only that boot takes the key branch when the session fetch at boot fails or returns non-ok), or cite a captured failure showing a slow navigation led boot to the key branch.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T10:44:53.605821781Z",
+          "seal": {
+            "by": "server",
+            "mac": "900ef9ab169dbe6813561a69d4f68fffdbe9e66f5dc8282fe53fe88ed2f66e91"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T10:44:19.037968780Z",
+      "updated_at": "2026-11-27T10:44:53.605821781Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee4e732f970f8dc7b2dbd2bbd9b36d51f413b7b5d069b0bf3bdf7af4522cb445"
       }
     }
   ]

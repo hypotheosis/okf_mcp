@@ -153,20 +153,37 @@ async fn run(cache: &Bounded<u8, u64>, world: &Arc<World>, steps: &[Step]) {
                 let gate = Arc::new(AtomicBool::new(false));
                 let (read_from, gated) = (world.clone(), gate.clone());
                 let (check_from, check_gate) = (world.clone(), gate.clone());
+                // Which of the two the cache called, to tell a check from a reload.
+                let (checked, loaded) = (
+                    Arc::new(AtomicBool::new(false)),
+                    Arc::new(AtomicBool::new(false)),
+                );
+                let (set_checked, set_loaded) = (checked.clone(), loaded.clone());
+                let resident = cache.peek(&key).await.is_some();
                 let fut = cache.get_or_revalidate(
                     key,
                     move || async move {
+                        set_loaded.store(true, Ordering::SeqCst);
                         let version = read_from.version(key);
                         parked(gated).await;
                         Ok(version)
                     },
                     move |held| async move {
+                        set_checked.store(true, Ordering::SeqCst);
                         let version = check_from.version(key);
                         parked(check_gate).await;
                         Ok((version != held).then_some(version))
                     },
                 );
                 let was_pending = start(&mut pending, Box::pin(fut), gate, key, world);
+                // A stale entry that is still cached is checked, not reloaded.
+                if owed[usize::from(key)] && resident {
+                    assert!(
+                        checked.load(Ordering::SeqCst) && !loaded.load(Ordering::SeqCst),
+                        "key {key}: get_or_revalidate of a stale entry did not call its check \
+                         first"
+                    );
+                }
                 take_debt(&mut owed, key, was_pending);
             }
             Step::Release { index } => {

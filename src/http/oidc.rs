@@ -2044,15 +2044,70 @@ mod tests {
         // alice's stale marker; no session is refused outright; an unknown
         // provider is a 404.
         assert_eq!(by_bob.json(), json!({"state": "none"}));
-        assert!(
-            by_nobody.status == StatusCode::UNAUTHORIZED
-                || by_nobody.status == StatusCode::FORBIDDEN,
-            "{}",
-            by_nobody.status
-        );
+        assert_eq!(by_nobody.status, StatusCode::UNAUTHORIZED);
         assert_eq!(unknown.status, StatusCode::NOT_FOUND);
         assert_eq!(by_alice.json(), json!({"state": "stale"}));
         assert_eq!(user_count(&test, &id).await, 1);
+    }
+
+    /// A real OAuth access token for `test`, from the authorization code
+    /// flow and the token endpoint (no handler is mocked).
+    async fn oauth_access_token(test: &TestApp) -> String {
+        use crate::oauth::testing::{
+            authorization_code, form, send, CLIENT_ID, REDIRECT_URI, RESOURCE, VERIFIER,
+        };
+        let code = authorization_code(test).await;
+        let body = form(&[
+            ("grant_type", "authorization_code"),
+            ("code", &code),
+            ("client_id", CLIENT_ID),
+            ("redirect_uri", REDIRECT_URI),
+            ("code_verifier", VERIFIER),
+            ("resource", RESOURCE),
+        ]);
+        let (status, _, text) = send(test, "POST", "/oauth/token", Some(body)).await;
+        assert_eq!(status, StatusCode::OK, "{text}");
+        let json: serde_json::Value = serde_json::from_str(&text).expect("JSON");
+        json["access_token"].as_str().expect("a token").to_string()
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_status_route_answers_each_kind_of_caller_with_its_own_exact_status() {
+        // Arrange: OIDC and OAuth both on, a console session with a stale
+        // marker waiting, an API key and an OAuth grant.
+        let idp = idp::start().await;
+        let mut config =
+            crate::store::oauth::testing::oauth_config(crate::oauth::testing::PUBLIC_URL);
+        std::env::set_var("OKF_TEST_OIDC_SECRET_REAUTH_CALLERS", SECRET);
+        config.auth.oidc = vec![idp::provider(&idp, "OKF_TEST_OIDC_SECRET_REAUTH_CALLERS")];
+        let test = crate::oauth::testing::oauth_app_with(config).await;
+        let (_, mut browser) = oidc_only_alice(&test, &idp).await;
+        idp.will_authenticate(ago(3600));
+        let query = start_reauth(&test, &idp, &mut browser).await;
+        callback(&test, &mut browser, &query["state"]).await;
+        let api_key = keys(&test).await.admin;
+        let grant = oauth_access_token(&test).await;
+        let uri = "/api/v1/me/identities/example/reauth";
+
+        // Act: the real route, once per kind of caller.
+        let anonymous = crate::http::api::testing::send(&test, "GET", uri, None, None).await;
+        let key = crate::http::api::testing::send(&test, "GET", uri, Some(&api_key), None).await;
+        let oauth = crate::http::api::testing::send(&test, "GET", uri, Some(&grant), None).await;
+        let session = reauth_status_of(&test, &mut browser).await;
+
+        // Assert: only the console session reads a state.
+        assert_eq!(anonymous.0, StatusCode::UNAUTHORIZED, "{}", anonymous.1);
+        assert_eq!(key.0, StatusCode::FORBIDDEN, "{}", key.1);
+        assert_eq!(oauth.0, StatusCode::FORBIDDEN, "{}", oauth.1);
+        for (what, body) in [
+            ("anonymous", &anonymous.1),
+            ("key", &key.1),
+            ("grant", &oauth.1),
+        ] {
+            assert_ne!(body.get("state"), Some(&json!("stale")), "{what}: {body}");
+        }
+        assert_eq!(session.status, StatusCode::OK, "{}", session.text());
+        assert_eq!(session.json(), json!({"state": "stale"}));
     }
 
     #[tokio::test(flavor = "multi_thread")]

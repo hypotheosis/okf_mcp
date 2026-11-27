@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2273,
+  "next_claim_seq": 2285,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "e5c55cb4bc33158b59bb27973d82cb6b9a4968317225aca00b15fdc5474bd822"
+    "mac": "4d2e79827fc099a01aaf55c3365382f9a3e981c9b6ca24713ea5c34689dfb02e"
   },
-  "next_evidence_seq": 3990,
+  "next_evidence_seq": 4004,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "5166a5641c132118413e2d2a7b7165e7508bf71f39c612ea42559ef1ab77f561"
+    "mac": "babc874fae7c8117ac96e9f2e411d339a282afd9fb3d7f2e54b6e3e9e8b47953"
   },
   "claims": [
     {
@@ -41388,6 +41388,28 @@
             "by": "server",
             "mac": "d23f7a92c7d7b7d388bdaeb65b6c050e88001cc733d1bd99da52b556b4b7118c"
           }
+        },
+        {
+          "id": "EVD-4001",
+          "kind": "inspection",
+          "locator": "src/http/api/owner_access_tests.rs:318-340; src/http/api/mod.rs:258-268",
+          "summary": "At head 959430a7 the owner key and grant loop asserts exactly 403 and body error Forbidden (previously 403|404); the edit strengthens the check. owner_session still returns the admin refusal for ApiKey and OAuth. Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/owner_access_tests.rs",
+              "lines": {
+                "start": 318,
+                "end": 340
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:46:38.847854437Z",
+          "seal": {
+            "by": "server",
+            "mac": "918cfb40c8ce70330125b6ac4a0cf32f673e2123905600b4081f194a570b8c83"
+          }
         }
       ],
       "verdicts": [
@@ -41404,13 +41426,26 @@
             "by": "server",
             "mac": "ff05355eb9f9ad37bebd6f603461fe108ebc04d5b6c9090c81e6e6f71b078ef3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the test hunk changed: still supported, check is stricter.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4001"
+          ],
+          "recorded_at": "2026-11-27T19:46:44.440511479Z",
+          "seal": {
+            "by": "server",
+            "mac": "6690ab684b6ce7056cd905979f1842ec1c8f61ec217c57307e137826a96d0efc"
+          }
         }
       ],
       "created_at": "2026-11-22T18:31:53.062287178Z",
-      "updated_at": "2026-11-22T18:33:27.960707190Z",
+      "updated_at": "2026-11-27T19:46:44.440511479Z",
       "seal": {
         "by": "server",
-        "mac": "d03702c84059ded3264085296b9acd6d6fa22a60bfec25c7e52f27ed3ef068b4"
+        "mac": "a2d8e4768d49e2c4399e4dea16f2693f98e128d5bd9e2655fbdbb4750ef5fe8f"
       }
     },
     {
@@ -43008,6 +43043,28 @@
             "by": "server",
             "mac": "9fa156380e40bb4dd5c640a9b5a5c9c030bb85f6ceed1d1400851c3f89421af1"
           }
+        },
+        {
+          "id": "EVD-4002",
+          "kind": "inspection",
+          "locator": "src/http/api/owner_access_tests.rs:318-340",
+          "summary": "At head the test pins an owner's write key and grant to exactly 403 with error Forbidden for every owner control, so the claim \"admin-only 403\" is now checked exactly. Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/owner_access_tests.rs",
+              "lines": {
+                "start": 318,
+                "end": 340
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:46:39.040850053Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fec2c4579d48f826984a4c8a530d06c02534de934dc7440ab9473106866e62a"
+          }
         }
       ],
       "verdicts": [
@@ -43023,13 +43080,26 @@
             "by": "server",
             "mac": "535e2e6e871359b8dfc23157ddd7a0de3ccadb3b0bde48cd061e80edc3e01563"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the test hunk changed: still supported, check is stricter.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4002"
+          ],
+          "recorded_at": "2026-11-27T19:46:44.655268204Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d918f6a0f27808c2a593510914b4da8023e1bfeb7cfa074d311bef3bbfd5fa7"
+          }
         }
       ],
       "created_at": "2026-11-22T18:31:53.062287178Z",
-      "updated_at": "2026-11-22T18:33:28.359763212Z",
+      "updated_at": "2026-11-27T19:46:44.655268204Z",
       "seal": {
         "by": "server",
-        "mac": "0bb11e3c82286b474660f32f3367d6d6d2e462d28aa9773bceb64f937f307d66"
+        "mac": "4d8ee8cbceb587a84ef7fc04544f3a0874aea89c8446cd4eb5f29c04b5d231e5"
       }
     },
     {
@@ -200662,6 +200732,791 @@
       "seal": {
         "by": "server",
         "mac": "948dce1ba7ef0f1f825bd87e3fc022aab933e3bd98e76e7c8012b8eae9b93be5"
+      }
+    },
+    {
+      "id": "CLM-2273",
+      "statement": "Issue #915 is delivered: a mid-request catalog-move entitlement test, an exact owner-key refusal status, a changelog entry, and no production code change.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/915",
+      "derived_from": [],
+      "artifacts": [
+        "src/store/ceiling.rs",
+        "src/http/api/owner_access_tests.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4003",
+          "kind": "analysis",
+          "locator": "children of CLM-2273",
+          "summary": "Requirements 1-4 are covered by supported children (new test, no sleeps, both modes, exact 403, doc status, changelog, no production code). Two PR-description revert-check children are not_enough_info because the mutation runs were not repeatable here; they are not issue requirements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T19:46:44.850379289Z",
+          "seal": {
+            "by": "server",
+            "mac": "488e083f678b962063f5aac0acdfd59df28a60fe1bdfa9490748ae97a8d98d55"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four issue requirements are met by supported children; the two not_enough_info children are PR-description mutation checks, not issue requirements. Static audit only: no tests were run by this auditor.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4003"
+          ],
+          "recorded_at": "2026-11-27T19:46:48.301801720Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ed45d391650192036f9495a25b29602ce8a7770901eaea56e8de7ae2ec0382c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:48.301801720Z",
+      "seal": {
+        "by": "server",
+        "mac": "497602dc6858ee48648c271baa8c783fd562054f204ce03b8296aaa947cf4412"
+      }
+    },
+    {
+      "id": "CLM-2274",
+      "statement": "src/store/ceiling.rs has a store test that begins an owner's entitlement, moves the catalog to another team with catalogs::set_owner in a second transaction, and asserts the entitlement is refused with Forbidden and no entitlement row is written.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #915 requirement 1: forced-interleaving store test; the entitlement is refused and no entitlement row written",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3990",
+          "kind": "inspection",
+          "locator": "src/store/ceiling.rs:2918-2980 (test); src/store/ceiling.rs:1296-1311 (begin_entitlement catalog FOR SHARE + owner_team compare)",
+          "summary": "Test spawns catalogs::set_owner(shared -> TEST_TEAM) held on server_state, spawns owner_entitles(alice, bob, shared), releases, then asserts moved == Some(\"family\"), entitled is Err(Forbidden), entitlements(bob) empty and count(user_catalogs)==0. begin_entitlement locks the catalog row FOR SHARE (waits on the uncommitted UPDATE), re-reads owner_team_id after the wait and returns not_team_owner (Forbidden) when it differs from the team; tracing the path shows Forbidden is returned before any write.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/ceiling.rs",
+              "lines": {
+                "start": 2918,
+                "end": 2980
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:46.208987807Z",
+          "seal": {
+            "by": "server",
+            "mac": "2daed04dae5d6f0f85754c899f4c00f97ba2f057f9ac3957644201a53990fde8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows the interleaving (set_owner uncommitted vs entitle_as_owner) and the assertions on Forbidden and zero rows; begin_entitlement's post-lock owner_team compare yields Forbidden. Not executed by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3990"
+          ],
+          "recorded_at": "2026-11-27T19:46:13.758057991Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a5753b9ca27f819b096ae12ef50750434c634858d0419f47e63cafbd6e260c4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:13.758057991Z",
+      "seal": {
+        "by": "server",
+        "mac": "917ca3ecd6838a6d7ffce8c0def10abd8d1108f554c168db9d3dd9cf2101b523"
+      }
+    },
+    {
+      "id": "CLM-2275",
+      "statement": "The new test orders its steps without timing sleeps: it uses a held server_state lock and lock-waiter counts (wait_for_lock_waiters) only.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue brief: no timing sleeps for ordering",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3991",
+          "kind": "inspection",
+          "locator": "src/store/ceiling.rs:2918-2980; git grep sleep over that range",
+          "summary": "The test has no sleep call; ordering uses a held server_state FOR UPDATE and wait_for_lock_waiters (counts 1 then 2). wait_for_lock_waiters itself polls pg_stat_activity with 50 ms sleeps (src/http/api/testing.rs:564-580), the same shared helper the neighbouring tests use; that is a poll for a condition, not a timing assumption.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "sleep",
+              "case_insensitive": true,
+              "scope": [
+                "src/store/ceiling.rs"
+              ],
+              "hits": 0,
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:46.578113861Z",
+          "seal": {
+            "by": "server",
+            "mac": "af6b8d8dfdab5129560e0df3cd0b0647ff0bd091c8f6108c53effbbd5a3eeecd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero sleep hits in ceiling.rs; ordering uses lock holds and lock-waiter polling like the neighbours.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3991"
+          ],
+          "recorded_at": "2026-11-27T19:46:13.967199846Z",
+          "seal": {
+            "by": "server",
+            "mac": "518f99094b665b1dee79e47a144a6405bf2d43ccedd4aca3925bb45a04937bb3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:13.967199846Z",
+      "seal": {
+        "by": "server",
+        "mac": "a6a3fe2358afb444b03d6a3ef2547a3dae5f00cbda0799e72ef2663b5b873cbc"
+      }
+    },
+    {
+      "id": "CLM-2276",
+      "statement": "The new test runs in both OKF_TEST_STORE modes like the neighbouring tests: it uses test_db and the account pool only, and every table it touches is an account table.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue brief: runs in both store modes like the neighbouring tests; PR body: It runs in both OKF_TEST_STORE modes.",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3992",
+          "kind": "analysis",
+          "locator": "src/store/ceiling.rs:2918-2980; migrations/accounts/0001_schema.sql:12, 0010_user_login.sql:89; src/store/catalogs.rs:774",
+          "summary": "The test uses test_db() (the same fixture as the demotion and member-removal tests at 2800-2915) and db.pool only. catalogs, server_state and user_catalogs are all account-database tables (migrations/accounts), set_owner and entitle_as_owner take the account pool, and wait_for_lock_waiters counts waiters in the own database plus its _store sibling. Nothing is store-schema specific, so both modes are exercised. I did not run it in either mode (no cargo allowed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/ceiling.rs",
+              "lines": {
+                "start": 2918,
+                "end": 2925
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:47.263044745Z",
+          "seal": {
+            "by": "server",
+            "mac": "7527550af8f6e5209cd78d3cff004571ef232963fd4c29ac80178851f1006bf9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Same fixture and account-only tables as the neighbouring tests, so the store mode does not change what it touches. Inferred, not run in both modes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3992"
+          ],
+          "recorded_at": "2026-11-27T19:46:14.178094637Z",
+          "seal": {
+            "by": "server",
+            "mac": "73e02cd8645525248b176734e4b5bbd31df992a752124717f93ce2dde088de44"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:14.178094637Z",
+      "seal": {
+        "by": "server",
+        "mac": "e46a07336071a91bf9ee6157ca14ca825783230f21a517e63ab1487fcf099882"
+      }
+    },
+    {
+      "id": "CLM-2277",
+      "statement": "The assertion in an_owners_keys_and_oauth_grants_are_refused_every_control accepts only status 403 (no longer 403 | 404) for an owner's write key and OAuth grant on every owner control.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #915 requirement 2; PR body: an owner's write key and OAuth grant on the owner routes must get exactly 403",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/http/api/owner_access_tests.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3993",
+          "kind": "inspection",
+          "locator": "src/http/api/owner_access_tests.rs:330-340; src/http/api/mod.rs:258-268; src/http/mod.rs:146-151",
+          "summary": "The loop over write key and grant now does assert_eq!(status, StatusCode::FORBIDDEN) for every controls() entry. owner_session returns the admin refusal (Forbidden) for ApiKey and OAuth, which maps to 403. No other `403 | 404` remains (git grep over src and tests: 0 hits).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/owner_access_tests.rs",
+              "lines": {
+                "start": 330,
+                "end": 340
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:47.722878760Z",
+          "seal": {
+            "by": "server",
+            "mac": "03ffaa86d7a910e5eea834adf060fa82bdb1fb9e0701d14deb92f84b47043173"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "assert_eq against FORBIDDEN replaces the matches! on 403|404; no other 403|404 remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3993"
+          ],
+          "recorded_at": "2026-11-27T19:46:14.372500779Z",
+          "seal": {
+            "by": "server",
+            "mac": "5383ef12a6d29d8c7853e5cbc89871e34e57be682d246b711def551b29a3f381"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:14.372500779Z",
+      "seal": {
+        "by": "server",
+        "mac": "6f46ab18b96e4adbef483d99a89e448132202ede84d32cd142855c5155dba1e7"
+      }
+    },
+    {
+      "id": "CLM-2278",
+      "statement": "The pinned status 403 is the one docs/operations.md documents for an owner's API keys and OAuth grants.",
+      "kind": "documentation",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #915: docs/operations.md says these keep the admin-only refusal (403)",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3994",
+          "kind": "inspection",
+          "locator": "docs/operations.md:3459-3461",
+          "summary": "\"An owner's API keys and OAuth grants cannot change member access or entitlements ... they keep the admin-only refusal (403).\"",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 3459,
+                "end": 3461
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:48.206416567Z",
+          "seal": {
+            "by": "server",
+            "mac": "143ee40db207001cdc9096a35da2404f4b900e596e1afb201adeffa75686b517"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "docs/operations.md names 403.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3994"
+          ],
+          "recorded_at": "2026-11-27T19:46:14.614820304Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e99a837c939a8247f41031ae47244d439ee751311416073e58082863a5d4f0d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:14.614820304Z",
+      "seal": {
+        "by": "server",
+        "mac": "fd7e4e26f881ad05eeff276ef161db57d986347059c2cca01aebaf04765ebe12"
+      }
+    },
+    {
+      "id": "CLM-2279",
+      "statement": "A dated changelog entry, changelog/20261127T194100Z-issue-915-owner-entitlement-test-gaps.md, exists and describes the change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue brief requirement 3: a changelog/ entry; PR body Changes list",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "changelog/20261127T194100Z-issue-915-owner-entitlement-test-gaps.md"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3995",
+          "kind": "inspection",
+          "locator": "changelog/20261127T194100Z-issue-915-owner-entitlement-test-gaps.md:1-13",
+          "summary": "File exists in the commit, timestamped name, lists the added test, the tightened assertion and the revert checks, and says tests only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T194100Z-issue-915-owner-entitlement-test-gaps.md",
+              "lines": {
+                "start": 1,
+                "end": 13
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:48.676139413Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2b2ab977fbc64c178532e37fa8b5d31c1ce4dab2390b2c86944ec348c617b43"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file exists with the stated name and content.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3995"
+          ],
+          "recorded_at": "2026-11-27T19:46:14.920092236Z",
+          "seal": {
+            "by": "server",
+            "mac": "99f527ade90dfeb07b1c901083880f2cff52853d9894334ee9edd9f2490e6516"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:14.920092236Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa364ba0107e7bc01c883eb780d2cdfd522e3fd8f4af82563d68b814294da79c"
+      }
+    },
+    {
+      "id": "CLM-2280",
+      "statement": "The change touches no production code: every hunk in origin/main..HEAD in src/ is inside a test module or test file.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue brief requirement 4; PR body: Tests only; no production code changed.",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs",
+        "src/http/api/owner_access_tests.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3996",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD --stat; src/store/ceiling.rs:1436-1437 (mod tests) vs hunk at 2914; src/http/api/mod.rs:53",
+          "summary": "The diff has three files: the changelog, owner_access_tests.rs (a mod declared under cfg(test) test module file) and one ceiling.rs hunk at line 2914, inside `#[cfg(test)] mod tests` (opens 1437). No other src/ file changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/ceiling.rs",
+              "lines": {
+                "start": 1436,
+                "end": 1437
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:49.319324875Z",
+          "seal": {
+            "by": "server",
+            "mac": "d174b27b98b6e41b3263f3e4c4326b0f29c7c41cda8a8c92be5ff054ad731cb4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only hunks are in cfg(test) mod tests and a test-only module file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3996"
+          ],
+          "recorded_at": "2026-11-27T19:46:15.133416766Z",
+          "seal": {
+            "by": "server",
+            "mac": "f8de6d0745d77a03f117eb2bcbea89ad062ddaf86ed8eac069fcfd83727e0726"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:15.133416766Z",
+      "seal": {
+        "by": "server",
+        "mac": "bb42acbdbf32dea45e09eb9aa1aace16b91951f5460c3866d8604f8acd9bbab9"
+      }
+    },
+    {
+      "id": "CLM-2281",
+      "statement": "The test holds server_state so catalogs::set_owner has updated the catalog row but not committed, shows the row is locked, then starts the owner's entitlement, which waits on the catalog row.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: It holds `server_state` so `catalogs::set_owner` has updated the catalog row but not committed, shows the row is locked, then starts the owner's entitlement, which waits on the catalog row.",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3997",
+          "kind": "inspection",
+          "locator": "src/store/ceiling.rs:2918-2962; src/store/catalogs.rs:782-814",
+          "summary": "Holder takes server_state FOR UPDATE; set_owner is spawned, waits (count 1) after its UPDATE of the catalog row; a probe `SELECT ... FOR UPDATE NOWAIT` on that row is asserted to fail; the entitlement is then spawned and waits (count 2). The catalogs row is locked by set_owner's UPDATE before it reaches audit::record, so the claim holds by reading. That the second waiter is on the catalog row (not another lock) is inferred from begin_entitlement's lock order, not observed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/ceiling.rs",
+              "lines": {
+                "start": 2918,
+                "end": 2962
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:49.797316801Z",
+          "seal": {
+            "by": "server",
+            "mac": "e00ac50db99bb7efc67adf1bdbe86861d687f21e6e2ebb9e56734d56d131ba1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The sequence in the test matches the description; the NOWAIT probe asserts the row lock.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3997"
+          ],
+          "recorded_at": "2026-11-27T19:46:15.348136992Z",
+          "seal": {
+            "by": "server",
+            "mac": "d57835cdb7274826ef87ea3bc7472faf6329f3290f1ff320102db3a8826ef8fa"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:15.348136992Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a2703be6952eef896dd81116285126e5a5a9bf62df7be0a40a95b112d654fba"
+      }
+    },
+    {
+      "id": "CLM-2282",
+      "statement": "Removing the owner-team comparison in begin_entitlement (Some((id, _)) => id) makes the new test fail, because the entitlement returns Ok(()).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Revert checks: Removing the owner-team comparison in `begin_entitlement` (`Some((id, _)) => id`) makes the new test fail (the entitlement returns `Ok(())`).",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/store/ceiling.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3998",
+          "kind": "analysis",
+          "locator": "src/store/ceiling.rs:1296-1311",
+          "summary": "By reading: with the guard replaced by `Some((id, _)) => id`, the entitlement would proceed after the move and return Ok, so the test's Forbidden assertion would fail. The mutation run itself was not repeated (cargo builds not allowed here), so the claim as an experiment is unverified.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/store/ceiling.rs",
+              "lines": {
+                "start": 1303,
+                "end": 1306
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:50.109257577Z",
+          "seal": {
+            "by": "server",
+            "mac": "98666f09d12fac83d39510c5aa4104c855ba544d469c770e45f9bc808206df85"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mutation experiment was not repeatable here (no cargo builds); reading predicts the stated outcome but that is not a run. Fix: apply the mutation in begin_entitlement on a scratch copy, run the new test in the gate environment and record the failure output (Ok(()) instead of Forbidden), then restore.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3998"
+          ],
+          "recorded_at": "2026-11-27T19:46:15.559470385Z",
+          "seal": {
+            "by": "server",
+            "mac": "72a5a006d7fb0e296ec6d704228cced99286707a25f12db0b20d7bc258f7eb07"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:15.559470385Z",
+      "seal": {
+        "by": "server",
+        "mac": "e8c977183bcec1a47a357f7bb935499800acfef5c535cf15a369bd2007fb30ef"
+      }
+    },
+    {
+      "id": "CLM-2283",
+      "statement": "Making entitlement_caller refuse with a 404 makes the tightened assertion fail with left: 404, right: 403.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Revert checks: Making `entitlement_caller` refuse with a 404 makes the tightened assertion fail (`left: 404, right: 403`).",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/http/api/owner_access_tests.rs",
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3999",
+          "kind": "analysis",
+          "locator": "src/http/api/people.rs:831-833; src/http/api/owner_access_tests.rs:333-338",
+          "summary": "By reading: a 404 from entitlement_caller would fail assert_eq!(status, FORBIDDEN) with left 404, right 403 (StatusCode Debug prints 404 Not Found, so the literal text in the PR is approximate). The loop covers every controls() entry, but entitlement_caller serves only the entitlement routes. The mutation run was not repeated.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/people.rs",
+              "lines": {
+                "start": 831,
+                "end": 833
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:50.499864208Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec1405f74eb8df405075f7f27d2a92617c83c744dda8fe3ca2bdb7fbf88c2528"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mutation experiment was not repeatable here (no cargo builds); reading predicts a failure, and the literal \"left: 404, right: 403\" text is approximate since StatusCode prints as \"404 Not Found\". Fix: make entitlement_caller refuse with 404 on a scratch copy, run an_owners_keys_and_oauth_grants_are_refused_every_control and record the assertion output, then restore (or soften the PR text to \"fails with a 404 vs 403 mismatch\").",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3999"
+          ],
+          "recorded_at": "2026-11-27T19:46:15.753821886Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7f0f3ebdbfbbc4418ad635f097b733402fcdd25b5c10244581ab7aa9a85d86c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:15.753821886Z",
+      "seal": {
+        "by": "server",
+        "mac": "c53ac49ea9f256be9d0bb482bbbc1f0d1d9d28f7530c930f6c1428c7357fe354"
+      }
+    },
+    {
+      "id": "CLM-2284",
+      "statement": "The tightened assertion also checks the response body has \"error\": \"Forbidden\", and the server maps OkfError::Forbidden to that body with status 403.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: must get exactly 403 with \"error\": \"Forbidden\"",
+      "derived_from": [
+        "CLM-2273"
+      ],
+      "artifacts": [
+        "src/http/api/owner_access_tests.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:915"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4000",
+          "kind": "inspection",
+          "locator": "src/http/api/owner_access_tests.rs:339; src/error.rs:393; src/http/mod.rs:146-151",
+          "summary": "Line 339 asserts answer[\"error\"] == \"Forbidden\"; error.rs:393 gives kind \"Forbidden\" for OkfError::Forbidden, which is the body's error field (archives.rs:822 asserts the same pairing) and http/mod.rs maps it to 403.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/owner_access_tests.rs",
+              "lines": {
+                "start": 333,
+                "end": 339
+              },
+              "commit": "959430a7371c2a79ecde7e3c01f6338225e46b34"
+            }
+          },
+          "recorded_at": "2026-11-27T19:45:51.042964589Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c488769cc48698ac71e34689a88f8620464b0cf216e547cd0ad18cfa4b41520"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Line 339 asserts the body and the error kind and status mapping agree with it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4000"
+          ],
+          "recorded_at": "2026-11-27T19:46:15.975028845Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bab71d9b810ac8cb95534f60939b91f28c6a0887b7174df40ca1bef6b201b81"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T19:45:11.450625855Z",
+      "updated_at": "2026-11-27T19:46:15.975028845Z",
+      "seal": {
+        "by": "server",
+        "mac": "2aff30a29255a2a639d2e3a6e57d321a78d513bebf383064515190116cb59c1f"
       }
     }
   ]

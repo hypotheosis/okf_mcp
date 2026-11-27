@@ -193,7 +193,7 @@ fn sweep_once() {
                     SWEEP_MIN_AGE,
                     uid,
                     SWEEP_CAP,
-                    &all_cmdlines(),
+                    all_cmdlines().as_deref(),
                 );
                 if removed > 0 {
                     eprintln!("swept {removed} old browser folders from the temp dir");
@@ -205,22 +205,81 @@ fn sweep_once() {
     });
 }
 
-/// Every process's command line, read once. Held in memory only, never
-/// printed or logged.
-fn all_cmdlines() -> Vec<Vec<u8>> {
-    let Ok(entries) = fs::read_dir("/proc") else {
-        return Vec::new();
+/// What reading one process's command line gave.
+#[derive(Debug)]
+enum ProcRead {
+    /// The command line (held in memory only, never printed or logged).
+    Cmdline(Vec<u8>),
+    /// The process exited while `/proc` was being scanned.
+    Vanished,
+    /// The process exists but its command line could not be read. `owner` is
+    /// its owner's uid, `None` when even that could not be found out.
+    Inaccessible { owner: Option<u32> },
+}
+
+/// Reads one `/proc` entry's command line.
+fn read_proc(entry: &fs::DirEntry) -> ProcRead {
+    // ENOENT or ESRCH (3) mean the process went away between the listing and
+    // the read.
+    let gone = |error: &io::Error| {
+        error.kind() == io::ErrorKind::NotFound || error.raw_os_error() == Some(libc::ESRCH)
     };
-    entries
-        .filter_map(Result::ok)
-        .filter(|entry| {
-            entry
+    match fs::read(entry.path().join("cmdline")) {
+        Ok(cmdline) => ProcRead::Cmdline(cmdline),
+        Err(error) if gone(&error) => ProcRead::Vanished,
+        Err(_) => match fs::symlink_metadata(entry.path()) {
+            Ok(metadata) => ProcRead::Inaccessible {
+                owner: Some(metadata.uid()),
+            },
+            Err(error) if gone(&error) => ProcRead::Vanished,
+            Err(_) => ProcRead::Inaccessible { owner: None },
+        },
+    }
+}
+
+/// Every process's command line, read once, or `None` when the snapshot is
+/// incomplete.
+fn all_cmdlines() -> Option<Vec<Vec<u8>>> {
+    // SAFETY: `geteuid` takes no arguments and cannot fail.
+    let uid = unsafe { libc::geteuid() };
+    let entries = fs::read_dir("/proc").ok()?;
+    snapshot(
+        entries.map(|entry| {
+            let Ok(entry) = entry else {
+                return Some(ProcRead::Inaccessible { owner: None });
+            };
+            let numeric = entry
                 .file_name()
                 .to_str()
-                .is_some_and(|name| name.bytes().all(|byte| byte.is_ascii_digit()))
-        })
-        .filter_map(|entry| fs::read(entry.path().join("cmdline")).ok())
-        .collect()
+                .is_some_and(|name| name.bytes().all(|byte| byte.is_ascii_digit()));
+            numeric.then(|| read_proc(&entry))
+        }),
+        uid,
+    )
+}
+
+/// Collects the command lines from a scan of the processes, where each item
+/// is a process (`Some`) or something that is not one (`None`, such as
+/// `/proc/uptime`). A listing error is a process that could not be checked
+/// ([`ProcRead::Inaccessible`] with no owner).
+///
+/// # Returns
+/// The command lines, or `None` when a process owned by `uid` (or by nobody
+/// that could be named) could not be read: it might be the browser using a
+/// folder, so the snapshot cannot show any folder unused. A process that
+/// vanished mid-scan, or that another user owns, does not make it incomplete,
+/// since a browser this user started is owned by this user.
+fn snapshot(scan: impl Iterator<Item = Option<ProcRead>>, uid: u32) -> Option<Vec<Vec<u8>>> {
+    let mut cmdlines = Vec::new();
+    for read in scan.flatten() {
+        match read {
+            ProcRead::Cmdline(cmdline) => cmdlines.push(cmdline),
+            ProcRead::Vanished => {}
+            ProcRead::Inaccessible { owner } if owner.is_some_and(|owner| owner != uid) => {}
+            ProcRead::Inaccessible { .. } => return None,
+        }
+    }
+    Some(cmdlines)
 }
 
 /// The folders directly under `temp` that are leftovers of a browser: named
@@ -270,9 +329,10 @@ fn stale_folders(
 /// Deletes up to `cap` leftover folders (see [`stale_folders`]) under `temp`.
 /// A folder that cannot be deleted is skipped: the sweep never fails a test.
 ///
-/// An empty `cmdlines` means `/proc` could not be read (a live machine always
-/// has at least this process), so nothing can be shown unused and nothing is
-/// deleted.
+/// `cmdlines` is `None` when the process snapshot is incomplete (a process of
+/// this user could not be checked), and empty when `/proc` could not be read
+/// (a live machine always has at least this process). Then nothing can be
+/// shown unused and nothing is deleted.
 ///
 /// # Returns
 /// How many folders were removed.
@@ -282,11 +342,11 @@ fn sweep_stale(
     min_age: Duration,
     uid: u32,
     cap: usize,
-    cmdlines: &[Vec<u8>],
+    cmdlines: Option<&[Vec<u8>]>,
 ) -> usize {
-    if cmdlines.is_empty() {
+    let Some(cmdlines) = cmdlines.filter(|cmdlines| !cmdlines.is_empty()) else {
         return 0;
-    }
+    };
     stale_folders(temp, now, min_age, uid, cmdlines)
         .into_iter()
         .take(cap)
@@ -410,7 +470,14 @@ mod tests {
         std::os::unix::fs::symlink(&target, &link).expect("link");
 
         let found = stale_folders(temp.path(), SystemTime::now(), DAY, me(), &[]);
-        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 10, &[vec![0]]);
+        let removed = sweep_stale(
+            temp.path(),
+            SystemTime::now(),
+            DAY,
+            me(),
+            10,
+            Some(&[vec![0]]),
+        );
 
         assert!(found.is_empty());
         assert_eq!(removed, 0);
@@ -435,7 +502,14 @@ mod tests {
         }
         let fresh = make_aged(temp.path(), "rustwright-profile-fresh", DAY / 2);
 
-        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 3, &[vec![0]]);
+        let removed = sweep_stale(
+            temp.path(),
+            SystemTime::now(),
+            DAY,
+            me(),
+            3,
+            Some(&[vec![0]]),
+        );
         let left = fs::read_dir(temp.path()).expect("list").count();
 
         assert_eq!(removed, 3);
@@ -448,9 +522,88 @@ mod tests {
         let temp = tempfile::tempdir().expect("fake temp");
         let old = make_aged(temp.path(), "okf-ui-browser-old", DAY * 2);
 
-        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 10, &[]);
+        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 10, Some(&[]));
 
         assert_eq!(removed, 0);
         assert!(old.is_dir());
+    }
+
+    #[test]
+    fn an_unreadable_process_of_this_user_makes_the_snapshot_incomplete() {
+        let scan = vec![
+            Some(ProcRead::Cmdline(b"chrome".to_vec())),
+            Some(ProcRead::Inaccessible { owner: Some(me()) }),
+        ];
+
+        assert!(snapshot(scan.into_iter(), me()).is_none());
+    }
+
+    #[test]
+    fn an_unreadable_process_of_unknown_owner_makes_the_snapshot_incomplete() {
+        let scan = vec![Some(ProcRead::Inaccessible { owner: None })];
+
+        assert!(snapshot(scan.into_iter(), me()).is_none());
+    }
+
+    #[test]
+    fn a_vanished_process_and_another_users_process_do_not() {
+        let scan = vec![
+            Some(ProcRead::Cmdline(b"chrome".to_vec())),
+            Some(ProcRead::Vanished),
+            Some(ProcRead::Inaccessible {
+                owner: Some(me() + 1),
+            }),
+            None,
+        ];
+
+        let found = snapshot(scan.into_iter(), me());
+
+        assert_eq!(found, Some(vec![b"chrome".to_vec()]));
+    }
+
+    #[test]
+    fn nothing_is_deleted_when_a_relevant_process_could_not_be_checked() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let old = make_aged(temp.path(), "rustwright-profile-old", DAY * 2);
+        let scan = vec![
+            Some(ProcRead::Cmdline(b"unrelated".to_vec())),
+            Some(ProcRead::Inaccessible { owner: Some(me()) }),
+        ];
+        let cmdlines = snapshot(scan.into_iter(), me());
+
+        let removed = sweep_stale(
+            temp.path(),
+            SystemTime::now(),
+            DAY,
+            me(),
+            10,
+            cmdlines.as_deref(),
+        );
+
+        assert_eq!(removed, 0);
+        assert!(old.is_dir());
+    }
+
+    #[test]
+    fn a_vanished_process_does_not_stop_the_sweep() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let old = make_aged(temp.path(), "rustwright-profile-old", DAY * 2);
+        let scan = vec![
+            Some(ProcRead::Cmdline(b"unrelated".to_vec())),
+            Some(ProcRead::Vanished),
+        ];
+        let cmdlines = snapshot(scan.into_iter(), me());
+
+        let removed = sweep_stale(
+            temp.path(),
+            SystemTime::now(),
+            DAY,
+            me(),
+            10,
+            cmdlines.as_deref(),
+        );
+
+        assert_eq!(removed, 1);
+        assert!(!old.exists());
     }
 }

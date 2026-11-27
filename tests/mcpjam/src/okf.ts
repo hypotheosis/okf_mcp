@@ -80,6 +80,12 @@ export class OkfSession {
         await this.manager.disconnectServer(this.serverId);
     }
 
+    /** The description of every tool the server lists, by tool name. */
+    async toolDescriptions(): Promise<Record<string, string>> {
+        const { tools } = await this.manager.listTools(this.serverId);
+        return Object.fromEntries(tools.map((tool) => [tool.name, tool.description ?? ""]));
+    }
+
     /**
      * Calls a tool and returns its outcome without judging it.
      *

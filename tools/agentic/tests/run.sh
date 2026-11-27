@@ -19,6 +19,9 @@ export PATH="$tests_dir/stub:$PATH"
 export AGENTIC_REPO=owner/repo AGENTIC_RETRIGGER=/prrb
 # The scripts' defaults are under test, so none of these come from the caller.
 unset AGENTIC_REVIEWER AGENTIC_MAX_REVIEW_ROUNDS AGENTIC_NOW_CMD AGENTIC_SLEEP_CMD
+# gate.sh's build-dir seeding would run a machine-local tool; tests that cover
+# it name a stub.
+export AGENTIC_SEED_CMD=
 
 bot='brooke-reviews[bot]'
 head_a=aaaaaaa1111111111111111111111111111111111
@@ -1437,6 +1440,50 @@ EOF
     want_rc 0
     [ "$(cat "$fx/sqlx_offline")" = true ] \
         || die "cargo got SQLX_OFFLINE=$(cat "$fx/sqlx_offline"), want true"
+}
+
+# fake_seed [body]: a seeding command on PATH that logs its args and cwd, then
+# runs <body> (default: succeed). Tests name it with AGENTIC_SEED_CMD=fake-seed.
+fake_seed() {
+    mkdir -p "$fx/bin"
+    printf '#!/usr/bin/env bash\nprintf "%%s %%s\\n" "$PWD" "$*" >>"$GH_FIXTURES/seed.log"\n%s\n' \
+        "${1:-exit 0}" >"$fx/bin/fake-seed"
+    chmod +x "$fx/bin/fake-seed"
+}
+
+test_gate_seeds_the_build_dir_before_a_building_gate() {
+    new_fixtures; fake_seed; fake_just 'printf "%s\n" ran >>"$GH_FIXTURES/just.log"'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_SEED_CMD=fake-seed \
+        "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0
+    [ "$(cat "$fx/seed.log")" = "$repo seed ." ] || die "seed log: $(cat "$fx/seed.log")"
+    [ -s "$fx/just.log" ] || die "the gate did not run"
+}
+
+test_gate_fmt_does_not_seed() {
+    new_fixtures; fake_seed; fake_just 'exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_SEED_CMD=fake-seed \
+        "$tools/gate.sh" fmt 2>&1)
+    rc=$?
+    want_rc 0
+    [ ! -e "$fx/seed.log" ] || die "fmt seeded: $(cat "$fx/seed.log")"
+}
+
+test_gate_builds_from_scratch_when_seeding_fails() {
+    new_fixtures; fake_seed 'exit 7'; fake_just 'exit 3'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_SEED_CMD=fake-seed \
+        "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 3; want_out "'fake-seed seed' failed; building from scratch"
+}
+
+test_gate_skips_seeding_when_the_command_is_missing() {
+    new_fixtures; fake_just 'exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_SEED_CMD=no-such-seeder \
+        "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0; want_no_out "seed"
 }
 
 # --- remove-worktree.sh ---

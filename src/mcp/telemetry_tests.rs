@@ -11,6 +11,7 @@ use tracing::Instrument;
 use super::*;
 use crate::config::Config;
 use crate::mcp::testing::{app_with_metrics, render, McpProbe, TestApp};
+use crate::store::catalogs::{is_valid_name, CATALOG_LABEL_MULTIPLE, CATALOG_LABEL_NONE};
 use crate::store::keys::{self, Access, Grants, NewKey};
 use crate::telemetry::config::LogFormat;
 use crate::telemetry::subscriber::capture::{attribute, Observer};
@@ -167,7 +168,7 @@ async fn every_tool_call_opens_one_mcp_span() {
                 attribute(span, "okf.catalog")
                     .map(ToString::to_string)
                     .as_deref()
-                    == Some("none")
+                    == Some(CATALOG_LABEL_NONE)
             })
             .unwrap_or_else(|| panic!("{filter}: a span for no catalog"));
         assert_eq!(none.name, "mcp get_concept");
@@ -639,11 +640,21 @@ fn a_call_without_a_session_has_no_session_digest() {
     assert_ne!(digest_token("session", "x"), digest_token("changeset", "x"));
 }
 
+/// Issue #1117: the sentinels are literally `(none)` and `(multiple)`, and no catalog name
+/// can equal either.
+#[test]
+fn the_sentinel_labels_cannot_be_catalog_names() {
+    assert_eq!(CATALOG_LABEL_NONE, "(none)");
+    assert_eq!(CATALOG_LABEL_MULTIPLE, "(multiple)");
+    assert!(!is_valid_name(CATALOG_LABEL_NONE));
+    assert!(!is_valid_name(CATALOG_LABEL_MULTIPLE));
+}
+
 /// Issue #834: one catalog is its name, two are `multiple`, none is `none`.
 #[tokio::test]
 async fn note_catalog_tracks_one_name_then_multiple() {
     let seen = Arc::new(Mutex::new(CatalogSeen::default()));
-    assert_eq!(seen.lock().expect("lock").label(), "none");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_NONE);
     TOOL_CATALOG
         .scope(Arc::clone(&seen), async {
             note_catalog("pg");
@@ -652,10 +663,10 @@ async fn note_catalog_tracks_one_name_then_multiple() {
             note_catalog("other");
         })
         .await;
-    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_MULTIPLE);
     // Outside a call it does nothing.
     note_catalog("ignored");
-    assert_eq!(seen.lock().expect("lock").label(), "multiple");
+    assert_eq!(seen.lock().expect("lock").label(), CATALOG_LABEL_MULTIPLE);
 }
 
 /// Issue #834 (review of PR #1116): a handle another key owns resolves nothing, and must not
@@ -692,7 +703,7 @@ async fn a_foreign_changeset_handle_records_no_catalog() {
         let span = &observed.spans_named("mcp pending_changes")[0];
         assert_eq!(
             text_of(span, "okf.catalog").as_deref(),
-            Some("none"),
+            Some(CATALOG_LABEL_NONE),
             "{filter}"
         );
         assert_eq!(
@@ -706,7 +717,7 @@ async fn a_foreign_changeset_handle_records_no_catalog() {
         text.lines().any(|line| {
             line.starts_with("okf_mcp_tool_duration_seconds_count{")
                 && line.contains(r#"tool="pending_changes""#)
-                && line.contains(r#"catalog="none""#)
+                && line.contains(&format!(r#"catalog="{CATALOG_LABEL_NONE}""#))
                 && line.contains(r#"outcome="error""#)
         }),
         "{text}"

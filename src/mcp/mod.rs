@@ -50,6 +50,7 @@ use tracing::Instrument;
 use crate::app::App;
 use crate::error::OkfError;
 use crate::mcp::context::ToolContext;
+use crate::store::catalogs::{CATALOG_LABEL_MULTIPLE, CATALOG_LABEL_NONE};
 use crate::telemetry::metrics::{tool_label, Outcome, SessionGuard};
 use crate::telemetry::subscriber::split_event;
 
@@ -77,12 +78,12 @@ tokio::task_local! {
 /// the `catalog` metric label report them (issue #834).
 #[derive(Debug, Default, PartialEq, Eq)]
 enum CatalogSeen {
-    /// Nothing resolved: the label is `none`.
+    /// Nothing resolved: the label is [`CATALOG_LABEL_NONE`].
     #[default]
     Nothing,
     /// Exactly one catalog, by name.
     One(String),
-    /// Two or more: the label is `multiple`, never a list (a bounded label).
+    /// Two or more: the label is [`CATALOG_LABEL_MULTIPLE`], never a list (a bounded label).
     Several,
 }
 
@@ -90,13 +91,13 @@ impl CatalogSeen {
     /// The attribute and label value.
     ///
     /// # Returns
-    /// A catalog name, `multiple` or `none`.
+    /// A catalog name, [`CATALOG_LABEL_MULTIPLE`] or [`CATALOG_LABEL_NONE`].
     #[tracing::instrument(level = "trace", skip_all)]
     fn label(&self) -> &str {
         match self {
-            Self::Nothing => "none",
+            Self::Nothing => CATALOG_LABEL_NONE,
             Self::One(name) => name,
-            Self::Several => "multiple",
+            Self::Several => CATALOG_LABEL_MULTIPLE,
         }
     }
 

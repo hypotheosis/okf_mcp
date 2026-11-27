@@ -215,7 +215,7 @@ Get a concept: its frontmatter as JSON, its body and the body's size (`lines`, `
 
 **Document History** (read-only)
 
-A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
+A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too. `latest_revision` is the newest revision number, a deletion included (it equals `current_revision` for a live document; `current_revision` is null for a deleted one); pass it to `revert` as `expected_revision`. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -575,13 +575,13 @@ Replace a concept's body, keeping its frontmatter byte for byte, in the changese
 
 **Revert Document** (destructive)
 
-Add a document's content at an earlier revision (from `history`), or its deletion for a `delete` revision, to the changeset `changeset` names, for review and publish like any other edit. Every write rule applies, so machinery cannot be reverted. Prefer passing `expected_revision` (the `current_revision` from `history`): it refuses with Conflict, writing nothing, if the document was published since. The revert is based on the revision published now, even if this changeset edited the document before, so publish conflicts only if the document is published again after it. Reverting a file this changeset created to a `delete` revision drops it from the changeset. Write access.
+Add a document's content at an earlier revision (from `history`), or its deletion for a `delete` revision, to the changeset `changeset` names, for review and publish like any other edit. Every write rule applies, so machinery cannot be reverted. Prefer passing `expected_revision` (the `latest_revision` from `history`, which also guards restoring a deleted document): it refuses with Conflict, writing nothing, if the document was published since. The revert is based on the revision published now, even if this changeset edited the document before, so publish conflicts only if the document is published again after it. Reverting a file this changeset created to a `delete` revision drops it from the changeset. Write access.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `path` | string | yes | The document as stored, with its extension, e.g. `/infra/ntp.md`. |
 | `revision` | integer | yes | The revision to go back to, as `history` lists it; a `delete` revision means deleting the document. |
-| `expected_revision` | integer | no | The document's `current_revision` as `history` showed it. If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now. |
+| `expected_revision` | integer | no | The document's `latest_revision` as `history` showed it (for a live document the same number as `current_revision`; for a deleted one, the deletion's revision). If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now. |
 | `changeset` | string | yes | The changeset to write to: the handle `open_changeset` returned. |
 
 ## `review`

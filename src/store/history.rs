@@ -2,6 +2,8 @@
 
 use chrono::{DateTime, Utc};
 
+use sqlx::PgExecutor;
+
 use crate::error::OkfError;
 use crate::stores::CatalogDb;
 
@@ -99,6 +101,35 @@ pub async fn revisions_by(
     .fetch_all(db.executor())
     .await?;
     Ok(rows)
+}
+
+/// The newest revision number of one path, including a `delete` revision.
+///
+/// # Arguments
+/// * `executor` - a pool, connection or transaction.
+/// * `catalog_id` - the catalog.
+/// * `path` - catalog-relative path, as stored (no leading `/`).
+///
+/// # Returns
+/// The newest revision number, or `None` if the path never existed.
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "history.latest_revision", catalog_id = catalog_id))]
+pub async fn latest_revision<'e>(
+    executor: impl PgExecutor<'e>,
+    catalog_id: i64,
+    path: &str,
+) -> Result<Option<i32>, OkfError> {
+    // `MAX` over no rows is one NULL row, so the scalar is an `Option`.
+    let latest: Option<i32> = sqlx::query_scalar(
+        "SELECT MAX(revision) FROM revisions WHERE catalog_id = $1 AND path = $2",
+    )
+    .bind(catalog_id)
+    .bind(path)
+    .fetch_one(executor)
+    .await?;
+    Ok(latest)
 }
 
 /// One revision's content, for `revert`.

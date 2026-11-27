@@ -444,6 +444,14 @@
           ],
           "format": "int32"
         },
+        "latest_revision": {
+          "description": "The path's newest revision number, whatever the filters, including a `delete` revision: for a deleted path this is the deletion's number. Pass it as `expected_revision` to `revert` to guard a restore of a deleted document. Equals `current_revision` while the document is live.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int32"
+        },
         "revisions": {
           "description": "Newest first.",
           "type": "array",

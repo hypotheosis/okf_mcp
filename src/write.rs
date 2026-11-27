@@ -29,6 +29,7 @@ use crate::okf::workspace::{MemWorkspace, StoredFile};
 use crate::overlay::Overlay;
 use crate::store::audit::{self, Action, CatalogEntry};
 use crate::store::changesets::{self, ChangesetState, EntryRow};
+use crate::store::history;
 use crate::store::keys::Access;
 
 /// What a write did: the write tools' result.
@@ -236,21 +237,26 @@ where
     let work = Arc::clone(&overlay);
     let (outcome, files) = blocking(move || run(&work, &by, now, op)).await?;
 
-    // The caller's expected revisions, against the snapshot the bases below
-    // come from. Before anything is stored, so a stale one writes nothing
+    // The caller's expected revisions, against the path's latest revision:
+    // the live one from the snapshot the bases below come from, else (no
+    // live document) the newest revision stored, a `delete` included, read
+    // in this transaction so a re-create that committed is seen (issue
+    // #1127). Before anything is stored, so a stale one writes nothing
     // (dropping `tx` rolls back).
-    let stale: Vec<ConflictFile> = outcome
-        .expected
-        .iter()
-        .filter_map(|(path, seen)| {
-            let now_published = overlay.base().revision(path);
-            (now_published != Some(*seen)).then(|| ConflictFile {
+    let mut stale: Vec<ConflictFile> = Vec::new();
+    for (path, seen) in &outcome.expected {
+        let latest = match overlay.base().revision(path) {
+            Some(live) => Some(live),
+            None => history::latest_revision(&mut *tx, state.id(), path).await?,
+        };
+        if latest != Some(*seen) {
+            stale.push(ConflictFile {
                 path: format!("/{path}"),
                 base_revision: Some(*seen),
-                current_revision: now_published,
-            })
-        })
-        .collect();
+                current_revision: latest,
+            });
+        }
+    }
     if !stale.is_empty() {
         return Err(OkfError::Conflict { files: stale });
     }

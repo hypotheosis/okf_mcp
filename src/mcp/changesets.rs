@@ -675,7 +675,7 @@ pub struct RevertParams {
     pub path: String,
     /// The revision to go back to, as `history` lists it; a `delete` revision means deleting the document.
     pub revision: i32,
-    /// The document's `current_revision` as `history` showed it. If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now.
+    /// The document's `latest_revision` as `history` showed it (for a live document the same number as `current_revision`; for a deleted one, the deletion's revision). If the document has been published since, the revert is refused with Conflict naming the revision now (nothing is written), so you can re-read `history`. Omit it to revert over whatever is published now.
     #[serde(default)]
     pub expected_revision: Option<i32>,
     /// The changeset to write to: the handle `open_changeset` returned.
@@ -908,7 +908,7 @@ pub(crate) async fn discard(
 ///
 /// # Errors
 /// [`OkfError::Conflict`] when `expected_revision` is given and is not the
-/// revision published now (nothing is written; issue #795);
+/// path's latest revision now (nothing is written; issues #795, #1127);
 /// [`OkfError::InvalidPath`] for machinery or a path outside the catalog
 /// (before any history is read); as [`ToolContext::changeset`] (with
 /// `write`); [`OkfError::NotFound`] for a
@@ -1261,7 +1261,8 @@ impl OkfServer {
                        deletion for a `delete` revision, to the changeset `changeset` names, for \
                        review and publish like any other edit. Every write rule applies, so \
                        machinery cannot be reverted. Prefer passing `expected_revision` (the \
-                       `current_revision` from `history`): it refuses with Conflict, writing \
+                       `latest_revision` from `history`, which also guards restoring a deleted \
+                       document): it refuses with Conflict, writing \
                        nothing, if the document was published since. The revert is based on the revision \
                        published now, even if this changeset edited the document before, so \
                        publish conflicts only if the document is published again after it. \
@@ -2743,6 +2744,64 @@ mod publish_tests {
         // No argument: unchanged behaviour.
         revert(&ours, with(&plain, None)).await.unwrap();
         assert!(entry_for(&test, &plain, "a.md").await.is_some());
+    }
+
+    /// `revert`'s `expected_revision` on a deleted path (issue #1127):
+    /// `history`'s `latest_revision` is the deletion's number, the revert
+    /// with it succeeds, and a re-create in between makes the same call
+    /// refuse with a Conflict and write nothing.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_revert_onto_a_deleted_path_is_guarded_by_the_latest_revision() {
+        let test = pg().await;
+        let ours = writer(&test, "writer-a", "pg").await;
+        let theirs = writer(&test, "writer-b", "pg").await;
+        let (fresh, stale) = (open(&ours).await, open(&ours).await);
+        publish_file(&theirs, "a.md", None).await;
+        let shown = crate::mcp::history::history(
+            &ours,
+            crate::mcp::history::HistoryParams {
+                path: "/a.md".to_string(),
+                catalog: None,
+                limit: None,
+                user: None,
+                since: None,
+            },
+        )
+        .await
+        .unwrap();
+        // The deletion is revision 2; the path has no live revision.
+        assert_eq!(
+            (shown.current_revision, shown.latest_revision),
+            (None, Some(2))
+        );
+        let with = |handle: &str| RevertParams {
+            path: "/a.md".to_string(),
+            revision: 1,
+            expected_revision: shown.latest_revision,
+            changeset: handle.to_string(),
+        };
+
+        revert(&ours, with(&fresh)).await.unwrap();
+        assert!(entry_for(&test, &fresh, "a.md").await.is_some());
+
+        // Someone re-creates the path between `history` and the revert.
+        publish_file(&theirs, "a.md", Some(&note("Again"))).await;
+        let now = published_revision(&test, "a.md").await;
+        assert_eq!(now, Some(3));
+        let error = revert(&ours, with(&stale)).await.unwrap_err();
+        assert!(
+            matches!(
+                error,
+                OkfError::Conflict { ref files } if files == &[ConflictFile {
+                    path: "/a.md".to_string(),
+                    base_revision: Some(2),
+                    current_revision: now,
+                }]
+            ),
+            "{error:?}"
+        );
+        assert!(entry_for(&test, &stale, "a.md").await.is_none());
+        assert_eq!(published_text(&test, "a.md").await, note("Again"));
     }
 
     /// A revert to a `delete` revision of a path the changeset had edited

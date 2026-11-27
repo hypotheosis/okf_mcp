@@ -1195,6 +1195,7 @@ pub(crate) fn cannot_replay(path: &str, current: Option<i32>) -> String {
 ///
 /// # Returns
 /// The note, naming the path and what to do.
+#[tracing::instrument(level = "trace", skip_all)]
 fn stale_free_edit_note(path: &str) -> String {
     format!(
         "/{path} was published since this edit was made and the edit cannot be replayed, so \

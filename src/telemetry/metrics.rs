@@ -220,6 +220,7 @@ struct Instruments {
     // Auth, rate limits and mail (Task 5).
     auth_attempts: Counter<u64>,
     oauth_tokens_issued: Counter<u64>,
+    oauth_refreshes: Counter<u64>,
     ratelimit_rejections: Counter<u64>,
     ratelimit_fallbacks: Counter<u64>,
     mail_jobs: Counter<u64>,
@@ -285,6 +286,7 @@ impl Metrics {
         "okf_redis_errors_total",
         "okf_auth_attempts_total",
         "okf_oauth_tokens_issued_total",
+        "okf_oauth_refreshes_total",
         "okf_ratelimit_rejections_total",
         "okf_ratelimit_fallbacks_total",
         "okf_mail_jobs_total",
@@ -313,6 +315,25 @@ impl Metrics {
     /// * `meter` - the meter to build on.
     #[tracing::instrument(level = "trace", skip_all)]
     pub fn new(meter: &Meter) -> Self {
+        let metrics = Self::build(meter);
+        // A closed-set counter has no series until its first record, so
+        // `increase(...)` over a rate window that saw none would be empty.
+        // Adding 0 makes every `result` series exist from the first scrape.
+        for result in RefreshResult::ALL {
+            metrics
+                .inner
+                .oauth_refreshes
+                .add(0, &[KeyValue::new("result", result.as_str())]);
+        }
+        metrics
+    }
+
+    /// Builds every instrument; [`Metrics::new`] then pre-registers series.
+    ///
+    /// # Arguments
+    /// * `meter` - the meter to build on.
+    #[tracing::instrument(level = "trace", skip_all)]
+    fn build(meter: &Meter) -> Self {
         meter
             .u64_gauge("okf.build.info")
             .with_description("The running build; always 1.")
@@ -388,6 +409,11 @@ impl Metrics {
                     meter,
                     "okf.oauth.tokens.issued",
                     "OAuth token pairs issued, by grant.",
+                ),
+                oauth_refreshes: counter(
+                    meter,
+                    "okf.oauth.refreshes",
+                    "Refresh-token presentations, by what the token turned out to be.",
                 ),
                 ratelimit_rejections: counter(
                     meter,
@@ -855,6 +881,35 @@ impl Grant {
     }
 }
 
+/// What presenting a refresh token found: the `result` label of
+/// `okf.oauth.refreshes`, and the span's `okf.refresh` value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RefreshResult {
+    /// A first use: rotated.
+    Rotated,
+    /// A used token rotated again within `oauth.refresh_reuse_grace`.
+    Grace,
+    /// A used token presented past the window: the family is revoked.
+    Reused,
+    /// Unknown, expired or revoked.
+    Unknown,
+}
+
+impl RefreshResult {
+    /// Every result, to pre-register one series each.
+    pub const ALL: [Self; 4] = [Self::Rotated, Self::Grace, Self::Reused, Self::Unknown];
+
+    /// The label value.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Rotated => "rotated",
+            Self::Grace => "grace",
+            Self::Reused => "reused",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
 /// How a mail job ended: the `outcome` label of `okf.mail.jobs`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MailOutcome {
@@ -1022,6 +1077,17 @@ impl Metrics {
         self.inner
             .oauth_tokens_issued
             .add(1, &[KeyValue::new("grant", grant.as_str())]);
+    }
+
+    /// Counts one refresh-token presentation.
+    ///
+    /// # Arguments
+    /// * `result` - what the token turned out to be.
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub fn oauth_refresh(&self, result: RefreshResult) {
+        self.inner
+            .oauth_refreshes
+            .add(1, &[KeyValue::new("result", result.as_str())]);
     }
 
     /// Counts one request a rate limiter refused.
@@ -1342,6 +1408,7 @@ mod tests {
         let _session = metrics.mcp_session();
         metrics.auth_attempt(Method::Password, SignInOutcome::Ok);
         metrics.oauth_token_issued(Grant::RefreshToken);
+        metrics.oauth_refresh(RefreshResult::Rotated);
         metrics.rate_limited(Limiter::OauthToken);
         metrics.rate_limit_fallback(Limiter::OauthToken);
         metrics.mail_job(MailProvider::Log, MailOutcome::Sent);

@@ -1665,6 +1665,7 @@ the dotted originals.
 | `okf_redis_errors_total` | counter | `operation` | Failed Redis calls. `operation` is `connect`, `get`, `set`, `take`, `update`, `remove`, `index`, `admit`, `bind`, `publish`, `subscribe`, `counter`, `limit` (a shared rate-limit bucket; the request was decided by the replica's own bucket instead) or `decode` (a stored value that would not decode). A failed or late `/healthz` `PING` counts as `get`. Only with `[redis]` |
 | `okf_auth_attempts_total` | counter | `method`, `outcome` | Sign-in attempts. `method` is `password`, `passkey`, `oidc` or `setup`; `outcome` is `ok`, `failed` or `locked` |
 | `okf_oauth_tokens_issued_total` | counter | `grant` | Token pairs issued: `authorization_code` or `refresh_token` |
+| `okf_oauth_refreshes_total` | counter | `result` | Refresh-token presentations, by what the token turned out to be: `rotated` (first use), `grace` (a used token rotated again within `oauth.refresh_reuse_grace`), `reused` (presented past the window; the connection's tokens are revoked) or `unknown` (unknown, expired or revoked). The same values as the `okf.refresh` span attribute, from one source. All four series exist from the first scrape. [Alert on `reused`](#concurrent-refreshes) |
 | `okf_ratelimit_rejections_total` | counter | `limiter` | Requests a limiter refused: `sign_in_per_ip`, `forgot_per_email`, `forgot_per_ip`, `link_starts`, `oauth_register`, `oauth_token` or `oauth_consent` |
 | `okf_ratelimit_fallbacks_total` | counter | `limiter` | Decisions this replica's own bucket made because the shared (Redis) bucket failed, by the same `limiter` values. Any rate above 0 means the effective limit is the configured one times the replica count; alert on it. Only with `[redis]` |
 | `okf_mail_jobs_total` | counter | `provider`, `outcome` | Mail tries. `provider` is the configured one; `outcome` is `sent`, `retry` or `failed` |
@@ -4966,6 +4967,20 @@ connection as before.
 The `okf.oauth.token` span records each refresh's `okf.refresh`: `rotated`,
 `grace` (rotated again within the window), `reused` (the connection ended)
 or `unknown`, and `okf.error` on failure.
+
+`okf_oauth_refreshes_total{result}` counts the same four values, so a
+reused token can alert before anyone reports being signed out. `grace`
+rising steadily is normal for a client with several processes; `reused` is
+the one to watch:
+
+```
+increase(okf_oauth_refreshes_total{result="reused"}[1h]) > 0
+```
+
+A `reused` result means a connection was ended: a copied token, or a client
+process presenting a refresh token after the window. The counter is on the
+Prometheus listener; a deployment that exports only traces and logs over
+OTLP sees the result on the span only.
 
 #### Idle grants
 

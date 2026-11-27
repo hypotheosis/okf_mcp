@@ -29,7 +29,7 @@ use crate::store::oauth::tokens::{
     self as token_rows, LiveAccessToken, NewToken, RefreshUse, RevokedToken, TokenKind,
 };
 use crate::store::sign_in_events::Outcome;
-use crate::telemetry::metrics::{Grant, Limiter};
+use crate::telemetry::metrics::{Grant, Limiter, RefreshResult};
 
 /// The routes: `POST /oauth/token` and `POST /oauth/revoke`.
 ///
@@ -515,7 +515,10 @@ async fn refresh(
         .map_err(OkfError::from)?;
     let grace = oauth.settings.refresh_reuse_grace;
     let found = token_rows::use_refresh(&mut tx, &keys::hash(presented), now, grace).await?;
-    span.record("okf.refresh", refresh_label(&found));
+    // One value feeds the span and the counter, so they cannot drift.
+    let result = refresh_result(&found);
+    span.record("okf.refresh", result.as_str());
+    app.metrics().oauth_refresh(result);
     match found {
         RefreshUse::Unknown => Err(OAuthError::InvalidGrant(
             "unknown, expired or revoked refresh token".to_string(),
@@ -572,13 +575,14 @@ async fn refresh(
     }
 }
 
-/// The `okf.refresh` span value for what presenting a refresh token found.
+/// What presenting a refresh token found: the `okf.refresh` span value and
+/// the `okf.oauth.refreshes` `result` label.
 ///
 /// # Arguments
 /// * `found` - [`token_rows::use_refresh`]'s answer.
 ///
 /// # Returns
-/// One of `rotated`, `grace`, `reused` or `unknown`.
+/// `rotated`, `grace`, `reused` or `unknown`, as a [`RefreshResult`].
 #[cfg_attr(
     dylint_lib = "hyp_tracing",
     allow(
@@ -586,12 +590,12 @@ async fn refresh(
         reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
     )
 )]
-fn refresh_label(found: &RefreshUse) -> &'static str {
+fn refresh_result(found: &RefreshUse) -> RefreshResult {
     match found {
-        RefreshUse::Rotated { again: false, .. } => "rotated",
-        RefreshUse::Rotated { again: true, .. } => "grace",
-        RefreshUse::Reused { .. } => "reused",
-        RefreshUse::Unknown => "unknown",
+        RefreshUse::Rotated { again: false, .. } => RefreshResult::Rotated,
+        RefreshUse::Rotated { again: true, .. } => RefreshResult::Grace,
+        RefreshUse::Reused { .. } => RefreshResult::Reused,
+        RefreshUse::Unknown => RefreshResult::Unknown,
     }
 }
 
@@ -640,10 +644,11 @@ mod tests {
     use crate::oauth::state::code_key;
     use crate::oauth::testing::{
         authorization_code, authorization_code_for, authorize_query_for, form,
-        insert_loopback_client, oauth_app, oauth_app_with, oauth_app_with_metrics, send, CLIENT_ID,
-        LOOPBACK_CLIENT_ID, LOOPBACK_ON_PORT, LOOPBACK_REDIRECT_URI, REDIRECT_URI, RESOURCE,
-        VERIFIER,
+        insert_loopback_client, oauth_app, oauth_app_with, oauth_app_with_metrics,
+        oauth_app_with_metrics_config, send, CLIENT_ID, LOOPBACK_CLIENT_ID, LOOPBACK_ON_PORT,
+        LOOPBACK_REDIRECT_URI, REDIRECT_URI, RESOURCE, VERIFIER,
     };
+    use crate::telemetry::metrics::RefreshResult;
 
     fn exchange(code: &str) -> String {
         exchange_with(code, "", "")
@@ -984,6 +989,101 @@ mod tests {
         for secret in [refresh_token.as_str(), CLIENT_ID] {
             assert!(!exported.contains(secret), "{secret} in {exported}");
         }
+    }
+
+    /// The four `okf_oauth_refreshes_total` samples, in
+    /// [`RefreshResult::ALL`] order (`None`: no such series).
+    fn refresh_counts(registry: &prometheus::Registry) -> Vec<Option<f64>> {
+        let rendered = render(registry);
+        RefreshResult::ALL
+            .iter()
+            .map(|result| {
+                sample_of(
+                    &rendered,
+                    &format!(
+                        "okf_oauth_refreshes_total{{result=\"{}\"}}",
+                        result.as_str()
+                    ),
+                )
+            })
+            .collect()
+    }
+
+    /// Issue #887: every `result` series exists before any refresh.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn every_refresh_result_series_exists_before_any_refresh() {
+        let (_test, registry) = oauth_app_with_metrics().await;
+
+        assert_eq!(refresh_counts(&registry), vec![Some(0.0); 4]);
+    }
+
+    /// Issue #887: a first rotation counts as `rotated`.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_first_rotation_counts_as_rotated() {
+        let (test, registry) = oauth_app_with_metrics().await;
+        let code = authorization_code(&test).await;
+        let (_, _, first) = token(&test, exchange(&code)).await;
+
+        let (status, _, _) = token(&test, refresh(&text(&first, "refresh_token"), CLIENT_ID)).await;
+
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(
+            refresh_counts(&registry),
+            vec![Some(1.0), Some(0.0), Some(0.0), Some(0.0)]
+        );
+    }
+
+    /// Issue #887: a second use inside the window counts as `grace`.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_racing_rotation_in_the_window_counts_as_grace() {
+        let (test, registry) = oauth_app_with_metrics().await;
+        let code = authorization_code(&test).await;
+        let (_, _, first) = token(&test, exchange(&code)).await;
+        let shared = text(&first, "refresh_token");
+        token(&test, refresh(&shared, CLIENT_ID)).await;
+
+        let (status, _, _) = token(&test, refresh(&shared, CLIENT_ID)).await;
+
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(
+            refresh_counts(&registry),
+            vec![Some(1.0), Some(1.0), Some(0.0), Some(0.0)]
+        );
+    }
+
+    /// Issue #887: a second use with the window off counts as `reused`.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_reuse_with_the_window_off_counts_as_reused() {
+        let mut config =
+            crate::store::oauth::testing::oauth_config(crate::oauth::testing::PUBLIC_URL);
+        config.oauth.refresh_reuse_grace = Duration::ZERO;
+        let (test, registry) = oauth_app_with_metrics_config(config).await;
+        let code = authorization_code(&test).await;
+        let (_, _, first) = token(&test, exchange(&code)).await;
+        let shared = text(&first, "refresh_token");
+        token(&test, refresh(&shared, CLIENT_ID)).await;
+
+        let (status, _, _) = token(&test, refresh(&shared, CLIENT_ID)).await;
+
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert_eq!(
+            refresh_counts(&registry),
+            vec![Some(1.0), Some(0.0), Some(1.0), Some(0.0)]
+        );
+    }
+
+    /// Issue #887: a token the server never issued counts as `unknown`.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn an_unknown_token_counts_as_unknown() {
+        let (test, registry) = oauth_app_with_metrics().await;
+
+        let (status, _, _) = token(&test, refresh("not-a-token", CLIENT_ID)).await;
+
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert_eq!(
+            refresh_counts(&registry),
+            vec![Some(0.0), Some(0.0), Some(0.0), Some(1.0)]
+        );
     }
 
     /// Design, Auth row: the `okf.oauth.token` span says which method ran

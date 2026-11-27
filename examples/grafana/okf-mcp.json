@@ -2220,6 +2220,68 @@
       }
     },
     {
+      "type": "timeseries",
+      "title": "OAuth refreshes by result",
+      "description": "Refresh-token presentations per interval. grace is normal for clients with several processes; a reused result ended a connection.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "refId": "A",
+          "expr": "sum by (result) (increase(okf_oauth_refreshes_total{job=~\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{result}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 60,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 104
+      },
+      "id": 71,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      }
+    },
+    {
       "type": "row",
       "id": 41,
       "title": "Mail",
@@ -2228,7 +2290,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 112
       },
       "panels": []
     },
@@ -2286,7 +2348,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 105
+        "y": 113
       },
       "id": 42,
       "datasource": {
@@ -2348,7 +2410,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 105
+        "y": 113
       },
       "id": 43,
       "datasource": {
@@ -2365,7 +2427,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 113
+        "y": 121
       },
       "panels": []
     },
@@ -2450,7 +2512,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 114
+        "y": 122
       },
       "id": 45,
       "datasource": {
@@ -2534,7 +2596,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 114
+        "y": 122
       },
       "id": 46,
       "datasource": {
@@ -2596,7 +2658,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 122
+        "y": 130
       },
       "id": 47,
       "datasource": {
@@ -2658,7 +2720,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 122
+        "y": 130
       },
       "id": 48,
       "datasource": {
@@ -2675,7 +2737,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 130
+        "y": 138
       },
       "panels": []
     },
@@ -2733,7 +2795,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 131
+        "y": 139
       },
       "id": 50,
       "datasource": {
@@ -2795,7 +2857,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 131
+        "y": 139
       },
       "id": 51,
       "datasource": {
@@ -2857,7 +2919,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 131
+        "y": 139
       },
       "id": 52,
       "datasource": {
@@ -2919,7 +2981,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 139
+        "y": 147
       },
       "id": 53,
       "datasource": {
@@ -2981,7 +3043,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 139
+        "y": 147
       },
       "id": 54,
       "datasource": {
@@ -2998,7 +3060,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 147
+        "y": 155
       },
       "panels": []
     },
@@ -3056,7 +3118,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 148
+        "y": 156
       },
       "id": 56,
       "datasource": {
@@ -3118,7 +3180,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 148
+        "y": 156
       },
       "id": 57,
       "datasource": {
@@ -3180,7 +3242,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 156
+        "y": 164
       },
       "id": 58,
       "datasource": {
@@ -3242,7 +3304,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 156
+        "y": 164
       },
       "id": 59,
       "datasource": {
@@ -3331,7 +3393,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 164
+        "y": 172
       },
       "id": 60,
       "datasource": {
@@ -3415,7 +3477,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 164
+        "y": 172
       },
       "id": 61,
       "datasource": {
@@ -3432,7 +3494,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 172
+        "y": 180
       },
       "panels": []
     },
@@ -3517,7 +3579,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 173
+        "y": 181
       },
       "id": 63,
       "datasource": {
@@ -3601,7 +3663,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 173
+        "y": 181
       },
       "id": 64,
       "datasource": {
@@ -3674,7 +3736,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 181
+        "y": 189
       },
       "id": 65,
       "datasource": {
@@ -3736,7 +3798,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 181
+        "y": 189
       },
       "id": 66,
       "datasource": {
@@ -3753,7 +3815,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 189
+        "y": 197
       },
       "panels": []
     },
@@ -3838,7 +3900,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 190
+        "y": 198
       },
       "id": 68,
       "datasource": {
@@ -3900,7 +3962,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 190
+        "y": 198
       },
       "id": 69,
       "datasource": {
@@ -3962,7 +4024,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 198
+        "y": 206
       },
       "id": 70,
       "datasource": {

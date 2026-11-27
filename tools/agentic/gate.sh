@@ -15,6 +15,7 @@
 #   narrow   cargo test <args...>         15m  (no lock; for iterating)
 #   dylint   just dylint                  45m  (the first run builds the lint library)
 #   worker   just test-worker             5m   (no lock; the reader's Node tests, also run by test)
+#   release  just test-release            5m   (no lock; scripts/test_release.py, the release tooling's tests)
 #   mcpjam   just test-mcpjam             20m  (the MCPJam scenarios against a local server, tests/mcpjam/)
 #
 # The limit counts time spent waiting for the lock (flock -w), so a gate stuck
@@ -44,7 +45,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source-path=SCRIPTDIR source=lib.sh
 source "$here/lib.sh"
 
-gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|mcpjam|narrow [args...]}
+gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|release|mcpjam|narrow [args...]}
 shift
 
 # Build against the committed sqlx query data, as the justfile does, so a
@@ -63,6 +64,7 @@ case "$gate" in
     test-ui) limit=${AGENTIC_TIMEOUT_TEST_UI:-60m}; locked=1; cmd=(just test-ui "$@") ;;
     dylint)  limit=${AGENTIC_TIMEOUT_DYLINT:-45m};  locked=1; cmd=(just dylint "$@") ;;
     worker)  limit=${AGENTIC_TIMEOUT_WORKER:-5m};  locked=0; cmd=(just test-worker "$@") ;;
+    release) limit=${AGENTIC_TIMEOUT_RELEASE:-5m}; locked=0; cmd=(just test-release "$@") ;;
     # Always the local server built from this checkout, on a throwaway
     # Postgres: a remote target (OKF_MCP_URL) would test what is deployed,
     # not this change; OKF_MCP_BIN would test another build; and the suite

@@ -17,8 +17,12 @@ JUST = shutil.which("just")
 
 FAKE_CARGO = '''#!/usr/bin/env python3
 import os, subprocess, sys
-if sys.argv[1] in ('fmt', 'clippy', 'doc', 'test'):
-    sys.exit(1 if os.environ.get('FAIL_CHECK') == sys.argv[1] else 0)
+# `just test` runs `cargo nextest --version`, `cargo nextest run` and `cargo test --doc`; nextest
+# counts as the test check, so FAIL_CHECK=test fails both the nextest and the doctest step.
+check = 'test' if sys.argv[1] == 'nextest' else sys.argv[1]
+if check in ('fmt', 'clippy', 'doc', 'test'):
+    version_probe = sys.argv[1:3] == ['nextest', '--version']
+    sys.exit(1 if os.environ.get('FAIL_CHECK') == check and not version_probe else 0)
 sys.exit(subprocess.call([os.environ['REAL_CARGO'], *sys.argv[1:]]))
 '''
 

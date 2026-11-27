@@ -85,6 +85,11 @@ test-mcpjam:
 test-agentic:
     timeout 300 tools/agentic/tests/run.sh
 
+# The release tooling's own tests (scripts/release*.sh, scripts/release.py) against a fixture
+# repository with a fake cargo and gh; a change to the fmt, lint or test recipes can break them.
+test-release:
+    python3 -I scripts/test_release.py
+
 # Prepare locally; ship through a PR, then publish the merged commit's tag.
 release-prepare patchlevel:
     bash scripts/release-prepare.sh {{quote(patchlevel)}}

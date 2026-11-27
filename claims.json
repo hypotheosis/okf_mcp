@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2007,
+  "next_claim_seq": 2018,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "3ccd9cad858869d7ee8bdcefe60ff31bbf823994a744751e2c4ca3a6638f41cd"
+    "mac": "ca2e3870202ba5e846bc436d78e11987310f62351f2881c18fe81ef8b6cf64aa"
   },
-  "next_evidence_seq": 3577,
+  "next_evidence_seq": 3593,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "a6139ee19ec5e523da17d1d3c75011e0e41b0ab11fb73ef62ba591183656d670"
+    "mac": "b2d7a02869673d574ef47f8b47ce3fd99dcbe8b397681319fca5564e425572b7"
   },
   "claims": [
     {
@@ -35139,6 +35139,28 @@
             "by": "server",
             "mac": "fbd15cddc3106fed60a3a69507bffadf98b21847796abba5e4dd34b59abffc9a"
           }
+        },
+        {
+          "id": "EVD-3591",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:57; tools/agentic/gate.sh:60-67",
+          "summary": "Table row now lists 5m/30m/75m/60m/45m/5m/5m/20m/15m for fmt, lint, test, test-ui, dylint, worker, release, mcpjam, narrow; the seven limits the claim names are unchanged, and gate.sh defaults for them match.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 60,
+                "end": 67
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:17:22.279002536Z",
+          "seal": {
+            "by": "server",
+            "mac": "90d7faadf1c1fc2cabe30aa909fc9856706efe5f805d46328d4dde0f3ccc0ce7"
+          }
         }
       ],
       "verdicts": [
@@ -35154,13 +35176,26 @@
             "by": "server",
             "mac": "2c1b501b71686fb6604b2d3ad7561975804aa64cb3e23fa0f1da6bff18e47a45"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 6a0ee809: the named limits still hold.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3591"
+          ],
+          "recorded_at": "2026-11-27T02:17:28.207220063Z",
+          "seal": {
+            "by": "server",
+            "mac": "1dc2efe4b938873a98eae70d74330d26c583e72e2530aa752746a7a63c753ae9"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-21T21:31:33.894604997Z",
+      "updated_at": "2026-11-27T02:17:28.207220063Z",
       "seal": {
         "by": "server",
-        "mac": "1f65eb711e33be0079b64fee0b6caa8acc2ea63fe289deea06405738341e0bb4"
+        "mac": "7edb470e48fa9dac20f85df6c9aee62ec0ec3cdd3927d9b3c79b53a1788c689d"
       }
     },
     {
@@ -35258,6 +35293,28 @@
             "by": "server",
             "mac": "32785b9995dd802921d7f37433f0cf0e08b2c70dbbb83339bc73518f9b455aa4"
           }
+        },
+        {
+          "id": "EVD-3592",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:10-18, 48, 66",
+          "summary": "The worker header line, its case arm and the usage line (which still names worker) are intact; the diff only adds release.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 10,
+                "end": 18
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:17:22.395566503Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1fdbeedd9a2fd38cf6081cefec29ef049a9e7b12fe1e375501b220aafedb8fa"
+          }
         }
       ],
       "verdicts": [
@@ -35299,13 +35356,26 @@
             "by": "server",
             "mac": "0c46f14993a10215bede186f3f21d4de29b710cf2be8e5804443b2762af7ca10"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 6a0ee809: worker header, arm and usage intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3592"
+          ],
+          "recorded_at": "2026-11-27T02:17:28.317953792Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9b8f77e948d3adb7594ddc0f8edb8663e2ff4effba33eefc8da529d6709c0a6"
+          }
         }
       ],
       "created_at": "2026-11-21T21:27:00.708447367Z",
-      "updated_at": "2026-11-26T13:11:58.147849152Z",
+      "updated_at": "2026-11-27T02:17:28.317953792Z",
       "seal": {
         "by": "server",
-        "mac": "4a661c3fdd99257622d199790ebef4cd82f37fde0053d754cd07a472aeb06721"
+        "mac": "5e3c14737dc00a879ec65d7797df81f005ae583f37fb2f2f11299dc4e2285510"
       }
     },
     {
@@ -130855,6 +130925,28 @@
             "by": "server",
             "mac": "01c7718c86c3efa71dddc689e7ef90c67d45488424fa4a3691ca7b127f80e6ac"
           }
+        },
+        {
+          "id": "EVD-3590",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:10 at 6a0ee809",
+          "summary": "The diff to the gate.sh row only inserts the `release` gate entry; the whole abandoned-process (#948) exception text is unchanged at head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 10,
+                "end": 10
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:17:22.161400296Z",
+          "seal": {
+            "by": "server",
+            "mac": "af3d00463cc4ac7ae928c2e5fbb2afcf99694da8d2c44dc7550c15fc23f5bf6f"
+          }
         }
       ],
       "verdicts": [
@@ -130870,13 +130962,26 @@
             "by": "server",
             "mac": "2d1784d0df9bad0ddf6cb211bda83f5a95c6c257b78e5dd2b71aea8c1c8f73d6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 6a0ee809: exception text unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3590"
+          ],
+          "recorded_at": "2026-11-27T02:17:28.096049031Z",
+          "seal": {
+            "by": "server",
+            "mac": "faa9264f76f7d1fcd62c23f90bf7d7303120f9bdf318966850886b9f3db4ea72"
+          }
         }
       ],
       "created_at": "2026-11-25T05:36:00.054387141Z",
-      "updated_at": "2026-11-25T05:37:27.797535959Z",
+      "updated_at": "2026-11-27T02:17:28.096049031Z",
       "seal": {
         "by": "server",
-        "mac": "33a2730100556e9ba59107152b53f41257969094c4be553fb5fc035c0684748a"
+        "mac": "223df4fc4de96ea9ed5911966e4eaf9348b5db49712ac50eb022f4d476c5a5ce"
       }
     },
     {
@@ -179298,6 +179403,688 @@
       "seal": {
         "by": "server",
         "mac": "f9a5beaf0a0a0527bb165d19961543fbde78b53eccaec60fbdfb8a7f0709a227"
+      }
+    },
+    {
+      "id": "CLM-2007",
+      "statement": "scripts/test_release.py passes after the change: the fake cargo supports the nextest-based just test recipe.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1075",
+      "derived_from": [],
+      "artifacts": [
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3579",
+          "kind": "test",
+          "locator": "python3 -I scripts/test_release.py",
+          "summary": "At head 6a0ee809: Ran 35 tests in 17.564s, OK.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:10:26.388372349Z",
+          "seal": {
+            "by": "server",
+            "mac": "77cb7cba8d661b65680d6c5b6588baf30aa4ffb0d372a7c6dfc46d3f7170d685"
+          }
+        },
+        {
+          "id": "EVD-3589",
+          "kind": "analysis",
+          "locator": "children of CLM-2007",
+          "summary": "All children supported: stub behavior (2008, 2009), before/after counts (2010), stub coverage (2011), gate (2012), docs (2013), gate results (2014-2017). Together they cover the issue's requirements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:17:05.108143184Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b71991227e21799ea6217d7b87867598d388fddb6464ff97e585797bf7c00d6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Suite passes (35 OK) and every child is supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3579",
+            "EVD-3589"
+          ],
+          "recorded_at": "2026-11-27T02:17:27.983983857Z",
+          "seal": {
+            "by": "server",
+            "mac": "25aaee43ccd5f2cedac82bdc09b7157dd93353df8d24fcba981bfb606cb75481"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:17:27.983983857Z",
+      "seal": {
+        "by": "server",
+        "mac": "265659e1338f68880ef32d5ead60215f96b82eb84f4df85c4f8fedfdfddd1e19"
+      }
+    },
+    {
+      "id": "CLM-2008",
+      "statement": "FAKE_CARGO in scripts/test_release.py stubs the nextest subcommand, treating it as the test check, so FAIL_CHECK=test fails both `cargo nextest run` and `cargo test --doc`.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1075 requirement; PR body: \"`FAKE_CARGO` treats `nextest` as the `test` check: `FAIL_CHECK=test` fails both `cargo nextest run` and `cargo test --doc`\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3577",
+          "kind": "test",
+          "locator": "scripts/test_release.py:18-27 (FAKE_CARGO extracted and run with FAIL_CHECK=test)",
+          "summary": "Ran the extracted fake cargo with FAIL_CHECK=test: `nextest run` exit 1, `test --doc` exit 1; with FAIL_CHECK=fmt both exit 0.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_release.py",
+              "lines": {
+                "start": 18,
+                "end": 27
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:10:26.157201757Z",
+          "seal": {
+            "by": "server",
+            "mac": "23df6cc4336d08f9956c9a37b7c9bbfd4eac5f0a099bf00771ee9352ef612cf8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ran the stub: FAIL_CHECK=test fails nextest run and test --doc.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3577"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.228359869Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a8fb205ce96d637117a1e8cd7c54ec4abc4521fde9e79c33277eda6132c749b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.228359869Z",
+      "seal": {
+        "by": "server",
+        "mac": "a2ab1139b247494e8447eb9f7cca8ac1b2445d14a588eb99a003fef2b19cd8ee"
+      }
+    },
+    {
+      "id": "CLM-2009",
+      "statement": "`cargo nextest --version` always succeeds through FAKE_CARGO, even with FAIL_CHECK=test.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1075 requirement; PR body: \"`cargo nextest --version` always succeeds\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3578",
+          "kind": "test",
+          "locator": "scripts/test_release.py:22-25 (FAKE_CARGO extracted and run with FAIL_CHECK=test)",
+          "summary": "With FAIL_CHECK=test and FAIL_CHECK=fmt, `nextest --version` exits 0 (version_probe exempt).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "scripts/test_release.py",
+              "lines": {
+                "start": 22,
+                "end": 25
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:10:26.274203723Z",
+          "seal": {
+            "by": "server",
+            "mac": "aefbebab2937a0c9f0e205ff3f6ca148f8a2ca5b672bd57a2a1ede91887468f9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Version probe exits 0 under FAIL_CHECK=test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3578"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.342018620Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f836621bde43496475c03abd8a59bc1f9cf94682f6db48bc9b73cdbf6977449"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.342018620Z",
+      "seal": {
+        "by": "server",
+        "mac": "61248c092fc30e1434a44f2ff6c7be09b6481fe7b9e89885dcb2c0de2bf07d48"
+      }
+    },
+    {
+      "id": "CLM-2010",
+      "statement": "Before the change, python3 -I scripts/test_release.py ran 35 tests with 9 failures and 7 errors; after it, 35 run and OK.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"before 35 run, 9 failures, 7 errors; after 35 run, OK\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3580",
+          "kind": "test",
+          "locator": "python3 -I scripts/test_release.py (head), and in a detached worktree of origin/main",
+          "summary": "origin/main: Ran 35 tests, FAILED (failures=9, errors=7). Head: Ran 35 tests, OK.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:10:26.503473209Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4dcdeb20375e38e7a1073af2d4845f7daf03bdcfd6e8363829909adb1a62794"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced both counts on origin/main and head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3580"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.453065021Z",
+          "seal": {
+            "by": "server",
+            "mac": "7db1350ea13d5528de8de532c156578649e0bc1737b5929b40f242016f704816"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.453065021Z",
+      "seal": {
+        "by": "server",
+        "mac": "1f70b24752ff230cc5a4baefee5db4cca90902e948216bc7bd54cacda7464dcd"
+      }
+    },
+    {
+      "id": "CLM-2011",
+      "statement": "No other cargo subcommand called by the justfile fmt, lint and test recipes is unstubbed in FAKE_CARGO (fmt, clippy, doc, test, nextest are all covered).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"No other subcommand called by the fmt, lint or test recipes was unstubbed\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "justfile",
+        "scripts/test_release.py"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3581",
+          "kind": "analysis",
+          "locator": "justfile:10-32; scripts/test_release.py:18-27",
+          "summary": "Recipes call cargo fmt, clippy, doc, nextest (--version, run) and test --doc; all are stubbed. Suite passes at head with no real cargo invoked for them. Other cargo calls (build, in test-mcpjam; test --test ui_e2e in test-ui) are outside the fmt/lint/test recipes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 10,
+                "end": 32
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:10:26.620659855Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3372779891512eb23baa47163af8870b1dd9c366003dc1b5d71de7d605e10d4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every cargo subcommand in the fmt, lint, test recipes is covered and the suite passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3581"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.562388004Z",
+          "seal": {
+            "by": "server",
+            "mac": "0749e8da03529cab1ea4804d9daa8f7cd595e7d0ddcfcfce714f0b48c50a428f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.562388004Z",
+      "seal": {
+        "by": "server",
+        "mac": "cd7626dd11afb6d65d211c99d0573b604ba4cfb1449615122a21f1e2a9d126a7"
+      }
+    },
+    {
+      "id": "CLM-2012",
+      "statement": "The justfile has a test-release recipe running python3 -I scripts/test_release.py, and tools/agentic/gate.sh has a release gate (5m limit, no lock) running it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1075 (\"consider adding it to a gate\"); PR body: \"New `just test-release` recipe and `tools/agentic/gate.sh release` gate (5m, no lock)\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "justfile",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3582",
+          "kind": "inspection",
+          "locator": "justfile:88-91; tools/agentic/gate.sh:67",
+          "summary": "test-release recipe runs `python3 -I scripts/test_release.py`; gate release has limit 5m, locked=0, cmd just test-release. Diff reviewed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 60,
+                "end": 70
+              },
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:10:26.737316739Z",
+          "seal": {
+            "by": "server",
+            "mac": "759e241d3c03388b122a2cfba8a7595626c285e378cd338e43efcaa688a5ecf0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Recipe and gate exist as claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3582"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.674029446Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf98c0f75096cb82ab8da08e74911c3d71405220eebc73885b11365be2686ada"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.674029446Z",
+      "seal": {
+        "by": "server",
+        "mac": "549697f547d02edb0572dc2bd43c45a78c3bbf6b134d609d24f3627cb6f4b522"
+      }
+    },
+    {
+      "id": "CLM-2013",
+      "statement": "tools/agentic/README.md documents the release gate and its 5m limit, and a changelog entry for the change exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"README updated.\" \"Changelog entry.\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3583",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md gate.sh row and AGENTIC_TIMEOUT table; changelog/2026-11-26T12-00-00Z-issue-1075-release-test-nextest.md",
+          "summary": "README lists `release` gate and the timeout table gains 5m for release; changelog file exists describing the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-26T12-00-00Z-issue-1075-release-test-nextest.md",
+              "commit": "6a0ee80946453bb889642cdad3150c90d9fe9b6a"
+            }
+          },
+          "recorded_at": "2026-11-27T02:10:26.856033209Z",
+          "seal": {
+            "by": "server",
+            "mac": "42b9de2786f82d04e27ddce7cf715c5b935c48ecc20825fa9d5c93c49dad5e8a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README and changelog updated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3583"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.784369254Z",
+          "seal": {
+            "by": "server",
+            "mac": "417c5831172156e1d6a2cdceea769cb8c4c38b77bad770f79b929ab2659c3045"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.784369254Z",
+      "seal": {
+        "by": "server",
+        "mac": "682abdad0af66a66c1846b0be82920aa682278f2070d755a62db2b7a30a79f7e"
+      }
+    },
+    {
+      "id": "CLM-2014",
+      "statement": "gate.sh fmt, lint, dylint and release pass on the change.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"gate.sh fmt, lint, dylint, release: pass.\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3586",
+          "kind": "log",
+          "locator": "target/i1075-logs/lint.log, dylint.log; python3 -I scripts/test_release.py",
+          "summary": "lint.log ends with doc build \"Finished\"; dylint.log ends \"Finished dev profile\"; no warnings/errors seen (grep hits were only crate names). No fmt log exists; release gate equivalent rerun passes (35 OK). fmt result unverified by me.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T02:10:27.199228681Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ab86b4b3944f25c2891613c09531deadeab74f57ed91b4dcd5a5fa946ed3ade"
+          }
+        },
+        {
+          "id": "EVD-3587",
+          "kind": "test",
+          "locator": "cargo fmt --all --check",
+          "summary": "Exit 0 at head. Together with lint.log/dylint.log finishing clean and the release suite passing (35 OK), all four gates' outcomes are seen.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:10:33.470199114Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d16f256bc4ae2c88e15e09bec55459f3351c19c583c0860fef378d0cde19d43"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fmt rerun clean; lint and dylint logs finish clean; release suite OK.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3587"
+          ],
+          "recorded_at": "2026-11-27T02:10:45.894474130Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba244896b745967ab6996ba584862d14184f907621b607935dd4f71adb84e71d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:45.894474130Z",
+      "seal": {
+        "by": "server",
+        "mac": "22eac4b2ca58227b598ad00d373b08c81437bc5f0711b37ddac7cc7db12ca1f5"
+      }
+    },
+    {
+      "id": "CLM-2015",
+      "statement": "gate.sh test ran 3701 passed, 20 skipped in each store mode, and the doctests pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"gate.sh test: 3701 passed, 20 skipped in each store mode, doctests pass.\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3584",
+          "kind": "log",
+          "locator": "target/i1075-logs/test.log:4279,4316,8024,8061",
+          "summary": "Two nextest summaries \"3701 tests run: 3701 passed, 20 skipped\" and two doctest results \"30 passed; 0 failed; 1 ignored\". Log is the author's artifact (untracked), not rerun by me (heavy gate).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:10:26.971308529Z",
+          "seal": {
+            "by": "server",
+            "mac": "92b66638c56c12591868c84649e058a26f78bd1287ba917581f676f97713fede"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Log shows both modes 3701/20 and doctests ok. Taken from the log, not rerun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3584"
+          ],
+          "recorded_at": "2026-11-27T02:10:46.004784427Z",
+          "seal": {
+            "by": "server",
+            "mac": "07c48bf47c3441fa6e36274f47cc31fa4330757b999cbe202c2cfa66330dd1b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:46.004784427Z",
+      "seal": {
+        "by": "server",
+        "mac": "ab74974fcbca1fc9d70df5cee8c01ef0a76e896449f53c24fc6bdb054d1bfa5e"
+      }
+    },
+    {
+      "id": "CLM-2016",
+      "statement": "gate.sh mcpjam ran 29 tests, all passed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"gate.sh mcpjam: 29 tests passed.\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3585",
+          "kind": "log",
+          "locator": "target/i1075-logs/mcpjam.log",
+          "summary": "\"Test Files 5 passed (5); Tests 29 passed (29)\".",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:10:27.083341990Z",
+          "seal": {
+            "by": "server",
+            "mac": "91127e3979a9fec0316680f6137dabcb0ef1dc65c96ada09e25f36f08ef3ae72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Log shows 29 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3585"
+          ],
+          "recorded_at": "2026-11-27T02:10:46.115249615Z",
+          "seal": {
+            "by": "server",
+            "mac": "9556de7a73da7c62834cf4352f1f74f6e1f6be69aa492cafd4a9c346f4a0ac17"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:10:46.115249615Z",
+      "seal": {
+        "by": "server",
+        "mac": "18dcb48f90434eaf3ae5b4bb69a231b0b5a6a3a05d1df8aa8b0c347409cd045c"
+      }
+    },
+    {
+      "id": "CLM-2017",
+      "statement": "tools/agentic/tests/run.sh passes 113 tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"`tools/agentic/tests/run.sh`: 113 passed.\"",
+      "derived_from": [
+        "CLM-2007"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1075"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3588",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh",
+          "summary": "Rerun at head: \"113 passed, 0 failed\". An earlier run overlapping another copy of the suite showed 112 passed, 1 failed (test_watchdog_abandons_a_ps_reread_it_cannot_stop, \"a temp file was left behind\"); the PR touches no watchdog code, so treated as an overlap flake.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T02:16:56.182507245Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5b2b7fd2bd157fcd43f962a9feb9baa3dfecb2711cc3d69ed5b3872623f97d8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rerun shows 113 passed, 0 failed; one overlapped run flaked in unrelated watchdog test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3588"
+          ],
+          "recorded_at": "2026-11-27T02:17:04.994867496Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a65b9ed15ecb9de06915f4573205a7e7822ec2488c3f82104df1c7d7b33d85e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T02:10:02.093877578Z",
+      "updated_at": "2026-11-27T02:17:04.994867496Z",
+      "seal": {
+        "by": "server",
+        "mac": "d898f942c81e1d8c98f8a41a2659bcb1fb1c30e469489158f6f49fd2f974c9be"
       }
     }
   ]

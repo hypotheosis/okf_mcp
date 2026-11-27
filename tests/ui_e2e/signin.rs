@@ -43,12 +43,22 @@ const FAIL_NEXT_SIGN_OUT: &str = "() => { const real = window.fetch; let failed 
 const SESSION_STATUS: &str = "async () => (await fetch('/api/v1/session')).status";
 
 /// What the journey reports when the account's identity does not show, or
-/// the stored key is not dropped, in time: the
-/// page's address (no query or fragment) and the session's status, never the
-/// key, a cookie or a token.
-const KEY_DROP_REPORT: &str = "async () => ({ href: location.origin + location.pathname, \
-    session: (await fetch('/api/v1/session')).status, \
-    whoami: document.getElementById('whoami')?.textContent ?? null })";
+/// the stored key is not dropped, in time: the page's address (no query or
+/// fragment), the `#whoami` text and the session's status, never the key, a
+/// cookie or a token. The local fields come first, and the session request
+/// is best-effort and bounded (two seconds), so a failed or hung request
+/// shows as `error: <name>` instead of hiding the rest.
+const KEY_DROP_REPORT: &str = "async () => { \
+    const report = { href: location.origin + location.pathname, \
+        whoami: document.getElementById('whoami')?.textContent ?? null }; \
+    const controller = new AbortController(); \
+    const timer = setTimeout(() => controller.abort(), 2000); \
+    try { \
+        report.session = (await fetch('/api/v1/session', { signal: controller.signal })).status; \
+    } catch (error) { \
+        report.session = `error: ${error.name}`; \
+    } finally { clearTimeout(timer); } \
+    return report; }";
 
 /// A server whose `public_url` is its own address, so the login routes exist.
 async fn server() -> TestServer {
@@ -541,6 +551,40 @@ async fn an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both() {
         ui.open("");
         ui.wait_visible("#login");
         assert!(!ui.page.is_visible("#app").expect("visible"));
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_key_drop_report_keeps_the_address_and_identity_when_the_session_request_fails() {
+    let server = server().await;
+    let address = format!("{}/ui/", server.base);
+    drive(server.base.clone(), move |ui| {
+        ui.open("");
+        ui.wait_visible("#login");
+        // A session request that works: its status, next to the address.
+        let ok = ui.eval(KEY_DROP_REPORT, serde_json::json!(null));
+        assert_eq!(ok["session"], 401);
+        assert_eq!(ok["href"], address);
+        // One that rejects.
+        ui.eval(
+            "() => { window.fetch = () => Promise.reject(new TypeError('down')); }",
+            serde_json::json!(null),
+        );
+        let failed = ui.eval(KEY_DROP_REPORT, serde_json::json!(null));
+        assert_eq!(failed["session"], "error: TypeError");
+        assert_eq!(failed["href"], address);
+        assert!(failed["whoami"].is_string());
+        // One that never answers: the report aborts it and still returns.
+        ui.eval(
+            "() => { window.fetch = (_url, { signal }) => new Promise((_resolve, reject) => \
+                signal.addEventListener('abort', () => \
+                    reject(new DOMException('aborted', 'AbortError')))); }",
+            serde_json::json!(null),
+        );
+        let hung = ui.eval(KEY_DROP_REPORT, serde_json::json!(null));
+        assert_eq!(hung["session"], "error: AbortError");
+        assert_eq!(hung["href"], address);
     })
     .await;
 }

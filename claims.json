@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2342,
+  "next_claim_seq": 2356,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "0c07e111840102f4bc4a0d1d5aaf2d3c474976c5a0bdd6af289cb58bf4c17e9a"
+    "mac": "0c4ddf9f6fa06b9e6b3a22847a659c7229d50676c12a93af6a9cceda60335f95"
   },
-  "next_evidence_seq": 4117,
+  "next_evidence_seq": 4146,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e394570bba83eb92d85013e0cff3f85f07832c5ea67519870ba735331e6749b8"
+    "mac": "80c79cc0cc876a7be65913799217b9f53dfa1c604a5ba868ac7c9869a2d56bb9"
   },
   "claims": [
     {
@@ -58368,6 +58368,50 @@
             "by": "server",
             "mac": "90e2a7cd542b6c4f52b06bdcc086aee4485f24bd8c1e52e58413019f8423401c"
           }
+        },
+        {
+          "id": "EVD-4132",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:183-205 at 84ce8237",
+          "summary": "The `direct` CTE is the old query unchanged: pg_locks w, locktype transactionid, NOT granted, $1 = ANY(pg_blocking_pids(w.pid)), joined to granted tuple lock with relation = $2::regclass and database. No query text is read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 183,
+                "end": 205
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:10:50.823089557Z",
+          "seal": {
+            "by": "server",
+            "mac": "07c0ab6975f17f9e3ecc4707cbb512d17ab6b0fbea657b0393abcdf5369b99c6"
+          }
+        },
+        {
+          "id": "EVD-4142",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:187-200 at 155b6d68",
+          "summary": "The direct CTE is unchanged by the review commit; only the queued CTE changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 187,
+                "end": 200
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:41.069660350Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fe8dd352e0a3b7d5ccd73facc1cb9629302c35a1612ee05a1bf2f93a319100f"
+          }
         }
       ],
       "verdicts": [
@@ -58384,13 +58428,39 @@
             "by": "server",
             "mac": "763d33c23efc9d5b9c9e9a08768ac9f17b48ad94fe1b514a1b5ea63f380715b0"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head 84ce8237 after test_locks.rs changed: the direct-waiter query is unchanged in substance.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4132"
+          ],
+          "recorded_at": "2026-11-27T23:10:57.725918685Z",
+          "seal": {
+            "by": "server",
+            "mac": "5cd4d32b2b371534743ba3102dc545ff598c950a59de485ad347f75555aac8eb"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: the direct query is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4142"
+          ],
+          "recorded_at": "2026-11-27T23:27:55.748472956Z",
+          "seal": {
+            "by": "server",
+            "mac": "c618f4a90b59aa643b2a9607fc0a63d42f328123be79ff7726669cec47799bc1"
+          }
         }
       ],
       "created_at": "2026-11-23T04:41:59.820125113Z",
-      "updated_at": "2026-11-23T04:43:01.245646701Z",
+      "updated_at": "2026-11-27T23:27:55.748472956Z",
       "seal": {
         "by": "server",
-        "mac": "f2cd7d126fa498c9d4c1ddd721e9ae438e3552101efd0b808bf8274dc706e1ed"
+        "mac": "d0c5f4430f8e7a76a703878d2b773fd6223acd2eb651fc5e83b5f37c31f51d7b"
       }
     },
     {
@@ -58643,6 +58713,50 @@
             "by": "server",
             "mac": "2f9d369d35eca80dfe1d8edcbcef81826f723de1ff0ea0f223d45a6d3d94b07e"
           }
+        },
+        {
+          "id": "EVD-4133",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:183-205 at 84ce8237",
+          "summary": "The helper still requires both a granted tuple lock on the relation and an ungranted transactionid lock blocked by the holder (the `direct` CTE); the `queued` CTE only adds sessions after a direct waiter exists, and a count of one needs only direct.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 183,
+                "end": 205
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:10:51.052308771Z",
+          "seal": {
+            "by": "server",
+            "mac": "7405e5e5369467936505550aff30250df621178cbf7a9339f7531cdc851d8516"
+          }
+        },
+        {
+          "id": "EVD-4143",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:187-200 at 155b6d68",
+          "summary": "The direct waiter shape (granted tuple lock plus ungranted transactionid, holder in pg_blocking_pids) is unchanged; the queued rule only tightens extra sessions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 187,
+                "end": 200
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:41.207952901Z",
+          "seal": {
+            "by": "server",
+            "mac": "86c45344d68b03cd1defc8672569b1fb140b7550dbf3b77c0e5739722e236d32"
+          }
         }
       ],
       "verdicts": [
@@ -58658,13 +58772,39 @@
             "by": "server",
             "mac": "0cedc0b7c86f3ca26b8980eab61ba4dd987b5df4ba7a758832543a659f4ccfcc"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: still requires both locks with the holder in pg_blocking_pids.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4133"
+          ],
+          "recorded_at": "2026-11-27T23:10:57.931998814Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f0a7bd4c317bb2f4d0a7a2153d5a6123473f601ee85a7b49e2db81cdebe549c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: the two-lock shape is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4143"
+          ],
+          "recorded_at": "2026-11-27T23:27:55.958021500Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a72a59e4e7b1cd6d035596869ab78c8c29cad39f79a3446913f76a5e2a4258f"
+          }
         }
       ],
       "created_at": "2026-11-23T04:41:59.820125113Z",
-      "updated_at": "2026-11-23T04:43:01.388722574Z",
+      "updated_at": "2026-11-27T23:27:55.958021500Z",
       "seal": {
         "by": "server",
-        "mac": "611b1b6dd5204f8a4a69c3816e8fd543517edaac3b96f670cf918bcaf9c93006"
+        "mac": "9efb30ac3f2d358bc3b2546b29bf6fa74725296083d86dd779f416cd57c07f3d"
       }
     },
     {
@@ -59011,6 +59151,50 @@
             "by": "server",
             "mac": "77f19419deef3be644f4589e946d07c631fa27570073e401b80255296d37204b"
           }
+        },
+        {
+          "id": "EVD-4134",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:183-205 at 84ce8237",
+          "summary": "Neither CTE constrains lock mode or the row's tid; the only identity check is the table (relation, database) plus the holder. Unchanged in substance.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 183,
+                "end": 205
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:10:51.267794372Z",
+          "seal": {
+            "by": "server",
+            "mac": "9ec267b20db81d50d333c6e0715545c44757ebbe9c23a9b06d34e0e7a0060792"
+          }
+        },
+        {
+          "id": "EVD-4144",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:187-200 at 155b6d68",
+          "summary": "Still no lock-mode or tid condition in either CTE; the table (relation, database) plus the holder is the identity. The queued rule adds a blocker condition, not mode or row.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 187,
+                "end": 200
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:41.355148896Z",
+          "seal": {
+            "by": "server",
+            "mac": "54260b47a8a6789450d418a96f0ab4f5ce102adebcf9a523b890d77e6e430876"
+          }
         }
       ],
       "verdicts": [
@@ -59026,13 +59210,39 @@
             "by": "server",
             "mac": "655588ee175737da7cfac14e5a3ee16ca63167755272f894ef7acd424237183b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: no mode or row constraint was added.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4134"
+          ],
+          "recorded_at": "2026-11-27T23:10:58.161958030Z",
+          "seal": {
+            "by": "server",
+            "mac": "8afd154ea83222618fa724a866e54264db2e64c709247dbe1fc3fc2d6e3fa5da"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: still no mode or row condition.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4144"
+          ],
+          "recorded_at": "2026-11-27T23:27:56.168096564Z",
+          "seal": {
+            "by": "server",
+            "mac": "67097984881535391f4901da7d2f85a0523105c1c2b84c53951f4baaecb6d89f"
+          }
         }
       ],
       "created_at": "2026-11-23T04:41:59.820125113Z",
-      "updated_at": "2026-11-23T04:43:01.616133975Z",
+      "updated_at": "2026-11-27T23:27:56.168096564Z",
       "seal": {
         "by": "server",
-        "mac": "0e109067bb0b8b2d67113cef5545b11b90233ffcfb3f14a762d69262b61ce5cb"
+        "mac": "3cda0dc573635870e73c05deedf110f5116a5b2071df22d662bf416f8ad8a9be"
       }
     },
     {
@@ -60896,6 +61106,50 @@
             "by": "server",
             "mac": "02eb40ca0373a987f29171c374d6a67bf0c2ddf75021247a94e131126ac3db80"
           }
+        },
+        {
+          "id": "EVD-4135",
+          "kind": "inspection",
+          "locator": "src/store/keys/idle_tests.rs:606,681,690; src/test_locks.rs:222",
+          "summary": "The #652 tests' waiter confirmations still call expect_row_lock_waiter (idle_tests.rs:606, 681, 690), which still delegates to wait_row_lock_waiter (now via wait_row_lock_waiters); idle_tests.rs has zero pg_stat_activity references.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys/idle_tests.rs",
+              "lines": {
+                "start": 604,
+                "end": 607
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:10:51.458772223Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9865ea2d3c008d9b1a046c86776555be7cb0b64a5629fc5f21ca279a9facec2"
+          }
+        },
+        {
+          "id": "EVD-4145",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:222-227, src/store/keys/idle_tests.rs at 155b6d68",
+          "summary": "The review commit did not touch idle_tests.rs or oauth/token.rs; expect_row_lock_waiter still delegates to the pg_locks based helper and idle_tests.rs has no pg_stat_activity.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "pg_stat_activity",
+              "scope": [
+                "src/store/keys/idle_tests.rs"
+              ],
+              "hits": 0,
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:41.493335107Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c75a6e59be8091735f59c36262c2bc05edb89092d0bc822b540b9b9e3f2f9fb"
+          }
         }
       ],
       "verdicts": [
@@ -60924,13 +61178,39 @@
             "by": "server",
             "mac": "c2283afd0d6a5b7a9059e3b45875f5fcdd86f16c95bffd142a522373fe911b24"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: the waiter confirmations are unchanged and still use the shared helper.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4135"
+          ],
+          "recorded_at": "2026-11-27T23:10:58.394105517Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b4688e435794e93f601bdab3ea3d60e16cca34b87ff84fabb907e3637e2f126"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: the waiter confirmations and the helper delegation are unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4145"
+          ],
+          "recorded_at": "2026-11-27T23:27:56.400297931Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bcade3ad1a2e85caacdb1c33624291f1b95109d93703333d924a5f659a32b19"
+          }
         }
       ],
       "created_at": "2026-11-23T06:19:19.184673783Z",
-      "updated_at": "2026-11-26T13:07:54.811887520Z",
+      "updated_at": "2026-11-27T23:27:56.400297931Z",
       "seal": {
         "by": "server",
-        "mac": "6609c423b9edf66a3c1e86eccd57cb0601fd85779aedc36d35452fca571c40f2"
+        "mac": "66e922594a2fc4fd958d72a755ed7a448fcd4bb4a8f11b9d9089a03a8a6f6058"
       }
     },
     {
@@ -207012,6 +207292,1129 @@
       "seal": {
         "by": "server",
         "mac": "45f42673c709ada1197bf928600d3adbd73676d4123a7d21a9cf4ee4682a5df0"
+      }
+    },
+    {
+      "id": "CLM-2342",
+      "statement": "Issue #938: the test waits that decide the code under test is blocked on a lock by matching pg_stat_activity.query text in idle_tests and catalogs_tests (and the same pattern in oauth/codes.rs) now use the shared src/test_locks.rs helpers.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/938 (Suggested fix) and the brief",
+      "derived_from": [],
+      "artifacts": [
+        "src/store/keys/idle_tests.rs",
+        "src/cache/catalogs_tests.rs",
+        "src/store/oauth/codes.rs",
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4131",
+          "kind": "analysis",
+          "locator": "children of CLM-2342",
+          "summary": "The children cover each converted file (idle_tests, catalogs_tests, codes.rs), the 10 s bounds, test-only scope, changelog, unchanged LISTEN checks and the PR's descriptive statements; all are supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T23:10:16.445350405Z",
+          "seal": {
+            "by": "server",
+            "mac": "87ecaa26243c94c0b4e3336c72ecbc0c2c3f871d0480679653315edc75f57d22"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4131"
+          ],
+          "recorded_at": "2026-11-27T23:10:31.047585823Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b7a4d087f878b90cacd343ddb2067eb74867c635c646ac145b5e01141b6e989"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:31.047585823Z",
+      "seal": {
+        "by": "server",
+        "mac": "2bc42bd54e3dd9d1ff6673fa7a503429051c9ccecb35c6dbb2ab4d0d900be94d"
+      }
+    },
+    {
+      "id": "CLM-2343",
+      "statement": "The three waits in src/store/keys/idle_tests.rs (a_grant_used_or_revoked_while_the_pass_waits_is_left_alone, a_refresh_admitted_before_expiry_is_never_undone_by_the_idle_pass, a_rotation_after_a_revocation_is_refused) call expect_row_lock_waiter with the lock-holding transaction's backend pid and table \"api_keys\", and idle_tests.rs no longer queries pg_stat_activity.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #938: idle_tests.rs:316, :408, :507 use query LIKE on pg_stat_activity; use expect_row_lock_waiter matching the table and the holder",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/store/keys/idle_tests.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4117",
+          "kind": "inspection",
+          "locator": "src/store/keys/idle_tests.rs:315,391,473",
+          "summary": "Three waits call expect_row_lock_waiter(&db.pool, backend_pid(&mut <holder|rotation|revocation>), \"api_keys\"); each tx is the one holding the row (holder FOR UPDATE both rows; rotation use_refresh FOR SHARE; revocation FOR UPDATE).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys/idle_tests.rs",
+              "lines": {
+                "start": 311,
+                "end": 316
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:31.353772651Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3c88e040a36873a7d2413981c520afebf60a4955dc55329c608bc419f44bee1"
+          }
+        },
+        {
+          "id": "EVD-4118",
+          "kind": "inspection",
+          "locator": "git grep -E \"pg_stat_activity|LIKE\" src/store/keys/idle_tests.rs",
+          "summary": "No pg_stat_activity or LIKE text match remains in idle_tests.rs (zero hits).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "pg_stat_activity|query LIKE",
+              "scope": [
+                "src/store/keys/idle_tests.rs"
+              ],
+              "hits": 0,
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:31.882393173Z",
+          "seal": {
+            "by": "server",
+            "mac": "5465a88a9957915eda4407e615ffc0e862c6aff1601168a929b0b36c62e5c23e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three waits call expect_row_lock_waiter with the holding transaction's pid and api_keys; zero pg_stat_activity references remain in the file. Not executed (gate in progress), read-only audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4117",
+            "EVD-4118"
+          ],
+          "recorded_at": "2026-11-27T23:10:09.431590629Z",
+          "seal": {
+            "by": "server",
+            "mac": "4256bfa62317e15e79e886d347d6ea5bf4c614dcc14e11105efec6112dd0a44e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:09.431590629Z",
+      "seal": {
+        "by": "server",
+        "mac": "850aa67e1d4d0b85b8560f760ace0feb28bc54aa1cf491f4f21384826ac410d7"
+      }
+    },
+    {
+      "id": "CLM-2344",
+      "statement": "The wait in catalogs_tests::a_load_overtaken_by_a_catalog_message_is_served_but_not_kept uses wait_waiter keyed to the backend pid of the transaction holding LOCK TABLE catalog.documents, on a connection of the store pool, and asserts the waiter's locktype is relation; it no longer matches query text.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #938: catalogs_tests.rs:493 query LIKE '%documents%'; use wait_waiter for relation locks, matching the holder via pg_blocking_pids",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/cache/catalogs_tests.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4119",
+          "kind": "inspection",
+          "locator": "src/cache/catalogs_tests.rs:498-506",
+          "summary": "hold (txn on store pool) takes LOCK TABLE catalog.documents ACCESS EXCLUSIVE; holder_pid read from hold; probe from the same pool; wait_waiter(&mut probe, holder_pid) then assert_eq!(locktype,\"relation\"). wait_waiter filters NOT granted AND holder = ANY(pg_blocking_pids(pid)). The table is not matched by name (wait_waiter has no table argument), only implied because hold holds no other lock.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/catalogs_tests.rs",
+              "lines": {
+                "start": 488,
+                "end": 506
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:32.389704146Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a8480297e4cc8d6e97b54b44164c0532fe3046e7ff286c2a908ba2f4a3f4f80"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "wait_waiter is keyed to the ACCESS EXCLUSIVE holder's pid via pg_blocking_pids and the locktype is asserted relation. Caveat: the table name is not matched, only implied since the holder holds no other lock.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4119"
+          ],
+          "recorded_at": "2026-11-27T23:10:09.831773508Z",
+          "seal": {
+            "by": "server",
+            "mac": "a91f70d97b7324f77655f30f0b847fb0c5ec836341f698b982a0cd6180625633"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:09.831773508Z",
+      "seal": {
+        "by": "server",
+        "mac": "5046d0da9343862e59ec3dfb3106eac87d7bef71bcd050730b926ec77df7a8a7"
+      }
+    },
+    {
+      "id": "CLM-2345",
+      "statement": "oauth::codes::a_racing_double_redeem_yields_one_grant waits for both redeems through wait_row_lock_waiters(pool, blocker_pid, \"sign_in_codes\", 2, 10 s) and no longer matches pg_stat_activity query text.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Brief: src/store/oauth/codes.rs (a_racing_double_redeem_yields_one_grant) had the same pattern and is converted too",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/store/oauth/codes.rs",
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4120",
+          "kind": "inspection",
+          "locator": "src/store/oauth/codes.rs:1256-1285",
+          "summary": "blocker_pid read from the blocker txn holding the code row FOR UPDATE; both redeems spawned; wait_row_lock_waiters(&db.pool, blocker_pid, \"sign_in_codes\", 2, 10s) expected before rollback. Old pg_stat_activity query removed. Both redeems still in flight at once, so the race is kept.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/oauth/codes.rs",
+              "lines": {
+                "start": 1256,
+                "end": 1285
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:33.054141968Z",
+          "seal": {
+            "by": "server",
+            "mac": "1cccddb8b96b0965ee89fd5b15558cd6674c6dce584375e99a7cbcc811d7e0bc"
+          }
+        },
+        {
+          "id": "EVD-4121",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:169-215",
+          "summary": "wait_row_lock_waiters: direct waiters (not-granted transactionid behind holder, with granted tuple lock on the table) plus queued waiters (not-granted tuple lock on the table, counted only when a direct waiter exists); returns once len >= count. Matches the first-waits-for-holder, second-waits-for-tuple lock model needed for count 2.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 169,
+                "end": 215
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:33.590804363Z",
+          "seal": {
+            "by": "server",
+            "mac": "c383e8bdb31c5dae934b4c6b1ccb46de703a325747302c39e9da0aad18b4ca96"
+          }
+        },
+        {
+          "id": "EVD-4138",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:187-200 at 155b6d68",
+          "summary": "The helper codes.rs uses now counts the second session only if pg_blocking_pids includes a direct waiter of the holder. In codes.rs both redeems hit one row, so the second queues behind the first (a direct waiter) and is still counted. The codes.rs call is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 187,
+                "end": 200
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.383041738Z",
+          "seal": {
+            "by": "server",
+            "mac": "80d8eefadb16a6052911e9dfc1a169d033c438261c7008c48802e207768995ad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "codes.rs calls wait_row_lock_waiters with the blocker pid, sign_in_codes, count 2, 10 s; the helper's two-group query models the second session queuing on the first one's tuple lock.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4120",
+            "EVD-4121"
+          ],
+          "recorded_at": "2026-11-27T23:10:10.125303051Z",
+          "seal": {
+            "by": "server",
+            "mac": "89dce625f09382222d960bdc1183e943f7a266f2c8dba3fe9c51a673c025175e"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: codes.rs unchanged; the second redeem queues behind the first and is still counted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4138"
+          ],
+          "recorded_at": "2026-11-27T23:27:54.827192314Z",
+          "seal": {
+            "by": "server",
+            "mac": "6993ab52eceb2f65326f710ec25d5ff8d4872802fcbe68ffefb3e5e4d461d87e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:27:54.827192314Z",
+      "seal": {
+        "by": "server",
+        "mac": "968a543081a55997db14bd9ad8a68070cd632be66aea763c273136fe1e641887"
+      }
+    },
+    {
+      "id": "CLM-2346",
+      "statement": "Every converted wait is bounded to 10 s, below the 30 s deadlines of the callers (BOUND in catalogs_tests, the 30 s timeouts in idle_tests).",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #938: each wait bounded below its caller's own deadline; PR body: each bounded to 10 s (inside the callers' 30 s deadlines)",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/test_locks.rs",
+        "src/store/keys/idle_tests.rs",
+        "src/cache/catalogs_tests.rs",
+        "src/store/oauth/codes.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4122",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:53,85,222-227; src/store/oauth/codes.rs:1282; src/cache/catalogs_tests.rs:27",
+          "summary": "WAIT_LIMIT is 10 s, used by wait_waiter and expect_row_lock_waiter; codes.rs passes Duration::from_secs(10); catalogs_tests BOUND is 30 s; idle_tests later timeouts are 30 s (idle_tests.rs:477-ish) so each 10 s wait is inside.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 53,
+                "end": 53
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:34.272071485Z",
+          "seal": {
+            "by": "server",
+            "mac": "8bb34ea7484128303918a7df35020cba859e88e00309647e589911ab0e075da8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All helper waits are limited to 10 s (WAIT_LIMIT or explicit 10 s), under the 30 s callers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4122"
+          ],
+          "recorded_at": "2026-11-27T23:10:10.352969338Z",
+          "seal": {
+            "by": "server",
+            "mac": "e29cccba4a6ab349026caa63342ee37c7303ad1a02328dc46c6057501ddb8ca7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:10.352969338Z",
+      "seal": {
+        "by": "server",
+        "mac": "30f292ed59caa7c6ffa6ff601617b07902713e13274b6e031752b5978f07cbb1"
+      }
+    },
+    {
+      "id": "CLM-2347",
+      "statement": "The second idle test (a_refresh_admitted_before_expiry_...) now requires the pass to block on the rotation's api_keys row; its old wait also accepted the pass having finished.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: The second idle test used to accept \"the pass finished\" as well as \"the pass blocked\". It now requires the pass to block on the rotation's row",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/store/keys/idle_tests.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4123",
+          "kind": "inspection",
+          "locator": "src/store/keys/idle_tests.rs:386-391 and git diff origin/main..HEAD",
+          "summary": "Old wait broke on `waiting > 0 || pass.is_finished()`; new line 391 expect_row_lock_waiter(rotation pid, \"api_keys\") panics if the pass does not block on the rotation's row. The rotation holds the row via FOR SHARE (use_refresh, tokens.rs:336) and the pass takes FOR UPDATE, so the pass blocking is the intended race.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys/idle_tests.rs",
+              "lines": {
+                "start": 383,
+                "end": 392
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:35.024034410Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba66f80bebfb5e83457a20bfd71d8cdfd70400c01efa2e826c9e3cc2c38b7047"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Old condition accepted pass.is_finished(); new wait panics unless the pass blocks on the rotation's row, which is the race.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4123"
+          ],
+          "recorded_at": "2026-11-27T23:10:10.585592184Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a39945c21c494a50008058f0b530eeec17cdecf554279b390710d0dfcf640e7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:10.585592184Z",
+      "seal": {
+        "by": "server",
+        "mac": "b5ebef3622bcb3e024dcfa3ef3031ebb1608d4fe0cb6d68c287039455376f0a9"
+      }
+    },
+    {
+      "id": "CLM-2348",
+      "statement": "The change touches no production code: the diff origin/main..HEAD changes only src/test_locks.rs (cfg(test) module), test files, the tests module of src/store/oauth/codes.rs, and a changelog entry.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue/brief: No production code changes",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/lib.rs",
+        "src/store/oauth/codes.rs",
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4124",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD; src/lib.rs:71-72; src/store/oauth/codes.rs:812-813; git diff -U0 hunks @@ -1256 and -1273",
+          "summary": "Changed files: changelog entry, catalogs_tests.rs, idle_tests.rs (mod idle_tests), codes.rs, test_locks.rs. test_locks is #[cfg(test)] (lib.rs:71); codes.rs hunks start at lines 1256 and 1273, inside `#[cfg(test)] mod tests` (line 812-813).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/lib.rs",
+              "lines": {
+                "start": 71,
+                "end": 72
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:35.577112823Z",
+          "seal": {
+            "by": "server",
+            "mac": "975e9023d4a129404759c04c355830574be1a0a18ec60887611896ed20ef459e"
+          }
+        },
+        {
+          "id": "EVD-4139",
+          "kind": "inspection",
+          "locator": "git diff --stat 84ce8237..155b6d68",
+          "summary": "The review commit changes only src/test_locks.rs (compiled only under #[cfg(test)], lib.rs:71), the renamed changelog and claims.json. No production file changed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/lib.rs",
+              "lines": {
+                "start": 71,
+                "end": 72
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.529957931Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0251cbb9f5c9b65dab906d32ddaecf92c64abbbc7c49c9cd318e00a3daff80d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every changed file is a test file, a cfg(test) module, a hunk inside codes.rs's tests module, or the changelog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4124"
+          ],
+          "recorded_at": "2026-11-27T23:10:10.829347073Z",
+          "seal": {
+            "by": "server",
+            "mac": "f0733612bc18ef8ac4a915abb21581b0165306c3e1097786e49e74540727ea8d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: the review commit adds no production change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4139"
+          ],
+          "recorded_at": "2026-11-27T23:27:55.047442449Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5dbef8908162e7bf51ad390fc14f842a5db6977af1c2f2e5b6c55c3256a1d1b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:27:55.047442449Z",
+      "seal": {
+        "by": "server",
+        "mac": "ad28231db9978061a5b407d94efece87b66b4a209594cadae3ffe2bcddd9f540"
+      }
+    },
+    {
+      "id": "CLM-2349",
+      "statement": "A changelog/ entry for issue 938 is added.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Brief: A changelog/ entry is added",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "changelog/20261128T010000Z-issue-938-lock-wait-helpers.md"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4125",
+          "kind": "inspection",
+          "locator": "changelog/20261128T010000Z-issue-938-lock-wait-helpers.md",
+          "summary": "New file added in the commit range, describing the five conversions, the new helper and unchanged LISTEN checks. Its timestamp 20261128T010000Z is ahead of the clock (2026-11-27T23:08Z) but follows the neighbouring 20261128T000000Z entry.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T010000Z-issue-938-lock-wait-helpers.md",
+              "lines": {
+                "start": 1,
+                "end": 25
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:36.412632735Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6191c8ca387aba979886989c0e3f94a3f648b6b7fb9284183e43b1ae4e7dfff"
+          }
+        },
+        {
+          "id": "EVD-4140",
+          "kind": "inspection",
+          "locator": "changelog/20261127T232650Z-issue-938-lock-wait-helpers.md",
+          "summary": "The entry exists at the new path (the old 20261128T010000Z name is gone) and describes the new queued-waiter rule and its regression test. Its timestamp is earlier than the clock (23:27:15Z). It cites \"PR #1184\", which I could not verify from the repository.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T232650Z-issue-938-lock-wait-helpers.md",
+              "lines": {
+                "start": 1,
+                "end": 27
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.746844910Z",
+          "seal": {
+            "by": "server",
+            "mac": "075d243b1c52aa417d98d7dbcfbb1aeb55bd5c286613216bb99454931f64d45b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file exists in the commit range and covers the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4125"
+          ],
+          "recorded_at": "2026-11-27T23:10:11.080204620Z",
+          "seal": {
+            "by": "server",
+            "mac": "3776afc295371bba37b4c6a01176e107d83ae91945a9a241f6439cfef4e3c6f8"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit: the changelog exists at its new path and covers the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4140"
+          ],
+          "recorded_at": "2026-11-27T23:27:55.293327331Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac2dba30e57a976bd8a7f5a3373f6ddf8c218d136be7d9a6bb212bbe8bdd6380"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:27:55.293327331Z",
+      "seal": {
+        "by": "server",
+        "mac": "e49898763965091764fc88fdfedcd20276e6a0ba65ad65dad1400c1d2eec6031"
+      }
+    },
+    {
+      "id": "CLM-2350",
+      "statement": "The query LIKE 'LISTEN%' checks in src/invalidate.rs, src/invalidate/store_feed_tests.rs and src/mail/queue.rs are unchanged by the diff.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "Brief: these are idle-listener checks and stay unchanged; PR body: unchanged",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/invalidate.rs",
+        "src/invalidate/store_feed_tests.rs",
+        "src/mail/queue.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4126",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD (none of the three files); git grep LISTEN",
+          "summary": "The three files are not in the diff; the LISTEN checks are still present at head (invalidate.rs:1341,1356; store_feed_tests.rs:164; mail/queue.rs:1009).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "query LIKE 'LISTEN ?%'",
+              "scope": [
+                "src/invalidate",
+                "src/invalidate.rs",
+                "src/mail/queue.rs"
+              ],
+              "hits": 4,
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:37.337964206Z",
+          "seal": {
+            "by": "server",
+            "mac": "333c561eab0866b13aea1acf1e90db797411b8dd5f1005a209b1e63bfc1eff3b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "None of the three files are in the diff and the LISTEN checks remain.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4126"
+          ],
+          "recorded_at": "2026-11-27T23:10:11.318911670Z",
+          "seal": {
+            "by": "server",
+            "mac": "976e1034d02d29347f7771026a2f6df47c0eb59662cebca6a70769bb3f9dbe50"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:11.318911670Z",
+      "seal": {
+        "by": "server",
+        "mac": "291d4a86aa30b92cdba02f9cc7de590d6999f72779674c18c2c2605bc88a0bac"
+      }
+    },
+    {
+      "id": "CLM-2351",
+      "statement": "wait_row_lock_waiter is now wait_row_lock_waiters with a count of one, and a new unit test two_sessions_after_one_row_are_both_found_but_not_a_third covers two waiters found and three not found.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: wait_row_lock_waiter now calls it with a count of one. A new unit test covers two waiters and not three.",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4127",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:129-138, 359-392",
+          "summary": "wait_row_lock_waiter delegates to wait_row_lock_waiters(.., 1, ..) and maps to pids[0]; the new test spawns a second FOR UPDATE session, asserts both.len()==2 and a count-3 wait returns None. Not run (gate in progress).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 359,
+                "end": 392
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:37.818850116Z",
+          "seal": {
+            "by": "server",
+            "mac": "3eccd7cf25742c720414e7e1ec97be973d242729be18fe73e26d28fa413542ab"
+          }
+        },
+        {
+          "id": "EVD-4141",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:129-138, 360-392 at 155b6d68",
+          "summary": "wait_row_lock_waiter still delegates with count 1 (pids[0]); the two-found-not-three test is unchanged. Under the new queued rule its second session still counts because it queues behind the first, a direct waiter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 360,
+                "end": 392
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.927666540Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3a25f3792a76b6646dda0869797490cc56e29571481efa5d43a27dfb4049add"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test read as described; the test was not run by this audit (gate in progress), so passing is not claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4127"
+          ],
+          "recorded_at": "2026-11-27T23:10:11.615535895Z",
+          "seal": {
+            "by": "server",
+            "mac": "071e246b8edc7557f554cd84e5fc702d1840762c483c86e06af2cf0039162197"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 155b6d68: delegation and the test are unchanged; not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4141"
+          ],
+          "recorded_at": "2026-11-27T23:27:55.494482636Z",
+          "seal": {
+            "by": "server",
+            "mac": "223c3bad5d50ce4a1683087e3c7d4d5ec51e8c503b8a948acbae2aa4f6eaf04c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:27:55.494482636Z",
+      "seal": {
+        "by": "server",
+        "mac": "46642d29200990c2afa46199fc3b4bfeb32f8e157b6e5260836d6460ecc59089"
+      }
+    },
+    {
+      "id": "CLM-2352",
+      "statement": "The Old match column of the PR description's table is accurate for each of the five converted waits (query texts removed by the diff).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes table",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/store/keys/idle_tests.rs",
+        "src/cache/catalogs_tests.rs",
+        "src/store/oauth/codes.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4128",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src (removed lines)",
+          "summary": "Removed texts match the table: idle test 1 '%FROM api_keys WHERE id = $1 FOR UPDATE%'; test 2 same plus pass.is_finished(); test 3 '%FOR SHARE%'; catalogs '%documents%'; codes '%FROM sign_in_codes%FOR UPDATE%'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/keys/idle_tests.rs",
+              "lines": {
+                "start": 311,
+                "end": 316
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:38.731382913Z",
+          "seal": {
+            "by": "server",
+            "mac": "00dce347ed77ed9501e381d94f4dd233e5d6986a7cb0eade21701b624610149e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each Old match entry equals the removed text in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4128"
+          ],
+          "recorded_at": "2026-11-27T23:10:11.849797047Z",
+          "seal": {
+            "by": "server",
+            "mac": "de06d5180a984b1b7c1ff70f667132c6f1040d4d4f7a33a2e23f629300f8986e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:10:11.849797047Z",
+      "seal": {
+        "by": "server",
+        "mac": "786bf2a0fed872436b9b0c984a85a9eb6863bdc42ad118a76e9cf89f8f4d4775"
+      }
+    },
+    {
+      "id": "CLM-2353",
+      "statement": "After this change no other test wait in src that decides a backend is blocked on a lock matches pg_stat_activity.query text, apart from the LISTEN idle-listener checks.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #938 title and requirement read universally: test waits that match pg_stat_activity.query text must use the shared helpers",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/housekeeping.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Re-registered as a standalone claim: it concerns code this PR did not change, so it must not roll up into the issue's parent claim.",
+        "retired_at": "2026-11-27T23:09:45.644757481Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4129",
+          "kind": "inspection",
+          "locator": "src/housekeeping.rs:1614-1618",
+          "summary": "The housekeeping tick wait still matches `query ILIKE '%apalis.jobs%'` with wait_event_type = 'Lock' on pg_stat_activity, in addition to pg_blocking_pids; it is the same stale-text pattern, not converted and not mentioned in the issue.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/housekeeping.rs",
+              "lines": {
+                "start": 1613,
+                "end": 1619
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:39.948122192Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d8a4b8598ef15c5b7687090bb2b396e24f59a02dabf6d68d6dd4f62cd7a9346"
+          }
+        }
+      ],
+      "verdicts": [],
+      "created_at": "2026-11-27T23:08:58.252662934Z",
+      "updated_at": "2026-11-27T23:09:45.644757481Z",
+      "seal": {
+        "by": "server",
+        "mac": "73eed90529d35cc7f2f667936c19ba47db3289ee45b57fed9d310613c3dd69bc"
+      }
+    },
+    {
+      "id": "CLM-2354",
+      "statement": "src/housekeeping.rs's lock-wait test decides the tick is blocked on a lock without matching pg_stat_activity.query text.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #938 requirement read universally (pre-existing code, not changed by this PR)",
+      "derived_from": [],
+      "artifacts": [
+        "src/housekeeping.rs"
+      ],
+      "tags": [
+        "from-issue:938",
+        "elsewhere"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4130",
+          "kind": "inspection",
+          "locator": "src/housekeeping.rs:1614-1618",
+          "summary": "The wait filters on wait_event_type = 'Lock' AND query ILIKE '%apalis.jobs%' in pg_stat_activity (plus pg_blocking_pids holder), the same stale-text pattern; not in the issue's list and not changed by this PR.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/housekeeping.rs",
+              "lines": {
+                "start": 1613,
+                "end": 1619
+              },
+              "commit": "84ce82374d9b02eebef92c7188e661a23cd1c9c9"
+            }
+          },
+          "recorded_at": "2026-11-27T23:09:51.194509185Z",
+          "seal": {
+            "by": "server",
+            "mac": "653e9283144a01a8f81ee89f3dfc5df86bfcefa27f0eed5c40b78ea4b27518dd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "housekeeping.rs still matches query ILIKE '%apalis.jobs%' on pg_stat_activity to detect a lock wait. Pre-existing, outside the issue's list, so it does not block this PR. Fix: replace the pg_stat_activity query in src/housekeeping.rs (around line 1614) with test_locks::wait_waiter(conn, holder), or a row-lock helper if it waits on a row, and drop the query ILIKE condition.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4130"
+          ],
+          "recorded_at": "2026-11-27T23:10:12.331301963Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ae3cd935fd296e14bc33ded7b516ae25fb4c7eba2c21e98e226d9a31238d5b8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:09:48.440261829Z",
+      "updated_at": "2026-11-27T23:10:12.331301963Z",
+      "seal": {
+        "by": "server",
+        "mac": "36ed5e07a1c0fa5ee990f78091d5fc20e725773cc2d156765ca0a85b0baf7102"
+      }
+    },
+    {
+      "id": "CLM-2355",
+      "statement": "wait_row_lock_waiters counts a queued tuple-lock waiter only when pg_blocking_pids names a session waiting for the holder, so a queue on another row of the table behind a different holder is not counted, and a test (a_queue_on_another_row_of_the_table_is_not_counted_for_the_holder) asserts it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Review fix commit 155b6d68 for issue #938 (matching the holder via pg_blocking_pids)",
+      "derived_from": [
+        "CLM-2342"
+      ],
+      "artifacts": [
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:938"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4136",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:187-200",
+          "summary": "The queued CTE requires a not-granted tuple lock on the table AND pg_blocking_pids(q.pid) && ARRAY(SELECT pid FROM direct), replacing EXISTS. A queue on another row behind another holder is blocked by that holder and its waiter, not by H's direct waiter, so the arrays do not overlap.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 187,
+                "end": 200
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.082388707Z",
+          "seal": {
+            "by": "server",
+            "mac": "b82e2b729a839a3f76316e126b36258117bcf0d5b9883cb827b7314ffa0509ce"
+          }
+        },
+        {
+          "id": "EVD-4137",
+          "kind": "inspection",
+          "locator": "src/test_locks.rs:395-452 (not run)",
+          "summary": "The test makes H with one waiter on row 1 and an unrelated holder with two waiters on row 2, waits for both queues, then asserts a count of 2 for H returns None (300 ms) and a count of 1 returns exactly one pid. It would fail under the old EXISTS condition, which counted row 2's tuple waiter once H had a direct waiter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_locks.rs",
+              "lines": {
+                "start": 395,
+                "end": 452
+              },
+              "commit": "155b6d681f7a36faa2fad801f61efa32d8fdc757"
+            }
+          },
+          "recorded_at": "2026-11-27T23:27:40.237696932Z",
+          "seal": {
+            "by": "server",
+            "mac": "f10b1aa1a15da5671181cb6870635df173911ca771b628431fd139afdf587963"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test read as described; the test was not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4136",
+            "EVD-4137"
+          ],
+          "recorded_at": "2026-11-27T23:27:54.591398463Z",
+          "seal": {
+            "by": "server",
+            "mac": "5229612af6c16faef8a8a93b555de9d97874e2a06eb8fae6191626254d098616"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:27:19.660150164Z",
+      "updated_at": "2026-11-27T23:27:54.591398463Z",
+      "seal": {
+        "by": "server",
+        "mac": "6f14d76488d2a1538e86d56370d9f01d80efb4ce6daff35141b51fd4552f7f9b"
       }
     }
   ]

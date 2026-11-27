@@ -1254,6 +1254,10 @@ mod tests {
         // are certainly in flight at once, each on its own pooled connection,
         // blocked on the same `FOR UPDATE`.
         let mut blocker = db.pool.begin().await.unwrap();
+        let blocker_pid: i32 = sqlx::query_scalar("SELECT pg_backend_pid()")
+            .fetch_one(&mut *blocker)
+            .await
+            .unwrap();
         sqlx::query("SELECT id FROM sign_in_codes WHERE id = $1 FOR UPDATE")
             .bind(&code.id)
             .execute(&mut *blocker)
@@ -1270,24 +1274,15 @@ mod tests {
         };
         let first = spawn_redeem();
         let second = spawn_redeem();
-        let waiting = || async {
-            sqlx::query_scalar::<_, i64>(
-                "SELECT count(*) FROM pg_stat_activity \
-                 WHERE datname = current_database() AND wait_event_type = 'Lock' \
-                 AND query LIKE '%FROM sign_in_codes%FOR UPDATE%'",
-            )
-            .fetch_one(&db.pool)
-            .await
-            .unwrap()
-        };
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
-        while waiting().await < 2 {
-            assert!(
-                std::time::Instant::now() < deadline,
-                "both redeems should block on the row lock"
-            );
-            tokio::time::sleep(std::time::Duration::from_millis(20)).await;
-        }
+        crate::test_locks::wait_row_lock_waiters(
+            &db.pool,
+            blocker_pid,
+            "sign_in_codes",
+            2,
+            std::time::Duration::from_secs(10),
+        )
+        .await
+        .expect("both redeems should block on the row lock");
 
         blocker.rollback().await.unwrap();
         let first = first.await.expect("the first redeem task");

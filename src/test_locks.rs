@@ -111,12 +111,7 @@ pub(crate) async fn wait_waiter(conn: &mut PgConnection, holder: i32) -> Waiter 
 /// Waits until some session is queued for a row lock on `table` that
 /// `holder` holds, and returns that session's pid.
 ///
-/// A session that must wait for a row lock first takes the row's `tuple`
-/// lock (granted, on the table's relation), then waits for the holder's
-/// `transactionid` lock (not granted). So the wait on a row of `table` is a
-/// not-granted `transactionid` lock together with a granted `tuple` lock on
-/// `table`, both held up by `holder`. The `tuple` lock is the only part of
-/// the wait that names the table.
+/// See [`wait_row_lock_waiters`] for what counts as a wait on a row.
 ///
 /// # Arguments
 /// * `pool` - the pool to poll from; the pids and `pg_locks` are read from
@@ -126,8 +121,8 @@ pub(crate) async fn wait_waiter(conn: &mut PgConnection, holder: i32) -> Waiter 
 /// * `limit` - how long to wait.
 ///
 /// # Returns
-/// The lowest pid among the sessions waiting, or `None` when none did
-/// within `limit`.
+/// The pid of the session that waits for `holder` itself (the lowest such
+/// pid), or `None` when none did within `limit`.
 ///
 /// # Panics
 /// When a query fails.
@@ -137,6 +132,48 @@ pub(crate) async fn wait_row_lock_waiter(
     table: &str,
     limit: Duration,
 ) -> Option<i32> {
+    wait_row_lock_waiters(pool, holder, table, 1, limit)
+        .await
+        .map(|pids| pids[0])
+}
+
+/// Waits until at least `count` sessions are queued for the row lock on
+/// `table` that `holder` holds, and returns their pids.
+///
+/// A session that must wait for a row lock first takes the row's `tuple`
+/// lock (granted, on the table's relation), then waits for the holder's
+/// `transactionid` lock (not granted). So the wait on a row of `table` is a
+/// not-granted `transactionid` lock together with a granted `tuple` lock on
+/// `table`, both held up by `holder`. The `tuple` lock is the only part of
+/// the wait that names the table.
+///
+/// A second session after the same row queues for the first one's `tuple`
+/// lock instead (a not-granted `tuple` lock on `table`), so it is behind
+/// `holder` only through the first. It counts when `pg_blocking_pids` names a
+/// session that waits for `holder` itself, so a queue on another row of the
+/// table, behind some other holder, is never counted.
+///
+/// # Arguments
+/// * `pool` - the pool to poll from; the pids and `pg_locks` are read from
+///   the database the pool connects to.
+/// * `holder` - the backend pid holding the row.
+/// * `table` - the table whose row is locked (any name `regclass` accepts).
+/// * `count` - how many waiting sessions to wait for.
+/// * `limit` - how long to wait.
+///
+/// # Returns
+/// The waiting pids, those waiting for `holder` itself first (each group
+/// in pid order), or `None` when fewer than `count` waited within `limit`.
+///
+/// # Panics
+/// When a query fails.
+pub(crate) async fn wait_row_lock_waiters(
+    pool: &PgPool,
+    holder: i32,
+    table: &str,
+    count: usize,
+    limit: Duration,
+) -> Option<Vec<i32>> {
     // A table of schema `catalog` lives in the store's database, which is a
     // database of its own in `OKF_TEST_STORE=separate` mode.
     let pool = &if table.starts_with("catalog.") {
@@ -146,23 +183,30 @@ pub(crate) async fn wait_row_lock_waiter(
     };
     tokio::time::timeout(limit, async {
         loop {
-            let pid: Option<i32> = sqlx::query_scalar(
-                "SELECT w.pid FROM pg_locks w \
-                 JOIN pg_locks t ON t.pid = w.pid AND t.locktype = 'tuple' AND t.granted \
-                  AND t.relation = $2::regclass \
-                  AND t.database = (SELECT oid FROM pg_database WHERE datname = current_database()) \
-                 WHERE w.locktype = 'transactionid' AND NOT w.granted \
-                  AND $1 = ANY(pg_blocking_pids(w.pid)) \
-                 ORDER BY w.pid LIMIT 1",
+            let pids: Vec<i32> = sqlx::query_scalar(
+                "WITH direct AS ( \
+                   SELECT w.pid FROM pg_locks w \
+                   JOIN pg_locks t ON t.pid = w.pid AND t.locktype = 'tuple' AND t.granted \
+                    AND t.relation = $2::regclass \
+                    AND t.database = (SELECT oid FROM pg_database WHERE datname = current_database()) \
+                   WHERE w.locktype = 'transactionid' AND NOT w.granted \
+                    AND $1 = ANY(pg_blocking_pids(w.pid))), \
+                 queued AS ( \
+                   SELECT q.pid FROM pg_locks q \
+                   WHERE q.locktype = 'tuple' AND NOT q.granted AND q.relation = $2::regclass \
+                    AND q.database = (SELECT oid FROM pg_database WHERE datname = current_database()) \
+                    AND pg_blocking_pids(q.pid) && ARRAY(SELECT pid FROM direct)) \
+                 SELECT pid FROM (SELECT pid, 0 AS rank FROM direct \
+                                  UNION ALL SELECT pid, 1 FROM queued) AS waiters \
+                 ORDER BY rank, pid",
             )
             .bind(holder)
             .bind(table)
-            .fetch_optional(pool)
+            .fetch_all(pool)
             .await
-            .unwrap()
-            .flatten();
-            if let Some(pid) = pid {
-                return pid;
+            .unwrap();
+            if pids.len() >= count.max(1) {
+                return pids;
             }
             tokio::time::sleep(Duration::from_millis(10)).await;
         }
@@ -311,5 +355,98 @@ mod tests {
         assert_eq!(found, None);
         holder.commit().await.unwrap();
         waiter.await.unwrap();
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn two_sessions_after_one_row_are_both_found_but_not_a_third() {
+        let db = test_db().await;
+        let (holder, holder_pid, first) = hold_and_wait(&db.pool).await;
+        let waiting_pool = db.pool.clone();
+        let second = tokio::spawn(async move {
+            sqlx::query("SELECT id FROM lock_probe_a WHERE id = 1 FOR UPDATE")
+                .fetch_all(&waiting_pool)
+                .await
+                .unwrap();
+        });
+        let both = wait_row_lock_waiters(
+            &db.pool,
+            holder_pid,
+            "lock_probe_a",
+            2,
+            Duration::from_secs(10),
+        )
+        .await
+        .expect("two sessions waited");
+        let third = wait_row_lock_waiters(
+            &db.pool,
+            holder_pid,
+            "lock_probe_a",
+            3,
+            Duration::from_millis(300),
+        )
+        .await;
+        assert_eq!(both.len(), 2);
+        assert_eq!(third, None);
+        holder.commit().await.unwrap();
+        first.await.unwrap();
+        second.await.unwrap();
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_queue_on_another_row_of_the_table_is_not_counted_for_the_holder() {
+        let db = test_db().await;
+        // Holder H and its one waiter, on row 1.
+        let (holder, holder_pid, first) = hold_and_wait(&db.pool).await;
+        sqlx::query("INSERT INTO lock_probe_a VALUES (2)")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        // An unrelated holder of row 2 with two waiters of its own.
+        let mut other = db.pool.begin().await.unwrap();
+        let other_pid: i32 = sqlx::query_scalar("SELECT pg_backend_pid()")
+            .fetch_one(&mut *other)
+            .await
+            .unwrap();
+        sqlx::query("SELECT id FROM lock_probe_a WHERE id = 2 FOR UPDATE")
+            .execute(&mut *other)
+            .await
+            .unwrap();
+        let queued: Vec<_> = (0..2)
+            .map(|_| {
+                let pool = db.pool.clone();
+                tokio::spawn(async move {
+                    sqlx::query("SELECT id FROM lock_probe_a WHERE id = 2 FOR UPDATE")
+                        .fetch_all(&pool)
+                        .await
+                        .unwrap();
+                })
+            })
+            .collect();
+        let limit = Duration::from_secs(10);
+        wait_row_lock_waiters(&db.pool, other_pid, "lock_probe_a", 2, limit)
+            .await
+            .expect("the other queue formed");
+        expect_row_lock_waiter(&db.pool, holder_pid, "lock_probe_a").await;
+
+        // Only one session waits for H, whatever else queues on the table.
+        let two_for_holder = wait_row_lock_waiters(
+            &db.pool,
+            holder_pid,
+            "lock_probe_a",
+            2,
+            Duration::from_millis(300),
+        )
+        .await;
+        let one_for_holder =
+            wait_row_lock_waiters(&db.pool, holder_pid, "lock_probe_a", 1, limit).await;
+
+        assert_eq!(two_for_holder, None);
+        assert_eq!(one_for_holder.map(|pids| pids.len()), Some(1));
+        holder.commit().await.unwrap();
+        other.commit().await.unwrap();
+        first.await.unwrap();
+        for task in queued {
+            task.await.unwrap();
+        }
     }
 }

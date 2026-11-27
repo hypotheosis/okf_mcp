@@ -495,23 +495,15 @@ async fn a_load_overtaken_by_a_catalog_message_is_served_but_not_kept() {
         let pg = Arc::clone(&pg);
         tokio::spawn(async move { app.catalog_state(&pg).await })
     };
-    timeout(BOUND, async {
-        loop {
-            let waiting: i64 = sqlx::query_scalar(
-                "SELECT count(*) FROM pg_stat_activity \
-                 WHERE wait_event_type = 'Lock' AND query LIKE '%documents%'",
-            )
-            .fetch_one(&pool)
-            .await
-            .unwrap();
-            if waiting > 0 {
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(20)).await;
-        }
-    })
-    .await
-    .expect("the load waits on the documents table");
+    // `hold` holds only that table lock, so a session queued behind it waits
+    // for the table itself (a `relation` lock), not for a row.
+    let holder_pid: i32 = sqlx::query_scalar("SELECT pg_backend_pid()")
+        .fetch_one(&mut *hold)
+        .await
+        .unwrap();
+    let mut probe = pool.acquire().await.unwrap();
+    let waiter = crate::test_locks::wait_waiter(&mut probe, holder_pid).await;
+    assert_eq!(waiter.locktype, "relation");
 
     // A publish committed elsewhere: its message arrives while the load,
     // which read the older generation, is still running.

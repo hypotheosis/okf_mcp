@@ -313,7 +313,6 @@ async fn sign_out(
 #[cfg(test)]
 mod tests {
     use crate::http::api::testing::{app, assert_matrix, keys, send, Row};
-    use crate::rows_returned::RowsReturned;
     // `oneshot` sends one request through a router without a socket.
     use tower::ServiceExt;
 
@@ -506,10 +505,6 @@ mod tests {
     /// return a handful of rows, and the answer is the caller's own.
     #[tokio::test(flavor = "multi_thread")]
     async fn whoami_reads_the_callers_key_not_every_key() {
-        use tracing_subscriber::layer::SubscriberExt;
-        // `with_filter` is a method of the `Layer` trait.
-        use tracing_subscriber::Layer as _;
-
         const OTHERS: i64 = 50_000;
         let test = app().await;
         let keys = keys(&test).await;
@@ -530,28 +525,18 @@ mod tests {
         // Warm the caches, so the measured request is the steady state.
         let (warm, _) = send(&test, "GET", "/api/v1/whoami", Some(&keys.read), None).await;
         assert_eq!(warm.as_u16(), 200);
-        let counter = RowsReturned::default();
-        let subscriber = tracing_subscriber::registry().with(
-            counter.clone().with_filter(
-                tracing_subscriber::filter::Targets::new()
-                    .with_target("sqlx::query", tracing::Level::TRACE),
-            ),
-        );
-
-        let (status, body) = {
-            // Only this thread's events: the request runs on it.
-            let _guard = crate::test_tracing::set_default(subscriber);
+        // The shared counter installs the subscriber and refreshes the
+        // callsite interest cache first (issue #826).
+        let ((status, body), rows, statements) = crate::rows_returned::counting(async {
             tokio::time::timeout(
                 std::time::Duration::from_secs(30),
                 send(&test, "GET", "/api/v1/whoami", Some(&keys.read), None),
             )
             .await
             .expect("whoami answers")
-        };
+        })
+        .await;
 
-        let relaxed = std::sync::atomic::Ordering::Relaxed;
-        let rows = counter.rows.load(relaxed);
-        let statements = counter.statements.load(relaxed);
         assert_eq!(status.as_u16(), 200);
         assert_eq!(body["name"], "reader");
         assert!(statements > 0, "the request's statements are counted");

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 1958,
+  "next_claim_seq": 1968,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "87e8080707b511c2a1a12fdd45d67d43384cdbecde51b4f62d6bb44d1c328a25"
+    "mac": "27f4646351dbcca4c996ec425d42af75c4a4a255e76e077c50d959117c7f52a7"
   },
-  "next_evidence_seq": 3518,
+  "next_evidence_seq": 3529,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "98b41e264c389a05b9a18a8fafb698c86051d5ba8f3c8c095fadb4d11c6455e9"
+    "mac": "868701707dfc03961ad3a5c89e15d08263b7fc1def914bc686c8656a26d960c7"
   },
   "claims": [
     {
@@ -46373,6 +46373,28 @@
             "by": "server",
             "mac": "30fa0a307751f0cfe20a1722fbe15aa133e2dd5e1b7a63ac3bec9387fe2c5de9"
           }
+        },
+        {
+          "id": "EVD-3527",
+          "kind": "inspection",
+          "locator": "src/rows_returned.rs:59; src/http/api/identity.rs:530 (git grep -n 'crate::test_tracing::(set_default|with_default)' -- src: 11 hits at b709752)",
+          "summary": "The whoami test no longer calls test_tracing directly; it calls rows_returned::counting, which installs its subscriber through crate::test_tracing::set_default (rows_returned.rs:59). So the test still installs through the helper, indirectly. The search anchors of EVD-0606 and EVD-2903 now count 11 hits instead of 9 and 12 because identity.rs's direct call is gone. The other listed tests (caller.rs, http/mod.rs, cli.rs) still call the helper.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/rows_returned.rs",
+              "lines": {
+                "start": 58,
+                "end": 60
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:20.675968361Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d34fe14158a66ae3727bb4c1ced4e43a5de1393025f228f481da2fe4c536666"
+          }
         }
       ],
       "verdicts": [
@@ -46401,13 +46423,26 @@
             "by": "server",
             "mac": "0771d1fdc72515bd8dc75307dbd7bc116e94ded93cfd7e65cdd712241c5ecb77"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at b709752 after #826 touched identity.rs: the whoami test now reaches test_tracing through counting; all other listed tests still call it directly. Holds, now indirectly for the whoami test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3527"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.342581106Z",
+          "seal": {
+            "by": "server",
+            "mac": "4df63e29b909aacd477a90d5825f839639e6a80affbaac4b272394596b1ebc01"
+          }
         }
       ],
       "created_at": "2026-11-22T21:53:52.936911242Z",
-      "updated_at": "2026-11-26T13:08:44.558371873Z",
+      "updated_at": "2026-11-27T00:04:35.342581106Z",
       "seal": {
         "by": "server",
-        "mac": "cb12ee61e65ec3f7c2e80f88b4f2a5a910c050fd688f6ffccb7863e49ebc2f87"
+        "mac": "e768a69d6749d283a508308ef5d4a25c9495cea54c4d072bb45c3a574ea81cd6"
       }
     },
     {
@@ -176012,6 +176047,623 @@
       "seal": {
         "by": "server",
         "mac": "aad3868215c53dc9b40ca6100affc567337728582f59fc9a6481242e22626522"
+      }
+    },
+    {
+      "id": "CLM-1958",
+      "statement": "The change addresses the flake in identity::tests::whoami_reads_the_callers_key_not_every_key by closing an identified cause of the test counting no rows under parallel load.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/826 'Flaky under parallel load: identity::tests::whoami_reads_the_callers_key_not_every_key'",
+      "derived_from": [],
+      "artifacts": [
+        "src/rows_returned.rs",
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3528",
+          "kind": "analysis",
+          "locator": "children of CLM-1958",
+          "summary": "The code change is as described and closes one plausible race (the interest cache refresh runs before the work; the test now uses it). The flake was never reproduced, so no evidence shows that this race caused it or that the fix removes the failure. Two children (gate counts, http:: run) rest only on the author's logs.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T00:04:39.613843697Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce359c589a9fc9e97537d86258297214c323f9269dc08dddc3e106c37f087793"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Seven children are supported, two are not_enough_info, and the flake itself is unreproduced, so whether this race is the cause cannot be decided. Fix: have the author rerun gate.sh test and nextest http:: on the final head and cite the Summary lines, and word the PR as \"closes one identified race\" (it already does) rather than \"fixes the flake\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3528"
+          ],
+          "recorded_at": "2026-11-27T00:04:43.310562483Z",
+          "seal": {
+            "by": "server",
+            "mac": "058c11c4776c0c107e383d1bfc9c9d6435e0ff2d55e4a7371e605bc13b111d7f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:43.310562483Z",
+      "seal": {
+        "by": "server",
+        "mac": "af2d91102930e0f81c407fe390d25ef36dbd078770bf39ea2ff2fdb67c4ad78b"
+      }
+    },
+    {
+      "id": "CLM-1959",
+      "statement": "rows_returned::counting calls tracing::callsite::rebuild_interest_cache() after installing its subscriber and before awaiting the work.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"`rows_returned::counting` calls `tracing::callsite::rebuild_interest_cache()` after installing its subscriber (benefits all its callers).\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/rows_returned.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3518",
+          "kind": "inspection",
+          "locator": "src/rows_returned.rs:58-65",
+          "summary": "Inside counting, set_default(subscriber) at line 59 is followed by rebuild_interest_cache() at line 64, and only then work.await at line 65.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/rows_returned.rs",
+              "lines": {
+                "start": 58,
+                "end": 65
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.034528236Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4172ec9e21ad1e1bf5c3a3c7aa3fd2b6f66f52c672605f567782deef14caea7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The rebuild call sits between set_default and work.await.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3518"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.454013970Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb1173b91100b13da90304ce19210938e87ce25ec0d8493b3231e0cb09c0da73"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.454013970Z",
+      "seal": {
+        "by": "server",
+        "mac": "53bba72f749d458a3557707362361e1c95e649146f289082fcb9506965671f34"
+      }
+    },
+    {
+      "id": "CLM-1960",
+      "statement": "counting is used by callers other than the whoami test, so they also get the interest-cache refresh.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"(benefits all its callers)\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/rows_returned.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3519",
+          "kind": "inspection",
+          "locator": "git grep -n 'rows_returned::counting' -- src",
+          "summary": "Besides identity.rs, counting is called from src/oauth/authorize.rs:4610 (imported), src/cache/credentials_tests.rs:974, and src/http/api/labels_tests.rs:756 and 761.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "rows_returned::counting|use crate::rows_returned::counting",
+              "scope": [
+                "src"
+              ],
+              "hits": 5,
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.157320164Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ef20a3c734f800717064d6b89eaa366038df99da76226fc00aa97b096a1e4d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Three other files call counting.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3519"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.562941984Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ebf285a140ff4739f326e4bb8487d34e205fa520bc44433be5d4ef5661f3cea"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.562941984Z",
+      "seal": {
+        "by": "server",
+        "mac": "70c42ecfc5db6f0d895dadaa5953072b983b0a61133a374acd714a1cf04ca336"
+      }
+    },
+    {
+      "id": "CLM-1961",
+      "statement": "The whoami test calls crate::rows_returned::counting and no longer builds its own RowsReturned subscriber.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The whoami test uses `counting` instead of its own copy of the subscriber setup.\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3520",
+          "kind": "inspection",
+          "locator": "src/http/api/identity.rs:528-540; git diff origin/main..HEAD -- src/http/api/identity.rs",
+          "summary": "The test calls crate::rows_returned::counting at line 530. The diff removes the RowsReturned import and the manual registry/Targets/set_default block; git grep for RowsReturned in identity.rs finds no hit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/identity.rs",
+              "lines": {
+                "start": 528,
+                "end": 540
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.274198179Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e0d1bf9d3e11f3c290ca8ed62bf889c404628b4d9d6ca99b7b840118a54c1bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test calls counting and the manual subscriber block and import are gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3520"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.670572074Z",
+          "seal": {
+            "by": "server",
+            "mac": "2660b715791ad681217c2ebfea8f083df3a6ceb6b82c35b78eec1979db3a6947"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.670572074Z",
+      "seal": {
+        "by": "server",
+        "mac": "f7c160aba4f7dd8db080d2aa73fd4abcfcf8ac443b2d50ca36d2ce78ee97214a"
+      }
+    },
+    {
+      "id": "CLM-1962",
+      "statement": "The whoami test keeps its 30 s timeout and its assertions after the refactor (only the subscriber setup and counter reads changed).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #826 body: test counts rows under a 30 s timeout; implicit no-behavior-change",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3521",
+          "kind": "inspection",
+          "locator": "src/http/api/identity.rs:530-546",
+          "summary": "The 30 s timeout wraps the send inside counting (lines 531-535); the four assertions (status 200, name reader, statements > 0, rows < 50) are unchanged in the diff, which touches only the setup and the counter reads.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/identity.rs",
+              "lines": {
+                "start": 530,
+                "end": 546
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.388847145Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8b13a2ebf515379154cf4563b9bacfb0a43bb7e42fbbde3b864119b8bf43396"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timeout and all four assertions are intact in the diff and file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3521"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.778533505Z",
+          "seal": {
+            "by": "server",
+            "mac": "3710ec4adad7b6e9aa8a145b5e8f8e7d39d48ddc6b13fefd585104a5a0e3bd18"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.778533505Z",
+      "seal": {
+        "by": "server",
+        "mac": "0fab686858b0085c9ab4cb178c8f4096d3b1218c191fc30be88299eeb3db3217"
+      }
+    },
+    {
+      "id": "CLM-1963",
+      "statement": "The thread-local subscriber is not the cause of the flake: the request future is polled on the test thread and nothing in the whoami path spawns a task.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"The thread-local subscriber is not the cause: the request future is polled on the test thread and nothing in the whoami path spawns a task.\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/http/api/identity.rs",
+        "src/http/api/testing.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3522",
+          "kind": "analysis",
+          "locator": "src/http/api/testing.rs:136-166; src/http/api/identity.rs:156-215",
+          "summary": "send builds the router and awaits oneshot plus body read inline (no spawn). The whoami handler (identity.rs:156-215) awaits key_rows::record_by_id, ceiling::highest, teams_of and navigable_page directly; the file has no spawn call (git grep spawn src/http/api/identity.rs: 0 hits). tokio::spawn hits in src/cache/bounded.rs are in test modules, not the request path. I did not read the full transitive call tree of sqlx pool internals or every cache loader.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/testing.rs",
+              "lines": {
+                "start": 136,
+                "end": 166
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.502256146Z",
+          "seal": {
+            "by": "server",
+            "mac": "4ae7bb0f6b04aa8c9b5c095b49d46cf5e44b54b12cc556896b4bf01551155cc5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The request path from send through the handler is awaited inline with no spawn; limits of the inspection are stated in the evidence. Held as supported for the code read, not as proof of what caused the original failure.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3522"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.885073690Z",
+          "seal": {
+            "by": "server",
+            "mac": "3045b529744fd08c8992808dcf888d5734133e5c0181454b038017e358d84cf5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.885073690Z",
+      "seal": {
+        "by": "server",
+        "mac": "f3e054992e968fb2eb0087817eeb73ae2dc328c66bdadecfa2ac49a6360e4b34"
+      }
+    },
+    {
+      "id": "CLM-1964",
+      "statement": "Before the change the whoami test installed its subscriber without refreshing tracing's callsite interest cache, so a sqlx::query callsite cached as disabled by another thread could leave it counting nothing.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the test counted rows through a subscriber without refreshing tracing's callsite interest cache, so a `sqlx::query` callsite cached as disabled by another test thread could leave it counting nothing.\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/test_tracing.rs",
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3523",
+          "kind": "analysis",
+          "locator": "src/test_tracing.rs:1-18; git show origin/main:src/http/api/identity.rs (whoami test)",
+          "summary": "test_tracing.rs documents the mechanism: a thread with no subscriber can register a callsite as never while a scoped subscriber is alive. At origin/main the whoami test called set_default and then sent the request with no rebuild_interest_cache (the diff's removed lines). The test's warm-up request ran before the subscriber was installed, so it registered callsites under another default. This shows the race is possible; the flake was never reproduced, so it is not shown to be the actual cause.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/test_tracing.rs",
+              "lines": {
+                "start": 1,
+                "end": 14
+              },
+              "commit": "b709752246d21aa48998f6929293228d4bfe9b26"
+            }
+          },
+          "recorded_at": "2026-11-27T00:04:15.619039780Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f3a0e16c567e922a46c17278718f0c21175e1676518e0634fb70d5f1794e3c1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The pre-change test lacked the refresh and the repository's own test_tracing docs describe the race, so \"could leave it counting nothing\" is established as possible.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3523"
+          ],
+          "recorded_at": "2026-11-27T00:04:35.991493955Z",
+          "seal": {
+            "by": "server",
+            "mac": "0af84bad2e5f3cbfc4b1cf1c1f74ff500943aed8d612d8b944dad165995448d7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:35.991493955Z",
+      "seal": {
+        "by": "server",
+        "mac": "bcb7b0b75062154bea4860f0a9353c3424446b27dbb609da4da1350308977443"
+      }
+    },
+    {
+      "id": "CLM-1965",
+      "statement": "The whoami test passes on the head commit.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: gate.sh test green",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [
+        "src/http/api/identity.rs"
+      ],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3524",
+          "kind": "test",
+          "locator": "cargo nextest run whoami_reads_the_callers_key_not_every_key (at b709752)",
+          "summary": "1 test run: 1 passed, 3717 skipped (2.05 s).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T00:04:15.729625161Z",
+          "seal": {
+            "by": "server",
+            "mac": "becce091bb5f36ec89579f78656030df905fdb1ea8525847598c97f3022678a4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test passes on head when run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3524"
+          ],
+          "recorded_at": "2026-11-27T00:04:36.098332952Z",
+          "seal": {
+            "by": "server",
+            "mac": "df86b2653b2e93c7f26fd124aa11035653e71936d2c2cc29fcee0061a468f5f7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:36.098332952Z",
+      "seal": {
+        "by": "server",
+        "mac": "8b4ec067b7c85839febcc7fa63a13a76de83203496a0859428143431d9ce3f46"
+      }
+    },
+    {
+      "id": "CLM-1966",
+      "statement": "The gate run passed 3698 tests with 20 skipped.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`gate.sh` fmt, lint, dylint, test (3698 passed, 20 skipped), mcpjam (29 passed) all green.\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3525",
+          "kind": "test",
+          "locator": "cargo nextest run whoami_reads_the_callers_key_not_every_key",
+          "summary": "The run reported 1 run + 3717 skipped = 3718 tests, which equals 3698 + 20 and matches the claimed totals. I did not rerun the full suite. The only pass/fail record is the author's own log target/i826-logs/test.log (Summary: 3698 passed, 20 skipped), which predates the commit by under a minute and is not independent evidence.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T00:04:15.837537142Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e24117c80d8e76b3c0c35787cca8395acd83daab42ba2e92fbbcd41b7048fe8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Total test count matches (3718) but pass results exist only in the author's own log, and the full suite was not rerun here. Fix: have the author rerun gate.sh test on the final head and cite the printed Summary line (3698 passed, 20 skipped) as the evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3525"
+          ],
+          "recorded_at": "2026-11-27T00:04:36.216477271Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7491c2a1389d5614784179dad5744489eb3659b031d55c77dd47a08b9a81910"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:36.216477271Z",
+      "seal": {
+        "by": "server",
+        "mac": "e3312b85f709676b777657b680671d75b3cb38a129516595a9836406c22bfd3e"
+      }
+    },
+    {
+      "id": "CLM-1967",
+      "statement": "The failure is unreproduced: one full http:: run passed, 583 tests.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"The failure is unreproduced (one full `http::` run passed, 583 tests).\"",
+      "derived_from": [
+        "CLM-1958"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:826"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3526",
+          "kind": "test",
+          "locator": "cargo nextest list http::",
+          "summary": "The http:: filter selects 583 tests, matching the count in the PR body. The pass of that run is recorded only in the author's own target/i826-logs/run1.log; I did not rerun it.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T00:04:15.943755946Z",
+          "seal": {
+            "by": "server",
+            "mac": "104a3b49ecc5fe8844282582547eb697d922f09e0ef0e98551a9ca7c6f1acae4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The 583 count is confirmed, but the pass and the \"unreproduced\" status rest on the author's log only. Fix: rerun cargo nextest run http:: at the default thread count and cite its Summary line.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3526"
+          ],
+          "recorded_at": "2026-11-27T00:04:36.373471868Z",
+          "seal": {
+            "by": "server",
+            "mac": "8be7fd8191e99ba2a6855d134b827710b896f6a862529245b211f4a724b93daa"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T00:03:55.153629132Z",
+      "updated_at": "2026-11-27T00:04:36.373471868Z",
+      "seal": {
+        "by": "server",
+        "mac": "6aa57d5e3e7228be8dcee98d11a82dc64bf94406851588b93710ed6fc937459e"
       }
     }
   ]

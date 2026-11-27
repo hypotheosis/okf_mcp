@@ -57,6 +57,11 @@ pub(crate) async fn counting<F: Future>(work: F) -> (F::Output, u64, u64) {
     );
     let output = {
         let _guard = crate::test_tracing::set_default(subscriber);
+        // Callsites other tests on other threads registered earlier, with
+        // no subscriber or another one, can hold a cached "never" for
+        // `sqlx::query`; recompute every cached answer against this
+        // subscriber before the work runs (issues #481, #826).
+        tracing::callsite::rebuild_interest_cache();
         work.await
     };
     let relaxed = std::sync::atomic::Ordering::Relaxed;

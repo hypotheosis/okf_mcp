@@ -21,7 +21,7 @@ use okf_mcp::store::sign_in_events::{self, Method, Outcome};
 use okf_mcp::store::{ceiling, passkeys, users};
 use rustwright::GotoOptions;
 
-use crate::harness::{drive, Ui};
+use crate::harness::{drive, Ui, SIGN_IN_REPORT};
 use crate::support::server::{files, TestServer};
 use okf_mcp::store::audit::AuditActor;
 use okf_mcp::store::ceiling::NewEntitlement;
@@ -585,6 +585,40 @@ async fn the_key_drop_report_keeps_the_address_and_identity_when_the_session_req
         let hung = ui.eval(KEY_DROP_REPORT, serde_json::json!(null));
         assert_eq!(hung["session"], "error: AbortError");
         assert_eq!(hung["href"], address);
+    })
+    .await;
+}
+
+/// The report `sign_in_password` panics with (issue #898) names what a
+/// refused sign-in left on the page: its address, the status of the answer
+/// that drew it, the error line, no console and the session's status.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_sign_in_report_names_the_refusal_the_page_shows() {
+    let server = server().await;
+    server
+        .user_with_password("fay", "fay@example.com", PASSWORD)
+        .await;
+    let address = format!("{}/signin", server.base);
+    drive(server.base.clone(), move |ui| {
+        ui.page
+            .goto(&format!("{}/signin", ui.base), GotoOptions::default())
+            .expect("open the sign-in page");
+        ui.fill("#signin-email", "fay@example.com");
+        ui.fill("#signin-password", "not-the-password-at-all");
+        ui.click("#signin-submit");
+        ui.wait_text("#signin-error", "incorrect");
+        let report = ui.eval(SIGN_IN_REPORT, serde_json::json!(null));
+        assert_eq!(report["href"], address);
+        assert_eq!(report["navigation_status"], 401);
+        assert_eq!(report["ready_state"], "complete");
+        assert_eq!(report["app_present"], false);
+        assert_eq!(report["whoami_present"], false);
+        assert!(report["signin_error"]
+            .as_str()
+            .is_some_and(|text| text.contains("incorrect")));
+        assert_eq!(report["session"], 401);
+        // Neither the typed password nor the address's query leaks in.
+        assert!(!report.to_string().contains("not-the-password"));
     })
     .await;
 }

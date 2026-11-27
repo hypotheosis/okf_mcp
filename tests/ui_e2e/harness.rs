@@ -110,6 +110,36 @@ const FAIL_NEXT: &str = "(arg) => {
     return true;
 }";
 
+/// What [`Ui::sign_in_password`] reports when the console does not show in
+/// time (issue #898): the page's address (no query or fragment), the HTTP
+/// status the page's own navigation got (the sign-in answer when it is the
+/// page the POST returned: 401 or 429 for a refusal, 200 for the console),
+/// the ready state, whether `#app` and `#whoami` exist and `#app`'s
+/// `hidden` flag, the `#whoami` text, the sign-in page's own error line
+/// (a fixed server message) and the session's status. Never a cookie, a
+/// token, a key or the typed password. The local fields come first, and
+/// the session request is best-effort and bounded (two seconds), so a
+/// failed or hung request shows as `error: <name>` instead of hiding the
+/// rest.
+pub const SIGN_IN_REPORT: &str = "async () => { \
+    const navigation = performance.getEntriesByType('navigation')[0]; \
+    const app = document.getElementById('app'); \
+    const whoami = document.getElementById('whoami'); \
+    const report = { href: location.origin + location.pathname, \
+        navigation_status: navigation?.responseStatus ?? null, \
+        ready_state: document.readyState, \
+        app_present: app !== null, app_hidden: app?.hidden ?? null, \
+        whoami_present: whoami !== null, whoami: whoami?.textContent ?? null, \
+        signin_error: document.getElementById('signin-error')?.textContent ?? null }; \
+    const controller = new AbortController(); \
+    const timer = setTimeout(() => controller.abort(), 2000); \
+    try { \
+        report.session = (await fetch('/api/v1/session', { signal: controller.signal })).status; \
+    } catch (error) { \
+        report.session = `error: ${error.name}`; \
+    } finally { clearTimeout(timer); } \
+    return report; }";
+
 /// One browser page on the console.
 pub struct Ui {
     /// The server, `http://127.0.0.1:<port>`.
@@ -193,6 +223,10 @@ impl Ui {
     /// Signs in on `/signin` with an email and password, and waits for the
     /// console to show who is signed in (its content, not only the shell:
     /// the shell is visible before `whoami` answers).
+    ///
+    /// # Panics
+    /// When `#app` or the identity does not show within [`WAIT`]; the
+    /// message carries [`SIGN_IN_REPORT`]'s answer about the page then.
     pub fn sign_in_password(&self, email: &str, password: &str) {
         self.page
             .goto(&format!("{}/signin", self.base), GotoOptions::default())
@@ -200,9 +234,15 @@ impl Ui {
         self.fill("#signin-email", email);
         self.fill("#signin-password", password);
         self.click("#signin-submit");
-        self.wait_visible("#app");
+        self.poll_reporting("#app after the password sign-in", SIGN_IN_REPORT, || {
+            self.page.is_visible("#app").unwrap_or(false)
+        });
         // `#whoami` reads "<user> - <level>" once the identity is loaded.
-        self.wait_text("#whoami", " - ");
+        self.poll_reporting(
+            "#whoami containing \" - \" after the password sign-in",
+            SIGN_IN_REPORT,
+            || self.text("#whoami").contains(" - "),
+        );
     }
 
     /// Navigates to the reader at `#<route>` (route like "/v/main/a.md";

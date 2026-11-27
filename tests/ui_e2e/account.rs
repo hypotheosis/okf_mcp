@@ -613,6 +613,48 @@ async fn a_late_older_session_list_does_not_redraw_over_a_newer_one() {
     .await;
 }
 
+/// Several paths redraw the profile from a `/me` read (the first load, a
+/// rename, a password change). A password change starts a read whose answer
+/// is held (it still carries the old display name), a rename starts a newer
+/// one that draws the new name, and the held (older) answer comes last: it
+/// must not bring the old name back.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_older_account_read_does_not_redraw_over_a_newer_one() {
+    let server = login_server().await;
+    member(&server, Access::Write).await;
+    drive(console_base(&server), |ui| {
+        ui.sign_in_password(EMAIL, PASSWORD);
+        open_account(ui);
+        ui.wait_visible("#account-display-name");
+        ui.fill("#password-form input[name=current]", PASSWORD);
+        ui.fill("#password-form input[name=password]", NEW_PASSWORD);
+        ui.fill("#password-form input[name=confirm]", NEW_PASSWORD);
+        ui.hold_answer("GET", "/api/v1/me", || {
+            ui.click("#password-form button[type=submit]");
+        });
+        // The newer read: a rename, answered at once.
+        // Mark the form drawn so far: the rename's read has drawn once a
+        // form without the mark is there.
+        ui.eval(
+            "() => document.querySelector('#account-display-name').dataset.old = '1'",
+            json!(null),
+        );
+        ui.fill("#account-display-name", "Alice B");
+        ui.click("#account-display-name-save");
+        ui.wait_text("#toasts", "Display name saved");
+        ui.wait_visible("#account-display-name:not([data-old])");
+        assert_eq!(ui.eval(DISPLAY_NAME_VALUE, json!(null)), "Alice B");
+        // The older answer still carries the name from before the rename.
+        ui.release_held();
+        assert_eq!(
+            ui.eval(DISPLAY_NAME_VALUE, json!(null)),
+            "Alice B",
+            "the older read redrew the profile"
+        );
+    })
+    .await;
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn signing_this_browser_out_from_the_account_page_ends_its_session() {
     let server = login_server().await;

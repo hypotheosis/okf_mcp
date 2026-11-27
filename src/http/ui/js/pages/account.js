@@ -60,6 +60,7 @@ export async function render(main) {
     const passkeyReads = latest(main);
     const identityReads = latest(main);
     const sessionReads = latest(main);
+    const accountReads = latest(main);
     let deleteAccount = null;
     let deletePasskeys = null;
     let deleteRefusal = null;
@@ -99,9 +100,10 @@ export async function render(main) {
     fill(ceiling.body, h('label', { class: 'small' }, 'Find ', ceilingPage.find), ceilingTable, ceilingPage.footer);
 
     async function drawAccount() {
+        const current = accountReads();
         let account;
         try { account = await freshAccount(); } catch { return; /* toasted */ }
-        if (!main.isConnected) return;
+        if (!current()) return;
         fill(profile.body, h('dl', { class: 'facts', id: 'account-facts' },
             fact('Display name', displayNameForm(account)),
             fact('Email', account.email ?? 'none'),

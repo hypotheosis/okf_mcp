@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2003,
+  "next_claim_seq": 2007,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "35f68089d3c01d83e76e9bdea0f1b4ce2c18fb28bf6ed3c1c539ad3ca0bc5877"
+    "mac": "3ccd9cad858869d7ee8bdcefe60ff31bbf823994a744751e2c4ca3a6638f41cd"
   },
-  "next_evidence_seq": 3571,
+  "next_evidence_seq": 3577,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ca20c7844a1812fad49bb19d5e4ec3d33d10667201e474e8fc9b350626a2f9dd"
+    "mac": "a6139ee19ec5e523da17d1d3c75011e0e41b0ab11fb73ef62ba591183656d670"
   },
   "claims": [
     {
@@ -178452,7 +178452,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: the test was reworked at 1139121e into two helpers (before, during) with their own callsites asserting [\"before\",\"during\"]; the statement described the old single-callsite version asserting [\"first_elsewhere\"].",
+        "retired_at": "2026-11-27T01:38:55.542141365Z"
       },
       "evidence": [
         {
@@ -178494,10 +178496,10 @@
         }
       ],
       "created_at": "2026-11-27T01:25:47.462084495Z",
-      "updated_at": "2026-11-27T01:26:49.364118041Z",
+      "updated_at": "2026-11-27T01:38:55.542141365Z",
       "seal": {
         "by": "server",
-        "mac": "2946cec08b62195d65fd9a8ae4f0e499e7ea2949941635364f490576dc421692"
+        "mac": "07e122071460d60ebb9db91a16fe5b8ba16390336e2eee2645263011cc378882"
       }
     },
     {
@@ -178518,7 +178520,9 @@
         "from-issue:836"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded: its pass evidence was recorded against the old version of the test at 5921d24e; replaced by a claim re-run against the reworked test at 1139121e.",
+        "retired_at": "2026-11-27T01:38:55.667133291Z"
       },
       "evidence": [
         {
@@ -178550,10 +178554,10 @@
         }
       ],
       "created_at": "2026-11-27T01:25:47.462084495Z",
-      "updated_at": "2026-11-27T01:26:49.471827987Z",
+      "updated_at": "2026-11-27T01:38:55.667133291Z",
       "seal": {
         "by": "server",
-        "mac": "6dc1821963e9249130512afa263f77c4596a9dcba144f0bf8687ef59863df872"
+        "mac": "3de6e4263546f1a6789a2e25504b8609d59ebc23443e4dab95da2962a96ed4db"
       }
     },
     {
@@ -178987,6 +178991,313 @@
       "seal": {
         "by": "server",
         "mac": "611beb2b423731a42e84f1e6ee4a93956743afde5382ddc88eb60d9778a37746"
+      }
+    },
+    {
+      "id": "CLM-2003",
+      "statement": "The test a_callsite_another_thread_reached_first_still_records in src/telemetry/subscriber.rs defines two helper fns, before and during, each with its own info_span! callsite; another thread runs before ahead of Observer::start and during after it, the observing thread then calls both, and the test asserts the captured span names equal [\"before\", \"during\"].",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: another thread registers a callsite before an Observer starts and a distinct callsite after it starts (reworked at 1139121e after review)",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3571",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:1171-1205",
+          "summary": "Read the test. before and during are separate fns, each with its own info_span!(target \"okf_mcp::first_elsewhere\", \"before\"/\"during\", label). A spawned thread runs before(\"elsewhere\") ahead of Observer::start; after start, another spawned thread runs during(\"elsewhere\"); the test thread then calls before(\"here\") and during(\"here\"), finishes, and asserts seen == [\"before\",\"during\"]. Nothing calls during before the Observer starts. The other threads have no default subscriber, so only the test-thread calls are captured; the assertion therefore needs both callsites to record after a foreign-thread first registration.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 1171,
+                "end": 1205
+              },
+              "commit": "1139121e42c060f90a553e7b89524c4431962d68"
+            }
+          },
+          "recorded_at": "2026-11-27T01:39:20.510569625Z",
+          "seal": {
+            "by": "server",
+            "mac": "b232cad5a219a71fb1fa9ca4fd0e9a313162203ab10a71953b1a5256b2630a88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reading the test shows every element of the statement: two helpers with distinct info_span! sites, before run pre-Observer and during post-Observer on other threads, both called on the test thread, assertion on [\"before\",\"during\"].",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3571"
+          ],
+          "recorded_at": "2026-11-27T01:39:26.858109624Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8e7b8cfce6d0d2cba6dd3ec4406af8e96b38b28216cba33f501aa50e88ba027"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:39:03.934976173Z",
+      "updated_at": "2026-11-27T01:39:26.858109624Z",
+      "seal": {
+        "by": "server",
+        "mac": "c407ed2723e497393f26981fa5e607adcbd0245174b52bc9fdd5bf7391372206"
+      }
+    },
+    {
+      "id": "CLM-2004",
+      "statement": "a_callsite_another_thread_reached_first_still_records passes at head 1139121e (1 passed), where Observer::start has no rebuild_interest_cache call.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"it passes without any rebuild call\"",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "src/telemetry/subscriber.rs"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3572",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib a_callsite_another_thread",
+          "summary": "At head 1139121e: telemetry::subscriber::tests::a_callsite_another_thread_reached_first_still_records ... ok; 1 passed; 0 failed; 3193 filtered out.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T01:39:20.620597077Z",
+          "seal": {
+            "by": "server",
+            "mac": "d9c7d51e9335f59cd925116a3f347036fb0190fe250406492030f9250dae0572"
+          }
+        },
+        {
+          "id": "EVD-3573",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:698-731",
+          "summary": "Observer::start builds exporters and subscriber and calls test_tracing::set_default; it contains no rebuild_interest_cache call. The only rebuild_interest_cache in src/telemetry is in an unrelated deadlock test at line 1245.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 698,
+                "end": 731
+              },
+              "commit": "1139121e42c060f90a553e7b89524c4431962d68"
+            }
+          },
+          "recorded_at": "2026-11-27T01:39:20.752061923Z",
+          "seal": {
+            "by": "server",
+            "mac": "1bfe3e1667256a21c232a2831b4e254515d199fe1fc3427a9fe8e848ce704c2c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test ran and passed at head 1139121e, and Observer::start has no rebuild call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3572",
+            "EVD-3573"
+          ],
+          "recorded_at": "2026-11-27T01:39:26.967976575Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e6a06c7530a5d3ca6bb007705299afb2134dd29ea26a940feeee726a7a98cd7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:39:04.050863136Z",
+      "updated_at": "2026-11-27T01:39:26.967976575Z",
+      "seal": {
+        "by": "server",
+        "mac": "661d251e4218e3c455fe9d2775a164cdf58721b8ab8a91fc30d1a7071f0b98d5"
+      }
+    },
+    {
+      "id": "CLM-2005",
+      "statement": "The changelog's statement that both spans are captured \"with and without an extra rebuild_interest_cache() call in Observer::start\" is exercised by the committed test at head.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md: \"both spans are captured, with and without an extra rebuild_interest_cache() call in Observer::start\"",
+      "source_anchor": {
+        "path": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md",
+        "lines": {
+          "start": 11,
+          "end": 16
+        },
+        "commit": "1139121e42c060f90a553e7b89524c4431962d68"
+      },
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Refuted: the changelog said \"with and without\" an extra rebuild call but only the without variant is run. Reworded; replaced by a new claim.",
+        "retired_at": "2026-11-27T01:41:20.797580794Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3574",
+          "kind": "inspection",
+          "locator": "src/telemetry/subscriber.rs:698-731 and 1171-1205",
+          "summary": "At head, Observer::start has no rebuild_interest_cache call and the test has no switch to add one, so the committed test only exercises the \"without\" variant. The \"with\" variant (the earlier fix commit 605a50f1, since dropped) is not run by anything at head; the changelog's \"with and without\" is not demonstrable from the committed code.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/subscriber.rs",
+              "lines": {
+                "start": 698,
+                "end": 731
+              },
+              "commit": "1139121e42c060f90a553e7b89524c4431962d68"
+            }
+          },
+          "recorded_at": "2026-11-27T01:39:20.901662988Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7382cb3d681b1fee5a3537e5f930879789bbed0e913f5d9dbeae855e44627df"
+          }
+        },
+        {
+          "id": "EVD-3575",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md:11-16",
+          "summary": "Changelog says \"both spans are captured, with and without an extra rebuild_interest_cache() call in Observer::start (installing the subscriber already rebuilds the cache). So no fix is claimed.\" The two-callsite description matches the reworked test; only the \"with\" half is unsupported at head.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md",
+              "lines": {
+                "start": 11,
+                "end": 16
+              },
+              "commit": "1139121e42c060f90a553e7b89524c4431962d68"
+            }
+          },
+          "recorded_at": "2026-11-27T01:39:21.029713959Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e0a51e14c0ca86c991fd8f4165e5275a658116c46ad8122b27e122bbf1b3f72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The committed test only runs without a rebuild call; nothing at head exercises the \"with\" variant, so the changelog overclaims. Fix: in changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md reword \"with and without an extra rebuild_interest_cache() call\" to say both spans are captured without an extra rebuild_interest_cache() call in Observer::start (what the committed test runs).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3574"
+          ],
+          "recorded_at": "2026-11-27T01:39:27.077195434Z",
+          "seal": {
+            "by": "server",
+            "mac": "59a7dec6789186d1f41e5d66c79f9dde486e947917f04416249dddb02babcf35"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:39:04.172100583Z",
+      "updated_at": "2026-11-27T01:41:20.797580794Z",
+      "seal": {
+        "by": "server",
+        "mac": "8df39c58b9d4df2d127a67abd8475c68c38091e6817d7ae1be22909e6e112457"
+      }
+    },
+    {
+      "id": "CLM-2006",
+      "statement": "The changelog says both spans are captured with no extra rebuild_interest_cache() call in Observer::start, which is what the committed test runs.",
+      "kind": "documentation",
+      "level": "artifact",
+      "verification_method": "inspection",
+      "derived_from": [
+        "CLM-1990"
+      ],
+      "artifacts": [
+        "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md"
+      ],
+      "tags": [
+        "from-issue:836"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3576",
+          "kind": "inspection",
+          "locator": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md:11-16; src/telemetry/subscriber.rs:698-731",
+          "summary": "Changelog line reads \"with no extra rebuild_interest_cache() call in Observer::start\"; Observer::start has no such call, and the test passes at head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/2026-11-27T01-00-00Z-issue-836-clock-trace-flake.md",
+              "lines": {
+                "start": 11,
+                "end": 17
+              },
+              "commit": "4b5baed9986ede4c694c21b748124884a5f20850"
+            }
+          },
+          "recorded_at": "2026-11-27T01:41:27.537874266Z",
+          "seal": {
+            "by": "server",
+            "mac": "da06e93920accf1cb5919a3f88be774c34421eef3dd1e44be32b264d22652e23"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The reworded changelog matches the committed test, which runs only without a rebuild call.",
+          "auditor": "claude-sonnet-5-5 (re-check after the auditor's Fix step)",
+          "evidence_ids": [
+            "EVD-3576"
+          ],
+          "recorded_at": "2026-11-27T01:41:32.933072234Z",
+          "seal": {
+            "by": "server",
+            "mac": "535479d08439415adaa9bc71b7a03295e7521f924354ac96e920daf5d53bce1c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T01:41:24.663196857Z",
+      "updated_at": "2026-11-27T01:41:32.933072234Z",
+      "seal": {
+        "by": "server",
+        "mac": "f9a5beaf0a0a0527bb165d19961543fbde78b53eccaec60fbdfb8a7f0709a227"
       }
     }
   ]

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2105,
+  "next_claim_seq": 2113,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "029c7ed0cd4bbc34ab918d96084ad298d7f3b420c4876474145edd1873273dfd"
+    "mac": "13426d9a27f6db576fbc68c481f0101ce08685f675d3c36b06e88eadbff418d9"
   },
-  "next_evidence_seq": 3744,
+  "next_evidence_seq": 3752,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ef21fc3e38ec205b9bfc286e15939ca116a59fc03a35cada9ffe65fd1a86351e"
+    "mac": "31321c4302876690ded85933e4b3daf30aaea0c76701738e031140a4b015e9de"
   },
   "claims": [
     {
@@ -187281,6 +187281,510 @@
       "seal": {
         "by": "server",
         "mac": "f4749a7be63b70689b27fedce01f5848256b54178f98ac12fd73bb2ead2c5604"
+      }
+    },
+    {
+      "id": "CLM-2105",
+      "statement": "The change numbers the Account page's drawAccount /me reads so a late older answer cannot redraw the profile (issue #1108).",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1108",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js",
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3751",
+          "kind": "analysis",
+          "locator": "children of CLM-2105",
+          "summary": "The counter, the guard in drawAccount, full caller coverage, the reauth read analysis and the journey are all supported. The revert-check child is not decidable by the auditor and is not a requirement of the fix itself.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:55:34.217898060Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0fa7a8480e56717c8949deb0b921389382dd88ab4a8bc66c09c5f177136c7af"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Guard, coverage and journey supported; only the author-run revert-check is undecided.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3751"
+          ],
+          "recorded_at": "2026-11-27T08:55:37.756738246Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf40b6f49f870f0190af14e398ba80c88eab27316e26758020f86ddfa87181ec"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:37.756738246Z",
+      "seal": {
+        "by": "server",
+        "mac": "d0f0520642b180373c3c10f7bdabacba896af5c482f358d786c2f191bc098257"
+      }
+    },
+    {
+      "id": "CLM-2106",
+      "statement": "account.js declares `const accountReads = latest(main);` next to the other per-list counters.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1108 Possible fix; PR body: \"`const accountReads = latest(main)`\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3744",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/account.js:60-63",
+          "summary": "Line 63 declares `const accountReads = latest(main);` right after passkeyReads, identityReads, sessionReads.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 60,
+                "end": 63
+              },
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:18.202911447Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4b86d3837fc4ca0fa167243e842a7fa650cf2c1766fcfaa6c8354df30eb8e56"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Line 63 declares it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3744"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.124051872Z",
+          "seal": {
+            "by": "server",
+            "mac": "0834a166e0e16bbb99a0add47dc256057dab09b560e3ff121c4e67565afa69a1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.124051872Z",
+      "seal": {
+        "by": "server",
+        "mac": "acc6d2fe652587d1d03f445d83ef80c2943612f9a60c1dd47a790e98d7c27656"
+      }
+    },
+    {
+      "id": "CLM-2107",
+      "statement": "drawAccount takes its read number (accountReads()) before `await freshAccount()` and returns without drawing when a newer read has started or the page was left.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`drawAccount` takes its number before `freshAccount()` and returns when a newer read has started or the page was left.\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js",
+        "src/http/ui/js/core/latest.js"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3745",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/pages/account.js:102-105; src/http/ui/js/core/latest.js:13-18",
+          "summary": "drawAccount calls accountReads() (line 103) before awaiting freshAccount() (105), then `if (!current()) return;` (106). latest.js: current() is true only if no newer number was taken and view.isConnected, so both a newer read and a left page return.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/account.js",
+              "lines": {
+                "start": 102,
+                "end": 106
+              },
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:18.339535580Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e352ee11ccf37551aece2de95252f276912684af42c4b82cf73946f9ab0e8e9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Number taken before the await; check after it; latest() semantics cover both newer-read and page-left.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3745"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.260385194Z",
+          "seal": {
+            "by": "server",
+            "mac": "37d7d3278bf9d0b3ad51eb9bffd4df76e4e844f0e5ef6f0f699515146cabe6df"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.260385194Z",
+      "seal": {
+        "by": "server",
+        "mac": "1ee60dbed759e45388fcb2da8a1fd005aa01f8aa1b6f0f2b630b94d3b0b0f99c"
+      }
+    },
+    {
+      "id": "CLM-2108",
+      "statement": "Every call of drawAccount in the console (first load, display-name save, team rename, password change or set) goes through the one numbered function, and no other file calls it.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Callers of `drawAccount` at current main: first load, display-name save, team rename, password change or set. All go through the one numbered function.\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3746",
+          "kind": "analysis",
+          "locator": "git grep -n drawAccount src/",
+          "summary": "All calls are in account.js: display-name save (line 136), team rename (161), password change/set (216) and first load (567); none elsewhere under src/http/ui/js. All call the single function at line 102.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "drawAccount\\(",
+              "scope": [
+                "src"
+              ],
+              "hits": 5,
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:18.488353188Z",
+          "seal": {
+            "by": "server",
+            "mac": "761efb9b4e6f0605a6c8a5ceaf7bdf2b8329c5fd61e9cb710faa0cf95fda7476"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide search at head finds only the definition and four callers, all in account.js.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3746"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.384712842Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fb1da4c4512acd01044ac48b0ae6437e4d1c41e4c37b4f1b5533ba7ff448206"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.384712842Z",
+      "seal": {
+        "by": "server",
+        "mac": "34ffb4a435ea890777c7d3eb845328011df40ce0b866ae48b2a61a0f8b09b1ec"
+      }
+    },
+    {
+      "id": "CLM-2109",
+      "statement": "The #1099 reauth status read (checkReauth, GET /me/identities/<provider>/reauth) runs once per page load, guarded by the provider it started for, so it cannot overlap itself and needs no number.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"The #1099 reauth status read (`checkReauth`, `GET /me/identities/<provider>/reauth`) runs once per page load and is guarded by the provider it started for, so it cannot overlap itself; left unnumbered.\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/account.js"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3747",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/pages/account.js:546-558,567",
+          "summary": "checkReauth is called only once, from the page-load Promise.all (567); the definition reads `reauthedWith` as `provider`, and after the await returns unless main.isConnected and reauthedWith === provider (556). No other caller exists (grep shows only the definition and line 567), so the read cannot overlap itself.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "checkReauth",
+              "scope": [
+                "src/http/ui/js"
+              ],
+              "hits": 2,
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:18.627444739Z",
+          "seal": {
+            "by": "server",
+            "mac": "70ceafabcee375de6b82bb9578998053f48c6d4dc6251f87baff90c4720c5dc8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single call site at page load and provider guard confirmed in code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3747"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.550660390Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0cd66aa7950d614eb6ce3dbdf86508c082a28595f612102bec46235fb0f3879"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.550660390Z",
+      "seal": {
+        "by": "server",
+        "mac": "5c68c5619033b51aea414a0f777d210a24f4ab96d817c31f68687facfaf7c71a"
+      }
+    },
+    {
+      "id": "CLM-2110",
+      "statement": "tests/ui_e2e/account.rs has a journey a_late_older_account_read_does_not_redraw_over_a_newer_one that holds an older /me answer, saves a new display name, releases the held answer and asserts the new name stays.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1108: \"add a ui_e2e journey ... holds an older /me answer, saves a new display name, and checks the new name stays\"; PR body test bullet",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3748",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/account.rs:622-656; tests/ui_e2e/harness.rs:613-648",
+          "summary": "The journey holds the first GET /api/v1/me after a password-change submit (hold_answer, early:true so the held body has the old name), saves display name \"Alice B\" via the rename (which triggers a newer drawAccount), waits for the redrawn form, asserts \"Alice B\", releases the held answer (waits for it to be delivered plus 500ms) and asserts the value is still \"Alice B\". The hold is via a password change rather than the first load, which the issue sketched, but it is an older /me read all the same. The hold covers only the first match (harness.rs:71-82) and refreshIdentity does not GET /me (shell.js:17-25), so the held request is the password change's drawAccount read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 622,
+                "end": 656
+              },
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:18.760618752Z",
+          "seal": {
+            "by": "server",
+            "mac": "da6aba9662ff10ac3deeb780ea1f833f6826a6bb558853bb28251a77a3645ea4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the assertions: new name asserted before and after release of the held older answer. Not run (forbidden).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3748"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.722347234Z",
+          "seal": {
+            "by": "server",
+            "mac": "87283ca3570af2ccd4e352d3384d51318c71c60ffbd7dd9cb41df2657479609b"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.722347234Z",
+      "seal": {
+        "by": "server",
+        "mac": "5befe28f2b509dc5ee885c47162254d9796c469251160cb3af0d20862af44e64"
+      }
+    },
+    {
+      "id": "CLM-2111",
+      "statement": "With the drawAccount guard replaced by the old main.isConnected check, the new journey fails (\"the older read redrew the profile\"); with the guard it passes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Revert-check: with the `drawAccount` guard replaced by the old `main.isConnected` check, the new journey fails ...; with the guard it passes.\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/account.rs"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3749",
+          "kind": "other",
+          "locator": "git diff origin/main..HEAD -- src/http/ui/js/pages/account.js",
+          "summary": "The old guard was `if (!main.isConnected) return;` (diff, removed line), and the test's assertion message matches the PR text. By inspection the old guard would let the older answer draw. No run output was available (gates are running and may not be run by the auditor), so the pass/fail of either variant was not observed.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T08:55:18.895227699Z",
+          "seal": {
+            "by": "server",
+            "mac": "38c01b5d79456c9fba3a14f2ac1880fbf14989e1579846670a5d69a9c36fcfd4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Author-run check; auditor may not run tests and saw no log. Code reading is consistent with it. Fix: attach the log of the journey run with the guard reverted (failing) and with it (passing) to the PR.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3749"
+          ],
+          "recorded_at": "2026-11-27T08:55:33.884579861Z",
+          "seal": {
+            "by": "server",
+            "mac": "48b1d2e3a8e64453dd25a8b21847fc04e5d82dec770c081b0d201d9eaccc76ac"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:33.884579861Z",
+      "seal": {
+        "by": "server",
+        "mac": "4999c9804b65af54a054c483ed8ef9bd7a8f44c320e04a622b75ba4e2ff1809c"
+      }
+    },
+    {
+      "id": "CLM-2112",
+      "statement": "The change adds a changelog/ entry for issue #1108.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`changelog/` entry.\"",
+      "derived_from": [
+        "CLM-2105"
+      ],
+      "artifacts": [
+        "changelog/20261127T085156Z-issue-1108-account-read-order.md"
+      ],
+      "tags": [
+        "from-issue:1108"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3750",
+          "kind": "inspection",
+          "locator": "changelog/20261127T085156Z-issue-1108-account-read-order.md",
+          "summary": "Timestamped changelog file exists in the commit, describing the guard, the new test and the checkReauth note.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T085156Z-issue-1108-account-read-order.md",
+              "commit": "9b47625951c3f13dabac326b718627647c0a384a"
+            }
+          },
+          "recorded_at": "2026-11-27T08:55:19.027814611Z",
+          "seal": {
+            "by": "server",
+            "mac": "6236811d357f47b0c8b8b5a5e4564bdcea1339dc3e604ad63366638ee5cbe338"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File exists in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3750"
+          ],
+          "recorded_at": "2026-11-27T08:55:34.046377577Z",
+          "seal": {
+            "by": "server",
+            "mac": "e96e01a8643378c2eed805ddecbf52e263551da8848d1df2fd2731af49dc3c29"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:55:00.985704403Z",
+      "updated_at": "2026-11-27T08:55:34.046377577Z",
+      "seal": {
+        "by": "server",
+        "mac": "a65460a35695e12194f6730212b7acf1bd433c7e2ff0d005f252231afa452f2d"
       }
     }
   ]

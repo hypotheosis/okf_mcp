@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2184,
+  "next_claim_seq": 2202,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "3bc43a640dc97986eb28b8ddfac39e345f9ec0d37a02e43d04d4ef184ee844c4"
+    "mac": "3d9966e0e4991449003a2583444bd66c310cf3f2207c8bfcc673c429f74be91c"
   },
-  "next_evidence_seq": 3851,
+  "next_evidence_seq": 3884,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "510a36894d840e92c5c3e6fc8925221cb74c47c619806f42828170524f1bc724"
+    "mac": "abd383a2258afd066f06556424db13fc664895228ee89c5f0d3f43f9dbe6af1b"
   },
   "claims": [
     {
@@ -193310,6 +193310,1576 @@
       "seal": {
         "by": "server",
         "mac": "b76b4a601c342a94064d74ea33e3c6733b17632d34071321a8771e16fcfbd227"
+      }
+    },
+    {
+      "id": "CLM-2184",
+      "statement": "Issue #1158 is delivered: the MCPJam scenarios pin the v0.32.0 behaviour of cited_by, revert expected_revision, history revisions and index re-describe through the MCP surface",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1158",
+      "derived_from": [],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3878",
+          "kind": "analysis",
+          "locator": "children of CLM-2184",
+          "summary": "Every checklist item of the issue has a supported child; the acceptance item 'passes under just test-mcpjam and on staging' is not covered here (gates not run by the auditor, staging left to the owner) and the reads-after-publish constraint child is not_enough_info.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T14:03:54.208347248Z",
+          "seal": {
+            "by": "server",
+            "mac": "c448648a139e4b4fd18002c4df89bf2848839c6b69d857e1b55d6f9459e321bb"
+          }
+        },
+        {
+          "id": "EVD-3883",
+          "kind": "analysis",
+          "locator": "children of CLM-2184",
+          "summary": "At 8d6e6e13 every active child (CLM-2185 to CLM-2201) is supported, covering each checklist item, the README acceptance and the reads-after-publish note. Gate and staging runs are the author's, not covered by this audit; counts still 39 tests.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T14:12:13.928147864Z",
+          "seal": {
+            "by": "server",
+            "mac": "7180f00f079482123dbfd4f54208d21041e2bdb924951e43b314bf73f5689513"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "All ten checklist scenarios and the README acceptance are supported, but one child (reads after a publish) is not_enough_info and the acceptance item that the tests pass under just test-mcpjam and on staging was not run by the auditor. Fix: run tools/agentic/gate.sh mcpjam on the head commit and the staging run with the isolation key, and fix the two un-waited index calls in careful-fact-curator.test.ts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3878"
+          ],
+          "recorded_at": "2026-11-27T14:03:59.135669821Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd2eb467e958ec93103d3b72fa2a56b2495eb5c4050cb1b8eeafd56612121f2f"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children are supported at 8d6e6e13. The gate and staging acceptance runs are the author's and were not run by this audit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3883"
+          ],
+          "recorded_at": "2026-11-27T14:12:16.744307534Z",
+          "seal": {
+            "by": "server",
+            "mac": "b52253bc6d93b3dfef88ad08d970b7e7d1efa49a11a316b80a4282270d289d18"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:12:16.744307534Z",
+      "seal": {
+        "by": "server",
+        "mac": "b98b252efd001bb9b441ab2e8b092837fe24f1e004943566ac228b50cb22c360"
+      }
+    },
+    {
+      "id": "CLM-2185",
+      "statement": "A scenario test calls cited_by with resource alone and with source_id, asserts both must match one entry, and asserts a resource differing only in case finds nothing",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'Filter by resource (case-sensitive), alone and together with source_id. Both must match one entry; a resource differing only in case finds nothing.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3851",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:143-175",
+          "summary": "Test seeds three concepts, asserts resource-only hits for two resources, upper-cased resource and a prefix give [], source_id (upper-case)+resource gives exactly [one] with the single matching entry, and a mismatched id/resource pair gives [].",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 143,
+                "end": 175
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:30.878361758Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba7b8ea92787875c4a2036e1be8fbffcf831244c9b68192f38cd0d58e4367a83"
+          }
+        },
+        {
+          "id": "EVD-3852",
+          "kind": "analysis",
+          "locator": "src/okf/search.rs:459-471; src/mcp/cited_by.rs:35-46",
+          "summary": "cites() returns per-concept entries matched by SourceMatch::entry (one entry must satisfy both id and resource); resource is documented case-sensitive exact, id case-insensitive; Rust test search.rs:843-865 asserts the same. The scenario's expectations agree with the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/search.rs",
+              "lines": {
+                "start": 459,
+                "end": 471
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.012405483Z",
+          "seal": {
+            "by": "server",
+            "mac": "af021c328719bf0774fe09fb0a8090ce24bf99d885fe1b430397b112fdfade46"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts every required resource-filter case; code semantics match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3851",
+            "EVD-3852"
+          ],
+          "recorded_at": "2026-11-27T14:03:51.345268670Z",
+          "seal": {
+            "by": "server",
+            "mac": "6cc395b95e67f68d2c84a00a9aa8a2923503bfd67baa1ae51f28c834dbf55a93"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:51.345268670Z",
+      "seal": {
+        "by": "server",
+        "mac": "a8116f11e3e8e5f488e8d16dbb7439fd9c96cc897cc8e29b41682650540ece72"
+      }
+    },
+    {
+      "id": "CLM-2186",
+      "statement": "A scenario test seeds one source cited by two concepts and twice in one concept and asserts the unfiltered cited_by listing shows it once with cited_by 2 and an empty hits list",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'Exact counts in the unfiltered listing ... appears once, with cited_by: 2 (each concept counted once), and hits is empty.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3853",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:183-237",
+          "summary": "seedCounts publishes popular in counted/first (twice, case-differing ids) and counted/second; the listing test asserts hits equals [] and the popular row has cited_by 2 as the lowercased-id row (once).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 183,
+                "end": 237
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.144196940Z",
+          "seal": {
+            "by": "server",
+            "mac": "7916734ade17d5b42e1a0268d5ac16f187d394d7a4e28cdb35da56aa770c3f46"
+          }
+        },
+        {
+          "id": "EVD-3854",
+          "kind": "analysis",
+          "locator": "src/okf/search.rs:985-1010; src/mcp/cited_by.rs:140-157",
+          "summary": "SourceTally::add keys on (lowercased id, resource) and counts a key once per concept (seen list); the unfiltered branch returns hits: Vec::new(). So the seeded data yields one popular row with cited_by 2 and empty hits.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/search.rs",
+              "lines": {
+                "start": 985,
+                "end": 1010
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.276360379Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d5db8db3288607c5e06a86ec01128827413d366982b46a8415b564736777983"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Seeding and assertions match the issue; tally code counts each concept once and returns empty hits.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3853",
+            "EVD-3854"
+          ],
+          "recorded_at": "2026-11-27T14:03:51.511379178Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ff8b91e10e9605761c53602ffd9d576a3ae150f66e09f41a621ece200dbbf83"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:51.511379178Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5da180d3e3796e7095bc18c9e6b8b2912801eeb726a28b1e771de2b8c46277a"
+      }
+    },
+    {
+      "id": "CLM-2187",
+      "statement": "A scenario test asserts cited_by sources come back by count descending, then id, then resource, and that a limit below the number of sources gives truncated true",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'Order and truncation. Sources come back by count descending, then id, then resource; with limit below the number of sources, truncated is true.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3855",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:219-258",
+          "summary": "Order test filters this run's four sources and asserts exact sequence [popular 2, a-single, b-single/Atlas, b-single/Gazetteer]; limit test asserts limit 2 and 1 give truncated true with a 2-long list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 219,
+                "end": 258
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.409619301Z",
+          "seal": {
+            "by": "server",
+            "mac": "929a3ff54dec3497271386577033f2c9a6e8cc063c0950b3fd2aeb8923c88c83"
+          }
+        },
+        {
+          "id": "EVD-3856",
+          "kind": "analysis",
+          "locator": "src/okf/search.rs:1028-1053",
+          "summary": "top() orders by cited_by descending, then source_id, then resource, and sets truncated when more than limit exist; matches the asserted order (ids compared lowercase-insensitively in the test via toLowerCase; a-single < b-single < z-popular is irrelevant since count leads).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/search.rs",
+              "lines": {
+                "start": 1028,
+                "end": 1053
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.541655399Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0bcb54abd183f3314ce6e71913bed9417f7df72eec343a78731f759038f014f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Exact order and truncation asserted; sort key in top() matches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3855",
+            "EVD-3856"
+          ],
+          "recorded_at": "2026-11-27T14:03:51.692709130Z",
+          "seal": {
+            "by": "server",
+            "mac": "060dbf0c3e77c52f2d33ec053c3fb741191f35382186188fb7758a4112b340fd"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:51.692709130Z",
+      "seal": {
+        "by": "server",
+        "mac": "71f26504ed88bd733c421ae6c6ee5dc917d29201c6f6100e92b8fa2ec7dd93af"
+      }
+    },
+    {
+      "id": "CLM-2188",
+      "statement": "A scenario test asserts history returns current_revision and latest_revision both equal to the newest revision for a live document",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'history returns current_revision and latest_revision, both equal to the newest revision for a live document.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3859",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:348-359",
+          "summary": "After two revisions, asserts revisions [[2,update],[1,create]] and current_revision 2 and latest_revision 2.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 348,
+                "end": 359
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:50.857061368Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0bff5b51c7b258b16a295a043d930eb1a23023a31a688852a170f782765f29a"
+          }
+        },
+        {
+          "id": "EVD-3860",
+          "kind": "analysis",
+          "locator": "src/mcp/history.rs:86,326,501",
+          "summary": "HistoryReport carries latest_revision (newest number, deletion included) alongside current_revision; tool description at :501 documents it. Field names match the test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 320,
+                "end": 330
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:51.174649998Z",
+          "seal": {
+            "by": "server",
+            "mac": "32eb34829cf3628ecfd3560ce3666282332f81173f13a573496df3daf10c9e68"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts both fields equal 2 for a live doc; history exposes both fields.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3859",
+            "EVD-3860"
+          ],
+          "recorded_at": "2026-11-27T14:03:51.842852190Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee6b1272cc4689a82c565cbf75d1196044384eaf6fbc8dcbbd1647e612ea5370"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:51.842852190Z",
+      "seal": {
+        "by": "server",
+        "mac": "7e8fd5d74cb31a5733bbd9c61f41e7e2dc3878d7dafd51d6b9b460a7ee979533"
+      }
+    },
+    {
+      "id": "CLM-2189",
+      "statement": "A scenario test asserts revert with expected_revision equal to latest_revision succeeds and the old text is back after publish",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'revert with expected_revision = latest_revision succeeds; after publish the old text is back.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3861",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:361-383",
+          "summary": "Reverts to revision 1 with expected_revision = history's latest_revision, reads body through the changeset, publishes, waits (vi.waitFor) until the published body has 'Restore says one.', and asserts revision 3 is an update.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 361,
+                "end": 383
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:52.603269538Z",
+          "seal": {
+            "by": "server",
+            "mac": "deef6f4f7eb01fe7f631af4340f1ba09e4551fa8d78ecb64f304a5576667d5fc"
+          }
+        },
+        {
+          "id": "EVD-3862",
+          "kind": "analysis",
+          "locator": "src/mcp/changesets.rs:927-1000 (revert); test :2683-2745",
+          "summary": "revert writes the chosen revision's text and carries expected_revision into OpOutcome.expected, checked against the current revision; matching value is accepted (Rust test reverts with expected = now and gets an entry).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 960,
+                "end": 1000
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:53.029580271Z",
+          "seal": {
+            "by": "server",
+            "mac": "87ea393cc8d978675112d01b7d574425e6b35561f6c4f5080c88fdef2402e365"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test reverts with latest_revision and verifies text after publish with a retry; code accepts a matching value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3861",
+            "EVD-3862"
+          ],
+          "recorded_at": "2026-11-27T14:03:51.999293152Z",
+          "seal": {
+            "by": "server",
+            "mac": "941e34713a5ae16ee1c1e2a6f621cd67be0bb5e38c28c2f513c2455accb1abb2"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:51.999293152Z",
+      "seal": {
+        "by": "server",
+        "mac": "bfcfc2487d0fe9c483dfd22551f636061f73ab6ffd275a9f0b2f8177dc5b500c"
+      }
+    },
+    {
+      "id": "CLM-2190",
+      "statement": "A scenario test asserts revert with a stale expected_revision is refused with Conflict whose ConflictFile names the current revision, and pending_changes is empty afterwards",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'revert with a stale expected_revision (after another publish) is refused with Conflict, the ConflictFile names the current revision, and the changeset is unchanged (pending_changes is empty).'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3863",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:385-407",
+          "summary": "Stale expected_revision (2) after another publish (3): asserts error 'Conflict', files equal [{path, base_revision 2, current_revision 3}], pending_changes files [] and published body unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 385,
+                "end": 407
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:53.681953103Z",
+          "seal": {
+            "by": "server",
+            "mac": "67aa3e9ee85e3692c362b03cd561729f22dec8948589444b08ef94ceadafb254"
+          }
+        },
+        {
+          "id": "EVD-3864",
+          "kind": "analysis",
+          "locator": "src/error.rs:318-328,538; src/mcp/changesets.rs:2683-2735",
+          "summary": "ConflictFile serializes path (/-prefixed), base_revision, current_revision; Conflict body sets top-level files; Rust test expects exactly ConflictFile{base=seen,current=now} and no changeset entry. Paths from paths.at carry the leading slash, so the TS equality holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/error.rs",
+              "lines": {
+                "start": 318,
+                "end": 328
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:54.196308694Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6e882e2a3ed7d4530f98886adf300d38aa6915323639bbc9940095d49681630"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions cover error kind, ConflictFile base/current and empty changeset; the error JSON shape and Rust twin agree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3863",
+            "EVD-3864"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.170891630Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb7d762e4ec6b22d22a92ecaeae268fbea9177347ab47b3209319cdbd98d94aa"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:52.170891630Z",
+      "seal": {
+        "by": "server",
+        "mac": "3e2513c6cd82abdff4a65c2d6d443f29ddf14eac7ff373066e62c51ff41f4563"
+      }
+    },
+    {
+      "id": "CLM-2191",
+      "statement": "A scenario test covers a deleted document: current_revision null, latest_revision the delete's revision, restore with expected_revision = latest_revision succeeds, and after a re-create the same call is refused with Conflict",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'For a deleted document, current_revision is null and latest_revision is the delete's revision. Restoring with expected_revision = latest_revision succeeds; after a re-create in between, the same call is refused with Conflict.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3865",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:409-455",
+          "summary": "After delete (rev 3): current null, latest 3, revisions[0] op delete; revert rev 2 with expected 3 yields one pending 'create' entry; after re-create (rev 4) the same call is Conflict with base 3 current 4 and an empty changeset.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 409,
+                "end": 453
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:54.776432774Z",
+          "seal": {
+            "by": "server",
+            "mac": "01ec0e4e1e2bb2a717566e8faa15e32d72696fd35133e26d8189e5f86933b087"
+          }
+        },
+        {
+          "id": "EVD-3866",
+          "kind": "analysis",
+          "locator": "src/mcp/changesets.rs:2749-2830",
+          "summary": "Rust test a_revert_onto_a_deleted_path_is_guarded_by_the_latest_revision asserts (current None, latest Some(delete rev)), revert succeeds with it, and after re-create Conflict{base Some(2), current now}. Same behaviour as the scenario asserts; PendingFile.change is 'create' against a deleted path (changesets.rs:690).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2749,
+                "end": 2800
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:55.162218330Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecdd074936beffa37949d0e78115f769e230cdc01f005af6669c9321c3aa0876"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test walks delete, guarded restore, re-create and refused restore with exact revisions; Rust twin pins the same behaviour.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3865",
+            "EVD-3866"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.353382466Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f1557849af532b48f9f899fce0cc3333c5f5c8b6347af2a824c4dacdb9a3659"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:52.353382466Z",
+      "seal": {
+        "by": "server",
+        "mac": "db33c1022d030d97d513fded875994999e156174192c1b241ebf70340f1997da"
+      }
+    },
+    {
+      "id": "CLM-2192",
+      "statement": "A scenario test asserts index on a listed concept with a new summary changes only that bullet's summary in the folder's index.md",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'index on a listed concept with a new summary changes that bullet's summary and nothing else in the folder's index.md.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3867",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:178-200",
+          "summary": "Re-describes alpha; asserts the changeset's index.md equals the published text with only alpha's bullet string replaced (so beta's bullet and everything else unchanged), differs from before, then publishes and waits for the published text to equal it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 178,
+                "end": 200
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:14.287512570Z",
+          "seal": {
+            "by": "server",
+            "mac": "0efddc4c6b6fca9843e7f13e8ee64c5659c077db8452605e6c0d8292cafcf753"
+          }
+        },
+        {
+          "id": "EVD-3868",
+          "kind": "analysis",
+          "locator": "src/okf/ops/log_index.rs:197-240",
+          "summary": "redescribe_listing sets only the listed bullet's summary via set_listing_summary_text (label and link stay) and records SetListingSummary; the bullet format '* [label](alpha.md) - summary' matches the test's '(alpha.md) - summary' substring.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 197,
+                "end": 240
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:14.434466629Z",
+          "seal": {
+            "by": "server",
+            "mac": "53e42850a1f29e230125bc251406e2e9bb2a07aff133b96560a07e67f141458b"
+          }
+        },
+        {
+          "id": "EVD-3880",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:184-206 at 8d6e6e13",
+          "summary": "Test unchanged by the new commit: still asserts the changeset index.md equals the original with only alpha's bullet replaced, then waits for the published text to equal it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 184,
+                "end": 206
+              },
+              "commit": "8d6e6e13463fb31afcaeb2809d696fce319dfe39"
+            }
+          },
+          "recorded_at": "2026-11-27T14:12:03.859235014Z",
+          "seal": {
+            "by": "server",
+            "mac": "597e2a4f229ce15a7434a7f387998485227a7a81c17f65954662845ba06ce508"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Whole-file equality against the string-replaced original proves only that bullet changed; code only touches that summary.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3867",
+            "EVD-3868"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.539042254Z",
+          "seal": {
+            "by": "server",
+            "mac": "78a15c22f273276589a72e4547acf4c4f059d430f25a9afd72192d64616714a1"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Test body unchanged and still asserts whole-file equality with only alpha's bullet replaced.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3880",
+            "EVD-3868"
+          ],
+          "recorded_at": "2026-11-27T14:12:13.253779878Z",
+          "seal": {
+            "by": "server",
+            "mac": "421de093be21b65dd9c339e6df4b924698b70aaa240d985e2bdd80731d86cbfc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:12:13.253779878Z",
+      "seal": {
+        "by": "server",
+        "mac": "f822c28ed40788a3eaa0ebe25b94005461085b6451e637866969a0411971d347"
+      }
+    },
+    {
+      "id": "CLM-2193",
+      "statement": "A scenario test asserts index with the unchanged summary is a no-op reporting 'already lists'",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'The same index with the unchanged summary is a no-op (\"already lists\").'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3869",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:202-219",
+          "summary": "index with the same summary: asserts message contains 'already lists' and pending_changes files equal []. Code log_index.rs:160-178 returns 'already lists' when redescribe_listing yields None for an unchanged summary and nothing is written.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 202,
+                "end": 219
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:14.584976830Z",
+          "seal": {
+            "by": "server",
+            "mac": "c038a3f505db8aeec935d55b2a674914f5b4ac9ac7627911eb979e41515dd89c"
+          }
+        },
+        {
+          "id": "EVD-3881",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:208-226 at 8d6e6e13",
+          "summary": "Test still asserts message contains 'already lists' and pending_changes files []; the added visibleInIndex(\"delta\") only waits before the call and does not change the assertions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 208,
+                "end": 226
+              },
+              "commit": "8d6e6e13463fb31afcaeb2809d696fce319dfe39"
+            }
+          },
+          "recorded_at": "2026-11-27T14:12:04.057383628Z",
+          "seal": {
+            "by": "server",
+            "mac": "cefe6816b3b555ee427db5fb893314cd49f8d2261d173be40aaae28866fff651"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts the 'already lists' message and no pending files; code path returns that message and records nothing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3869"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.674910633Z",
+          "seal": {
+            "by": "server",
+            "mac": "8eba6383f34baaccbf520f3c637af3db01630c878fd86abf20b06b5392badd3d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Assertions unchanged; the new wait only precedes the call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3881",
+            "EVD-3869"
+          ],
+          "recorded_at": "2026-11-27T14:12:13.524931736Z",
+          "seal": {
+            "by": "server",
+            "mac": "126142f33eaaf1f2d6df64a5de7aa28ecdd74be86370056f1577e811998083c5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:12:13.524931736Z",
+      "seal": {
+        "by": "server",
+        "mac": "599382e730ff3235d2cff72bb88b294d4a785e058225e37c85197e4b005511f0"
+      }
+    },
+    {
+      "id": "CLM-2194",
+      "statement": "A scenario test asserts a re-describe still lands at publish after another changeset published the same index.md first",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158: 'Replay: another changeset publishes the same index.md first, and the re-describe still lands at publish.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3870",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:221-248",
+          "summary": "Re-describes beta in changeset 'ours', publishes another changeset listing gamma in the same index.md, asserts pending_changes shows index.md stale+replayable, publishes ours (published true) and waits until the index has both beta's new summary and gamma's.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 221,
+                "end": 248
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:14.740736480Z",
+          "seal": {
+            "by": "server",
+            "mac": "cbdca3a22484631dfb795d54d344bbad1dd05f78a90c3eca37bc0d59ffadaf28"
+          }
+        },
+        {
+          "id": "EVD-3871",
+          "kind": "analysis",
+          "locator": "src/okf/ops/replay.rs:147,329; src/mcp/changesets.rs:696-698",
+          "summary": "The re-describe records ReplayOp::SetListingSummary, which replay re-applies onto newer index.md text; PendingFile.replayable is documented true for index.md edits. Expectation of stale:true, replayable:true and a landed summary agrees with the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/replay.rs",
+              "lines": {
+                "start": 325,
+                "end": 335
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:14.873175707Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e643067f79a56c06a04ca513b26bd71efe18b61f31d65a5558ddfc21ebea0e9"
+          }
+        },
+        {
+          "id": "EVD-3882",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:228-255 at 8d6e6e13",
+          "summary": "Replay test still publishes a competing gamma listing first, asserts stale+replayable, publishes ours and asserts both beta's new summary and gamma's; visibleInIndex(\"beta\") only adds a wait before the re-describe.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 228,
+                "end": 255
+              },
+              "commit": "8d6e6e13463fb31afcaeb2809d696fce319dfe39"
+            }
+          },
+          "recorded_at": "2026-11-27T14:12:04.278138988Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0b3f7b651af8927b045e0c44d854c3ba4ee45c9d8a872fcf76970ce1b2a0cad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test publishes a competing index.md edit first, checks stale+replayable, then asserts both edits land; replay op exists in code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3870",
+            "EVD-3871"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.807342999Z",
+          "seal": {
+            "by": "server",
+            "mac": "b0d5b279c9ae3aac796b01084126cd052f1ce18eca5075e81bbd24a9c5814ad3"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Assertions unchanged; replay op still exists in code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3882",
+            "EVD-3871"
+          ],
+          "recorded_at": "2026-11-27T14:12:13.722726319Z",
+          "seal": {
+            "by": "server",
+            "mac": "f3a4309f6fc6611824252ec76dc1ce00e33c548c5cd3177e920300c43bd0dc90"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:12:13.722726319Z",
+      "seal": {
+        "by": "server",
+        "mac": "8848301bc9fe073ee70274a13cd7ee25987afa42e4bfa69aa3ca481ba790c4c3"
+      }
+    },
+    {
+      "id": "CLM-2195",
+      "statement": "tests/mcpjam/README.md's table still matches the files in tests/mcpjam/scenarios and their describe names",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1158 Acceptance: 'tests/mcpjam/README.md's table still matches the files.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/README.md"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3872",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/README.md:15-19; tests/mcpjam/src/scenarios.ts:67,72,73",
+          "summary": "Table rows list the same five scenario files and the same describe names; the diff adds no file and no describe (new tests are inside existing describes), and README is unchanged by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/README.md",
+              "lines": {
+                "start": 15,
+                "end": 19
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:15.018236449Z",
+          "seal": {
+            "by": "server",
+            "mac": "20036ca5a3691118d9e92ce8922b96fd6d3fe6e09e790afd0de530d1b0da9e67"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Files and describe names unchanged, table still accurate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3872"
+          ],
+          "recorded_at": "2026-11-27T14:03:52.956606856Z",
+          "seal": {
+            "by": "server",
+            "mac": "f37d93efc324157c257de5611b9483db37f09c4feec32b90a00d6297751bdd78"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:52.956606856Z",
+      "seal": {
+        "by": "server",
+        "mac": "12c2bd77d12663c3a54c2aa5ec5d794dfc833742f61c7ac51b2cc0fb12f29b91"
+      }
+    },
+    {
+      "id": "CLM-2196",
+      "statement": "Every new check that reads published state right after a publish retries via vi.waitFor or reads through the changeset (README 'Reads after a publish' rule)",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1158 Notes: 'The \"Reads after a publish\" rule in tests/mcpjam/README.md applies to every new check that reads right after a publish.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3876",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:202-217 and 221-224",
+          "summary": "Most checks wait (vi.waitFor) or read through the changeset. Exception: the 'unchanged summary' test publishes delta via remember() and calls index on it at once, and the replay test calls index on beta right after seedListed() without a wait (only safe when test 1 ran first). index reads the published concept and index.md from the replica snapshot, which docs/operations.md:872-887 says may lag after a publish on a multi-replica server. Local single-replica runs cannot show it.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 202,
+                "end": 217
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:22.512238863Z",
+          "seal": {
+            "by": "server",
+            "mac": "9a9d0b59543ab0df08f8a9ebcd6e82ffd7314fab1a24cd39aa01d8b368847693"
+          }
+        },
+        {
+          "id": "EVD-3879",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:170-175,217,230 at 8d6e6e13",
+          "summary": "visibleInIndex(name) waits with vi.waitFor until the published folder index.md contains (name.md); it runs before index in the delta test and the beta replay test. The concept and its listing publish in one changeset, so the listing being visible means the snapshot holds both. All other new post-publish reads already used vi.waitFor, settled() or the changeset.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 170,
+                "end": 175
+              },
+              "commit": "8d6e6e13463fb31afcaeb2809d696fce319dfe39"
+            }
+          },
+          "recorded_at": "2026-11-27T14:12:03.663881564Z",
+          "seal": {
+            "by": "server",
+            "mac": "695b9d0d861975d11801acf9bdbb8aac0ecf44d404b083a51e23fd97b0f5a7e8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Most new checks retry or read through the changeset, but the 'unchanged summary' test and the replay test call index right after a publish without a wait; whether that flakes can only be seen on a multi-replica server, which was not run. Fix: in careful-fact-curator.test.ts, wrap the index.md listing of delta (and of beta before the replay re-describe) in vi.waitFor before calling index, or run the staging scenario with the isolation key to show it passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3876"
+          ],
+          "recorded_at": "2026-11-27T14:03:53.098234505Z",
+          "seal": {
+            "by": "server",
+            "mac": "a54461fdb265ea42bd4bf95cf2b6cb00e68556b0dd0d73dc33307452d9f2b558"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The two un-waited index calls now follow a vi.waitFor on the published listing; every other new post-publish read already waited or read through the changeset.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3879"
+          ],
+          "recorded_at": "2026-11-27T14:12:13.029224678Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcd19b141339b807281f2b4bcf62a2449504a2a9a27e438bd493816f42b262cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:12:13.029224678Z",
+      "seal": {
+        "by": "server",
+        "mac": "b74422fd5017d6090455c8b1f3a166d98c2231b75f5bb5e4e0cbd4ceca76296b"
+      }
+    },
+    {
+      "id": "CLM-2197",
+      "statement": "The mcpjam scenarios hold 29 test( calls on origin/main and 39 at HEAD",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'mcpjam: 29 tests before, 39 after, all passing locally.' (count part only)",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3873",
+          "kind": "log",
+          "locator": "git grep -c 'test(' origin/main HEAD -- tests/mcpjam/scenarios",
+          "summary": "origin/main per file: 2+7+6+5+9 = 29; HEAD: 2+10+6+5+16 = 39 (curator +3, prober +7).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "test\\(",
+              "scope": [
+                "tests/mcpjam/scenarios"
+              ],
+              "hits": 39,
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:15.151659638Z",
+          "seal": {
+            "by": "server",
+            "mac": "1653d1ad0745b132464c3d8fb4d4f25ad211dc0d106a75b379f097c20678a0f4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "git grep counts give 29 on origin/main and 39 at HEAD; the 39-hit search anchor is recorded.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3873"
+          ],
+          "recorded_at": "2026-11-27T14:03:53.233702142Z",
+          "seal": {
+            "by": "server",
+            "mac": "8841b1ef42677b67dd79ef122abe4b923257def348702d1fffdc57f85b1331ff"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:53.233702142Z",
+      "seal": {
+        "by": "server",
+        "mac": "f291d85cf3ec2551b8b89542adee7cd340cc6dc6055d7a7aca5b019a1b55c933"
+      }
+    },
+    {
+      "id": "CLM-2198",
+      "statement": "The change is test-only: no file under src/ or other product code differs from origin/main",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'Test-only: no product code changed.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "src"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3874",
+          "kind": "log",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Changed files: changelog/20261127T135712Z-issue-1158-mcpjam-v032-scenarios.md and the two tests/mcpjam/scenarios/*.test.ts files only; nothing under src/, Cargo files or tests/mcpjam/src.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T135712Z-issue-1158-mcpjam-v032-scenarios.md",
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:15.299978772Z",
+          "seal": {
+            "by": "server",
+            "mac": "e458c59982a25481e3e65e9a45c8a302b9ae7583d87e49bd4caba4fc15c4e9ed"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff touches only a changelog file and two test files.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3874"
+          ],
+          "recorded_at": "2026-11-27T14:03:53.413083078Z",
+          "seal": {
+            "by": "server",
+            "mac": "aff465c08bd890923c6e70e1fbe2ced1891c7577a43e25267f6fe9d119d66583"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:53.413083078Z",
+      "seal": {
+        "by": "server",
+        "mac": "94f7149af01ac960b325c06b9288c98a3cf1c0b828aaf16146ef277e2937f075"
+      }
+    },
+    {
+      "id": "CLM-2199",
+      "statement": "The PR adds one changelog entry under changelog/ for issue 1158",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'Changelog entry.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "changelog"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3875",
+          "kind": "inspection",
+          "locator": "changelog/20261127T135712Z-issue-1158-mcpjam-v032-scenarios.md",
+          "summary": "New 11-line, timestamped changelog file titled for issue #1158 describing the added scenarios.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T135712Z-issue-1158-mcpjam-v032-scenarios.md",
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:15.432824440Z",
+          "seal": {
+            "by": "server",
+            "mac": "30b8a7b2ec871544ba1198b6a866dce494d8b76012f37184c2bf1cd93ddc01e9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Changelog file present and about #1158.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3875"
+          ],
+          "recorded_at": "2026-11-27T14:03:53.604017284Z",
+          "seal": {
+            "by": "server",
+            "mac": "18d339dfee4d0911a372e0f46f42371107a514c340279d46b0f9aec762c1c316"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:53.604017284Z",
+      "seal": {
+        "by": "server",
+        "mac": "b57e6915205ad4172ccdf467d47e0a3e0d145122aee678d6430dab4856589a89"
+      }
+    },
+    {
+      "id": "CLM-2200",
+      "statement": "add_source refuses a duplicate id within a concept by exact (case-sensitive) comparison, so two ids differing only in case can be seeded, while cited_by keys ids case-insensitively",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'a source cited \"twice in one concept\" is seeded as two add_source entries whose ids differ only in case (a duplicate id is refused, and cited_by keys ids case-insensitively)'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "src/okf/ops/frontmatter.rs",
+        "src/okf/search.rs"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3858",
+          "kind": "analysis",
+          "locator": "src/okf/ops/frontmatter.rs:507-518; src/okf/search.rs:1002-1005",
+          "summary": "add_source_edit compares ids with == (exact), so 'x' and 'X' coexist; SourceTally keys on text(id).to_lowercase(), so both count as one source per concept. Rust test frontmatter.rs:1078-1095 pins the exact-duplicate refusal.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/frontmatter.rs",
+              "lines": {
+                "start": 507,
+                "end": 518
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.873429600Z",
+          "seal": {
+            "by": "server",
+            "mac": "834a038b6251d678a9c26aeda7f37e317b78a47850f9847b089bf24083d0d5e5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Exact-match duplicate check and lowercase tally key confirm the PR's explanation.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3858"
+          ],
+          "recorded_at": "2026-11-27T14:03:53.783425930Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7abd6d0f60a2b46c2fef0ffc55003f14fa81eed7e3c9fa165fd91e31a1c5b29"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:53.783425930Z",
+      "seal": {
+        "by": "server",
+        "mac": "ca04417f8be3981f64902fe2a57698402ecbd48a23939da716f75da2e9a3a45a"
+      }
+    },
+    {
+      "id": "CLM-2201",
+      "statement": "cited_by with a limit also cuts a filtered call's hits and sets truncated true when more concepts match than the limit",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: '`limit` below the number of sources or hits gives `truncated: true`.'",
+      "derived_from": [
+        "CLM-2184"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+        "src/mcp/cited_by.rs"
+      ],
+      "tags": [
+        "from-issue:1158"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3857",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:252-257; src/mcp/cited_by.rs:173-178",
+          "summary": "Test: source_id popular with limit 1 gives [counted/first] and truncated true; limit 2 gives truncated false. Code: found is sorted by (catalog, path), truncated = found.len() > limit, then take(limit). Agrees.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/cited_by.rs",
+              "lines": {
+                "start": 173,
+                "end": 178
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:02:31.674759621Z",
+          "seal": {
+            "by": "server",
+            "mac": "770098c23130340c393702b079c008f1ec22f9a131f432ca23d6902ebfee126e"
+          }
+        },
+        {
+          "id": "EVD-3877",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:239-258",
+          "summary": "Test body asserts limit-cut hits (one of two concepts) and truncated flags as described.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 239,
+                "end": 258
+              },
+              "commit": "fe1fda1bf607c933b1a8bcbdd08bf5ab96c1fde6"
+            }
+          },
+          "recorded_at": "2026-11-27T14:03:22.648316702Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc0b7f8b0707d747871dc2115c16ec4fded3831838298cb9bfe3a453d6f389ac"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test and code both show limit cutting hits with truncated set.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3857",
+            "EVD-3877"
+          ],
+          "recorded_at": "2026-11-27T14:03:54.006469442Z",
+          "seal": {
+            "by": "server",
+            "mac": "87e988d07ab9f2b6a6e7402b8a94fb47b02d79e131facda5a309ff6146da8b24"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T14:02:01.342187777Z",
+      "updated_at": "2026-11-27T14:03:54.006469442Z",
+      "seal": {
+        "by": "server",
+        "mac": "cfeb45b7c2423cd59590c138ac6513bd13b1379734591b2b359b0595b53b7a09"
       }
     }
   ]

@@ -629,13 +629,17 @@ mod tests {
             key_prefix: "okf:".into(),
             mode: RedisMode::Standalone,
         };
+        let refusing = crate::test_net::Refused::new();
         for url in [
-            "redis://:s3cretpw@127.0.0.1:1/0",
-            "http://user:s3cretpw@example.com",
+            format!("redis://:s3cretpw@{}/0", refusing.address()),
+            "http://user:s3cretpw@example.com".to_string(),
         ] {
-            let error = Redis::connect(&config, &|_| Some(url.to_string()), &Metrics::global())
-                .await
-                .unwrap_err();
+            let error = crate::test_net::bounded(
+                "a redis connect to a refusing or malformed address",
+                Redis::connect(&config, &|_| Some(url.clone()), &Metrics::global()),
+            )
+            .await
+            .unwrap_err();
             let message = error.to_string();
             assert!(
                 !message.contains("s3cretpw")
@@ -758,10 +762,11 @@ mod tests {
             key_prefix: "okf:".into(),
             mode: RedisMode::Standalone,
         };
-        Redis::connect(
-            &config,
-            &|_| Some("redis://127.0.0.1:1/0".to_string()),
-            &metrics,
+        let refusing = crate::test_net::Refused::new();
+        let url = format!("redis://{}/0", refusing.address());
+        crate::test_net::bounded(
+            "a redis connect to the refusing address",
+            Redis::connect(&config, &|_| Some(url.clone()), &metrics),
         )
         .await
         .unwrap_err();
@@ -850,10 +855,11 @@ mod tests {
             key_prefix: "okf:".into(),
             mode: RedisMode::Cluster,
         };
-        let error = Redis::connect(
-            &config,
-            &|_| Some("redis://:s3cretpw@127.0.0.1:1".to_string()),
-            &Metrics::global(),
+        let refusing = crate::test_net::Refused::new();
+        let url = format!("redis://:s3cretpw@{}", refusing.address());
+        let error = crate::test_net::bounded(
+            "a cluster connect to the refusing address",
+            Redis::connect(&config, &|_| Some(url.clone()), &Metrics::global()),
         )
         .await
         .unwrap_err();

@@ -3851,8 +3851,10 @@ mod tests {
             key_prefix: "okftest:".to_string(),
             mode: crate::config::RedisMode::Standalone,
         });
-        // A closed port on the loopback: refused at once.
-        let env = |_: &str| Some("redis://user:sekrit-7f3a@127.0.0.1:1/0".to_string());
+        // A held, unlistened loopback port: refused at once.
+        let refusing = crate::test_net::Refused::new();
+        let url = format!("redis://user:sekrit-7f3a@{}/0", refusing.address());
+        let env = |_: &str| Some(url.clone());
         let capture = crate::telemetry::subscriber::capture::Capture::default();
         let subscriber = tracing_subscriber::fmt()
             .with_writer(capture.clone())
@@ -3860,7 +3862,11 @@ mod tests {
             .finish();
         let guard = crate::test_tracing::set_default(subscriber);
 
-        announce_from_cli(&config, &env, &Metrics::global(), &[COMMITTED]).await;
+        crate::test_net::bounded(
+            "the announcement to a refusing redis",
+            announce_from_cli(&config, &env, &Metrics::global(), &[COMMITTED]),
+        )
+        .await;
 
         drop(guard);
         let logged = capture.text();

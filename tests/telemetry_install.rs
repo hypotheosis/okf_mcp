@@ -4,6 +4,8 @@
 //! Its own integration-test binary: it sets the process's global
 //! subscriber, which a second test in the same process could not.
 
+mod support;
+
 use std::io;
 use std::sync::{Arc, Mutex};
 
@@ -54,13 +56,16 @@ async fn the_configured_subscriber_handles_events_after_start_up() {
     .expect("write config");
     let fallback = Capture::default();
     let configured = Capture::default();
+    // Exporters may dial at flush or shutdown: a held, unlistened port refuses.
+    let refusing = support::refused::Refused::new();
+    let dsn = format!("http://public@{}/42", refusing.address());
 
     // The same sequence `cli::run` performs: start up under the fallback,
     // then install the configured subscriber.
     let started = start_up(
         Some(&path),
         true,
-        &|name| (name == "DSN").then(|| "http://public@127.0.0.1:1/42".to_string()),
+        &|name| (name == "DSN").then(|| dsn.clone()),
         fallback.clone(),
     )
     .expect("start up");

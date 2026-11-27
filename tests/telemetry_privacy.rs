@@ -592,10 +592,11 @@ async fn nothing_secret_is_exported_or_scraped() {
 
     // --- OAuth: a refused client id that is not a URL, and one that is a
     // URL nobody serves.
+    let refusing = support::refused::Refused::new();
     let challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
     for id in [
         client_id.clone(),
-        format!("http://127.0.0.1:9/{cimd_name}.json"),
+        format!("http://{}/{cimd_name}.json", refusing.address()),
     ] {
         let query = form(&[
             ("response_type", "code"),
@@ -605,11 +606,12 @@ async fn nothing_secret_is_exported_or_scraped() {
             ("code_challenge", challenge),
             ("code_challenge_method", "S256"),
         ]);
-        let refused = http
-            .get(format!("{base}/oauth/authorize?{query}"))
-            .send()
-            .await
-            .expect("authorize");
+        let refused = support::refused::bounded(
+            "an authorize that fetches a client document from a refusing address",
+            http.get(format!("{base}/oauth/authorize?{query}")).send(),
+        )
+        .await
+        .expect("authorize");
         assert!(refused.status().is_client_error(), "authorize: {refused:?}");
     }
 

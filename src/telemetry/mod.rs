@@ -1084,7 +1084,10 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn a_disabled_signal_builds_no_exporter_provider_or_reader() {
-        let env = |name: &str| (name == "DSN").then(|| "http://public@127.0.0.1:1/42".to_string());
+        // Exporters may dial at flush or shutdown: point them at a refusing port.
+        let refusing = crate::test_net::Refused::new();
+        let dsn = format!("http://public@{}/42", refusing.address());
+        let env = |name: &str| (name == "DSN").then(|| dsn.clone());
         let sentry_default = Telemetry::start(&sentry_config(None), &env).expect("starts");
         assert!(sentry_default.traces_enabled() && sentry_default.logs_enabled());
         assert_eq!(
@@ -1099,7 +1102,7 @@ mod tests {
 
         let mut endpoint = TelemetryConfig::default();
         endpoint.otlp = Some(config::OtlpConfig {
-            endpoint: Some("http://127.0.0.1:1".to_string()),
+            endpoint: Some(format!("http://{}", refusing.address())),
             headers_env: Some("none".to_string()),
             signals: Some(vec![otlp::Signal::Metrics]),
             ..config::OtlpConfig::default()
@@ -1120,7 +1123,7 @@ mod tests {
             .all(|metric| metric.get_counter().get_value() == 0.0));
         // Dropping a running provider blocks on its worker; shut each down.
         for telemetry in [sentry_default, logs_only, metrics_only] {
-            telemetry.shutdown().await;
+            crate::test_net::bounded("a telemetry shutdown", telemetry.shutdown()).await;
         }
     }
 

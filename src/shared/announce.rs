@@ -349,10 +349,9 @@ async fn run<H: Handler, S: Source>(
                             tracing::info!(
                                 subscriber = H::NAME,
                                 resubscribe = subscribed_before,
-                                disconnected_ms =
-                                    outage_began
-                                        .filter(|_| subscribed_before)
-                                        .map(|since| duration_ms(since.elapsed())),
+                                disconnected_ms = outage_began
+                                    .filter(|_| subscribed_before)
+                                    .map(|since| duration_ms(since.elapsed())),
                                 "pub/sub subscribed; catching up on missed announcements"
                             );
                             subscribed_before = true;

@@ -53,7 +53,7 @@ A PR gets at most `AGENTIC_MAX_REVIEW_ROUNDS` (default 3) reviews from the bot, 
 | `AGENTIC_RETRIGGER` | `/prrb` | Comment that re-triggers the bot |
 | `AGENTIC_WATCH_TIMEOUT` | 900 (seconds) | How long `watch-review.sh` waits in all before it exits 2 |
 | `AGENTIC_CALL_TIMEOUT` | 60 (seconds) | Most any single `gh` or `git` call, or any supervised watchdog call (`ps`, `git`, `find`, `tr`), may take. `watch-review.sh` also bounds each call by the time left before its deadline. A call that runs out of time is stopped with its whole process group |
-| `AGENTIC_STATE_WAIT` | 60 (seconds) | How long `merge-reviewed.sh` re-reads `mergeStateStatus` while it is `UNKNOWN`, or `BLOCKED` right after it resolved threads |
+| `AGENTIC_STATE_WAIT` | 60 (seconds) | How long `merge-reviewed.sh` re-reads `mergeStateStatus` while it is `UNKNOWN`, or `BLOCKED` right after it resolved threads. A polling budget, not a hard limit: the last lookup may run up to 2 s past it, and stopping that lookup's process group takes up to 10 s more, so the wait ends within this + 12 s |
 | `AGENTIC_MAX_REVIEW_ROUNDS` | 3 | Most bot reviews a PR gets before it merges without another |
 | `AGENTIC_TIMEOUT_<GATE>` | 5m / 30m / 75m / 60m / 45m / 5m / 5m / 20m / 15m | Per-gate limits for `gate.sh`: fmt, lint, test, test-ui, dylint, worker, release, mcpjam, narrow |
 | `AGENTIC_GATE_KILL_AFTER` | 60 (seconds) | How long what is left of a gate's process group gets between TERM and KILL, after a timeout or once the gate exits. `gate.sh` returns only once the group is empty, so the lock is free |

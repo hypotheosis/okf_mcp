@@ -167,6 +167,12 @@ describe(SCENARIOS.organizeIntoFolders.goal, () => {
         ]);
         return seeded;
     }
+    // `index` reads the published concept and index.md from the replica it reaches, so wait
+    // until the listing is visible there before using it (README, "Reads after a publish").
+    const visibleInIndex = (name: string) =>
+        vi.waitFor(async () => {
+            expect(await session().document(indexPath())).toContain(`(${name}.md)`);
+        });
     const indexPath = () => `${paths.folder}/${folder}/index.md`;
     const redescribe = (changeset: string, name: string, summary: string) =>
         session().call<{ message: string; touched: string[] }>("index", {
@@ -208,6 +214,7 @@ describe(SCENARIOS.organizeIntoFolders.goal, () => {
                 summary: "Delta summary.",
             },
         ]);
+        await visibleInIndex("delta");
         const changeset = await session().openChangeset();
         const report = await redescribe(changeset, "delta", "Delta summary.");
 
@@ -220,6 +227,7 @@ describe(SCENARIOS.organizeIntoFolders.goal, () => {
 
     test("a re-describe still lands at publish after another changeset published the same index", async () => {
         await seedListed();
+        await visibleInIndex("beta");
         const ours = await session().openChangeset();
         await redescribe(ours, "beta", "Replayed beta summary.");
         // Another changeset adds a listing to the same index.md and publishes first.

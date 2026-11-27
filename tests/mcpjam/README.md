@@ -86,6 +86,12 @@ teardown deletes the run's concepts. The server never deletes `index.md`
 files, so empty folder indexes and `log.md` lines stay behind; use a scratch
 catalog.
 
+Some checks need a catalog of the scenario's own: the unfiltered `cited_by`
+listing returns at most 200 sources for the whole catalog, so a shared folder
+catalog could push this run's sources out of it whatever the server does. Those
+tests are skipped under folder isolation (`test.skipIf`, with the reason in
+the test file) and run under catalog isolation, which local mode always uses.
+
 Either way, each scenario's seeds are published before any test runs. That
 includes `infra/ntp`, which "Verify and stamp a fact" assumes. Local mode
 creates its own user and admin key with the `okf-mcp` CLI, so it runs catalog

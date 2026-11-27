@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "296ab483c15ca6675c0b6113be284cefed3b6f05c57b4bf0a373779d35cc288a"
   },
-  "next_evidence_seq": 3729,
+  "next_evidence_seq": 3730,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9d0582966f921bfd57ef0f59db8cba9af342f188df78021461f28dd50118ee6a"
+    "mac": "14fe04d24b223758149153ec18d0ba07554e1b30058c0368eaac480f04dd5b3c"
   },
   "claims": [
     {
@@ -186301,6 +186301,28 @@
             "by": "server",
             "mac": "55cb5824f98b78956c40960fd4e6de0bd67b0eb7df0da2ff3d561816af00d2bd"
           }
+        },
+        {
+          "id": "EVD-3729",
+          "kind": "test",
+          "locator": "tests/ui_e2e/account.rs the_return_from_the_provider_waits_for_the_status_and_falls_back_when_it_fails",
+          "summary": "Browser journey: with the status GET held the page shows the Checking line and neither the OIDC delete button nor the retry button; releasing it (server answers none) shows the re-authentication button; a 503 on the GET shows the fallback delete button. Revert-checked: removing the Checking branch and changing the failure state to none each make it fail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/account.rs",
+              "lines": {
+                "start": 1406,
+                "end": 1455
+              },
+              "commit": "87b5496aef2ec449da8965637872b0c22a84ea49"
+            }
+          },
+          "recorded_at": "2026-11-27T07:41:22.661313273Z",
+          "seal": {
+            "by": "server",
+            "mac": "c257bed987fc16f7bb93bbe119ec869a80cce0f1530f9fd79469e90255e198e1"
+          }
         }
       ],
       "verdicts": [
@@ -186316,13 +186338,27 @@
             "by": "server",
             "mac": "49261f2293f0c8693a663e9e982d2bf03a9c79d3b08272822c5a9596e84c6b23"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The pending, none and failed-status draws are now covered by a browser journey, revert-checked against both branches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3719",
+            "EVD-3729"
+          ],
+          "recorded_at": "2026-11-27T07:41:29.629256502Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c274efb741b1f22a7b9d90340a0ea603535662c0d01da6782a7e882e66a4c30"
+          }
         }
       ],
       "created_at": "2026-11-27T06:57:02.880966690Z",
-      "updated_at": "2026-11-27T06:58:49.322843292Z",
+      "updated_at": "2026-11-27T07:41:29.629256502Z",
       "seal": {
         "by": "server",
-        "mac": "73017c5a39101419a4a3c08340e271f177c82f39c3dae9853480c2d8328dd113"
+        "mac": "27ac1b8e92f654934f0b3c82df207d287b5ad71343e17550486d1ad6b3ac241b"
       }
     },
     {

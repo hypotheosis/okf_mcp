@@ -2448,6 +2448,55 @@ async fn offline_at_boot_keeps_the_copies_and_says_the_account_needs_a_connectio
     .await;
 }
 
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn account_opened_offline_after_an_online_start_shows_the_reduced_view() {
+    let (server, _) = server().await;
+    drive(server.base.clone(), move |ui| {
+        // Online start: boot read the session, so the full screen shows.
+        signed_in_with_a_copy(ui);
+        ui.eval("() => { location.hash = '#/t/main'; }", json!(null));
+        ui.wait_visible("#screen-tree");
+        let offline = ui.go_offline();
+        ui.eval("() => { location.hash = '#/me'; }", json!(null));
+        ui.wait_visible("#account-offline");
+        assert!(!ui.present("#sign-out") && !ui.present("#account-user"));
+        assert!(ui.present("#theme-system") && ui.present("#theme-dark"));
+        assert!(ui.present("#delete-offline"));
+        // The copies are kept, and the session is the one boot read.
+        assert!(content_paths(ui)
+            .iter()
+            .any(|path| path.ends_with("/alpha.md")));
+        drop(offline);
+        // Back online, Account reads the session again and shows it all.
+        ui.eval("() => { location.hash = '#/t/main'; }", json!(null));
+        ui.wait_visible("#screen-tree");
+        ui.eval("() => { location.hash = '#/me'; }", json!(null));
+        ui.wait_text("#account-user", "reader");
+        assert!(ui.present("#sign-out") && !ui.present("#account-offline"));
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_late_session_answer_does_not_draw_account_over_another_screen() {
+    let (server, _) = server().await;
+    drive(server.base.clone(), move |ui| {
+        signed_in_with_a_copy(ui);
+        ui.eval("() => { location.hash = '#/t/main'; }", json!(null));
+        ui.wait_visible("#screen-tree");
+        // Account's read of the session answers late; the person has left.
+        ui.hold_answer("GET", "/session", || {
+            ui.eval("() => { location.hash = '#/me'; }", json!(null));
+        });
+        ui.eval("() => { location.hash = '#/t/main'; }", json!(null));
+        ui.wait_visible("#screen-tree");
+        ui.release_held();
+        assert!(ui.present("#screen-tree"));
+        assert!(!ui.present("#account-user") && !ui.present("#account-offline"));
+    })
+    .await;
+}
+
 /// The sample catalog of the visual check: placeholder content shaped like
 /// the mockup's (folders with descriptions, a long concept with tags,
 /// quotes, code and links, several actors and kinds of change).

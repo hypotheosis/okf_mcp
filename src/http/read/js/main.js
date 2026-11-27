@@ -243,6 +243,7 @@ async function show() {
     });
     const ctx = {
         state, route, choose, forget, signOut: endSession, freshness, live,
+        checkSession, SESSION,
         fail: refusal.fail,
         settle: refusal.settle,
         drawWorst: refusal.drawWorst,
@@ -306,17 +307,33 @@ function registerWorker() {
     });
 }
 
-async function boot() {
-    await registerWorker();
+// Reads GET /session and says what it meant: SESSION.ANSWERED (state.session
+// is now the answer), SESSION.SIGNED_OUT (the signed-out screen is drawn), or
+// SESSION.OFFLINE (the server could not be reached, or failed; state.session
+// is left as it was, so other screens behave as before). Boot and the Account
+// screen both go through here, so they classify a failed read the same way.
+const SESSION = Object.freeze({ ANSWERED: 'answered', SIGNED_OUT: 'signed-out', OFFLINE: 'offline' });
+
+async function checkSession() {
     try {
         const { data } = await read('/session');
         state.session = data;
+        return SESSION.ANSWERED;
     } catch (error) {
         if (!(error instanceof ReadError)) throw error;
-        if (error.kind === KIND.SIGNED_OUT) { await signIn(); return; }
-        // Offline (or the server failing): read what is cached; the
-        // banner says so on the first cached answer.
+        if (error.kind === KIND.SIGNED_OUT) {
+            await signIn();
+            return SESSION.SIGNED_OUT;
+        }
+        return SESSION.OFFLINE;
     }
+}
+
+async function boot() {
+    await registerWorker();
+    // Offline (or the server failing): read what is cached; the banner says
+    // so on the first cached answer.
+    if (await checkSession() === SESSION.SIGNED_OUT) return;
     // Not awaited: the first screen never waits for the labels.
     catalogList();
     $('#reader').hidden = false;

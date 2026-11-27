@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2164,
+  "next_claim_seq": 2184,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "4ca42665f63848c918d08cfb406705f0188d0b4dfef900d09afb9119648371af"
+    "mac": "3bc43a640dc97986eb28b8ddfac39e345f9ec0d37a02e43d04d4ef184ee844c4"
   },
-  "next_evidence_seq": 3827,
+  "next_evidence_seq": 3851,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ca8109bbb070c945f2457ad258a46ef65fc74a83802f89fb006fee65dfa09bc1"
+    "mac": "510a36894d840e92c5c3e6fc8925221cb74c47c619806f42828170524f1bc724"
   },
   "claims": [
     {
@@ -167886,7 +167886,9 @@
         "from-issue:834"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: okf_mcp_tool_duration_seconds no longer has a `catalog` label.",
+        "retired_at": "2026-11-27T13:43:39.023124557Z"
       },
       "evidence": [
         {
@@ -167928,10 +167930,10 @@
         }
       ],
       "created_at": "2026-11-26T19:01:31.723160887Z",
-      "updated_at": "2026-11-26T19:03:08.483091398Z",
+      "updated_at": "2026-11-27T13:43:39.023124557Z",
       "seal": {
         "by": "server",
-        "mac": "10fcb1cccc7b5de408dd84ceef944f1a5b55d0b3ec0336c3e516d5cb3021a90b"
+        "mac": "11560056b4d8ba80d84b32ab0422342b5bdc6ed9894e2415e5e7c42224779268"
       }
     },
     {
@@ -168522,7 +168524,9 @@
         "from-issue:834"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: the metrics label half of this statement no longer exists; the span-attribute half is covered by the okf.catalog claims.",
+        "retired_at": "2026-11-27T13:43:39.171891197Z"
       },
       "evidence": [
         {
@@ -168564,10 +168568,10 @@
         }
       ],
       "created_at": "2026-11-26T19:01:31.723160887Z",
-      "updated_at": "2026-11-26T19:03:09.313721488Z",
+      "updated_at": "2026-11-27T13:43:39.171891197Z",
       "seal": {
         "by": "server",
-        "mac": "28b6aff6d54e00d778a8547772b0d4a30e8b27f81d25645d3083a2cd70e5fb4a"
+        "mac": "17c2fb1a4ef84118a133c647d14845ac874dd410b545c63076c196c7e155c2bd"
       }
     },
     {
@@ -188157,7 +188161,9 @@
         "from-issue:1117"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: the tool metrics catalog label no longer exists, so the claim as worded (span attribute and metric label) is false for the metric half. Span-only replacement added.",
+        "retired_at": "2026-11-27T13:43:39.330359321Z"
       },
       "evidence": [
         {
@@ -188214,10 +188220,10 @@
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:26:13.983940760Z",
+      "updated_at": "2026-11-27T13:43:39.330359321Z",
       "seal": {
         "by": "server",
-        "mac": "5a0fc14f4af68f069b1ce4f7d03e13e2771379318d919fcb72a62b701a9970eb"
+        "mac": "a5315804010e293bd53e6357ec33d52e4941b901af536528b44be3020571b0e4"
       }
     },
     {
@@ -188238,7 +188244,9 @@
         "from-issue:1117"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: names the `catalog` label of okf_mcp_tool_duration_seconds, which is gone. Span-only replacement added.",
+        "retired_at": "2026-11-27T13:43:39.471329835Z"
       },
       "evidence": [
         {
@@ -188280,10 +188288,10 @@
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:21:52.194420349Z",
+      "updated_at": "2026-11-27T13:43:39.471329835Z",
       "seal": {
         "by": "server",
-        "mac": "6692755d94a412d8cc9d7d0ecca746bdb354e5723a6aa0abcd3c4871cf3843f3"
+        "mac": "48794cef637480d596b0a91a3505e592afa0bc78e808c55ee57949b6ebbe02b3"
       }
     },
     {
@@ -188484,6 +188492,29 @@
             "by": "server",
             "mac": "f95dbb78c05d51a5bd7af8c352d91f61bd9420dd09f79149c701b8174faeb893"
           }
+        },
+        {
+          "id": "EVD-3846",
+          "kind": "analysis",
+          "locator": "git grep -nE \"okf\\.catalog.*\\bnone\\b|label.*\\\"none\\\"|\\\"multiple\\\"\" -- src tests",
+          "summary": "Re-checked at the #1157 head: no test in src or tests expects the old `none` or `multiple`; the metric assertions that carried the label were rewritten without it.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "okf\\.catalog.*\\bnone\\b|label.*\"none\"|\"multiple\"",
+              "scope": [
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:43:51.373070448Z",
+          "seal": {
+            "by": "server",
+            "mac": "148393e0a8421cee471ddd66e2ac75af688ab1fa826a11b3ca313cf437538eb9"
+          }
         }
       ],
       "verdicts": [
@@ -188512,13 +188543,26 @@
             "by": "server",
             "mac": "258f3267215661e0cb8288de2d9e11d7860e69b27974abaa6adf5550c4491f65"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search at the #1157 head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3846"
+          ],
+          "recorded_at": "2026-11-27T13:43:57.108224232Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce72a348245689dc1a3ecfe1c44d6b99d891091285accad9f2b4e54524105e33"
+          }
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:26:10.922483380Z",
+      "updated_at": "2026-11-27T13:43:57.108224232Z",
       "seal": {
         "by": "server",
-        "mac": "dbe7488ad829d638d5fdbe78fb066a3e90d7d0fb96a9a53f8fc9e8ffa1ca5674"
+        "mac": "ee3562d5b3e03b962e0224c9686a21f31afdd77cfc950b265e6c6d11dcae790e"
       }
     },
     {
@@ -188539,7 +188583,9 @@
         "from-issue:1117"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: the test that asserted `(multiple)` and `(none)` on the metric label now asserts no `catalog=` on the metric; span assertions remain (see replacement).",
+        "retired_at": "2026-11-27T13:43:39.616649573Z"
       },
       "evidence": [
         {
@@ -188616,10 +188662,10 @@
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:26:11.191581374Z",
+      "updated_at": "2026-11-27T13:43:39.616649573Z",
       "seal": {
         "by": "server",
-        "mac": "fd0ce9f4e17571722633cdd90d615cd9846d22e18fc55ec986e3c3d1454a372c"
+        "mac": "79ee0a53001964d94cf94a08019c251c2e933d835e5a3c8c0439eec7ced7d362"
       }
     },
     {
@@ -188640,7 +188686,9 @@
         "from-issue:1117"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: docs/operations.md no longer names the sentinels in the tool metric row, and the upgrade note was rewritten to span-only (see CLM-2178).",
+        "retired_at": "2026-11-27T13:43:39.757489017Z"
       },
       "evidence": [
         {
@@ -188682,10 +188730,10 @@
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:21:53.129493201Z",
+      "updated_at": "2026-11-27T13:43:39.757489017Z",
       "seal": {
         "by": "server",
-        "mac": "844ce1f688be5adac7a27567f9fc5bb730cda2862a6e08d0f4f14b762b70a452"
+        "mac": "9a5a42a0ad5c24af454cfb5d901374aae4af57c083fd1f8915759c45ba5d389a"
       }
     },
     {
@@ -188772,7 +188820,9 @@
         "from-issue:1117"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1157: the dashboard no longer has the `catalog` variable or `catalog=~\"$catalog\"` matchers (see CLM-2171).",
+        "retired_at": "2026-11-27T13:43:39.893209313Z"
       },
       "evidence": [
         {
@@ -188814,10 +188864,10 @@
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:21:53.601816281Z",
+      "updated_at": "2026-11-27T13:43:39.893209313Z",
       "seal": {
         "by": "server",
-        "mac": "8c64f9192a877da08bc5f60f679cd37bf3f4c5111acc147756d9f1351f10f7ff"
+        "mac": "6b38cbf76224f1ace89f65ce4f8c34dc44ba3230347e3ceb62bef0d8018e39e8"
       }
     },
     {
@@ -188885,6 +188935,28 @@
             "by": "server",
             "mac": "bfcc480eaaa78b8964042cac8c9a3052c6b9731304b2c573c0ba440c376fb755"
           }
+        },
+        {
+          "id": "EVD-3847",
+          "kind": "analysis",
+          "locator": "git grep at #1157 head over src, docs/operations.md, README.md",
+          "summary": "Re-checked: the only bare `none`/`multiple` left are docs/operations.md:1615-1619, which describe the old values in an upgrade note (historical by design); comments in mod.rs and catalogs.rs use the constants.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1614,
+                "end": 1621
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:43:51.510577504Z",
+          "seal": {
+            "by": "server",
+            "mac": "ceaad885d9aeb7c29897eeda14e9ba5c12306fda240f0007550c771be930229b"
+          }
         }
       ],
       "verdicts": [
@@ -188913,13 +188985,26 @@
             "by": "server",
             "mac": "e3c9e8f8416b3c7b5c488dbe9070bed2f7391ab4129686b28d68e1dd36e152d9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Remaining bare mentions are the historical upgrade note only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3847"
+          ],
+          "recorded_at": "2026-11-27T13:43:57.231671256Z",
+          "seal": {
+            "by": "server",
+            "mac": "d146f69b45ff68d09b3f39ce187190688bc7cdca2abac9156dc0803ca6aec5a3"
+          }
         }
       ],
       "created_at": "2026-11-27T09:21:11.967327531Z",
-      "updated_at": "2026-11-27T09:26:11.059055993Z",
+      "updated_at": "2026-11-27T13:43:57.231671256Z",
       "seal": {
         "by": "server",
-        "mac": "0a0d3500f9918731dc4e21498e02b2318daf44cb96664607b2de6b3f621aeff5"
+        "mac": "be179a186464f295205ce460e4542c197c60f75db9505ede6c69bf23b1a9e04a"
       }
     },
     {
@@ -191852,6 +191937,1379 @@
       "seal": {
         "by": "server",
         "mac": "11729b945765aecee9d225b2a58ed79754f5b666413db463d4f366a468fe5741"
+      }
+    },
+    {
+      "id": "CLM-2164",
+      "statement": "Issue #1157 is delivered: no exported metric (on /metrics or in OTLP) carries a `catalog` label, with the dimension removed rather than replaced by a row id.",
+      "kind": "security",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1157; owner decision: remove the catalog dimension entirely",
+      "derived_from": [],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3850",
+          "kind": "analysis",
+          "locator": "children CLM-2165..CLM-2183; gate logs target/i1157-logs",
+          "summary": "All child claims are supported; gates fmt, lint, dylint, test (only the known tls flake failed, rerun green) and mcpjam passed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T13:49:42.938606505Z",
+          "seal": {
+            "by": "server",
+            "mac": "2112116ed5e83259d789599cc55b11f31bb28348c29d2c99465161e21c9fe6dc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported after the CLM-2179 docs fix.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3850"
+          ],
+          "recorded_at": "2026-11-27T13:49:46.619217737Z",
+          "seal": {
+            "by": "server",
+            "mac": "d70019787259bd388e3eb7e857131914c4f4e35fa61c0223fb6f83c4ae4f6ade"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:49:46.619217737Z",
+      "seal": {
+        "by": "server",
+        "mac": "81d975fa04a5c53799a8ef881241afdf31b27dcd8847700016bc159516c6ecf7"
+      }
+    },
+    {
+      "id": "CLM-2165",
+      "statement": "No code in src or tests creates a metric attribute keyed `catalog` (no `KeyValue::new(\"catalog\"` remains).",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"`publish`, `publish_lock_wait`, `lint_rejection`, `tool_call` and `archive` no longer ... attach a `catalog` attribute\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3827",
+          "kind": "analysis",
+          "locator": "git grep -E 'KeyValue::new\\(\"catalog' -- src tests",
+          "summary": "Zero hits across src and tests at head; the pre-change diff removed the five sites in metrics.rs (publish, publish_lock_wait, lint_rejection, tool_call, archive).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "KeyValue::new\\(\"catalog",
+              "scope": [
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:29.089938408Z",
+          "seal": {
+            "by": "server",
+            "mac": "7dbbb4734f7d334040fa8628b693504caf11e1a9d5a02130a8e278bed1c8e3a0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search anchor at head; the diff shows all five former sites removed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3827"
+          ],
+          "recorded_at": "2026-11-27T13:43:22.593278004Z",
+          "seal": {
+            "by": "server",
+            "mac": "30933f3e62658d41afe43de1e3ae667a8baf92cd7a120857670aac5292e6d9a0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:22.593278004Z",
+      "seal": {
+        "by": "server",
+        "mac": "6ec8c660d6ffc1f81e5cbca40ab56c0d2c46092e65aa937824831f3abf00f3b2"
+      }
+    },
+    {
+      "id": "CLM-2166",
+      "statement": "`Metrics::publish`, `publish_lock_wait`, `lint_rejection`, `tool_call` and `archive` no longer take a catalog-name parameter, and their callers in src/store/publish.rs, src/mcp/mod.rs and src/http/archives.rs pass none.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"no longer take a catalog name ... Callers updated in `src/store/publish.rs`, `src/mcp/mod.rs` and `src/http/archives.rs`\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs",
+        "src/store/publish.rs",
+        "src/mcp/mod.rs",
+        "src/http/archives.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3828",
+          "kind": "inspection",
+          "locator": "src/telemetry/metrics.rs:487,499,510,638,1223; src/store/publish.rs:175,178,243; src/mcp/mod.rs:454-456; src/http/archives.rs:285",
+          "summary": "Signatures are publish(outcome, elapsed), publish_lock_wait(waited), lint_rejection(rule), tool_call(tool, outcome, elapsed), archive(direction, outcome, elapsed, bytes); every caller passes no name. Compilation not run (gate in progress).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 485,
+                "end": 515
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:29.344657527Z",
+          "seal": {
+            "by": "server",
+            "mac": "181dc7018164406b36179197bbcc406b18a81459259da259ae70f94d69d2dc09"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Signatures and all call sites read directly; compile status is the gate's.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3828"
+          ],
+          "recorded_at": "2026-11-27T13:43:22.732220301Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6b04b1f73394f428a93726d0b6082f7558026c9f68ae37c46bb9e87d994eb7f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:22.732220301Z",
+      "seal": {
+        "by": "server",
+        "mac": "82bc77cbe0ba6131457d05379e7579b8d94a5a01096d805fa9a53281ca4e6ef5"
+      }
+    },
+    {
+      "id": "CLM-2167",
+      "statement": "The label is removed at the instrument, so the `/metrics` scrape and OTLP metric export both lose it (both read the same instruments).",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"The removal is at the instrument, so `/metrics` and OTLP both lose it.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs",
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3829",
+          "kind": "analysis",
+          "locator": "src/telemetry/metrics.rs:487-515,638-650 (instrument record calls); tests/telemetry_privacy.rs:1260-1290",
+          "summary": "The attributes are given only at the instrument record/add call, one place that feeds the shared meter provider; the privacy test also scans OTLP metric points for a `catalog` key and the name. Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 636,
+                "end": 650
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:29.571135563Z",
+          "seal": {
+            "by": "server",
+            "mac": "62843ad2eeebf2ef6289a218fe58224b3bb3c3c09f2d2a4640ee1813cb11c787"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Attributes exist only at instrument record calls, so both exporters lose them; the privacy test checks both outputs (read, not run).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3829"
+          ],
+          "recorded_at": "2026-11-27T13:43:22.862825459Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2791b2af24809613061e13f8beb47fb0d88fd3c108fd86bfd09901b9fb329d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:22.862825459Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c5198bd2dcb73b700f910bb736695adbe63cc28bc0b93aad9537ba736423334"
+      }
+    },
+    {
+      "id": "CLM-2168",
+      "statement": "An archive of an unresolved catalog is still not counted in the archive metrics.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"(an archive of an unresolved catalog is still not counted)\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/http/archives.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3830",
+          "kind": "inspection",
+          "locator": "src/http/archives.rs:270-286",
+          "summary": "finish returns early when self.catalog is None, before metrics.archive; the existing test at ~1403 still asserts no okf_archive_size_bytes_total import series in that case.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/archives.rs",
+              "lines": {
+                "start": 270,
+                "end": 286
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:29.772487017Z",
+          "seal": {
+            "by": "server",
+            "mac": "30eac6a05db51252399d7f58c0cbcc22b8e307c5f60a637756f723d4e96ba658"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Early return on missing catalog precedes the metrics call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3830"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.010628256Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2158338bd0c36c628ada9fecc154ebd1bc9ee958aaaae9a7e849a963d67c992"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.010628256Z",
+      "seal": {
+        "by": "server",
+        "mac": "78bb36bef8fc6d6615df746591d6662407dc9922dfcad5cff9114282c88425fa"
+      }
+    },
+    {
+      "id": "CLM-2169",
+      "statement": "The `okf.catalog` span attribute, `CatalogSeen`/`note_catalog` and the `(none)`/`(multiple)` sentinels are unchanged in behavior (only comments differ).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Owner decision: keep okf.catalog and sentinels unchanged; PR body: \"`okf.catalog` span attribute, `CatalogSeen`/`note_catalog`, tool execution and catalog resolution are unchanged.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/store/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3831",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/mcp/mod.rs src/store/catalogs.rs",
+          "summary": "Hunks in mod.rs touch only doc comments (TOOL_CATALOG, CatalogSeen, note_catalog) and the tool_call argument; CatalogSeen::label/add, note_catalog and the span.record(\\\"okf.catalog\\\") block are untouched. catalogs.rs changes two doc comments only; the constants are unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 440,
+                "end": 458
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:29.986623512Z",
+          "seal": {
+            "by": "server",
+            "mac": "01e06845de6b5d2f03dcb5b50841bf4d543dca51ef42ec9bc4ef13468a82ae15"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff of the span and sentinel code is comments only. Note: the reworded CatalogSeen doc comment is garbled (\"as the `okf.catalog` attribute and\\n/// report them\"), a cosmetic text defect.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3831"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.149509943Z",
+          "seal": {
+            "by": "server",
+            "mac": "ca907a8bcf254c2aa4bc417c396a5fd2ddf8f256cd91ec86ddc48c92d96de9b7"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.149509943Z",
+      "seal": {
+        "by": "server",
+        "mac": "8210233eb357e16e1939092731d69b322da955d16db0009224903bef87f2f75c"
+      }
+    },
+    {
+      "id": "CLM-2170",
+      "statement": "Tool execution and catalog resolution do not change: every non-test, non-comment src hunk only drops the catalog argument of a metrics call or its parameter.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Owner decision: tool execution and catalog resolution must not change",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/store/publish.rs",
+        "src/http/archives.rs",
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3832",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src (non-test hunks)",
+          "summary": "Non-test, non-comment hunks: metrics.rs signatures and bodies, the metric call sites in publish.rs (3), mod.rs (1) and archives.rs finish (replaced let-else with is_none check, same early return). No hunk touches tool dispatch, resolve_changeset/state, or catalog lookup.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/publish.rs",
+              "lines": {
+                "start": 170,
+                "end": 182
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:30.193858645Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0537c425494bcbbb1ff3c57cc79678645977c808f2413d4e3a7ee5f40c74cb1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every non-test hunk is a metrics call or signature; no execution or resolution code changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3832"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.295327673Z",
+          "seal": {
+            "by": "server",
+            "mac": "04afb134d8548646a835c6740195ddc4950d604c436b0d9916cbbf3704496906"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.295327673Z",
+      "seal": {
+        "by": "server",
+        "mac": "6c31e6a8c7718e8ff6bfd2602745c18e4ac53fcb87c10afb06a6abec34c52272"
+      }
+    },
+    {
+      "id": "CLM-2171",
+      "statement": "examples/grafana/okf-mcp.json has no `catalog` variable, no `catalog=~\"$catalog\"` matcher and no `catalog` grouping or legend.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the `catalog` variable, every `catalog=~\\\"$catalog\\\"` matcher, the `catalog` groupings and legends are removed.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "examples/grafana/okf-mcp.json"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3833",
+          "kind": "analysis",
+          "locator": "git grep -E 'catalog=~|\\$catalog|by \\(catalog|\\{\\{ ?catalog|, catalog\\)' -- examples/grafana",
+          "summary": "Zero hits in the dashboard; the only `catalog` words left are a panel description and the okf_catalog_announcements_total metric name.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "catalog=~|\\$catalog|by \\(catalog|\\{\\{ ?catalog|, catalog\\)",
+              "scope": [
+                "examples/grafana"
+              ],
+              "hits": 0,
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:30.395895030Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f7920f98e32ff9690a7f70d899b5698fe21b3ad42061793301770ff4a1fdd2b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search over the dashboard directory.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3833"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.433303177Z",
+          "seal": {
+            "by": "server",
+            "mac": "f32e7f4c51c879b20ffddba4f5946c1ad8b2a83e93c714b1a8cd8e21a525dc42"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.433303177Z",
+      "seal": {
+        "by": "server",
+        "mac": "99df3b8437ca69c5f3cdc2afe3e9fd341feb83c701506bd4d089176d974a7435"
+      }
+    },
+    {
+      "id": "CLM-2172",
+      "statement": "tests/grafana_dashboard.rs fails when any label a dashboard query matches, groups by, shows in a legend or lists in a variable is not in KNOWN_LABELS, and `catalog` is not in KNOWN_LABELS; the current dashboard uses only known labels.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"every label a query matches, groups by, shows in a legend or lists in a variable must be one the metrics have; a probe that re-adds `catalog` fails.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "tests/grafana_dashboard.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3834",
+          "kind": "analysis",
+          "locator": "tests/grafana_dashboard.rs:312-455; python re-implementation of label_names over examples/grafana/okf-mcp.json",
+          "summary": "KNOWN_LABELS (24) excludes catalog; unknown_labels is asserted empty. Mirroring the extractor's regexes in Python over every expr/legendFormat/definition yields exactly the 24 known labels, so the test should pass; the probe test builds old-style text and asserts catalog is extracted. Tests not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/grafana_dashboard.rs",
+              "lines": {
+                "start": 306,
+                "end": 455
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:30.586215567Z",
+          "seal": {
+            "by": "server",
+            "mac": "024aae505fc9e81c1b2257b21c20484b70ec202f51a0eb4cd76b795b98fa68d5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test code reads as claimed, and an independent re-implementation of its extractor over the dashboard finds only known labels. Not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3834"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.592834774Z",
+          "seal": {
+            "by": "server",
+            "mac": "416877e8d12d1dfa9243d8c72a4b68e351b2ff0ef8f874e8613ab587f08de94a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.592834774Z",
+      "seal": {
+        "by": "server",
+        "mac": "b0553a9f780d22b8f17169b6c1474bfdeee19bc7a4afc4887943e220af20b496"
+      }
+    },
+    {
+      "id": "CLM-2173",
+      "statement": "tests/telemetry_privacy.rs::no_catalog_name_is_a_metric_attribute drives an MCP call, ok and refused publishes and an archive export on two catalogs with synthetic names, and asserts no name and no `catalog` key on /metrics or in any OTLP metric attribute, with both catalogs in the same series (publish ok 2, error 2, lock waits 4, tool reads 2, exports 2).",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: Tests, tests/telemetry_privacy.rs bullet",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3837",
+          "kind": "analysis",
+          "locator": "tests/telemetry_privacy.rs:1025-1248",
+          "summary": "Test exercises get_concept, ok and lint-refused publish and export on two names built from SENTINEL, asserts exact series lines (publish ok 2/error 2, lock wait 4, get_concept 2, export 2), no name and no `catalog=` on the scrape, and per-attribute key/value checks on every OTLP metric point with a non-vacuity guard. Not run by me; helpers (otlp::metrics, any_text, SERIAL) exist.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/telemetry_privacy.rs",
+              "lines": {
+                "start": 1025,
+                "end": 1248
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:50.592472566Z",
+          "seal": {
+            "by": "server",
+            "mac": "901f86a08ef9fdaefb3d6892340b5218a9f6d40ba93f30f1d9631e0197633b93"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test body asserts every listed outcome; it was read, not run (a gate is running).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3837"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.742357567Z",
+          "seal": {
+            "by": "server",
+            "mac": "c57dd01f597fab84c8a321cb801cce442ad6f8c807f6f6c9f3884ed3d4e73255"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:23.742357567Z",
+      "seal": {
+        "by": "server",
+        "mac": "b1e6b0a5f5e505d2eac8d86829762f91f457d3b67bdeaf3d80ff838ee75920c1"
+      }
+    },
+    {
+      "id": "CLM-2174",
+      "statement": "Temporarily re-adding a catalog attribute to the archive counter made no_catalog_name_is_a_metric_attribute fail.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR body: \"Checked by temporarily re-adding a catalog attribute to the archive counter: the test failed.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "tests/telemetry_privacy.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3835",
+          "kind": "analysis",
+          "locator": "PR body, Tests section",
+          "summary": "A one-off manual mutation; not repeatable without building (forbidden here). By reading, the test's catalog= scrape check and OTLP key check would catch a catalog attribute on the archive counter, but that is reasoning, not the observed failure.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T13:42:30.853420147Z",
+          "seal": {
+            "by": "server",
+            "mac": "51345153febf99244a5a969400858c34c9bea0b620752c74397afa441cd5faf2"
+          }
+        },
+        {
+          "id": "EVD-3849",
+          "kind": "demonstration",
+          "locator": "tools/agentic/gate.sh narrow --test telemetry_privacy no_catalog (mutated metrics.rs), target/i1157-logs/n3.log",
+          "summary": "With a catalog=\"zq-sentinel-7f3a-alpha-cat\" attribute temporarily added to the archive size counter, the test failed (exit 101) printing okf_archive_size_bytes_total{catalog=\"zq-sentinel-7f3a-alpha-cat\",direction=\"export\"}; the file was then restored.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T13:49:31.310453385Z",
+          "seal": {
+            "by": "server",
+            "mac": "a31aa91ba32fe1847143ad223aea00f0f879c090c99d1c4c522c11a600987dc1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "A one-off manual mutation run cannot be repeated without a build. Fix: run the mutation (re-add KeyValue::new(\"catalog\", ...) to Metrics::archive) under the gate and record the failing test output in the PR, or drop the sentence from the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3835"
+          ],
+          "recorded_at": "2026-11-27T13:43:23.894303729Z",
+          "seal": {
+            "by": "server",
+            "mac": "08a65c40008071964e2a35b0c3b5e196738ffe1692fc6475c3055d8fbf93ac2b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Mutation was run under the gate and the test failed; output in n3.log.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3849"
+          ],
+          "recorded_at": "2026-11-27T13:49:39.910809084Z",
+          "seal": {
+            "by": "server",
+            "mac": "dcc5d36ed012911696827a6f9b361fda18a8ec3a4de05c710014a67ce4e795b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:49:39.910809084Z",
+      "seal": {
+        "by": "server",
+        "mac": "6daf3c998b2ba4a445a98e0241549b8c89f0dc46199b6a7c9206b3a0359eb49f"
+      }
+    },
+    {
+      "id": "CLM-2175",
+      "statement": "The unit tests in src/mcp/telemetry_tests.rs, src/mcp/changesets.rs, src/http/archives.rs and src/telemetry/metrics.rs assert the new series without `catalog`, and the tool metric test asserts no `catalog=` on any tool series.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: Tests, first bullet",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs",
+        "src/mcp/changesets.rs",
+        "src/http/archives.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3836",
+          "kind": "inspection",
+          "locator": "src/mcp/telemetry_tests.rs:599-630; src/mcp/changesets.rs:1713-1750; src/http/archives.rs:1250-1260; src/telemetry/metrics.rs:1368-1392",
+          "summary": "All four files' series assertions drop catalog; the_tool_metric_carries_no_catalog_label loops over every okf_mcp_tool_duration_seconds line asserting no `catalog=`.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 596,
+                "end": 632
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:31.021519971Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0bd18d8ab5e581db9d58cc54d9b95e7202eb12b6923e87ec004af7ff5452a5d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions in the four files read as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3836"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.063536610Z",
+          "seal": {
+            "by": "server",
+            "mac": "99cdc0cfa1051559c12031c48e5b0eb405c08b5776e32840625695a4751329d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.063536610Z",
+      "seal": {
+        "by": "server",
+        "mac": "8379128c9179cbb81fbd0bbf42b980303fea6e5bf2670e8611feec8352ae11f5"
+      }
+    },
+    {
+      "id": "CLM-2176",
+      "statement": "docs/operations.md documents the label-schema change: the `catalog` label is gone from five named instruments, and dashboards, recording rules and alerts that filter, match or group by it must change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Owner decision: document the label-schema change; PR body: docs bullet",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3838",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1589-1612, 1667-1675, 1700",
+          "summary": "Names the five instruments, the decision and reasons, and says dashboards, recording rules and alerts filtering, matching or grouping by `catalog` must drop it; metric table rows updated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1589,
+                "end": 1612
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:50.812185150Z",
+          "seal": {
+            "by": "server",
+            "mac": "091a7394a5d7d4283b414dc5a08ed99a91c28db0e0b55cfd8941c5c58d40cad1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Present at the cited lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3838"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.224831223Z",
+          "seal": {
+            "by": "server",
+            "mac": "21ee706d51d00590ca47433f383ca1a266cb8fa1cfdca3fec996b258001fa234"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.224831223Z",
+      "seal": {
+        "by": "server",
+        "mac": "9798eaba6cd47b4daf5a30434ef99856d453588de5b61c211a2bfc439048d393"
+      }
+    },
+    {
+      "id": "CLM-2177",
+      "statement": "docs/operations.md states that already-stored Prometheus (or OTLP backend) samples are not scrubbed and keep their `catalog` label until retention or deletion.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Owner decision: document that stored Prometheus samples are not scrubbed",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3839",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1606-1612",
+          "summary": "Bold statement that samples already stored in Prometheus or any OTLP backend are not scrubbed, keep their `catalog` label until retention drops them or the TSDB admin delete_series; also notes old and new are different series.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1606,
+                "end": 1612
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:51.009534408Z",
+          "seal": {
+            "by": "server",
+            "mac": "84f9f58bbf8164f60c728b85f27af25f33eca0a04e380720a8ace8d9f8529995"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Present at the cited lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3839"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.379512164Z",
+          "seal": {
+            "by": "server",
+            "mac": "e529a0c4b67f027cb9b54b7af87d1cf4af94e5691b3ea6075c85ec318513846f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.379512164Z",
+      "seal": {
+        "by": "server",
+        "mac": "889d6c1e40dfaf5fd9d080291dbeae5fa96e06219e403d05dc67c779643a57e3"
+      }
+    },
+    {
+      "id": "CLM-2178",
+      "statement": "The #1117 upgrade note in docs/operations.md now says the `(none)`/`(multiple)` sentinels apply to the `okf.catalog` span only, and no longer says the tool metric carries them or that the dashboard variable uses `.*`.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Owner decision: fix the #1117 upgrade note in docs/operations.md",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3840",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1614-1621; git grep -n 'variable uses' docs/operations.md",
+          "summary": "Heading is \"(span only)\"; sentinels are said to apply to the `okf.catalog` span attribute, alerts on spans `okf.catalog:none` must change, and the tool metric's former label is stated gone. The sentence about the dashboard variable using `.*` is removed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1614,
+                "end": 1621
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:51.228071398Z",
+          "seal": {
+            "by": "server",
+            "mac": "79ff5b42e5808afef0c0ae5a0070e200da327fd8bbac0d2a31c589774f905a37"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Note is span-only and the stale dashboard sentence is gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3840"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.530620252Z",
+          "seal": {
+            "by": "server",
+            "mac": "68db10f6c0b82bfdf93724c1b40b15779cfc86c2eb1ce31e0ea03bc401a04e81"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.530620252Z",
+      "seal": {
+        "by": "server",
+        "mac": "197252a2606f17a64f0e44f02f6ce58ea15e5045d2a5e658c8c2a324ca8c7144"
+      }
+    },
+    {
+      "id": "CLM-2179",
+      "statement": "The docs/operations.md sentence \"a selector on a label the series no longer has matches nothing\" is accurate for every selector the upgrade note lists as affected (`catalog=\"pg\"`, `catalog=~\"$catalog\"`).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "docs/operations.md:1602-1606 (new text)",
+      "source_anchor": {
+        "path": "docs/operations.md",
+        "lines": {
+          "start": 1602,
+          "end": 1606
+        },
+        "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+      },
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3841",
+          "kind": "analysis",
+          "locator": "docs/operations.md:1602-1606; PromQL label-matcher semantics (a missing label is the empty string)",
+          "summary": "In PromQL a series without a label matches a matcher as if the label were empty, so `catalog=~\".*\"` (the old dashboard's All value, and what any All-valued $catalog expands to) and `catalog!=\"x\"` still match every series; only a matcher that needs a non-empty value (`catalog=\"pg\"`, `catalog=~\"pg|x\"`) matches nothing. The doc lists `catalog=~\"$catalog\"` as matching nothing, which is wrong for the All case, and old dashboards with All selected keep working.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1602,
+                "end": 1606
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:51.431945387Z",
+          "seal": {
+            "by": "server",
+            "mac": "89b2e94da3de3a95abee9eba2406d228660564ac3c12f1b51cdd4912cbf6f274"
+          }
+        },
+        {
+          "id": "EVD-3848",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1602-1610",
+          "summary": "Reworded: PromQL reads a missing label as empty, so value-requiring matchers match no new series, catalog=~\".*\" still matches all, and label_values lists nothing for new samples.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1602,
+                "end": 1610
+              },
+              "commit": "39de4dc78819814d74b6fb8d5fecddfde158b8f5"
+            }
+          },
+          "recorded_at": "2026-11-27T13:49:31.173302976Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4bf3e17290fd6cf332abf5d902e335b83876171c04fd2dde1621fa292f8e86e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "A selector on an absent label matches as if the label were empty, so `catalog=~\".*\"` and `catalog!=\"x\"` still match every series; the doc says the listed selectors, including `catalog=~\"$catalog\"`, match nothing. Fix: reword docs/operations.md:1604-1606 to say a selector that needs a catalog value (`catalog=\"pg\"`, `catalog=~\"pg|x\"`) now matches nothing, while one that accepts an empty value (`catalog=~\".*\"`, as an All-valued variable gives) still matches everything and the `label_values` variable lists nothing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3841"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.688441844Z",
+          "seal": {
+            "by": "server",
+            "mac": "5203201b457b8bd9eeca119efc2192b75b3d99360fcb1d62997f7697972d326c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Doc sentence corrected to the actual PromQL semantics.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3848"
+          ],
+          "recorded_at": "2026-11-27T13:49:39.782114682Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa80b9fdd53a770d6e74aeff72ce191ca66b800d00907c7a355a5479e98704c8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:49:39.782114682Z",
+      "seal": {
+        "by": "server",
+        "mac": "bc94d94b46f8579d0b0f64b96b4c31e16e02411b2ca977c4b55708b30a569cdd"
+      }
+    },
+    {
+      "id": "CLM-2180",
+      "statement": "README.md says catalog names appear as span attributes and never as metric labels.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: docs/operations.md, README.md bullet",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "README.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3842",
+          "kind": "inspection",
+          "locator": "README.md:250-256",
+          "summary": "Text now reads \"catalog names appear as span attributes (never as metric labels)\". The line wrap is uneven but the statement is correct.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 250,
+                "end": 256
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:51.642011448Z",
+          "seal": {
+            "by": "server",
+            "mac": "11a3482de6e97e970c8affb4914bec832d732bb843701f909474a91858c8364c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README text matches.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3842"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.833413182Z",
+          "seal": {
+            "by": "server",
+            "mac": "74e366f8dc5e7e652f7b31fba08faa61fe0428cc52c0bd47a6793c2c9713675a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.833413182Z",
+      "seal": {
+        "by": "server",
+        "mac": "6102465976e712d39c7a6ee51e522ef2d35334d32c327d1fa2ee755a84148cc5"
+      }
+    },
+    {
+      "id": "CLM-2181",
+      "statement": "A changelog entry for #1157 exists under changelog/ with a timestamped name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry added.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "changelog/20261127T133554Z-issue-1157-no-catalog-metric-label.md"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3843",
+          "kind": "inspection",
+          "locator": "changelog/20261127T133554Z-issue-1157-no-catalog-metric-label.md",
+          "summary": "File added in the commit, with Changed, Added and Notes sections, dated 2026-11-27 matching the clock.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T133554Z-issue-1157-no-catalog-metric-label.md",
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:51.844412173Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2645861160f00a80061b8f44553e4a88d94ba3547bf9216ff5c56094fc33520"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3843"
+          ],
+          "recorded_at": "2026-11-27T13:43:24.995012166Z",
+          "seal": {
+            "by": "server",
+            "mac": "f009459c0df8b10b3855338567fc7ce9e0788122521f97759c7fd9477bfc690d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:24.995012166Z",
+      "seal": {
+        "by": "server",
+        "mac": "4e4a6c0e85f245cd5206aa84f52b9ffd9dd9ff21650b9f74fd43247509ecab4a"
+      }
+    },
+    {
+      "id": "CLM-2182",
+      "statement": "No other metric label carries a catalog name or user-derived text: every KeyValue in src/telemetry/metrics.rs is a fixed word, a folded closed set (`tool`, `rule`), a route template (`http.route`) or the build version.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Other metric labels reviewed ... No other metric carries a catalog name or user-derived text.\"",
+      "derived_from": [
+        "CLM-2164"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1157"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3844",
+          "kind": "analysis",
+          "locator": "grep -n 'KeyValue::new(' src/telemetry/metrics.rs; src/telemetry/metrics.rs:146 (lint_rule_label), 1307 (tool_label); src/http/mod.rs:763-776",
+          "summary": "Every KeyValue key is one of 23 fixed names. Values: enum as_str, string literals, `&'static str` kinds, lint_rule_label and tool_label (folded to a fixed list or `other`), CARGO_PKG_VERSION, and http.route taken from axum MatchedPath (a template; unmatched requests skip the metric). No raw user text found.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 1307,
+                "end": 1317
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:42:52.038628879Z",
+          "seal": {
+            "by": "server",
+            "mac": "576963e19131db6aa5a677bf87fdcf6254bae966f11d827032b92e88c8cbb525"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All KeyValue sites reviewed; none takes unbounded text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3844"
+          ],
+          "recorded_at": "2026-11-27T13:43:25.152912408Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c9cddeb00346d21e77989692a699ff42bb1744f5bfe066c71aae42e65b0870a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:41:58.635151071Z",
+      "updated_at": "2026-11-27T13:43:25.152912408Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee032160592e0d794253b7060d1dfd7aa48fc5d65cbf2a3695dc2fe2593c2380"
+      }
+    },
+    {
+      "id": "CLM-2183",
+      "statement": "A tool call that resolved no catalog records `(none)` on the `okf.catalog` span attribute, and one that reached several records `(multiple)`; both are tested on the span after #1157 removed the metric label.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Replaces CLM-2114 and CLM-2118 (issue #1117) for #1157, span only",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1157",
+        "from-issue:1117"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3845",
+          "kind": "analysis",
+          "locator": "src/mcp/mod.rs:441-452; src/mcp/telemetry_tests.rs:168-178,740-746,664-690",
+          "summary": "span.record(\"okf.catalog\", label) is unchanged and fed by CatalogSeen::label; span assertions of CATALOG_LABEL_NONE remain at 174 and 743, and the several-catalogs test still drives list_catalogs, now asserting the metric line has no `catalog=` while the span assertion remains in the same test. Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 660,
+                "end": 692
+              },
+              "commit": "22f8230a473c8e3042afa913a2ab23fd9c481f61"
+            }
+          },
+          "recorded_at": "2026-11-27T13:43:51.199795659Z",
+          "seal": {
+            "by": "server",
+            "mac": "66b8bc934a38b32c9260da511eb2d1d2abbe5adbba527ba1a8785eb3f1b0314c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Span code unchanged and span assertions retained; read not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3845"
+          ],
+          "recorded_at": "2026-11-27T13:43:56.982887069Z",
+          "seal": {
+            "by": "server",
+            "mac": "7883329f3f0b218efe3c05c6568378d94fb1723df222e69e2c8af08316877b49"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T13:43:43.452865650Z",
+      "updated_at": "2026-11-27T13:43:56.982887069Z",
+      "seal": {
+        "by": "server",
+        "mac": "b76b4a601c342a94064d74ea33e3c6733b17632d34071321a8771e16fcfbd227"
       }
     }
   ]

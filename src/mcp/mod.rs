@@ -176,8 +176,15 @@ fn session_digest(parts: Option<&Parts>) -> Option<String> {
 }
 
 /// What the server tells a client it is for.
-pub const INSTRUCTIONS: &str = "Open Knowledge Format catalogs: concepts (markdown with YAML \
-    frontmatter) about systems, projects, people and decisions. Start with `search`, then \
+pub const INSTRUCTIONS: &str = "Open Knowledge Format catalogs keep whatever the person may want \
+    again in a later conversation, as concepts (markdown with YAML frontmatter): facts about \
+    themselves, preferences, plans, things they read or learned, work knowledge. When the person \
+    shares something worth keeping, or asks you to remember it, save it to the catalog (under a \
+    fitting folder) rather than only in the conversation; asking is their consent, so don't ask \
+    again. Save what they share without asking first, and tell them what you saved (the concept \
+    and a line on what it says) so they can say if they don't want it kept. Nothing is published \
+    until `publish`, and `revert` undoes a publish. When they ask what you remember, or refer \
+    to something they told you before, `search` the catalog first. Start with `search`, then \
     `get_concept`. Paths look like /infra/time-server.md (the leading slash and .md are \
     optional). Without a `catalog` argument, tools use this connection's selection: the \
     catalogs the connection or the key's default names, else the only catalog the key \
@@ -186,14 +193,10 @@ pub const INSTRUCTIONS: &str = "Open Knowledge Format catalogs: concepts (markdo
     `label`. Say the label when talking to people, pass the id in tool calls, and never ask a \
     person to type an id. To write, call `open_changeset` first and pass the handle it \
     returns as `changeset` to every edit, `publish`, `discard`, `revert` and `pending_changes`; \
-    reads take it too to see its drafts, and `list_changesets` finds a lost one. Nothing is \
-    visible to others until `publish`. A call that depends on an earlier one (an edit to a \
-    concept you are creating, a read after `publish`) must wait for its result: parallel calls \
-    on one changeset run in no fixed order. \
-    `whoami` says who you act for and the server's time. \
-    When the person asks you to remember something, save it to the catalog (under a fitting \
-    folder) rather than only in the conversation; asking is their consent, so don't ask again. \
-    Don't save what they didn't ask you to keep.";
+    reads take it too to see its drafts, and `list_changesets` finds a lost one. A call that \
+    depends on an earlier one (an edit to a concept you are creating, a read after `publish`) \
+    must wait for its result: parallel calls on one changeset run in no fixed order. \
+    `whoami` says who you act for and the server's time.";
 
 /// The line [`INSTRUCTIONS`] gains when `[feedback]` is set and
 /// `send_feedback` is offered (issue #674), naming the product.
@@ -505,6 +508,24 @@ pub type ToolResult<T> = Result<Json<T>, CallToolResult>;
 /// The result to send the client.
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn tool_error(error: &OkfError) -> CallToolResult {
+    tool_error_with_hint(error, None)
+}
+
+/// What a `NotFound` from a write tool adds to its message (issue #1162): models often send
+/// a call that depends on a `create_concept` in the same step, and it runs first.
+pub(crate) const PARALLEL_CALL_HINT: &str =
+    "If this path is one you are creating in a parallel call, retry once that call returns.";
+
+/// As [`tool_error`], appending `hint` to the message when the error is a `NotFound`.
+///
+/// # Arguments
+/// * `error` - what went wrong.
+/// * `hint` - text for a `NotFound`'s message; other kinds ignore it.
+///
+/// # Returns
+/// The result to send the client.
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) fn tool_error_with_hint(error: &OkfError, hint: Option<&str>) -> CallToolResult {
     // The kind goes on the tool's root span through the task-local handle
     // (a no-op outside a tool call, as in the unit tests that call this).
     let _ = TOOL_SPAN.try_with(|span| {
@@ -523,6 +544,9 @@ pub fn tool_error(error: &OkfError) -> CallToolResult {
         tracing::debug!(kind = error.kind(), "tool error");
     }
     let mut body = error.to_json();
+    if let (OkfError::NotFound { .. }, Some(hint)) = (error, hint) {
+        body["message"] = format!("{error} {hint}").into();
+    }
     if error.is_internal() {
         let trace_id = current_trace_id();
         if let Some(trace_id) = &trace_id {
@@ -596,6 +620,22 @@ fn report_hint(error: &OkfError, has_trace_id: bool) -> Option<String> {
 )]
 pub fn reply<T>(result: Result<T, OkfError>) -> ToolResult<T> {
     result.map(Json).map_err(|error| tool_error(&error))
+}
+
+/// As [`reply`], for a tool that writes into a changeset: a `NotFound` also says to retry
+/// once a parallel call that creates the path returns.
+#[allow(clippy::result_large_err)]
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
+    )
+)]
+pub fn reply_write<T>(result: Result<T, OkfError>) -> ToolResult<T> {
+    result
+        .map(Json)
+        .map_err(|error| tool_error_with_hint(&error, Some(PARALLEL_CALL_HINT)))
 }
 
 /// Runs CPU work (an analysis, a search) on a blocking thread, so the async
@@ -675,9 +715,72 @@ mod tests {
     /// instruction must not push the model to save what the person didn't ask to keep.
     #[test]
     fn the_instructions_tell_a_remember_request_to_save_to_the_catalog() {
+        assert!(INSTRUCTIONS.contains("or asks you to remember it, save it to the catalog"));
+        assert!(!INSTRUCTIONS.contains("Don't save what they didn't ask you to keep."));
+    }
+
+    /// Issue #1162: saving is the default, the person is told what was saved, and the rule
+    /// comes early enough that a client truncating the instructions still shows it.
+    #[test]
+    fn the_instructions_save_by_default_and_tell_the_person_what_was_saved() {
         assert!(INSTRUCTIONS
-            .contains("When the person asks you to remember something, save it to the catalog"));
-        assert!(INSTRUCTIONS.contains("Don't save what they didn't ask you to keep."));
+            .contains("Save what they share without asking first, and tell them what you saved"));
+        assert!(INSTRUCTIONS.contains("asking is their consent, so don't ask again"));
+        assert!(INSTRUCTIONS.contains("`search` the catalog first"));
+        assert!(!INSTRUCTIONS.contains("systems, projects, people and decisions"));
+        let rule = INSTRUCTIONS.find("save it to the catalog").expect("rule");
+        let paths = INSTRUCTIONS.find("Paths look like").expect("paths");
+        assert!(rule < paths && rule < 500);
+    }
+
+    /// Issue #1162: the tool list alone must say the catalog is where to remember things,
+    /// and must not suggest that publishing shows a concept to strangers.
+    #[test]
+    fn the_tool_descriptions_steer_a_client_to_remember_in_the_catalog() {
+        let tools = OkfServer::tools().list_all();
+        let describe = |name: &str| {
+            tools
+                .iter()
+                .find(|tool| tool.name == name)
+                .and_then(|tool| tool.description.as_deref())
+                .unwrap_or_default()
+                .to_string()
+        };
+
+        assert!(describe("search").contains("what you remember about them"));
+        let create = describe("create_concept");
+        assert!(create.contains("whenever the person shares something worth keeping"));
+        assert!(create.contains("tell them what you saved"));
+        assert!(create.contains("a personal catalog's owner unless they share it"));
+        assert!(!create.contains("visible to others"));
+        assert!(describe("open_changeset").contains("saving what the person shares"));
+        assert!(describe("history").contains("index.md directly"));
+    }
+
+    /// Issue #1162: a `NotFound` from a write tool says to retry after a parallel call.
+    #[test]
+    fn a_write_tools_not_found_hints_at_a_parallel_create() {
+        let missing = || OkfError::NotFound {
+            path: "/x.md".to_string(),
+        };
+
+        let hinted = reply_write::<u32>(Err(missing()))
+            .err()
+            .expect("an error result");
+        let plain = reply::<u32>(Err(missing())).err().expect("an error result");
+
+        let message = |result: &CallToolResult| {
+            result.structured_content.as_ref().expect("body")["message"]
+                .as_str()
+                .expect("message")
+                .to_string()
+        };
+        assert!(message(&hinted).contains("retry once that call returns"));
+        assert!(!message(&plain).contains("retry"));
+        assert_eq!(
+            hinted.structured_content.expect("body")["error"],
+            "NotFound"
+        );
     }
 
     /// Issue #758: clients must not send dependent calls in parallel.

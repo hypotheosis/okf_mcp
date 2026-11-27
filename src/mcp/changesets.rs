@@ -501,10 +501,14 @@ impl OkfServer {
     /// The `open_changeset` tool.
     #[tool(
         title = "Open Changeset",
-        description = "Open a changeset in a catalog and return its handle. Every edit, \
+        description = "Open a changeset in a catalog and return its handle: the first step \
+                       to saving what the person shares or asks you to remember, which the \
+                       catalog keeps across conversations. Every edit, \
                        publish, discard, revert and pending_changes needs a handle, and the \
-                       reads take one to see its drafts. Nothing is visible to anyone else until \
-                       publish. Several changesets may be open at once. A changeset with no \
+                       reads take one to see its drafts. Nothing is published until \
+                       publish; a published concept is visible only to those with access to \
+                       the catalog (a personal catalog's owner unless they share it, a team \
+                       catalog's team). Several changesets may be open at once. A changeset with no \
                        edits is discarded after 24 hours. Write access.",
         annotations(
             title = "Open Changeset",

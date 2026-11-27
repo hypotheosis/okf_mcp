@@ -14,7 +14,7 @@ use serde::Deserialize;
 
 use crate::error::OkfError;
 use crate::mcp::context::ToolContext;
-use crate::mcp::{reply, OkfServer};
+use crate::mcp::{reply_write, OkfServer};
 use crate::okf::ops::{self, LogKind, NewConcept, SourceEntry, StampField};
 use crate::write::{apply, WriteReport};
 
@@ -231,7 +231,13 @@ impl OkfServer {
     #[tool(
         title = "Create Concept",
         description = "Create a concept in the changeset `changeset` names (open one with \
-                       open_changeset); nothing is visible to others until `publish`. `path` is \
+                       open_changeset). Use it whenever the person shares something worth \
+                       keeping (a fact about themselves, a preference, a decision, a note), \
+                       and certainly when they ask you to remember it: the catalog keeps it \
+                       across conversations, so save it without asking first and tell them \
+                       what you saved. Nothing is published until `publish`; a published \
+                       concept is visible only to those with access to the catalog (a personal \
+                       catalog's owner unless they share it, a team catalog's team). `path` is \
                        the new concept's path, `.md` optional (e.g. /infra/ntp). Needs `type` in \
                        `frontmatter`; the server writes `generated: { by, at }` itself. With \
                        `index_summary`, also lists it in its folder's index.md (creating folder \
@@ -251,7 +257,7 @@ impl OkfServer {
         Parameters(params): Parameters<CreateConceptParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(create_concept(&ctx, params).await)
+        reply_write(create_concept(&ctx, params).await)
     }
 
     /// The `edit_document` tool.
@@ -278,7 +284,7 @@ impl OkfServer {
         Parameters(params): Parameters<EditDocumentParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(edit_document(&ctx, params).await)
+        reply_write(edit_document(&ctx, params).await)
     }
 
     /// The `replace_body` tool.
@@ -303,7 +309,7 @@ impl OkfServer {
         Parameters(params): Parameters<ReplaceBodyParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(replace_body(&ctx, params).await)
+        reply_write(replace_body(&ctx, params).await)
     }
 
     /// The `set_frontmatter` tool.
@@ -329,7 +335,7 @@ impl OkfServer {
         Parameters(params): Parameters<SetFrontmatterParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(set_frontmatter(&ctx, params).await)
+        reply_write(set_frontmatter(&ctx, params).await)
     }
 }
 
@@ -774,7 +780,7 @@ impl OkfServer {
         Parameters(params): Parameters<StampParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(stamp(&ctx, params).await)
+        reply_write(stamp(&ctx, params).await)
     }
 
     /// The `review` tool.
@@ -799,7 +805,7 @@ impl OkfServer {
         Parameters(params): Parameters<ReviewParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(review(&ctx, params).await)
+        reply_write(review(&ctx, params).await)
     }
 
     /// The `question` tool.
@@ -823,7 +829,7 @@ impl OkfServer {
         Parameters(params): Parameters<QuestionParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(question(&ctx, params).await)
+        reply_write(question(&ctx, params).await)
     }
 
     /// The `unquestion` tool.
@@ -847,7 +853,7 @@ impl OkfServer {
         Parameters(params): Parameters<UnquestionParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(unquestion(&ctx, params).await)
+        reply_write(unquestion(&ctx, params).await)
     }
 
     /// The `add_source` tool.
@@ -871,7 +877,7 @@ impl OkfServer {
         Parameters(params): Parameters<AddSourceParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(add_source(&ctx, params).await)
+        reply_write(add_source(&ctx, params).await)
     }
 
     /// The `remove_source` tool.
@@ -897,7 +903,7 @@ impl OkfServer {
         Parameters(params): Parameters<RemoveSourceParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(remove_source(&ctx, params).await)
+        reply_write(remove_source(&ctx, params).await)
     }
 
     /// The `log` tool.
@@ -921,7 +927,7 @@ impl OkfServer {
         Parameters(params): Parameters<LogParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(log(&ctx, params).await)
+        reply_write(log(&ctx, params).await)
     }
 
     /// The `index` tool.
@@ -948,7 +954,7 @@ impl OkfServer {
         Parameters(params): Parameters<IndexParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(index(&ctx, params).await)
+        reply_write(index(&ctx, params).await)
     }
 
     /// The `repair_indexes` tool.
@@ -982,7 +988,7 @@ impl OkfServer {
         Parameters(params): Parameters<RepairIndexesParams>,
     ) -> Result<Json<WriteReport>, CallToolResult> {
         let ctx = self.context(&parts)?;
-        reply(repair_indexes(&ctx, params).await)
+        reply_write(repair_indexes(&ctx, params).await)
     }
 }
 

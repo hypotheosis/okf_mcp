@@ -81,6 +81,8 @@ export const SCENARIOS = {
     surpriseQuestions: scenario("Test memory with surprise questions", "surprise-questions"),
     indexedArchive: scenario("Create indexed memory archive", "indexed-archive"),
     captureInterview: scenario("Quick memory capture interview", "capture-interview"),
+    // Not a swarm goal: what the server's tool list tells a client without a system prompt.
+    toolDescriptions: scenario("Tool descriptions steer a client to remember", "tool-descriptions"),
     // Not a swarm goal: the shared-catalog races the swarm runs exposed.
     concurrency: scenario("Concurrent sessions on one catalog", "concurrency", [
         {

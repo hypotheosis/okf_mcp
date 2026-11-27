@@ -493,7 +493,9 @@ impl Snapshot {
             if doc.kind != DocKind::Concept {
                 return Err(OkfError::InvalidPath {
                     path: candidate,
-                    reason: "is not a concept document".to_string(),
+                    reason: "is not a concept document; read_document reads index.md, log.md \
+                             and AGENTS.md"
+                        .to_string(),
                 });
             }
             return Ok(candidate);
@@ -1093,6 +1095,8 @@ mod tests {
             snapshot.resolve_concept("index"),
             Err(OkfError::InvalidPath { .. })
         ));
+        let refused = snapshot.resolve_concept("index").unwrap_err().to_string();
+        assert!(refused.contains("read_document"), "{refused}");
         assert!(matches!(
             snapshot.resolve_concept("nope"),
             Err(OkfError::NotFound { .. })

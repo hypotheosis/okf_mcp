@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "296ab483c15ca6675c0b6113be284cefed3b6f05c57b4bf0a373779d35cc288a"
   },
-  "next_evidence_seq": 3728,
+  "next_evidence_seq": 3729,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "48e2022e97c74ec4d5531bf7eae40fe08fcf40eff86b0888c62b8888f936411d"
+    "mac": "9d0582966f921bfd57ef0f59db8cba9af342f188df78021461f28dd50118ee6a"
   },
   "claims": [
     {
@@ -185713,6 +185713,28 @@
             "by": "server",
             "mac": "5954b864e54b776ff7d5e15b0d5ded3a82ed35385cc2ee9c4b078a863980e96b"
           }
+        },
+        {
+          "id": "EVD-3728",
+          "kind": "test",
+          "locator": "http::oidc::tests::the_status_route_answers_each_kind_of_caller_with_its_own_exact_status",
+          "summary": "Sends real GETs through the router: anonymous is exactly 401, a valid API key exactly 403, a valid OAuth access token (from the authorization-code flow) exactly 403, and the console session reads {\"state\":\"stale\"}. The no-session case in the other-session test is also pinned to exactly 401.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/oidc.rs",
+              "lines": {
+                "start": 2075,
+                "end": 2110
+              },
+              "commit": "1595c4a5187fabf94f3700d4af9ef4422b76c605"
+            }
+          },
+          "recorded_at": "2026-11-27T07:28:40.548373235Z",
+          "seal": {
+            "by": "server",
+            "mac": "eba690f65ac9d7ebeb824106914c58ade86308cea962b88e0e5fec73beb9679f"
+          }
         }
       ],
       "verdicts": [
@@ -185728,13 +185750,27 @@
             "by": "server",
             "mac": "2beb88ce873502442b5499dbdb027cf01ba194b6cef52cf6d7c3bf5b4f110b57"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "reauth_session is a closed match, and a table test now exercises the real route: anonymous 401, API key 403, OAuth grant 403, console session 200.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3709",
+            "EVD-3728"
+          ],
+          "recorded_at": "2026-11-27T07:28:43.825161599Z",
+          "seal": {
+            "by": "server",
+            "mac": "840fb6a47da2f09c6a1375eb506f92058ca8e22679a0c602161e12e43c9ea79d"
+          }
         }
       ],
       "created_at": "2026-11-27T06:57:02.880966690Z",
-      "updated_at": "2026-11-27T06:58:48.096191659Z",
+      "updated_at": "2026-11-27T07:28:43.825161599Z",
       "seal": {
         "by": "server",
-        "mac": "afe7f442367a89764778efd2ec685e039a9bd1b3000f463dcdc5cf8550070535"
+        "mac": "ec0c19fdf8e8a1c2e7f04f9936f339e40b53fc95837e96fdbe3461fa468e0123"
       }
     },
     {

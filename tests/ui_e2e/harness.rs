@@ -490,11 +490,9 @@ impl Ui {
     /// When the text is not `expected` after [`WAIT`]; the message carries
     /// `report`'s answer.
     pub fn wait_text_is(&self, selector: &str, expected: &str, report: &str) {
-        self.poll_reporting(
-            &format!("{selector} reading {expected:?}"),
-            report,
-            || self.text(selector).trim() == expected,
-        );
+        self.poll_reporting(&format!("{selector} reading {expected:?}"), report, || {
+            self.text(selector).trim() == expected
+        });
     }
 
     /// Waits until `selector`'s text no longer contains `gone` (an absent

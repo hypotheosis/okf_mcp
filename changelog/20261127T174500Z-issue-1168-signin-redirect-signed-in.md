@@ -13,3 +13,9 @@ The reader on a 401 shows its own signed-out screen with a **Sign in** link, and
 ## Added
 - Unit tests in `src/http/signin.rs`: redirect with `no-store` (including `notice=reset` and the default), no open redirect for hostile `return_to`, form for no/unknown/idle/expired/revoked sessions, form on a store error then redirect once healed.
 - Journey `a_signed_in_browser_opening_the_sign_in_link_lands_in_the_reader` in `tests/ui_e2e/read.rs`.
+
+## Revert check
+With the redirect arm disabled: `a_signed_in_browser_is_sent_on_to_its_return_to_and_not_to_the_form`, `a_signed_in_browser_is_never_sent_off_site`, `a_session_that_cannot_be_checked_still_gets_the_form` (its redirect-after-recovery step) and the browser journey fail. `no_live_session_still_gets_the_form` passes before and after: it guards the form for no, unknown, idle, expired and revoked sessions, which the change must not break.
+
+## Side effect on tests
+Two reader journeys signed in as a second account in a second tab by opening `/signin` while the first account's session was live. That page now sends that browser on, so the tab posts the sign-in form with `fetch` instead (the POST is unchanged). The product consequence: with a live session, `/signin` can no longer be used to switch accounts; sign out first.

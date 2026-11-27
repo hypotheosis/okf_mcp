@@ -312,7 +312,7 @@ async fn a_grant_used_or_revoked_while_the_pass_waits_is_left_alone() {
     let pool = db.pool.clone();
     let pass = tokio::spawn(async move { revoke_idle_grants(&pool, idle_before(), now()).await });
     // Wait until the pass is blocked on a row lock the holder keeps.
-    expect_row_lock_waiter(&db.pool, backend_pid(&mut *holder).await, "api_keys").await;
+    expect_row_lock_waiter(&db.pool, backend_pid(&mut holder).await, "api_keys").await;
     // Meanwhile: one grant gets a token, the other is revoked. In the
     // holder's transaction: the token's foreign key would wait for the row.
     tokens::insert(
@@ -388,7 +388,7 @@ async fn a_refresh_admitted_before_expiry_is_never_undone_by_the_idle_pass() {
         revoke_idle_grants(&pool, after_expiry - TimeDelta::days(30), after_expiry).await
     });
     // The rotation holds the grant's row, so the pass must block on it.
-    expect_row_lock_waiter(&db.pool, backend_pid(&mut *rotation).await, "api_keys").await;
+    expect_row_lock_waiter(&db.pool, backend_pid(&mut rotation).await, "api_keys").await;
 
     // The rotation resumes: it mints its successor pair, as `mint` does,
     // and commits.
@@ -470,7 +470,7 @@ async fn a_rotation_after_a_revocation_is_refused() {
         )
         .await
     });
-    expect_row_lock_waiter(&db.pool, backend_pid(&mut *revocation).await, "api_keys").await;
+    expect_row_lock_waiter(&db.pool, backend_pid(&mut revocation).await, "api_keys").await;
     revocation.commit().await.expect("commit the revocation");
     // ... and, once it commits, is refused: nothing is minted.
     let found = tokio::time::timeout(Duration::from_secs(30), refresh)
@@ -591,7 +591,7 @@ async fn a_user_deletion_queues_behind_an_admitted_refresh_and_removes_what_it_m
     let grant = alices_grant(&db.pool).await;
     let presented_at = now();
     let mut rotation = db.pool.begin().await.expect("begin");
-    let rotation_pid = backend_pid(&mut *rotation).await;
+    let rotation_pid = backend_pid(&mut rotation).await;
     let admitted = tokens::use_refresh(&mut rotation, &[2; 32], presented_at, TimeDelta::zero())
         .await
         .expect("present the token");

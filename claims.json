@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2095,
+  "next_claim_seq": 2105,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "296ab483c15ca6675c0b6113be284cefed3b6f05c57b4bf0a373779d35cc288a"
+    "mac": "029c7ed0cd4bbc34ab918d96084ad298d7f3b420c4876474145edd1873273dfd"
   },
-  "next_evidence_seq": 3730,
+  "next_evidence_seq": 3744,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "14fe04d24b223758149153ec18d0ba07554e1b30058c0368eaac480f04dd5b3c"
+    "mac": "ef21fc3e38ec205b9bfc286e15939ca116a59fc03a35cada9ffe65fd1a86351e"
   },
   "claims": [
     {
@@ -49397,6 +49397,28 @@
             "by": "server",
             "mac": "8fa9dca8735577efaf3d8101ec5942b29b5ebb5471735608d5a256a19d0fe0e7"
           }
+        },
+        {
+          "id": "EVD-3741",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:26,43-49,147-150",
+          "summary": "At 8fe2653b the IPv4 rule is still passed: launch_options adds .arg(LOCALHOST_IS_IPV4) and drive() launches with launch_options(&home); the new unit test also asserts the rule is present.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 43,
+                "end": 49
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:26:36.975114273Z",
+          "seal": {
+            "by": "server",
+            "mac": "972b7b97084fbcdf45bdaab0b21004cd8e4d60a9f6f9ddd08bb2b4ec7b29276d"
+          }
         }
       ],
       "verdicts": [
@@ -49438,13 +49460,26 @@
             "by": "server",
             "mac": "6efb32ca289ad54892cbaccc7a51acbbdeed266b045e2b9c2acfd624817ece22"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8fe2653b: the rule is still passed through launch_options.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3741"
+          ],
+          "recorded_at": "2026-11-27T08:26:42.408025894Z",
+          "seal": {
+            "by": "server",
+            "mac": "8dce5c1f3ce51a79789b6d3551a1b330d5c3d92f289b13b7276d3d0afe05757b"
+          }
         }
       ],
       "created_at": "2026-11-22T23:04:49.663095956Z",
-      "updated_at": "2026-11-26T13:10:35.610312678Z",
+      "updated_at": "2026-11-27T08:26:42.408025894Z",
       "seal": {
         "by": "server",
-        "mac": "f7020b8b7b83c0c29118bdad48ec141d056887650b96add4239a82bebd3ab743"
+        "mac": "acb0d152eb32533ba68226902096835f9771998b556fae3bc17298ce7f61c3f5"
       }
     },
     {
@@ -149417,6 +149452,28 @@
             "by": "server",
             "mac": "9e4a9a876f33cde8067ee2e91ca502354443dc7c3a92279bc3834fa06fdef2f8"
           }
+        },
+        {
+          "id": "EVD-3742",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:43-51,147-150",
+          "summary": "At 8fe2653b launch_options still sets user_data_dir = home.profile() and drive() still creates the BrowserHome and launches with it; the diff moved this wiring without changing it. The earlier test run (EVD-2370) is not repeated here (no builds).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 43,
+                "end": 51
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:26:37.119159682Z",
+          "seal": {
+            "by": "server",
+            "mac": "919ddac115d0e6242eae551814c83140d2d65704e6a1a616e7a2ca0bb71f97c3"
+          }
         }
       ],
       "verdicts": [
@@ -149432,13 +149489,26 @@
             "by": "server",
             "mac": "e9d6f9d199396aa82a109e0b621f615dd90bcb22a46263b245f096f5e7e573ad"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8fe2653b: the harness-owned user_data_dir wiring is unchanged in effect (earlier test evidence EVD-2370 still stands, not rerun).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3742"
+          ],
+          "recorded_at": "2026-11-27T08:26:42.539459190Z",
+          "seal": {
+            "by": "server",
+            "mac": "b6f002c2fdd64a5a2fbd9135715df75107e3fe61f3a632c9f7cfbc03584f3c14"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T06:24:37.439099059Z",
+      "updated_at": "2026-11-27T08:26:42.539459190Z",
       "seal": {
         "by": "server",
-        "mac": "afaf303e433295ff8a99b8bc68f75813892ab351b6fc432eb2f7e9ac40d07484"
+        "mac": "15a00fb253306fdca122c65158dc30ec54f5971cacf0126f6147c9e278bfd749"
       }
     },
     {
@@ -150202,6 +150272,28 @@
             "by": "server",
             "mac": "c2e74f216f8a8b810988c2c9e06b96d65775cbe15492a37d837fc80496aeca15"
           }
+        },
+        {
+          "id": "EVD-3743",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:114-125,43-51",
+          "summary": "Ui fields are still ordered page, browser, home (home last); launch_options (called by drive) sets user_data_dir to home.profile() and executable_path to home.launcher().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 114,
+                "end": 125
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:26:37.254295631Z",
+          "seal": {
+            "by": "server",
+            "mac": "c47b8d96e6078c3923258d8e5ccc84f7570ba42a03628224b031de20c79d63ec"
+          }
         }
       ],
       "verdicts": [
@@ -150217,13 +150309,26 @@
             "by": "server",
             "mac": "b13d7eb16300c5c06f19504e5a8c2d9adbe558fa45d56392cc77897d19c760cd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8fe2653b: field order and option wiring still match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3743"
+          ],
+          "recorded_at": "2026-11-27T08:26:42.668626199Z",
+          "seal": {
+            "by": "server",
+            "mac": "b21a1904841fa5e66a957460cebde83808a39082ed66241d5552a61e5dcb9f32"
+          }
         }
       ],
       "created_at": "2026-11-26T06:23:23.110746589Z",
-      "updated_at": "2026-11-26T06:24:29.163193979Z",
+      "updated_at": "2026-11-27T08:26:42.668626199Z",
       "seal": {
         "by": "server",
-        "mac": "d58b680536afaa05d05aeb5cb889338c42b7fa1422af2dca46851a21da2ad7db"
+        "mac": "ee5b7dc701c8b4fcf274e964f6e42e2d455c000e247b436c07f498ef8effea1e"
       }
     },
     {
@@ -186554,6 +186659,628 @@
       "seal": {
         "by": "server",
         "mac": "36ebaea78c0ec2ce4130ba53918776b977461ffc6a584bf474e958b16ee4591c"
+      }
+    },
+    {
+      "id": "CLM-2095",
+      "statement": "Issue #1101 is resolved: the ui_e2e Chromium launch no longer races for a debugging port, because Chromium is started with --remote-debugging-port=0 and the endpoint is discovered through DevToolsActivePort, with no new runtime dependency and a changelog entry.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "hypotheosis/okf_mcp#1101 \"ui_e2e: Chromium launch flakes when its debugging port is taken (bind: Address already in use)\"",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs",
+        "changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3740",
+          "kind": "analysis",
+          "locator": "children of CLM-2095",
+          "summary": "The launch passes =0 (launch_options), rustwright then lets Chromium choose the port and reads DevToolsActivePort from the harness profile, the old pick-then-bind window is gone, a unit test pins the arguments, Cargo files are untouched, and the changelog exists. Only the PR body's side remark about Chromium's [::1] fallback is undecided; it is not part of the fix.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:26:04.475499211Z",
+          "seal": {
+            "by": "server",
+            "mac": "41ced2b9a1dbd06a4c6e1d0810366b617ccd98be77abb663a4f6ef4f0fefbbb0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The fix requirements (port 0, DevToolsActivePort discovery, no new dependency, changelog, unit test on the arguments) are each supported by code reading; the one undecided child is a PR body aside, not a requirement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3740"
+          ],
+          "recorded_at": "2026-11-27T08:26:08.425604819Z",
+          "seal": {
+            "by": "server",
+            "mac": "df0ddd22b45f2088c528803b6b9b1b054f71756c161af66cfaf9774a21a8ec3a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:08.425604819Z",
+      "seal": {
+        "by": "server",
+        "mac": "639b2dd3c96ac9575b8bc4208b32b9a29e487a412a1fb08833f03c4b60c6f39f"
+      }
+    },
+    {
+      "id": "CLM-2096",
+      "statement": "The harness launches Chromium with exactly one --remote-debugging-port argument, whose value is 0, through launch_options, which drive() passes to chromium().launch.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1101 requirement: start Chromium with --remote-debugging-port=0; PR body: \"new `launch_options` builds the options (adds `--remote-debugging-port=0`); `drive()` uses it.\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3730",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:38-48,147-150",
+          "summary": "const CHROMIUM_CHOOSES_DEBUGGING_PORT = \"--remote-debugging-port=0\" is added once in launch_options (.arg at line 47); drive() calls chromium().launch(launch_options(&home)). Repo-wide grep finds no other remote-debugging-port use outside the test and changelog.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 38,
+                "end": 48
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:25:43.821428460Z",
+          "seal": {
+            "by": "server",
+            "mac": "25a053eeedcacb543c1d7edf77ea8d959e5a78b0d23821b47a1e5e84ac2c2fc6"
+          }
+        },
+        {
+          "id": "EVD-3731",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:147-150",
+          "summary": "The only launch call site in drive() passes launch_options(&home); the old inline LaunchOptions construction was removed in the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 145,
+                "end": 152
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:25:43.950434769Z",
+          "seal": {
+            "by": "server",
+            "mac": "b703f48ec06e8b0178696b8fb53cc7d409064f7d1372b196fbd748d69db2c26d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows one =0 argument added in launch_options and used by drive(); no other port argument exists in the repo.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3730",
+            "EVD-3731"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.348225865Z",
+          "seal": {
+            "by": "server",
+            "mac": "942440885f88466f71ff0acf87507ab8035ccc4b9a1ee6ec0fa5fefaaaf7ed58"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.348225865Z",
+      "seal": {
+        "by": "server",
+        "mac": "b6bc3c4831f2fffeedf95b951b881d05add71ee36e89186dc50eef62f0d85cc4"
+      }
+    },
+    {
+      "id": "CLM-2097",
+      "statement": "rustwright-core 0.3.0, given --remote-debugging-port=0, does not pick a port or pass its own --remote-debugging-port=N to Chromium, and finds the endpoint by polling <user_data_dir>/DevToolsActivePort and building ws://127.0.0.1:<port>/<path> from it.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"for `Some(0)`, `dynamic_debugging_port` is true, it does not add its own `--remote-debugging-port=N`, and `launch_chromium_attempt` calls `poll_ws_endpoint_from_devtools_active_port` (reads `<profile>/DevToolsActivePort`, builds `ws://127.0.0.1:<port>/<path>`).\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "rustwright-core-0.3.0/src/lib.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3732",
+          "kind": "analysis",
+          "locator": "~/.cargo/registry/src/*/rustwright-core-0.3.0/src/lib.rs:49084,49099-49104,49230-49231,49300-49310,49348-49362,49439-49477",
+          "summary": "remote_debugging_port_from_args parses \"--remote-debugging-port=0\" to Some(0); dynamic_debugging_port = (== Some(0)); port=0 and pick_unused_port is not called; launch_chromium_attempt receives user_supplied_debugging_port=true so the 'else if !user_supplied_debugging_port { command.arg(--remote-debugging-port={port}) }' branch is skipped (Chromium gets only the user's =0); when dynamic it calls poll_ws_endpoint_from_devtools_active_port(profile_arg,...), which reads profile_arg/DevToolsActivePort (line1 port, line2 path) and returns format!(\"ws://127.0.0.1:{port}{sep}{path}\"). profile_arg is options.user_data_dir when set (49105-49108). File is outside the repo, so no anchor.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:25:44.073841779Z",
+          "seal": {
+            "by": "server",
+            "mac": "5cb5b2c3556dccc35b976403648b6c8a440c897d91e1476dde8b4d1956df0816"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read in rustwright-core 0.3.0: Some(0) sets dynamic_debugging_port, skips pick_unused_port and the port argument, and polls DevToolsActivePort in the profile folder, building ws://127.0.0.1:port/path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3732"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.471673454Z",
+          "seal": {
+            "by": "server",
+            "mac": "e6cd248650cbcc413ed36141f0f737b3ab73bec139abce0df029a660a276fb95"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.471673454Z",
+      "seal": {
+        "by": "server",
+        "mac": "b3b995ecfec84a057de8d861bd585da6e446418489d4606828ff3024a3147ff7"
+      }
+    },
+    {
+      "id": "CLM-2098",
+      "statement": "Without a --remote-debugging-port argument, rustwright-core 0.3.0 picks the port with pick_unused_port (bind 127.0.0.1:0, read the port, close the socket) and passes it to Chromium, which is the window the old launch raced in.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Without the argument it uses `pick_unused_port` (bind 127.0.0.1:0, read, close), which is the race.\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "rustwright-core-0.3.0/src/lib.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3733",
+          "kind": "analysis",
+          "locator": "rustwright-core-0.3.0/src/lib.rs:49099-49104,49228-49231,49679-49682",
+          "summary": "With no port arg, user_debugging_port is None so port = pick_unused_port(), which does TcpListener::bind(\"127.0.0.1:0\"), reads the port and returns (listener dropped/closed); launch_chromium_attempt then adds --remote-debugging-port={port} to the Chromium command and polls http://127.0.0.1:{port}/json/version. The port is free only until the listener drops, so another process can take it before Chromium binds.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:25:44.197446510Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5cf0f9aa322ecf859ab2de682554171574bfed8e682e3a19cb403befa890798"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "pick_unused_port binds and closes before Chromium binds, as described.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3733"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.596686038Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3bdb85c9d7c0692a30638f25c86f840d7612afb5a3479b6523f5b5b4fc0e470"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.596686038Z",
+      "seal": {
+        "by": "server",
+        "mac": "6bad78f9859fd5665a60729236772e525d5fa9467163fe4431a80700f67bc5c3"
+      }
+    },
+    {
+      "id": "CLM-2099",
+      "statement": "The profile folder rustwright polls for DevToolsActivePort is the harness's own BrowserHome profile, because launch_options sets user_data_dir to home.profile(), and the harness's raw DevTools connection uses browser.ws_endpoint() rather than a port the harness chose.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1101: discover the endpoint via DevToolsActivePort in the profile folder; changelog: \"(the harness's `BrowserHome` profile)\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs",
+        "tests/ui_e2e/browser_home.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3734",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:43-51,989; tests/ui_e2e/browser_home.rs:72-95",
+          "summary": "launch_options sets options.user_data_dir = home.profile() (BrowserHome's fresh, empty \"profile\" subfolder created in BrowserHome::create), which rustwright uses as profile_arg for the DevToolsActivePort poll. DevTools::connect uses browser.ws_endpoint() (harness.rs:989), so the raw DevTools socket follows the discovered endpoint. The launcher script forwards \"$@\" so the =0 arg reaches Chromium.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 43,
+                "end": 51
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:25:44.323856040Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e63cb61f1c7dd47b9e8cb9a576570844290a2860c051b4197e28c901b49ed30"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "user_data_dir is the harness profile, which rustwright polls; the raw DevTools socket uses browser.ws_endpoint().",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3734"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.718683282Z",
+          "seal": {
+            "by": "server",
+            "mac": "000ef8b4df064727a1ecf20c7f384bf8da21db41a4cfe76a6ae2aec873bd1c6c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.718683282Z",
+      "seal": {
+        "by": "server",
+        "mac": "a407c610087684af12a326139097689b746a7cec30c2541e62eedfbfb050af0f"
+      }
+    },
+    {
+      "id": "CLM-2100",
+      "statement": "Unit test the_launch_options_let_chromium_choose_its_debugging_port asserts that the only --remote-debugging-port* argument is =0 (so it appears once), that the IPv4 host rule is still present, and that user_data_dir is the home's profile folder.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"the port argument is `=0` exactly once, the IPv4 host rule and the profile folder stay.\" Issue #1101: a unit test on the launch arguments is the proof.",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3735",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:1352-1372",
+          "summary": "Read the assertions: filters args starting with \"--remote-debugging-port\" and assert_eq!s the list to [\"--remote-debugging-port=0\"] (exactly one, value 0); asserts args contain LOCALHOST_IS_IPV4; asserts user_data_dir == Some(home.profile()). A launch_options without the arg, with a nonzero port, or with the arg twice would fail it. Not executed by me (no builds allowed); gate result is reported separately.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 1344,
+                "end": 1373
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:25:44.451245123Z",
+          "seal": {
+            "by": "server",
+            "mac": "78ba4904ee2d614ca7e0b76472f400b6269c1192357ab3e0b8e9ff636177b8d8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test's assertions (read, not run) cover the exactly-once =0 argument, the IPv4 rule and the profile folder.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3735"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.848132492Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4142d70de7a78524062cd0a020f5815452094b0be4482ca761055a0eb1c0751"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.848132492Z",
+      "seal": {
+        "by": "server",
+        "mac": "dcba220dead0c989282dfc4167323d59674e235d6d653e3c66e303c57bb60970"
+      }
+    },
+    {
+      "id": "CLM-2101",
+      "statement": "The change adds no runtime dependency: Cargo.toml and Cargo.lock are untouched and the diff touches only tests/ui_e2e/harness.rs and one changelog file.",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1101 requirement: no new runtime dependency",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3736",
+          "kind": "log",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Lists only changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md and tests/ui_e2e/harness.rs; Cargo.toml and Cargo.lock are not in the diff. The harness uses only existing rustwright types (LaunchOptions).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:25:44.575557496Z",
+          "seal": {
+            "by": "server",
+            "mac": "67211b9b60d9c2a3e36d0736bc79c6427bc7ea25123d03969b39024613e5a83c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff names only the harness and the changelog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3736"
+          ],
+          "recorded_at": "2026-11-27T08:26:03.969518024Z",
+          "seal": {
+            "by": "server",
+            "mac": "439365fc8f221615344881d1aae10c80e8d29197c6226d64d071e399f3fd34ea"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:03.969518024Z",
+      "seal": {
+        "by": "server",
+        "mac": "d293ba19b6e20b91c5814d604d72dfc878a7bc4f1f239c2def396d7a07cc6bf3"
+      }
+    },
+    {
+      "id": "CLM-2102",
+      "statement": "A changelog entry for the change exists under changelog/ with a dated and timestamped name and describes the port-0 launch.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1101 requirement: add a changelog entry; PR body: changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3737",
+          "kind": "inspection",
+          "locator": "changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md:1-11",
+          "summary": "File name carries the UTC date-time stamp; the text states the =0 launch, the old pick-then-bind race, and the DevToolsActivePort discovery in the BrowserHome profile.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T090000Z-issue-1101-chromium-debugging-port.md",
+              "lines": {
+                "start": 1,
+                "end": 11
+              },
+              "commit": "8fe2653b994fc139a4b9ca07ce8c2aebc908b559"
+            }
+          },
+          "recorded_at": "2026-11-27T08:25:44.702068626Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ebec4bbc3db38e06302556c330f144b7772bbf40906e47679478a555adf4d41"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timestamped changelog file exists and describes the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3737"
+          ],
+          "recorded_at": "2026-11-27T08:26:04.093839106Z",
+          "seal": {
+            "by": "server",
+            "mac": "940aaf75e94fc5057d143c1790e28128edd3bf1b767507c56c1ceafa387d500f"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:04.093839106Z",
+      "seal": {
+        "by": "server",
+        "mac": "3d437295408a3fab55b1248b36100bcb0c15d03a716a0af3c6e06398988b894c"
+      }
+    },
+    {
+      "id": "CLM-2103",
+      "statement": "rustwright-core 0.3.0 always builds the endpoint as ws://127.0.0.1:<port> and offers no override for the host.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"rustwright always builds a `127.0.0.1` endpoint and offers no override, so this is not handled further.\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [
+        "rustwright-core-0.3.0/src/lib.rs"
+      ],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3738",
+          "kind": "analysis",
+          "locator": "rustwright-core-0.3.0/src/lib.rs:49439-49477",
+          "summary": "poll_ws_endpoint_from_devtools_active_port has no host parameter and returns format!(\"ws://127.0.0.1:{port}{separator}{path}\"); the HTTP path likewise polls http://127.0.0.1:{port}/json/version (49310).",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T08:25:44.825031455Z",
+          "seal": {
+            "by": "server",
+            "mac": "76897ffde4b0c01d881e884f7f3fa8d7c57f3c93b02478d57a57047e009d9df2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The endpoint host is hardcoded with no parameter or option.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3738"
+          ],
+          "recorded_at": "2026-11-27T08:26:04.221022288Z",
+          "seal": {
+            "by": "server",
+            "mac": "515115f9728552b2371861829d6abf24127e11a914643f3bebca678208beb900"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:04.221022288Z",
+      "seal": {
+        "by": "server",
+        "mac": "058b3372c83437e027fb1867c9174ed94b33739a7332a5ed2681ec304eba1281"
+      }
+    },
+    {
+      "id": "CLM-2104",
+      "statement": "Chromium falls back to [::1] for its DevTools listener only when its 127.0.0.1 bind fails, which does not happen in practice with an ephemeral port it chose itself.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"Chromium falls back to `[::1]` only when its `127.0.0.1` bind fails; with an ephemeral port it chose itself that does not happen in practice.\"",
+      "derived_from": [
+        "CLM-2095"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1101"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3739",
+          "kind": "other",
+          "locator": "Chromium behaviour; not in this repository or in rustwright",
+          "summary": "Chromium's DevTools listener fallback to [::1] lives in Chromium's source, which is not available here and was not read or run. The claim cannot be decided from the repository.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-27T08:25:44.946486189Z",
+          "seal": {
+            "by": "server",
+            "mac": "0dcd78ec25e95774239b3ab2dd2deda3bd76d73adc6d330f5ad833782feb2857"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "This is a statement about Chromium's internals; nothing in the repository or rustwright shows it. Fix: either drop the sentence from the PR body or cite Chromium's DevTools server source (devtools_http_handler / remote debugging socket factory) for the [::1] fallback.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3739"
+          ],
+          "recorded_at": "2026-11-27T08:26:04.347126136Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd88452011ccb1a146269791a2e3aa0b706fcf6c4851b8339049ab2f91380168"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T08:25:17.944990714Z",
+      "updated_at": "2026-11-27T08:26:04.347126136Z",
+      "seal": {
+        "by": "server",
+        "mac": "f4749a7be63b70689b27fedce01f5848256b54178f98ac12fd73bb2ead2c5604"
       }
     }
   ]

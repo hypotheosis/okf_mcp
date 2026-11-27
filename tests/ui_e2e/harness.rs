@@ -25,6 +25,31 @@ const WAIT: Duration = Duration::from_secs(60);
 /// `localhost`, so its secure-context and WebAuthn behaviour are unchanged.
 const LOCALHOST_IS_IPV4: &str = "--host-resolver-rules=MAP localhost 127.0.0.1";
 
+/// Lets Chromium choose its own DevTools port (issue #1101).
+///
+/// Without this argument rustwright picks a free port itself
+/// (`pick_unused_port`: bind port 0, read the number, close the socket) and
+/// passes it to Chromium, so a parallel test process's Chromium can take the
+/// port in between ("bind() failed: Address already in use"). With port 0
+/// rustwright's launcher (`launch_chromium_attempt`, `dynamic_debugging_port`)
+/// does not poll a port it chose: it waits for Chromium to write
+/// `DevToolsActivePort` into the profile folder, which holds the port the
+/// browser actually bound, and builds the endpoint from that file.
+const CHROMIUM_CHOOSES_DEBUGGING_PORT: &str = "--remote-debugging-port=0";
+
+/// The launch options for a browser living in `home`: headless, with the
+/// harness's own profile folder and launcher, and no port chosen by the
+/// harness or by rustwright.
+fn launch_options(home: &BrowserHome) -> LaunchOptions {
+    let mut options = LaunchOptions::default()
+        .headless(true)
+        .arg(LOCALHOST_IS_IPV4)
+        .arg(CHROMIUM_CHOOSES_DEBUGGING_PORT);
+    options.user_data_dir = Some(home.profile().to_string_lossy().into_owned());
+    options.executable_path = Some(home.launcher().to_string_lossy().into_owned());
+    options
+}
+
 /// Holds the page's next request with method `arg.method` to a path ending
 /// in `arg.suffix` until `window.releaseHeld()`; `window.heldDone` turns
 /// true once that held answer has been handed back to the page, and
@@ -120,12 +145,9 @@ where
         // #1070): rustwright's own profile folder comes back after it is
         // deleted, and its browser outlives a test killed before `Drop`.
         let home = BrowserHome::create(&chromium_binary).expect("create the browser's folder");
-        let mut options = LaunchOptions::default()
-            .headless(true)
-            .arg(LOCALHOST_IS_IPV4);
-        options.user_data_dir = Some(home.profile().to_string_lossy().into_owned());
-        options.executable_path = Some(home.launcher().to_string_lossy().into_owned());
-        let browser = chromium().launch(options).expect("launch Chromium");
+        let browser = chromium()
+            .launch(launch_options(&home))
+            .expect("launch Chromium");
         let page = browser.new_page().expect("open a page");
         page.arm_console_capture().expect("capture the console");
         let ui = Ui {
@@ -1316,5 +1338,36 @@ impl Drop for DevTools {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Issue #1101: the harness asks Chromium for port 0 exactly once, so
+    /// rustwright reads the endpoint from `DevToolsActivePort` instead of
+    /// handing Chromium a port it picked beforehand.
+    #[test]
+    fn the_launch_options_let_chromium_choose_its_debugging_port() {
+        let home = BrowserHome::create("/bin/true").expect("create a browser folder");
+
+        let options = launch_options(&home);
+
+        let port_args: Vec<&String> = options
+            .args
+            .iter()
+            .filter(|arg| arg.starts_with("--remote-debugging-port"))
+            .collect();
+        assert_eq!(port_args, ["--remote-debugging-port=0"]);
+        assert!(
+            options.args.iter().any(|arg| arg == LOCALHOST_IS_IPV4),
+            "the IPv4 rule must stay"
+        );
+        assert_eq!(
+            options.user_data_dir.as_deref(),
+            Some(home.profile().to_string_lossy().as_ref()),
+            "DevToolsActivePort is read from the harness's profile folder"
+        );
     }
 }

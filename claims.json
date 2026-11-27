@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2042,
+  "next_claim_seq": 2049,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "e6994f876d6e2e8bd960a18bb586f9428341e283f9e591abea39a79324d4c9b4"
+    "mac": "21255ee21c8306e5f7d6f7ac84e1bbb36e6014070a6782780cc0c7d83d89b404"
   },
-  "next_evidence_seq": 3647,
+  "next_evidence_seq": 3661,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "46b560be34b32189bc2c8e8240045ffe5a130359e13d078e36d16da7b82869dc"
+    "mac": "9234ba8fc8b56c38754cba983c3a832bbe0ba961e8f49456899c9068a3ee8670"
   },
   "claims": [
     {
@@ -151835,6 +151835,50 @@
             "by": "server",
             "mac": "aaa6f4baf9bb1aaf4da74e9075f2863a899029c1e8e67664e7fa9e64a4b79e1c"
           }
+        },
+        {
+          "id": "EVD-3654",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:136-224,356",
+          "summary": "At head, run() still matches every step kind (Load, Revalidate, Release, Poll, Cancel, Invalidate, InvalidateWhere, Reweigh, MarkAllStale); the diff only added model bookkeeping, and the schedule still controls completion order.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 136,
+                "end": 224
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:43.551005909Z",
+          "seal": {
+            "by": "server",
+            "mac": "4491b798655b3f1b9fefd92ef246c84fb09b62faa716680e03c113a2f7996a9c"
+          }
+        },
+        {
+          "id": "EVD-3660",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:136-240 @ 4edede74",
+          "summary": "The second commit only adds checked/loaded flags and an assertion inside the Revalidate step; all step kinds are still run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 136,
+                "end": 240
+              },
+              "commit": "4edede74abe5ae9f64b295b2fd6f6299bc7a1037"
+            }
+          },
+          "recorded_at": "2026-11-27T04:36:52.812998682Z",
+          "seal": {
+            "by": "server",
+            "mac": "9cb7f3cc0b98b5796d3ed8d0566a5dc056c07557bce855ae1655d927b9fab106"
+          }
         }
       ],
       "verdicts": [
@@ -151850,13 +151894,39 @@
             "by": "server",
             "mac": "666b703062f2bb77bb6af60a2ba73c68112000292b21f2cf52f2aeefb7283d9f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the anchor changed; all step kinds are still handled.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3654"
+          ],
+          "recorded_at": "2026-11-27T04:23:47.192703275Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1afbe212afaaaf522906a1c135e040c50b80d783cbccca4d998dbcdb8d30351"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 4edede74 after the anchor changed; all step kinds are still run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3660"
+          ],
+          "recorded_at": "2026-11-27T04:37:01.991463600Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2fa4b3763efc4bf24e7a2ea34bfd03d1cb91b486f9740ab6ffb4c48c2b5fff8"
+          }
         }
       ],
       "created_at": "2026-11-26T07:40:02.772367964Z",
-      "updated_at": "2026-11-26T07:48:19.533190548Z",
+      "updated_at": "2026-11-27T04:37:01.991463600Z",
       "seal": {
         "by": "server",
-        "mac": "5befe3392a02c8ba80806fd64f2470d7c92d3580a5899900ce976f2a32b74714"
+        "mac": "ba4c14a09657cc381a2d40b6e031eef6c2833e4557fa2cd62359f8979d5599aa"
       }
     },
     {
@@ -152200,6 +152270,40 @@
             "by": "server",
             "mac": "d2a1c5c1f7db0ceefd026d7a5ad34ee0e63142d37f1df91cdf75d8240ad3c557"
           }
+        },
+        {
+          "id": "EVD-3655",
+          "kind": "analysis",
+          "locator": "src/cache/bounded_property_tests.rs:360-380",
+          "summary": "The test is still a #[hegel::test] at head, but I did not run it on f4553d18 because cargo and gate.sh were barred while gates ran, so the pass is unconfirmed.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 360,
+                "end": 372
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:43.699859831Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f5a9461c492b5d51e73045e1f5f6b7c67c71cd38131359b1f203605d38b4066"
+          }
+        },
+        {
+          "id": "EVD-3658",
+          "kind": "log",
+          "locator": "target/i1084-logs/narrow3.log (gate.sh narrow --lib cache::bounded::property_tests)",
+          "summary": "Unmutated run: the property test is \"ok\", 1 passed, 0 failed, finished in 0.99s. I read the log and did not rerun it, so it is second-hand and not tied to a commit by the log itself.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T04:36:33.110675222Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e9d6fe1c2aeb4dd9fb9a374e15309cffcaa406cd85e4c6a3b3abe57b74a8e31"
+          }
         }
       ],
       "verdicts": [
@@ -152229,13 +152333,37 @@
             "by": "server",
             "mac": "9e2dfaf8be065d658ffe7298fdac357437fbaa5f4e134a1b8ab52c7cb48ce4b5"
           }
+        },
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The test was not run on the new head. Fix: run tools/agentic/gate.sh narrow --lib cache::bounded::property_tests on f4553d18 and record the pass count.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-27T04:23:47.307539376Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1bc8a0a5a8d9259322627d609d65e37e8e8b7bbe53560ed29b7f94933ff2461"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Test is a #[hegel::test] and the unmutated narrow run log reports 1 passed. Caveat: second-hand log, not rerun by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3658"
+          ],
+          "recorded_at": "2026-11-27T04:36:40.811364512Z",
+          "seal": {
+            "by": "server",
+            "mac": "c1ff4583be07e7bf4b174fa6914c76c20a0c3d08027aee31f17ee8bfb95ad430"
+          }
         }
       ],
       "created_at": "2026-11-26T07:40:02.772367964Z",
-      "updated_at": "2026-11-26T13:11:46.322355995Z",
+      "updated_at": "2026-11-27T04:36:40.811364512Z",
       "seal": {
         "by": "server",
-        "mac": "9fb0e40ca916887182ecfaf34c96bfe4d9e46445fe0ad5fe0998ef8d7eb29eec"
+        "mac": "7221d7e9d5114d0cef7ab5ff2b97b2f5f2aeaf168a120f9746c560407877dac9"
       }
     },
     {
@@ -182295,6 +182423,532 @@
       "seal": {
         "by": "server",
         "mac": "a749f61658186ac23e36745a50e1fa9f306fe210db0f14bfb67a21b6851d3930"
+      }
+    },
+    {
+      "id": "CLM-2042",
+      "statement": "Issue #1084 is delivered: the bounded property test asserts the effect of mark_all_stale, and removing the stale marking makes it fail.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "hypotheosis/okf_mcp#1084",
+      "derived_from": [],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3653",
+          "kind": "analysis",
+          "locator": "children of CLM-2042",
+          "summary": "The model, load assertion and freshness assertion hold. The revalidate-calls-check requirement is not asserted (only that the lookup is pending), and the mutation check was not run.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T04:23:25.409875319Z",
+          "seal": {
+            "by": "server",
+            "mac": "d670900f425b0376d023c56b5a11f7708f2eb6b72a523f60c80b76979f886ce6"
+          }
+        },
+        {
+          "id": "EVD-3659",
+          "kind": "analysis",
+          "locator": "children of CLM-2042",
+          "summary": "All six children are supported: the model, load pending, check called, freshness assertion, mutation fails, and no production change.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T04:36:40.922533904Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c0aa86d6b55072fb31de566110e66b60a2df837ff543804285ce1d5f3649844"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Child CLM-2045 is refuted (check call not asserted) and CLM-2047 is undecided. Fix: assert the revalidate check ran for an owed key, and run the mark_all_stale no-op mutation to confirm the test fails.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3653"
+          ],
+          "recorded_at": "2026-11-27T04:23:34.402936045Z",
+          "seal": {
+            "by": "server",
+            "mac": "deab3829a1cae7e40c45e0e493d41d59320b05182363b6df81e98434bd344b85"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children supported at 4edede74; the mutation evidence is second-hand logs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3659"
+          ],
+          "recorded_at": "2026-11-27T04:36:48.919124072Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ea6dce34bceed6feb304ba6a7d4075898fb047928353aaff6c56cc021d26565"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:36:48.919124072Z",
+      "seal": {
+        "by": "server",
+        "mac": "d4134164665bf41f6809af09221ec0ba726a14554e32e524c5f3e2e39f94c715"
+      }
+    },
+    {
+      "id": "CLM-2043",
+      "statement": "The property test's model records every key resident when a MarkAllStale step runs as owing a refresh, until a lookup of that key starts or an invalidation of it runs.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#1084: \"after a mark_all_stale, the next get_or_load of each key resident before it must reload\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3647",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:135-138,213-221,146-170,193-205",
+          "summary": "MarkAllStale sets owed[key]=true for each key where cache.peek is Some, before mark_all_stale; Load/Revalidate call take_debt (mem::take clears the flag); Invalidate and InvalidateWhere clear it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 213,
+                "end": 221
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:12.066713768Z",
+          "seal": {
+            "by": "server",
+            "mac": "15f3a03fd9af480cf2adec5b9c12b56767d203f4467107b01edc874912e7b1cd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code at the cited lines implements exactly the described flag lifecycle.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3647"
+          ],
+          "recorded_at": "2026-11-27T04:23:25.532435557Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5395de7d226028e50c07a6b91ac83fe76a489aa5c9ce3f206a56356f26629d6"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:23:25.532435557Z",
+      "seal": {
+        "by": "server",
+        "mac": "73336a3b5bfbba6ebdb1120fac43aee0f3da845a3e21454fc7a9adc1e3d02a90"
+      }
+    },
+    {
+      "id": "CLM-2044",
+      "statement": "The test asserts that a get_or_load of an owed key is still pending after its first poll (its loader is parked), so it cannot have been answered from the stale entry.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#1084: \"the next get_or_load of each key resident before it must reload\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3648",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:138-151,228-235",
+          "summary": "Load's loader awaits parked(gate) so any reload is pending after one poll; start() returns was_pending, and take_debt asserts was_pending || !owes. A stale entry served at once would be Ready and trip the assertion. The pending state shows a loader ran or began, not that a stale entry was never returned later.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 228,
+                "end": 235
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:12.192994627Z",
+          "seal": {
+            "by": "server",
+            "mac": "8750cdbf31f953f197b10c778b3c7344036e1b541279b5266b6ef8ffa09a4b1f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "take_debt asserts the lookup was pending when the key was owed; loaders are parked so any immediate Ready means a stale entry was served. Not executed by me (cargo barred); supported by reading.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3648"
+          ],
+          "recorded_at": "2026-11-27T04:23:25.658080844Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d9748398532e80c01062c3c1bbee1705553e09fc7053ba045dd59a8c1b1cee1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:23:25.658080844Z",
+      "seal": {
+        "by": "server",
+        "mac": "94b24534025842be3070de4cc4bfd67efe0bef1a48b34599140aba84586a767d"
+      }
+    },
+    {
+      "id": "CLM-2045",
+      "statement": "The test asserts that a get_or_revalidate of an owed key calls its check function (not merely that it does not finish on its first poll).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#1084: \"the next get_or_revalidate must call its check before serving\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3649",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:153-170",
+          "summary": "The Revalidate check closure and loader share one gate and neither records that it ran. The only assertion for an owed Revalidate is was_pending (take_debt), which a reload via the loader would also satisfy. The test never asserts the check was called.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 153,
+                "end": 170
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:12.314317031Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d6e5e3480c2bacf953e2258ed8aa6e0bcf4956960713c17a5b90a12a21a2df6"
+          }
+        },
+        {
+          "id": "EVD-3656",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:153-186 @ 4edede74",
+          "summary": "The check closure sets `checked` and the loader sets `loaded`. For an owed key that was resident before the lookup, the test asserts checked && !loaded after the first poll. It matches the requirement. Also, target/i1084-logs/mutB.log (mutation B, reload instead of check) fails with \"key 0: get_or_revalidate of a stale entry did not call its check first\" at :181. I read the log, I did not run it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 153,
+                "end": 186
+              },
+              "commit": "4edede74abe5ae9f64b295b2fd6f6299bc7a1037"
+            }
+          },
+          "recorded_at": "2026-11-27T04:36:32.882325369Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d3ad281d6a6a10f0784d19a9f17d29518ee5f656dfbd5230c9ce699d59d95ae"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The issue says the next get_or_revalidate must call its check. The test only asserts the lookup is pending, which a reload through the loader also satisfies; the check closure records nothing. Fix: give the Revalidate check closure an AtomicBool set when it runs, and for an owed key assert after the first poll that the flag is set and the loader did not run (or, if reload is acceptable, state that in the PR and issue).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3649"
+          ],
+          "recorded_at": "2026-11-27T04:23:25.785394977Z",
+          "seal": {
+            "by": "server",
+            "mac": "8190b7cdbee35da834d6fa096d0d2b4a5c4fa8a95755c53e9a3c4aeeea1c795e"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 4edede74: the check and loader flags are asserted for an owed, resident key, and mutation B's log failure is at that assertion.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3656"
+          ],
+          "recorded_at": "2026-11-27T04:36:40.583425114Z",
+          "seal": {
+            "by": "server",
+            "mac": "ecc1c82a021852098088bf3717d9190f13deddc4abe369859a9f4dadfb492618"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:36:40.583425114Z",
+      "seal": {
+        "by": "server",
+        "mac": "a53f17e1d5c0139c44179b7ad7fd55ae1657799d1c189f34ed605f2d89c03555"
+      }
+    },
+    {
+      "id": "CLM-2046",
+      "statement": "After every step following a MarkAllStale, the test asserts that no owed key reads as fresh via peek_fresh.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#1084: \"assert this on following steps\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3650",
+          "kind": "inspection",
+          "locator": "src/cache/bounded_property_tests.rs:222-223,238-248",
+          "summary": "run() calls check_owed after every step; it asserts peek_fresh(key)==None for each owed key. peek_fresh (bounded.rs:808) returns None for a stale entry via is_fresh (stamp >= stale_before, bounded.rs:916).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded_property_tests.rs",
+              "lines": {
+                "start": 238,
+                "end": 248
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:12.435957966Z",
+          "seal": {
+            "by": "server",
+            "mac": "95aec234f529ed7132c7d015b42c7a0ce3506ae0a5baa3222747f04413f63033"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "check_owed runs after every step and asserts peek_fresh is None for owed keys.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3650"
+          ],
+          "recorded_at": "2026-11-27T04:23:25.910630943Z",
+          "seal": {
+            "by": "server",
+            "mac": "78dc0cf9b4705cf4e9cbddc5b9a518ce1a0e0cf2c9b3ac1ff51fa2a595b7e32a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:23:25.910630943Z",
+      "seal": {
+        "by": "server",
+        "mac": "9f7fa1213a4e26ba7a688abbba152ac555a94e683edf042043245dccf2c76591"
+      }
+    },
+    {
+      "id": "CLM-2047",
+      "statement": "With Bounded::mark_all_stale replaced by a no-op, the property test fails.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#1084: \"removing the stale marking must make the test fail\"; PR body: \"With mark_all_stale's body replaced by a no-op, the test fails\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded.rs",
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3651",
+          "kind": "analysis",
+          "locator": "src/cache/bounded.rs:860-862 with src/cache/bounded_property_tests.rs:213-223,238-248",
+          "summary": "mark_all_stale only does stale_before.fetch_add. Read by analysis: with a no-op, an owed key stays fresh, so check_owed fails right after the MarkAllStale step. I was told not to modify bounded.rs or run cargo (gates running), so I did not run the mutation and the PR's quoted failure message is unreproduced.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 860,
+                "end": 862
+              },
+              "commit": "f4553d1896593f36aaf9c5390ae2c84417f03c94"
+            }
+          },
+          "recorded_at": "2026-11-27T04:23:12.556799889Z",
+          "seal": {
+            "by": "server",
+            "mac": "089449679745c3a5df3bb82568c297d85aa6885852f36b73310e6af0e6c107e4"
+          }
+        },
+        {
+          "id": "EVD-3657",
+          "kind": "log",
+          "locator": "target/i1084-logs/mutA.log (gate.sh narrow --lib cache::bounded::property_tests)",
+          "summary": "Log shows the test FAILED (0 passed, 1 failed) with assertion \"key 0 is fresh though it was resident at mark_all_stale and not looked up since, after MarkAllStale\" at bounded_property_tests.rs:260; this is the PR's quoted message. I read the log and did not rerun it. bounded.rs in the worktree is unmodified (git status shows only claims.json), consistent with mutation having been reverted. The log does not itself prove the mutation was the no-op.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T04:36:32.997936869Z",
+          "seal": {
+            "by": "server",
+            "mac": "0600b6545a092cbbf1a20cfe75de002919bc06d06a7ca5b37a909dce4cf3d13f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "By reading, a no-op would trip check_owed, but the mutation was not run: the harness barred editing bounded.rs and running cargo while gates ran. Fix: temporarily no-op Bounded::mark_all_stale, run tools/agentic/gate.sh narrow --lib cache::bounded::property_tests, confirm the failure message, then git checkout src/cache/bounded.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3651"
+          ],
+          "recorded_at": "2026-11-27T04:23:26.036834002Z",
+          "seal": {
+            "by": "server",
+            "mac": "644d9ec5a54d3598d996245d50780070fa4247ba7fb70a884648ad2bf87926ed"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The mutA log shows the failure the claim describes at the assertion my code reading (EVD-3651) predicted, and bounded.rs is clean. Caveat: I read the log and did not rerun the mutation.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3657"
+          ],
+          "recorded_at": "2026-11-27T04:36:40.698959833Z",
+          "seal": {
+            "by": "server",
+            "mac": "ea846ce695a0f4cac43ebd9a82cda24e3e3fb8115e8eb5b519857d9cb7f510e0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:36:40.698959833Z",
+      "seal": {
+        "by": "server",
+        "mac": "706723c0e6b68924cccea80082b74914174bac6e6a601a604ec15222f4f16031"
+      }
+    },
+    {
+      "id": "CLM-2048",
+      "statement": "PR body: \"No production code changed.\" The diff against origin/main touches only the test file and a changelog entry.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"No production code changed.\"",
+      "derived_from": [
+        "CLM-2042"
+      ],
+      "artifacts": [
+        "src/cache/bounded_property_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1084"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3652",
+          "kind": "log",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Prints only changelog/2026-11-27T04-22-08Z-issue-1084-assert-mark-all-stale.md and src/cache/bounded_property_tests.rs. The latter is the test module; no src/cache/bounded.rs change.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T04:23:12.672163084Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7ccaec28f16316b4c157ab785ac3cb1e1d1cd3562130352c34401bc341c4b69"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff names only the test module and a changelog file.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3652"
+          ],
+          "recorded_at": "2026-11-27T04:23:26.171312496Z",
+          "seal": {
+            "by": "server",
+            "mac": "8361f55cd139f465b2d3ba735f77f03459ac823a63342f093c4c7226a6d8405d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T04:22:58.994567332Z",
+      "updated_at": "2026-11-27T04:23:26.171312496Z",
+      "seal": {
+        "by": "server",
+        "mac": "e93edc5b4a42493bccced9aa3ad34d394c88a8b12165f28230786713832cfb9c"
       }
     }
   ]

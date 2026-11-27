@@ -2914,6 +2914,71 @@ mod tests {
         assert!(entitlements(&db.pool, "bob").await.unwrap().is_empty());
     }
 
+    #[tokio::test(flavor = "multi_thread")]
+    async fn an_entitlement_on_a_catalog_moved_to_another_team_while_it_waits_is_refused() {
+        // Arrange: hold `server_state`, so the move of `shared` to another
+        // team updates the catalog row and then waits, uncommitted.
+        let db = test_db().await;
+        family(&db.pool).await;
+        let alice = id(&db.pool, "alice").await;
+        let limit = std::time::Duration::from_secs(30);
+        let mut holder = db.pool.begin().await.unwrap();
+        sqlx::query("SELECT 1 FROM server_state FOR UPDATE")
+            .execute(&mut *holder)
+            .await
+            .unwrap();
+        let pool = db.pool.clone();
+        let mover = tokio::spawn(async move {
+            catalogs::set_owner(&pool, "shared", TEST_TEAM, &AuditActor::cli(), now()).await
+        });
+        tokio::time::timeout(
+            limit,
+            crate::http::api::testing::wait_for_lock_waiters(&db.pool, 1),
+        )
+        .await
+        .expect("the move waits on server_state");
+        // The move holds the catalog row's lock by now: a second lock
+        // attempt on the row fails at once.
+        let mut probe = db.pool.begin().await.unwrap();
+        let locked = sqlx::query("SELECT 1 FROM catalogs WHERE name = 'shared' FOR UPDATE NOWAIT")
+            .execute(&mut *probe)
+            .await;
+        assert!(locked.is_err(), "the move has not locked the catalog row");
+        probe.rollback().await.unwrap();
+        // Alice still owns the catalog's team as far as the uncommitted
+        // move shows, so her entitlement passes the owner and membership
+        // checks and then waits on the catalog row.
+        let (pool, owner) = (db.pool.clone(), alice.clone());
+        let entitle = tokio::spawn(async move {
+            owner_entitles(&pool, &owner, "bob", "shared", Access::Read).await
+        });
+        tokio::time::timeout(
+            limit,
+            crate::http::api::testing::wait_for_lock_waiters(&db.pool, 2),
+        )
+        .await
+        .expect("the entitlement waits on the catalog row");
+
+        // Act
+        holder.rollback().await.unwrap();
+        let moved = tokio::time::timeout(limit, mover).await.unwrap().unwrap();
+        let entitled = tokio::time::timeout(limit, entitle).await.unwrap().unwrap();
+
+        // Assert: the entitlement re-checked the owner team after the move,
+        // and wrote nothing.
+        assert_eq!(moved.unwrap().as_deref(), Some("family"));
+        assert!(
+            matches!(entitled, Err(OkfError::Forbidden { .. })),
+            "{entitled:?}"
+        );
+        assert!(entitlements(&db.pool, "bob").await.unwrap().is_empty());
+        let rows: i64 = sqlx::query_scalar("SELECT count(*) FROM user_catalogs")
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+        assert_eq!(rows, 0);
+    }
+
     /// Issue #642: a stored member access or entitlement level that is not a
     /// known spelling is a database error from the readers, and a write that
     /// reads it rolls back, not a panic.

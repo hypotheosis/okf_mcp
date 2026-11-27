@@ -330,10 +330,12 @@ async fn an_owners_keys_and_oauth_grants_are_refused_every_control() {
     for (who, token) in [("write key", &write_key), ("grant", &grant)] {
         for (method, uri, body) in controls() {
             let (status, answer) = send(&world.test, method, uri, Some(token), body).await;
-            assert!(
-                matches!(status.as_u16(), 403 | 404),
-                "{who} {method} {uri}: {status} {answer}"
+            assert_eq!(
+                status,
+                StatusCode::FORBIDDEN,
+                "{who} {method} {uri}: {answer}"
             );
+            assert_eq!(answer["error"], "Forbidden", "{who} {method} {uri}");
         }
     }
     // A key that is admin on `docs` only keeps its reads (as before) but

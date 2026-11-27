@@ -202,7 +202,7 @@ struct Transfer {
     span: tracing::Span,
     metrics: Metrics,
     direction: Direction,
-    // The loaded catalog's own name; the size and the metrics are recorded
+    // The loaded catalog, as a gate: the size and the metrics are recorded
     // only for `Some`.
     catalog: Option<String>,
     started: Instant,
@@ -271,22 +271,19 @@ impl Transfer {
         if outcome == Outcome::Error {
             self.span.record("otel.status_code", "error");
         }
-        let Some(catalog) = self.catalog.as_deref() else {
+        // The metrics carry no catalog name, but a request that resolved
+        // no catalog is still not counted.
+        if self.catalog.is_none() {
             return;
-        };
+        }
         if let Some(bytes) = bytes {
             // Spans take integers as `i64`; a size past `i64::MAX` is not
             // real.
             self.span
                 .record("okf.archive.size", i64::try_from(bytes).unwrap_or(i64::MAX));
         }
-        self.metrics.archive(
-            self.direction,
-            catalog,
-            outcome,
-            self.started.elapsed(),
-            bytes,
-        );
+        self.metrics
+            .archive(self.direction, outcome, self.started.elapsed(), bytes);
     }
 }
 
@@ -1250,12 +1247,12 @@ mod tests {
 
         let sample = |series: &str| crate::mcp::testing::sample_of(&text, series);
         assert_eq!(
-            sample(r#"okf_archive_size_bytes_total{catalog="pg",direction="export"}"#),
+            sample(r#"okf_archive_size_bytes_total{direction="export"}"#),
             Some(exported_len as f64),
             "{text}"
         );
         assert_eq!(
-            sample(r#"okf_archive_size_bytes_total{catalog="pg",direction="import"}"#),
+            sample(r#"okf_archive_size_bytes_total{direction="import"}"#),
             Some(upload.len() as f64),
             "{text}"
         );
@@ -1406,7 +1403,7 @@ mod tests {
             "{text}"
         );
         assert!(
-            !text.contains(r#"okf_archive_size_bytes_total{catalog="pg",direction="import"}"#),
+            !text.contains(r#"okf_archive_size_bytes_total{direction="import"}"#),
             "{text}"
         );
     }

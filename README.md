@@ -250,8 +250,8 @@ write its stderr log as JSON with trace ids. It is all off until you add a
 `[telemetry]` table. No names, email addresses, document content or secrets are
 exported, but spans carry stable ids an operator can resolve (`enduser.id`
 is the user's id, `okf.key.id` the key's, or `session` for a console
-session) and catalog names appear as span attributes and metric labels, so
-this is not anonymous telemetry. stderr alone keeps caller text and full
+session) and catalog names appear as span attributes (never as metric
+labels), so this is not anonymous telemetry. stderr alone keeps caller text and full
 errors, so keep it inside the cluster. `docs/operations.md` has the "Telemetry" section (the
 settings, what is never exported, and every metric and span), and
 `examples/` has a Kubernetes Service and ServiceMonitor for the metrics port

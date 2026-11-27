@@ -90,34 +90,6 @@
         "sort": 1
       },
       {
-        "name": "catalog",
-        "label": "Catalog",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "query": {
-          "query": "label_values(okf_publish_duration_seconds_count{job=~\"$job\"}, catalog)",
-          "refId": "catalog"
-        },
-        "definition": "label_values(okf_publish_duration_seconds_count{job=~\"$job\"}, catalog)",
-        "refresh": 2,
-        "multi": true,
-        "includeAll": true,
-        "allValue": ".*",
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "sort": 1
-      },
-      {
         "name": "tool",
         "label": "Tool",
         "type": "query",
@@ -1001,7 +973,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (tool, outcome) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
+          "expr": "sum by (tool, outcome) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{tool}} {{outcome}}",
           "range": true,
           "instant": false
@@ -1063,7 +1035,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "(sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\",outcome=\"error\"}[$__rate_interval])) or on(tool) (0 * sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))) / sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
+          "expr": "(sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",outcome=\"error\"}[$__rate_interval])) or on(tool) (0 * sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\"}[$__rate_interval])))) / sum by (tool) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{tool}}",
           "range": true,
           "instant": false
@@ -1125,7 +1097,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (le) (increase(okf_mcp_tool_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\",tool=~\"$tool\"}[$__rate_interval]))",
+          "expr": "sum by (le) (increase(okf_mcp_tool_duration_seconds_bucket{job=~\"$job\",tool=~\"$tool\"}[$__rate_interval]))",
           "legendFormat": "{{le}}",
           "range": true,
           "instant": false,
@@ -1214,7 +1186,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le, tool) (rate(okf_mcp_tool_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le, tool) (rate(okf_mcp_tool_duration_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "{{tool}}",
           "range": true,
           "instant": false
@@ -1342,7 +1314,7 @@
     },
     {
       "type": "timeseries",
-      "title": "Publishes by catalog and outcome",
+      "title": "Publishes by outcome",
       "description": "Publishes per second.",
       "targets": [
         {
@@ -1351,8 +1323,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (catalog, outcome) (rate(okf_publish_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
-          "legendFormat": "{{catalog}} {{outcome}}",
+          "expr": "sum by (outcome) (rate(okf_publish_duration_seconds_count{job=~\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{outcome}}",
           "range": true,
           "instant": false
         }
@@ -1413,7 +1385,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (rule) (increase(okf_lint_rejections_total{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
+          "expr": "sum by (rule) (increase(okf_lint_rejections_total{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{rule}}",
           "range": true,
           "instant": false
@@ -1475,7 +1447,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (le) (increase(okf_publish_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
+          "expr": "sum by (le) (increase(okf_publish_duration_seconds_bucket{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{le}}",
           "range": true,
           "instant": false,
@@ -1564,7 +1536,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (le) (increase(okf_publish_lock_wait_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
+          "expr": "sum by (le) (increase(okf_publish_lock_wait_seconds_bucket{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{le}}",
           "range": true,
           "instant": false,
@@ -1653,7 +1625,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "range": true,
           "instant": false
@@ -1664,7 +1636,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "B",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p95",
           "range": true,
           "instant": false
@@ -1675,7 +1647,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "C",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(okf_publish_duration_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "range": true,
           "instant": false
@@ -1737,7 +1709,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "range": true,
           "instant": false
@@ -1748,7 +1720,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "B",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p95",
           "range": true,
           "instant": false
@@ -1759,7 +1731,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "C",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(okf_publish_lock_wait_seconds_bucket{job=~\"$job\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "range": true,
           "instant": false
@@ -2607,7 +2579,7 @@
     {
       "type": "timeseries",
       "title": "Archive throughput",
-      "description": "Archive bytes moved per second, by direction and catalog.",
+      "description": "Archive bytes moved per second, by direction.",
       "targets": [
         {
           "datasource": {
@@ -2615,8 +2587,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "refId": "A",
-          "expr": "sum by (direction, catalog) (rate(okf_archive_size_bytes_total{job=~\"$job\",catalog=~\"$catalog\"}[$__rate_interval]))",
-          "legendFormat": "{{direction}} {{catalog}}",
+          "expr": "sum by (direction) (rate(okf_archive_size_bytes_total{job=~\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{direction}}",
           "range": true,
           "instant": false
         }

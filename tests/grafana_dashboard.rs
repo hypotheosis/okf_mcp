@@ -302,3 +302,154 @@ fn a_renamed_metric_would_fail_the_check() {
         .collect::<Vec<_>>();
     assert_eq!(unknown, ["okf_sign_ins_total"]);
 }
+
+/// Every label name the server's metrics export, plus `job` (added by
+/// Prometheus) and `le` (the histogram bucket bound). A dashboard query may
+/// match, group or label by these and nothing else. Issue #1157 removed
+/// `catalog` from the metrics; a query still using it would show an empty
+/// panel, and a variable built from it would list nothing. When a metric gains
+/// a label, add it here.
+const KNOWN_LABELS: [&str; 24] = [
+    "cache",
+    "cause",
+    "direction",
+    "grant",
+    "http_request_method",
+    "http_response_status_code",
+    "http_route",
+    "job",
+    "kind",
+    "le",
+    "limiter",
+    "method",
+    "operation",
+    "outcome",
+    "provider",
+    "reason",
+    "result",
+    "rule",
+    "signal",
+    "state",
+    "status",
+    "task",
+    "tool",
+    "version",
+];
+
+/// The label names a PromQL expression, a `label_values(...)` variable query
+/// or a legend format uses: matcher names inside `{...}`, grouping and
+/// matching clauses (`by`, `without`, `on`, `ignoring`, `group_left`,
+/// `group_right`), the last argument of `label_values`, and `{{name}}`
+/// legend placeholders.
+fn label_names(text: &str) -> BTreeSet<String> {
+    let matcher = Regex::new(r"([A-Za-z_][A-Za-z0-9_]*)\s*(?:=~|!~|!=|=)").expect("pattern");
+    let selector = Regex::new(r"\{([^{}]*)\}").expect("pattern");
+    let grouping = Regex::new(r"\b(?:by|without|on|ignoring|group_left|group_right)\s*\(([^)]*)\)")
+        .expect("pattern");
+    let values = Regex::new(r",\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*$").expect("pattern");
+    let legend = Regex::new(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}").expect("pattern");
+    let strings = Regex::new(r#""[^"]*""#).expect("pattern");
+
+    let mut found = BTreeSet::new();
+    for braces in selector.captures_iter(text) {
+        // Matcher values are strings that may hold `=` or `,`: drop them.
+        let without_strings = strings.replace_all(&braces[1], "\"\"").into_owned();
+        found.extend(
+            matcher
+                .captures_iter(&without_strings)
+                .map(|c| c[1].to_string()),
+        );
+    }
+    for clause in grouping.captures_iter(text) {
+        found.extend(
+            clause[1]
+                .split(',')
+                .map(str::trim)
+                .filter(|label| !label.is_empty())
+                .map(str::to_string),
+        );
+    }
+    if text.trim_start().starts_with("label_values(") {
+        found.extend(values.captures_iter(text).map(|c| c[1].to_string()));
+    }
+    found.extend(legend.captures_iter(text).map(|c| c[1].to_string()));
+    found
+}
+
+/// Every string under the keys the dashboard evaluates or displays:
+/// `expr`, `legendFormat` and the variables' `definition`.
+fn label_bearing_strings(node: &Value, found: &mut Vec<String>) {
+    match node {
+        Value::Object(map) => {
+            for (key, value) in map {
+                match (key.as_str(), value) {
+                    ("expr" | "legendFormat" | "definition", Value::String(text)) => {
+                        found.push(text.clone());
+                    }
+                    _ => label_bearing_strings(value, found),
+                }
+            }
+        }
+        Value::Array(items) => items
+            .iter()
+            .for_each(|item| label_bearing_strings(item, found)),
+        _ => {}
+    }
+}
+
+/// The labels in use that the metrics do not have, by query.
+fn unknown_labels(dashboard: &Value) -> Vec<(String, String)> {
+    let mut strings = Vec::new();
+    label_bearing_strings(dashboard, &mut strings);
+    strings
+        .iter()
+        .flat_map(|text| {
+            label_names(text)
+                .into_iter()
+                .filter(|label| !KNOWN_LABELS.contains(&label.as_str()))
+                .map(|label| (label, text.clone()))
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+#[test]
+fn every_label_in_the_dashboard_is_one_the_metrics_have() {
+    let dashboard: Value = serde_json::from_str(DASHBOARD).expect("the dashboard is JSON");
+    let unknown = unknown_labels(&dashboard);
+    assert!(unknown.is_empty(), "labels the metrics lack: {unknown:?}");
+    // The extractor sees labels at all (a vacuous pass would hide a broken one).
+    let mut strings = Vec::new();
+    label_bearing_strings(&dashboard, &mut strings);
+    let seen: BTreeSet<String> = strings.iter().flat_map(|text| label_names(text)).collect();
+    assert!(
+        seen.contains("outcome") && seen.contains("tool"),
+        "{seen:?}"
+    );
+}
+
+#[test]
+fn a_query_on_the_removed_catalog_label_would_fail_the_check() {
+    // Every place the old dashboard used the label: a selector, a grouping,
+    // a legend and the variable's `label_values`.
+    for text in [
+        r#"sum(rate(okf_publish_duration_seconds_count{job=~"$job",catalog=~"$catalog"}[5m]))"#,
+        "sum by (catalog, outcome) (rate(okf_publish_duration_seconds_count[5m]))",
+        "{{catalog}} {{outcome}}",
+        r#"label_values(okf_publish_duration_seconds_count{job=~"$job"}, catalog)"#,
+    ] {
+        assert!(label_names(text).contains("catalog"), "{text}");
+    }
+    let old = DASHBOARD.replace(
+        r#"sum by (tool, outcome) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\"}"#,
+        r#"sum by (tool, outcome) (rate(okf_mcp_tool_duration_seconds_count{job=~\"$job\",catalog=~\"$catalog\"}"#,
+    );
+    assert_ne!(old, DASHBOARD, "the probe expression moved");
+    let dashboard: Value = serde_json::from_str(&old).expect("JSON");
+    let unknown = unknown_labels(&dashboard);
+    assert!(
+        unknown.iter().any(|(label, _)| label == "catalog"),
+        "{unknown:?}"
+    );
+    assert!(!DASHBOARD.contains("catalog=~"));
+}

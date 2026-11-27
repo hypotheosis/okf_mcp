@@ -398,7 +398,7 @@ impl Metrics {
                 tool_duration: seconds_histogram(
                     meter,
                     "okf.mcp.tool.duration",
-                    "MCP tool call duration, by tool, catalog and outcome.",
+                    "MCP tool call duration, by tool and outcome.",
                 ),
                 mcp_sessions: meter
                     .i64_up_down_counter("okf.mcp.sessions.active")
@@ -451,7 +451,7 @@ impl Metrics {
                 archive_size: meter
                     .u64_counter("okf.archive.size")
                     .with_unit("By")
-                    .with_description("Archive bytes moved, by direction and catalog.")
+                    .with_description("Archive bytes moved, by direction.")
                     .build(),
                 archive_duration: seconds_histogram(
                     meter,
@@ -481,47 +481,36 @@ impl Metrics {
     /// Records a finished publish.
     ///
     /// # Arguments
-    /// * `catalog` - the catalog's name (a validated catalog name).
     /// * `outcome` - whether it committed (or had nothing to write).
     /// * `elapsed` - the whole publish.
     #[tracing::instrument(level = "trace", skip_all)]
-    pub fn publish(&self, catalog: &str, outcome: Outcome, elapsed: Duration) {
+    pub fn publish(&self, outcome: Outcome, elapsed: Duration) {
         self.inner.publish_duration.record(
             elapsed.as_secs_f64(),
-            &[
-                KeyValue::new("catalog", catalog.to_owned()),
-                KeyValue::new("outcome", outcome.as_str()),
-            ],
+            &[KeyValue::new("outcome", outcome.as_str())],
         );
     }
 
     /// Records how long a publish waited for the catalog's locks.
     ///
     /// # Arguments
-    /// * `catalog` - the catalog's name.
     /// * `waited` - the time from asking to holding every lock.
     #[tracing::instrument(level = "trace", skip_all)]
-    pub fn publish_lock_wait(&self, catalog: &str, waited: Duration) {
-        self.inner.publish_lock_wait.record(
-            waited.as_secs_f64(),
-            &[KeyValue::new("catalog", catalog.to_owned())],
-        );
+    pub fn publish_lock_wait(&self, waited: Duration) {
+        self.inner
+            .publish_lock_wait
+            .record(waited.as_secs_f64(), &[]);
     }
 
     /// Counts one lint error that refused a publish.
     ///
     /// # Arguments
-    /// * `catalog` - the catalog's name.
     /// * `rule` - the finding's rule id; folded by [`lint_rule_label`].
     #[tracing::instrument(level = "trace", skip_all)]
-    pub fn lint_rejection(&self, catalog: &str, rule: &str) {
-        self.inner.lint_rejections.add(
-            1,
-            &[
-                KeyValue::new("catalog", catalog.to_owned()),
-                KeyValue::new("rule", lint_rule_label(rule)),
-            ],
-        );
+    pub fn lint_rejection(&self, rule: &str) {
+        self.inner
+            .lint_rejections
+            .add(1, &[KeyValue::new("rule", lint_rule_label(rule))]);
     }
 
     /// Counts one catalog announcement received (issue #659).
@@ -643,22 +632,14 @@ impl Metrics {
     ///
     /// # Arguments
     /// * `tool` - a [`tool_label`] value.
-    /// * `catalog` - a loaded catalog's name, `(multiple)` or `(none)`.
     /// * `outcome` - how the call ended.
     /// * `elapsed` - how long it took.
     #[tracing::instrument(level = "trace", skip_all)]
-    pub fn tool_call(
-        &self,
-        tool: &'static str,
-        catalog: &str,
-        outcome: Outcome,
-        elapsed: Duration,
-    ) {
+    pub fn tool_call(&self, tool: &'static str, outcome: Outcome, elapsed: Duration) {
         self.inner.tool_duration.record(
             elapsed.as_secs_f64(),
             &[
                 KeyValue::new("tool", tool),
-                KeyValue::new("catalog", catalog.to_string()),
                 KeyValue::new("outcome", outcome.as_str()),
             ],
         );
@@ -1235,7 +1216,6 @@ impl Metrics {
     ///
     /// # Arguments
     /// * `direction` - export or import.
-    /// * `catalog` - a loaded catalog's name (never a raw path segment).
     /// * `outcome` - how it ended.
     /// * `elapsed` - how long it took.
     /// * `bytes` - the archive's size when it succeeded; `None` adds no bytes.
@@ -1243,7 +1223,6 @@ impl Metrics {
     pub fn archive(
         &self,
         direction: Direction,
-        catalog: &str,
         outcome: Outcome,
         elapsed: Duration,
         bytes: Option<u64>,
@@ -1256,13 +1235,9 @@ impl Metrics {
             ],
         );
         if let Some(bytes) = bytes {
-            self.inner.archive_size.add(
-                bytes,
-                &[
-                    KeyValue::new("direction", direction.as_str()),
-                    KeyValue::new("catalog", catalog.to_owned()),
-                ],
-            );
+            self.inner
+                .archive_size
+                .add(bytes, &[KeyValue::new("direction", direction.as_str())]);
         }
     }
 }
@@ -1393,9 +1368,9 @@ mod tests {
         let (_provider, metrics, registry) = local_metrics();
         let elapsed = Duration::from_millis(5);
 
-        metrics.publish("notes", Outcome::Ok, elapsed);
-        metrics.publish_lock_wait("notes", elapsed);
-        metrics.lint_rejection("notes", "orphan");
+        metrics.publish(Outcome::Ok, elapsed);
+        metrics.publish_lock_wait(elapsed);
+        metrics.lint_rejection("orphan");
         metrics.catalog_announcement(AnnouncementResult::Applied);
         metrics.invalidation_queued("settings");
         metrics.invalidation_received("settings", Duration::from_millis(5));
@@ -1404,7 +1379,7 @@ mod tests {
         metrics.redis_error(RedisOp::Get);
         metrics.http_request("GET", "/health", 200, elapsed);
         let _in_flight = metrics.http_in_flight("GET", "/health");
-        metrics.tool_call("get_concept", "notes", Outcome::Ok, elapsed);
+        metrics.tool_call("get_concept", Outcome::Ok, elapsed);
         let _session = metrics.mcp_session();
         metrics.auth_attempt(Method::Password, SignInOutcome::Ok);
         metrics.oauth_token_issued(Grant::RefreshToken);
@@ -1413,7 +1388,7 @@ mod tests {
         metrics.rate_limit_fallback(Limiter::OauthToken);
         metrics.mail_job(MailProvider::Log, MailOutcome::Sent);
         metrics.clock_check(Outcome::Ok, Some(10));
-        metrics.archive(Direction::Export, "notes", Outcome::Ok, elapsed, Some(10));
+        metrics.archive(Direction::Export, Outcome::Ok, elapsed, Some(10));
         metrics.housekeeping_run(Task::PruneOauth, Outcome::Ok, elapsed);
         metrics.cache_request(CacheName::Directory, Lookup::Hit);
         metrics.cache_eviction(CacheName::Directory, Eviction::Size);

@@ -74,12 +74,12 @@ macro_rules! select_catalogs {
     };
 }
 
-/// The `okf.catalog` attribute and `catalog` metric label of an MCP tool call that
+/// The `okf.catalog` attribute of an MCP tool call that
 /// resolved no catalog (issue #1117). The parentheses keep it out of [`is_valid_name`],
 /// so no catalog can ever be named like it.
 pub const CATALOG_LABEL_NONE: &str = "(none)";
 
-/// The `okf.catalog` attribute and `catalog` metric label of an MCP tool call that
+/// The `okf.catalog` attribute of an MCP tool call that
 /// reached several catalogs (issue #1117). Like [`CATALOG_LABEL_NONE`], never a valid name.
 pub const CATALOG_LABEL_MULTIPLE: &str = "(multiple)";
 

@@ -1713,11 +1713,11 @@ mod publish_tests {
         );
         let text = render(&registry);
         assert!(
-            text.contains(r#"okf_publish_duration_seconds_count{catalog="pg",outcome="ok"} 1"#),
+            text.contains(r#"okf_publish_duration_seconds_count{outcome="ok"} 1"#),
             "{text}"
         );
         assert!(
-            text.contains(r#"okf_publish_lock_wait_seconds_count{catalog="pg"} 1"#),
+            text.contains(r#"okf_publish_lock_wait_seconds_count 1"#),
             "{text}"
         );
     }
@@ -1734,16 +1734,16 @@ mod publish_tests {
         assert_eq!(error.kind(), "LintFailed");
         let text = render(&registry);
         assert!(
-            text.contains(r#"okf_lint_rejections_total{catalog="pg",rule="broken-link"}"#),
+            text.contains(r#"okf_lint_rejections_total{rule="broken-link"}"#),
             "{text}"
         );
         assert!(
-            text.contains(r#"okf_publish_duration_seconds_count{catalog="pg",outcome="error"} 1"#),
+            text.contains(r#"okf_publish_duration_seconds_count{outcome="error"} 1"#),
             "{text}"
         );
         // The lock was waited for before the lint refused.
         assert!(
-            text.contains(r#"okf_publish_lock_wait_seconds_count{catalog="pg"} 1"#),
+            text.contains(r#"okf_publish_lock_wait_seconds_count 1"#),
             "{text}"
         );
     }

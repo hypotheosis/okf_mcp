@@ -859,6 +859,47 @@ pub async fn serve(
     serve_with(app, listener, shutdown, ServeOptions::default()).await
 }
 
+/// Test-only: wraps a worker's task so it ends only once the test lets go
+/// of the queue's [`crate::app::WorkerProbe`] hold, then sets its stopped
+/// flag (issues #773 and #1096). Without `cfg(test)` it returns `worker`
+/// unchanged (its only cost is one trace-level span at worker start).
+///
+/// # Arguments
+/// * `app` - the shared state, which holds the probes.
+/// * `queue` - the worker's queue, the probe's key.
+/// * `worker` - the worker's task.
+///
+/// # Returns
+/// The task the supervisor awaits.
+#[cfg(test)]
+#[tracing::instrument(level = "trace", skip_all)]
+fn probe_worker(
+    app: &App,
+    queue: &'static str,
+    worker: tokio::task::JoinHandle<()>,
+) -> tokio::task::JoinHandle<()> {
+    let probe = app.worker_probes.probe(queue);
+    tokio::spawn(async move {
+        let _ = worker.await;
+        drop(probe.hold.lock().await);
+        probe
+            .stopped
+            .store(true, std::sync::atomic::Ordering::SeqCst);
+    })
+}
+
+/// The release build's [`probe_worker`]: returns `worker` as it is.
+#[cfg(not(test))]
+#[inline]
+#[tracing::instrument(level = "trace", skip_all)]
+fn probe_worker(
+    _app: &App,
+    _queue: &'static str,
+    worker: tokio::task::JoinHandle<()>,
+) -> tokio::task::JoinHandle<()> {
+    worker
+}
+
 /// Waits for a worker (mail or housekeeping) and enforces the shutdown
 /// grace: once `shutdown` is cancelled the worker has `grace` to finish the
 /// job in hand; past that it is aborted and an error is logged (another
@@ -969,13 +1010,21 @@ pub async fn serve_with(
     let supervisors = worker_pool.as_ref().map(|pool| {
         [
             tokio::spawn(supervise_worker(
-                crate::mail::queue::spawn_worker(Arc::clone(&app), pool, shutdown.clone()),
+                probe_worker(
+                    &app,
+                    crate::mail::queue::QUEUE,
+                    crate::mail::queue::spawn_worker(Arc::clone(&app), pool, shutdown.clone()),
+                ),
                 shutdown.clone(),
                 grace,
                 crate::mail::queue::QUEUE,
             )),
             tokio::spawn(supervise_worker(
-                crate::housekeeping::spawn_worker(Arc::clone(&app), pool, shutdown.clone()),
+                probe_worker(
+                    &app,
+                    crate::housekeeping::QUEUE,
+                    crate::housekeeping::spawn_worker(Arc::clone(&app), pool, shutdown.clone()),
+                ),
                 shutdown.clone(),
                 grace,
                 crate::housekeeping::QUEUE,
@@ -1052,6 +1101,13 @@ pub async fn serve_with(
     // The supervisors started their clocks when `shutdown` was cancelled,
     // so the grace did not wait for the drains above. Each ends once its
     // worker has finished or been aborted; after both, nothing uses the pool.
+    // Keep this await even though `worker_pool.close()` below also waits
+    // for every pooled connection to come back: closing the pool says
+    // nothing about the worker's task. Awaiting the supervisors guarantees
+    // each task has ended (its LISTEN connection dropped, no job running
+    // against the closing pool) and bounds a stuck one by the grace.
+    // `serve_returns_only_after_the_{mail,housekeeping}_worker_stopped`
+    // fail without it.
     // `into_iter().flatten()`: the `Option`'s array, or nothing.
     for supervisor in supervisors.into_iter().flatten() {
         if let Err(error) = supervisor.await {
@@ -1939,13 +1995,12 @@ mod tests {
         );
     }
 
-    /// `serve` returns only after the mail worker's task has finished. The
-    /// test holds the worker's end (`App::mail_worker_exit_hold`), so the
+    /// `serve` returns only after the `queue` worker's task has finished.
+    /// The test holds the worker's end (`App::worker_probes`), so the
     /// worker cannot finish until it lets go: `serve` must still be
     /// waiting, and the worker's own flag must be set by the time it
     /// returns (read right after, with no wait for anything to settle).
-    #[tokio::test(flavor = "multi_thread")]
-    async fn serve_returns_only_after_the_mail_worker_stopped() {
+    async fn assert_serve_waits_for_worker(queue: &'static str) {
         let db = crate::db::test_db().await;
         let app = App::load(
             db.pool.clone(),
@@ -1954,7 +2009,8 @@ mod tests {
         )
         .await
         .unwrap();
-        let hold = Arc::clone(&app.mail_worker_exit_hold).lock_owned().await;
+        let probe = app.worker_probes.probe(queue);
+        let hold = Arc::clone(&probe.hold).lock_owned().await;
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let shutdown = CancellationToken::new();
         let mut served = tokio::spawn(serve(Arc::clone(&app), listener, shutdown.clone()));
@@ -1967,27 +2023,36 @@ mod tests {
         // not be polled twice.
         assert!(
             early.is_err(),
-            "serve returned while the mail worker's task was held: {early:?}"
+            "serve returned while the {queue} worker's task was held: {early:?}"
         );
         assert!(
-            !app.mail_worker_stopped
-                .load(std::sync::atomic::Ordering::SeqCst),
-            "the held worker finished"
+            !probe.stopped.load(std::sync::atomic::Ordering::SeqCst),
+            "the held {queue} worker finished"
         );
         drop(hold);
         let returned = tokio::time::timeout(std::time::Duration::from_secs(20), served).await;
-        let stopped = app
-            .mail_worker_stopped
-            .load(std::sync::atomic::Ordering::SeqCst);
+        let stopped = probe.stopped.load(std::sync::atomic::Ordering::SeqCst);
 
         assert!(
             matches!(returned, Ok(Ok(Ok(())))),
-            "serve returns once the worker stops: {returned:?}"
+            "serve returns once the {queue} worker stops: {returned:?}"
         );
         assert!(
             stopped,
-            "serve returned before the mail worker's task finished"
+            "serve returned before the {queue} worker's task finished"
         );
+    }
+
+    /// Issue #773: `serve` waits for the mail worker's task.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn serve_returns_only_after_the_mail_worker_stopped() {
+        assert_serve_waits_for_worker(crate::mail::queue::QUEUE).await;
+    }
+
+    /// Issue #1096: `serve` waits for the housekeeping worker's task.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn serve_returns_only_after_the_housekeeping_worker_stopped() {
+        assert_serve_waits_for_worker(crate::housekeeping::QUEUE).await;
     }
 
     #[tokio::test(flavor = "multi_thread")]

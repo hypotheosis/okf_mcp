@@ -179,13 +179,46 @@ pub struct App {
     // and persistence.
     #[cfg(test)]
     pub(crate) access_hold: Arc<tokio::sync::Mutex<()>>,
-    // Test hook: the mail worker's task waits for this lock after its
-    // worker has stopped, then sets `mail_worker_stopped`, so a test can
-    // hold the worker's end and check that `serve` waits for it.
+    // Test hook: one exit hold and stopped flag per worker queue
+    // ([`WorkerProbes`]), so a test can check that `serve` waits for a worker.
     #[cfg(test)]
-    pub(crate) mail_worker_exit_hold: Arc<tokio::sync::Mutex<()>>,
-    #[cfg(test)]
-    pub(crate) mail_worker_stopped: Arc<std::sync::atomic::AtomicBool>,
+    pub(crate) worker_probes: WorkerProbes,
+}
+
+/// Test-only probe of one worker's task end (issues #773 and #1096).
+///
+/// `http::serve_with` wraps each worker's task so that, once the worker has
+/// stopped, it waits for `hold` and then sets `stopped`. A test holds
+/// `hold` to keep the worker's task alive, and reads `stopped` after
+/// `serve` returns.
+#[cfg(test)]
+#[derive(Debug, Default)]
+pub(crate) struct WorkerProbe {
+    /// The wrapper takes this lock after the worker stopped; the test
+    /// holds it to keep the task from ending.
+    pub(crate) hold: Arc<tokio::sync::Mutex<()>>,
+    /// Set by the wrapper as its last act.
+    pub(crate) stopped: std::sync::atomic::AtomicBool,
+}
+
+/// The [`WorkerProbe`] of each worker queue, made on first use.
+#[cfg(test)]
+#[derive(Debug, Default)]
+pub(crate) struct WorkerProbes(
+    std::sync::Mutex<std::collections::HashMap<&'static str, Arc<WorkerProbe>>>,
+);
+
+#[cfg(test)]
+impl WorkerProbes {
+    /// Returns the probe for `queue` (for example `send_mail`), making it
+    /// on first use; every call for one queue shares one probe.
+    pub(crate) fn probe(&self, queue: &'static str) -> Arc<WorkerProbe> {
+        let mut probes = self
+            .0
+            .lock()
+            .expect("the probe map's lock is never poisoned");
+        Arc::clone(probes.entry(queue).or_default())
+    }
 }
 
 impl App {
@@ -398,9 +431,7 @@ impl App {
             #[cfg(test)]
             access_hold: Arc::default(),
             #[cfg(test)]
-            mail_worker_exit_hold: Arc::default(),
-            #[cfg(test)]
-            mail_worker_stopped: Arc::default(),
+            worker_probes: WorkerProbes::default(),
         });
         // `Arc::downgrade`: the gauges' callbacks live in the meter provider,
         // which outlives the app, so they hold a weak handle (no cycle).

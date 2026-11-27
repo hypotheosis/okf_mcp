@@ -796,20 +796,7 @@ pub fn spawn_worker(
         metrics: app.metrics().clone(),
         provider: app.config().mail.provider,
     };
-    let worker = run_worker(context, worker_name(), WorkerTiming::SERVE, shutdown);
-    // Tests only: the task ends only once the test lets go of the hold,
-    // and sets the flag as its last act (issue #773).
-    #[cfg(test)]
-    let worker = {
-        let hold = Arc::clone(&app.mail_worker_exit_hold);
-        let stopped = Arc::clone(&app.mail_worker_stopped);
-        tokio::spawn(async move {
-            let _ = worker.await;
-            drop(hold.lock().await);
-            stopped.store(true, std::sync::atomic::Ordering::SeqCst);
-        })
-    };
-    worker
+    run_worker(context, worker_name(), WorkerTiming::SERVE, shutdown)
 }
 
 /// Runs one apalis worker on [`QUEUE`] until `shutdown`, restarting it

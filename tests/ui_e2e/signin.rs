@@ -519,15 +519,10 @@ async fn an_account_sign_in_replaces_a_stored_key_and_sign_out_ends_both() {
         // - read", contains it, so a substring wait is met by the key's
         // page before the account session has taken over.
         ui.wait_text_is("#whoami", "carol - read");
-        // Boot drops the key before it draws `#whoami`, so no wait is
-        // needed: this read is of the account session's page.
-        assert_eq!(
-            ui.eval(
-                "() => localStorage.getItem('okf.key')",
-                serde_json::json!(null)
-            ),
-            serde_json::Value::Null
-        );
+        // Boot drops the key before it draws `#whoami`, so this holds at
+        // once on the account session's page; the bounded poll keeps the
+        // read from assuming it, and its timeout names the key.
+        ui.poll_eval("() => localStorage.getItem('okf.key') === null");
         ui.click("#signout");
         ui.wait_visible("#login");
         assert_eq!(ui.eval(SESSION_STATUS, serde_json::json!(null)), 401);

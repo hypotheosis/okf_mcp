@@ -100,6 +100,11 @@ test('fromBrowse ends the document at the last .md segment, so folders may be na
     assert.equal(fromBrowse('#/browse/main/archive.md/topic.md'), '#/v/main/archive.md/topic.md');
     assert.equal(fromBrowse('#/browse/main/archive.md/topic.md/notes'), '#/v/main/archive.md/topic.md?s=notes');
     assert.equal(fromBrowse('#/browse/main/archive.md/index.md'), '#/t/main/archive.md');
+    // The section as a parameter, which also names a folder 'x.md' unambiguously.
+    assert.equal(fromBrowse('#/browse/main/systems/beta.md?s=config'), '#/v/main/systems/beta.md?s=config');
+    assert.equal(fromBrowse('#/browse/main/archive.md/topic.md?s=notes'), '#/v/main/archive.md/topic.md?s=notes');
+    assert.equal(fromBrowse('#/browse/main/a%20b/c.md?s=caf%C3%A9'), '#/v/main/a%20b/c.md?s=caf%C3%A9');
+    assert.equal(fromBrowse('#/browse/main/archive.md/topic.md'), '#/v/main/archive.md/topic.md');
     assert.equal(fromBrowse('#/browse/main/a.md/b.md/log.md'), '#/d/main/a.md/b.md/log.md');
     assert.deepEqual(parse(fromBrowse('#/browse/main/archive.md/topic.md/notes')),
         { screen: 'concept', catalog: 'main', path: 'archive.md/topic.md', section: 'notes' });
@@ -113,6 +118,10 @@ test('a heading slug never ends in .md, so fromBrowse reads every slug as a sect
     }
     // Only a #fragment ending in '.md' (which reaches no heading) reads as a longer path.
     assert.equal(parse(fromBrowse('#/browse/main/topic.md/notes.md')).path, 'topic.md/notes.md');
+    // The parameter form has no such case: the section is never read as a path.
+    assert.deepEqual(
+        ((route) => [route.path, route.section])(parse(fromBrowse('#/browse/main/topic.md?s=notes.md'))),
+        ['topic.md', 'notes.md']);
 });
 
 test('fromBrowse leaves every other link alone', () => {

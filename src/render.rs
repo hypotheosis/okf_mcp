@@ -5,7 +5,7 @@
 //! - raw HTML in the source (blocks and inline tags) is shown as escaped
 //!   text, an HTML block as a code block;
 //! - a link may point only at `http`, `https`, `mailto`, or a document of the
-//!   same catalog, which becomes a console route (`#/browse/<catalog>/<path>`,
+//!   same catalog, which becomes a console route (`#/browse/<catalog>/<path>[?s=<section>]`,
 //!   plus `/<slug>` for a `#fragment`); any other link is plain text;
 //! - an image becomes a link to its `http(s)` URL (the console's CSP loads no
 //!   outside images, and it serves no catalog files), else its alt text;
@@ -538,8 +538,11 @@ fn section_slug(fragment: &str) -> String {
 }
 
 /// The console route of a document, and optionally one of its sections:
-/// `#/browse/<catalog>/<path segments>[/<slug>]`, each segment
-/// percent-encoded (the console's router decodes each one).
+/// `#/browse/<catalog>/<path segments>[?s=<slug>]`, each segment and the slug
+/// percent-encoded (the console's router decodes them). The section is a
+/// parameter, not a segment: a folder may be named `x.md`, so a trailing
+/// segment cannot be told from a section. The console and the reader still
+/// read the old `.../<path>.md/<slug>` form.
 ///
 /// # Arguments
 /// * `catalog` - the catalog.
@@ -552,7 +555,7 @@ fn section_slug(fragment: &str) -> String {
 /// # Examples
 /// ```
 /// use okf_mcp::render::browse_route;
-/// assert_eq!(browse_route("main", "/a b/c.md", Some("notes")), "#/browse/main/a%20b/c.md/notes");
+/// assert_eq!(browse_route("main", "/a b/c.md", Some("notes")), "#/browse/main/a%20b/c.md?s=notes");
 /// ```
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn browse_route(catalog: &str, path: &str, section: Option<&str>) -> String {
@@ -564,7 +567,7 @@ pub fn browse_route(catalog: &str, path: &str, section: Option<&str>) -> String 
         push_segment(&mut route, segment);
     }
     if let Some(section) = section.filter(|section| !section.is_empty()) {
-        route.push('/');
+        route.push_str("?s=");
         push_segment(&mut route, section);
     }
     route
@@ -684,8 +687,8 @@ mod tests {
         for href in [
             "#/browse/main/systems/beta.md",
             "#/browse/main/index.md",
-            "#/browse/main/systems/beta.md/config",
-            "#/browse/main/systems/alpha.md/notes",
+            "#/browse/main/systems/beta.md?s=config",
+            "#/browse/main/systems/alpha.md?s=notes",
             "#/browse/main/systems/index.md",
         ] {
             assert!(
@@ -797,9 +800,9 @@ mod tests {
         );
 
         for href in [
-            "#/browse/main/systems/beta.md/caf%C3%A9",
-            "#/browse/main/systems/alpha.md/caf%C3%A9",
-            "#/browse/main/systems/beta.md/config",
+            "#/browse/main/systems/beta.md?s=caf%C3%A9",
+            "#/browse/main/systems/alpha.md?s=caf%C3%A9",
+            "#/browse/main/systems/beta.md?s=config",
             // `a%20b.md` is the file `a b.md`, as the catalog's link check
             // reads it; the route encodes it once.
             "#/browse/main/systems/a%20b.md",
@@ -839,7 +842,7 @@ mod tests {
     fn routes_percent_encode_each_segment() {
         assert_eq!(
             browse_route("main", "a b/c#d.md", Some("x y")),
-            "#/browse/main/a%20b/c%23d.md/x%20y"
+            "#/browse/main/a%20b/c%23d.md?s=x%20y"
         );
         assert_eq!(
             browse_route("main", "/index.md", Some("")),
@@ -848,6 +851,22 @@ mod tests {
         assert_eq!(
             browse_route("main", "n\u{e9}.md", None),
             "#/browse/main/n%C3%A9.md"
+        );
+    }
+
+    #[test]
+    fn a_section_is_a_parameter_so_a_folder_named_dot_md_is_unambiguous() {
+        assert_eq!(
+            browse_route("main", "archive.md/topic.md", Some("notes")),
+            "#/browse/main/archive.md/topic.md?s=notes"
+        );
+        assert_eq!(
+            browse_route("main", "archive.md/topic.md", None),
+            "#/browse/main/archive.md/topic.md"
+        );
+        assert_eq!(
+            browse_route("main", "a.md", Some("caf\u{e9}")),
+            "#/browse/main/a.md?s=caf%C3%A9"
         );
     }
 

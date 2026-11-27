@@ -86,9 +86,13 @@ async fn the_tree_opens_a_concept_and_a_link_in_its_body_opens_the_next() {
             json!("#/browse/main/systems/beta.md")
         );
         // A section route opens the concept at that heading.
+        ui.open("/browse/main/systems/alpha.md?s=config");
+        ui.wait_text("#concept-title", "Alpha");
+        ui.wait_visible("#outline a[href='#/browse/main/systems/alpha.md?s=config']");
+        // A link written before the parameter ('<path>.md/<slug>') still opens it.
         ui.open("/browse/main/systems/alpha.md/config");
         ui.wait_text("#concept-title", "Alpha");
-        ui.wait_visible("#outline a[href='#/browse/main/systems/alpha.md/config']");
+        ui.wait_visible("#outline a[href='#/browse/main/systems/alpha.md?s=config']");
     })
     .await;
 }
@@ -435,7 +439,7 @@ async fn a_section_link_on_a_long_concept_loads_the_body_and_reaches_the_heading
         .key("browse-long", Access::Read, &["main"], Some("main"))
         .await;
     drive(server.base.clone(), move |ui| {
-        let deep_link = "#outline a[href='#/browse/main/notes/long.md/deep']";
+        let deep_link = "#outline a[href='#/browse/main/notes/long.md?s=deep']";
         ui.login(&key);
         // Over the limit: only the outline, until a section link is followed.
         ui.open("/browse/main/notes/long.md");
@@ -449,6 +453,50 @@ async fn a_section_link_on_a_long_concept_loads_the_body_and_reaches_the_heading
         ui.wait_visible("#markdown-body");
         ui.click(deep_link);
         assert_deep_in_view(ui);
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_folder_named_dot_md_is_not_mistaken_for_a_document_with_a_section() {
+    let server = TestServer::start(
+        vec![(
+            "main",
+            files(&[
+                (
+                    "index.md",
+                    "# Main\n\n[Topic](archive.md/topic.md) and \
+                     [its details](archive.md/topic.md#details).\n",
+                ),
+                ("archive.md/index.md", "# Archive\n"),
+                (
+                    "archive.md/topic.md",
+                    "---\ntype: note\ntitle: Topic\n---\n# Topic\n\n## Details\n\nHere.\n",
+                ),
+            ]),
+        )],
+        Config::default(),
+    )
+    .await;
+    let key = server
+        .key("browse-dotmd", Access::Read, &["main"], Some("main"))
+        .await;
+    drive(server.base.clone(), move |ui| {
+        ui.login(&key);
+        ui.open("/browse/main");
+        ui.wait_visible("#markdown-body");
+        // A body link into the folder opens the document inside it.
+        ui.click("#markdown-body a[href='#/browse/main/archive.md/topic.md']");
+        ui.wait_text("#concept-title", "Topic");
+        // A section link names the heading in a parameter.
+        ui.open("/browse/main");
+        ui.wait_visible("#markdown-body");
+        ui.click("#markdown-body a[href='#/browse/main/archive.md/topic.md?s=details']");
+        ui.wait_text("#concept-title", "Topic");
+        ui.wait_visible("#outline a[href='#/browse/main/archive.md/topic.md?s=details']");
+        // The old form ('<path>.md/<slug>') reads the last .md segment as the document.
+        ui.open("/browse/main/archive.md/topic.md/details");
+        ui.wait_text("#concept-title", "Topic");
     })
     .await;
 }

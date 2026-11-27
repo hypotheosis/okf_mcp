@@ -705,6 +705,8 @@ pub struct PendingFile {
     pub replayed: bool,
     /// Why publish cannot replay this stale, replayable entry (null otherwise): publish would refuse the changeset until the path is discarded and the change made again. `diff` is then a one-line note saying so.
     pub replay_error: Option<String>,
+    /// A warning on a stale entry publish cannot replay at all, a free edit of the path (null otherwise: a fresh entry, or a stale replayable one, whose `replay_error` says when it fails): publish would refuse the changeset with Conflict until the path is discarded and the edit made again on the current text. `diff` is then the entry's stored text against the text published now, not what publish would write.
+    pub conflict_note: Option<String>,
     /// A unified diff against the published text (`/dev/null` for a new or deleted file); for a stale, replayable entry, of its replayed text (`replayed`). A deletion of a path deleted since (no published file), a file equal to the published one, or a replay that would fail at publish (`replay_error`) gets a one-line note instead.
     pub diff: String,
 }
@@ -1145,6 +1147,7 @@ fn pending_files(
                 let diff = unified_diff(&entry.path, old, entry.content.as_deref());
                 (false, None, diff)
             };
+            let conflict_note = (stale && !replayable).then(|| stale_free_edit_note(&entry.path));
             Ok(PendingFile {
                 path: format!("/{}", entry.path),
                 change,
@@ -1154,6 +1157,7 @@ fn pending_files(
                 replayable,
                 replayed,
                 replay_error,
+                conflict_note,
                 diff,
             })
         })
@@ -1179,6 +1183,25 @@ pub(crate) fn cannot_replay(path: &str, current: Option<i32>) -> String {
     format!(
         "Publish cannot replay this entry onto /{path} as published now ({now}) and would \
          refuse it with Conflict; discard /{path} from this changeset and make the change again"
+    )
+}
+
+/// The warning on a stale entry that is not replayable (a free edit of a
+/// path published since): publish refuses it with Conflict, and its `diff`
+/// is not what publish would write.
+///
+/// # Arguments
+/// * `path` - catalog-relative path.
+///
+/// # Returns
+/// The note, naming the path and what to do.
+#[tracing::instrument(level = "trace", skip_all)]
+fn stale_free_edit_note(path: &str) -> String {
+    format!(
+        "/{path} was published since this edit was made and the edit cannot be replayed, so \
+         publish would refuse this changeset with Conflict until /{path} is discarded from it \
+         and the edit made again on the current text. `diff` compares this entry's stored \
+         text with the text published now; it is not what publish would write"
     )
 }
 
@@ -1298,7 +1321,10 @@ impl OkfServer {
                        it, and a unified diff against the published text. A stale entry \
                        publish can replay is diffed as replayed onto the published text \
                        (replayed: true), the bytes publish would write; one whose replay would \
-                       fail gets replay_error and a note instead.",
+                       fail gets replay_error and a note instead. A stale entry publish cannot \
+                       replay (a free edit) gets conflict_note: publish would refuse it with \
+                       Conflict until the path is discarded and the edit redone, and its diff \
+                       is against the text published now.",
         annotations(
             title = "Show Pending Changes",
             read_only_hint = true,
@@ -2957,6 +2983,71 @@ mod publish_tests {
         assert_eq!(file.diff, format!("{reason}\n"));
         let error = publish_as(&ctx, &handle, "a").await.unwrap_err();
         assert_eq!(error.kind(), "Conflict");
+    }
+
+    /// A stale free edit (a path published since) carries `conflict_note`,
+    /// and publish does refuse it with Conflict (issue #911); a fresh entry
+    /// and a stale replayable one carry none.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_stale_free_edit_says_publish_will_refuse_it() {
+        let test = pg().await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let seed = open(&first).await;
+        body(&first, &seed, "/a.md", "# A\n").await;
+        publish_as(&first, &seed, "seed").await.unwrap();
+        let (ours, theirs) = (open(&first).await, open(&second).await);
+        body(&first, &ours, "/a.md", "# A\n\nours\n").await;
+        let fresh = shown(&first, &ours).await;
+        assert_eq!(fresh.files[0].conflict_note, None);
+        body(&second, &theirs, "/a.md", "# A\n\ntheirs\n").await;
+        publish_as(&second, &theirs, "theirs").await.unwrap();
+
+        let pending = shown(&first, &ours).await;
+
+        let file = &pending.files[0];
+        assert_eq!((file.stale, file.replayable), (true, false));
+        let note = file.conflict_note.as_deref().unwrap();
+        assert!(
+            note.contains("refuse this changeset with Conflict")
+                && note.contains("discarded")
+                && note.contains("not what publish would write"),
+            "{note}"
+        );
+        assert!(file.replay_error.is_none() && !file.diff.contains(note));
+        let error = publish_as(&first, &ours, "ours").await.unwrap_err();
+        assert_eq!(error.kind(), "Conflict");
+    }
+
+    /// A stale replayable entry, replayed or not, carries no
+    /// `conflict_note`: its `replay_error` speaks for it.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_stale_replayable_entry_carries_no_conflict_note() {
+        let test = pg().await;
+        let first = writer(&test, "writer-a", "pg").await;
+        let second = writer(&test, "writer-b", "pg").await;
+        let (a, b) = (open(&first).await, open(&second).await);
+        log_entry(&first, &a, "from a").await;
+        log_entry(&second, &b, "from b").await;
+        publish_as(&second, &b, "theirs").await.unwrap();
+        let replayed = shown(&first, &a).await;
+        assert_eq!(
+            (replayed.files[0].replayed, &replayed.files[0].conflict_note),
+            (true, &None)
+        );
+        let unreadable = EntryRow {
+            path: "log.md".to_string(),
+            base_revision: Some(0),
+            content: Some(b"# Stored log\n".to_vec()),
+            executable: false,
+            replay: Some(serde_json::json!("not a list of operations")),
+        };
+        insert_entry(&test, &a, unreadable).await;
+
+        let failed = shown(&first, &a).await;
+
+        assert!(failed.files[0].replay_error.is_some());
+        assert_eq!(failed.files[0].conflict_note, None);
     }
 
     /// `read_document` of `/log.md` through `handle`.

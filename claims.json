@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2263,
+  "next_claim_seq": 2273,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "8004025241f537651c1236443dc6e9978782072e8d2c352903cf04454a793b69"
+    "mac": "e5c55cb4bc33158b59bb27973d82cb6b9a4968317225aca00b15fdc5474bd822"
   },
-  "next_evidence_seq": 3978,
+  "next_evidence_seq": 3990,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "26e43c06ae43874843392820d9963abcee60906d88eedfd9c46e2fedf5df2123"
+    "mac": "5166a5641c132118413e2d2a7b7165e7508bf71f39c612ea42559ef1ab77f561"
   },
   "claims": [
     {
@@ -199966,6 +199966,702 @@
       "seal": {
         "by": "server",
         "mac": "9db88653f9a893bc985ea40f253d5d0cd866b2c43d2a4c14230e72d795869f18"
+      }
+    },
+    {
+      "id": "CLM-2263",
+      "statement": "Issue #911 is delivered: pending_changes tells the reader that a stale, non-replayable entry will be refused with Conflict, with PendingFile docs, docs/reference/tools.md and a test.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/911",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3989",
+          "kind": "analysis",
+          "locator": "children of CLM-2263",
+          "summary": "The note (CLM-2264/2265/2268), docs (CLM-2266) and test (CLM-2267) cover each of the issue's three requirements; the PR-body statements are supported too.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T19:00:02.753182652Z",
+          "seal": {
+            "by": "server",
+            "mac": "d17fe48e1ef87279acd275876518ce2b3c7474cf9bb539541b6af237ac120415"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children supported; they cover the note, docs and test the issue asked for.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3989"
+          ],
+          "recorded_at": "2026-11-27T19:00:05.304588625Z",
+          "seal": {
+            "by": "server",
+            "mac": "e579383b1348ad04c0923c2ff3f5922ce5e18b9e83f84e6b7dbf21f1805521cd"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:05.304588625Z",
+      "seal": {
+        "by": "server",
+        "mac": "99cce999f889ed45e517d188171738a52b16a9d9b2c3ee8cbb971c00936acfbb"
+      }
+    },
+    {
+      "id": "CLM-2264",
+      "statement": "For a stale entry that is not replayable, pending_changes sets a note saying publish refuses the changeset with Conflict until the path is discarded and the edit redone on the current text, and that diff is against the current published text.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #911 suggested fix: 'add a note ... saying that publish will refuse the changeset with Conflict until the path is discarded and the edit redone on the current text, and that diff is against the current published text'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3978",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:1186-1205",
+          "summary": "stale_free_edit_note text says publish would refuse this changeset with Conflict until the path is discarded from it and the edit made again on the current text; diff compares the entry's stored text with the text published now, not what publish would write.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1189,
+                "end": 1205
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:37.991234018Z",
+          "seal": {
+            "by": "server",
+            "mac": "30006d11c746d83e5f76b275e1cb5d207025b4d052a0723a020b22d3708d18fa"
+          }
+        },
+        {
+          "id": "EVD-3979",
+          "kind": "test",
+          "locator": "cargo test --lib -- a_stale_free_edit_says a_stale_replayable_entry_carries (2 passed, 0 failed) at e76a52f4; assertions src/mcp/changesets.rs:3008-3020",
+          "summary": "Test asserts note contains 'refuse this changeset with Conflict', 'discarded', 'not what publish would write', and that real publish then returns Conflict. Both new tests passed when I ran them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 3008,
+                "end": 3020
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.140794382Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce80368ec65173269d4e01b3cb324c24a7a0459af74979c5e35a461e68a893b5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Note text read in source and asserted by a passing test; real publish then returns Conflict.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3978",
+            "EVD-3979"
+          ],
+          "recorded_at": "2026-11-27T19:00:01.415226875Z",
+          "seal": {
+            "by": "server",
+            "mac": "b9d88524d2e70193aa1933c90e6aa365f554706d6aefe24e1456977f13a4c887"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:01.415226875Z",
+      "seal": {
+        "by": "server",
+        "mac": "3b9be6ca1c4e6f21843e1cb3d8d89ddea20bdf69e8fa2fc60094f4ac5862f95b"
+      }
+    },
+    {
+      "id": "CLM-2265",
+      "statement": "The note is attached only when the entry is stale and not replayable; fresh entries and stale replayable ones (replayed or replay_error) get conflict_note null.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'Other entries serialize as before plus conflict_note: null.'",
+      "derived_from": [
+        "CLM-2264"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3980",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:1150",
+          "summary": "conflict_note = (stale && !replayable).then(...); replayable is entry.replay.is_some(), so replayable stale entries and non-stale ones get None.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1150,
+                "end": 1150
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.293440830Z",
+          "seal": {
+            "by": "server",
+            "mac": "54fd6d0ead6d3aa53a5e28e8c0d921cc22b56f803677ce2e737c0f8ac4a9acc3"
+          }
+        },
+        {
+          "id": "EVD-3981",
+          "kind": "test",
+          "locator": "cargo test --lib -- a_stale_free_edit_says a_stale_replayable_entry_carries (2 passed); src/mcp/changesets.rs:3002,3035-3050",
+          "summary": "Fresh entry asserts conflict_note None (3002); replayed stale entry asserts (replayed true, None) (3035); replay-failed entry asserts replay_error Some and conflict_note None (3049-3050).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 3034,
+                "end": 3051
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.452314373Z",
+          "seal": {
+            "by": "server",
+            "mac": "3206168aa094a759df4d7139da3cfdc1f692bfbd716a17ab78f65d8178b99a88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Condition is stale && !replayable; tests cover fresh, replayed and replay-failed entries all None.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3980",
+            "EVD-3981"
+          ],
+          "recorded_at": "2026-11-27T19:00:01.568666736Z",
+          "seal": {
+            "by": "server",
+            "mac": "2253d07fa1212bdaed98398502c11b12cc290d7ca03a6e32dafb94b92edc0628"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:01.568666736Z",
+      "seal": {
+        "by": "server",
+        "mac": "7360e211217a12948d8ba885a5101666360c418d20c3d608f8e7f0098c0ef56a"
+      }
+    },
+    {
+      "id": "CLM-2266",
+      "statement": "The PendingFile field docs (new conflict_note, diff) and docs/reference/tools.md pending_changes entry describe the note.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #911: 'Update the PendingFile field docs and docs/reference/tools.md to match.'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs",
+        "docs/reference/tools.md"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3982",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:706-709, 1322-1326; docs/reference/tools.md:487",
+          "summary": "PendingFile.conflict_note has a doc comment (null cases, Conflict, discard and redo, diff meaning); the tool description and the tools.md pending_changes paragraph both describe conflict_note. The PendingFile.diff doc was not edited (it still says only 'a deletion..., a file equal..., or a replay that would fail gets a one-line note'), which is accurate since a free edit keeps a real diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 487,
+                "end": 487
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.606380146Z",
+          "seal": {
+            "by": "server",
+            "mac": "9af5df915bf45feb2f23586ef8e9df47215b8d6b224670913de13f4dc7e3ae9d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Field doc, tool description and tools.md paragraph all describe conflict_note.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3982"
+          ],
+          "recorded_at": "2026-11-27T19:00:01.714766826Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d52b4e8e64b59dc8f136f08ceecbdecc8d32c1e691063f421054b647631cac1"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:01.714766826Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c4168561a43cffea147ce4a840db5fa9fb26bea137a6b5b8df0fb05e7520f5f"
+      }
+    },
+    {
+      "id": "CLM-2267",
+      "statement": "A test free-edits a path, publishes the same path from another changeset, and asserts pending_changes carries the note.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #911: 'Add a test: free-edit a path, publish the same path from another changeset, then assert that pending_changes carries the note.'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3983",
+          "kind": "test",
+          "locator": "src/mcp/changesets.rs:2992-3019 (a_stale_free_edit_says_publish_will_refuse_it; passed)",
+          "summary": "Writes /a.md via replace_body in changeset ours, publishes /a.md from second writer's changeset, then shown() (pending_changes) asserts stale true, replayable false and conflict_note present.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2992,
+                "end": 3020
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.755823460Z",
+          "seal": {
+            "by": "server",
+            "mac": "651b74bc03f6353dc1dedb446eda557751217a9ad6d7c071152d3d0cb746640f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test does exactly free-edit, publish from other changeset, pending_changes asserts the note; it passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3983"
+          ],
+          "recorded_at": "2026-11-27T19:00:01.866680940Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc316917d7fae2607149210e8cc9821a21e32864127d4d2db2d85c46fdab9184"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:01.866680940Z",
+      "seal": {
+        "by": "server",
+        "mac": "b26ceca84bf6afe1643cd5a00f6d0babe537fc73f3828b4d02820aa21756ce87"
+      }
+    },
+    {
+      "id": "CLM-2268",
+      "statement": "conflict_note is a new nullable field distinct from replay_error: a stale free edit keeps a real unified diff and replay_error stays null for it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Design: 'A new nullable field conflict_note, not a reuse of replay_error ... a free edit ... keeps a real, useful diff.'",
+      "derived_from": [
+        "CLM-2264"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3984",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:1124-1150; test assertion :3019",
+          "summary": "Non-replayable stale entries take the else branch, giving replay_error None and diff = unified_diff(old, entry.content); the test asserts replay_error is None and the diff does not contain the note.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 1124,
+                "end": 1150
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:38.906448049Z",
+          "seal": {
+            "by": "server",
+            "mac": "102326667914f187ec3550d78340563faf6e9651a6d39a7044822273e97e589c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Separate field; free-edit path keeps a diff and replay_error None, asserted in the test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3984"
+          ],
+          "recorded_at": "2026-11-27T19:00:02.013127062Z",
+          "seal": {
+            "by": "server",
+            "mac": "f511a2246ab5d983159c0a03104e411ca1733b3e41914c1f1584f01fae3c85ca"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:02.013127062Z",
+      "seal": {
+        "by": "server",
+        "mac": "94f16840ca37b96a83935f10c2c0adafea76455d494c7469a824a12315bb2a62"
+      }
+    },
+    {
+      "id": "CLM-2269",
+      "statement": "a_stale_free_edit_says_publish_will_refuse_it frees-edits, publishes from another changeset, asserts the note and that publish returns Conflict, and asserts a fresh entry has none; and it passes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'a_stale_free_edit_says_publish_will_refuse_it: free-edit, publish the path from another changeset, assert the note and that publish returns Conflict; a fresh entry has none.'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3985",
+          "kind": "test",
+          "locator": "cargo test --lib -- a_stale_free_edit_says_publish_will_refuse_it (ok) at e76a52f4",
+          "summary": "Passed. Reads: fresh note None (3002), note text asserted, publish_as(...).unwrap_err().kind() == \"Conflict\" (3020).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 2992,
+                "end": 3021
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:39.058747375Z",
+          "seal": {
+            "by": "server",
+            "mac": "821819d8f64cf5239395dc7d1ade6a204e20c04034e6fa96e3f7baeb8168bd73"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I ran it; it passed and its assertions match the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3985"
+          ],
+          "recorded_at": "2026-11-27T19:00:02.167384286Z",
+          "seal": {
+            "by": "server",
+            "mac": "15c2c4777cf442194ed7a18bf19605e9ed8973571e02ff2ec5313b23a1a23004"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:02.167384286Z",
+      "seal": {
+        "by": "server",
+        "mac": "82ba0a7576be5322a746c72389b317c9cba9f786bb1f015415dfb548d4842c95"
+      }
+    },
+    {
+      "id": "CLM-2270",
+      "statement": "a_stale_replayable_entry_carries_no_conflict_note asserts a replayed and a replay-failed stale replayable entry have no conflict_note; and it passes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'a_stale_replayable_entry_carries_no_conflict_note: a replayed and a replay-failed stale replayable entry have none.'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3986",
+          "kind": "test",
+          "locator": "cargo test --lib -- a_stale_replayable_entry_carries_no_conflict_note (ok) at e76a52f4",
+          "summary": "Passed. Replayed log entry: (replayed, conflict_note) == (true, None); entry with unreadable replay: replay_error is_some and conflict_note None.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 3025,
+                "end": 3051
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:39.196448200Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5489b595405419338a0c41ce3ac7d920ba361a13e18dd30a08b2cf9f819dc9b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I ran it; it passed and asserts None for both replayed and replay-failed entries.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3986"
+          ],
+          "recorded_at": "2026-11-27T19:00:02.302820162Z",
+          "seal": {
+            "by": "server",
+            "mac": "ddfe7745ac8c78479f80e8630f7ef6a2081f8b70eb136cec1373e80721c8b5dc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:02.302820162Z",
+      "seal": {
+        "by": "server",
+        "mac": "1e786688586ae43665c8a9f59cf368247d1fcfa10b28d5f943c3a3e19b02a7d4"
+      }
+    },
+    {
+      "id": "CLM-2271",
+      "statement": "The MCPJam editConflicts scenario asserts the conflict_note on pending_changes before the Conflict from publish.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'MCPJam editConflicts scenario asserts the note before the Conflict.'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3987",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:321-329",
+          "summary": "After the winner publishes and before the publish-expects-Conflict call, pending_changes on the stale changeset is called and conflict_note asserted to contain 'refuse this changeset with Conflict'. I did not run the MCPJam suite.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 321,
+                "end": 329
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:39.348440895Z",
+          "seal": {
+            "by": "server",
+            "mac": "de47295498863589527b80bcd722fc3b3a3340d007a6aeeb4a1af76dc5a2a632"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertion is present before the Conflict step in the scenario source (not executed by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3987"
+          ],
+          "recorded_at": "2026-11-27T19:00:02.453920632Z",
+          "seal": {
+            "by": "server",
+            "mac": "21695d6e8184bb43707ce4f9f02fe16ef1a8a19a7b820107d5053122d8014f5a"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:02.453920632Z",
+      "seal": {
+        "by": "server",
+        "mac": "15b56822378ceb97527aad7bccb35cf74b3ddf6d80d868cc9a4a5cbc32bb4bd2"
+      }
+    },
+    {
+      "id": "CLM-2272",
+      "statement": "Both new tests fail with the change reverted (note never set, note always set).",
+      "kind": "non_functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: 'Both fail with the change reverted (note never set, note always set).'",
+      "derived_from": [
+        "CLM-2263"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:911"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3988",
+          "kind": "analysis",
+          "locator": "src/mcp/changesets.rs:1150, 3002, 3010, 3050",
+          "summary": "By reading, not running (source not modified): note never set makes test 1's .unwrap() at 3010 panic; note always set makes the fresh-None assert at 3002 and test 2's None asserts (3035, 3050) fail. Test 2 alone would still pass under 'never set', which the statement's parenthetical does not claim. No mutation run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 3002,
+                "end": 3010
+              },
+              "commit": "9ed6bf9f605a272467e9d8325021c827af43a93b"
+            }
+          },
+          "recorded_at": "2026-11-27T18:59:39.499510075Z",
+          "seal": {
+            "by": "server",
+            "mac": "9e0003886d1d6b7e2b43f1817e111dd4c1c8b0c55b1a6ae97bc41e6ce9aa55a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading, each mutation breaks at least one of the two tests as the statement's parenthetical pairs them; no mutation was actually run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3988"
+          ],
+          "recorded_at": "2026-11-27T19:00:02.599168169Z",
+          "seal": {
+            "by": "server",
+            "mac": "e682149c174f3ba3458de3d4bb7545c00fc34aa8ff08bf2ad6e296f416855a13"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T18:59:12.967900328Z",
+      "updated_at": "2026-11-27T19:00:02.599168169Z",
+      "seal": {
+        "by": "server",
+        "mac": "948dce1ba7ef0f1f825bd87e3fc022aab933e3bd98e76e7c8012b8eae9b93be5"
       }
     }
   ]

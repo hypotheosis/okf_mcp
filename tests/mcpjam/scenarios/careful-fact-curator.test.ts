@@ -1,7 +1,7 @@
 // Persona "Careful Fact Curator": sourcing, drafts, folders and stamps.
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { create, useScenario } from "../src/harness.js";
+import { create, remember, useScenario } from "../src/harness.js";
 import type { SourceEntry, Stamp } from "../src/okf.js";
 import { SCENARIOS } from "../src/scenarios.js";
 
@@ -150,6 +150,102 @@ describe(SCENARIOS.organizeIntoFolders.goal, () => {
         }
         const parentIndex = await session().document(`${paths.folder}/index.md`);
         expect(parentIndex).toContain("evidence/");
+    });
+    // Issue #1121: `index` on a concept the folder index already lists re-describes it,
+    // and the edit replays at publish instead of conflicting with other changesets.
+    const folder = "redescribe";
+    const listing = (name: string, summary: string) => `(${name}.md) - ${summary}`;
+    let seeded: Promise<void> | undefined;
+    function seedListed(): Promise<void> {
+        seeded ??= remember(session(), "List two concepts for re-description", [
+            ...["alpha", "beta"].map((name) => ({
+                path: paths.at(`${folder}/${name}`),
+                title: name,
+                body: `# ${name}\n\n${name} is listed.\n`,
+                summary: `Original ${name} summary.`,
+            })),
+        ]);
+        return seeded;
+    }
+    const indexPath = () => `${paths.folder}/${folder}/index.md`;
+    const redescribe = (changeset: string, name: string, summary: string) =>
+        session().call<{ message: string; touched: string[] }>("index", {
+            path: paths.at(`${folder}/${name}`),
+            summary,
+            changeset,
+        });
+
+    test("index with a new summary changes that listing's summary and nothing else", async () => {
+        await seedListed();
+        let before = "";
+        await vi.waitFor(async () => {
+            before = await session().document(indexPath());
+            expect(before).toContain(listing("beta", "Original beta summary."));
+        });
+        const changeset = await session().openChangeset();
+        await redescribe(changeset, "alpha", "Revised alpha summary.");
+
+        const after = await session().document(indexPath(), changeset);
+        expect(after).toBe(
+            before.replace(
+                listing("alpha", "Original alpha summary."),
+                listing("alpha", "Revised alpha summary."),
+            ),
+        );
+        expect(after).not.toBe(before);
+        await session().publish(changeset, "Re-describe alpha");
+        await vi.waitFor(async () => {
+            expect(await session().document(indexPath())).toBe(after);
+        });
+    });
+
+    test("index with the unchanged summary is a no-op", async () => {
+        await remember(session(), "List delta", [
+            {
+                path: paths.at(`${folder}/delta`),
+                title: "delta",
+                body: "# delta\n\ndelta is listed.\n",
+                summary: "Delta summary.",
+            },
+        ]);
+        const changeset = await session().openChangeset();
+        const report = await redescribe(changeset, "delta", "Delta summary.");
+
+        expect(report.message).toContain("already lists");
+        expect(
+            (await session().call<{ files: unknown[] }>("pending_changes", { changeset })).files,
+        ).toEqual([]);
+        await session().call("discard", { changeset });
+    });
+
+    test("a re-describe still lands at publish after another changeset published the same index", async () => {
+        await seedListed();
+        const ours = await session().openChangeset();
+        await redescribe(ours, "beta", "Replayed beta summary.");
+        // Another changeset adds a listing to the same index.md and publishes first.
+        const theirs = await session().openChangeset();
+        await create(session(), theirs, {
+            path: paths.at(`${folder}/gamma`),
+            title: "gamma",
+            body: "# gamma\n\ngamma is listed.\n",
+            summary: "Gamma summary.",
+        });
+        await session().publish(theirs, "List gamma");
+        const pending = await session().call<{ files: { path: string; stale: boolean; replayable: boolean }[] }>(
+            "pending_changes",
+            { changeset: ours },
+        );
+        expect(pending.files).toEqual([
+            expect.objectContaining({ path: indexPath(), stale: true, replayable: true }),
+        ]);
+
+        const published = await session().publish(ours, "Re-describe beta");
+        expect(published.published).toBe(true);
+        await vi.waitFor(async () => {
+            const text = await session().document(indexPath());
+            expect(text).toContain(listing("beta", "Replayed beta summary."));
+            expect(text).toContain(listing("gamma", "Gamma summary."));
+        });
     });
 });
 

@@ -4523,7 +4523,7 @@ the reports.
 
 ### Browse and search
 
-Browse (`#/browse/<catalog>/<path>`) shows a catalog's tree beside one
+Browse (`#/browse/<catalog>/<path>[?s=<section>]`) shows a catalog's tree beside one
 document, with tabs Content, Links, History and Raw. A history row opens
 the revision's diff in a drawer. Choosing another catalog in the switcher
 while browsing opens that catalog's root `index.md`. Search

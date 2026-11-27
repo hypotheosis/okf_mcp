@@ -13,18 +13,24 @@ let pages = new Set();
 let started = false;
 const DEFAULTS = ['browse', 'keys'];
 
+// '#/<page>/<segments...>[?<params>]': the segments are decoded, and the
+// parameters (a raw '?' never occurs inside an encoded segment) come back
+// as a URLSearchParams.
 export function parse(hash) {
-    const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
-    return { page: parts.shift() ?? '', rest: parts };
+    const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
+    const parts = path.split('/').filter(Boolean).map(decodeURIComponent);
+    return { page: parts.shift() ?? '', rest: parts, query: new URLSearchParams(query) };
 }
 
-// '#/browse/<catalog>/<path segments>[/<section slug>]', each segment encoded
-// (parse() decodes each one). src/render.rs (Task 4) writes the same shape
-// into rendered links. path may start with '/' or not.
+// '#/browse/<catalog>/<path segments>[?s=<section slug>]', each segment and
+// the slug encoded (parse() decodes them). src/render.rs (`browse_route`)
+// writes the same shape into rendered links. The section is a parameter,
+// never a segment, so a folder named 'x.md' is not mistaken for a document
+// with a section. path may start with '/' or not.
 export function browseHash(catalog, path = '', section = null) {
     const parts = [catalog, ...String(path).replace(/^\/+/, '').split('/').filter(Boolean)];
-    if (section) parts.push(section);
-    return '#/browse/' + parts.map(encodeURIComponent).join('/');
+    const hash = '#/browse/' + parts.map(encodeURIComponent).join('/');
+    return section ? `${hash}?s=${encodeURIComponent(section)}` : hash;
 }
 
 // '#/users/detail/<name>': the Users page with that user's drawer open. A
@@ -41,14 +47,14 @@ export function go(hash) {
 
 // Replaces #main's content with a fresh view and runs render(view, rest) in it.
 // Exported for the router journey in tests/ui_e2e/login.rs.
-export async function mount(render, rest) {
+export async function mount(render, rest, query = new URLSearchParams()) {
     const view = h('div', { class: 'view' });
     document.getElementById('main').replaceChildren(view);
-    await render(view, rest);
+    await render(view, rest, query);
 }
 
 export async function route() {
-    let { page, rest } = parse(location.hash);
+    let { page, rest, query } = parse(location.hash);
     // The standalone Health page is part of Recent changes now: old links
     // land there, and the address bar says so.
     if (page === 'health') {
@@ -66,7 +72,7 @@ export async function route() {
     const placeholder = location.hash;
     const module = await import(`../pages/${page}.js`);
     if (location.hash !== placeholder) return;   // the user moved on while it loaded
-    await mount(module.render, rest);
+    await mount(module.render, rest, query);
 }
 
 export async function start() {

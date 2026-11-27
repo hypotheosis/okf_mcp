@@ -2,9 +2,11 @@
 // Routes (each segment encoded; the router decodes them):
 //   #/browse                                    the selected catalog's root index.md
 //   #/browse/<catalog>[/<folder>...]            a folder's index.md
-//   #/browse/<catalog>/<path>.md[/<slug>]       a concept or document, at a section
-// A path ends at its first segment ending in '.md'; one more segment is a
-// heading slug (the outline's, as src/render.rs writes links).
+//   #/browse/<catalog>/<path>.md[?s=<slug>]     a concept or document, at a section
+// The section (the outline's heading slug, as src/render.rs writes links) is
+// a parameter, so a folder may be named 'x.md'. Links written before that
+// ('<path>.md/<slug>') still open: a path ends at its LAST segment ending in
+// '.md', and one more segment is the slug (a slug never ends in '.md').
 import { $, h, clear, pill } from '../core/dom.js';
 import { api, enc } from '../core/api.js';
 import { store } from '../core/store.js';
@@ -25,20 +27,21 @@ const DOCUMENTS = new Set(['index.md', 'log.md', 'AGENTS.md']);
 // every later render: a flag rather than a listener per navigation.
 let switcherHooked = false;
 
-function locate(rest) {
+export function locate(rest, query = new URLSearchParams()) {
     const catalog = rest[0] ?? store.catalog;
     const parts = rest.slice(1);
-    const file = parts.findIndex(part => part.endsWith('.md'));
+    const file = parts.findLastIndex(part => part.endsWith('.md'));
     if (file === -1) {
         return { catalog, folder: parts.join('/'), path: [...parts, 'index.md'].join('/'), section: null };
     }
-    return { catalog, folder: null, path: parts.slice(0, file + 1).join('/'), section: parts[file + 1] ?? null };
+    const old = parts.slice(file + 1).join('/');
+    return { catalog, folder: null, path: parts.slice(0, file + 1).join('/'), section: query.get('s') || old || null };
 }
 
 const encPath = path => path.split('/').map(enc).join('/');
 const base = where => `/catalogs/${enc(where.catalog)}`;
 
-export async function render(main, rest) {
+export async function render(main, rest, query = new URLSearchParams()) {
     if (!switcherHooked) {
         // Switching catalogs while browsing opens the new catalog's root.
         $('#catalog-select').addEventListener('change', event => {
@@ -46,7 +49,7 @@ export async function render(main, rest) {
         });
         switcherHooked = true;
     }
-    const where = locate(rest);
+    const where = locate(rest, query);
     if (!where.catalog) {
         main.append(h('h1', {}, 'Browse'), h('p', { class: 'muted' }, 'This key reaches no catalog.'));
         return;

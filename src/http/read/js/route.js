@@ -66,10 +66,11 @@ export function hrefFor(catalog, path, section = null) {
     return hrefs.concept(catalog, parts.join('/'), section);
 }
 
-// A link src/render.rs wrote ('#/browse/<catalog>/<path>[/<section>]', the
-// console's route) as the reader's route, or null for any other link.
+// A link src/render.rs wrote ('#/browse/<catalog>/<path>[?s=<section>]', the
+// console's route; links written before the parameter ended in
+// '/<section>') as the reader's route, or null for any other link.
 // render.rs links only to a path ending in '.md', plus at most one section
-// segment, so the document ends at the LAST segment ending in '.md' (a
+// segment in the old form, so the document ends at the LAST segment ending in '.md' (a
 // folder before it may be named 'x.md'), and what follows is the section.
 // A heading's slug (src/okf/markdown.rs, `slugify`) keeps only letters,
 // digits, '_' and '-', so a section that reaches a heading never ends in
@@ -77,8 +78,10 @@ export function hrefFor(catalog, path, section = null) {
 // heading anyway, is read as a longer path.
 export function fromBrowse(href) {
     if (!href.startsWith('#/browse/')) return null;
-    const [catalog, ...rest] = href.slice('#/browse/'.length).split('/').map(dec);
+    const [path, query = ''] = href.slice('#/browse/'.length).split('?');
+    const [catalog, ...rest] = path.split('/').map(dec);
     const end = rest.findLastIndex(segment => segment.endsWith('.md'));
     if (end < 0) return hrefs.tree(catalog, rest.join('/'));
-    return hrefFor(catalog, rest.slice(0, end + 1).join('/'), rest.slice(end + 1).join('/') || null);
+    const section = new URLSearchParams(query).get('s') || rest.slice(end + 1).join('/') || null;
+    return hrefFor(catalog, rest.slice(0, end + 1).join('/'), section);
 }

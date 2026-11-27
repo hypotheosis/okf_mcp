@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2204,
+  "next_claim_seq": 2214,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "29e482a185da1c52834de291456ac13c7acc1b3e022fb7c60933ba95e52139fd"
+    "mac": "b68cdbabf33d52123781cbf6022f444ea27339525ca478786d70d5832f9f9338"
   },
-  "next_evidence_seq": 3895,
+  "next_evidence_seq": 3907,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "90f91fa17c2d65d065ace6985641c105b992543b3815ae6df8b9333ea6f6006a"
+    "mac": "e40c90c345c52e8f9cf96fbb995762ebf88a252847e2708d67b9bbbb819e3aeb"
   },
   "claims": [
     {
@@ -32564,6 +32564,50 @@
             "by": "server",
             "mac": "8347f45d9574b4f4673847d4e12429fd9ac16562612f183f7c6afede245b4920"
           }
+        },
+        {
+          "id": "EVD-3904",
+          "kind": "test",
+          "locator": "read::account_opened_offline_after_an_online_start_shows_the_reduced_view; read::offline_at_boot_keeps_the_copies_and_says_the_account_needs_a_connection (target/i903-logs/narrow.log: 3 passed; tests/ui_e2e/read.rs:2451-2477)",
+          "summary": "The new journey starts online, cuts the connection, opens Account and asserts #account-offline visible, #sign-out and #account-user absent, Appearance chips and #delete-offline present; the boot-offline journey still passes. Both pass on HEAD; the new one fails with only me.js reverted (revert.log: timed out waiting for #account-offline), so it covers the case EVD-0416/0417 found missing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2451,
+                "end": 2477
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:33.026001280Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ce777f50d6fdb9f1bc4f7c8f8ca5da709bb6a11e1fc5d7d62596c4af6cb58a7"
+          }
+        },
+        {
+          "id": "EVD-3905",
+          "kind": "inspection",
+          "locator": "src/http/read/js/screens/me.js:37-52; src/http/read/js/main.js:317-330",
+          "summary": "Account no longer trusts the boot-time state.session: render() takes the reduced branch (message, appearance(), deleteOffline(); no account card, no Sign out) whenever checkSession() does not return ANSWERED, i.e. also when the connection is lost after an online boot. The account card and Sign out exist only after an answered read. This removes the gap in EVD-0416/EVD-0417 (state.session never re-read).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/screens/me.js",
+              "lines": {
+                "start": 37,
+                "end": 52
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:33.198138698Z",
+          "seal": {
+            "by": "server",
+            "mac": "02840396b4cb66ed4e029c3488d0ade6dfb5df2f88ed32c296cea057aeaaa7e3"
+          }
         }
       ],
       "verdicts": [
@@ -32593,13 +32637,27 @@
             "by": "server",
             "mac": "9f777e4f79f9ed520dbc06b0e3b1fb1b867bb661d479edbaa3ccce39c83c608a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The earlier refutation (EVD-0416/0417) was that state.session was set only at boot so an online start kept the account card and Sign out offline. Account now re-reads /session on every open and takes the reduced branch on any non-answered read; a new journey proves it after an online start, and the boot-offline journey still passes. The refuting evidence describes the pre-change code and no longer applies.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3904",
+            "EVD-3905"
+          ],
+          "recorded_at": "2026-11-27T15:05:50.529866822Z",
+          "seal": {
+            "by": "server",
+            "mac": "5008f306327612e3a30c5d98281433d49418ba1e631a13bca151eee3f2e88e3e"
+          }
         }
       ],
       "created_at": "2026-11-21T21:26:48.100711693Z",
-      "updated_at": "2026-11-21T23:09:51.331411467Z",
+      "updated_at": "2026-11-27T15:05:50.529866822Z",
       "seal": {
         "by": "server",
-        "mac": "a728a6f74a5a2cbc2676b1f84d0b9b4f4b59e05a33eba9f85f00832092a63554"
+        "mac": "f70728a8322ac93202d93a555d3a20016b7b1a4139b05fb6a33496a5eb5d453c"
       }
     },
     {
@@ -195303,6 +195361,649 @@
       "seal": {
         "by": "server",
         "mac": "053663ab57da94161f0af095880b2298adf70d31da7e085f4e42d64e0540cdd6"
+      }
+    },
+    {
+      "id": "CLM-2204",
+      "statement": "A reader that started online and then loses its connection shows the reduced Account view (no account details, no Sign out) when Account opens.",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/903 (title and Problem)",
+      "derived_from": [
+        "CLM-0005"
+      ],
+      "artifacts": [
+        "src/http/read/js/screens/me.js",
+        "src/http/read/js/main.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3906",
+          "kind": "analysis",
+          "locator": "children of CLM-2204",
+          "summary": "Children cover the re-read on open, the offline reduced view, the signed-out path, the journey, docs, the shared function, the late-answer guard, the revert check and the changelog; the online-start-then-offline case is exercised end to end by the journey.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T15:05:51.831540511Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fd3c76743bc49c3f8760dfc2b74a91218475a1c17c0a12914f191ba1310f05b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children are supported; the journey demonstrates the online-start-then-offline behaviour directly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3906"
+          ],
+          "recorded_at": "2026-11-27T15:05:55.162204691Z",
+          "seal": {
+            "by": "server",
+            "mac": "b4ee30f9ee0a1d32e30708992004b5335f88b632eb3bf7de4edb629732cf1c92"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:55.162204691Z",
+      "seal": {
+        "by": "server",
+        "mac": "471401313312dd4fa3406801df39d47c8bebccbae6192f7d5676d56da2eebbbc"
+      }
+    },
+    {
+      "id": "CLM-2205",
+      "statement": "Each time Account opens, screens/me.js calls checkSession() (a fresh GET /session) instead of using only the boot-time state.session; an answer updates state.session and draws the full screen.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #903 Change 1: \"When Account opens, the reader re-reads /session instead of trusting the boot-time state.session: When the read answers, update state.session and render the full screen.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "src/http/read/js/screens/me.js",
+        "src/http/read/js/main.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3895",
+          "kind": "inspection",
+          "locator": "src/http/read/js/screens/me.js:37-45; src/http/read/js/main.js:317-322",
+          "summary": "render() awaits ctx.checkSession() on every call; checkSession does read('/session'), assigns state.session = data and returns ANSWERED, and me.js then uses ctx.state.session to draw the account card, expiry and Sign out. Journey read::account_opened_offline_after_an_online_start_shows_the_reduced_view ends by reopening Account online and asserting #account-user text 'reader' and #sign-out present; it passed (3 passed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/screens/me.js",
+              "lines": {
+                "start": 37,
+                "end": 45
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:24.445431385Z",
+          "seal": {
+            "by": "server",
+            "mac": "092271e959ecf7a0aa4a16f9984ddd2b0ac85bdc4afbe6a222e66af88a91e1b3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "me.js awaits checkSession on every render and uses the fresh answer; the journey's online reopen shows the full screen.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3895"
+          ],
+          "recorded_at": "2026-11-27T15:05:50.665476480Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a07aafca0365a10b2c849dd2a267ee4abb397c3b210e4fbe8be525c276d05f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:50.665476480Z",
+      "seal": {
+        "by": "server",
+        "mac": "89098834377391899ee9f4e553cb38b53e41749390d4baf43b1d7fe866edee24"
+      }
+    },
+    {
+      "id": "CLM-2206",
+      "statement": "When the /session read cannot reach the server (any ReadError other than signed-out, as boot treats it), Account renders the 'Account details and sign-out need a connection.' message, the Appearance choice and Delete offline copies, and leaves state.session unchanged.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #903 Change 1: \"When the server can't be reached (the same ReadError kinds boot() treats as offline), render the reduced view ... Keep state.session as it is when the read fails offline\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "src/http/read/js/screens/me.js",
+        "src/http/read/js/main.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3896",
+          "kind": "inspection",
+          "locator": "src/http/read/js/main.js:317-330; src/http/read/js/screens/me.js:45-52",
+          "summary": "checkSession's catch rethrows non-ReadError, calls signIn for KIND.SIGNED_OUT, and returns OFFLINE for every other ReadError without assigning state.session (the same classification boot() had). me.js maps any non-ANSWERED status to session = null and draws the 'Account details and sign-out need a connection.' message (#account-offline), appearance() and deleteOffline(). The journey asserts #account-offline visible, #sign-out and #account-user absent, #theme-system/#theme-dark and #delete-offline present; passed. No test asserts state.session is unchanged (the journey comment says so but checks only the copies); that rests on the code reading.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 317,
+                "end": 330
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:24.589356533Z",
+          "seal": {
+            "by": "server",
+            "mac": "f60254d57ab24bc9f90a175150c79ccc649e523f0b4501950e36731cfeed49e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The offline classification is unchanged from boot, no assignment happens on failure, and the journey asserts the reduced view's elements.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3896"
+          ],
+          "recorded_at": "2026-11-27T15:05:50.795437940Z",
+          "seal": {
+            "by": "server",
+            "mac": "7b5e4606de4bd868307ec8c4e9b27dbf892a4d1cfb737585b71d0916b065a0f4"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:50.795437940Z",
+      "seal": {
+        "by": "server",
+        "mac": "e429e8279b0a27a54a3dba16bd4de4bcab31d78c78b537687972eb0611816c98"
+      }
+    },
+    {
+      "id": "CLM-2207",
+      "statement": "When Account's /session read answers signed-out, the reader goes to sign-in as boot() does and Account draws nothing.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #903 Change 1: \"When the read answers signed-out, go to sign-in, as boot() does.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "src/http/read/js/screens/me.js",
+        "src/http/read/js/main.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3897",
+          "kind": "analysis",
+          "locator": "src/http/read/js/main.js:323-327; src/http/read/js/screens/me.js:44",
+          "summary": "checkSession calls signIn() and returns SIGNED_OUT on KIND.SIGNED_OUT, the same call boot() made before; me.js returns without drawing when status is SIGNED_OUT. No ui_e2e journey opens Account while the session has expired (only boot's signed-out journey exists), so this is code reading only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 323,
+                "end": 327
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:24.750107391Z",
+          "seal": {
+            "by": "server",
+            "mac": "d77a617716f680ea08d325c851a3a67b867a27944ec18a0f4759748082f68f49"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The code path calls signIn() and returns without drawing; verified by reading only (integrity 2, analysis method). A journey for it would be a useful addition, not a blocker.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3897"
+          ],
+          "recorded_at": "2026-11-27T15:05:50.929149481Z",
+          "seal": {
+            "by": "server",
+            "mac": "234740f5ac7be5f0815829ede7b25494628df1e41884355696c6c23c65050b29"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:50.929149481Z",
+      "seal": {
+        "by": "server",
+        "mac": "d91f8799d740053f27272c807c0881fb398d6308d17d0e389fac956cf271f9eb"
+      }
+    },
+    {
+      "id": "CLM-2208",
+      "statement": "A ui_e2e journey starts online, cuts the connection, opens Account and asserts #account-offline is shown, #sign-out and #account-user are absent, and the Appearance chips and delete button are present; then restores the connection, opens Account again and asserts the full screen returns.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #903 Change 2",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3898",
+          "kind": "test",
+          "locator": "read::account_opened_offline_after_an_online_start_shows_the_reduced_view (target/i903-logs/narrow.log: 3 passed; tests/ui_e2e/read.rs:2451-2477)",
+          "summary": "Test source: signed in with a copy, opens #/t/main, go_offline(), opens #/me, waits #account-offline, asserts #sign-out and #account-user absent, #theme-system, #theme-dark and #delete-offline present, copies kept; drops the offline guard, reopens #/me and waits #account-user 'reader', asserts #sign-out present and #account-offline absent. Caller's run: ok (3 passed, 0 failed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2451,
+                "end": 2477
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:24.881346404Z",
+          "seal": {
+            "by": "server",
+            "mac": "da1dd88da5228bc6b75ead58898e3aa2c36f477ec1d039aa9f5ba5bfb1029fce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every assertion the issue lists is present in the journey source and it passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3898"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.058698369Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f574c7dd7f3df92fd394b72b8044e266c8d3789600e9a957dc477c13a004c45"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.058698369Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe14da52946ef23d41c39d742db98129499c4393d7a7b506b45f51cbe0fc6ca1"
+      }
+    },
+    {
+      "id": "CLM-2209",
+      "statement": "docs/reference/reader.md says Account asks the server for the session each time it opens and shows the reduced view when the server cannot be reached, also after an online start.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #903 Change 3; PR body: \"docs/reference/reader.md: says Account asks the server for the session each time it opens.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "docs/reference/reader.md"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3899",
+          "kind": "inspection",
+          "locator": "docs/reference/reader.md:83-87",
+          "summary": "The Account bullet reads: 'Account asks the server for the session each time it opens; when the server cannot be reached (also after a start that was online), it shows the Appearance choice and the latter button, because the account details and sign-out need the server.'",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/reader.md",
+              "lines": {
+                "start": 83,
+                "end": 87
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:25.027702671Z",
+          "seal": {
+            "by": "server",
+            "mac": "879ecce9ab8709d004ec53efb5b484ccb1ff8d5c084b2fa0572058545238f271"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The reader.md text states both parts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3899"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.183525921Z",
+          "seal": {
+            "by": "server",
+            "mac": "62fc9191f472591894c703b67c3bc7c0e1d8c37a02208319bdefa71e90e15fd5"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.183525921Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf40e8231535469ca08d0d9f584e3f0422617a6c8016123c4fb7c3c431ea573a"
+      }
+    },
+    {
+      "id": "CLM-2210",
+      "statement": "The session read and its offline classification moved from boot() into a shared checkSession() returning answered, signed-out or offline; boot() and the Account screen both use it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"the session read and its offline classification moved from `boot()` into a shared `checkSession()` (answered, signed out, or offline). Boot and Account both use it.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "src/http/read/js/main.js",
+        "src/http/read/js/screens/me.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3900",
+          "kind": "inspection",
+          "locator": "src/http/read/js/main.js:310-336, :246; src/http/read/js/screens/me.js:41",
+          "summary": "checkSession() and the frozen SESSION enum (answered, signed-out, offline) are defined at main.js:315-329; boot() at :336 calls it (and returns on SIGNED_OUT) and no longer reads /session itself; the screen context exposes checkSession and SESSION (:246) and me.js:41 calls ctx.checkSession(). grep of src/http/read/js shows read('/session') only inside checkSession.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 310,
+                "end": 336
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:25.166174009Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad8dd5da497ce3d09a821ff8ccfba7a01bfda35741abfd92976ed1b1937e3e59"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both boot() and me.js call the shared function; no other /session read remains.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3900"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.306134136Z",
+          "seal": {
+            "by": "server",
+            "mac": "33e66f5e473f7d829e6ef6f0631d9af8387308c02cd6b23e49d45569a45562cc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.306134136Z",
+      "seal": {
+        "by": "server",
+        "mac": "38178ca722b2f1a3f59cac6f500a26be7f6d081292b73ef92c139719ed6f63da"
+      }
+    },
+    {
+      "id": "CLM-2211",
+      "statement": "If the person has left Account before the /session read returns, Account draws nothing; a journey (read::a_late_session_answer_does_not_draw_account_over_another_screen) holds the answer, navigates away, releases it and asserts neither #account-user nor #account-offline is drawn.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"If the person has left Account before the read returns, nothing is drawn.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "src/http/read/js/screens/me.js",
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3901",
+          "kind": "test",
+          "locator": "read::a_late_session_answer_does_not_draw_account_over_another_screen (target/i903-logs/narrow.log: 3 passed; tests/ui_e2e/read.rs:2480-2498)",
+          "summary": "me.js:44 returns when !ctx.live(). The journey holds GET /session while opening #/me, navigates to #/t/main, waits #screen-tree, releases the held answer, and asserts #screen-tree still present and #account-user and #account-offline absent. Caller's run: ok. With me.js reverted it fails earlier (timed out waiting for the answer to GET /session), so the assertion after release is exercised only on the changed code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2480,
+                "end": 2498
+              },
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:25.323602505Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec75998a6b41111bf4fa128933003f3c20084d9ff0bb1b3b0058248504534eb2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The live() guard exists and the journey asserts nothing is drawn after the held answer is released; it passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3901"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.441418053Z",
+          "seal": {
+            "by": "server",
+            "mac": "03a138fa0663c712cdfc49ccf8f92b76365a2a137bedf0848360b0e250a5cfb3"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.441418053Z",
+      "seal": {
+        "by": "server",
+        "mac": "ba6c7358021e213aabe64d504f7e1c7b272b647802b1d67226caf8bfdf2390a7"
+      }
+    },
+    {
+      "id": "CLM-2212",
+      "statement": "With only src/http/read/js/screens/me.js reverted, both new ui_e2e journeys fail (the offline journey times out waiting for #account-offline; the late-answer journey sees no /session read); with the change they pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"Both new journeys were run with only the `me.js` change reverted: both fail (the offline journey times out waiting for `#account-offline`; the late-answer journey sees no `/session` read). They pass with the change.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "src/http/read/js/screens/me.js"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3902",
+          "kind": "log",
+          "locator": "target/i903-logs/revert.log lines 6-36; target/i903-logs/narrow.log",
+          "summary": "I read the caller's logs (did not rerun). revert.log: the offline-at-boot journey ok; account_opened_offline_after_an_online_start FAILED with 'timed out waiting for #account-offline'; a_late_session_answer FAILED with 'timed out waiting for the server's answer to GET /session'; 1 passed, 2 failed. narrow.log: 3 passed, 0 failed on the change. Matches the PR wording. The logs are untracked and were produced by the caller, not an independent rerun.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T15:05:25.458477391Z",
+          "seal": {
+            "by": "server",
+            "mac": "5f51aa7c44236265e50da855cc1183988fcd22c0c572e79c3f9c89190fd23e04"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The caller's logs show exactly the stated failures on revert and 3 passes on the change; evidence is the caller's run, not mine.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3902"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.572153655Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe23248be6b90ebe401b2ced90f1f8162a6c20cca0ad9434daa57a1a7ef12389"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.572153655Z",
+      "seal": {
+        "by": "server",
+        "mac": "91afbf2e16814106a1e2c6f91966d253cf9a5b28411997c5a3e38386a85cd274"
+      }
+    },
+    {
+      "id": "CLM-2213",
+      "statement": "A changelog entry for issue 903 exists under changelog/ with a timestamped file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Changelog entry under `changelog/`.\"",
+      "derived_from": [
+        "CLM-2204"
+      ],
+      "artifacts": [
+        "changelog/20261127T150000Z-issue-903-account-offline-after-online-start.md"
+      ],
+      "tags": [
+        "from-issue:903"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-3903",
+          "kind": "inspection",
+          "locator": "changelog/20261127T150000Z-issue-903-account-offline-after-online-start.md",
+          "summary": "The file exists in the commit range (git diff --stat origin/main..HEAD lists it, 13 lines) and describes the main.js, me.js, docs and journey changes. Its name uses the compact 20261127T... form used by the neighbouring issue entries.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T150000Z-issue-903-account-offline-after-online-start.md",
+              "commit": "3d428351dd4bab38d6813dfdb9ed127cce42a2a3"
+            }
+          },
+          "recorded_at": "2026-11-27T15:05:25.615195634Z",
+          "seal": {
+            "by": "server",
+            "mac": "a393f37855c1f224e4e4fc97eac4c25a561a74f57b85a5b35f092475b92ef025"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The timestamped file is in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-3903"
+          ],
+          "recorded_at": "2026-11-27T15:05:51.707761302Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b0972c602f6d177d3b7f647d8a33d7c3b97b0f1b0385470798a1f5463ca1407"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T15:04:58.064033964Z",
+      "updated_at": "2026-11-27T15:05:51.707761302Z",
+      "seal": {
+        "by": "server",
+        "mac": "09a9107cf2a2c58cfd310e9830921a8d403add90907b7793b3da14a2c6146c67"
       }
     }
   ]

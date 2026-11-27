@@ -17,14 +17,28 @@
 
 use std::fs;
 use std::io;
+use std::os::unix::fs::MetadataExt;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
+use std::sync::OnceLock;
+use std::time::{Duration, Instant, SystemTime};
 
 use tempfile::TempDir;
 
 /// The folder's name prefix, so a leftover is recognisable.
 pub const FOLDER_PREFIX: &str = "okf-ui-browser-";
+
+/// The prefix of the folders rustwright makes for a browser it launches itself.
+const RUSTWRIGHT_PREFIX: &str = "rustwright-profile-";
+
+/// A leftover folder is swept only once it is this old, which keeps the
+/// sweep clear of other sessions' live runs.
+const SWEEP_MIN_AGE: Duration = Duration::from_secs(24 * 60 * 60);
+
+/// The most folders one test process deletes. About 23 thousand were left
+/// before issue #1070; every test process removes some more, so the backlog
+/// shrinks over a few runs without any one run spending long on it.
+const SWEEP_CAP: usize = 500;
 
 /// How long a browser's processes get to exit on their own after the
 /// browser was closed, before they are killed.
@@ -56,6 +70,7 @@ impl BrowserHome {
     /// # Errors
     /// Any I/O error from creating the folder or writing the script.
     pub fn create(browser: &str) -> io::Result<Self> {
+        sweep_once();
         let dir = tempfile::Builder::new().prefix(FOLDER_PREFIX).tempdir()?;
         fs::create_dir(dir.path().join("profile"))?;
         let launcher = dir.path().join("launch");
@@ -161,6 +176,126 @@ pub fn processes_using(profile: &Path) -> Vec<libc::pid_t> {
         .collect()
 }
 
+/// Starts the sweep of old leftover folders in the temp dir, at most once
+/// per test process, on a detached thread so no journey waits for it
+/// (issue #1078). The thread ends with the process.
+fn sweep_once() {
+    static STARTED: OnceLock<()> = OnceLock::new();
+    STARTED.get_or_init(|| {
+        let spawned = std::thread::Builder::new()
+            .name("browser-home-sweep".into())
+            .spawn(|| {
+                // SAFETY: `geteuid` takes no arguments and cannot fail.
+                let uid = unsafe { libc::geteuid() };
+                let removed = sweep_stale(
+                    &std::env::temp_dir(),
+                    SystemTime::now(),
+                    SWEEP_MIN_AGE,
+                    uid,
+                    SWEEP_CAP,
+                    &all_cmdlines(),
+                );
+                if removed > 0 {
+                    eprintln!("swept {removed} old browser folders from the temp dir");
+                }
+            });
+        if let Err(error) = spawned {
+            eprintln!("could not start the browser folder sweep: {error}");
+        }
+    });
+}
+
+/// Every process's command line, read once. Held in memory only, never
+/// printed or logged.
+fn all_cmdlines() -> Vec<Vec<u8>> {
+    let Ok(entries) = fs::read_dir("/proc") else {
+        return Vec::new();
+    };
+    entries
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            entry
+                .file_name()
+                .to_str()
+                .is_some_and(|name| name.bytes().all(|byte| byte.is_ascii_digit()))
+        })
+        .filter_map(|entry| fs::read(entry.path().join("cmdline")).ok())
+        .collect()
+}
+
+/// The folders directly under `temp` that are leftovers of a browser: named
+/// with one of the two prefixes, a real directory (never a symlink) owned by
+/// `uid`, last modified at least `min_age` before `now`, and not named by any
+/// command line in `cmdlines`.
+///
+/// A folder whose path appears anywhere in a command line counts as in use
+/// (the profile, or the launcher inside it); that errs towards keeping it.
+fn stale_folders(
+    temp: &Path,
+    now: SystemTime,
+    min_age: Duration,
+    uid: u32,
+    cmdlines: &[Vec<u8>],
+) -> Vec<PathBuf> {
+    let Ok(entries) = fs::read_dir(temp) else {
+        return Vec::new();
+    };
+    entries
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            name.starts_with(FOLDER_PREFIX) || name.starts_with(RUSTWRIGHT_PREFIX)
+        })
+        .filter_map(|entry| {
+            // `symlink_metadata` does not follow a link, so a symlink named
+            // like a leftover is seen as a symlink and skipped.
+            let metadata = fs::symlink_metadata(entry.path()).ok()?;
+            let old_enough = metadata
+                .modified()
+                .ok()
+                .and_then(|modified| now.duration_since(modified).ok())
+                .is_some_and(|age| age >= min_age);
+            (metadata.is_dir() && metadata.uid() == uid && old_enough).then(|| entry.path())
+        })
+        .filter(|path| {
+            let needle = path.as_os_str().as_encoded_bytes();
+            !cmdlines
+                .iter()
+                .any(|cmdline| cmdline.windows(needle.len()).any(|part| part == needle))
+        })
+        .collect()
+}
+
+/// Deletes up to `cap` leftover folders (see [`stale_folders`]) under `temp`.
+/// A folder that cannot be deleted is skipped: the sweep never fails a test.
+///
+/// An empty `cmdlines` means `/proc` could not be read (a live machine always
+/// has at least this process), so nothing can be shown unused and nothing is
+/// deleted.
+///
+/// # Returns
+/// How many folders were removed.
+fn sweep_stale(
+    temp: &Path,
+    now: SystemTime,
+    min_age: Duration,
+    uid: u32,
+    cap: usize,
+    cmdlines: &[Vec<u8>],
+) -> usize {
+    if cmdlines.is_empty() {
+        return 0;
+    }
+    stale_folders(temp, now, min_age, uid, cmdlines)
+        .into_iter()
+        .take(cap)
+        // Another test process may be deleting the same folder; `remove_dir_all`
+        // does not follow symlinks inside it, and a failure is ignored.
+        .filter(|path| fs::remove_dir_all(path).is_ok())
+        .count()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -219,5 +354,103 @@ mod tests {
         assert!(home.profile().is_dir());
         drop(home);
         assert!(!path.exists());
+    }
+
+    const DAY: Duration = Duration::from_secs(24 * 60 * 60);
+
+    fn me() -> u32 {
+        // SAFETY: `geteuid` takes no arguments and cannot fail.
+        unsafe { libc::geteuid() }
+    }
+
+    /// Makes `name` under `temp` with a modification time `age` ago.
+    fn make_aged(temp: &Path, name: &str, age: Duration) -> PathBuf {
+        let path = temp.join(name);
+        fs::create_dir(&path).expect("make the folder");
+        fs::write(path.join("file"), b"x").expect("fill it");
+        let when = SystemTime::now() - age;
+        fs::File::open(&path)
+            .expect("open the folder")
+            .set_modified(when)
+            .expect("set its time");
+        path
+    }
+
+    #[test]
+    fn only_old_prefixed_folders_are_selected() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let old_ui = make_aged(temp.path(), "okf-ui-browser-a", DAY * 2);
+        let old_rw = make_aged(temp.path(), "rustwright-profile-b", DAY * 2);
+        make_aged(temp.path(), "okf-ui-browser-new", DAY / 2);
+        make_aged(temp.path(), "unrelated-folder", DAY * 2);
+
+        let mut found = stale_folders(temp.path(), SystemTime::now(), DAY, me(), &[]);
+        found.sort();
+
+        assert_eq!(found, vec![old_ui, old_rw]);
+    }
+
+    #[test]
+    fn a_folder_named_by_a_running_process_is_kept() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let live = make_aged(temp.path(), "rustwright-profile-live", DAY * 2);
+        let dead = make_aged(temp.path(), "rustwright-profile-dead", DAY * 2);
+        let cmdline = format!("chrome\0--user-data-dir={}\0--flag", live.display()).into_bytes();
+
+        let found = stale_folders(temp.path(), SystemTime::now(), DAY, me(), &[cmdline]);
+
+        assert_eq!(found, vec![dead]);
+    }
+
+    #[test]
+    fn a_symlink_is_never_selected_or_followed() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let target = make_aged(temp.path(), "precious", DAY * 2);
+        let link = temp.path().join("okf-ui-browser-link");
+        std::os::unix::fs::symlink(&target, &link).expect("link");
+
+        let found = stale_folders(temp.path(), SystemTime::now(), DAY, me(), &[]);
+        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 10, &[vec![0]]);
+
+        assert!(found.is_empty());
+        assert_eq!(removed, 0);
+        assert!(target.join("file").is_file());
+    }
+
+    #[test]
+    fn a_folder_of_another_owner_is_skipped() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        make_aged(temp.path(), "okf-ui-browser-theirs", DAY * 2);
+
+        let found = stale_folders(temp.path(), SystemTime::now(), DAY, me() + 1, &[]);
+
+        assert!(found.is_empty());
+    }
+
+    #[test]
+    fn the_sweep_removes_old_folders_up_to_the_cap() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        for index in 0..5 {
+            make_aged(temp.path(), &format!("rustwright-profile-{index}"), DAY * 2);
+        }
+        let fresh = make_aged(temp.path(), "rustwright-profile-fresh", DAY / 2);
+
+        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 3, &[vec![0]]);
+        let left = fs::read_dir(temp.path()).expect("list").count();
+
+        assert_eq!(removed, 3);
+        assert_eq!(left, 3);
+        assert!(fresh.is_dir());
+    }
+
+    #[test]
+    fn nothing_is_deleted_when_no_process_could_be_read() {
+        let temp = tempfile::tempdir().expect("fake temp");
+        let old = make_aged(temp.path(), "okf-ui-browser-old", DAY * 2);
+
+        let removed = sweep_stale(temp.path(), SystemTime::now(), DAY, me(), 10, &[]);
+
+        assert_eq!(removed, 0);
+        assert!(old.is_dir());
     }
 }

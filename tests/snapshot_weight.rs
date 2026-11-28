@@ -6,7 +6,7 @@
 //! nothing else. Ignored by default (it needs Docker and prints numbers to
 //! read, rather than asserting a value); run it with:
 //!
-//! `cargo test --release --test snapshot_weight -- --ignored --nocapture`
+//! `cargo test --release --test it snapshot_weight:: -- --ignored --nocapture`
 //!
 //! Method: build synthetic catalogs of 500 and 5,000 documents (frontmatter,
 //! headings, prose and links to other documents), import each, load one

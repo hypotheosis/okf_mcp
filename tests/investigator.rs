@@ -172,7 +172,7 @@ fn investigator_config_secrets_environment_isolated() {
         child
             .args([
                 "--exact",
-                "investigator_config_secrets_child",
+                "investigator::investigator_config_secrets_child",
                 "--nocapture",
             ])
             .env_remove("OKF_MAINTENANCE_TOKEN")
@@ -305,7 +305,7 @@ mod journal_process {
         Command::new(std::env::current_exe().unwrap())
             .args([
                 "--exact",
-                "journal_process::investigator_journal_child",
+                "investigator::journal_process::investigator_journal_child",
                 "--nocapture",
             ])
             .env("JOURNAL_TEST_DIR", dir)

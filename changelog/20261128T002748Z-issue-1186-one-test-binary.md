@@ -1,6 +1,6 @@
 # Issue 1186: the integration tests build as one test binary
 
-`tests/` built 24 integration-test binaries (`tests/*.rs` plus `tests/ui_e2e/`), each linking the
+`tests/` built 25 integration-test binaries (`tests/*.rs` plus `tests/ui_e2e/`), each linking the
 whole `okf_mcp` lib and every dependency and each compiling its own copy of `tests/support/`. They
 are now one binary, `it` (`tests/it.rs`), with a module per former test file.
 

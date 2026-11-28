@@ -10,8 +10,7 @@ use sqlx::postgres::PgPoolOptions;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::{ContainerAsync, ContainerRequest, ImageExt};
 
-// Only the Postgres helper: `#[path]` compiles that one file as a module,
-// without the HTTP server helpers in `support/mod.rs`.
+// The Postgres helper, from the shared `support` module (compiled once in `tests/it.rs`).
 use crate::support::pg;
 
 /// Installs the copied key and certificate as the `postgres` user's

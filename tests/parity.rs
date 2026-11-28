@@ -4,13 +4,13 @@
 //! - Golden tests (always run): the Rust output for the synthetic corpus in
 //!   `tests/fixtures/catalog` must equal `tests/golden/*.json`, which were
 //!   produced by `okf.py`. These keep working after `okf.py` is retired.
-//! - Live tests (`cargo test --test parity -- --ignored`): run `okf.py`
+//! - Live tests (`cargo test --test it parity:: -- --ignored`): run `okf.py`
 //!   through `tests/parity/okf_shim.py` on the synthetic corpus and, when
 //!   `OKF_PARITY_CATALOG` names a catalog checkout, on that real catalog too.
 //!   Set `OKF_PY` to okf.py's path (default
 //!   `~/repos/pg_knowledge_catalog/tools/okf.py`). `live_goldens_come_from_this_okf_py`
 //!   fails when okf.py's SHA-256 differs from `tests/golden/SOURCE`.
-//! - Regeneration: `UPDATE_GOLDEN=1 cargo test --test parity -- --ignored`
+//! - Regeneration: `UPDATE_GOLDEN=1 cargo test --test it parity:: -- --ignored`
 //!   rewrites every golden file and `SOURCE` from okf.py (`regenerate_goldens`).
 //!
 //! The analyses (`links`, `oldest`, `sprawl`, `lint`; `analysis.json`) run
@@ -653,7 +653,7 @@ fn golden_path(name: &str) -> PathBuf {
 
 fn read_golden(name: &str) -> Json {
     let text = std::fs::read_to_string(golden_path(name)).unwrap_or_else(|e| {
-        panic!("{name}: {e}; regenerate with UPDATE_GOLDEN=1 cargo test --test parity -- --ignored")
+        panic!("{name}: {e}; regenerate with UPDATE_GOLDEN=1 cargo test --test it parity:: -- --ignored")
     });
     serde_json::from_str(&text).expect("golden file is JSON")
 }
@@ -974,7 +974,7 @@ fn live_goldens_come_from_this_okf_py() {
         current.trim(),
         "okf.py ({}) differs from the one the goldens were generated from \
          (tests/golden/SOURCE): the goldens may be stale. Check the okf.py diff, \
-         then regenerate with UPDATE_GOLDEN=1 cargo test --test parity -- --ignored",
+         then regenerate with UPDATE_GOLDEN=1 cargo test --test it parity:: -- --ignored",
         okf_py().display()
     );
 }

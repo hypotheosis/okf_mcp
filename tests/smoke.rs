@@ -20,7 +20,7 @@
 //! the storage, server, write and restructuring tests need Docker). Run them
 //! in release mode, since the timings are the point:
 //!
-//! `OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog cargo test --release --test smoke -- --ignored --nocapture`
+//! `OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog cargo test --release --test it smoke:: -- --ignored --nocapture`
 //!
 //! `--nocapture` lets the `eprintln!` timings through (the test harness
 //! captures a passing test's output otherwise). They print counts and

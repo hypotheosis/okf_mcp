@@ -4,7 +4,7 @@
 //! `the_real_catalog_round_trips` is `#[ignore]`d: it needs a git checkout of
 //! a catalog in `OKF_PARITY_CATALOG` (read in place, never copied here):
 //!
-//! `OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog cargo test --test roundtrip -- --ignored`
+//! `OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog cargo test --test it roundtrip:: -- --ignored`
 
 use crate::support;
 

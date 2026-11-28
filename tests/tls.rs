@@ -243,13 +243,23 @@ fn only_transient_docker_start_errors_are_retried() {
         "Error response from daemon: failed to program external connectivity on endpoint",
         "request timed out",
     ] {
-        assert!(pg::is_transient_start_error(&other(transient)), "{transient}");
+        assert!(
+            pg::is_transient_start_error(&other(transient)),
+            "{transient}"
+        );
     }
     assert!(pg::is_transient_start_error(&TestcontainersError::Io(
         std::io::ErrorKind::TimedOut.into()
     )));
-    for permanent in ["no such image: postgres:0", "invalid reference format", "denied"] {
-        assert!(!pg::is_transient_start_error(&other(permanent)), "{permanent}");
+    for permanent in [
+        "no such image: postgres:0",
+        "invalid reference format",
+        "denied",
+    ] {
+        assert!(
+            !pg::is_transient_start_error(&other(permanent)),
+            "{permanent}"
+        );
     }
     assert!(!pg::is_transient_start_error(&TestcontainersError::Io(
         std::io::ErrorKind::NotFound.into()

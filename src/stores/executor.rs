@@ -51,6 +51,13 @@ impl<'a> StoreExecutor<'a> {
 /// (logged once, here); any other error is returned as it is. The same
 /// errors count wherever they happen, a failed connect or a connection
 /// reset mid-query, as in [`CatalogDb::classify`](super::CatalogDb::classify).
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "a forwarding shim on every store query: a span per query would be noise, and the caller's span records the error"
+    )
+)]
 fn mark_unavailable(store: &StoreName, error: sqlx::Error) -> sqlx::Error {
     if is_store_unreachable(&error) {
         sqlx::Error::Configuration(Box::new(classify_store_error(store, error)))
@@ -62,6 +69,13 @@ fn mark_unavailable(store: &StoreName, error: sqlx::Error) -> sqlx::Error {
 impl<'c> Executor<'c> for StoreExecutor<'c> {
     type Database = Postgres;
 
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "a forwarding shim on every store query: a span per query would be noise, and the caller's span records the error"
+        )
+    )]
     fn fetch_many<'e, 'q: 'e, E>(
         self,
         query: E,
@@ -77,6 +91,13 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
             .boxed()
     }
 
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "a forwarding shim on every store query: a span per query would be noise, and the caller's span records the error"
+        )
+    )]
     fn fetch_optional<'e, 'q: 'e, E>(
         self,
         query: E,
@@ -90,6 +111,13 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
         Box::pin(async move { rows.await.map_err(|error| mark_unavailable(store, error)) })
     }
 
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "a forwarding shim on every store query: a span per query would be noise, and the caller's span records the error"
+        )
+    )]
     fn prepare_with<'e>(
         self,
         sql: sqlx::SqlStr,
@@ -108,6 +136,13 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
     }
 
     #[doc(hidden)]
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(
+            uninstrumented_fn,
+            reason = "a forwarding shim on every store query: a span per query would be noise, and the caller's span records the error"
+        )
+    )]
     fn describe<'e>(
         self,
         sql: sqlx::SqlStr,

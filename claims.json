@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2610,
+  "next_claim_seq": 2624,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f5b623dab4cb33431dee31db0d6f159927a795ec23d68a275b6fd5f54b70f542"
+    "mac": "b4685faec708cae14acd56545fafd222066f429b5e3faa94066b767a8982548f"
   },
-  "next_evidence_seq": 4538,
+  "next_evidence_seq": 4561,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9f9dee4d892590f8da91d7f4fd0026baea16bcfabb6465577f25254fc2d1f762"
+    "mac": "eeedd7447ea4e9a524902b923ac3b5652d3c5fb53113f41aab3a12abef4c3eb9"
   },
   "claims": [
     {
@@ -200776,7 +200776,9 @@
         "from-issue:906"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1169: the bound is now WAIT + 2 s; replaced by CLM-2616.",
+        "retired_at": "2026-11-28T14:04:39.031589175Z"
       },
       "evidence": [
         {
@@ -200800,6 +200802,28 @@
             "by": "server",
             "mac": "0d1a74ef474608216f143894529df8cfcdee154a9192c0bae5b656fb4c10535a"
           }
+        },
+        {
+          "id": "EVD-4551",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:65-80 at 9f7e8493",
+          "summary": "The bound is now AGENTIC_STATE_WAIT + 2 s with the cleanup inside it (72 s becomes 62 s by default); the claim's +agentic_kill_after+agentic_reap_after term no longer holds. Superseded by this PR on purpose.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 65,
+                "end": 80
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:29.065883067Z",
+          "seal": {
+            "by": "server",
+            "mac": "016b1ad075f6c8830396c82b3f8e1e425dd8f894889eee0cc59846c2f3e0a9cf"
+          }
         }
       ],
       "verdicts": [
@@ -200815,13 +200839,26 @@
             "by": "server",
             "mac": "5ef3900a0317ff881a746bf6d6a481c24d10bfe43a6e902527ee3d89091b21c8"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This PR tightened the bound to WAIT + 2 s; the claim's +kill+reap term is obsolete. Fix: retire CLM-2244 and add a claim that the state wait ends within AGENTIC_STATE_WAIT + 2 s, cleanup included (CLM-2616 already covers it).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4551"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.797367077Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d1281691e054c8de6fcdbde53aaf0424ae7ab3d2b6ffa8732841576d68e26b4"
+          }
         }
       ],
       "created_at": "2026-11-27T17:15:53.144098274Z",
-      "updated_at": "2026-11-27T17:26:06.951873925Z",
+      "updated_at": "2026-11-28T14:04:39.031589175Z",
       "seal": {
         "by": "server",
-        "mac": "73be6afe22fd33a17a18dc9a4c9f5dbc4fc1e288eafccb89d0951b096c618db2"
+        "mac": "04bfeaa2327f42048df071dff9150563869e12eff4dcd9e77267d45d3cecde56"
       }
     },
     {
@@ -200851,7 +200888,9 @@
         "from-issue:906"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1169: README/changelog now state a hard bound; replaced by the docs claim of this audit.",
+        "retired_at": "2026-11-28T14:04:39.259602522Z"
       },
       "evidence": [
         {
@@ -200875,6 +200914,28 @@
             "by": "server",
             "mac": "7fd3d0307eeed05506d0857f9832933d3bc490c76426511c23631d8754e6ecd5"
           }
+        },
+        {
+          "id": "EVD-4552",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:56 at 9f7e8493",
+          "summary": "README now calls AGENTIC_STATE_WAIT 'A hard bound' with total + 2 s, the opposite of 'a polling budget, not a hard limit ... up to 10 s to stop the lookup's group'. Superseded by this PR.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 56,
+                "end": 56
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:29.256065046Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e44e737c1a242e81421045827ae55dacb0f7bf7d44b68481ebc36e62f6d3922"
+          }
         }
       ],
       "verdicts": [
@@ -200890,13 +200951,26 @@
             "by": "server",
             "mac": "373064e07afa4474d532e68cb683d1d1ff2a8c619862cc071bf1643ed08e9938"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "README.md:56 now says a hard bound of WAIT + 2 s, so the 'polling budget, not a hard limit, + up to 10 s' wording the claim records is gone by design. Fix: retire CLM-2245 and rely on CLM-2617 for the new wording.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4552"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.957356840Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd65b0b42da0440ce2dfc7e3d532570e3a0a0f5fc0d52a606007a65e12ba64f9"
+          }
         }
       ],
       "created_at": "2026-11-27T17:15:53.144098274Z",
-      "updated_at": "2026-11-27T17:26:07.073609499Z",
+      "updated_at": "2026-11-28T14:04:39.259602522Z",
       "seal": {
         "by": "server",
-        "mac": "919ffff8477be847a57af490be0a7b722d11b9ac654f8c7bb485f819fa0253a7"
+        "mac": "e1ae23186068d2b0708a4af7ce173da16f574eb2c02bbaec085852c81314f569"
       }
     },
     {
@@ -200926,7 +201000,9 @@
         "from-issue:906"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1169: the slow-lookup test now asserts 4000 ms plus 2000 ms tolerance; replaced by CLM-2618.",
+        "retired_at": "2026-11-28T14:04:39.498095527Z"
       },
       "evidence": [
         {
@@ -200950,6 +201026,28 @@
             "by": "server",
             "mac": "3b9a2ad0b81072b301ba5544153d4f2a174de2104c932ea4b1f883be4e7ab97b"
           }
+        },
+        {
+          "id": "EVD-4553",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:405-420 at 9f7e8493",
+          "summary": "The test now sets bound_ms=4000 (WAIT + 2), not 6000, with the same 2000 ms tolerance. Superseded by this PR.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 405,
+                "end": 420
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:29.433691284Z",
+          "seal": {
+            "by": "server",
+            "mac": "50623b6e46eaeeb10c41f9dc82a524d7ff8d8cfcb5b71252e325fbf4cab2dc2f"
+          }
         }
       ],
       "verdicts": [
@@ -200965,13 +201063,26 @@
             "by": "server",
             "mac": "989ee151631939452334a2079de26a54ee493644c428c73cb05419104f47ae4c"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The test's bound changed from 6000 ms to 4000 ms on purpose. Fix: retire CLM-2246 and add a claim that the slow-lookup test asserts WAIT + 2 = 4000 ms plus 2000 ms tolerance.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4553"
+          ],
+          "recorded_at": "2026-11-28T14:02:54.135843202Z",
+          "seal": {
+            "by": "server",
+            "mac": "9bde0b316795e137878077f79d4f258dc599da402b96a5c6af04897f7c21dc7f"
+          }
         }
       ],
       "created_at": "2026-11-27T17:15:53.144098274Z",
-      "updated_at": "2026-11-27T17:26:07.195197102Z",
+      "updated_at": "2026-11-28T14:04:39.498095527Z",
       "seal": {
         "by": "server",
-        "mac": "0e0f0721ab0491b122a1491be0f0f272c6e0393590e648a25c56044ccee8dfd5"
+        "mac": "e4cecf8124918c0495e3c04c0f9a0b6576febe7255705ffaba9e951128858ab0"
       }
     },
     {
@@ -228929,6 +229040,1104 @@
       "seal": {
         "by": "server",
         "mac": "0339aeab78dec7c94c5322f89583dd42b434e750a11b535ba30daba694ea8b7f"
+      }
+    },
+    {
+      "id": "CLM-2610",
+      "statement": "Issue #1169 is resolved: every tools/agentic script's deadline holds end to end, because agentic_call_budget reserves the time to stop a stalled call, merge-reviewed.sh's documented bound is tightened to match, the docs state the new bounds, and a test with a stalled gh that ignores TERM under a short deadline enforces it.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1169 and its decision comment (option 2)",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/merge-reviewed.sh",
+        "tools/agentic/watch-review.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Roll-up refuted only through CLM-2613 and CLM-2617, both retired and re-claimed; replaced by a new roll-up.",
+        "retired_at": "2026-11-28T14:04:40.292321768Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4554",
+          "kind": "analysis",
+          "locator": "children of CLM-2610",
+          "summary": "The code and test children hold (CLM-2611, 2612, 2614, 2615, 2616, 2618), so the deadline is end to end. Two children are refuted: CLM-2617 (merge-reviewed.sh header still says 'not a hard limit') and CLM-2613 (PR body misdescribes which runners the budget feeds).",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T14:02:58.441361204Z",
+          "seal": {
+            "by": "server",
+            "mac": "eab8b1880f95a798d2ea8278afb10016b33e3fff87af95e3e221bafd3e320e60"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Behavior is fixed, but the issue asks that the documented bound be tightened everywhere, and merge-reviewed.sh's header still calls the wait 'not a hard limit'. Fix: correct merge-reviewed.sh lines 15-17 to the hard WAIT + 2 s bound, then re-audit CLM-2617.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4554"
+          ],
+          "recorded_at": "2026-11-28T14:03:01.550751105Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2f2779697dfca7b8cec2b9197081c8f250eee86171e3969c7a15c39eea996b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:04:40.292321768Z",
+      "seal": {
+        "by": "server",
+        "mac": "ec0e90e041e8c7c64e4e06e857ba6ee3158230b3a063c3f40a3cbdcea32fe4f9"
+      }
+    },
+    {
+      "id": "CLM-2611",
+      "statement": "agentic_call_budget, when agentic_deadline is set, caps a call at the time left before the deadline minus agentic_cleanup_reserve (agentic_kill_after + agentic_reap_after, 10 s by default), and returns 0 (no call starts) when the time left is not more than the reserve.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`agentic_call_budget` subtracts it from the time left when `agentic_deadline` is set, and returns 0 (no call starts) when the time left is not more than the reserve.\"",
+      "source_anchor": {
+        "path": "tools/agentic/lib.sh",
+        "lines": {
+          "start": 104,
+          "end": 122
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4538",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:104-122",
+          "summary": "agentic_cleanup_reserve prints kill_after+reap_after; agentic_call_budget computes left = deadline - now - reserve, caps at left if smaller than the cap, floors at 0.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 104,
+                "end": 122
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:52.474858130Z",
+          "seal": {
+            "by": "server",
+            "mac": "d112aee46feeb1fbd70d9c39bc91cc4f0b771d2e8936e3592a6d37395fc95e86"
+          }
+        },
+        {
+          "id": "EVD-4539",
+          "kind": "demonstration",
+          "locator": "bash -c 'source lib.sh; agentic_deadline=$(( $(agentic_now)+30 )); agentic_call_budget' (and +10), defaults 5/5",
+          "summary": "Ran it myself: 30 s left prints 20; 10 s left (equal to the reserve) prints 0. Test test_call_budget_reserves_the_cleanup_time_before_the_deadline (tests/run.sh:642-661) asserts the same on a fake clock plus below-reserve (0), custom 1+2 reserve (27) and cap cases.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:01:52.636860724Z",
+          "seal": {
+            "by": "server",
+            "mac": "b341aa4e29eba81ba6aca9428e43caea4adac2a1254810efa22a67b6b542f6e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and my own run (30 s left gives 20, 10 s left gives 0) match; the test asserts the same.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4538",
+            "EVD-4539"
+          ],
+          "recorded_at": "2026-11-28T14:02:52.320349782Z",
+          "seal": {
+            "by": "server",
+            "mac": "2226f471cf085f3f075fd32acf9e0a43f824fd03059a6a8400d900d9dd08716f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:52.320349782Z",
+      "seal": {
+        "by": "server",
+        "mac": "e28d6b43c009102d2352411f825c23270c20e68ead6945490c8ea7e0681e9d17"
+      }
+    },
+    {
+      "id": "CLM-2612",
+      "statement": "Without agentic_deadline, agentic_call_budget is unchanged: it returns AGENTIC_CALL_TIMEOUT (default 60) with no reserve taken off.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Without a deadline nothing changes: the reserve is extra, on top of `AGENTIC_CALL_TIMEOUT`.\"",
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4540",
+          "kind": "demonstration",
+          "locator": "bash -c 'source lib.sh; unset agentic_deadline; AGENTIC_CALL_TIMEOUT=9 agentic_call_budget'",
+          "summary": "Printed 9: no reserve taken without a deadline. Code: the subtraction sits inside the `if [ -n \"${agentic_deadline:-}\" ]` branch (lib.sh:116-120); test at tests/run.sh:642-661 asserts 9 too.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 114,
+                "end": 122
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:52.833902511Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6c2ab528d1d1b29e6517ec65ee4fc24e9296745b50f9d15b14bb0881fd7b5a3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Without a deadline the budget printed 9 (the cap); the reserve is only in the deadline branch.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4540"
+          ],
+          "recorded_at": "2026-11-28T14:02:52.490991928Z",
+          "seal": {
+            "by": "server",
+            "mac": "afceee5c90f081a155a6e922508b18f2a735ed01db45f696accbe92f878c53b7"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:52.490991928Z",
+      "seal": {
+        "by": "server",
+        "mac": "2ec7b1a1fd67d9d8257b068be92a285105123c671bd272104d5e3a0c0bce1aa2"
+      }
+    },
+    {
+      "id": "CLM-2613",
+      "statement": "The one change in agentic_call_budget covers agentic_run_bounded, agentic_run_captured and its supervisor, because agentic_bounded_call computes the budget once and both runners spend at most budget + reserve.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The one change covers `agentic_run_bounded`, `agentic_run_captured` and its supervisor, because `agentic_bounded_call` computes the budget once and both runners spend at most budget + reserve.\"",
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "PR body wording was wrong (agentic_run_bounded takes no deadline); the body is reworded and re-claimed.",
+        "retired_at": "2026-11-28T14:04:39.750975904Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4541",
+          "kind": "analysis",
+          "locator": "tools/agentic/lib.sh:240-247 (agentic_bounded_call)",
+          "summary": "agentic_bounded_call computes agentic_call_budget and passes it only to agentic_run_captured (which calls agentic_capture_supervise). agentic_run_bounded is not reached through it.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 240,
+                "end": 247
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:53.043159347Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f3dba452245bb25a495b2435a86a2fe700ae853f1e2967905fd8ec5a6d28170"
+          }
+        },
+        {
+          "id": "EVD-4542",
+          "kind": "analysis",
+          "locator": "git grep -nE \"agentic_run_bounded|agentic_call_budget\" tools/agentic",
+          "summary": "agentic_run_bounded callers (gate.sh:105,161,170; remove-worktree.sh:89) pass fixed limits and never use agentic_call_budget or a deadline, so the reserve change does not touch them. agentic_call_budget is used only by agentic_bounded_call and watchdog.sh:157 (no deadline there). The statement that the one change covers agentic_run_bounded is inaccurate (harmless: the runner does spend at most limit + kill + reap).",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T14:01:53.202438442Z",
+          "seal": {
+            "by": "server",
+            "mac": "f19d2e63a5a53ef58e6372e9700a78da48de40fe55fb409035283345080b9155"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "agentic_bounded_call feeds the budget only to agentic_run_captured and its supervisor; agentic_run_bounded takes fixed limits from gate.sh and remove-worktree.sh and never sees a deadline budget, so the 'because' sentence is wrong about agentic_run_bounded. Fix: reword the PR body line to say agentic_bounded_call (so agentic_gh and agentic_git) computes the budget once and agentic_run_captured with its supervisor spend at most budget + reserve, and drop agentic_run_bounded from it (or say it is unchanged and has no deadline).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4541",
+            "EVD-4542"
+          ],
+          "recorded_at": "2026-11-28T14:02:52.672225758Z",
+          "seal": {
+            "by": "server",
+            "mac": "2105f8b05aa3bb91955bbd53be4fd0b7598e5ae7f55096df5d2cb1a64ec0b955"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:04:39.750975904Z",
+      "seal": {
+        "by": "server",
+        "mac": "7687801453f37876e2058faf410136e2c7a432aa8f60c4569d5ce3d9e937628a"
+      }
+    },
+    {
+      "id": "CLM-2614",
+      "statement": "A gh call that ignores TERM, run through agentic_gh under a 4 s agentic_deadline with agentic_kill_after=1 and agentic_reap_after=1, returns 124 by the deadline (within 4.5 s) and leaves no process running; without the reserve the same call takes about 5.1 s.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"a stalled `gh` that ignores TERM under a 4 s deadline ends within 4.5 s and leaves nothing running (about 5.1 s without the reserve)\"",
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4543",
+          "kind": "demonstration",
+          "locator": "source lib.sh; stub gh (trap '' TERM; loop) first in PATH; agentic_deadline=now+4; agentic_gh pr view 7; kill_after=1 reap_after=1",
+          "summary": "Ran it myself: rc=124, elapsed 3137 ms (deadline 4 s); with deadline 6 s, 5154 ms; stub pid not alive afterwards. Same run with agentic_cleanup_reserve overridden to 0: 5137 ms, matching the PR's about 5.1 s. Test test_a_stalled_call_is_stopped_by_the_deadline_not_after_it (tests/run.sh:663-682) asserts rc=124, 1000 <= elapsed <= 4500 ms and the stub's pid gone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 663,
+                "end": 682
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:53.363654363Z",
+          "seal": {
+            "by": "server",
+            "mac": "c432158f16ea61103fa72b07d2ef007a07db1f49af61128df8011b1283fc898f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: 3.1 s under a 4 s deadline, rc 124, process gone; 5.1 s with the reserve forced to 0. The test asserts rc, the 4.5 s bound, the lower bound and the pid.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4543"
+          ],
+          "recorded_at": "2026-11-28T14:02:52.821433698Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fdac868b93cb7f40d2824868cbe883597bec5c5ab5b40cb1798ec2c6acd8d9d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:52.821433698Z",
+      "seal": {
+        "by": "server",
+        "mac": "6833a3579dbcf5c44623821051c1b823cfc433ab7603fb585b2dc3f8275bcd2f"
+      }
+    },
+    {
+      "id": "CLM-2615",
+      "statement": "watch-review.sh gives its final diagnostics a window of 3 s plus the cleanup reserve, so the whole run ends within AGENTIC_WATCH_TIMEOUT + 3 + reserve s (plus 1 s of clock).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`watch-review.sh`: diagnostics window is 3 s + reserve, so the run ends within `AGENTIC_WATCH_TIMEOUT + 3 + reserve`.\"",
+      "source_anchor": {
+        "path": "tools/agentic/watch-review.sh",
+        "lines": {
+          "start": 38,
+          "end": 41
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/watch-review.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4544",
+          "kind": "inspection",
+          "locator": "tools/agentic/watch-review.sh:38-41,133-141; tests/run.sh:612-627",
+          "summary": "diagnostics_budget=3+cleanup_reserve; at the deadline agentic_deadline is reset to now+diagnostics_budget, so each diagnostics call gets budget = 3 (+reserve - reserve) and its cleanup ends within the window. Main loop calls end by the deadline via the reserve. test_watch_stalled_gh_still_ends_at_deadline (deadline 4, reserve 2) asserts <= 11 s (bound 4+3+2=9 + shell slack). The suite was not rerun by me (constraint); the 143-pass run is the author's.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watch-review.sh",
+              "lines": {
+                "start": 38,
+                "end": 41
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:53.523294709Z",
+          "seal": {
+            "by": "server",
+            "mac": "82327ad3b6928edbe8eb0328c0733ee4bca6573edbbda3f6d6ef1ac0ad6edab0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The code sets the diagnostics window to 3 + reserve and the main loop's calls end by the deadline; the retuned test asserts the 9 s bound. I did not rerun the test itself.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4544"
+          ],
+          "recorded_at": "2026-11-28T14:02:52.968878321Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf04731abbf64ad47ef36a663b625640d19c53dfabdd7a7eb42d945c18ddd517"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:52.968878321Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1393644981d1816975847ce1180cc93af9ef1c7ed61e5438b0f19a361cfb558"
+      }
+    },
+    {
+      "id": "CLM-2616",
+      "statement": "merge-reviewed.sh's state wait ends within AGENTIC_STATE_WAIT + 2 s, stopping a stalled lookup included; lookups stop starting a reserve early (about 50 s polled of the default 60), and the REFUSE message reports the time actually spent (51 s on the fake clock).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`merge-reviewed.sh`: the state wait ends within `AGENTIC_STATE_WAIT + 2` s (was + 12). Lookups stop starting a reserve early, so it polls about 50 s of the default 60, and its REFUSE message reports the time actually spent (\\\"after waiting 51 s\\\").\"",
+      "source_anchor": {
+        "path": "tools/agentic/merge-reviewed.sh",
+        "lines": {
+          "start": 65,
+          "end": 125
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4545",
+          "kind": "analysis",
+          "locator": "tools/agentic/merge-reviewed.sh:81-107; tests/run.sh:394-446",
+          "summary": "agentic_deadline = started+WAIT+1; each lookup budget = deadline+1 - now - reserve, so the last lookup starts at started+WAIT-reserve+... (first now with budget>0 is < started+51 by default); budget 0 gives rc 124 which ends the wait with waited=now-started (51 on the fake clock). Worst-case end is agentic_deadline (WAIT+1) plus the 1 s whole-second clock = WAIT+2, which is what the header and README say. Tests assert 51 s messages and the slow-lookup bound 4000 ms (+2000 tolerance) for WAIT=2, kill=reap=1, a 20 s lookup that ignores TERM. Not rerun by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 81,
+                "end": 107
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:01:53.691867545Z",
+          "seal": {
+            "by": "server",
+            "mac": "b4df31ca5a6e0504b3759dab7325887ca76b926f045a6ad354dbbb1578dd18c5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reasoning from the code gives WAIT + 2 including cleanup and a 51 s polled span by default; tests assert both. I did not run the merge tests (constraint), so the rest rests on code analysis plus the budget runs I did.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4545"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.126533477Z",
+          "seal": {
+            "by": "server",
+            "mac": "f263f57c2737fd373ec1750f210c0fba61cd0838378d78dec44c99311152211d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:53.126533477Z",
+      "seal": {
+        "by": "server",
+        "mac": "7f7afa323092b6c42cb9804f36b449168d3fd06e78cab2b66b7d08c073f96bb6"
+      }
+    },
+    {
+      "id": "CLM-2617",
+      "statement": "tools/agentic/README.md (watch-review.sh row, AGENTIC_CALL_TIMEOUT row, AGENTIC_STATE_WAIT row), lessons.md, the watch-review.sh and merge-reviewed.sh header comments and the changelog entry state the new bounds consistently, and no other statement in tools/agentic or AGENTS.md still gives the old bounds (+ 12 s, 72 s, polling budget not a hard limit).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"README, lessons.md, script headers and a changelog entry state the new bounds.\"",
+      "source_anchor": {
+        "path": "tools/agentic/README.md",
+        "lines": {
+          "start": 55,
+          "end": 56
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/lessons.md",
+        "changelog/20261128T135217Z-issue-1169-budget-counts-cleanup.md"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Refuted on 9f7e8493 (merge-reviewed.sh header, README rows); fixed in ae9b1686 and re-claimed.",
+        "retired_at": "2026-11-28T14:04:40.023905465Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4546",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:11,55,56; lessons.md:61; watch-review.sh:25-30; merge-reviewed.sh:65-80; changelog/20261128T135217Z-issue-1169-budget-counts-cleanup.md",
+          "summary": "All name the same bounds: call time = time left minus the 10 s reserve; state wait <= STATE_WAIT + 2, polling about 50 s; watch ends within deadline + 3 + reserve (README: 15 min + 13 s). Consistent with the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 55,
+                "end": 56
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:08.866224194Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2518c24d06b8cc2c4e3117188abaeb5e185cda9198ec60650c8768749d5f21e"
+          }
+        },
+        {
+          "id": "EVD-4549",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:14-17",
+          "summary": "The script's own header (the merge step description) still says the re-read lasts 'up to $AGENTIC_STATE_WAIT seconds ... That is a polling budget, not a hard limit', unchanged from origin/main. After this PR the wait is a hard bound (+ 2 s) and polls about WAIT minus 10 s, as README.md:56 and the await_merge_state comment (merge-reviewed.sh:72) say. Contradicts them.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 14,
+                "end": 17
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:21.040793657Z",
+          "seal": {
+            "by": "server",
+            "mac": "63de1f3f482f8561af14b9adf9b3fce4a97e113e9dce942283599264cd3ae7a1"
+          }
+        },
+        {
+          "id": "EVD-4550",
+          "kind": "inspection",
+          "locator": "git grep -nEi \"\\+ ?12 s|72 s|not a hard limit|can't hold it past|polling budget, not\" -- tools/agentic AGENTS.md",
+          "summary": "Search for old-bound phrases finds exactly one hit, merge-reviewed.sh:17 ('not a hard limit'); README, lessons.md, watch-review.sh and the changelog are clean. Residual mild staleness: README.md:54 (AGENTIC_WATCH_TIMEOUT, 'waits in all before it exits 2') omits the + 3 + reserve of diagnostics.",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "\\+ ?12 s|72 s|not a hard limit|can't hold it past|polling budget, not",
+              "case_insensitive": true,
+              "scope": [
+                "AGENTS.md",
+                "tools/agentic"
+              ],
+              "hits": 1,
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:21.217293639Z",
+          "seal": {
+            "by": "server",
+            "mac": "e9c952c20720552af21947f6b6515dce8b8f66eb66b2f7b409eeedf668a2b8d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "merge-reviewed.sh:14-17 (script header) still says the re-read is 'a polling budget, not a hard limit' for up to $AGENTIC_STATE_WAIT seconds, contradicting README.md:56 and await_merge_state. Fix: in tools/agentic/merge-reviewed.sh lines 15-17 replace it with 'a hard bound: the wait ends within $AGENTIC_STATE_WAIT + 2 s and polls about 10 s less (the cleanup reserve); see await_merge_state'. Also add '+ 3 s and the cleanup reserve for the final diagnostics' to the AGENTIC_WATCH_TIMEOUT row at README.md:54.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4549",
+            "EVD-4550"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.339699388Z",
+          "seal": {
+            "by": "server",
+            "mac": "c43ff6e84e460c9e86518972dfad11fe02adb6575e231e2a0511c73188545c84"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:04:40.023905465Z",
+      "seal": {
+        "by": "server",
+        "mac": "25aaa6b9a286566720d2619348994d0ad6f455594b1acbf21700cbadaa625ed4"
+      }
+    },
+    {
+      "id": "CLM-2618",
+      "statement": "tools/agentic/tests/run.sh adds a budget-arithmetic test (reserve, cap, no deadline) and a stalled-gh-ignores-TERM test with a short deadline that asserts the elapsed time and that the call's process is gone, and retunes the watch and merge bound tests and the fake-clock merge tests (51 s).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Tests (`tools/agentic/tests/run.sh`): budget arithmetic; a stalled `gh` that ignores TERM under a 4 s deadline ends within 4.5 s and leaves nothing running ...; the watch and merge bound tests are retuned; the fake-clock merge tests expect 51 s.\"",
+      "source_anchor": {
+        "path": "tools/agentic/tests/run.sh",
+        "lines": {
+          "start": 642,
+          "end": 682
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [
+        "CLM-2610"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4547",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:394-446,612-682",
+          "summary": "test_call_budget_reserves... (642-661) asserts 20/60/7/0/0/27/9; test_a_stalled_call_is_stopped_by_the_deadline_not_after_it (663-682) asserts rc=124, elapsed 1000-4500 ms and pid gone; watch bound test uses deadline 4 and limit 11 s; merge slow-lookup bound 4000 ms; fake-clock merge tests expect 51 s (lines 399, 442). I reproduced the stalled-call scenario by hand (EVD for CLM-2614) but did not run tests/run.sh.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 642,
+                "end": 682
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:09.353136729Z",
+          "seal": {
+            "by": "server",
+            "mac": "c692cb5ea4ca14e09f2d2f84dd91788c1d5b5a7711a6cd95d5273c0dcce6837c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The tests exist with the described assertions (read, not just named); I reproduced the stalled-call scenario by hand. The suite itself was not rerun by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4547"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.502825291Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d7ab18a7f54f67bbe3a96af3e14a94825ff7832160969817b9f4f1bb1503e2b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:02:53.502825291Z",
+      "seal": {
+        "by": "server",
+        "mac": "7171934adfe628bc44e26f0019e6aa766bacb19d1517b70be9857b9e5ed15149"
+      }
+    },
+    {
+      "id": "CLM-2619",
+      "statement": "tools/agentic/README.md says the agentic test suite takes a few seconds under a 2-minute timeout, but the justfile runs it under a 300 s timeout and the PR body says it takes about 5 minutes.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "tools/agentic/README.md:45 (pre-existing); PR body Notes: \"The agentic suite takes about 5 min\"",
+      "source_anchor": {
+        "path": "tools/agentic/README.md",
+        "lines": {
+          "start": 45,
+          "end": 45
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "justfile"
+      ],
+      "tags": [
+        "from-issue:1169",
+        "pre-existing"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Worded as an observation that is true; replaced by a claim stating what the README promises, so a refutation points at the text to fix.",
+        "retired_at": "2026-11-28T14:01:31.985842382Z"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-28T14:01:25.341391872Z",
+      "updated_at": "2026-11-28T14:01:31.985842382Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c0d73f3f8d8727668001a7057d339d8384f0d8f41b10eb0a17be7a51c9dac0b"
+      }
+    },
+    {
+      "id": "CLM-2620",
+      "statement": "tools/agentic/README.md:45 correctly states how long `just test-agentic` takes and its timeout (a few seconds under a 2-minute timeout).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "tools/agentic/README.md:45 (pre-existing, not changed by the PR)",
+      "source_anchor": {
+        "path": "tools/agentic/README.md",
+        "lines": {
+          "start": 45,
+          "end": 45
+        },
+        "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+      },
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "justfile"
+      ],
+      "tags": [
+        "from-issue:1169",
+        "pre-existing"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Its statement quotes the old wording (a few seconds, 2-minute timeout); README.md:45 was rewritten in this PR. Replaced by a claim about the new text.",
+        "retired_at": "2026-11-28T14:05:34.611994560Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4548",
+          "kind": "inspection",
+          "locator": "justfile:85-86; tools/agentic/README.md:45",
+          "summary": "justfile test-agentic runs `timeout 300 tools/agentic/tests/run.sh`, not 2 minutes; the PR body says the suite takes about 5 min (issue #1216), not a few seconds. README:45 says 'a 2-minute timeout' and 'a few seconds'. Pre-existing, not changed by this PR.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 85,
+                "end": 86
+              },
+              "commit": "9f7e8493776d520013a2641f7d95bce4b1f61ce3"
+            }
+          },
+          "recorded_at": "2026-11-28T14:02:09.638065842Z",
+          "seal": {
+            "by": "server",
+            "mac": "4335f84e4bb5b5c048d1e34c68b44162616718913186f48fc099cec9d0ae2ac1"
+          }
+        },
+        {
+          "id": "EVD-4559",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:45; justfile:85-86 at ae9b1686",
+          "summary": "README:45 now says a 5-minute timeout (timeout 300) and about 5 minutes (#1216); matches the justfile. The claim as worded (a few seconds under 2 minutes) no longer describes the text.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 45,
+                "end": 45
+              },
+              "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+            }
+          },
+          "recorded_at": "2026-11-28T14:05:29.084742472Z",
+          "seal": {
+            "by": "server",
+            "mac": "c8c8bfcbbd2213591cffac277c9e861b6a0c76c370a8c40cfc817fd909fd4d67"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "README:45 says a 2-minute timeout and a few seconds; the justfile uses 300 s and the PR says about 5 min. Pre-existing, in a line this PR did not touch. Fix: edit tools/agentic/README.md:45 to say the suite runs under a 300 s timeout and takes about 5 minutes (issue #1216 tracks the runtime).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4548"
+          ],
+          "recorded_at": "2026-11-28T14:02:53.650107814Z",
+          "seal": {
+            "by": "server",
+            "mac": "43d285d94a6a8bc4d031857b5515a19f4b7902188142b72fd924cd259ff98cda"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:01:32.240068045Z",
+      "updated_at": "2026-11-28T14:05:34.611994560Z",
+      "seal": {
+        "by": "server",
+        "mac": "ba6001887220a0e343e09faa55d588cd73b4f05d83004a6f84fdb5280bf0777c"
+      }
+    },
+    {
+      "id": "CLM-2621",
+      "statement": "tools/agentic/README.md (watch-review.sh, AGENTIC_WATCH_TIMEOUT, AGENTIC_CALL_TIMEOUT and AGENTIC_STATE_WAIT rows), lessons.md, the watch-review.sh and merge-reviewed.sh header comments and the changelog entry state the new bounds consistently (state wait hard bound WAIT + 2 s, polling about WAIT minus the reserve, diagnostics 3 s plus reserve), and no statement in tools/agentic or AGENTS.md still gives the old bounds.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: README, lessons.md, script headers and a changelog entry state the new bounds (re-claim after ae9b1686 fixed merge-reviewed.sh:15-18 and README:45,54)",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/merge-reviewed.sh",
+        "tools/agentic/watch-review.sh",
+        "tools/agentic/lessons.md"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4555",
+          "kind": "inspection",
+          "locator": "tools/agentic/merge-reviewed.sh:14-18; README.md:45,54-56; git grep for old-bound phrases at ae9b1686",
+          "summary": "merge-reviewed.sh header now says a hard bound WAIT + 2 s with about WAIT minus reserve of polling; README rows 54-56 and 45 give the new bounds; git grep for '+ 12 s|72 s|not a hard limit|can't hold it past|polling budget, not' over tools/agentic and AGENTS.md returns no hits.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\\+ ?12 s|72 s|not a hard limit|can't hold it past|polling budget, not",
+              "case_insensitive": true,
+              "scope": [
+                "AGENTS.md",
+                "tools/agentic"
+              ],
+              "hits": 0,
+              "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+            }
+          },
+          "recorded_at": "2026-11-28T14:04:56.697342076Z",
+          "seal": {
+            "by": "server",
+            "mac": "047d627e9ac421be7e8a83e7e022713c82043f8219ad19c6f2cc97c78e6252b3"
+          }
+        },
+        {
+          "id": "EVD-4557",
+          "kind": "inspection",
+          "locator": "merge-reviewed.sh:15-18; README.md:54-56; watch-review.sh:25-30; git grep old-bound phrases at ae9b1686",
+          "summary": "Read the texts myself at ae9b1686. merge-reviewed.sh header: about WAIT less the reserve, hard bound WAIT + 2 s. README:54 adds the diagnostics (3 s + 10 s); :55 reserve; :56 hard bound + 2 s, polls WAIT minus 10. Matches the code. Old-bound grep over tools/agentic and AGENTS.md: no hits (the earlier hit at merge-reviewed.sh:17 is gone).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 15,
+                "end": 18
+              },
+              "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+            }
+          },
+          "recorded_at": "2026-11-28T14:05:28.768839469Z",
+          "seal": {
+            "by": "server",
+            "mac": "c027ad3de0e4bfa32516c6fe8dd7aa0025baed42a52b95e9131592a8c4d2d0fd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Header and README fixed in ae9b1686; the old-bound grep has zero hits.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4555"
+          ],
+          "recorded_at": "2026-11-28T14:05:05.736172639Z",
+          "seal": {
+            "by": "server",
+            "mac": "45a72983a6ae65f43280da145f352eee6072de6c6f2b61282e50da13e3f897f9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Read the header, README rows 54-56 and watch-review header at ae9b1686 myself: all give the same bounds as the code; old-bound grep has no hits.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit)",
+          "evidence_ids": [
+            "EVD-4557"
+          ],
+          "recorded_at": "2026-11-28T14:05:43.563041302Z",
+          "seal": {
+            "by": "server",
+            "mac": "1de9a24545ffe18bc843fcccbeaa0ebae77de50a0b57ec1257ed2065758bdf66"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:04:51.048610882Z",
+      "updated_at": "2026-11-28T14:05:43.563041302Z",
+      "seal": {
+        "by": "server",
+        "mac": "bda9a6d90bc1a585d2f3722bf616bda6721282601c3ebc476c2a056a00df821c"
+      }
+    },
+    {
+      "id": "CLM-2622",
+      "statement": "agentic_bounded_call (so agentic_gh and agentic_git) computes agentic_call_budget once and passes it to agentic_run_captured, whose supervisor spends at most budget plus the cleanup reserve; agentic_run_bounded takes fixed limits from gate.sh and remove-worktree.sh and sees no deadline.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body Changes bullet on lib.sh (reworded after the audit)",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4556",
+          "kind": "analysis",
+          "locator": "tools/agentic/lib.sh agentic_bounded_call; EVD-4541/EVD-4542 of the retired CLM-2613",
+          "summary": "agentic_bounded_call computes the budget once and calls agentic_run_captured only; agentic_run_bounded callers (gate.sh, remove-worktree.sh) pass fixed limits and never use agentic_call_budget or a deadline.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 240,
+                "end": 250
+              },
+              "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+            }
+          },
+          "recorded_at": "2026-11-28T14:04:56.897060300Z",
+          "seal": {
+            "by": "server",
+            "mac": "91eea69298d1a5e101944ad352582904a968acff6542090ca466910b9ac4ddee"
+          }
+        },
+        {
+          "id": "EVD-4558",
+          "kind": "analysis",
+          "locator": "lib.sh agentic_bounded_call/agentic_run_captured; git grep -n agentic_run_bounded tools/agentic; target/pr-1169-body.md:5",
+          "summary": "Re-checked at ae9b1686: agentic_bounded_call computes agentic_call_budget once and calls only agentic_run_captured; agentic_run_bounded appears only in gate.sh (fixed limits, seed 300 s and gate limit) and remove-worktree.sh (clean timeout), none sets agentic_deadline. My earlier stalled-call run showed run_captured ends within budget + reserve. The PR body line 5 now says exactly this.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:05:28.930248556Z",
+          "seal": {
+            "by": "server",
+            "mac": "09c01b49cd5d77a34c17c96d1c3ee20748a1fa2e570001a87e66a539c9f9482b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The call graph confirms the wording: the budget goes only to agentic_run_captured, and agentic_run_bounded has fixed limits and no deadline.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit)",
+          "evidence_ids": [
+            "EVD-4558"
+          ],
+          "recorded_at": "2026-11-28T14:05:43.799134775Z",
+          "seal": {
+            "by": "server",
+            "mac": "63ed576e73c25727effe77dcb2a9c669e91225e0a30bc8e3b272d6a919f9bd1d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:04:51.236673365Z",
+      "updated_at": "2026-11-28T14:05:43.799134775Z",
+      "seal": {
+        "by": "server",
+        "mac": "2b297d3c96efe341ca5b7aa50c71b64d690113c7e89628dad08bcf5b50c5f3ac"
+      }
+    },
+    {
+      "id": "CLM-2623",
+      "statement": "tools/agentic/README.md:45 correctly states that `just test-agentic` runs tests/run.sh under a 5-minute timeout and takes about 5 minutes.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "tools/agentic/README.md:45 as rewritten at ae9b1686; justfile:85-86; PR body Notes (about 5 min, #1216)",
+      "source_anchor": {
+        "path": "tools/agentic/README.md",
+        "lines": {
+          "start": 45,
+          "end": 45
+        },
+        "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+      },
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "justfile"
+      ],
+      "tags": [
+        "from-issue:1169"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4560",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:45; justfile:85-86",
+          "summary": "README says a 5-minute timeout and about 5 minutes (#1216); justfile test-agentic is timeout 300. The runtime figure is the PR's own (not re-measured by me).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 85,
+                "end": 86
+              },
+              "commit": "ae9b168631652c5469eaa4c49c4e7b3a9a34bfc2"
+            }
+          },
+          "recorded_at": "2026-11-28T14:05:37.875900353Z",
+          "seal": {
+            "by": "server",
+            "mac": "c52820170f3b3d34761f6c3d683d858b88d24cd6c0a59a45d5d809de6588f053"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README:45 matches the justfile's timeout 300 and the stated 5 minute runtime.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit)",
+          "evidence_ids": [
+            "EVD-4560"
+          ],
+          "recorded_at": "2026-11-28T14:05:44.053228340Z",
+          "seal": {
+            "by": "server",
+            "mac": "b119ee0312e2dc944d9940ac4e64e5ac9c78d127482e8c374302f6883a1402a4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:05:34.770296723Z",
+      "updated_at": "2026-11-28T14:05:44.053228340Z",
+      "seal": {
+        "by": "server",
+        "mac": "879c837854c810b8f3153a970aedd29d5992486ffa4c9195705023594536db80"
       }
     }
   ]

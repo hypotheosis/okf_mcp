@@ -98,13 +98,23 @@ agentic_run_bounded() {
     return "$status"
 }
 
-# The time a single gh or git call may take: $AGENTIC_CALL_TIMEOUT (default
-# 60 s), and never past $agentic_deadline (epoch seconds on agentic_now's
-# clock) when the caller has set one. 0 means no time is left.
+# The most stopping a call's process group can take, in seconds: TERM, then
+# KILL after $agentic_kill_after, then $agentic_reap_after for the dead to be
+# reaped (agentic_stop_group). Both runners spend it after the call's budget.
+agentic_cleanup_reserve() {
+    printf '%s\n' "$((agentic_kill_after + agentic_reap_after))"
+}
+
+# The time a single gh or git call may run: $AGENTIC_CALL_TIMEOUT (default
+# 60 s), and, when the caller has set $agentic_deadline (epoch seconds on
+# agentic_now's clock), never more than the time left before it minus
+# agentic_cleanup_reserve, so that stopping a stalled call is over by the
+# deadline too (#1169). Without a deadline the reserve is extra, on top of the
+# cap. 0 means no call can start: the time left is not more than the reserve.
 agentic_call_budget() {
     local cap=${AGENTIC_CALL_TIMEOUT:-60} left
     if [ -n "${agentic_deadline:-}" ]; then
-        left=$((agentic_deadline - $(agentic_now)))
+        left=$((agentic_deadline - $(agentic_now) - $(agentic_cleanup_reserve)))
         [ "$left" -lt "$cap" ] && cap=$left
     fi
     [ "$cap" -gt 0 ] || cap=0

@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2708,
+  "next_claim_seq": 2718,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "4363bd0d289a8182aedc2efbc425f5771c61c37b0e1e5f457c2f49206a41b1ca"
+    "mac": "061d5ee3ffc13efc032191bcf00ea0da9cdd74dcbefc3a294657a02165d625ec"
   },
   "next_evidence_seq": 4723,
   "next_evidence_seq_seal": {
@@ -117539,28 +117539,6 @@
             "by": "server",
             "mac": "2c69d33b38b4e829d497a0223c41ab7d5d92e19531b1a91cf28409a95778eaf1"
           }
-        },
-        {
-          "id": "EVD-4716",
-          "kind": "inspection",
-          "locator": "src/mcp/context.rs:1249-1280 at 0a87c851",
-          "summary": "Re-read on head: loop still walks stores_main_first, returns at the first holder; a store in the call's known-down set now short-circuits to the same store_unavailable error before store_db; unreachable store still ends the lookup with StoreUnavailable.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/context.rs",
-              "lines": {
-                "start": 1249,
-                "end": 1280
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:12:02.505180419Z",
-          "seal": {
-            "by": "server",
-            "mac": "90130f061b839490d5bbeeacb2c1a4a7a496fbd9bd121c30528f7fa331f573f4"
-          }
         }
       ],
       "verdicts": [
@@ -117603,26 +117581,13 @@
             "by": "server",
             "mac": "3a37d4943938156240084359594a4ef8c33a5b75260f407c0b8dd2abd3a7c9c7"
           }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Re-audited on head after the diff touched the cited lines: semantics unchanged.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4716"
-          ],
-          "recorded_at": "2026-11-28T18:12:10.122120537Z",
-          "seal": {
-            "by": "server",
-            "mac": "7d8e62fba3eed70cc7a621e381e08fce40ea47dbdf06a48f06ee09c77c1171fc"
-          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-28T18:12:10.122120537Z",
+      "updated_at": "2026-11-26T13:08:56.809004278Z",
       "seal": {
         "by": "server",
-        "mac": "5e9ffc05a289df81ed61bfb5fb0964bd363c7e8f279cfc4a9bf6071b41d92126"
+        "mac": "78b32b3640500b97a722654350aed560a9840d9f778de6519661101f402f716f"
       }
     },
     {
@@ -123472,28 +123437,6 @@
             "by": "server",
             "mac": "cac46a717adefb7c356a441ae74d4a0b5d1a7391bf91f41e3919ff5f7ac9d586"
           }
-        },
-        {
-          "id": "EVD-4717",
-          "kind": "inspection",
-          "locator": "src/mcp/context.rs:1249-1280 at 0a87c851",
-          "summary": "Re-read on head: unknown-handle and lost-store-first lookups still give StoreUnavailable; the new skip only turns a repeat probe into the same error. Test a_changeset_handle_on_a_lost_store_... not rerun by me.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/context.rs",
-              "lines": {
-                "start": 1249,
-                "end": 1280
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:12:02.803965343Z",
-          "seal": {
-            "by": "server",
-            "mac": "8b28afc120532a1006ba16ab1e641db9ad7c64be60c8218fd444556e7be91b7d"
-          }
         }
       ],
       "verdicts": [
@@ -123536,26 +123479,13 @@
             "by": "server",
             "mac": "f242c203145cac3577e01e009dcab65cb44f7ec39ca9f71c2c09f4dfbfd5672e"
           }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Re-audited on head: answers unchanged for unknown handle and lost store first.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4717"
-          ],
-          "recorded_at": "2026-11-28T18:12:10.341735412Z",
-          "seal": {
-            "by": "server",
-            "mac": "b9a970f68ba46c0d5d94cffaa705ed1a61827ec0f2e8a96ddd9d298cd594abf9"
-          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-28T18:12:10.341735412Z",
+      "updated_at": "2026-11-26T13:08:35.471700437Z",
       "seal": {
         "by": "server",
-        "mac": "4fa0b2bba588dcb1eb0f95fd386ea7f7403eeb98b787dacf327c94d8c5309808"
+        "mac": "f33a1b7b42d9b840bc097de11ba3d3a91454da848bc42cdb8a8f2c4ab47c8315"
       }
     },
     {
@@ -124715,28 +124645,6 @@
             "by": "server",
             "mac": "4a98944770fd7641d168f182bc3d3744a9b530b677bebe4b1d4cab15376722fa"
           }
-        },
-        {
-          "id": "EVD-4718",
-          "kind": "inspection",
-          "locator": "src/mcp/context.rs:1249-1280 at 0a87c851",
-          "summary": "Re-read on head: the known-down check is inside the in-order loop, so a handle on a store before the lost one still returns Ok(Some) before the lost store is reached.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/context.rs",
-              "lines": {
-                "start": 1249,
-                "end": 1280
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:12:03.222613751Z",
-          "seal": {
-            "by": "server",
-            "mac": "a06e0084df89d0e721d76b37aa757233acaab0fa002a3c1e5cafc737cc487a51"
-          }
         }
       ],
       "verdicts": [
@@ -124753,26 +124661,13 @@
             "by": "server",
             "mac": "b5854ffec3a380a30f1438677170812bdc7cf7af0289774f156d96e67dfa5193"
           }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Re-audited on head: in-order early return kept.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4718"
-          ],
-          "recorded_at": "2026-11-28T18:12:10.564551774Z",
-          "seal": {
-            "by": "server",
-            "mac": "9795b41b520a5245b052df9984e7d3b76fe235f7494e7dc5cd8bf589d5ba88ec"
-          }
         }
       ],
       "created_at": "2026-11-24T16:35:38.203978143Z",
-      "updated_at": "2026-11-28T18:12:10.564551774Z",
+      "updated_at": "2026-11-24T16:36:03.509458153Z",
       "seal": {
         "by": "server",
-        "mac": "0c1e294936e502422e3cb02fe2f79850baa25738b2c1c91d817ded1111cb9c76"
+        "mac": "9186f21a1be320ea3ef2687127ad451ac048b6b950652a156babf2c9ed5d60bd"
       }
     },
     {
@@ -236986,102 +236881,100 @@
     },
     {
       "id": "CLM-2700",
-      "statement": "Issue #1207 is delivered: ToolContext::changeset_by_handle skips stores in down_stores() and answers store_unavailable for them without connecting, a probe-counting test shows one probe instead of two with an unchanged answer, and a store that comes back is noticed again by a later call.",
+      "statement": "Issue #1227 is resolved: the Dockerfile's release build no longer overflows rustc's query depth limit on invalidate::listen's future, and a release build gate exists.",
       "kind": "functional",
       "level": "system",
-      "integrity_level": 2,
-      "verification_method": "analysis",
-      "source": "https://github.com/hypotheosis/okf_mcp/issues/1207 and its PeterGrace comment",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1227",
       "derived_from": [],
       "artifacts": [
-        "src/mcp/context.rs",
-        "src/mcp/unavailable_tests.rs"
+        "src/invalidate.rs",
+        "tools/agentic/gate.sh"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
       },
       "evidence": [
         {
-          "id": "EVD-4715",
+          "id": "EVD-4720",
           "kind": "analysis",
           "locator": "children of CLM-2700",
-          "summary": "Children CLM-2701..2705, 2707 are supported: the skip is in place, per-call, writes nothing shared, no cross-call failure memory exists, the probe test fails without the fix. CLM-2706 is refuted: the recovery test restores via repoint, which calls Stores::forget, so it cannot show recovery without a cache drop. The behaviour the issue asks for is delivered; the recovery proof (the maintainer's requirement) is weaker than the PR claims.",
+          "summary": "The fix, the gate, its lock, its docs and its tests are supported. CLM-2710 is refuted (the when-to-run rule differs between PR body, README and brief-common comment). CLM-2704, 2715 and 2717 are not_enough_info; they are body statements, not the fix itself.",
           "stance": "refutes",
-          "recorded_at": "2026-11-28T18:11:33.066028104Z",
+          "recorded_at": "2026-11-28T18:57:32.912822605Z",
           "seal": {
             "by": "server",
-            "mac": "0e8d37fe6094847a538597e20826c529bd33447c00eadd3c91c5165a71536c6c"
+            "mac": "13c64332af7e0cc9a218bcc918648653282d7ee67fe36ead07836f8c91a71040"
           }
         },
         {
           "id": "EVD-4722",
           "kind": "analysis",
           "locator": "children of CLM-2700",
-          "summary": "All children (CLM-2701 to 2707) are now supported: the skip, its per-call scope, no cross-call memory, the probe test that fails without the fix, and a recovery test that restores the store without Stores::forget.",
+          "summary": "No child is refuted now. The fix, build-release gate, lock, docs, when-to-run rule, tests and validation children are supported. CLM-2704, 2715 and 2717 stay not_enough_info; they are PR-body statements and not the requirements of the issue.",
           "stance": "supports",
-          "recorded_at": "2026-11-28T18:14:13.634226647Z",
+          "recorded_at": "2026-11-28T18:58:33.357074242Z",
           "seal": {
             "by": "server",
-            "mac": "71355c7edde95e5de738a42d0d6429fc73584e311f28b6c77a1b09614a0893ff"
+            "mac": "d286f6998f50e7d6dd2cc6fb5a568065703c06fed0aa948010373f81483da5a6"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "refuted",
-          "rationale": "Children are supported except CLM-2706: the recovery test restores through repoint, which calls Stores::forget, so it cannot show a returned store is noticed without a cache drop. The skip, probe test and code-reading of no cross-call memory all hold. Fix: make the recovery test restore the store without Stores::forget (rewrite the stores row only) or reword the PR body to say the test shows only that the down set is not carried across calls.",
+          "rationale": "The fix and gate hold, but child CLM-2710 is refuted (the when-to-run rule is stated differently in README and brief-common.md:32). Fix: align the README row and brief-common.md:32 with brief-common.md:39's input list, then re-audit CLM-2710.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
-            "EVD-4715"
+            "EVD-4720"
           ],
-          "recorded_at": "2026-11-28T18:12:10.791742678Z",
+          "recorded_at": "2026-11-28T18:57:36.454923165Z",
           "seal": {
             "by": "server",
-            "mac": "711a1298f09a9c91a49c5ed1bdbc5ecd2c7d251a927043beeb4c489133984809"
+            "mac": "75d1c0435387035fdd8b64a402b0409303a43342232fd284ae59d1a502048d38"
           }
         },
         {
           "verdict": "supported",
-          "rationale": "All children supported at 2544a276; the recovery test no longer clears registry state.",
+          "rationale": "The issue's requirements (fix, gate, lock, docs, tests) are supported and no child is refuted. Three PR-body statements remain not_enough_info (listed in the cited evidence).",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
             "EVD-4722"
           ],
-          "recorded_at": "2026-11-28T18:14:16.859034679Z",
+          "recorded_at": "2026-11-28T18:58:36.503322737Z",
           "seal": {
             "by": "server",
-            "mac": "d5fc27178e7fb7369097d13ce0afdf717f5d86c080967250cbb663ea56f25c44"
+            "mac": "068f4e717fa9893a14edd02b5c9c63078d0ccc1655b19770fb48e4d00b279e67"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:14:16.859034679Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:58:36.503322737Z",
       "seal": {
         "by": "server",
-        "mac": "5ea3f395e2b0ca2726344fa33fb5832c404d4232469cc23e26a0f0353b164aca"
+        "mac": "f0d636a443ba1b2c25bb6ed8498037560571a44293a12b3145fcb0d346b03c58"
       }
     },
     {
       "id": "CLM-2701",
-      "statement": "PR statement: \"The down set is per tool call: ToolContext is 'One tool call's context' (src/mcp/context.rs:118), its down field is at :140 and is created empty by ToolContext::new (:169)\"; production builds a new context per request.",
+      "statement": "Feed::apply_payload in src/invalidate.rs wraps the App::apply future in Box::pin, and the change does not alter recursion_limit.",
       "kind": "functional",
       "level": "component",
       "integrity_level": 2,
       "verification_method": "inspection",
-      "source": "pr-1207-body.md, 'How a returned store is noticed', bullet 1",
+      "source": "issue #1227 suggested fix; PR: \"Feed::apply_payload (src/invalidate.rs) boxes the App::apply future with Box::pin\" and \"recursion_limit is left alone\"",
       "derived_from": [
         "CLM-2700"
       ],
       "artifacts": [
-        "src/mcp/context.rs",
-        "src/mcp/mod.rs",
-        "src/http/api/mod.rs"
+        "src/invalidate.rs"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237090,91 +236983,130 @@
         {
           "id": "EVD-4702",
           "kind": "inspection",
-          "locator": "src/mcp/context.rs:118-141,169,498-512",
-          "summary": "ToolContext (doc 'One tool call's context') owns `down: Mutex<Down>` (a plain field, not Arc/static); new() builds it with Mutex::default(); only mark_down inserts; no remove/clear/retain on it anywhere in the file (grep of `.down`/`locked(&self.down)` shows insert, clone, get, contains only).",
+          "locator": "src/invalidate.rs:540-545",
+          "summary": "Line 545 is Box::pin(app.apply(&message).instrument(span)).await inside Feed::apply_payload. git diff origin/main..HEAD shows no change to src/lib.rs (recursion_limit = 256 at lib.rs:22 untouched).",
           "stance": "supports",
           "anchor": {
             "file": {
-              "path": "src/mcp/context.rs",
+              "path": "src/invalidate.rs",
               "lines": {
-                "start": 118,
-                "end": 141
+                "start": 540,
+                "end": 545
               },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
             }
           },
-          "recorded_at": "2026-11-28T18:11:01.869877804Z",
+          "recorded_at": "2026-11-28T18:56:47.702156121Z",
           "seal": {
             "by": "server",
-            "mac": "8c7f051a160e594de94ec003befd966b5d864984b9f73cd06c1b80b751287b2e"
-          }
-        },
-        {
-          "id": "EVD-4703",
-          "kind": "inspection",
-          "locator": "src/mcp/mod.rs:403; src/http/api/mod.rs:195; src/mcp/context.rs:237-251",
-          "summary": "Production builds a fresh context per request: OkfServer::context calls ToolContext::from_parts (which calls ToolContext::new), and the HTTP API helper calls ToolContext::new per request. No static/cache holds a ToolContext (grep for static/OnceLock/Cache<ToolContext found none outside tests).",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/context.rs",
-              "lines": {
-                "start": 237,
-                "end": 251
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:02.103899260Z",
-          "seal": {
-            "by": "server",
-            "mac": "6fd147987b37fd057370bd759418700e39e44722b52e501cd162e90cc6c7febd"
+            "mac": "5b21bfe6c7182a586686eb3b06dbea3366d8dafbc4defa4e892092f33330a324"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "down is a field of the per-request ToolContext, initialised empty in new(), only inserted into by mark_down, never removed; both production constructors build a new context per request.",
+          "rationale": "Box::pin at invalidate.rs:545; lib.rs unchanged.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
-            "EVD-4702",
-            "EVD-4703"
+            "EVD-4702"
           ],
-          "recorded_at": "2026-11-28T18:11:27.267466291Z",
+          "recorded_at": "2026-11-28T18:57:30.157697691Z",
           "seal": {
             "by": "server",
-            "mac": "265ac696461d74ccf0697f21540151be56145f7ccfc704ec255d3861807d01e5"
+            "mac": "fb4303ce3271e17e7b8c8e6fad3fcca8d1288aa838a387196e16d2f376965dff"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:11:27.267466291Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.157697691Z",
       "seal": {
         "by": "server",
-        "mac": "73740c3e97d61ddf0c7bd5d9543b1d95eac7d4873538337383e70e88c8a18926"
+        "mac": "7834cb63d630cc87abc8d171c504a9ad114edc8eae676079bc39ab616f837fde"
       }
     },
     {
       "id": "CLM-2702",
-      "statement": "PR statement: \"No failure is remembered across calls\": nothing in src/** or migrations records that a store was unreachable for use by a later call (pool cache, failed-open caching, directory caches, stores table, change feed, other caches).",
+      "statement": "At head, the Dockerfile's command on its pinned rustc 1.99.1 (cargo +1.99.1 build --release --locked --bin okf-mcp, via gate.sh build-release) builds successfully in 1 m 45 s.",
       "kind": "functional",
-      "level": "software",
+      "level": "artifact",
       "integrity_level": 3,
-      "verification_method": "analysis",
-      "source": "pr-1207-body.md, 'How a returned store is noticed', bullet 3",
+      "verification_method": "demonstration",
+      "source": "PR: \"Verified: the same command builds in 1 m 45 s on rustc 1.99.1 (warm dependencies).\"",
       "derived_from": [
         "CLM-2700"
       ],
       "artifacts": [
-        "src/stores/registry.rs",
-        "src/cache/directory.rs",
-        "src/cache/catalogs.rs",
-        "src/invalidate.rs",
-        "migrations/accounts/0036_stores.sql"
+        "src/invalidate.rs"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4703",
+          "kind": "log",
+          "locator": "target/i1227-logs/try1.log (gate.sh build-release), target/i1227-logs/g-build-release.log",
+          "summary": "try1.log: Finished release profile in 1m 45s, gate exit 0 ran 105 s. The gate's cmd is cargo +1.99.1 (Dockerfile pin, Dockerfile:17) per gate.sh:84-87; the log itself does not print the toolchain. g-build-release.log re-ran at head: exit 0.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 87
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:47.862935439Z",
+          "seal": {
+            "by": "server",
+            "mac": "0658b45bb2ed0ed7990af6d403ec9c6f44bb9b5d8d41aae902a6a8d693e95b42"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "try1.log shows a successful release build in 1m 45s through the gate whose command pins +1.99.1 (the Dockerfile's version). The log does not print the toolchain; that rests on gate.sh:84-87. I did not rebuild (not permitted).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4703"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.317824401Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a703efe5bec7870b4b8048b2fca4af315d7b6334997508199ad04a3363d9fc6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.317824401Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf2fc4138ac8d201defa2c7f24e63d7eb6bd51d002e786025fd7ef30549eee1b"
+      }
+    },
+    {
+      "id": "CLM-2703",
+      "statement": "Before the fix, the Dockerfile's command on rustc 1.99.1 failed with exit 101 after 159 s and the issue's error (queries overflow the depth limit computing layout of invalidate::listen).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR: \"exit 101 after 159 s, with the issue's exact error\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237182,158 +237114,310 @@
       "evidence": [
         {
           "id": "EVD-4704",
-          "kind": "inspection",
-          "locator": "src/stores/registry.rs:310-312,375-380,13-17",
-          "summary": "The pool cache is a moka cache with only max_capacity (no time_to_live/idle); entry() uses try_get_with, and the module doc says a failed initialiser caches nothing so an unreachable store is retried by the next request. Failure maps to OkfError::store_unavailable without storing anything.",
+          "kind": "log",
+          "locator": "target/i1227-logs/repro2.log:455-461",
+          "summary": "repro2.log ends with 'queries overflow the depth limit ... computing layout of {async fn body of okf_mcp::invalidate::listen()}', 'gate.sh: build-release ... ran 159 s (exit 101)'. The log does not record which source state or toolchain it ran on (timestamp 18:36 precedes the fix build at 18:40), so only the log's own content is checked.",
           "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/stores/registry.rs",
-              "lines": {
-                "start": 369,
-                "end": 400
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:02.326856221Z",
+          "recorded_at": "2026-11-28T18:56:48.029648021Z",
           "seal": {
             "by": "server",
-            "mac": "968b2012b4fc680fee21ee9e56744392d79879ac0cf572c35667c54d379e60a1"
-          }
-        },
-        {
-          "id": "EVD-4705",
-          "kind": "inspection",
-          "locator": "src/cache/catalogs.rs:127-146,297",
-          "summary": "The one cache of failures, CatalogCache.broken (id, generation), excludes StoreUnavailable (and Database/Busy) in from_stored_data: an unreachable store is not remembered as broken and the next request retries it. The refresh path returns StoreUnavailable without recording. (The PR body does not mention this cache.)",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/cache/catalogs.rs",
-              "lines": {
-                "start": 127,
-                "end": 146
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:02.558263307Z",
-          "seal": {
-            "by": "server",
-            "mac": "6ca6b648f9c53a7aea0e2f0770329089041cf1369c95f9082103f254e6489dea"
-          }
-        },
-        {
-          "id": "EVD-4706",
-          "kind": "inspection",
-          "locator": "src/cache/directory.rs:408-420",
-          "summary": "Directory row cache: on StoreUnavailable the load closure's error is not cached ('The failed read was not cached'); rows TTL is catalog_ttl (10 s) and absent (5 s) holds only missing names, not outages. housekeeping.rs:829-859 keeps a 'down' list local to one run.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/cache/directory.rs",
-              "lines": {
-                "start": 408,
-                "end": 420
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:02.801939372Z",
-          "seal": {
-            "by": "server",
-            "mac": "de09afa99da1098ab3ddd8d09fcfd6353deeb3f6acc805dc1e78ea83eac42975"
-          }
-        },
-        {
-          "id": "EVD-4707",
-          "kind": "inspection",
-          "locator": "migrations/accounts/0036_stores.sql:18-31; grep ALTER TABLE stores in migrations",
-          "summary": "The stores table has name, location_kind, host, port, database, credential_kind, credential_ref, created_at only; no health/failure/last_error column. No later migration alters stores (0038/0039 add audit FKs/CHECKs elsewhere; 0043 cluster_store_stats holds an open-changeset count with computed_at, not health).",
-          "stance": "supports",
-          "anchor": {
-            "search": {
-              "pattern": "ALTER TABLE (ONLY )?stores",
-              "case_insensitive": true,
-              "scope": [
-                "migrations"
-              ],
-              "hits": 0,
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:03.055959570Z",
-          "seal": {
-            "by": "server",
-            "mac": "2a3526784034e8770868ffd8e759105fca834eb450034db7e609310e5698228e"
-          }
-        },
-        {
-          "id": "EVD-4708",
-          "kind": "inspection",
-          "locator": "src/invalidate.rs:570-580; src/stores/registry.rs:382-386",
-          "summary": "Change feed: the listener loop's Backoff (1 s to 30 s) paces reconnects of the feed connection, not store health; Stores::get never reads it. A reconnect makes the replica forget pools (forget_all), which can only drop state.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/invalidate.rs",
-              "lines": {
-                "start": 570,
-                "end": 580
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:03.323847775Z",
-          "seal": {
-            "by": "server",
-            "mac": "5f8c6efedf4700ff6dab2279705ba88ce150e5d2acc39f3eb447caf10cc83ff6"
+            "mac": "a8aed56855a927340b1428af8ee8209eb0b119e9048343bd5e863fe0794fbff4"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "Every place a failure could persist was read: pool cache (no TTL, failed open not cached), CatalogCache.broken (excludes StoreUnavailable), directory rows/absent (outage not cached), stores table (no health column, no ALTER), feed backoff (connection pacing only), housekeeping down list (per run). Nothing keys a later call's behaviour on an earlier outage. Caveat: the PR body omits the CatalogCache.broken exclusion; consider adding it.",
+          "rationale": "repro2.log shows the exact error, exit 101, 159 s. That it ran before the fix rests on the timeline (18:36 failing, 18:40 passing) since the log records no source state.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
-            "EVD-4704",
-            "EVD-4705",
-            "EVD-4706",
-            "EVD-4707",
-            "EVD-4708"
+            "EVD-4704"
           ],
-          "recorded_at": "2026-11-28T18:11:27.431057429Z",
+          "recorded_at": "2026-11-28T18:57:30.480958764Z",
           "seal": {
             "by": "server",
-            "mac": "3bbdb0db18fb0fe654441b416e51f47aaf2fd36451e08a0f994f256254d56e0a"
+            "mac": "7c6c4e31f41d1335d985e971fe68c8f6344571293729bce0569e00021d8ab774"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:11:27.431057429Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.480958764Z",
       "seal": {
         "by": "server",
-        "mac": "267beb44c7701723dc08f6083657d96115b90d28a32d791e65bab24f4e9780f0"
+        "mac": "85b43a0646def5d83e13454698bcd8066cb74a3d41839c9d59549772c06432ca"
       }
     },
     {
-      "id": "CLM-2703",
-      "statement": "PR statement: \"This change reads only the per-call set and writes nothing shared\": the new code in changeset_by_handle only reads down_stores() (a copy of the call's own set) and the new tests' helper change writes nothing outside the call.",
+      "id": "CLM-2704",
+      "statement": "The overflow does not reproduce on rustc 1.100.0 and does not reproduce with cargo +1.99.1 check --release.",
       "kind": "functional",
-      "level": "unit",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR: \"It does not reproduce on rustc 1.100.0 ... and not with cargo +1.99.1 check --release\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4705",
+          "kind": "log",
+          "locator": "target/i1227-logs/repro.log:455-456, target/i1227-logs/check.log:399",
+          "summary": "repro.log shows a release build finishing exit 0 in 3m 11s and check.log a release check finishing in 1m 03s, but neither log records the toolchain or the source state (repro.log was seeded 18:32, before the 18:36 failing run; the gate then may not have had the +toolchain argument). The logs do not show 1.100.0 or +1.99.1 check.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:48.187477538Z",
+          "seal": {
+            "by": "server",
+            "mac": "459ecb93286238caca96ce90f16dee58645e6cac2f1f400e6cdfdc24633955a1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The logs have successful release build/check runs but record neither the toolchain nor the source state, so they cannot show 1.100.0 or +1.99.1 check. Fix: save the commands' output with 'cargo +1.100.0 build --release --locked --bin okf-mcp' and 'cargo +1.99.1 check --release --locked' (with 'rustc +<v> -V') on the pre-fix commit, or drop the sentence from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4705"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.632446025Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbf3d45cf4cb4ad6ea071b59e428201a2a5d79a60e3b9d6c80ca24ae48873015"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.632446025Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5ec268a505d8b4961f7ff834ff6c53a4df67fe4cd56a036003a68aa47b7f87d"
+      }
+    },
+    {
+      "id": "CLM-2705",
+      "statement": "gate.sh has a build-release gate that runs cargo +<version> build --release --locked --bin okf-mcp, with <version> read from the Dockerfile's 'FROM rust:<version>-... AS chef' line, and the Dockerfile's own build step is that same command.",
+      "kind": "functional",
+      "level": "component",
       "integrity_level": 3,
-      "verification_method": "analysis",
-      "source": "pr-1207-body.md, 'How a returned store is noticed', bullet 4",
+      "verification_method": "inspection",
+      "source": "PR: \"the Dockerfile's command ... with cargo +<version> read from the Dockerfile's FROM rust:<version>-... AS chef line\"",
       "derived_from": [
         "CLM-2700"
       ],
       "artifacts": [
-        "src/mcp/context.rs"
+        "tools/agentic/gate.sh",
+        "Dockerfile"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4706",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:84-87; Dockerfile:17,31",
+          "summary": "gate.sh:85 seds the version out of 'FROM rust:<ver>-... AS chef' (exits 2 if absent) and builds cmd=(cargo \"+$image_rust\" build --release --locked --bin okf-mcp). Dockerfile:17 is FROM rust:1.99.1-slim-bookworm AS chef and :31 is RUN cargo build --release --locked --bin okf-mcp. Unit test run.sh:1892 asserts the exact args.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 87
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.358459937Z",
+          "seal": {
+            "by": "server",
+            "mac": "414b682155ca8ff76d78c7200a2fab95c9de92ff44b407fa58f4c4c09c787f1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "gate.sh reads the version from the Dockerfile's chef FROM line and runs the same flags as Dockerfile:31; a test asserts the arguments.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4706"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.808817678Z",
+          "seal": {
+            "by": "server",
+            "mac": "36242ed8a0c452a60ae769eb2b7db9de9762058f9859b4c226974dbbbf25e7f6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.808817678Z",
+      "seal": {
+        "by": "server",
+        "mac": "01027d947702c31afafec5ff7804481e3cdca74683f90ca67fcc8cda414d26b8"
+      }
+    },
+    {
+      "id": "CLM-2706",
+      "statement": "The build-release gate takes the shared lock (locked=1) and has a 40 minute default limit overridable by AGENTIC_TIMEOUT_BUILD_RELEASE.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "task requirement: new gate must take the lock; PR: \"under the shared lock, 40 m limit (AGENTIC_TIMEOUT_BUILD_RELEASE)\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4707",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:84",
+          "summary": "Arm sets limit=${AGENTIC_TIMEOUT_BUILD_RELEASE:-40m}; locked=1. Logs show 'waited 0 s for the lock' on the gate line (g-build-release.log:3). Timeout path covered by run.sh:1906.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 84
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.514688828Z",
+          "seal": {
+            "by": "server",
+            "mac": "e022802ae4f9ecdfc10ab27755b1517fd614edc792dd44ea0e9dd9458513f3bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "gate.sh:84 sets locked=1 and the 40m default with the env override.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4707"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.986882370Z",
+          "seal": {
+            "by": "server",
+            "mac": "d08468e9b43d89212254c9feb0cf969ea3f17e2c8a6a85b8f82daff8307203be"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.986882370Z",
+      "seal": {
+        "by": "server",
+        "mac": "88cfc236ed2e7aaccd2748b0f9ef54d841d643a02023969752378c70cb7bda0c"
+      }
+    },
+    {
+      "id": "CLM-2707",
+      "statement": "The existing gate.sh release gate (just test-release, 5m, no lock) is unchanged.",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "task requirement: must not rename gate.sh release; PR: \"gate.sh release (the release tooling's tests) is unchanged\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4708",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:78; git diff origin/main..HEAD -- tools/agentic/gate.sh",
+          "summary": "The release arm (line 78: limit 5m, locked=0, just test-release) has no diff hunk; the diff only adds a header comment line, the usage string entry, and the new build-release arm.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 78,
+                "end": 78
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.682273073Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d605445f42acea5eea9529a9deaa148654c10e6c0b32d60bec75622d8f40772"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The release arm has no hunk in the diff; the name and behavior are intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4708"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.159706977Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ff89a1af140b93b3a0459fbd00b440932b81aa4b68672249a6d7a3bdd60baf0"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.159706977Z",
+      "seal": {
+        "by": "server",
+        "mac": "9d2e7533c6588064d4365c5b0fe8224a5784d05de9b55374163108a46917126a"
+      }
+    },
+    {
+      "id": "CLM-2708",
+      "statement": "tools/agentic/brief-common.md's Gates list names build-release, and README.md and AGENTS.md list it too.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"brief-common.md, README.md, AGENTS.md: the gate is listed\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/brief-common.md",
+        "tools/agentic/README.md",
+        "AGENTS.md"
+      ],
+      "tags": [
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237342,64 +237426,64 @@
         {
           "id": "EVD-4709",
           "kind": "inspection",
-          "locator": "src/mcp/context.rs:1251-1262,509-512; git diff origin/main..HEAD -- src/mcp/context.rs",
-          "summary": "The only non-doc change to context.rs is `let known_down = self.down_stores();` (a clone of the call's HashSet under the call's own mutex, line 510-511) and `if known_down.contains(&store) { return Err(store_unavailable) }`; no insert, no static, no App state touched. testing.rs change is visibility only (pub(crate)) on a #[cfg(test)] helper.",
+          "locator": "tools/agentic/brief-common.md:32,39; tools/agentic/README.md gate.sh row; AGENTS.md:15",
+          "summary": "brief-common.md:32 lists 'tools/agentic/gate.sh build-release' in the Gates block and :39 describes it; README.md's gate.sh row and its AGENTIC_TIMEOUT table name it; AGENTS.md:15 lists it.",
           "stance": "supports",
           "anchor": {
             "file": {
-              "path": "src/mcp/context.rs",
+              "path": "tools/agentic/brief-common.md",
               "lines": {
-                "start": 1251,
-                "end": 1262
+                "start": 32,
+                "end": 39
               },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
             }
           },
-          "recorded_at": "2026-11-28T18:11:03.583451586Z",
+          "recorded_at": "2026-11-28T18:56:48.846516416Z",
           "seal": {
             "by": "server",
-            "mac": "3deba1b7733ce1ecf58cb6eea37bda81d167f025db84f7dcc945d31dea216149"
+            "mac": "4a0691e5dcd3f9a7aad0387cbe2f7f6fdd4a94b0385950061f392f727e2f1f27"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "The diff's only behavioural addition reads a clone of the call's own set and returns early; no shared write.",
+          "rationale": "All three files name the gate; brief-common.md lists it in its Gates block.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
             "EVD-4709"
           ],
-          "recorded_at": "2026-11-28T18:11:27.604701879Z",
+          "recorded_at": "2026-11-28T18:57:31.313388277Z",
           "seal": {
             "by": "server",
-            "mac": "36562c506e4aded3b45347d34372089a2d12fc4f2728de4251adab3ec8a2c8cd"
+            "mac": "7854a90fe5d1ce016fb356a2afc2b7fccc0740f69212f18ea41e0c71c7d8d037"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:11:27.604701879Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.313388277Z",
       "seal": {
         "by": "server",
-        "mac": "23c9f0ced3cd2059dad5076ff16f54281a04117cd182a6ae59327598f2a512cf"
+        "mac": "0b5ec3df07cc6a1993a53fbdd5674e2c52304bbdf941f753468023cc01ba26e5"
       }
     },
     {
-      "id": "CLM-2704",
-      "statement": "The probe-counting test changeset_by_handle_probes_a_lost_store_once passes with the fix and fails without it (two probes instead of one).",
-      "kind": "functional",
-      "level": "unit",
-      "integrity_level": 3,
-      "verification_method": "test",
-      "source": "pr-1207-body.md, 'Manual Test Plan' and Changes",
+      "id": "CLM-2709",
+      "statement": "tools/agentic/lessons.md has a short entry on release-only failures that names the Box::pin remedy.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"tools/agentic/lessons.md: a lesson on release-only failures\"",
       "derived_from": [
         "CLM-2700"
       ],
       "artifacts": [
-        "src/mcp/unavailable_tests.rs"
+        "tools/agentic/lessons.md"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237407,78 +237491,189 @@
       "evidence": [
         {
           "id": "EVD-4710",
-          "kind": "log",
-          "locator": "target/i1207-logs/narrow.log (with fix); target/i1207-logs/prefix.log (fix reverted)",
-          "summary": "narrow.log: changeset_by_handle_probes_a_lost_store_once ok (1 passed). prefix.log: same test FAILED at unavailable_tests.rs:431 'left: 2 right: 1' with the context.rs change absent (build of the test only). Logs were produced by the author, not rerun by the auditor (cargo not to be run); logs are untracked and not tied to a commit hash.",
-          "stance": "supports",
-          "recorded_at": "2026-11-28T18:11:03.778704904Z",
-          "seal": {
-            "by": "server",
-            "mac": "9db0046d5f8ec5fd185946bcab72f99817b0efa1f1cc7889508cf378ba3c1176"
-          }
-        },
-        {
-          "id": "EVD-4711",
           "kind": "inspection",
-          "locator": "src/mcp/unavailable_tests.rs:413-439",
-          "summary": "Test reads the assertion: connection list [main, remote], unheld handle, expects StoreUnavailable and stalled.accepted()-before == one_probe (one_probe measured by a direct stores().get). Without the skip, the loop's store_db hits the stalled store again (a second accepted connection), as prefix.log shows. Same-answer check is the matches! on StoreUnavailable.",
+          "locator": "tools/agentic/lessons.md:80",
+          "summary": "One bullet (issue #1227) describing the failure, the rustc dependence, running gate.sh build-release, and 'Box::pin one inner future ... rather than raising recursion_limit'.",
           "stance": "supports",
           "anchor": {
             "file": {
-              "path": "src/mcp/unavailable_tests.rs",
+              "path": "tools/agentic/lessons.md",
               "lines": {
-                "start": 413,
-                "end": 439
+                "start": 80,
+                "end": 80
               },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
             }
           },
-          "recorded_at": "2026-11-28T18:11:03.963463989Z",
+          "recorded_at": "2026-11-28T18:56:49.009273382Z",
           "seal": {
             "by": "server",
-            "mac": "963cd0188359dd417a0783af5e809c211e03144bfedfdf1ca9e7ff19f6199098"
+            "mac": "83f442339361ebbae3192e685038f9817c573f5789c5ed51a8522ca56be707e8"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "Passing log with the fix, failing log (2 vs 1) with the fix reverted, and the assertion read matches. Not rerun by me (cargo barred); relies on author's logs, which are not commit-tagged.",
+          "rationale": "One bullet at lessons.md:80 names the gate and the Box::pin remedy.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
-            "EVD-4710",
-            "EVD-4711"
+            "EVD-4710"
           ],
-          "recorded_at": "2026-11-28T18:11:27.775473017Z",
+          "recorded_at": "2026-11-28T18:57:31.476033309Z",
           "seal": {
             "by": "server",
-            "mac": "5bdb73a5a9aa796ebbbbaa1a2076fc9916460a0ace63dbb8311e18f9bee13eff"
+            "mac": "c7c49c68922848525955c2998c5fdee89eda86ef380132ff2ba234e0f588f479"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:11:27.775473017Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.476033309Z",
       "seal": {
         "by": "server",
-        "mac": "d88fbca6a571df86f1a4bc37d54582b61d48a4de58e8e40874af3fbe78753e80"
+        "mac": "94f3d705d35bbb21ecc01e4ae33f6151201430ba14386b1432de0b4bdca5bc25"
       }
     },
     {
-      "id": "CLM-2705",
-      "statement": "The recovery test a_lost_store_is_reached_again_by_a_later_call_once_it_is_back passes and shows a later call reaches a store that has come back after an earlier call found it down.",
-      "kind": "functional",
-      "level": "unit",
-      "integrity_level": 3,
-      "verification_method": "test",
-      "source": "pr-1207-body.md: 'Proven by a_lost_store_is_reached_again_by_a_later_call_once_it_is_back'",
+      "id": "CLM-2710",
+      "statement": "The PR body justifies when the gate runs, and that rule (src/, Cargo.toml, Cargo.lock, build.rs, migrations/, Dockerfile; not docs, tests/-only, tools/, scripts/, reader) matches what brief-common.md and the README say.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"It runs for any change to src/, Cargo.toml, Cargo.lock, build.rs, migrations/ or the Dockerfile\"",
       "derived_from": [
         "CLM-2700"
       ],
       "artifacts": [
-        "src/mcp/unavailable_tests.rs"
+        "tools/agentic/brief-common.md",
+        "tools/agentic/README.md"
       ],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4711",
+          "kind": "inspection",
+          "locator": "tools/agentic/brief-common.md:39 vs pr-1227-body.md Changes section vs tools/agentic/README.md gate.sh row",
+          "summary": "brief-common.md:39 gives the same path list and exclusions as the PR body, with the same reason (takes minutes). Minor drift: README says 'any change to Rust code' and the brief-common code-block comment says 'Rust, Cargo.toml, Cargo.lock or the Dockerfile', both narrower than the body's list (no build.rs, migrations/). The PR body's reasoning ('any Rust change can trigger it, so a path filter on Rust inputs is cheap') is stated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 39
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:49.173129913Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d36bf09350883867a9dc855f009069eefadca33f1488191c8b38de297938c35"
+          }
+        },
+        {
+          "id": "EVD-4719",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md gate.sh row (build-release: 'run for any change to Rust code, #1227'); tools/agentic/brief-common.md:32",
+          "summary": "README says the gate runs 'for any change to Rust code' and brief-common.md:32's inline comment says 'touches Rust, Cargo.toml, Cargo.lock or the Dockerfile'; neither names build.rs or migrations/, which the PR body and brief-common.md:39 include. The three places do not state one rule.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 32
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:57:01.029847256Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5aa2e69c2bd05ea998c69ad28b49bbf00527e3b525cc58a791e3d98454d57a5"
+          }
+        },
+        {
+          "id": "EVD-4721",
+          "kind": "inspection",
+          "locator": "tools/agentic/brief-common.md:32,39; tools/agentic/README.md gate.sh row; pr-1227-body.md:12 at 29af06e9",
+          "summary": "At 29af06e9 brief-common.md:32 and :39, the README row and the PR body all list src/, Cargo.toml, Cargo.lock, build.rs, migrations/ and the Dockerfile; the body's exclusions (docs, tests/-only, tools/, scripts/, reader) match brief-common.md:39.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 32
+              },
+              "commit": "29af06e94638146fbaaa31fe3e2275971158e5a4"
+            }
+          },
+          "recorded_at": "2026-11-28T18:58:28.814276765Z",
+          "seal": {
+            "by": "server",
+            "mac": "30b820df6b5be2e81a83a246f71540cba829f34723bd2c10d31cf54f578f23e4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The PR body states a justified rule, and brief-common.md:39 repeats it, but README.md ('any change to Rust code') and brief-common.md:32 ('Rust, Cargo.toml, Cargo.lock or the Dockerfile') state narrower ones without build.rs and migrations/. Minor, ours. Fix: make the README row and the brief-common.md:32 comment list the same inputs as brief-common.md:39 (src/, Cargo.toml, Cargo.lock, build.rs, migrations/, Dockerfile), or cut the body's list to match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4719"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.645307100Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1adb31fd0a1e66a1c4ea1e1843ce255a3cba4000ba9bd2157d358e017cf452b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The drift that refuted it is gone: all four places now state the same input list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4721"
+          ],
+          "recorded_at": "2026-11-28T18:58:33.186415096Z",
+          "seal": {
+            "by": "server",
+            "mac": "aaa283eb3f80709f0a3d1c83d6e584f6b43a2bae916dcd40910eb1be39cec25f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:58:33.186415096Z",
+      "seal": {
+        "by": "server",
+        "mac": "fef44580e40610f452ac6a71fd6e3b94370972b0ebea474ebca83d2773343888"
+      }
+    },
+    {
+      "id": "CLM-2711",
+      "statement": "tools/agentic/tests/run.sh has two new tests (build-release passes the pinned toolchain's arguments; timeout returns 124) and both pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"two tests (arguments with the pinned toolchain, timeout returns 124) ... The two new tests pass.\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237486,101 +237681,63 @@
       "evidence": [
         {
           "id": "EVD-4712",
-          "kind": "log",
-          "locator": "target/i1207-logs/recovery.log; src/mcp/unavailable_tests.rs:441-479",
-          "summary": "recovery.log: a_lost_store_is_reached_again_by_a_later_call_once_it_is_back ok (1 passed). Test: call 1 on a stalled store returns StoreUnavailable and the stalled server was probed; after repoint to the real port, a new context finds the changeset (after.row.handle == on_remote).",
+          "kind": "test",
+          "locator": "target/i1227-logs/g-agentic.log:26-27; tools/agentic/tests/run.sh:1892,1906",
+          "summary": "Log lines 'ok test_gate_build_release_builds_with_the_dockerfile_toolchain' and 'ok test_gate_build_release_timeout_returns_124'. The first asserts cargo got '+<pinned> build --release --locked --bin okf-mcp'; the second asserts rc 124 and the HANG message with a 1s limit.",
           "stance": "supports",
           "anchor": {
             "file": {
-              "path": "src/mcp/unavailable_tests.rs",
+              "path": "tools/agentic/tests/run.sh",
               "lines": {
-                "start": 441,
-                "end": 479
+                "start": 1892,
+                "end": 1914
               },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
             }
           },
-          "recorded_at": "2026-11-28T18:11:04.169426620Z",
+          "recorded_at": "2026-11-28T18:56:49.334549694Z",
           "seal": {
             "by": "server",
-            "mac": "cbb07ba3ce2a8a8e12c1e2ee61793c81cdd18db2d5b9e252a1efc9ddd4760b4b"
-          }
-        },
-        {
-          "id": "EVD-4720",
-          "kind": "log",
-          "locator": "target/i1207-logs/recovery.log; src/mcp/unavailable_tests.rs:441-480 at 2544a276",
-          "summary": "After the change the recovery test still passes (1 passed, narrow run) with the row-only restore; assertions unchanged (first call StoreUnavailable, later call returns the changeset). Not rerun by me.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/unavailable_tests.rs",
-              "lines": {
-                "start": 441,
-                "end": 480
-              },
-              "commit": "2544a276a109c6f465ede91b0640e7b7dbf14ca1"
-            }
-          },
-          "recorded_at": "2026-11-28T18:14:06.874039464Z",
-          "seal": {
-            "by": "server",
-            "mac": "e3fa415d67101668109781f5605963993a54b06a022dd994761c074c637aadef"
+            "mac": "8c2b38e1437d68f431b838377b29eb3e61de5dadb41791be27b8d77156d22c1a"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "The test passes (log) and its assertions show the first call fails with StoreUnavailable and a fresh context later finds the changeset after the store is restored.",
+          "rationale": "Both tests exist, assert the arguments and 124, and show ok in g-agentic.log. I read the assertions.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
             "EVD-4712"
           ],
-          "recorded_at": "2026-11-28T18:11:27.946516876Z",
+          "recorded_at": "2026-11-28T18:57:31.849431800Z",
           "seal": {
             "by": "server",
-            "mac": "0db9d8e765abc0ede0f9c44c69e72ef9287eca939c58011c1f169d9195c563f2"
-          }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Test still passes after the change per the author's log; assertions unchanged.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4720"
-          ],
-          "recorded_at": "2026-11-28T18:14:13.967230135Z",
-          "seal": {
-            "by": "server",
-            "mac": "8ac143487f683cc8584eeef4d7a43610f54bf538cbc10a92f371aa0f09263a14"
+            "mac": "2c440c3b0b38fcd6d94d94254ad7c697641e186b1872a89052088cf68e696173"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:14:13.967230135Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.849431800Z",
       "seal": {
         "by": "server",
-        "mac": "8a0bec196265d7cb78350bdd32ab0662cd1b1091a93bbe4d701b421d932f28cf"
+        "mac": "bdcd712d07841f63867360ef5e258da57397c71b15ff1a507c7d98ea8a6acf1d"
       }
     },
     {
-      "id": "CLM-2706",
-      "statement": "The recovery test restores the store without dropping any cached registry state, so it would fail if a failed open or an outage were remembered by the pool cache or any cache that TestApp::repoint's Stores::forget clears.",
+      "id": "CLM-2712",
+      "statement": "gate.sh fmt, lint, dylint and mcpjam exit 0 on head 6c9ebb4a.",
       "kind": "functional",
-      "level": "unit",
-      "integrity_level": 3,
-      "verification_method": "analysis",
-      "source": "pr-1207-body.md: 'a store that is back is reached by the next call ... Proven by' the recovery test",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"fmt, lint, dylint, mcpjam: exit 0.\"",
       "derived_from": [
         "CLM-2700"
       ],
-      "artifacts": [
-        "src/mcp/testing.rs",
-        "src/mcp/unavailable_tests.rs"
-      ],
+      "artifacts": [],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237588,100 +237745,53 @@
       "evidence": [
         {
           "id": "EVD-4713",
-          "kind": "inspection",
-          "locator": "src/mcp/testing.rs:282-290; src/stores/registry.rs:582-588",
-          "summary": "The test restores the store through TestApp::repoint, which UPDATEs the stores row and then calls Stores::forget (invalidates the pool cache entry). So the restore step clears the registry's cached state; a hypothetical cached failure or TTL in the pool cache would be hidden. The test also does no time passing and no restore at an unchanged address. The 'no failure remembered' conclusion therefore rests on code reading (CLM-2702), not on this test.",
-          "stance": "refutes",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/testing.rs",
-              "lines": {
-                "start": 282,
-                "end": 290
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:04.355263270Z",
-          "seal": {
-            "by": "server",
-            "mac": "7d93f1977bbfc46a6e29acc50c2b0bc0893a18bb8d76d9d7e8b5b82d56f0ab68"
-          }
-        },
-        {
-          "id": "EVD-4719",
-          "kind": "inspection",
-          "locator": "src/mcp/testing.rs:282-298; src/mcp/unavailable_tests.rs:469-479 at 2544a276",
-          "summary": "The recovery test now calls repoint_row, which only UPDATEs the stores row; Stores::forget stays in repoint (used by make_stalled and others). No other forget or invalidate occurs between the failed call and the later call, so a remembered failure in the pool cache would now make the later call fail.",
+          "kind": "log",
+          "locator": "target/i1227-logs/summary.log:1-6; g-fmt.log, g-lint.log, g-dylint.log, g-mcpjam.log last lines",
+          "summary": "summary.log: fmt/lint/dylint/mcpjam exit 0; each log ends with 'gate.sh: <gate> ... (exit 0)'; mcpjam: 6 files, 47 tests passed. The logs do not record the commit, but the compiled crate path is this worktree and HEAD is 6c9ebb4a with a clean tree.",
           "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/mcp/testing.rs",
-              "lines": {
-                "start": 282,
-                "end": 298
-              },
-              "commit": "2544a276a109c6f465ede91b0640e7b7dbf14ca1"
-            }
-          },
-          "recorded_at": "2026-11-28T18:14:06.717709324Z",
+          "recorded_at": "2026-11-28T18:56:49.498053943Z",
           "seal": {
             "by": "server",
-            "mac": "1f6241a572043bf93608571633d709fef903c692a7b9b2583760c427351dde5c"
+            "mac": "71eecb53c63fee2c69c8ec0a1279a550ede27d701b8ee23be35305cb60031522"
           }
         }
       ],
       "verdicts": [
         {
-          "verdict": "refuted",
-          "rationale": "repoint calls Stores::forget, so the restore step itself drops the pool entry; the test cannot detect a remembered failure in the pool cache, and restores at a new address with no time passing. The PR says the test proves a returned store is noticed; it proves only that a fresh ToolContext does not carry the down set. Fix: in a_lost_store_is_reached_again_by_a_later_call_once_it_is_back, restore the store by rewriting the stores row (or stopping the stalled server and rebinding the original port) without calling Stores::forget, then assert the later call succeeds; or reword the PR body to say the test shows only that the down set is not carried across calls.",
+          "verdict": "supported",
+          "rationale": "The logs show exit 0 for all four gates in this worktree. I read the logs and did not rerun them.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
             "EVD-4713"
           ],
-          "recorded_at": "2026-11-28T18:11:28.126126579Z",
+          "recorded_at": "2026-11-28T18:57:32.008097523Z",
           "seal": {
             "by": "server",
-            "mac": "ceeb738b85ac6fed7f33e1809b3a921a37c33a033494ba3b8cdd009f7bd5bec6"
-          }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Re-audited at 2544a276: the test restores via a row-only update, no Stores::forget, so a remembered failure would fail it.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4719"
-          ],
-          "recorded_at": "2026-11-28T18:14:13.801495347Z",
-          "seal": {
-            "by": "server",
-            "mac": "ce4331d66c868ffae833c4010b49f2a47d3cb81f50ef183c3366405b53a997b7"
+            "mac": "719d425f3f9f45c9685126085ba149138067ed35ef399ad7cbbb3476c9f9aab1"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:14:13.801495347Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.008097523Z",
       "seal": {
         "by": "server",
-        "mac": "c92b439d45e823d9b5f690a47ae57b7f523e8e7ef2c0f372c226a942828902bf"
+        "mac": "f372a054f5ed374c4c6f2def1d0e16940d3d3a75a5000e66c6fcfd077d65892e"
       }
     },
     {
-      "id": "CLM-2707",
-      "statement": "Every file:line cited in the PR body's 'How a returned store is noticed' section points at the code it describes (context.rs:118,140,169,498,510; mod.rs:403; api/mod.rs:195; registry.rs:310-312,377,14-17; invalidate.rs:573; directory.rs:10; 0036_stores.sql:18-33).",
-      "kind": "documentation",
+      "id": "CLM-2713",
+      "statement": "gate.sh test ran 3864 tests, 3864 passed, 20 skipped, with no FLAKY lines, in both store modes.",
+      "kind": "functional",
       "level": "artifact",
-      "integrity_level": 1,
-      "verification_method": "inspection",
-      "source": "pr-1207-body.md, 'How a returned store is noticed'",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"test: 3864 run, 3864 passed, 20 skipped, no FLAKY lines (both store modes).\"",
       "derived_from": [
         "CLM-2700"
       ],
-      "artifacts": [
-        "pr-1207-body.md"
-      ],
+      "artifacts": [],
       "tags": [
-        "from-issue:1207"
+        "from-issue:1227"
       ],
       "status": {
         "state": "active"
@@ -237689,83 +237799,253 @@
       "evidence": [
         {
           "id": "EVD-4714",
-          "kind": "inspection",
-          "locator": "sed -n of each cited line at 0a87c851",
-          "summary": "Checked each citation: context.rs:118 doc 'One tool call's context', :140 `down: Mutex<Down>`, :169 `down: Mutex::default()`, :498 fn mark_down, :510 fn down_stores; mod.rs:403 fn context (calls from_parts); api/mod.rs:195 ToolContext::new; registry.rs:310-312 pools moka builder with max_capacity only, :377 .try_get_with, :14-17 'failed initialiser caches nothing' text; invalidate.rs:573 Backoff::new; directory.rs:10 `absent` 5 s. All accurate. Only imprecision: migrations/accounts/0036_stores.sql:18-33 is CREATE TABLE (18-33; the closing paren is line 33) so correct; the INSERT of 'main' starts at 34, outside the range.",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-test.log:3996,7904,7943",
+          "summary": "Two nextest summaries, both '3864 tests run: 3864 passed, 20 skipped' (118.969s and 125.134s); grep for FLAKY and 'TRY 2' finds none; gate line exit 0 (ran 392 s).",
           "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "migrations/accounts/0036_stores.sql",
-              "lines": {
-                "start": 18,
-                "end": 33
-              },
-              "commit": "0a87c85194f62291907238cef9d3feee9673fae8"
-            }
-          },
-          "recorded_at": "2026-11-28T18:11:10.446227618Z",
+          "recorded_at": "2026-11-28T18:56:49.653529071Z",
           "seal": {
             "by": "server",
-            "mac": "027286d66bc8efa2c6e2f6a07fd004edd42138c5e34bc244fd76f54d3d98aa3d"
-          }
-        },
-        {
-          "id": "EVD-4721",
-          "kind": "inspection",
-          "locator": "src/cache/catalogs.rs:127-146 at 2544a276; pr-1207-body.md:14",
-          "summary": "New citation catalogs.rs:127-146 spans from_stored_data's doc, attributes and body (fn at 134, StoreUnavailable in the exclusion list at 143, closing at 146); it describes the exclusion accurately. Earlier citations unaffected: the second commit changed only testing.rs and unavailable_tests.rs.",
-          "stance": "supports",
-          "anchor": {
-            "file": {
-              "path": "src/cache/catalogs.rs",
-              "lines": {
-                "start": 127,
-                "end": 146
-              },
-              "commit": "2544a276a109c6f465ede91b0640e7b7dbf14ca1"
-            }
-          },
-          "recorded_at": "2026-11-28T18:14:07.048567029Z",
-          "seal": {
-            "by": "server",
-            "mac": "4acf8f7e87840ea13665389429d707a991e46727c011fa92660838f9713f02a2"
+            "mac": "7648746945b7f0ffa4166472b9ac2813b59219839aa97b9e66365a4d0461f345"
           }
         }
       ],
       "verdicts": [
         {
           "verdict": "supported",
-          "rationale": "All 13 citations checked line by line at 0a87c851 and each lands on the described code.",
+          "rationale": "Both modes show 3864 run, 3864 passed, 20 skipped, with no FLAKY or TRY 2 lines.",
           "auditor": "claude-sonnet-5-5",
           "evidence_ids": [
             "EVD-4714"
           ],
-          "recorded_at": "2026-11-28T18:11:28.306464836Z",
+          "recorded_at": "2026-11-28T18:57:32.157484094Z",
           "seal": {
             "by": "server",
-            "mac": "9b2c6668a4d607d04b146708398ab19bb33daf182fca7e1196f7dbbf372e5945"
-          }
-        },
-        {
-          "verdict": "supported",
-          "rationale": "Earlier citations still accurate and the new catalogs.rs:127-146 citation is accurate.",
-          "auditor": "claude-sonnet-5-5",
-          "evidence_ids": [
-            "EVD-4714",
-            "EVD-4721"
-          ],
-          "recorded_at": "2026-11-28T18:14:14.131201689Z",
-          "seal": {
-            "by": "server",
-            "mac": "1abb6a7949c7402b3aabc8ab11bbad8db3c8bc7a4e225c7b840fdfb8b33c7e2d"
+            "mac": "4d1d05827a4f85bcb53a62633b9aada4ee53c2b1dbe37cfa740c845f5b1fd0a7"
           }
         }
       ],
-      "created_at": "2026-11-28T18:10:29.849210120Z",
-      "updated_at": "2026-11-28T18:14:14.131201689Z",
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.157484094Z",
       "seal": {
         "by": "server",
-        "mac": "95b5fc126e00fb0b49e6ac435f4cb1c01a4cf19874f0f4b771610320c500d8a7"
+        "mac": "41058a83064b5926441c257938edb4a88436c61d828b31fd7856a36829325ca9"
+      }
+    },
+    {
+      "id": "CLM-2714",
+      "statement": "gate.sh build-release exits 0 on head, and its run took 0 s because the head's artifacts were already built.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"build-release: exit 0 (the head's artifacts were already built by the verify run, so the gate run itself took 0 s).\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4715",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-build-release.log:1-3",
+          "summary": "'Finished release profile ... in 0.18s' and 'gate.sh: build-release waited 0 s for the lock, seed 0 s, ran 0 s (exit 0)'; an already-built artifact explains 0 s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:49.823546006Z",
+          "seal": {
+            "by": "server",
+            "mac": "6823a2ab71322eb51432bfef848d0c1ee234e1560055642404a288d504990f04"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The log shows exit 0 and ran 0 s.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4715"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.307497517Z",
+          "seal": {
+            "by": "server",
+            "mac": "476349a879191f77036a7f678e0a2c81c24c3a2e906ea579f084090e642732cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.307497517Z",
+      "seal": {
+        "by": "server",
+        "mac": "3b20b941cf90c4192780ffebdbab2a76395e5f3bad3b56772b08f9b89b895064"
+      }
+    },
+    {
+      "id": "CLM-2715",
+      "statement": "tools/agentic/tests/run.sh gave 169 passed, 1 failed in the first run, the failure being test_an_int_with_a_returning_handler_gives_130, and that test passes when run alone in the foreground.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR: \"169 passed, 1 failed in the first run ... it passes run alone in the foreground.\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4716",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-agentic.log:7 and last line",
+          "summary": "'FAIL test_an_int_with_a_returning_handler_gives_130' and '169 passed, 1 failed (jobs: 4)'. Not rerun by me (told not to run builds/gates), so the pass-alone and SIGINT-ignored-launcher explanation is not verified here.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:49.978532232Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1a83fae422b513d41cfbd792089e7ace73cc9c260b36e7b0ec236ae7ef4acfb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The log confirms 169 passed, 1 failed and the named test, but the cause (launcher ignoring SIGINT) and the pass-alone result are not in any log. Fix: save the output of running test_an_int_with_a_returning_handler_gives_130 alone in the foreground, or rerun tools/agentic/tests/run.sh from a launcher that does not ignore SIGINT and cite 170 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4716"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.462757865Z",
+          "seal": {
+            "by": "server",
+            "mac": "d40674491096448e83cccadeb326ba1ab9d78f62cf04b8749eb09510416077b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.462757865Z",
+      "seal": {
+        "by": "server",
+        "mac": "94b9d78d994f71fae702a6e0fa2808aae9e5c8794fd1cb817e79d327d483d8f4"
+      }
+    },
+    {
+      "id": "CLM-2716",
+      "statement": "The diff touches no console code, so test-ui was not needed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"Not run: test-ui (no console change)\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4717",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Changed files: AGENTS.md, changelog, src/invalidate.rs, tools/agentic/*. None is under the console or tests/ui_e2e.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:50.131015527Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8f99b8ca6cef49e9e657ea18260f670dc88ad93549985511725f256c0c213dc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changed file list contains no console or UI code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4717"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.612244376Z",
+          "seal": {
+            "by": "server",
+            "mac": "b555689036b1b80a663b8c0c026391dd2a6d3636b6a250ab0129bfeb6ba684f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.612244376Z",
+      "seal": {
+        "by": "server",
+        "mac": "17990b573d597afa646d58d116540aa57db980a01587d27a0aff0ed1a9c84fc9"
+      }
+    },
+    {
+      "id": "CLM-2717",
+      "statement": "No image has built since PR #1201 and v0.35.0 was tagged without one.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR: \"so no image has built since #1201\"; lessons.md and changelog repeat it",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4718",
+          "kind": "analysis",
+          "locator": "git log origin/main (6b08d0c9 PR #1201, 14076fbf Release v0.35.0); tag v0.35.0",
+          "summary": "The ordering is real (PR #1201 merged before v0.35.0, tag exists) and the issue reports the build failing, but no registry or CI record of images is available locally to show no image built in between.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:50.282335998Z",
+          "seal": {
+            "by": "server",
+            "mac": "947a816afd6a5432beeac586f5aea3acca5c6a27bc8856c25dae1e4a3ed1f249"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Git history confirms the order of #1201 and v0.35.0 but not that no image built in between. Fix: cite the failing image-build runs (CI links) for the commits from 6b08d0c9 on, or soften the body to 'the image build fails at v0.35.0'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4718"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.762443100Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bebf8e312c9656b2cfadf60ade2172be0e226bbb01d2ec2043b6502b0350106"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.762443100Z",
+      "seal": {
+        "by": "server",
+        "mac": "9cdcdb5e1aef971c4cde9c0c79c226a78d15c10db7d4fea98332c11c78e29030"
       }
     }
   ]

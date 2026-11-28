@@ -16,6 +16,7 @@
 #   dylint   just dylint                  45m  (the first run builds the lint library)
 #   worker   just test-worker             5m   (no lock; the reader's Node tests, also run by test)
 #   release  just test-release            5m   (no lock; scripts/test_release.py, the release tooling's tests)
+#   build-release  cargo build --release --locked --bin okf-mcp  40m  (the image's build step; a release-only compile failure, #1227)
 #   mcpjam   just test-mcpjam             20m  (the MCPJam scenarios against a local server, tests/mcpjam/)
 #
 # Before a gate that builds, an installed seeding command (AGENTIC_SEED_CMD,
@@ -55,7 +56,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source-path=SCRIPTDIR source=lib.sh
 source "$here/lib.sh"
 
-gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|release|mcpjam|narrow [args...]}
+gate=${1:?usage: gate.sh fmt|lint|test|test-ui|dylint|worker|release|build-release|mcpjam|narrow [args...]}
 shift
 
 # Build against the committed sqlx query data, as the justfile does, so a
@@ -75,6 +76,15 @@ case "$gate" in
     dylint)  limit=${AGENTIC_TIMEOUT_DYLINT:-45m};  locked=1; cmd=(just dylint "$@") ;;
     worker)  limit=${AGENTIC_TIMEOUT_WORKER:-5m};  locked=0; cmd=(just test-worker "$@") ;;
     release) limit=${AGENTIC_TIMEOUT_RELEASE:-5m}; locked=0; cmd=(just test-release "$@") ;;
+    # The Dockerfile's own build step, so a failure only the release profile
+    # shows (rustc's query depth limit on a deep future, #1227) is caught
+    # before merge. Heavy, hence the lock; it builds into the shared target dir.
+    # It builds with the rustc the Dockerfile pins (a newer rustc did not show
+    # #1227), so the toolchain must be installed (`rustup toolchain install`).
+    build-release) limit=${AGENTIC_TIMEOUT_BUILD_RELEASE:-40m}; locked=1
+             image_rust=$(sed -n 's/^FROM rust:\([0-9][0-9.]*\)-.* AS chef$/\1/p' "$here/../../Dockerfile")
+             [ -n "$image_rust" ] || { echo "gate.sh: no 'FROM rust:<version>-... AS chef' in the Dockerfile" >&2; exit 2; }
+             cmd=(cargo "+$image_rust" build --release --locked --bin okf-mcp "$@") ;;
     # Always the local server built from this checkout, on a throwaway
     # Postgres: a remote target (OKF_MCP_URL) would test what is deployed,
     # not this change; OKF_MCP_BIN would test another build; and the suite

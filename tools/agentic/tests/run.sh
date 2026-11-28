@@ -1888,6 +1888,32 @@ test_gate_worker_timeout_returns_124() {
     want_rc 124; want_out "Treat this as a HANG"
 }
 
+# The Dockerfile's own release build, with the rustc the Dockerfile pins (#1227).
+test_gate_build_release_builds_with_the_dockerfile_toolchain() {
+    new_fixtures
+    mkdir -p "$fx/bin"
+    printf '#!/usr/bin/env bash\nprintf "%%s\\n" "$*" >"$GH_FIXTURES/cargo_args"\n' >"$fx/bin/cargo"
+    chmod +x "$fx/bin/cargo"
+    local pinned
+    pinned=$(sed -n 's/^FROM rust:\([0-9][0-9.]*\)-.* AS chef$/\1/p' "$tools/../../Dockerfile")
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" build-release 2>&1)
+    rc=$?
+    want_rc 0
+    [ "$(cat "$fx/cargo_args")" = "+$pinned build --release --locked --bin okf-mcp" ] \
+        || die "cargo got '$(cat "$fx/cargo_args")', want the pinned toolchain's release build"
+}
+
+test_gate_build_release_timeout_returns_124() {
+    new_fixtures
+    mkdir -p "$fx/bin"
+    printf '#!/usr/bin/env bash\nexec sleep 30\n' >"$fx/bin/cargo"
+    chmod +x "$fx/bin/cargo"
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_TIMEOUT_BUILD_RELEASE=1s \
+        "$tools/gate.sh" build-release 2>&1)
+    rc=$?
+    want_rc 124; want_out "Treat this as a HANG"
+}
+
 test_gate_mcpjam_runs_the_just_recipe() {
     new_fixtures; fake_just 'printf "%s\n" "$*" >"$GH_FIXTURES/just_args"; exit 0'
     out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" mcpjam 2>&1)

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2416,
+  "next_claim_seq": 2428,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "3778c19943ea99673de70d1d6acde5f572c2f9cebccd5c50a32a8638d2221c4d"
+    "mac": "f91f24faf2d7f01cc051415e5ca8aae05f7511e01344bc481d7e930ec9d64731"
   },
-  "next_evidence_seq": 4231,
+  "next_evidence_seq": 4247,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e8e9a3a51db07c38341cf2fa95812455305b9d6ffea30fcf3c66a1c672e6ab7c"
+    "mac": "23861a8f3a57d8b6aee718c7670105e4982edadf15a581f4cc9a99d66b821188"
   },
   "claims": [
     {
@@ -4383,6 +4383,28 @@
             "by": "server",
             "mac": "e19e76db5331612aaa99aa8e8f52221da9e35ced1504ebe7aab209f521122847"
           }
+        },
+        {
+          "id": "EVD-4243",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh:176-193; run.sh test_gate_timing_line_on_the_gates_own_timeout / ..._lock_timeout (rc 124)",
+          "summary": "At head the 124/137 branch still sets exit 124 after the HANG message and the lock-timeout path sets status=124; both tests assert rc 124 and pass (136/0).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 176,
+                "end": 193
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:42.479910673Z",
+          "seal": {
+            "by": "server",
+            "mac": "becad9e6947b8087229c06a2ce1162787d5bdf0253e750ed70ed976a842f78ad"
+          }
         }
       ],
       "verdicts": [
@@ -4398,13 +4420,26 @@
             "by": "server",
             "mac": "38c921de9324f73cc09d54ad122e8c9c9e157365a1bd63d4fb58e1f0f47f4c81"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head d3dd6c40: exit 124 paths unchanged and tested.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4243"
+          ],
+          "recorded_at": "2026-11-28T03:40:04.896321501Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e8a26fdc08bcee7ef174c9b45f7cbbf4df6ef5e29f928d631ced18238cc88b1"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:36.900182326Z",
-      "updated_at": "2026-11-21T19:09:15.113166833Z",
+      "updated_at": "2026-11-28T03:40:04.896321501Z",
       "seal": {
         "by": "server",
-        "mac": "217e728bbfa48e9dfbe54a78320d420ed074ff6f339d200ce9454706a086bf2c"
+        "mac": "38a91bdeef65fdfa120bc2304d182438edca06b5971947b3278b21a9f02eeb3a"
       }
     },
     {
@@ -131992,6 +132027,28 @@
             "by": "server",
             "mac": "cb82800747bda59c9f7151b118f613684e469e592d1ad8e987b6da053a4356fb"
           }
+        },
+        {
+          "id": "EVD-4244",
+          "kind": "test",
+          "locator": "run.sh test_gate_frees_the_lock_when_it_abandons_a_process_that_survives_kill ok at head d3dd6c40; gate.sh:145-171",
+          "summary": "Re-checked at head: gate.sh still does exec 9>>lock, flock on 9 and runs the gate with 9>&-; the abandon test passes in the full 136/0 run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 145,
+                "end": 171
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:42.685865053Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1cf3c0729eac978fa9f906101fe46e89660122f015eb98f22c75ea2c2e02b4d"
+          }
         }
       ],
       "verdicts": [
@@ -132021,13 +132078,26 @@
             "by": "server",
             "mac": "3550b58fed87568dbde1901f02954d53fc031ff224549fd8c74dc6759ce91b92"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: fd 9 handling intact and test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4244"
+          ],
+          "recorded_at": "2026-11-28T03:40:05.120948646Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f7a6462f2df323e3121e1fc946095f8bc3269cbdf59adb92a2608e51114d75e"
+          }
         }
       ],
       "created_at": "2026-11-25T05:36:00.054387141Z",
-      "updated_at": "2026-11-26T13:15:59.378248492Z",
+      "updated_at": "2026-11-28T03:40:05.120948646Z",
       "seal": {
         "by": "server",
-        "mac": "d44b7d2ac7c33d1544cf29ce7c55ee7291b820e28161f21bfe96dbd7096776a4"
+        "mac": "b698a92c1463020eb7ae895dfd09b6b71f808555da476beded9ea8d15ef9016f"
       }
     },
     {
@@ -132196,6 +132266,28 @@
             "by": "server",
             "mac": "af3d00463cc4ac7ae928c2e5fbb2afcf99694da8d2c44dc7550c15fc23f5bf6f"
           }
+        },
+        {
+          "id": "EVD-4245",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:10 at d3dd6c40",
+          "summary": "The #948 exception text (survives KILL, 5 s wait, stderr warning naming the command, stays in process table, lock freed, exit 124 / own status) is still present word for word; this PR only inserts the Timing line sentences before 'If a gate exits by itself but leaves processes behind'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 10,
+                "end": 10
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:42.914076377Z",
+          "seal": {
+            "by": "server",
+            "mac": "9be9cb8154a379aed8be706d573281ddc4022dc033f4439b96375811ebc9833e"
+          }
         }
       ],
       "verdicts": [
@@ -132224,13 +132316,26 @@
             "by": "server",
             "mac": "faa9264f76f7d1fcd62c23f90bf7d7303120f9bdf318966850886b9f3db4ea72"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: #948 exception text intact, only timing sentences added.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4245"
+          ],
+          "recorded_at": "2026-11-28T03:40:05.354637389Z",
+          "seal": {
+            "by": "server",
+            "mac": "343b2ce091319c5ce63c7ba7a0a6a397cf2efe0bf2a3ef442a13c00fac100c7b"
+          }
         }
       ],
       "created_at": "2026-11-25T05:36:00.054387141Z",
-      "updated_at": "2026-11-27T02:17:28.096049031Z",
+      "updated_at": "2026-11-28T03:40:05.354637389Z",
       "seal": {
         "by": "server",
-        "mac": "223df4fc4de96ea9ed5911966e4eaf9348b5db49712ac50eb022f4d476c5a5ce"
+        "mac": "6501162a20d8aa108530b74542ba2e5e2f7735c0208520725ce683aca10f2547"
       }
     },
     {
@@ -212963,6 +213068,797 @@
       "seal": {
         "by": "server",
         "mac": "176ef17a4785943ca42a512d7adfa796685ebe285c6e19d63af4bca81b7e0b38"
+      }
+    },
+    {
+      "id": "CLM-2416",
+      "statement": "Issue #1190 is resolved: gate.sh prints one timing line per gate run on stderr, after the gate's output, on every exit path, with tests and README documentation.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1190",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4246",
+          "kind": "analysis",
+          "locator": "children of CLM-2416",
+          "summary": "Children cover the line on success/failure, on timeout paths, wait vs run split, seed, unchanged behaviour, tests, docs and no breakage; all supported.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T03:40:09.416468190Z",
+          "seal": {
+            "by": "server",
+            "mac": "59d06c7b26e55e5a5fcfd541a9ff1c3352f636d21737ffd7fc21db528b6d9d48"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4246"
+          ],
+          "recorded_at": "2026-11-28T03:40:13.467274956Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fcc9e8c4074ccd69cce9f0b81a67a82e232fed90b076140add86dba10624822"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:13.467274956Z",
+      "seal": {
+        "by": "server",
+        "mac": "f5b0c91ccae2be7ccce560e4a73974956ab9a75e3dc99ba545a98805f20ed72e"
+      }
+    },
+    {
+      "id": "CLM-2417",
+      "statement": "At the end of a gate run gate.sh prints exactly one summary line to stderr, after the gate's own output, on success and on a failing exit code.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1190: \"When the gate finishes, print one line to stderr, after the gate's own output.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4231",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh test_gate_timing_line_on_success / _on_failure (bash tools/agentic/tests/run.sh: 136 passed, 0 failed)",
+          "summary": "Success test asserts exactly one timing line matching 'lint waited N s for the lock, ran N s (exit 0)' and that it is the last output line; failure test asserts rc 3 and '(exit 3)'. Both ok in my own full run at head. Code: print_timing called once at gate.sh:192 for non-124 paths.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1511,
+                "end": 1527
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:31.682361077Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e81a838cc04cd87299fdd31a9df50bee1d84be8a84e51ccbd102021ee5c51c4"
+          }
+        },
+        {
+          "id": "EVD-4232",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:132-144,186-193",
+          "summary": "print_timing builds one line and echoes it to stderr once; it is called only at the two final exits (124 branch after the HANG heredoc, and the normal exit), so it follows the gate's output.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 132,
+                "end": 193
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:31.903319367Z",
+          "seal": {
+            "by": "server",
+            "mac": "b108273d9675500fa1f412d9bba85b8b4788e340e5cb68cf7405cfc76c59f370"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests assert exactly one line, last, on success and failure; code calls print_timing once per path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4231",
+            "EVD-4232"
+          ],
+          "recorded_at": "2026-11-28T03:40:02.726959950Z",
+          "seal": {
+            "by": "server",
+            "mac": "89ce9cf384537cb0e158071a9b0ecc4477c23293bba97f8ae4f16d185c8d7ceb"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:02.726959950Z",
+      "seal": {
+        "by": "server",
+        "mac": "9dc0430992d32fb30b9917852430665400c8af2d13fa2f2eb00364ca9807d2c4"
+      }
+    },
+    {
+      "id": "CLM-2418",
+      "statement": "The same single timing line is printed when the gate hits its own timeout (after the unchanged HANG message) and when the lock wait times out, where it says it waited the whole limit.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1190: \"Print it on every exit path: success, failure, the gate's own timeout, and a lock timeout. A lock timeout says it waited the whole limit.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4233",
+          "kind": "test",
+          "locator": "test_gate_timing_line_on_the_gates_own_timeout; test_gate_timing_line_on_a_lock_timeout_says_it_waited_the_limit (run.sh 1536-1563, 136 passed)",
+          "summary": "Own-timeout test: rc 124, 'Treat this as a HANG' present, exactly one timing line '(exit 124)'. Lock-timeout test (holder keeps lock 30 s, limit 1 s): rc 124, 'for the gate lock' message, one line 'lint waited [1-9][0-9]* s for the lock (exit 124)' with no ran part. Both ok. Caveat: waited is the measured elapsed (SECONDS delta), asserted only as nonzero, not equal to the limit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1536,
+                "end": 1563
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:32.135315172Z",
+          "seal": {
+            "by": "server",
+            "mac": "70394f96cfb2459d3b3d72a9cd8e376d31407a96f8e3e46a6efc44739dcc63e7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own-timeout and lock-timeout tests pass and assert one line with exit 124 and the HANG text. Waited equals measured elapsed (about the limit), not asserted equal; acceptable.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4233"
+          ],
+          "recorded_at": "2026-11-28T03:40:02.854216455Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba2820206b0547eb2ee542d6c37bbe63b35327a2ccef4a330954704f4ee66a84"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:02.854216455Z",
+      "seal": {
+        "by": "server",
+        "mac": "f2ecb32f2639f3b16970f2c3ee7e606be84da69502dcd25d3e2ed823446e90e3"
+      }
+    },
+    {
+      "id": "CLM-2419",
+      "statement": "Locked gates report 'waited N s for the lock' (measured from before flock to its return, so time behind another holder counts) and unlocked gates (fmt, worker, release, narrow) report only the run time.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1190: \"Print the waited part only for locked gates.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4234",
+          "kind": "test",
+          "locator": "test_gate_timing_counts_the_wait_for_another_holder; test_gate_timing_line_for_an_unlocked_gate_has_no_wait (run.sh 1528-1553)",
+          "summary": "A separate process holds gates.lock for 2 s; the lint gate's line must show waited >= 1 s (asserted). fmt line must match 'fmt ran N s (exit 0)' and contain no 'lock'. Both ok. Code: waited_from=$SECONDS before flock at gate.sh:~153, waited_s set after; locked=0 gates never set waited_s. locked=1 only for lint/test/test-ui/dylint/mcpjam.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1528,
+                "end": 1553
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:32.360543575Z",
+          "seal": {
+            "by": "server",
+            "mac": "298dcadd6bbc89b3fc6142b50d645d6361e1660643a7c3bb586da64e16e228f5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Wait behind a real holder is counted and fmt has no wait part; both asserted and passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4234"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.084254767Z",
+          "seal": {
+            "by": "server",
+            "mac": "89dcebfcbe4d90ef5b5b020e8aaee2f55baf4abc64d9e27eea0e14692cd321d1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.084254767Z",
+      "seal": {
+        "by": "server",
+        "mac": "87902d527a9f98eaf518e2483ec14238f8a687ee15909a355495b4717829df02"
+      }
+    },
+    {
+      "id": "CLM-2420",
+      "statement": "The line includes 'seed N s' exactly when the seed command ran, and has no seed part when it did not.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1190: \"Include the seed step's time when it ran, e.g. seed 9 s.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4235",
+          "kind": "test",
+          "locator": "test_gate_timing_line_includes_the_seed_time_when_seeding_runs; test_gate_timing_line_has_no_seed_part_when_nothing_seeds (run.sh 1565-1580)",
+          "summary": "Seeding test (fake seed sleeps 1.2 s) requires 'seed [1-9][0-9]* s' between waited and ran; no-seed test (fake-seed absent/no-op) requires no 'seed' in output. Both ok. Code: seed_s set only inside the branch where the seed command exists and runs (gate.sh:98-108); print_timing omits an empty seed_s.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1565,
+                "end": 1580
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:32.593378363Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e9413bc8891443ff475ddf1c4ae11911685bad418a26491ebba5c21c5b1cc3d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Seed present and absent both tested and passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4235"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.310400506Z",
+          "seal": {
+            "by": "server",
+            "mac": "16816813c1d3180fd8768b59a549aa79bafc5f28bd489f5f4cdacd8a3cd02725"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.310400506Z",
+      "seal": {
+        "by": "server",
+        "mac": "58cdeb0173fd4647f72690e3a4d108f89b4ee3df021ff852f8974c59531d4465"
+      }
+    },
+    {
+      "id": "CLM-2421",
+      "statement": "Exit codes, limits, lock behaviour and the HANG message text of gate.sh are unchanged by the PR; the non-test, non-doc hunks only add time measurement and the print_timing call.",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"Exit codes, limits and lock behaviour are unchanged; the limit still counts the wait.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4236",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- tools/agentic/gate.sh",
+          "summary": "Every non-comment hunk adds only seed_s/waited_s/ran_s variables, SECONDS arithmetic, print_timing and its two calls. The limit still reduces by the wait (limit_s - waited_s, same value as before), flock/9>&-/agentic_run_bounded calls and status handling are untouched; the 124/137 branch and HANG heredoc are untouched, and print_timing is called before the same exit 124 / exit $status. No exit code or limit changes. Whole-run tests (136 pass, existing HANG/lock tests included) agree.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 94,
+                "end": 193
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:32.823202682Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a3f259e83d4b5f7c2eb6120584997d092e722dfe404ad2b39e1ae5929cd028d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff read hunk by hunk: only measurement and printing added; control flow, limits, lock and exit codes unchanged; existing tests still pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4236"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.438636664Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d0b06a0f69d82dfb360aa36721d3c8b017ea1093a3914c3ac4e8ef5febcb660"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.438636664Z",
+      "seal": {
+        "by": "server",
+        "mac": "72f1b4dedb7f3e90d1bd8e167929850d8e729bbf4a7325220f4ebacfde7890f7"
+      }
+    },
+    {
+      "id": "CLM-2422",
+      "statement": "tools/agentic/tests/run.sh has 8 new tests covering success, failure, unlocked gate, the gate's own timeout, wait behind another lock holder, lock timeout, seed present and seed absent, and they pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1190 test list; PR body: \"8 new tests in tools/agentic/tests/run.sh\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4237",
+          "kind": "test",
+          "locator": "grep gate_timing in output of: tools/agentic/tests/run.sh (target/i1190-logs/audit-run.txt)",
+          "summary": "Eight test_gate_timing_* tests exist at run.sh:1511-1580 (success, failure, unlocked, own timeout, wait behind holder, lock timeout, seed present, seed absent), and all eight print ok in my run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1511,
+                "end": 1580
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:32.963604769Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d17a7a375fd3baa6000bb5c98a459c9e3fe485fc1172b88fa8ddd448dc15aca"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Eight tests present covering each listed case, all passing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4237"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.565962489Z",
+          "seal": {
+            "by": "server",
+            "mac": "352e856368a738ba37a16a48ad1b33f816df1958ed5221f9d5b2baa9eea900f1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.565962489Z",
+      "seal": {
+        "by": "server",
+        "mac": "795c68c1ef83c63cf7245aaf2e8d6f4e077207f86cd34db8efe80f85783c227f"
+      }
+    },
+    {
+      "id": "CLM-2423",
+      "statement": "tools/agentic/tests/run.sh passes in full at head with 136 passed, 0 failed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"just test-agentic ...: 136 passed, 0 failed\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4238",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh at head d3dd6c40 -> '136 passed, 0 failed'",
+          "summary": "I ran the whole script myself; last line '136 passed, 0 failed', 136 'ok' lines, no other lines.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T03:39:33.097472755Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fae47005a8be151754c7e41af1aedde5417d169b5e763eba7b7c62317db0fab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reran: 136 passed, 0 failed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4238"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.747247825Z",
+          "seal": {
+            "by": "server",
+            "mac": "4527251e59df07ceb06ed1211170e5b9cc681687f57ac92a8f9f8ac4c6a02f5f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.747247825Z",
+      "seal": {
+        "by": "server",
+        "mac": "8ad01b564e21622a44d37c20ae6dc8faa73eaa0b72a06cdaa26c39d61416ec84"
+      }
+    },
+    {
+      "id": "CLM-2424",
+      "statement": "With origin/main's gate.sh and this branch's tests/run.sh, the 8 new tests fail (128 passed, 8 failed).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR body: \"Revert check: with origin/main's gate.sh, the 8 new tests fail (128 passed, 8 failed)\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4239",
+          "kind": "test",
+          "locator": "git archive origin/main tools/agentic + head's tests/run.sh, bash run.sh -> '128 passed, 8 failed'",
+          "summary": "Extracted origin/main's tools/agentic into scratch, replaced tests/run.sh with this branch's, ran it: 128 passed, 8 failed (8 fail lines).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T03:39:33.326175649Z",
+          "seal": {
+            "by": "server",
+            "mac": "57cb9d5971bf60b1bf4ad54c0eb9718a8916367b3900739374afb97ff8dbcfec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: 128 passed, 8 failed against origin/main's gate.sh.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4239"
+          ],
+          "recorded_at": "2026-11-28T03:40:03.979781865Z",
+          "seal": {
+            "by": "server",
+            "mac": "9436dc3fea1da2184efb91ecb07ef172d8e8e04b851b6f3e3877242a66d08c55"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:03.979781865Z",
+      "seal": {
+        "by": "server",
+        "mac": "35058b385512a29ef5f9cf34de5cee97330acb498f263f0ee3364e04f54c9467"
+      }
+    },
+    {
+      "id": "CLM-2425",
+      "statement": "tools/agentic/README.md documents the timing line: format, when waited/seed/ran appear, the lock-timeout form, and that it is not printed for usage errors or INT/TERM to gate.sh itself; and a dated changelog entry exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1190: \"Document the line in tools/agentic/README.md\"; PR body: \"README and a changelog entry document the format\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "changelog/20261128T032135Z-issue-1190-gate-timing-line.md"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4240",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:10 ('Timing line (#1190)'); changelog/20261128T032135Z-issue-1190-gate-timing-line.md",
+          "summary": "README row gives the format, waited only for locked gates (not fmt, worker, release, narrow), seed only when it ran, ran only when started, the lock-timeout form, whole seconds, and exclusion of exit 2 and INT/TERM. Changelog file is dated in its name and body (2026-11-28T03:21:35Z) and describes the same.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T032135Z-issue-1190-gate-timing-line.md",
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:33.561814557Z",
+          "seal": {
+            "by": "server",
+            "mac": "1f5991dddfe64a487e54b91f0f35c451bcd02dd06ff2834791d1b0553b776be4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README row and changelog contain every listed element.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4240"
+          ],
+          "recorded_at": "2026-11-28T03:40:04.210659050Z",
+          "seal": {
+            "by": "server",
+            "mac": "82088b846c842d4535b81909ee23b6f2049e15be0f18e3c93ce22a6e2806e9bd"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:04.210659050Z",
+      "seal": {
+        "by": "server",
+        "mac": "0e014d70b096dacc18a3e87d79c81c6f1d77b54c787ddb2df651d2a8a9882642"
+      }
+    },
+    {
+      "id": "CLM-2426",
+      "statement": "The line is not printed for a usage error (exit 2, unknown gate or bad limit) of gate.sh.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Not printed for a usage error (exit 2) or when gate.sh itself dies of INT/TERM.\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4241",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:87,117,120",
+          "summary": "The unknown-gate and the two bad-limit branches echo and 'exit 2' directly; print_timing is defined later and called only at lines 189 and 192, so no timing line on exit 2. Caveat: bad-limit exit 2 happens after the seed ran, still without a line, as the README says.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 112,
+                "end": 121
+              },
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:33.789642448Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4ebf242f9e03a2767556dfba556449a2e3ec1b196cf3f23abbabcd8ec9d3d2e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Exit 2 branches never reach print_timing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4241"
+          ],
+          "recorded_at": "2026-11-28T03:40:04.440734352Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe90a111fa0669949ab50a72fe9234ec56548d508bdfd728c178727bd01395a8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:04.440734352Z",
+      "seal": {
+        "by": "server",
+        "mac": "a1718a9269b11e5cb8cbac32ec22579bc1be0130f36ed15eb5a641c23138da19"
+      }
+    },
+    {
+      "id": "CLM-2427",
+      "statement": "No other script, doc or tool in the repository parses gate.sh's stderr in a way the new line breaks (tools/agentic/*.sh, brief-common.md, lessons.md; watchdog.sh matches gate.sh by process arguments).",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1190 requirement; PR body: \"Other readers of gate.sh stderr: none found\"",
+      "derived_from": [
+        "CLM-2416"
+      ],
+      "artifacts": [
+        "tools/agentic/watchdog.sh"
+      ],
+      "tags": [
+        "from-issue:1190"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4242",
+          "kind": "analysis",
+          "locator": "git grep -nE 'gate\\.sh' excluding tests/run.sh, gate.sh, README, changelog, docs, claims.json",
+          "summary": "Remaining mentions are AGENTS.md:15, .claude/CLAUDE.md:4, .config/nextest.toml:11 (prose) and watchdog.sh:31,214-219 (matches gate.sh by ps arguments, not output). No script greps or captures gate.sh stderr; tests/run.sh asserts on gate output via want_out/want_no_out and the full run passes (136/0), including all pre-existing gate tests.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "gate\\.sh.*(2>&1|stderr)|\\^gate\\\\\\.sh",
+              "scope": [
+                "AGENTS.md",
+                "justfile",
+                "tools/agentic/brief-common.md",
+                "tools/agentic/lessons.md",
+                "tools/agentic/lib.sh",
+                "tools/agentic/merge-reviewed.sh",
+                "tools/agentic/watch-review.sh",
+                "tools/agentic/watchdog.sh"
+              ],
+              "hits": 0,
+              "commit": "d3dd6c40f27f7bf1093c3b0ba52e02682f462a4c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:39:34.029490759Z",
+          "seal": {
+            "by": "server",
+            "mac": "345bca54dd54edecc5aff004b0ec97f77995f5d9fae504c5bb300b30f0c7ad72"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide search found no consumer of gate.sh stderr; the whole agentic suite passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4242"
+          ],
+          "recorded_at": "2026-11-28T03:40:04.669601530Z",
+          "seal": {
+            "by": "server",
+            "mac": "5991ea7cd26c75bdc58726f80b33c937f998b543eb04d4a14f1a1d0bb682990d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:38:57.358835524Z",
+      "updated_at": "2026-11-28T03:40:04.669601530Z",
+      "seal": {
+        "by": "server",
+        "mac": "7c79d8aac56fdc7ea5ddd7c363bf08f3f58af581d0f66e9ff33f23b7db5d219d"
       }
     }
   ]

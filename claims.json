@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "97c807007104903346640fef0251b9540802056ba8c4b1e114cb9254774ff9bb"
   },
-  "next_evidence_seq": 4475,
+  "next_evidence_seq": 4476,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "0dea76587ff49b23102168fd2893c2263ec5c2a30ce8f2807a0ab79305660a07"
+    "mac": "1b093b486510baf0cedfe993ec59c52cee79b03a3a9f2a03d369af9738e4655f"
   },
   "claims": [
     {
@@ -224865,6 +224865,28 @@
             "by": "server",
             "mac": "9129fb81cbd99ac8b5ecfba0780c2af54e43681aee642d324c040205dcff51ee"
           }
+        },
+        {
+          "id": "EVD-4475",
+          "kind": "test",
+          "locator": "http::api::catalogs::tests::the_stores_list_counts_each_stores_catalogs at 53de9456 (not re-run by me)",
+          "summary": "Before the GET /api/v1/stores call, the test inserts a half-created row (provisioned_at NULL) and a soft-deleted row on main, a soft-deleted row on store-b, and an empty store. It asserts main=2, store-b=1, store-empty=0, so a count that included half-created or deleted rows would fail. The caller reports mutation runs (dropping either predicate gives main=3); I did not repeat them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1574,
+                "end": 1623
+              },
+              "commit": "53de94568c7412ae0743e5c85e6f583b338f66d0"
+            }
+          },
+          "recorded_at": "2026-11-28T11:03:25.769497796Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0c5783ff2212b50ff44aa2767f3c43443190b8b2fcc9ecf3dac9856991689f8"
+          }
         }
       ],
       "verdicts": [
@@ -224895,13 +224917,27 @@
             "by": "server",
             "mac": "a1448208cee9e3279234266dab0e20045f2d23b84ddce6066e046ef49b62297d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "SQL filters provisioned and undeleted rows (EVD-4474); the test now exercises both exclusions and an empty store (EVD-4475, not re-run by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4474",
+            "EVD-4475"
+          ],
+          "recorded_at": "2026-11-28T11:03:29.087935618Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d6def7d1960bd13795bceb8f490dc7cd200e96d19cde04a0125bd0902fffb8f"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T10:11:26.784957748Z",
+      "updated_at": "2026-11-28T11:03:29.087935618Z",
       "seal": {
         "by": "server",
-        "mac": "7792e48cca7a63b5a30b6cbb1e7cc7dc510df1b5e14e70abc7d35c674d7009ce"
+        "mac": "a9d1f8669c03d7bcf17e045f4a72479ece5a8c3ff98624b32704004962d6c2a2"
       }
     },
     {

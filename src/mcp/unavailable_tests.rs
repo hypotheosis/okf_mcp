@@ -468,9 +468,10 @@ async fn a_lost_store_is_reached_again_by_a_later_call_once_it_is_back() {
     );
     assert!(stalled.accepted() > before, "the lost store was probed");
 
-    // It comes back; nothing else changes. A new call finds the handle, so
-    // the first call's finding was not remembered.
-    test.repoint(&store, u16::try_from(port).expect("a port"))
+    // It comes back at its address. The pool registry is not told (a failed
+    // open cached nothing), so a new call finding the handle shows nothing
+    // remembered the first call's finding.
+    test.repoint_row(&store, u16::try_from(port).expect("a port"))
         .await;
     let after = bounded(call().changeset(&on_remote, Access::Read))
         .await

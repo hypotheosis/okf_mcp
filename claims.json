@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2589,
+  "next_claim_seq": 2592,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "bdcdeda27598db85d1103fc25c4b7f240a0b3005b59553283a342ad47e4f195a"
+    "mac": "5d7c268bb504f355096efbaea48f26d4a3f60b2ba840d65d2f257a16296708a0"
   },
-  "next_evidence_seq": 4501,
+  "next_evidence_seq": 4508,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "2c6a2ee1968b2770ca3139ed43c15d83a05bec95516c48414b98666924a95a5c"
+    "mac": "b2326844355965d335e21338007b4227bbf4b8ab1d63560403318e9d19cbccc8"
   },
   "claims": [
     {
@@ -226400,6 +226400,28 @@
             "by": "server",
             "mac": "53d545da18b5cc8c85d336d06da87fc41317775ec3b62ecccb441a3199ff0973"
           }
+        },
+        {
+          "id": "EVD-4506",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1973-2004 at 148c0894",
+          "summary": "Report constant and note closure unchanged by the new commit (diff cdd0a3c9..HEAD does not touch them).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1973,
+                "end": 2004
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.882364704Z",
+          "seal": {
+            "by": "server",
+            "mac": "740f08c62a148f3cd0cdb0e2c45d612c7eb0c78b20539033dd2908a63d170a91"
+          }
         }
       ],
       "verdicts": [
@@ -226416,13 +226438,28 @@
             "by": "server",
             "mac": "62c660ca96baed4d21fca7f2b5ded58ce071e55a300ad4ad5f076fd3f3d81d88"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; report code unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4506",
+            "EVD-4487",
+            "EVD-4488"
+          ],
+          "recorded_at": "2026-11-28T12:37:56.216994328Z",
+          "seal": {
+            "by": "server",
+            "mac": "41ec3f51e19eb79297f9e94cefdd702ef5a41b0e6e4cba22da87af026496eaac"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:22:57.007616267Z",
+      "updated_at": "2026-11-28T12:37:56.216994328Z",
       "seal": {
         "by": "server",
-        "mac": "e6037873731430ac2d0b2c988c371ad8cd7d5f46a03ee92ef67cfdd8d5bbaa66"
+        "mac": "93859c7104e8f32926c865a0b110068dd92f0936972fa8e056cee9d068916b14"
       }
     },
     {
@@ -226468,6 +226505,28 @@
             "by": "server",
             "mac": "ed52c5e218077c9adea7737ce6a41f749f7bb275da8c78be5bae00e5e780f911"
           }
+        },
+        {
+          "id": "EVD-4507",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1995-2004 at 148c0894",
+          "summary": "only_the_session_check_as_second still waits through wait_text_is_noting; both journeys still call it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1995,
+                "end": 2004
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:45.029343451Z",
+          "seal": {
+            "by": "server",
+            "mac": "8eb8feba6558376966a3ed7a320987985bcdd6a9163c6fa0955ef37169044c05"
+          }
         }
       ],
       "verdicts": [
@@ -226483,13 +226542,26 @@
             "by": "server",
             "mac": "57e5d054043024657bf88fdd08aff916154b740c8ce0157fe7d5e0b9cad2b045"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; still true.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4507"
+          ],
+          "recorded_at": "2026-11-28T12:37:56.359377131Z",
+          "seal": {
+            "by": "server",
+            "mac": "d02e0ee238e8b4eea9a49fe33e9e7a71bb469bc14eb6e78ec1835e03addf7b83"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:22:57.164143279Z",
+      "updated_at": "2026-11-28T12:37:56.359377131Z",
       "seal": {
         "by": "server",
-        "mac": "66beaa0155f6dcca6c46acbf97ecf0376bf4f8c2193fccb25252cd934dd0f74e"
+        "mac": "bd267f2c0804d29bad1f9523c8bf5f31942c5f2ad19dd07fd6a70d321f615c43"
       }
     },
     {
@@ -226794,6 +226866,28 @@
             "by": "server",
             "mac": "f681bb5945cccc8f2cc298229a79ffe95dbe7c3819cb8adea24566ce252b1041"
           }
+        },
+        {
+          "id": "EVD-4504",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1928-1968 at 148c0894",
+          "summary": "Re-read at head: still posts from /healthz, reads /api/v1/session back, up to 3 attempts, no console reload; a wait_fetches_settled() call was added at its start, which the statement does not contradict.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1928,
+                "end": 1968
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.587150624Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c61b96a919337ed1b505e2eed2095ee1d00937473714901a13bd0a5d85866bf"
+          }
         }
       ],
       "verdicts": [
@@ -226809,13 +226903,26 @@
             "by": "server",
             "mac": "105064b8aee94b9aa2c80d298d7818032845c96f83fb86cbe13f57c253eb8f4f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; still true.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4504"
+          ],
+          "recorded_at": "2026-11-28T12:37:55.927383688Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd32aaff30c1e89aae1415c3c509545db2164b8ad752b7cb6c8a1b7e1d3bf6e9"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:22:57.895107245Z",
+      "updated_at": "2026-11-28T12:37:55.927383688Z",
       "seal": {
         "by": "server",
-        "mac": "2f9c796bca97566c5fe1e6b8724b0659d9ea6e12d82eabc476e007a4ba9efe00"
+        "mac": "39f2c4aae22eb376db00749f79be7ca1afc3012eb7c71f5a38167ed45589974f"
       }
     },
     {
@@ -226860,6 +226967,28 @@
             "by": "server",
             "mac": "ce763df785f3447d9ba17fc2b0f32b3e377b5803cc0e4f419423ae13cc3e832f"
           }
+        },
+        {
+          "id": "EVD-4505",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/read.rs:1928-1930; tests/ui_e2e/harness.rs:661-700; src/http/read/js/api.js:48,92",
+          "summary": "At head the reader's pending page fetches are drained (counter 0 twice, 100 ms apart) before the sign-in is posted, the reader's only /api/v1 requests are page fetches, and the reader tab is otherwise idle until the reload in only_the_session_check_as_second, which happens after second's session exists. The window the earlier evidence left open (a late first-account 401 after the read-back) is closed for requests the page started. Residual: a fetch the page starts after the wait and before the sign-in lands (none known; the page is idle); the claim's empirical half (no flake under load) rests on the author's two passing full runs, which I did not repeat.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1928,
+                "end": 1930
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.734720924Z",
+          "seal": {
+            "by": "server",
+            "mac": "da0a3be7b18a99ef5bf5d80da9e7ef83eb015a59bba208c15f38180ae2665422"
+          }
         }
       ],
       "verdicts": [
@@ -226875,13 +227004,26 @@
             "by": "server",
             "mac": "8c558e71a52169dceb8efe0bda3670ee4c65f75b8c1dc5beb83775c911b7babf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The gap named in the previous verdict is closed: pending reader requests are drained before the sign-in, and no other source of reader /api/v1 requests exists. The empirical no-flake half is only backed by the author's runs, which I did not repeat.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4505"
+          ],
+          "recorded_at": "2026-11-28T12:37:56.075056497Z",
+          "seal": {
+            "by": "server",
+            "mac": "784c94645d7ca6ba9d1192488a8df672d599fc1997536589938292c73b60fa89"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:22:58.033014979Z",
+      "updated_at": "2026-11-28T12:37:56.075056497Z",
       "seal": {
         "by": "server",
-        "mac": "6e613c2c3e3bd3a6abfbe54e15075d90a73ef9991b0acc607dc7cc670cf1888f"
+        "mac": "a8b0e6edc3a780ea3312483c5bd29a8a94c1bc297f1c9fdd6bdf9cad838bf7e1"
       }
     },
     {
@@ -227061,6 +227203,206 @@
       "seal": {
         "by": "server",
         "mac": "5fb96020ae19b686512266b9b2aa9fd3722ba9b4afc5094d5f8fa34507363756"
+      }
+    },
+    {
+      "id": "CLM-2589",
+      "statement": "sign_in_second_in_another_tab calls ui.wait_fetches_settled() before it posts the sign-in, and both journeys call ui.track_fetches() right after wait_worker, so the wait counts every fetch the reader page makes afterwards.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Reviewer's point on PR #1211: reading second back does not prove the reader tab's pending first-account requests finished; changelog 'Review round'",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4501",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1928-1930, 2012, 2053; tests/ui_e2e/harness.rs:95-104, 661-700",
+          "summary": "wait_fetches_settled is the first statement of the helper; track_fetches follows wait_worker in both journeys. TRACK_FETCHES wraps window.fetch with a counter decremented in finally; the wait needs the counter 0 on two reads 100 ms apart, up to WAIT, else panics. The reader's only /api/v1 requests are page fetches (src/http/read/js/api.js:48,92 are the only fetch calls of /api/v1; sw.js fetches only shell files and the page's own requests), so no /api/v1 request of the reader bypasses the count. The page's navigation from open_reader is hash-only so the wrapper persists. Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 95,
+                "end": 104
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.143162988Z",
+          "seal": {
+            "by": "server",
+            "mac": "5badcade62d133129dfdd468f0a00b4f5083103373d225054e3c60d6a3e9015f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and the set of /api/v1 request sources show the wait covers the reader's pending requests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4501"
+          ],
+          "recorded_at": "2026-11-28T12:37:55.502147276Z",
+          "seal": {
+            "by": "server",
+            "mac": "7a1da437edec93dc1c9546760043149487aa9116c3ec49588ecff093a4d9fa04"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:37:26.755633119Z",
+      "updated_at": "2026-11-28T12:37:55.502147276Z",
+      "seal": {
+        "by": "server",
+        "mac": "b43ddb9c490b13b84cd8bb7f027742d21b47f89c885bbccb08ff01c812767905"
+      }
+    },
+    {
+      "id": "CLM-2590",
+      "statement": "The two journeys still keep the reader tab open and do not drive it between track_fetches and the second tab's sign-in: track_fetches only wraps window.fetch and the wait only reads a counter.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Changelog 'Review round': \"The reader tab stays open and untouched, so what each journey tests is unchanged.\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4502",
+          "kind": "inspection",
+          "locator": "git diff cdd0a3c9..HEAD -- tests/ui_e2e/read.rs",
+          "summary": "The only changes to the two journeys are one ui.track_fetches() line each, after wait_worker and before open_reader; all later steps are unchanged. The helper's added wait only evals a counter read on the reader page.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2007,
+                "end": 2016
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.291467632Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d9200389402c4160bb5a17b1209c17b2e9f479cb3365f6fb5259e8a435ea439"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only one added line per journey, and it does not navigate or click.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4502"
+          ],
+          "recorded_at": "2026-11-28T12:37:55.645765164Z",
+          "seal": {
+            "by": "server",
+            "mac": "819420e3b363762a703950eb0a33df00ab6498975aba0b6a3365d62d104c93f5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:37:26.755633119Z",
+      "updated_at": "2026-11-28T12:37:55.645765164Z",
+      "seal": {
+        "by": "server",
+        "mac": "13e4dd3d12c015c1ab09918329ceba3007a4844888904aaa44a6d0a1181cc662"
+      }
+    },
+    {
+      "id": "CLM-2591",
+      "statement": "The test the_second_sign_in_waits_for_the_readers_pending_requests holds a reader GET /api/v1/session, asserts fetches_settle_within(1.5 s) is false while it is held, releases it, asserts the wait then returns true, and then runs sign_in_second_in_another_tab.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Changelog 'Review round': \"holds a request in the reader and asserts the wait does not return while it is held and does once it is released\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4503",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:2072-2102",
+          "summary": "Read the assertions: hold_next(GET, /api/v1/session) installed before track_fetches, so the held fetch is counted; assert!(!fetches_settle_within(1500 ms)); release_held; assert!(fetches_settle_within(10 s)); then sign_in_second_in_another_tab(ui). The assertions would fail with a no-op wait. I did not run the test; the author's report of a failing run with the wait made a no-op and passing in 4 store passes is theirs only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2072,
+                "end": 2102
+              },
+              "commit": "148c08946834ab0e49eb8618dfe2bdfeee176502"
+            }
+          },
+          "recorded_at": "2026-11-28T12:37:44.441443965Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f7d69c770379e7dbc51fc9d17b6c83ec1fa73ec7dc6d4d755dc72660c7042ef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The assertions in the test body match the statement and fail under a no-op wait; I read them but did not run the test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4503"
+          ],
+          "recorded_at": "2026-11-28T12:37:55.786779168Z",
+          "seal": {
+            "by": "server",
+            "mac": "d40a093a10d46eb870e024a5a5c66406f1f29d42f342611be9907c09abd05747"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:37:26.755633119Z",
+      "updated_at": "2026-11-28T12:37:55.786779168Z",
+      "seal": {
+        "by": "server",
+        "mac": "a6247057ecdcd6f02d4fd0579dc994b89d4bef91776feab536548ad65107faa8"
       }
     }
   ]

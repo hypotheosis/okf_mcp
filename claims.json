@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2639,
+  "next_claim_seq": 2640,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "358c03bcbdbeefc85cb5f3825618c5a2a468527e0c2ead0dc440f2f30e1a0519"
+    "mac": "2632fea6d9f70b868aedd9ee369a31dce84d851f653ad60a3bce41279865ceff"
   },
-  "next_evidence_seq": 4586,
+  "next_evidence_seq": 4587,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7f05daf64b5884cdb9213a8fb0d59a44cd9910236cca9f6d3eff4e3c7e0a09a8"
+    "mac": "39178f0749ea1daeaba64d5b7db47d4c9aee5a479ca7f8d2a3593016c0636562"
   },
   "claims": [
     {
@@ -231305,6 +231305,65 @@
       "seal": {
         "by": "server",
         "mac": "54ce216e41223689d3d720779de878e212718e225bcbf18129f7398f288875d4"
+      }
+    },
+    {
+      "id": "CLM-2639",
+      "statement": "When a caller's own INT/TERM handler returns after a capture or bounded run re-raised the signal, agentic_run_captured, bounded_capture and agentic_run_bounded stop, return 130 (INT) or 143 (TERM), launch nothing, leave no temp file and keep the caller's trap installed.",
+      "kind": "functional",
+      "level": "unit",
+      "verification_method": "test",
+      "source": "PR #1218 review round 1 (Brooke, lib.sh comment)",
+      "source_anchor": {
+        "path": "tools/agentic/lib.sh",
+        "commit": "a570f0fa1fcb5c0c87f90db318705405a37b7a7f"
+      },
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4586",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh test_run_captured_aborts_when_the_callers_term_handler_returns, test_run_bounded_aborts_when_the_callers_term_handler_returns",
+          "summary": "Both tests (set -u, non-exiting TERM handler, marker-synchronised) pass on the fix (rc=143, handler ran, trap still installed, command not launched, tmp empty) and fail on the previous head. The bounded_capture path shares the same helper checks (watchdog.sh) but has no test of its own.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "commit": "a570f0fa1fcb5c0c87f90db318705405a37b7a7f"
+            }
+          },
+          "recorded_at": "2026-11-28T14:41:32.407676057Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2e9dc9367fe04570d96980072f0abccde5f1187bb65a68a9ffd8367ad95a809"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Supported for agentic_run_captured and agentic_run_bounded by the two new tests (EVD-4586). bounded_capture carries the same checks (watchdog.sh) but no test exercises its returning-handler path, and the claim names it; recorded by the implementer, not an independent auditor.",
+          "auditor": "claude-sonnet-5-5 (implementer, review round 1)",
+          "evidence_ids": [
+            "EVD-4586"
+          ],
+          "recorded_at": "2026-11-28T14:41:37.197055002Z",
+          "seal": {
+            "by": "server",
+            "mac": "e4152777e138fe982021a47562b83a0ff2784088c7fea57e2021fc31886dc511"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:41:29.298479115Z",
+      "updated_at": "2026-11-28T14:41:37.197055002Z",
+      "seal": {
+        "by": "server",
+        "mac": "b041d59c8d96c08b33bba7b402256605ba38f6b0edf57d8c559f08007d17bb25"
       }
     }
   ]

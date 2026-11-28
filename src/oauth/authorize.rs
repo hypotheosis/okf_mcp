@@ -742,11 +742,13 @@ async fn trusted_client<'q>(
 /// sign-in code path), the signed-in consent page, or sends the browser to
 /// `/signin`.
 ///
-/// When it refuses a `resource` that is not this server's, its span carries
-/// `okf.resource`: how the value differed, a closed set
-/// ([`resource::classify`]), never the value.
+/// One `okf.oauth.authorize` span per request, at `info` so the default
+/// trace export keeps it (issue #1203). When the handler refuses a `resource`
+/// that is not this server's, the span carries `okf.resource`: how the value
+/// differed, a closed set ([`resource::classify`]), never the value.
 #[tracing::instrument(
-    level = "debug",
+    level = "info",
+    name = "okf.oauth.authorize",
     skip_all,
     fields(okf.resource = tracing::field::Empty)
 )]
@@ -2000,11 +2002,12 @@ mod tests {
         assert!(headers.get("location").is_none());
     }
 
-    /// Issue #1011: a refused `resource` says how it differed on the
-    /// authorize span, and the value is nowhere in what was exported.
+    /// Issues #1011 and #1203: a refused `resource` says how it differed on
+    /// the `okf.oauth.authorize` span, under the default OTLP traces filter,
+    /// and the value is nowhere in what was exported.
     #[tokio::test]
     async fn a_refused_resource_says_how_it_differed_on_the_authorize_span() {
-        use crate::telemetry::config::LogFormat;
+        use crate::telemetry::config::{LogFormat, DEFAULT_OTLP_FILTER};
         use crate::telemetry::subscriber::capture::{attribute, Observer};
 
         let test = oauth_app().await;
@@ -2017,7 +2020,7 @@ mod tests {
             (marker.to_string(), "unparseable"),
         ];
         for (sent, expected) in cases {
-            let observer = Observer::start("off", "debug", "debug", LogFormat::Text);
+            let observer = Observer::start("off", DEFAULT_OTLP_FILTER, "off", LogFormat::Text);
             let query = query_with("resource", &sent);
             let (status, headers, _) =
                 send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
@@ -2028,7 +2031,7 @@ mod tests {
             let target = location(&headers);
             assert_eq!(param(&target, "error").as_deref(), Some("invalid_target"));
             assert!(!target.as_str().contains(marker), "{expected}");
-            let spans = observed.spans_named("authorize");
+            let spans = observed.spans_named("okf.oauth.authorize");
             let recorded: Vec<_> = spans
                 .iter()
                 .filter_map(|span| attribute(span, "okf.resource"))
@@ -2036,6 +2039,35 @@ mod tests {
                 .collect();
             assert_eq!(recorded, [expected], "{expected}");
             assert!(!observed.exported_text().contains(marker), "{expected}");
+        }
+    }
+
+    /// Issue #1203: a missing or accepted `resource` still exports the
+    /// `okf.oauth.authorize` span under the default filter, with no
+    /// `okf.resource`.
+    #[tokio::test]
+    async fn an_accepted_or_missing_resource_leaves_okf_resource_unrecorded() {
+        use crate::telemetry::config::{LogFormat, DEFAULT_OTLP_FILTER};
+        use crate::telemetry::subscriber::capture::{attribute, Observer};
+
+        let test = oauth_app().await;
+        for query in [
+            query_without("resource"),
+            query_with("resource", &format!("{PUBLIC_URL}/mcp")),
+        ] {
+            let observer = Observer::start("off", DEFAULT_OTLP_FILTER, "off", LogFormat::Text);
+            let (status, headers, _) =
+                send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
+            let observed = observer.finish();
+
+            assert_eq!(status, StatusCode::SEE_OTHER);
+            assert_ne!(
+                param(&location(&headers), "error").as_deref(),
+                Some("invalid_target")
+            );
+            let spans = observed.spans_named("okf.oauth.authorize");
+            assert_eq!(spans.len(), 1);
+            assert!(attribute(spans[0], "okf.resource").is_none());
         }
     }
 

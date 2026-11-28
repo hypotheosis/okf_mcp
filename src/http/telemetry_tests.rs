@@ -1308,6 +1308,7 @@ fn no_okf_span_key_holds_a_substring_a_scrubber_hides() {
         "okf.grant",
         "okf.refusal",
         "okf.refresh",
+        "okf.resource",
         "okf.error",
         "okf.error.kind",
         "okf.tool",

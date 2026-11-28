@@ -1174,6 +1174,40 @@ test_a_term_at_each_capture_step_launches_and_leaks_nothing() {
     done
 }
 
+test_a_term_before_the_group_exists_stops_the_command() {
+    # #1193 (audit): a TERM that lands just after the launch, before the leader
+    # has called setsid() (a stub setsid that waits), used to find no group to
+    # stop and leave the command running. Each helper stops it once it starts.
+    local helper pid real
+    real=$(command -v setsid)
+    for helper in "bounded_capture result" "agentic_run_captured 30" "agentic_run_bounded 30"; do
+        new_fixtures
+        block_stub "$fx/bin/setsid" setsid-started "exec $real \"\$@\""
+        term_at '[ -e "$fx/setsid-started" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"'
+        [ -s "$fx/cmd.pid" ] || continue
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+    done
+}
+
+test_the_helpers_clean_up_under_a_callers_set_e() {
+    # #1193 (audit): under `set -e` a failing command must still go through the
+    # one exit: temp files removed, the caller's trap back, then the shell ends.
+    local call
+    for call in "agentic_run_captured 5" "agentic_bounded_call" "bounded_capture result" \
+        "agentic_run_bounded 5"; do
+        new_fixtures; mkdir -p "$fx/tmp"
+        rc=0
+        out=$(TMPDIR="$fx/tmp" bash -c 'set -euo pipefail; source "$1/lib.sh"
+            source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
+            trap "echo mine" TERM; trap "trap -p TERM" EXIT
+            '"$call"' bash -c "exit 3"; echo not-reached' _ "$tools" 2>&1) || rc=$?
+        want_rc 3; want_no_out "not-reached"; want_out "trap -- 'echo mine' SIGTERM"
+        [ -z "$(ls -A "$fx/tmp")" ] || die "$call left a temp file: $(ls -A "$fx/tmp")"
+    done
+}
+
 test_an_int_with_a_returning_handler_gives_130() {
     # #1193: INT takes the same path as TERM: before the launch (the budget) and
     # while the command runs, for a capture and for agentic_run_bounded.

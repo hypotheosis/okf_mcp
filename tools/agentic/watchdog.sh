@@ -141,9 +141,10 @@ newest_log_time() {
 # (the budget included): 130 or 143 when the caller's own handler returned,
 # with nothing launched or stored after the signal.
 bounded_capture() {
+    local bc_exit=0
     agentic_cap_begin
-    bounded_capture_steps "$@"
-    agentic_cap_finish $?
+    bounded_capture_steps "$@" || bc_exit=$?
+    agentic_cap_finish "$bc_exit"
 }
 
 # bounded_capture_steps: the body of bounded_capture, between agentic_cap_begin
@@ -158,6 +159,7 @@ bounded_capture_steps() {
             *) break ;;
         esac
     done
+    agentic_cap_live || return
     bc_budget=$(agentic_call_budget)
     agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return
     agentic_capture_supervise "$bc_budget" "$bc_in" "$bc_file" /dev/null "${@:2}" \

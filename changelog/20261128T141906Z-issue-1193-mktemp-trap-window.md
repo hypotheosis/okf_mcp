@@ -53,3 +53,12 @@
   path), while the command runs and while its leftover is stopped, each with a
   returning caller handler: 143, trap kept, no temp file, nothing launched before
   the launch and the group stopped after it.
+- Independent re-audit of the deferral found four gaps, now fixed: a TERM
+  right after a launch, before the leader's `setsid()`, found no group to stop
+  (`agentic_stop_group` now waits up to 1 s for the group, then KILLs the
+  leader); a TERM just before `wait -n` waited out the whole budget (the trap
+  now ends the bounded run's timer); the budget's clock and the bounded run's
+  warnings ran after a recorded signal (now checked); and under a caller's
+  `set -e` a failing command skipped the exit (each wrapper takes the body's
+  status with `|| status=$?`). Tests: a stub `setsid` that blocks before the
+  group exists, and every helper under `set -euo pipefail`.

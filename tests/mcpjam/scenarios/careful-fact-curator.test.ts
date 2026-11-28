@@ -41,6 +41,23 @@ describe(SCENARIOS.createAndSource.goal, () => {
         ]);
     });
 
+    // Issue #953: link syntax written as code is an example, not a link, so a concept can show
+    // one without publish refusing it as a broken link.
+    test("an example link written as code publishes and is not a broken link", async () => {
+        const path = paths.at("history/example-link");
+        const changeset = await session().openChangeset();
+        await create(session(), changeset, {
+            path,
+            title: "Example link",
+            body: "# Example link\n\nWrite `[text](<no such file.md>)` to link.\n\n```\n[more](gone.md)\n```\n",
+            summary: "How to write a link.",
+        });
+        await session().publish(changeset, "Show how to write a link");
+
+        const concept = await session().concept(path);
+        expect(concept.body).toContain("`[text](<no such file.md>)`");
+    });
+
     // Issue #929: a taken path is its own error, so a client that branches on `error` knows to
     // edit the concept instead.
     test("create_concept on an existing path is AlreadyExists, naming the edit tools", async () => {

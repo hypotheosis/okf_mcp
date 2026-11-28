@@ -13,7 +13,7 @@
 //! one, and it only appends, so a link there could never be removed and the
 //! concept could never be deleted. The delete turns each such link into its
 //! link text instead (`[X](/infra/x.md)` becomes `X`), with the same link
-//! test as the refusal (`relink::links_to`), so nothing is left broken.
+//! test as the refusal (`relink::into_links_to`), so nothing is left broken.
 //!
 //! The listing goes through a [`ReplayOp::Unlist`] (any bullet, since it is
 //! deleted either way) and each `log.md` through a [`ReplayOp::Unlink`], so
@@ -23,7 +23,8 @@
 //! emptied folder keeps its `index.md`; a note says so.
 
 use crate::error::{LinkSource, OkfError};
-use crate::okf::ops::relink::{links_to, unlink_text};
+use crate::okf::markdown::link_lines;
+use crate::okf::ops::relink::{into_links_to, unlink_text};
 use crate::okf::ops::replay::{listing_line, unlist_text, ReplayOp};
 use crate::okf::ops::OpOutcome;
 use crate::okf::paths::{basename, dirname, join, outside_link_graph, resolve_concept};
@@ -132,13 +133,13 @@ fn links_into(
         }
         // Universal newlines, as the snapshot (and so lint) numbers lines.
         let text = workspace.read_text(&source)?;
-        for (number, line) in text.split('\n').enumerate() {
+        for (number, (_, found)) in link_lines(&text).enumerate() {
             if source == index && listing == Some(number) {
                 continue;
             }
             // In-page links (`#x`) resolve to `None`, so they never count.
-            // `links_to` is also the test `unlink_text` applies to `log.md`.
-            let hits = links_to(workspace, line, &source, path).len();
+            // `into_links_to` is also the test `unlink_text` applies to `log.md`.
+            let hits = into_links_to(workspace, found, &source, path).len();
             // `repeat_with(..).take(n)`: one entry per link on the line.
             links.extend(
                 std::iter::repeat_with(|| LinkSource {
@@ -334,6 +335,22 @@ mod tests {
             error,
             OkfError::StillLinked { ref links, .. } if links == &[link("hub.md", 5)]
         ));
+    }
+
+    #[test]
+    fn a_link_written_as_code_does_not_refuse_a_delete() {
+        let workspace = MemWorkspace::from_files(FILES);
+        workspace
+            .write_atomic(
+                "notes.md",
+                "---\ntype: Note\ntitle: N\n---\nWrite `[z](infra/z.md)`.\n\n```\n[z](infra/z.md)\n```\n",
+            )
+            .unwrap();
+
+        let outcome = delete_concept(&workspace, "infra/z.md");
+
+        assert!(outcome.is_ok(), "{outcome:?}");
+        assert!(!workspace.is_file("infra/z.md"));
     }
 
     #[test]

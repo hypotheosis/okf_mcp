@@ -703,6 +703,28 @@ mod tests {
     }
 
     #[test]
+    fn a_link_written_as_code_is_not_a_broken_link() {
+        let report = lint_files(
+            [
+                ("index.md", "# Root\n\n* [Note](note.md) - n\n"),
+                (
+                    "note.md",
+                    "---\ntype: Note\ntitle: Note\ndescription: d\n---\n\
+                     Write `[x](<a b.md>)` to link.\n\n```\n[y](gone.md)\n```\n",
+                ),
+            ],
+            None,
+        );
+        let broken: Vec<_> = report
+            .errors
+            .iter()
+            .chain(&report.warnings)
+            .filter(|f| f.rule == "broken-link")
+            .collect();
+        assert!(broken.is_empty(), "{broken:?}");
+    }
+
+    #[test]
     fn mini_catalog_matches_okf_py() {
         // Arrange
         let commits = mini_commits();

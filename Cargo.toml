@@ -272,6 +272,17 @@ tungstenite = "0.29.0"
 # A software passkey for the passkey tests (Task 8); no system libraries.
 webauthn-authenticator-rs = { version = "0.6.2", default-features = false, features = ["softpasskey"] }
 
+# Debug info, kept small: line tables are enough for file:line in backtraces
+# and panics, and full debug info made every test binary about 1.3 GB, so each
+# relink wrote gigabytes. Dependencies carry none (they come from sccache).
+# A debugger session that needs variables can set
+# CARGO_PROFILE_DEV_DEBUG=full for that build.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
 # argon2 is roughly a hundred times slower unoptimized, and the password
 # tests hash dozens of times; optimize it (and its BLAKE2) in debug builds.
 [profile.dev.package.argon2]

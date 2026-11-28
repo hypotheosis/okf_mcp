@@ -34,3 +34,24 @@ matches by its text (as `SHARED_MEMBER_REFUSAL`); no new error variant.
 Tests: store (`users_email_atomic_tests.rs`, with lock-wait races through
 `test_locks`), REST in `people.rs` and `provisioner_tests.rs`, and a
 malformed-name route.
+
+## Review round 1
+
+`create_with_email` wrote the address after `invalidate`, which locks the
+`server_state` singleton until the commit, while `set_email` writes the address
+first and invalidates after. A `set_email` moving an address onto a user being
+created could then wait on the singleton while the create waited on its
+uncommitted unique-email entry: a deadlock, which Postgres resolved by aborting
+one of them with a database error instead of the success or 409.
+
+The store now splits the address write (`write_email`) from the entry
+(`record_email_change`) and the cache bump. Every path that takes both locks
+takes the unique-email entry first, the singleton second: `set_email` as before,
+and `create_with_email` writes the address before its first `invalidate`. The
+audit order is unchanged: `user.created`, then `user.email_changed`. The delete
+path only reads the address under the user row lock and takes the singleton last,
+and no other code writes `users.email`, so the order is consistent everywhere.
+
+A new test holds the singleton, queues a create and the real `set_email` for one
+address behind it, releases it, and requires one success and one 409. On the old
+order it fails with a deadlock abort (`Busy`).

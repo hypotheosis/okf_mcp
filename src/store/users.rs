@@ -221,7 +221,7 @@ pub async fn create(
 /// transaction: a taken address (in any letter case) creates nothing, so a
 /// client never holds an email-less user left over from a failed second
 /// request (issue #980). The address goes through the same check and the
-/// same statement as [`set_email`], and records what a create followed by a
+/// same statement (`write_email`) as [`set_email`], and records what a create followed by a
 /// `set_email` records: `user.created`, then `user.email_changed`.
 ///
 /// # Arguments
@@ -280,6 +280,16 @@ pub async fn create_with_email(
     .bind(now)
     .execute(&mut *tx)
     .await?;
+    // Lock order (issue #980): the address (the unique-email index entry)
+    // before the `server_state` singleton that `invalidate` locks until the
+    // commit, as `set_email` takes them. In the other order this create
+    // would hold the singleton and wait on an address a `set_email` has
+    // written but not committed, while that `set_email` waits on the
+    // singleton: a deadlock instead of a clean 409.
+    let email_set = match email {
+        Some(_) => write_email(&mut tx, &user_id, email).await?,
+        None => false,
+    };
     invalidate(
         &mut tx,
         &[Invalidation::user(&user_id), Invalidation::team(&team_id)],
@@ -296,8 +306,9 @@ pub async fn create_with_email(
     // the entry above makes): later entries naming either only read them
     // (`migrations/accounts/0014_audit_row_locks.sql`).
     audit::team_ref(&mut tx, new.name).await?;
-    if email.is_some() {
-        store_email(&mut tx, &user_id, email, actor, now).await?;
+    // After `user.created`, as a create followed by a set-email records.
+    if email_set {
+        record_email_change(&mut tx, &user_id, false, actor, now).await?;
     }
     tx.commit().await?;
     Ok(UserRecord {
@@ -738,22 +749,29 @@ pub(crate) fn is_lookup_email(email: &str) -> bool {
 pub const EMAIL_TAKEN_REFUSAL: &str = "Another user has this email";
 
 /// Writes `email` (or clears it) on the user `user_id`, whose row the caller
-/// holds locked, and does what a change owes: deletes its outstanding
-/// emailed links, drops its cache entry and records `user.email_changed`.
-/// The one place the address is stored, so [`set_email`] and
-/// [`create_with_email`] cannot disagree.
+/// holds locked or has just inserted. The one statement that stores the
+/// address, so [`set_email`] and [`create_with_email`] cannot disagree.
+///
+/// Lock order (issue #980): this takes the unique-email index entry, which
+/// waits for any concurrent writer of the same address. A transaction that
+/// also bumps the `server_state` singleton (`invalidate`) must therefore call
+/// this FIRST, then `invalidate`: `set_email` does, and so does
+/// [`create_with_email`]. Taking the singleton first and the address second
+/// would deadlock with `set_email` moving an address onto the new user.
+///
+/// # Returns
+/// Whether the stored address changed (a change of letter case only is
+/// stored but is not a change).
 ///
 /// # Errors
 /// [`OkfError::Refused`] with [`EMAIL_TAKEN_REFUSAL`] when another user has
 /// the address (in any letter case); [`OkfError::Database`].
 #[tracing::instrument(level = "debug", skip_all)]
-async fn store_email(
+async fn write_email(
     tx: &mut PgConnection,
     user_id: &str,
     email: Option<&str>,
-    actor: &AuditActor,
-    now: DateTime<Utc>,
-) -> Result<(), OkfError> {
+) -> Result<bool, OkfError> {
     // The subquery reads the old value (the row is already locked), so
     // `changed` compares it with the new one in the same statement. Both
     // sides are `citext`, so `IS DISTINCT FROM` ignores letter case.
@@ -767,34 +785,37 @@ async fn store_email(
     .bind(email)
     .fetch_one(&mut *tx)
     .await;
-    let changed = match updated {
-        Ok(changed) => changed,
+    match updated {
+        Ok(changed) => Ok(changed),
         // `users.email` is the only UNIQUE column this statement writes.
-        Err(error) if is_unique_violation(&error) => {
-            return Err(OkfError::Refused {
-                reason: EMAIL_TAKEN_REFUSAL.to_string(),
-            })
-        }
-        Err(error) => return Err(error.into()),
-    };
-    if changed {
-        sqlx::query("DELETE FROM email_tokens WHERE user_id = $1")
-            .bind(user_id)
-            .execute(&mut *tx)
-            .await?;
-        // The user cache holds the email for console sessions, so a change
-        // drops its entry.
-        invalidate(tx, &[Invalidation::user(user_id)]).await?;
-        // Never the address: only that it changed (spec "People in entries").
-        let details = json!({ "cleared": email.is_none() });
-        audit::record(
-            tx,
-            actor,
-            &user_entry(Action::UserEmailChanged, user_id, details),
-            now,
-        )
-        .await?;
+        Err(error) if is_unique_violation(&error) => Err(OkfError::Refused {
+            reason: EMAIL_TAKEN_REFUSAL.to_string(),
+        }),
+        Err(error) => Err(error.into()),
     }
+}
+
+/// Records `user.email_changed` for `user_id`: whether the address was
+/// cleared, never the address (spec "People in entries").
+///
+/// # Errors
+/// [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all)]
+async fn record_email_change(
+    tx: &mut PgConnection,
+    user_id: &str,
+    cleared: bool,
+    actor: &AuditActor,
+    now: DateTime<Utc>,
+) -> Result<(), OkfError> {
+    let details = json!({ "cleared": cleared });
+    audit::record(
+        tx,
+        actor,
+        &user_entry(Action::UserEmailChanged, user_id, details),
+        now,
+    )
+    .await?;
     Ok(())
 }
 
@@ -840,7 +861,17 @@ pub async fn set_email(
     let mut tx = pool.begin().await?;
     let (user_id, is_admin) = lock_target(&mut tx, name, RowLock::Update, actor).await?;
     audit::refuse_admin_target(actor, is_admin, name)?;
-    store_email(&mut tx, &user_id, email, actor, now).await?;
+    // Address first, then the singleton (`invalidate`): see `write_email`.
+    if write_email(&mut tx, &user_id, email).await? {
+        sqlx::query("DELETE FROM email_tokens WHERE user_id = $1")
+            .bind(&user_id)
+            .execute(&mut *tx)
+            .await?;
+        // The user cache holds the email for console sessions, so a change
+        // drops its entry.
+        invalidate(&mut tx, &[Invalidation::user(&user_id)]).await?;
+        record_email_change(&mut tx, &user_id, email.is_none(), actor, now).await?;
+    }
     tx.commit().await?;
     Ok(())
 }

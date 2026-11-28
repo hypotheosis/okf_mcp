@@ -492,3 +492,98 @@ async fn a_racing_set_email_never_leads_to_a_deleted_user_that_had_one() {
         }
     }
 }
+
+/// Waits until at least `count` backends of this test's database are
+/// queued for a lock, whichever lock it is (a row, a transaction or an
+/// index entry), so the race below holds in either lock order.
+async fn until_waiting(pool: &PgPool, count: i64) {
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            let waiting: i64 = sqlx::query_scalar(
+                "SELECT count(DISTINCT l.pid) FROM pg_locks l \
+                 JOIN pg_stat_activity a ON a.pid = l.pid \
+                 WHERE NOT l.granted AND a.datname = current_database()",
+            )
+            .fetch_one(pool)
+            .await
+            .unwrap();
+            if waiting >= count {
+                return;
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("the two writers never both waited");
+}
+
+/// Review of PR #1197: a create that wrote its address after the
+/// `server_state` singleton, racing the real `set_email` moving an address
+/// onto the new user, deadlocked (the create waited on the address, the
+/// set on the singleton) and Postgres aborted one with a database error.
+/// The singleton is held here, so both writers queue behind it; when it is
+/// released, each finishes with a success or the 409, never a database
+/// error. (The holder tests above insert rows directly and never take the
+/// singleton, so they could not show this.)
+#[tokio::test(flavor = "multi_thread")]
+async fn a_create_racing_the_real_set_email_for_one_address_never_deadlocks() {
+    let db = test_db().await;
+    seed_user(&db.pool, "mover", None).await;
+    let mut holding = db.pool.begin().await.unwrap();
+    sqlx::query("UPDATE server_state SET admin_generation = admin_generation + 1")
+        .execute(&mut *holding)
+        .await
+        .unwrap();
+    let pool = db.pool.clone();
+    let creating = tokio::spawn(async move {
+        create_with_email(
+            &pool,
+            &named("newcomer"),
+            Some("race@example.com"),
+            &AuditActor::cli(),
+            now(),
+        )
+        .await
+        .map(|_| ())
+    });
+    // The create is first in line for the singleton, or (written address
+    // first) is queued behind it already.
+    until_waiting(&db.pool, 1).await;
+    let pool = db.pool.clone();
+    let setting = tokio::spawn(async move {
+        set_email(
+            &pool,
+            "mover",
+            Some("race@example.com"),
+            &AuditActor::cli(),
+            now(),
+        )
+        .await
+    });
+    until_waiting(&db.pool, 2).await;
+
+    holding.commit().await.unwrap();
+
+    let created = tokio::time::timeout(LOCK_WAIT, creating)
+        .await
+        .expect("the create never finished")
+        .unwrap();
+    let set = tokio::time::timeout(LOCK_WAIT, setting)
+        .await
+        .expect("the set never finished")
+        .unwrap();
+    // Exactly one writer got the address; the other was refused cleanly.
+    match (created, set) {
+        (Ok(()), Err(OkfError::Refused { reason }))
+        | (Err(OkfError::Refused { reason }), Ok(())) => {
+            assert_eq!(reason, EMAIL_TAKEN_REFUSAL);
+        }
+        other => panic!("one writer wins and the other is refused, never an error: {other:?}"),
+    }
+    let holders: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM users WHERE email = 'race@example.com'")
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+    assert_eq!(holders, 1);
+}

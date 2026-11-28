@@ -478,7 +478,7 @@ async fn a_publish_an_import_and_a_repair_send_their_catalog_message_on_the_stor
     let created = catalog_on(&stores, &db.pool, "on-b", Some(&store_b)).await;
     let replica = Replica::start(db.pool.clone()).await;
     let store = replica.app.stores().get(&store_b).await.unwrap();
-    let store = store.executor();
+    let store = store.pool();
     let audit = AuditActor::cli();
     let expected = |sent: &[Invalidation]| matches!(sent, [Invalidation::Catalog { id, .. }] if *id == created.id);
 

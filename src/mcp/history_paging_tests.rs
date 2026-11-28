@@ -167,7 +167,7 @@ async fn the_page_query_reads_the_primary_key_backwards_without_sorting() {
     // A table this small is read by a sequential scan whatever the indexes
     // offer, so the planner is told not to: what is asked is whether the
     // key can serve the query.
-    let mut tx = db.executor().begin().await.unwrap();
+    let mut tx = db.pool().begin().await.unwrap();
     sqlx::query("SET LOCAL enable_seqscan = off")
         .execute(&mut *tx)
         .await

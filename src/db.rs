@@ -679,9 +679,7 @@ pub(crate) const TEST_TEAM: &str = TEST_USER;
     allow(uninstrumented_fn, reason = "a test helper")
 )]
 pub(crate) fn store_pool(accounts: &PgPool) -> PgPool {
-    crate::stores::CatalogDb::main_of(accounts)
-        .executor()
-        .clone()
+    crate::stores::CatalogDb::main_of(accounts).pool().clone()
 }
 
 /// Puts the store `main` back on the account database: for the tests of the

@@ -1188,7 +1188,7 @@ mod tests {
         let state = test.app.catalog("pg").await.unwrap().unwrap();
         // The build reads through the store's own pool, so that is the one filled.
         let db = test.app.main_db().await;
-        let pool = db.executor();
+        let pool = db.pool();
         let mut tx = pool.begin().await.unwrap();
         let size = pool.options().get_max_connections();
         let mut held = Vec::with_capacity(size as usize);
@@ -1254,7 +1254,7 @@ mod tests {
         let state = test.app.catalog("pg").await.unwrap().unwrap();
         // The build reads through the store's own pool, so that is the one filled.
         let db = test.app.main_db().await;
-        let pool = db.executor();
+        let pool = db.pool();
         let size = pool.options().get_max_connections();
         let mut held = Vec::with_capacity(size as usize);
         for _ in 0..size {

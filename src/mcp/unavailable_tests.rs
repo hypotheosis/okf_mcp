@@ -379,6 +379,71 @@ async fn a_store_that_goes_away_after_its_pool_opened_is_unavailable_not_a_datab
     assert_eq!(result.unavailable, ["remote"]);
 }
 
+/// A catalog `remote` on its own store whose state is loaded and cached, and
+/// the proxy that, once stopped, takes the store away: what a read does that
+/// asks the store again after the state is in hand (issue #995).
+async fn app_with_a_loaded_store_behind_a_proxy() -> (TestApp, crate::mcp::testing::StoreProxy) {
+    let test = app_with(&[("main", &[("note.md", HOME_NOTE)])], quick_config(None)).await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote", &[("note.md", REMOTE_NOTE)])
+        .await;
+    let proxy = test.front_with_a_proxy(&store).await;
+    let ctx = context(&test, principal(&[], None), Some(&["remote"]));
+    // Loads and caches the catalog's state, so the next calls need the
+    // store only for what the state does not hold.
+    bounded(get_concept(&ctx, concept("note"))).await.unwrap();
+    (test, proxy)
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn history_on_a_store_that_went_away_is_unavailable_not_a_database_error() {
+    let (test, proxy) = app_with_a_loaded_store_behind_a_proxy().await;
+    let ctx = context(&test, principal(&[], None), Some(&["remote"]));
+    proxy.stop().await;
+
+    let result = bounded(history(
+        &ctx,
+        HistoryParams {
+            path: "note".to_string(),
+            catalog: Some("remote".to_string()),
+            limit: None,
+            user: None,
+            since: None,
+            before: None,
+        },
+    ))
+    .await;
+
+    assert!(
+        matches!(result, Err(OkfError::StoreUnavailable { .. })),
+        "{result:?}"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn the_history_route_on_a_store_that_went_away_answers_unavailable() {
+    use crate::http::api::testing::{every_catalog_admin, send};
+    let (test, proxy) = app_with_a_loaded_store_behind_a_proxy().await;
+    let key = every_catalog_admin(&test).await;
+    proxy.stop().await;
+
+    let (status, body) = bounded(send(
+        &test,
+        "GET",
+        "/api/v1/catalogs/remote/history/note.md",
+        Some(&key),
+        None,
+    ))
+    .await;
+
+    assert_eq!(
+        status,
+        axum::http::StatusCode::SERVICE_UNAVAILABLE,
+        "{body}"
+    );
+    assert_eq!(body["error"], "StoreUnavailable", "{body}");
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn a_store_whose_query_stalls_is_unavailable_within_the_bound() {
     let test = app_with(
@@ -400,7 +465,7 @@ async fn a_store_whose_query_stalls_is_unavailable_within_the_bound() {
     // A lock on the catalog's documents that nobody releases: the load's
     // query waits for it, on a connection that is up.
     let db = test.app.stores().get(&store).await.unwrap();
-    let mut lock = db.executor().begin().await.unwrap();
+    let mut lock = db.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE documents IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *lock)
         .await
@@ -435,7 +500,7 @@ async fn list_catalogs_spends_one_bound_on_a_store_that_fails_at_the_state_load(
     // The store answers the directory's probe but its documents are locked:
     // each catalog's state load would stall for the whole load bound.
     let db = test.app.stores().get(&store).await.unwrap();
-    let mut lock = db.executor().begin().await.unwrap();
+    let mut lock = db.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE documents IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *lock)
         .await
@@ -466,7 +531,7 @@ async fn lock_documents(
     store: &crate::stores::StoreName,
 ) -> sqlx::Transaction<'static, sqlx::Postgres> {
     let db = test.app.stores().get(store).await.unwrap();
-    let mut lock = db.executor().begin().await.unwrap();
+    let mut lock = db.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE documents IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *lock)
         .await
@@ -638,7 +703,7 @@ async fn a_readable_listing_over_several_scan_pages_spends_one_load_bound_on_a_s
     }
     // The generations query is the probe a listing makes: lock its table.
     let db = test.app.stores().get(&store).await.unwrap();
-    let mut lock = db.executor().begin().await.unwrap();
+    let mut lock = db.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE catalog_state IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *lock)
         .await
@@ -721,7 +786,7 @@ async fn a_cached_first_row_does_not_let_the_cold_rows_stall_together() {
     }
     test.app.catalog_state(&rows[0]).await.unwrap();
     let db = test.app.stores().get(&store).await.unwrap();
-    let mut lock = db.executor().begin().await.unwrap();
+    let mut lock = db.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE documents IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *lock)
         .await

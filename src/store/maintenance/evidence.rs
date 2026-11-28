@@ -85,7 +85,11 @@ pub async fn read(
     pin: &RevisionPin,
 ) -> Result<PinnedConcept, OkfError> {
     report::pin(pin)?;
-    let mut conn = db.executor().acquire().await?;
+    let mut conn = db
+        .pool()
+        .acquire()
+        .await
+        .map_err(|error| db.classify(error))?;
     pinned(&mut conn, catalog_id, pin).await
 }
 

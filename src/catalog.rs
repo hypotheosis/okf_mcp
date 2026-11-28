@@ -473,9 +473,10 @@ async fn build(db: &CatalogDb, catalog_id: i64, name: &str) -> Result<Loaded, Ok
     // generation and the rows agree even if an import commits meanwhile.
     // `begin_with` sets the isolation level in the `BEGIN` itself.
     let mut tx = db
-        .executor()
+        .pool()
         .begin_with("BEGIN ISOLATION LEVEL REPEATABLE READ, READ ONLY")
-        .await?;
+        .await
+        .map_err(|error| db.classify(error))?;
     // `&mut *tx` reborrows the transaction as a connection for one query.
     let generation: Option<i64> = sqlx::query_scalar(GENERATION)
         .bind(catalog_id)

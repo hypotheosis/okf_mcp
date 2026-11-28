@@ -600,11 +600,12 @@ unavailable.
   `okf_changesets_open` carries its last count. `GET /healthz` checks the
   account database only, so a lost store does not make a replica unready.
 
-Known gaps, each tracked as an issue: some reads on an already open store pool
-report a timeout as a database error (HTTP 500) instead of `StoreUnavailable`
-(#995), and two paths probe a store already found down again within one call
-(#1017). Treat a 500 from a catalog on a separate store whose database is
-down as the same outage.
+Every query on a store's pool classifies its own driver errors (issue #995):
+a pool timeout, a closed pool, a transport or TLS failure and a refused login
+are `StoreUnavailable` wherever they happen, a read on an already open pool
+included, while a constraint violation or a bad statement stays a `Database`
+error (HTTP 500). Known gap, tracked as an issue: two paths probe a store
+already found down again within one call (#1017).
 
 ### What a separate store does and does not separate
 

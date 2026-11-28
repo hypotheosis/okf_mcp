@@ -378,11 +378,11 @@ async fn two_stores_serve_their_catalogs_and_a_lost_store_costs_only_its_own() {
         .await
         .expect("open acme");
     let main_pool = server.db.store();
-    assert!(documents_on(acme_pool.executor(), fixture.alpha_id).await > 0);
-    assert_eq!(documents_on(acme_pool.executor(), fixture.beta_id).await, 0);
+    assert!(documents_on(acme_pool.pool(), fixture.alpha_id).await > 0);
+    assert_eq!(documents_on(acme_pool.pool(), fixture.beta_id).await, 0);
     assert!(documents_on(&main_pool, fixture.beta_id).await > 0);
     assert_eq!(documents_on(&main_pool, fixture.alpha_id).await, 0);
-    for pool in [acme_pool.executor(), &main_pool] {
+    for pool in [acme_pool.pool(), &main_pool] {
         let own: i64 =
             sqlx::query_scalar("SELECT count(DISTINCT catalog_id) FROM catalog.revisions")
                 .fetch_one(pool)

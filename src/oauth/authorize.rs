@@ -2060,10 +2060,13 @@ mod tests {
                 send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
             let observed = observer.finish();
 
-            assert_eq!(status, StatusCode::SEE_OTHER);
-            assert_ne!(
-                param(&location(&headers), "error").as_deref(),
-                Some("invalid_target")
+            // Accepted: the sign-in page (200) or the sign-in redirect, never
+            // the `invalid_target` error redirect.
+            assert!(
+                status == StatusCode::OK
+                    || (status == StatusCode::SEE_OTHER
+                        && param(&location(&headers), "error").is_none()),
+                "{status}"
             );
             let spans = observed.spans_named("okf.oauth.authorize");
             assert_eq!(spans.len(), 1);

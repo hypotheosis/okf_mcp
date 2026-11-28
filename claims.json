@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2493,
+  "next_claim_seq": 2496,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "362f4263ee09d5f1cf9dd6d7cda3c6aa19f64d8dc47143fbdbb075691f86dec4"
+    "mac": "b93e94d8e5963176db3b58052ef1f1f9af2b376c8d9e57d722313380d8be2bf4"
   },
-  "next_evidence_seq": 4346,
+  "next_evidence_seq": 4351,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "11a2c1eaede34e105bea7c29c673983891ab6dcede02ea7e5c72931b59845521"
+    "mac": "96ebf8eae3cea68830aacbdfea45cebee5ab380616074be58048228b34c3e1a6"
   },
   "claims": [
     {
@@ -218091,6 +218091,18 @@
             "by": "server",
             "mac": "9332a2e01d4c9fa4cb8a773267ef7c9c4fead971ee6eb8b3b0ff4e5d0256eb9c"
           }
+        },
+        {
+          "id": "EVD-4350",
+          "kind": "analysis",
+          "locator": "children of CLM-2477",
+          "summary": "At c2e1e9a5 the children are supported except CLM-2491 (not_enough_info, non-blocking); the docs wording is now scoped to executor() with the connection/transaction exception, matching the parent's own scope. Full suite pending.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T07:09:46.819573822Z",
+          "seal": {
+            "by": "server",
+            "mac": "b414883dbb04b5f7e3e25454b12201a43955535ad22a53ee5105d03314caa242"
+          }
         }
       ],
       "verdicts": [
@@ -218120,13 +218132,26 @@
             "by": "server",
             "mac": "0c2ed454b7ea7c0b11f4d1b8eec962b56aa7653a7540004373fe01d4e480d155"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at c2e1e9a5: children supported except non-blocking CLM-2491; docs wording now matches the executor() scope.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4350"
+          ],
+          "recorded_at": "2026-11-28T07:09:49.447232267Z",
+          "seal": {
+            "by": "server",
+            "mac": "5724217daca1ad4dc0c3aec84076f229f2eebb9cd6d21b35a9bb2b92c36dfc0d"
+          }
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:56:02.300034716Z",
+      "updated_at": "2026-11-28T07:09:49.447232267Z",
       "seal": {
         "by": "server",
-        "mac": "fe37c5991971ed4e283e19db09aca911602a733a16b516dde1661d1298f0d9af"
+        "mac": "a30ea3aaf0f90ce6389988e11f9be6ca75965ff4a6a8f8c045ffae53a5b8291d"
       }
     },
     {
@@ -218620,7 +218645,9 @@
         "from-issue:995"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Wording \"every query on a store's pool\" no longer matches the docs, which now scope the rule to CatalogDb::executor(); replaced by two narrower claims.",
+        "retired_at": "2026-11-28T07:09:27.054579597Z"
       },
       "evidence": [
         {
@@ -218662,10 +218689,10 @@
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:23.549522378Z",
+      "updated_at": "2026-11-28T07:09:27.054579597Z",
       "seal": {
         "by": "server",
-        "mac": "b83e4c9143dca85c14a6a943910810088017960f837ec1db6ad4828bb587269e"
+        "mac": "2d60c5c202bb0560718783a62791cecf9a3d7d001f1830a6397d9e50afd31f8f"
       }
     },
     {
@@ -218945,6 +218972,28 @@
             "by": "server",
             "mac": "4cd3214c18290f77cd203b00d402c5a858ddc88b265fd675716be886ae62da47"
           }
+        },
+        {
+          "id": "EVD-4349",
+          "kind": "inspection",
+          "locator": "src/store/maintenance/evidence.rs:87-99; gate.sh narrow --lib -- evidence (6 passed)",
+          "summary": "Re-audit at c2e1e9a5: the acquire still comes from db.pool() with db.classify, and the query result is now also classified; count_findings is unchanged. Statement still holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/maintenance/evidence.rs",
+              "lines": {
+                "start": 87,
+                "end": 99
+              },
+              "commit": "c2e1e9a55aedf5b7746e11ed19aeec7c5a7b52b5"
+            }
+          },
+          "recorded_at": "2026-11-28T07:09:37.382261473Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf97def068f2762cf57854a68c8e36e71b377823c3f400b7fc5cfbd6153600d5"
+          }
         }
       ],
       "verdicts": [
@@ -218960,13 +219009,26 @@
             "by": "server",
             "mac": "9088a2b45b87298312848a967ceb34002f62f798c9a189519088c1466959a852"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Still holds at c2e1e9a5.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4349"
+          ],
+          "recorded_at": "2026-11-28T07:09:46.621462778Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f060cddf54c86fbcf3fb15db2dddc47c3d7b69179beccfc8012c695dd921ae0"
+          }
         }
       ],
       "created_at": "2026-11-28T06:55:08.589273363Z",
-      "updated_at": "2026-11-28T06:55:58.564593285Z",
+      "updated_at": "2026-11-28T07:09:46.621462778Z",
       "seal": {
         "by": "server",
-        "mac": "15164619ceb06b704a50bb6d981d7ed3cf8c6e98760ee5f1bd7a0ceb5c452c2c"
+        "mac": "017f82f6327d54c2f03dbe1de110a17e7fdf33e2090a3211ec645be59b03c04d"
       }
     },
     {
@@ -218987,7 +219049,9 @@
         "from-issue:995"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Same: docs scoped to executor() with a stated exception; replaced by narrower claims.",
+        "retired_at": "2026-11-28T07:09:27.273072609Z"
       },
       "evidence": [
         {
@@ -219029,10 +219093,10 @@
         }
       ],
       "created_at": "2026-11-28T06:55:08.589273363Z",
-      "updated_at": "2026-11-28T06:55:58.719186371Z",
+      "updated_at": "2026-11-28T07:09:27.273072609Z",
       "seal": {
         "by": "server",
-        "mac": "11fde1cdd4006b89a1eeda7043f943d34309a530d6cd280654f49fca2cb2744e"
+        "mac": "1c017411440c9bd85d31e49fc2927c0323e49a300424228bedec3715d2613c18"
       }
     },
     {
@@ -219166,6 +219230,206 @@
       "seal": {
         "by": "server",
         "mac": "5a056fa923d230695618b33ca49c1e4868cc22dc43b62d3a1c6a72e0e38e77c2"
+      }
+    },
+    {
+      "id": "CLM-2493",
+      "statement": "docs/operations.md states that a query run through CatalogDb::executor() reports pool timeout, closed pool, transport/TLS failure and refused login as StoreUnavailable wherever in the query they happen, while a constraint violation or bad statement stays Database (HTTP 500), and lists only #1017 as a known gap.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task: docs that describe when StoreUnavailable appears are updated; replaces CLM-2485 and CLM-2490",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4346",
+          "kind": "inspection",
+          "locator": "docs/operations.md:603-613",
+          "summary": "The paragraph scopes the rule to a query through CatalogDb::executor(), lists pool timeout, closed pool, transport/TLS failure and refused login as StoreUnavailable, keeps constraint violation or bad statement as Database (HTTP 500), and names only #1017 as a known gap.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 603,
+                "end": 613
+              },
+              "commit": "c2e1e9a55aedf5b7746e11ed19aeec7c5a7b52b5"
+            }
+          },
+          "recorded_at": "2026-11-28T07:09:36.771545717Z",
+          "seal": {
+            "by": "server",
+            "mac": "17a04b15d31271997afb636556f344bd49e5b15960da998e2e800aee21ae7c67"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The docs paragraph matches the claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4346"
+          ],
+          "recorded_at": "2026-11-28T07:09:46.016488095Z",
+          "seal": {
+            "by": "server",
+            "mac": "9ee1ad81c0cadaf62b82a504762f28a4a89c7ab34a4bd781459ba0d1016b5207"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:09:27.502667007Z",
+      "updated_at": "2026-11-28T07:09:46.016488095Z",
+      "seal": {
+        "by": "server",
+        "mac": "301f4332fe3f6e3641e0bfd1b938efb16d688a7fd3cb37feb7a492df369df15e"
+      }
+    },
+    {
+      "id": "CLM-2494",
+      "statement": "docs/operations.md names the exception to the executor rule: a statement on a connection taken from the pool (acquire) or inside a transaction (CatalogDb::begin) is classified by the code that takes the connection, and a path that does not can still report a lost store as Database.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Review of the change for issue #995: docs must scope the rule",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/20261128T064139Z-issue-995-store-executor-classifies.md"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4347",
+          "kind": "inspection",
+          "locator": "docs/operations.md:608-612; changelog/20261128T064139Z-issue-995-store-executor-classifies.md:32-35",
+          "summary": "The docs say a statement on an acquired connection or inside a CatalogDb::begin transaction is classified by the code that takes the connection and a path that does not can still report a lost store as Database; the changelog Scope bullet says the same.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 608,
+                "end": 612
+              },
+              "commit": "c2e1e9a55aedf5b7746e11ed19aeec7c5a7b52b5"
+            }
+          },
+          "recorded_at": "2026-11-28T07:09:36.967384672Z",
+          "seal": {
+            "by": "server",
+            "mac": "a65425e65027e3bd9c17f3ece8d1261e26efa208c68ec2ae7816793c998a21d4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs and changelog both name the connection and transaction exception.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4347"
+          ],
+          "recorded_at": "2026-11-28T07:09:46.212123889Z",
+          "seal": {
+            "by": "server",
+            "mac": "b954b8b3a68803e8d54f5d7fc42781a33b99756d7a80fcd73aaf25cb3b8ae9a1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:09:27.502667007Z",
+      "updated_at": "2026-11-28T07:09:46.212123889Z",
+      "seal": {
+        "by": "server",
+        "mac": "22155769e3a4c255fa2f5d1a2ae5a22fe438b262b74f77cdfb0334f91b54e201"
+      }
+    },
+    {
+      "id": "CLM-2495",
+      "statement": "evidence::read classifies both the connection acquire (db.classify) and the result of the pinned query (classify_store_failure on db.store()), so a lost store at either step is StoreUnavailable.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Review fix for issue #995: evidence::read maps the pinned(...) result through classify_store_failure",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "src/store/maintenance/evidence.rs",
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4348",
+          "kind": "inspection",
+          "locator": "src/store/maintenance/evidence.rs:87-99; src/stores/mod.rs:99-104; gate.sh narrow --lib -- evidence (6 passed)",
+          "summary": "read maps the acquire error with db.classify and the pinned(..) result with classify_store_failure(db.store(), ..), which turns OkfError::Database{source} through classify_store_error and leaves other errors. The 6 evidence-filter tests pass but none of them forces a lost store at either step, so the classification itself is shown by code reading only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/maintenance/evidence.rs",
+              "lines": {
+                "start": 87,
+                "end": 99
+              },
+              "commit": "c2e1e9a55aedf5b7746e11ed19aeec7c5a7b52b5"
+            }
+          },
+          "recorded_at": "2026-11-28T07:09:37.179139339Z",
+          "seal": {
+            "by": "server",
+            "mac": "b70b532f96fd5978507b26523b7f8483bd46fd2f2d577733d258e5b67a537d3b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows both steps classified; no test forces a lost store here (IL2, analysis method matches).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4348"
+          ],
+          "recorded_at": "2026-11-28T07:09:46.419538009Z",
+          "seal": {
+            "by": "server",
+            "mac": "33ca3d9acb3cfae447da1190a3646a0866b12a091e25ef016f98f3099ad9089a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:09:27.502667007Z",
+      "updated_at": "2026-11-28T07:09:46.419538009Z",
+      "seal": {
+        "by": "server",
+        "mac": "a66af26711ce8f3db00e15807124e2d058051f33d6bc33d0552cba3d9c8dcc9b"
       }
     }
   ]

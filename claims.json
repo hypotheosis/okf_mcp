@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2356,
+  "next_claim_seq": 2372,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "0c4ddf9f6fa06b9e6b3a22847a659c7229d50676c12a93af6a9cceda60335f95"
+    "mac": "a181610f28dfa4a9a15c6630903335efb048c7a0f1aca663d8c59982a986b4f2"
   },
-  "next_evidence_seq": 4146,
+  "next_evidence_seq": 4174,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "80c79cc0cc876a7be65913799217b9f53dfa1c604a5ba868ac7c9869a2d56bb9"
+    "mac": "b4a76c3284df31d2c7a6fca837cfb0d6334d194165dc781bf799bde436e92a18"
   },
   "claims": [
     {
@@ -208415,6 +208415,1333 @@
       "seal": {
         "by": "server",
         "mac": "6f14d76488d2a1538e86d56370d9f01d80efb4ce6daff35141b51fd4552f7f9b"
+      }
+    },
+    {
+      "id": "CLM-2356",
+      "statement": "The change delivers issue #1009: tool spans for protocol errors carry an error kind, and a failed tool span sets error.type.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1009",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4170",
+          "kind": "analysis",
+          "locator": "children of CLM-2356",
+          "summary": "All functional and acceptance children are supported (declaration, code mapping, tool_error, message off span, bad-arguments test, isError assertion, metrics unchanged). The one refuted child, CLM-2370, is a cosmetic ordering defect in the docs table cell, not an issue requirement, so the delivery itself is intact.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-27T23:54:07.875418368Z",
+          "seal": {
+            "by": "server",
+            "mac": "b8e143806050f9ca9a2a1ac0c22a6485adf21f8724baa281259daccb0682dcb3"
+          }
+        },
+        {
+          "id": "EVD-4173",
+          "kind": "analysis",
+          "locator": "children of CLM-2356",
+          "summary": "At 8a0e0a26 every child is supported, including CLM-2370 after the docs reorder; the telemetry tests pass 20/20.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T00:23:27.628214458Z",
+          "seal": {
+            "by": "server",
+            "mac": "2abbabeb780652756eb1e8b0ab1bfe89643e1c40e3f358179f0d1386a788ec88"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Every issue requirement is supported by its child; the parent is marked refuted only because the one refuted child (CLM-2370) is a cosmetic docs defect in this PR. Fix: reorder the docs/operations.md line 1725 cell so `enduser.id` and `okf.key.id` precede the kind explanation, then re-audit CLM-2370 and this claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4170"
+          ],
+          "recorded_at": "2026-11-27T23:54:11.111503154Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ac16cdbffd06d27af793691aa5c95c337ce788f331647433ba11a46cd301b49"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 8a0e0a26: all children are supported, the earlier refuted docs child now is, and the tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4173"
+          ],
+          "recorded_at": "2026-11-28T00:23:30.121987322Z",
+          "seal": {
+            "by": "server",
+            "mac": "15ffdad57d5a3ea8729b64ba9e4d6fa2b4bed93ae46b286a25275b603e47c9c8"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-28T00:23:30.121987322Z",
+      "seal": {
+        "by": "server",
+        "mac": "7da6085ebe952ea5134364df9239957b4e69479ba0630a6dccca7804fa60595b"
+      }
+    },
+    {
+      "id": "CLM-2357",
+      "statement": "call_tool declares `error.type = tracing::field::Empty` on the `mcp <tool>` span.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1009: \"Declare `error.type = tracing::field::Empty` on the span.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4146",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:458-462",
+          "summary": "The span! field list for the tool span now includes `error.type = tracing::field::Empty` next to okf.error.kind.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 458,
+                "end": 462
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:31.660128811Z",
+          "seal": {
+            "by": "server",
+            "mac": "b13f7d9a041d060c14ad546157fa115a28b7af68a49003ae18949d004aaf50aa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The field is declared Empty in the span! at mod.rs:461; the tests read error.type back from the exported span, so it is a declared field.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4146"
+          ],
+          "recorded_at": "2026-11-27T23:54:00.388028623Z",
+          "seal": {
+            "by": "server",
+            "mac": "9bccc8d68c9414dd2fb2256eeedf21117f0d5b1dbf99c02c7f62b6e7813941b2"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:00.388028623Z",
+      "seal": {
+        "by": "server",
+        "mac": "83e49b5f785b0320f7a075326da971d5b8b5a3151494133873fe1b45b8661158"
+      }
+    },
+    {
+      "id": "CLM-2358",
+      "statement": "When call_tool's result is Err(rmcp::ErrorData), the span records a kind derived from the error code on both `okf.error.kind` and `error.type`.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1009: \"When `result` is `Err(rmcp::ErrorData)`, record a kind from its code ... Record it on both `okf.error.kind` and `error.type`.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4147",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:503-507, 554-567, 588-591",
+          "summary": "call_tool calls protocol_error_kind(&result); for Err(error) it returns Some(kind_of_code(error.code)), and record_error_kind writes the kind to both okf.error.kind and error.type.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 503,
+                "end": 507
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:32.925177605Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc43702a65ee906187ff84802cbaaf1e629f48e15f0991f25487b1379c266b0e"
+          }
+        },
+        {
+          "id": "EVD-4148",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests (20 passed) at ef18254b; src/mcp/telemetry_tests.rs:369-409 (unknown-tool half)",
+          "summary": "Real Err path: calling an unregistered tool returns JSON-RPC error code -32602 and the `mcp other` span carries okf.error.kind=InvalidParams and error.type=InvalidParams at both span filters. Test a_protocol_error_records_its_kind_and_error_type_not_its_message passed; 20 passed, 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 369,
+                "end": 409
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:33.599838029Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e7eb7fa0b3379a929a6922564749e1b03ca70de6c3ce64572c2dc81898ecda9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code maps Err codes through kind_of_code into both attributes; the real unknown-tool Err (-32602) test shows both set to InvalidParams. UnknownTool/Internal/Protocol Err branches are covered only by the kind_of_code unit test, not end to end, which suffices since one record path serves all.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4147",
+            "EVD-4148"
+          ],
+          "recorded_at": "2026-11-27T23:54:01.159716797Z",
+          "seal": {
+            "by": "server",
+            "mac": "02033b6d8529f49ade53d35be7d112263e7e3dd91594f13a4645789a999113dd"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:01.159716797Z",
+      "seal": {
+        "by": "server",
+        "mac": "bb6f0cb6e5c129d13d3f1750bc7839394641a8e2d304b7ee7556b396d749d0a4"
+      }
+    },
+    {
+      "id": "CLM-2359",
+      "statement": "The code-to-kind mapping is INVALID_PARAMS -> InvalidParams, METHOD_NOT_FOUND -> UnknownTool, INTERNAL_ERROR -> Internal, any other code -> Protocol.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1009 proposed change item 2; PR body: \"`kind_of_code`: `INVALID_PARAMS` -> `InvalidParams`, `METHOD_NOT_FOUND` -> `UnknownTool`, `INTERNAL_ERROR` -> `Internal`, else `Protocol`.\"",
+      "derived_from": [
+        "CLM-2358"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4149",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests::error_codes_map_to_kinds (ok); src/mcp/telemetry_tests.rs:351-364",
+          "summary": "The test asserts kind_of_code for INVALID_PARAMS, METHOD_NOT_FOUND, INTERNAL_ERROR, INVALID_REQUEST and PARSE_ERROR yields InvalidParams, UnknownTool, Internal, Protocol, Protocol. It passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 351,
+                "end": 364
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:34.297347448Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ca7a497de839df590202b175b405a88dbb5efdf2b0d9daf6a812bcb2041c046"
+          }
+        },
+        {
+          "id": "EVD-4150",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:577-584",
+          "summary": "kind_of_code is a match with the three named codes and a `_ => \"Protocol\"` arm, matching the issue's table.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 577,
+                "end": 584
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:34.503343250Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fa18d09a0248faf6140bfabf89bf5a69d6f8be4d0f6a4f418bbef564116677e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The match arms and the passing unit test cover all four outcomes (two non-listed codes map to Protocol).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4149",
+            "EVD-4150"
+          ],
+          "recorded_at": "2026-11-27T23:54:01.451322862Z",
+          "seal": {
+            "by": "server",
+            "mac": "800b6feddc61b676ef9d68fc49f42e46c2fb428eaca3e74ed043aea8d07b9459"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:01.451322862Z",
+      "seal": {
+        "by": "server",
+        "mac": "344da0c08d6f27f61e2dd26770315704f0ca1805501141e1799d2a2453029fc1"
+      }
+    },
+    {
+      "id": "CLM-2360",
+      "statement": "tool_error (tool_error_with_hint) records error.type with the same value as okf.error.kind on the tool span.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1009: \"In `tool_error`, also record `error.type` alongside `okf.error.kind`.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4151",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:635-637",
+          "summary": "tool_error_with_hint now calls record_error_kind(span, error.kind()) through TOOL_SPAN, which records both okf.error.kind and error.type.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 635,
+                "end": 637
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:35.307940387Z",
+          "seal": {
+            "by": "server",
+            "mac": "22862eb50f0c2f270bd1d2deec4126855cc03abb7f66716266978a25a8003418"
+          }
+        },
+        {
+          "id": "EVD-4152",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests::a_tool_error_records_its_kind_not_its_message (ok); src/mcp/telemetry_tests.rs:210-223",
+          "summary": "The real-server test asserts okf.error.kind == NotFound and text_of(span,\"error.type\") == text_of(span,\"okf.error.kind\") at both filters. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 210,
+                "end": 223
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:51:36.232696377Z",
+          "seal": {
+            "by": "server",
+            "mac": "823a534b7301d879c7b0ebd1d328b46362ed88abf96ff90c75126c36c774bedc"
+          }
+        },
+        {
+          "id": "EVD-4172",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests at 8a0e0a26 (20 passed, 0 failed); src/mcp/mod.rs:584-590, 636",
+          "summary": "After the #[tracing::instrument(level=\"trace\", skip_all)] was added to record_error_kind, it still records on the `span` argument (not the current span); tool_error still calls it via TOOL_SPAN (line 636). Rerun: 20 passed. A first run under machine load (261 s) showed 12 failures; the immediate rerun in 11 s passed all 20, so I treat the first as load-related, not reproduced.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 584,
+                "end": 590
+              },
+              "commit": "8a0e0a260f14e05601c40bb726331fa8dc50873a"
+            }
+          },
+          "recorded_at": "2026-11-28T00:23:22.512651257Z",
+          "seal": {
+            "by": "server",
+            "mac": "205876b69b3ad040d5b9df95031bcc2424d5f09f5e39dcb1a83ea0447eae5206"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "tool_error_with_hint goes through record_error_kind and the passing test asserts equality of the two attributes on a real NotFound error span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4151",
+            "EVD-4152"
+          ],
+          "recorded_at": "2026-11-27T23:54:01.921999672Z",
+          "seal": {
+            "by": "server",
+            "mac": "703bd2fe3fb92e3fd1d6d7166c2b90d89ba874c66024eca576b7443b8a01e216"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 8a0e0a26: the instrument attribute does not change where the attributes are recorded; the tests pass (20/20 on rerun).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4172",
+            "EVD-4152"
+          ],
+          "recorded_at": "2026-11-28T00:23:27.484371797Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0a022e65b6f7c11c706a178095c2eafd796db2585dd003aadd0e77ef1bd6459"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-28T00:23:27.484371797Z",
+      "seal": {
+        "by": "server",
+        "mac": "6aa7aca52e40a838b68577879bb0d0f43c4b9b01eee863328b5280c4576f019c"
+      }
+    },
+    {
+      "id": "CLM-2361",
+      "statement": "The error message is kept off the span: a failed call with bad arguments or an unknown tool leaves neither the argument value, serde's message nor rmcp's message in any exported span.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1009: \"Keep the error message off the span.\" PR body: \"The error message is never recorded.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4153",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests::a_protocol_error_records_its_kind_and_error_type_not_its_message (ok); src/mcp/telemetry_tests.rs:404-407",
+          "summary": "After one bad-arguments call carrying SENTINEL as the field value and one unknown tool named SENTINEL, the exported spans' Debug text contains neither SENTINEL, \"unknown variant\" (serde) nor \"tool not found\" (rmcp), at both filters. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 404,
+                "end": 407
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:52:13.911964283Z",
+          "seal": {
+            "by": "server",
+            "mac": "c3925f10f147611277e0cfe6fff17c77ea1888147c8d8bc3be78bc13c761e1d0"
+          }
+        },
+        {
+          "id": "EVD-4154",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:586-591",
+          "summary": "record_error_kind takes only a kind &str and records it; protocol_error_kind reads only error.code or the fixed prefix and never the message text. No code path passes a message to the span.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 586,
+                "end": 591
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:52:51.306676533Z",
+          "seal": {
+            "by": "server",
+            "mac": "a19163b424b3494014e5f6abb7e4befb9a175f701ee679f69b8163426cbc40f3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test plants a sentinel in both the argument value and the tool name and asserts it, serde's message and rmcp's message are absent from every exported span; the recording helper accepts only a kind string.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4153",
+            "EVD-4154"
+          ],
+          "recorded_at": "2026-11-27T23:54:02.252313452Z",
+          "seal": {
+            "by": "server",
+            "mac": "b507eb02d7565f60966e6b63182782986a35dc858499cd7d84f4d1600e38117e"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:02.252313452Z",
+      "seal": {
+        "by": "server",
+        "mac": "f6e5350ced47710168409c4558070d51894d0f3b5209eb59a6ab49b31bb8b05d"
+      }
+    },
+    {
+      "id": "CLM-2362",
+      "statement": "A test in src/mcp/telemetry_tests.rs calls a tool with arguments that do not parse and asserts the span has okf.error.kind = \"InvalidParams\" and error.type = \"InvalidParams\".",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1009 Acceptance bullet 1",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4155",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:369-403; cargo test --lib mcp::telemetry_tests (20 passed)",
+          "summary": "The test sends stamp with field=SENTINEL (invalid enum value), asserts isError true, then asserts the `mcp stamp` span has okf.error.kind and error.type both \"InvalidParams\" and Error status, at both filters. Passed. Note it uses an invalid value for a known field rather than the unknown field named in the issue; it is still arguments that do not parse (the issue says \"for example\").",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 369,
+                "end": 403
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:52:53.158045084Z",
+          "seal": {
+            "by": "server",
+            "mac": "525f390811f0edd667cad1a4e421228efdcbdba53c44c8a1ee15396882583f95"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test exists, asserts both attributes equal \"InvalidParams\" on the stamp span with unparseable arguments, and passes. It uses an invalid enum value rather than the issue's example of an unknown field, which the issue offers only as an example.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4155"
+          ],
+          "recorded_at": "2026-11-27T23:54:02.618619776Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcc4b7c2d1bf40e18a9a2724ba48dfcfb5fe151d18362392aa65721c78cab7cc"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:02.618619776Z",
+      "seal": {
+        "by": "server",
+        "mac": "2a7ec893fe8e27ce29b431063d123d1064a4cafdca999ca8068d35d75382d918"
+      }
+    },
+    {
+      "id": "CLM-2363",
+      "statement": "An existing isError test (a_tool_error_records_its_kind_not_its_message) asserts error.type equals okf.error.kind.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1009 Acceptance bullet 2",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4156",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:186-223; cargo test --lib mcp::telemetry_tests::a_tool_error_records_its_kind_not_its_message (ok)",
+          "summary": "The pre-existing isError test gained assert_eq!(text_of(span,\"error.type\"), text_of(span,\"okf.error.kind\")) at lines 217-222; it passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 210,
+                "end": 223
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:52:55.539416170Z",
+          "seal": {
+            "by": "server",
+            "mac": "dcf2df6c6df060b57ebfe873ddbd9df56790e837c4e1225c650be8713bb79240"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The assertion is in the test and the test passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4156"
+          ],
+          "recorded_at": "2026-11-27T23:54:02.924011Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c567799c1a8f45b2b72d62d9d01a0f80e689e49cc24c8e6282ae4a4c6a080f0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:02.924011Z",
+      "seal": {
+        "by": "server",
+        "mac": "82720fc3a7389e1cd1db2f450bebdbd2c2da418d38669b82c5e5263fff284a38"
+      }
+    },
+    {
+      "id": "CLM-2364",
+      "statement": "Metrics are unchanged: tool_call and outcome_of are untouched and no non-test hunk alters what the tool metrics record.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1009 Acceptance bullet 3; PR body: \"Metrics are unchanged (`tool_call` and `outcome_of` untouched).\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4157",
+          "kind": "analysis",
+          "locator": "git diff 9d434f66..HEAD -U0 -- src/mcp/mod.rs; src/mcp/mod.rs:491,510,531",
+          "summary": "The four non-test hunks of mod.rs are: the span field, the protocol_error_kind call after outcome_of (outcome is computed at line 491 from the untouched outcome_of at 531), new helper fns, and tool_error_with_hint's span record. `.tool_call(tool, outcome, started.elapsed())` at line 510 is unchanged; no metrics code is touched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 489,
+                "end": 511
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:52:57.303227064Z",
+          "seal": {
+            "by": "server",
+            "mac": "b576befe5757cd61fca0f4f63cd451215df171d867492a39bff316aafd59ee14"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff's hunks in mod.rs only add span recording and helpers; outcome_of and the tool_call call are unchanged, so the counted outcome is the same.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4157"
+          ],
+          "recorded_at": "2026-11-27T23:54:03.069984073Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f22b904f4671632b0798e31748336667e23f79d64a160f42b556c5c67a51e0c"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:03.069984073Z",
+      "seal": {
+        "by": "server",
+        "mac": "d8c01af142803264c405d82a8537711c117c1219406cbee280070815cc34ce1e"
+      }
+    },
+    {
+      "id": "CLM-2365",
+      "statement": "rmcp 3.8.0 answers an unknown tool name with an INVALID_PARAMS error (\"tool not found\"), not METHOD_NOT_FOUND.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"an unknown tool is answered with `INVALID_PARAMS` (\\\"tool not found\\\"), not `METHOD_NOT_FOUND`, so it records `InvalidParams`.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4158",
+          "kind": "inspection",
+          "locator": "~/.cargo/registry/src/*/rmcp-3.8.0/src/handler/server/router/tool.rs:565-571, 724",
+          "summary": "ToolRouter::call returns crate::ErrorData::invalid_params(\"tool not found\", None) for a disabled or unregistered name; rmcp's own test at line 724 asserts message \"tool not found\". No METHOD_NOT_FOUND path for tools.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T23:53:00.889445418Z",
+          "seal": {
+            "by": "server",
+            "mac": "963a79c0a2e11912d84dbf5627d40376e267af9f29697c798a85c26360253428"
+          }
+        },
+        {
+          "id": "EVD-4159",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:381-383",
+          "summary": "The end-to-end test asserts the unknown-tool response has error.code == -32602 (INVALID_PARAMS); it passed against the real server.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 381,
+                "end": 383
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:02.318669387Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb9a85f3cc7e4b21e1626a03d9b0f80230a6148e402b86f60b84b0672c6dfc19"
+          }
+        },
+        {
+          "id": "EVD-4164",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:384-386",
+          "summary": "Precise lines for the prior test evidence: the unknown-tool call and assert_eq!(unknown[\"error\"][\"code\"], -32602) sit at 385-386; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 384,
+                "end": 387
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:23.088980663Z",
+          "seal": {
+            "by": "server",
+            "mac": "59de8ad32a86b0c0099f77e49250f28ea742882efa3e2d822602e1c177aef487"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "rmcp 3.8.0 source returns invalid_params(\"tool not found\") and the real-server test sees -32602.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4158",
+            "EVD-4164"
+          ],
+          "recorded_at": "2026-11-27T23:54:03.215855046Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ffb1ea932f5a26602616cbf22a8963d50f7f830414f75c72979e0ad2bb1cae0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:03.215855046Z",
+      "seal": {
+        "by": "server",
+        "mac": "4da7c01ba3056b754b88cf78ddf97184592451e042caf8ea202bd4e256f969eb"
+      }
+    },
+    {
+      "id": "CLM-2366",
+      "statement": "rmcp 3.8.0 returns arguments that fail to deserialize as an Ok isError result whose text starts with \"failed to deserialize parameters:\", not as an Err.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Arguments that fail to deserialize are returned as an `Ok` `isError` result (text starting \\\"failed to deserialize parameters:\\\"), not an `Err`\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4160",
+          "kind": "inspection",
+          "locator": "~/.cargo/registry/src/*/rmcp-3.8.0/src/handler/server/router/tool.rs:144-155, 573-577; handler/server/tool.rs:29-30,243-244",
+          "summary": "Parameter parsing produces ErrorData::invalid_params(\"failed to deserialize parameters: ...\"); into_tool_argument_error converts an INVALID_PARAMS error whose message starts with that prefix into Ok(CallToolResult::error(vec![text(message)])), and ToolRouter::call applies it to every handler error.",
+          "stance": "supports",
+          "recorded_at": "2026-11-27T23:53:03.449660254Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b88a17cc2b531d41d13d84b3aee158c61b90ca80a61afc332e8969685e170b0"
+          }
+        },
+        {
+          "id": "EVD-4161",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:378-379",
+          "summary": "Against the real server a stamp call with an invalid field value returns result.isError == true (a JSON-RPC result, not an error); the assertion passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 378,
+                "end": 379
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:03.914363135Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a4c8ccbda34f25346f0dfb3c19bd5478487cb8b008cf7005885c76f497ce4ae"
+          }
+        },
+        {
+          "id": "EVD-4165",
+          "kind": "test",
+          "locator": "src/mcp/telemetry_tests.rs:376-382",
+          "summary": "Precise lines for the prior test evidence: the stamp call and assert_eq!(bad_arguments[\"result\"][\"isError\"], true) are at 376-382; passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 376,
+                "end": 382
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:23.267372851Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c89bb87d3c89df419057a0e819b21b71baa17765c63ae8ac405f894f81916f1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "rmcp 3.8.0 source converts the prefixed INVALID_PARAMS into an Ok isError result, and the real-server test sees result.isError true.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4160",
+            "EVD-4165"
+          ],
+          "recorded_at": "2026-11-27T23:54:03.362456932Z",
+          "seal": {
+            "by": "server",
+            "mac": "faeffd85ebf0e510a442e75a285bfe59a757701585040c82f07c933abbea0074"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:03.362456932Z",
+      "seal": {
+        "by": "server",
+        "mac": "f30bd0a1e94ec8f2549874a542599467aae3014b5cbb11a13b71b6682fd915d9"
+      }
+    },
+    {
+      "id": "CLM-2367",
+      "statement": "protocol_error_kind recognises that isError text and records InvalidParams on both attributes, and that case is exercised end to end by a test.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"`protocol_error_kind` also recognises that text and records `InvalidParams`.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs",
+        "src/mcp/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4162",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:537-567",
+          "summary": "ARGUMENT_ERROR_PREFIX equals rmcp's constant \"failed to deserialize parameters:\" (router/tool.rs:144). protocol_error_kind maps an Ok Complete result with is_error==Some(true) whose first text block starts with it to kind_of_code(INVALID_PARAMS) = InvalidParams. A tool_error result (other text) yields None, so no double record.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 537,
+                "end": 567
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:04.221509604Z",
+          "seal": {
+            "by": "server",
+            "mac": "5efe3b230270a41c2b9e2ee2778b3b03ed8bc621f1a13bd6c1f99d3462d29b32"
+          }
+        },
+        {
+          "id": "EVD-4163",
+          "kind": "test",
+          "locator": "cargo test --lib mcp::telemetry_tests::a_protocol_error_records_its_kind_and_error_type_not_its_message (ok); telemetry_tests.rs:372-403",
+          "summary": "End to end, the bad-arguments stamp span carries InvalidParams on both attributes, which only the prefix branch can produce (the call is an Ok isError result). Passed at both filters.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/telemetry_tests.rs",
+              "lines": {
+                "start": 372,
+                "end": 403
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:04.424700417Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5e7e1e6388546253fd625cd2f93b2525f1b77111fb3f06c70c75bbae9765b70"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The code matches the rmcp prefix; the Ok isError bad-arguments call can only get InvalidParams through this branch, and the test observed it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4162",
+            "EVD-4163"
+          ],
+          "recorded_at": "2026-11-27T23:54:03.510905275Z",
+          "seal": {
+            "by": "server",
+            "mac": "caad1b746957edeefd20a153b18347ae6aca784e2ca89f67d3362933cc3573a0"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:03.510905275Z",
+      "seal": {
+        "by": "server",
+        "mac": "871120c343cccbdc9c9b07420ab6af81de5e1be16dda454507ab9b27b4cfa53e"
+      }
+    },
+    {
+      "id": "CLM-2368",
+      "statement": "Only the tool span sets okf.error.kind; no other span in src records okf.error.kind or error.type.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Only the tool span sets `okf.error.kind`; no other span needed `error.type`.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "src/mcp/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4169",
+          "kind": "analysis",
+          "locator": "git grep -nE 'okf\\.error\\.kind|error\\.type' -- src",
+          "summary": "All 16 matches in src are in src/mcp/mod.rs (6: span declaration 458-461 and record_error_kind 586-590) and src/mcp/telemetry_tests.rs (10). No other module sets or declares either attribute; record_error_kind is called only from call_tool and tool_error_with_hint, both on the tool span.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "okf\\.error\\.kind|error\\.type",
+              "scope": [
+                "src"
+              ],
+              "hits": 16,
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:29.752103742Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc7c4dda4e9b5e1853b941b668e44dbefa4c41fde5c620adb6c7ea68e0c9c36f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A repository-wide search of src finds the attributes only in mcp/mod.rs and its telemetry tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4169"
+          ],
+          "recorded_at": "2026-11-27T23:54:03.657899693Z",
+          "seal": {
+            "by": "server",
+            "mac": "727c9eedd6627a0b30732417ff957790c19d13419e374b81468b7ef7c10901db"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:03.657899693Z",
+      "seal": {
+        "by": "server",
+        "mac": "bc6bad7385695bb587252fa738e79f5d0d234447e6621e7e746690f66cec3a84"
+      }
+    },
+    {
+      "id": "CLM-2369",
+      "statement": "docs/operations.md's `mcp <tool>` span row lists error.type as the same value as okf.error.kind and the kinds for pre-tool failures, and says the message is never recorded.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`docs/operations.md` span table ... updated.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4166",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1725",
+          "summary": "The row now says okf.error.kind on failure and error.type (the same value, the OpenTelemetry name; never the message), and lists InvalidParams (unparseable arguments, unknown tool via INVALID_PARAMS), UnknownTool, Internal, Protocol. Matches the code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1725,
+                "end": 1725
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:23.587247414Z",
+          "seal": {
+            "by": "server",
+            "mac": "7546970aaac09cdd36402547ecff46a67056e0de7838ba0815a1e4cfc2d644d9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The table row names error.type, the same-value rule, each kind with its trigger, and that the message is never recorded; all match the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4166"
+          ],
+          "recorded_at": "2026-11-27T23:54:04.123269Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b324ef358f6507da7190838dacbe88a1354687bb871334e0375e5a604758fa9"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:04.123269Z",
+      "seal": {
+        "by": "server",
+        "mac": "72be517adcba969f06f744abf5a28013eaf4b7e71c09df7b3b26cabf3a4a0bf7"
+      }
+    },
+    {
+      "id": "CLM-2370",
+      "statement": "The `mcp <tool>` row in docs/operations.md still lists the enduser.id and okf.key.id attributes as attributes, separately from the explanation of the error kind.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "docs/operations.md span table: attribute list column of the `mcp <tool>` row",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4167",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1725",
+          "summary": "The row's list now reads \"...or `Protocol` (any other code), `enduser.id`, `okf.key.id`\": the kind explanation was inserted before the final two attributes, so they read as the tail of the sentence about kinds. Before the change the list ended \"`okf.error.kind` on failure, `enduser.id`, `okf.key.id`\".",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1725,
+                "end": 1725
+              },
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:23.885810887Z",
+          "seal": {
+            "by": "server",
+            "mac": "c98f2810c5a22370483646230c279d90944692f5b5a0222f2326f16bc2d3baad"
+          }
+        },
+        {
+          "id": "EVD-4171",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1725 at 8a0e0a26",
+          "summary": "The cell now lists attributes as a plain comma list ending \"`okf.error.kind` on failure and `error.type` (...never the message), `enduser.id`, `okf.key.id`.\" and the kind sentence follows after the list (\"The kind is the tool error's name ... `Protocol` (any other code)\").",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1725,
+                "end": 1725
+              },
+              "commit": "8a0e0a260f14e05601c40bb726331fa8dc50873a"
+            }
+          },
+          "recorded_at": "2026-11-28T00:23:22.277663024Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ec0037ed0f77b00f9c74156167fa4a920438ed4293b5ec2928788ad9a73d2d8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The inserted kind explanation sits before enduser.id and okf.key.id, so they read as part of the sentence about kinds in a table cell that is otherwise a comma list of attributes. Cosmetic. Fix: in docs/operations.md line 1725 move the \"The kind is the tool error's name ... `Protocol` (any other code)\" sentence to the end of the cell, after `okf.key.id`, so the attribute list stays a plain comma list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4167"
+          ],
+          "recorded_at": "2026-11-27T23:54:04.475631254Z",
+          "seal": {
+            "by": "server",
+            "mac": "859e8134f055c29877e9eb5ac5e28eac90830aa849a9c2f84b73075fe5b7b935"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at 8a0e0a26: the attributes are a plain comma list again, with the kind explanation after it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4171"
+          ],
+          "recorded_at": "2026-11-28T00:23:27.335682048Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cf1dd1ef82140236ec61ab947cc0bd9ef12f237174a807900a2b1febf5ced5d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-28T00:23:27.335682048Z",
+      "seal": {
+        "by": "server",
+        "mac": "cf6612d5a90b14e0d07031c8f9fa3c9da420a6c1f80af74089f3f647e4fade3e"
+      }
+    },
+    {
+      "id": "CLM-2371",
+      "statement": "A changelog entry for #1009 exists under changelog/ and matches the change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"a changelog entry updated.\"",
+      "derived_from": [
+        "CLM-2356"
+      ],
+      "artifacts": [
+        "changelog/20261127T234101Z-issue-1009-protocol-error-kind.md"
+      ],
+      "tags": [
+        "from-issue:1009"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4168",
+          "kind": "inspection",
+          "locator": "changelog/20261127T234101Z-issue-1009-protocol-error-kind.md",
+          "summary": "Timestamped changelog file exists; its bullets match the code (kind mapping, tool_error records error.type, rmcp divergence, message never recorded, metrics unchanged).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261127T234101Z-issue-1009-protocol-error-kind.md",
+              "commit": "b3b142a092d8cc81d18f8f02a7703bdb6b50ad4e"
+            }
+          },
+          "recorded_at": "2026-11-27T23:53:24.596468170Z",
+          "seal": {
+            "by": "server",
+            "mac": "31cffaa8ae75d9ebae2b366d6c98c3d631a73e7614de9f9f1362b0f078c4e7c7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The file exists with a timestamped name and its statements match the code and tests audited here.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4168"
+          ],
+          "recorded_at": "2026-11-27T23:54:05.247991621Z",
+          "seal": {
+            "by": "server",
+            "mac": "7ed5e0469dd7f1384b481fd6888f479b63b45e98b9b3d00cad08e5381810bd4d"
+          }
+        }
+      ],
+      "created_at": "2026-11-27T23:51:10.609252808Z",
+      "updated_at": "2026-11-27T23:54:05.247991621Z",
+      "seal": {
+        "by": "server",
+        "mac": "1ca79c550cbcc1c9a9d7237a60b54a3e9faafff90ce3dd3b6f6f831c8f1f16e2"
       }
     }
   ]

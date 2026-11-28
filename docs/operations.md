@@ -1789,6 +1789,7 @@ tool, so at the default `info` filter their traces hold the request span alone.
 | `okf.archive.export` and `okf.archive.import` | `okf.catalog` (only for a catalog that exists), `okf.archive.size` (bytes, on success), `okf.outcome` |
 | `okf.mail.job` | `okf.mail.template`, `okf.mail.provider`, `okf.outcome`. Never the address |
 | `okf.oauth.token` | `okf.grant` (`code` or `refresh`), `outcome` (`ok` or `failed`), `okf.error` (the RFC 6749 error code, on failure), `okf.refresh` for a refresh (`rotated`, `grace`, `reused` or `unknown`; [Concurrent refreshes](#concurrent-refreshes)). `okf.resource` when `invalid_target` came from a `resource` that was not this server's (see below). No key or value holds `auth` or `token`, which trace backends' default scrubbers hide. Never a code, token or client id |
+| `okf.oauth.authorize` | `okf.resource` only, when the request named a `resource` that was not this server's (as for `okf.oauth.token`: how it differed, never the value). Nothing else, and never a code, token or client id |
 | Redis calls: `connect` and `subscribe` (at `info`), then `publish`, `admits`, `bind`, `release`, `load_state`, `store_state`, `delete_state`, `run_counter`, the rate limits' `take` (operation `limit`) and the stored-state operations (at `debug`, off by default) | `db.system.name` (`redis`), `db.operation.name` (the same set as `okf_redis_errors_total`'s `operation`, except `decode`, which is a metric label only). Never a key name, a session or flow id, a value or the URL |
 | Everything else (store, handlers) | Function spans at `debug` and `trace`, off by default; they carry safe ids only |
 
@@ -5061,7 +5062,8 @@ connection as before.
 (`<public_url>/mcp`, compared byte for byte) with `400 invalid_target`.
 `/oauth/authorize` answers it with a `303` redirect to the client carrying
 `error=invalid_target`, not a 400. The `okf.oauth.token` span (at
-authorize, the `debug` span `authorize`) then carries `okf.resource`, how
+authorize, the `info` span `okf.oauth.authorize`, which the default trace
+export keeps) then carries `okf.resource`, how
 the sent value differed, never the value: `trailing_slash` (the endpoint with a `/` added),
 `origin` (the bare origin), `other_path` (this host, another path),
 `other_host` (another host, scheme or port), `unparseable` (empty, relative or

@@ -1899,11 +1899,21 @@ async fn server_with_a_second_reader() -> TestServer {
     server
 }
 
+/// What `second`'s sign-in POST from the other tab answered, as JSON text, for
+/// a timeout's report.
+type SignInAnswer = String;
+
 /// Signs in as `second` in another tab (the same cookies), from the
 /// console's page, so none of its answers go through the reader's worker; the
 /// reader tab stays open. `GET /signin` sends a signed-in browser on to the
 /// console, so the tab posts the sign-in form itself, as the page would.
-fn sign_in_second_in_another_tab(ui: &Ui) {
+///
+/// # Returns
+/// What the POST answered (status, the address it ended at, whether it was
+/// redirected), once `fetch` has followed the 303 and the new session's
+/// cookie is set.
+fn sign_in_second_in_another_tab(ui: &Ui) -> SignInAnswer {
+    let mut answer = String::new();
     ui.in_second_tab(|tab| {
         tab.goto(
             &format!("{}/ui/", ui.base),
@@ -1911,13 +1921,20 @@ fn sign_in_second_in_another_tab(ui: &Ui) {
         )
         .expect("open the console");
         let post = format!(
-            "async () => (await fetch('/signin', {{ method: 'POST', body: new URLSearchParams({{ \
-             email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }})).status"
+            "async () => {{ const r = await fetch('/signin', {{ method: 'POST', body: \
+             new URLSearchParams({{ email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }}); \
+             return {{ status: r.status, redirected: r.redirected, \
+             path: new URL(r.url).pathname }}; }}"
         );
-        let status = tab
+        let posted = tab
             .evaluate(&post, None, rustwright::ActionOptions::default())
             .expect("post the sign-in");
-        assert_eq!(status, json!(200), "the sign-in was refused");
+        assert_eq!(
+            posted["status"],
+            json!(200),
+            "the sign-in was refused: {posted}"
+        );
+        answer = posted.to_string();
         // A new session, so the console is reloaded as `second`.
         tab.goto(
             &format!("{}/ui/", ui.base),
@@ -1925,14 +1942,43 @@ fn sign_in_second_in_another_tab(ui: &Ui) {
         )
         .expect("reload the console");
     });
+    answer
 }
 
+/// What the Account screen's wait for `second` reports on a timeout (issue
+/// #1183): the page's address, what it shows, whether the worker controls it,
+/// and what `/api/v1/session` answers now (never its csrf token or cookies).
+const SECOND_ACCOUNT_REPORT: &str = "async () => { \
+    const report = { href: location.pathname + location.hash, \
+        account_user: document.getElementById('account-user')?.textContent ?? null, \
+        reader_hidden: document.getElementById('reader')?.hidden ?? null, \
+        controlled: navigator.serviceWorker?.controller != null }; \
+    const controller = new AbortController(); \
+    const timer = setTimeout(() => controller.abort(), 2000); \
+    try { \
+        const response = await fetch('/api/v1/session', { signal: controller.signal, \
+            headers: { Accept: 'application/json' } }); \
+        report.session = { status: response.status, \
+            offline: response.headers.has('X-Read-Offline'), \
+            user: (await response.json().catch(() => ({}))).user ?? null }; \
+    } catch (error) { \
+        report.session = `error: ${error.name}`; \
+    } finally { clearTimeout(timer); } \
+    return report; }";
+
 /// Reloads the reader on the Account screen, so boot's session check is the
-/// only read, and waits until it names `second`.
-fn only_the_session_check_as_second(ui: &Ui) {
+/// only read, and waits until it names `second`. A timeout reports the page,
+/// the session answer, the cookie names and what the other tab's sign-in
+/// answered (`signed_in`).
+fn only_the_session_check_as_second(ui: &Ui, signed_in: &SignInAnswer) {
     ui.open_reader("/me");
     ui.reload_reader();
-    ui.wait_text("#account-user", "second");
+    ui.wait_text_is_noting("#account-user", "second", SECOND_ACCOUNT_REPORT, || {
+        format!(
+            "; the sign-in POST: {signed_in}; cookies: {}",
+            ui.cookie_names()
+        )
+    });
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -1948,10 +1994,10 @@ async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
         assert!(content_paths(ui)
             .iter()
             .any(|path| path.ends_with("/alpha.md")));
-        sign_in_second_in_another_tab(ui);
+        let signed_in = sign_in_second_in_another_tab(ui);
         // No concept is read as `second` before the copies are checked: the
         // session check alone hands them over, wiping the first account's.
-        only_the_session_check_as_second(ui);
+        only_the_session_check_as_second(ui, &signed_in);
         let paths = content_paths(ui);
         assert!(
             paths.iter().all(|path| !path.ends_with("/alpha.md")),
@@ -1986,8 +2032,8 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
         // Recent changes too, so Home offline would draw from a kept listing.
         ui.open_reader("/");
         ui.wait_visible("#recent");
-        sign_in_second_in_another_tab(ui);
-        only_the_session_check_as_second(ui);
+        let signed_in = sign_in_second_in_another_tab(ui);
+        only_the_session_check_as_second(ui, &signed_in);
         let offline = ui.go_offline();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_visible("#unavailable");

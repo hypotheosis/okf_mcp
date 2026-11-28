@@ -793,7 +793,19 @@ impl Ui {
 
     /// Polls `done` for [`WAIT`]; on a timeout panics with `what` and the
     /// answer of the JS function `report`.
-    fn poll_reporting(&self, what: &str, report: &str, mut done: impl FnMut() -> bool) {
+    fn poll_reporting(&self, what: &str, report: &str, done: impl FnMut() -> bool) {
+        self.poll_reporting_with(what, report, String::new, done);
+    }
+
+    /// [`Ui::poll_reporting`] whose panic message also carries `note()`,
+    /// for what only the test knows (what an earlier step answered).
+    fn poll_reporting_with(
+        &self,
+        what: &str,
+        report: &str,
+        note: impl FnOnce() -> String,
+        mut done: impl FnMut() -> bool,
+    ) {
         let deadline = Instant::now() + WAIT;
         while Instant::now() < deadline {
             if done() {
@@ -802,7 +814,40 @@ impl Ui {
             std::thread::sleep(Duration::from_millis(50));
         }
         let state = self.eval(report, serde_json::json!(null));
-        panic!("timed out waiting for {what}; the page: {state}");
+        panic!("timed out waiting for {what}; the page: {state}{}", note());
+    }
+
+    /// Like [`Ui::wait_text_is`], with `note()` added to a timeout's message.
+    ///
+    /// # Panics
+    /// When the text is not `expected` after [`WAIT`].
+    pub fn wait_text_is_noting(
+        &self,
+        selector: &str,
+        expected: &str,
+        report: &str,
+        note: impl FnOnce() -> String,
+    ) {
+        self.poll_reporting_with(
+            &format!("{selector} reading {expected:?}"),
+            report,
+            note,
+            || self.text(selector).trim() == expected,
+        );
+    }
+
+    /// The names (never the values) of the cookies the browser holds, sorted
+    /// and joined by commas, for a timeout's report: HttpOnly ones too,
+    /// which the page cannot see.
+    pub fn cookie_names(&self) -> String {
+        let mut devtools = DevTools::connect(&self.browser);
+        let answer = devtools.call(None, "Storage.getCookies", serde_json::json!({}));
+        let mut names: Vec<&str> = answer["cookies"]
+            .as_array()
+            .map(|cookies| cookies.iter().filter_map(|c| c["name"].as_str()).collect())
+            .unwrap_or_default();
+        names.sort_unstable();
+        names.join(",")
     }
 
     /// Sends the page's next `method` request to a path ending in `suffix`

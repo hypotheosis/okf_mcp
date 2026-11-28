@@ -424,7 +424,7 @@ async fn an_audited_revert_and_its_users_deletion_share_one_store_connection() {
             >= 3,
         "the account pool must have connections to spare"
     );
-    assert_eq!(store.executor().options().get_max_connections(), 1);
+    assert_eq!(store.pool().options().get_max_connections(), 1);
     let mut holder = test.app.accounts().begin().await.expect("begin the holder");
     sqlx::query("SELECT id FROM users WHERE name = 'alice' FOR UPDATE")
         .execute(&mut *holder)
@@ -604,7 +604,7 @@ async fn a_catalog_deletion_racing_an_admins_audited_edit_behind_a_user_deletion
     let handle = open(&alice).await;
     body(&alice, &handle, "# A\n\nAlice.\n").await;
     let store = test.app.main_db().await;
-    assert_eq!(store.executor().options().get_max_connections(), 1);
+    assert_eq!(store.pool().options().get_max_connections(), 1);
     let mut holder = test.app.accounts().begin().await.expect("begin the holder");
     sqlx::query("SELECT id FROM users WHERE name = 'boss' FOR UPDATE")
         .execute(&mut *holder)

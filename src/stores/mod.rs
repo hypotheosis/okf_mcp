@@ -14,10 +14,12 @@ use sqlx::{Postgres, Transaction};
 
 pub mod bounded;
 mod credentials;
+mod executor;
 pub mod placement;
 mod registry;
 
 pub(crate) use credentials::{is_auth_failure, signal_auth_refused};
+pub use executor::StoreExecutor;
 #[cfg(test)]
 pub(crate) use registry::same_database;
 pub use registry::{PoolSettings, Stores, STORE_SEARCH_PATH};
@@ -49,21 +51,38 @@ pub const STATE_LOAD_TIMEOUT_FACTOR: u32 = 6;
 /// The error to hand back.
 #[tracing::instrument(level = "trace", skip_all)]
 pub fn classify_store_error(store: &StoreName, error: sqlx::Error) -> OkfError {
+    if !is_store_unreachable(&error) {
+        return OkfError::from(error);
+    }
     // A refused login is the store being unreachable to this server (a
     // rotated secret, an expired token), not a fault in the request;
     // the credential tasks are told to fetch a fresh login.
     if credentials::is_auth_failure(&error) {
         credentials::signal_auth_refused(&error);
-        return OkfError::store_unavailable(store);
     }
-    match error {
-        sqlx::Error::PoolTimedOut
-        | sqlx::Error::PoolClosed
-        | sqlx::Error::Io(_)
-        | sqlx::Error::Tls(_)
-        | sqlx::Error::WorkerCrashed => OkfError::store_unavailable(store),
-        other => OkfError::from(other),
-    }
+    OkfError::store_unavailable(store)
+}
+
+/// `true` for a driver error that means the store cannot be reached: a
+/// refused login, a pool that timed out or is closed, a transport or TLS
+/// failure (at connect or mid-query), a crashed pool worker.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(
+        uninstrumented_fn,
+        reason = "a pure match over the error's variants: a closed-value classifier"
+    )
+)]
+fn is_store_unreachable(error: &sqlx::Error) -> bool {
+    credentials::is_auth_failure(error)
+        || matches!(
+            error,
+            sqlx::Error::PoolTimedOut
+                | sqlx::Error::PoolClosed
+                | sqlx::Error::Io(_)
+                | sqlx::Error::Tls(_)
+                | sqlx::Error::WorkerCrashed
+        )
 }
 
 /// [`classify_store_error`] for an error already converted with `?`: a
@@ -334,13 +353,33 @@ impl CatalogDb {
         classify_store_error(&self.store, error)
     }
 
-    /// The pool, for store-layer functions that take an executor. Routes and
-    /// tools pass the [`CatalogDb`] itself, not this.
+    /// The pool as an executor, for store-layer functions that take one.
+    /// Routes and tools pass the [`CatalogDb`] itself, not this.
+    ///
+    /// A driver error that means the store cannot be reached (a pool
+    /// timeout, a closed pool, a transport or TLS failure, a refused login)
+    /// leaves a query on it already as [`OkfError::StoreUnavailable`]
+    /// once `?` converts it, so no call site classifies (issue #995). Any
+    /// other error, a constraint violation or a bad statement, is the
+    /// driver's, as before. For a pool-level call (`begin`, `acquire`,
+    /// `close`, its options) use [`CatalogDb::pool`].
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(uninstrumented_fn, reason = "one-line accessor")
     )]
-    pub fn executor(&self) -> &PgPool {
+    pub fn executor(&self) -> StoreExecutor<'_> {
+        StoreExecutor::new(&self.store, &self.pool)
+    }
+
+    /// The raw pool, for what an executor cannot do: close it, read its
+    /// options, take a connection. An error from the pool itself is the
+    /// caller's to classify with [`CatalogDb::classify`]; queries go
+    /// through [`CatalogDb::executor`], which does it for them.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(uninstrumented_fn, reason = "one-line accessor")
+    )]
+    pub fn pool(&self) -> &PgPool {
         &self.pool
     }
 
@@ -570,7 +609,7 @@ mod tests {
         assert_eq!(stores.pools_opened(), 1);
         assert!(one.size() <= 1);
         let main = stores.get(&StoreName::main()).await.unwrap();
-        assert!(main.executor().size() <= 1);
+        assert!(main.pool().size() <= 1);
         assert_eq!(stores.pools_opened(), 1);
     }
 

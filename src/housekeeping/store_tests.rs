@@ -382,7 +382,7 @@ async fn a_store_job_blocked_on_a_lock_gives_up_at_the_database() {
         (Task::PruneAudit, "catalog_audit_entries"),
     ] {
         // Arrange: another connection to the store holds the table.
-        let mut holder = store_db.executor().begin().await.unwrap();
+        let mut holder = store_db.pool().begin().await.unwrap();
         sqlx::query(sqlx::AssertSqlSafe(format!(
             "LOCK TABLE {table} IN ACCESS EXCLUSIVE MODE"
         )))
@@ -550,7 +550,7 @@ fn assert_database_timeout(outcome: &Result<(), OkfError>) {
 #[tokio::test(flavor = "multi_thread")]
 async fn a_held_catalog_lock_does_not_starve_a_healthy_store() {
     let test = two_half_made_catalogs().await;
-    let mut holder = test.stalled_store.executor().begin().await.unwrap();
+    let mut holder = test.stalled_store.pool().begin().await.unwrap();
     catalogs::lock(&mut holder, test.stalled_id).await.unwrap();
     let limits = provision_limits(&test.replica.app);
 
@@ -579,7 +579,7 @@ async fn a_held_catalog_lock_does_not_starve_a_healthy_store() {
 #[tokio::test(flavor = "multi_thread")]
 async fn a_stalled_store_query_does_not_starve_a_healthy_store() {
     let test = two_half_made_catalogs().await;
-    let mut holder = test.stalled_store.executor().begin().await.unwrap();
+    let mut holder = test.stalled_store.pool().begin().await.unwrap();
     sqlx::query("LOCK TABLE catalog_state IN ACCESS EXCLUSIVE MODE")
         .execute(&mut *holder)
         .await
@@ -600,7 +600,7 @@ async fn a_stalled_store_query_does_not_starve_a_healthy_store() {
 #[tokio::test(flavor = "multi_thread")]
 async fn the_attempt_backstop_contains_a_wait_the_database_does_not_bound() {
     let test = two_half_made_catalogs().await;
-    let mut holder = test.stalled_store.executor().begin().await.unwrap();
+    let mut holder = test.stalled_store.pool().begin().await.unwrap();
     catalogs::lock(&mut holder, test.stalled_id).await.unwrap();
     let limits = Limits {
         attempt: Duration::from_millis(500),

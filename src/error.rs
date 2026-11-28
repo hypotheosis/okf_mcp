@@ -708,6 +708,16 @@ const RETRYABLE_SQLSTATES: [&str; 2] = ["40P01", "40001"];
 impl From<sqlx::Error> for OkfError {
     #[tracing::instrument(level = "trace", skip_all)]
     fn from(source: sqlx::Error) -> Self {
+        // An error a store's executor already classified travels inside
+        // `Configuration` (see `stores::StoreExecutor`): give it back as it
+        // was, so a call site's `?` yields `StoreUnavailable`.
+        let source = match source {
+            sqlx::Error::Configuration(inner) => match inner.downcast::<OkfError>() {
+                Ok(classified) => return *classified,
+                Err(inner) => sqlx::Error::Configuration(inner),
+            },
+            other => other,
+        };
         // `code()` borrows `source`, so the check finishes before `source`
         // moves into the variant below. It returns `Option<Cow<str>>`, and
         // `as_ref()` views the `Cow` as a `&str`.

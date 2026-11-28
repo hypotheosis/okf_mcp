@@ -85,8 +85,16 @@ pub async fn read(
     pin: &RevisionPin,
 ) -> Result<PinnedConcept, OkfError> {
     report::pin(pin)?;
-    let mut conn = db.executor().acquire().await?;
-    pinned(&mut conn, catalog_id, pin).await
+    let mut conn = db
+        .pool()
+        .acquire()
+        .await
+        .map_err(|error| db.classify(error))?;
+    // The query runs on a raw connection, which the store's executor does not
+    // wrap: a transport failure mid-query is classified here.
+    pinned(&mut conn, catalog_id, pin)
+        .await
+        .map_err(|error| crate::stores::classify_store_failure(db.store(), error))
 }
 
 /// Checks exact excerpt membership and returns whether any pin is outdated.

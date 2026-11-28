@@ -175,7 +175,7 @@ impl Opened {
         )
     )]
     fn keep(self, migration: StoreMigration) -> OpenStore {
-        let pool = self.db.executor().clone();
+        let pool = self.db.pool().clone();
         let keeper = self
             .credential
             .and_then(|(source, base)| spawn_keeper(source, base, pool));
@@ -425,7 +425,7 @@ impl Stores {
         let Some(following) = self.inner.follow.get() else {
             return;
         };
-        let pool = entry.db.executor();
+        let pool = entry.db.pool();
         if same_database(&self.inner.accounts, pool) {
             return;
         }
@@ -662,7 +662,7 @@ impl Stores {
                     { store = %store, %error, },
                     "a store's schema could not be migrated"
                 );
-                opened.db.executor().close().await;
+                opened.db.pool().close().await;
                 Err(OpenFailure::Unmigrated)
             }
         }
@@ -874,7 +874,7 @@ impl Stores {
         match claim_database(&open.db, registry).await {
             Ok(connection) => Ok(StoreClaim { open, connection }),
             Err(error) => {
-                open.db.executor().close().await;
+                open.db.pool().close().await;
                 Err(error)
             }
         }
@@ -937,7 +937,7 @@ pub(crate) fn same_database(a: &PgPool, b: &PgPool) -> bool {
 /// connection is free within the pool's acquire timeout.
 #[tracing::instrument(level = "debug", skip_all)]
 async fn migrate_on(db: &CatalogDb) -> Result<StoreMigration, OkfError> {
-    let mut connection = db.executor().acquire().await?;
+    let mut connection = db.pool().acquire().await?;
     let migrated = db::migrate_store(&mut connection, db.store()).await;
     // Back to the pool before the handle is handed out: dropping a pooled
     // connection returns it from a spawned task, a little later, and a
@@ -963,7 +963,7 @@ impl StoreClaim {
             mut connection,
         } = self;
         connection.return_to_pool().await;
-        open.db.executor().close().await;
+        open.db.pool().close().await;
     }
 }
 
@@ -981,7 +981,7 @@ async fn claim_database(
     db: &CatalogDb,
     registry: &mut PgConnection,
 ) -> Result<PoolConnection<Postgres>, OkfError> {
-    let mut connection = db.executor().acquire().await?;
+    let mut connection = db.pool().acquire().await?;
     sqlx::query("SELECT pg_advisory_lock(hashtextextended($1, 0))")
         .bind(db::STORE_ADD_LOCK_KEY)
         .execute(&mut *connection)
@@ -1081,7 +1081,7 @@ mod tests {
         let store = stores.get(&StoreName::main()).await.unwrap();
         // Both connections are held at once, so they are two backends.
         let mut held = db.pool.acquire().await.unwrap();
-        let mut store_held = store.executor().acquire().await.unwrap();
+        let mut store_held = store.pool().acquire().await.unwrap();
 
         assert_eq!(store.store(), &StoreName::main());
         let store_pid: i32 = sqlx::query_scalar("SELECT pg_backend_pid()")
@@ -1094,9 +1094,9 @@ mod tests {
             .unwrap();
         assert_ne!(store_pid, account_pid);
         // Its own size, and the store search path, set on every connection.
-        assert_eq!(store.executor().options().get_max_connections(), 4);
+        assert_eq!(store.pool().options().get_max_connections(), 4);
         assert_ne!(
-            store.executor().options().get_max_connections(),
+            store.pool().options().get_max_connections(),
             db.pool.options().get_max_connections()
         );
         let search_path: String = sqlx::query_scalar("SHOW search_path")
@@ -1686,7 +1686,7 @@ mod tests {
         let name = StoreName::parse("shared-1").unwrap();
 
         let store = stores.get(&name).await.unwrap();
-        let mut first = store.executor().acquire().await.unwrap();
+        let mut first = store.pool().acquire().await.unwrap();
         assert_eq!(current_user(&store, &mut first).await, role);
         // The signer was asked for this server and the row's user.
         let (host, port, _) = server_of(&db.pool);
@@ -1709,7 +1709,7 @@ mod tests {
 
         // The first connection is still held, so this is a new physical
         // connection: it must carry the fresh token.
-        let mut second = store.executor().acquire().await.unwrap();
+        let mut second = store.pool().acquire().await.unwrap();
         assert_eq!(current_user(&store, &mut second).await, role);
         // The database really did refuse the old token.
         let (host, port, database) = server_of(&db.pool);
@@ -1826,7 +1826,7 @@ mod tests {
         add_row(&db.pool, "shared-1", "iam", &role).await;
         let name = StoreName::parse("shared-1").unwrap();
         let store = stores.get(&name).await.unwrap();
-        let _held = store.executor().acquire().await.unwrap();
+        let _held = store.pool().acquire().await.unwrap();
         let mut refreshes = stores.credential_task(&name).await.unwrap();
 
         // The clock moves first, so every token the signer gives from now on
@@ -1882,7 +1882,7 @@ mod tests {
         let name = StoreName::parse("shared-1").unwrap();
 
         let store = stores.get(&name).await.unwrap();
-        let mut first = store.executor().acquire().await.unwrap();
+        let mut first = store.pool().acquire().await.unwrap();
         assert_eq!(current_user(&store, &mut first).await, role);
         assert_eq!(secrets.calls.load(Ordering::SeqCst), 1);
 
@@ -1934,7 +1934,7 @@ mod tests {
         let name = StoreName::parse("shared-1").unwrap();
         let store = stores.get(&name).await.unwrap();
         // One connection stays busy, so the reads below need a new one.
-        let mut first = store.executor().acquire().await.unwrap();
+        let mut first = store.pool().acquire().await.unwrap();
         let before: String = sqlx::query_scalar("SHOW search_path")
             .fetch_one(&mut *first)
             .await
@@ -2007,7 +2007,7 @@ mod tests {
         let name = StoreName::parse("shared-1").unwrap();
         let store = stores.get(&name).await.unwrap();
         // One connection stays busy, so the reads below need a new one.
-        let _held = store.executor().acquire().await.unwrap();
+        let _held = store.pool().acquire().await.unwrap();
         let mut refreshes = stores.credential_task(&name).await.unwrap();
 
         // The secret changes first, so every login the task fetches from now
@@ -2017,16 +2017,19 @@ mod tests {
         // role, so it wakes every task) lands in between.
         secrets.set(Ok(secret("pw-2")));
         set_password(&db.pool, &role, "pw-rotating").await;
-        // A read that goes straight to the pool and propagates with `?`,
+        // A read that goes straight to the executor and propagates with `?`,
         // never through `CatalogDb::classify` (the shape of the store
-        // layer's functions).
+        // layer's functions): the executor classifies the refusal itself.
         async fn plain_read(db: &CatalogDb) -> Result<i32, OkfError> {
             Ok(sqlx::query_scalar("SELECT 1")
                 .fetch_one(db.executor())
                 .await?)
         }
         let refused = plain_read(&store).await.unwrap_err();
-        assert!(matches!(refused, OkfError::Database { .. }), "{refused:?}");
+        assert!(
+            matches!(refused, OkfError::StoreUnavailable { .. }),
+            "{refused:?}"
+        );
         a_refresh_is_applied(&mut refreshes).await;
         // The database now accepts the new password, which the pool holds.
         set_password(&db.pool, &role, "pw-2").await;

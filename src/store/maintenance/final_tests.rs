@@ -654,7 +654,7 @@ async fn an_ended_runs_entry_survives_the_catalogs_deletion_before_it_is_written
         catalog: &target.name,
         details: serde_json::json!({"run": run.id, "state": run.state, "findings": run.findings}),
     };
-    let mut conn = store.executor().acquire().await.unwrap();
+    let mut conn = store.pool().acquire().await.unwrap();
     crate::store::audit::record_catalog(&mut conn, &resolved, &entry, run.at)
         .await
         .unwrap();

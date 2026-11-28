@@ -1178,7 +1178,7 @@ async fn old_unlock_against_a_new_map(
     import_private_index(test).await;
     let replacement = catalog_id(test, "main").await;
     crate::mcp::testing::store_key(test, "acme-writer").await;
-    let mut conn = test.app.main_db().await.executor().acquire().await.unwrap();
+    let mut conn = test.app.main_db().await.pool().acquire().await.unwrap();
     let opened = crate::store::changesets::open(
         &mut conn,
         replacement,

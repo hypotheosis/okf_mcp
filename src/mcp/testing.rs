@@ -271,7 +271,7 @@ impl TestApp {
             .await
             .expect("open through the proxy");
         drop(
-            db.executor()
+            db.pool()
                 .acquire()
                 .await
                 .expect("a connection through the proxy"),

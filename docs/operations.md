@@ -1748,7 +1748,7 @@ tool, so at the default `info` filter their traces hold the request span alone.
 
 | Span | Attributes |
 |---|---|
-| `<METHOD> <route>`, such as `POST /signin` (server). No span for an unmatched route | `http.request.method` (`_OTHER` for an unknown method), `http.route`, `http.response.status_code`, `enduser.id`, `okf.key.id`. The status is `Error` for a 5xx only. The caller's `traceparent`, if any, is a link |
+| `<METHOD> <route>`, such as `POST /signin` (server). No span for an unmatched route | `http.request.method` (`_OTHER` for an unknown method), `http.route`, `http.response.status_code`, `enduser.id`, `okf.key.id`, `okf.auth.failure` (on a 401 from a bearer credential check only: why it was refused, a closed set, see [Why a credential was refused](#why-a-credential-was-refused)). The status is `Error` for a 5xx only. The caller's `traceparent`, if any, is a link |
 | `mcp <tool>` (server): one per tool call; `other` for an unregistered name | `okf.tool`, `okf.catalog` (the catalog the tool resolved: an existing catalog's name, from the `catalog` argument, the changeset or the connection's selection; `(multiple)` when a call reached several, `(none)` when it resolved none; the parentheses keep both from ever being a catalog's name), `mcp.session.id` (a digest of the `Mcp-Session-Id`, only when the request has one), `okf.changeset` (a digest of the `changeset` argument, only when the call names one), `okf.outcome` (`ok` or `error`), `okf.error.kind` on failure and `error.type` (the same value, the OpenTelemetry name that Sentry and other backends show as the error type; never the message), `enduser.id`, `okf.key.id`. The kind is the tool error's name for an `isError` result; for a call that fails before the tool runs it is `InvalidParams` (arguments that don't parse, or an unknown tool name: rmcp 3.8 answers it with `INVALID_PARAMS`), `UnknownTool` (`METHOD_NOT_FOUND`), `Internal` (`INTERNAL_ERROR`) or `Protocol` (any other code) |
 | `okf.publish`, with children `okf.publish.lock`, `okf.publish.lint` and `okf.publish.write` | `okf.catalog`, `okf.changeset.entries` |
 | `okf.catalog.announcement`: a root per catalog announcement handled | `okf.catalog` (a catalog cached on this replica only), `okf.announcement.result` (as `okf_catalog_announcements_total`'s `result`) |
@@ -5029,6 +5029,34 @@ malformed) or `other_form` (the endpoint written another way: letter case in
 the host, an explicit default port, a query or a fragment). It is still
 refused; the value tells you which spelling the client uses.
 
+### Why a credential was refused
+
+A 401 from `/mcp`, an archive route or `/api/v1` is one answer for every
+cause: the same status, body and `WWW-Authenticate` header, with no `error`
+or description, so a caller learns nothing about which credentials exist. The
+request span (exported at the default `info` filter) carries the cause as
+`okf.auth.failure`, a closed set. It never holds the token, a prefix of it,
+its hash or its key id.
+
+| `okf.auth.failure` | Meaning |
+|---|---|
+| `missing` | No `Authorization` header, a `Bearer` header with an empty token, or (on `/api/v1`) no session cookie either. A `DELETE /mcp` with this value is a client closing a session without a credential |
+| `scheme` | An `Authorization` header that is not `Bearer <token>` (another scheme, no space, or bytes that are not text) |
+| `unknown` | The token or cookie matches no live credential: never issued, an `okfat_` token with OAuth off, a refresh token's value, an API key that is revoked or expired (an API key's load answers only "not live"), a console session that is dead or whose user is gone |
+| `expired` | An OAuth access token past its expiry (normal for a client that closes its session after the 24 h access-token lifetime) |
+| `revoked` | An OAuth access token that was revoked, or whose grant is no longer live (revoked, or past its own expiry) |
+| `wrong_resource` | An OAuth access token issued for another resource (RFC 8707) |
+
+A suspended user or team never gets a 401 here: suspension refuses at the
+catalog with a 403, so it has no value. A provisioner key used on `/mcp` is a
+403 as before. The value is absent on a request that was admitted.
+
+The verifier tells `unknown`, `revoked` and `expired` apart from the one
+read of `oauth_tokens` by hash that it already made (the row's `revoked_at`
+and `expires_at`, checked after the read instead of in the `WHERE`), so an
+unknown token costs the same query as a revoked one. A token cached while
+live and expired since is `expired` with no query at all, as before.
+
 The `okf.oauth.token` span records each refresh's `okf.refresh`: `rotated`,
 `grace` (rotated again within the window), `reused` (the connection ended)
 or `unknown`, and `okf.error` on failure.
@@ -5760,7 +5788,7 @@ curl -sf -H "Authorization: Bearer $OKF_MCP_KEY" -o notes.tar.gz \
 
 | Symptom | Cause and fix |
 |---|---|
-| 401 on `/mcp` or an archive route | No `Authorization: Bearer` header, or the key or OAuth access token is unknown, expired or revoked. The body is plain text, with `WWW-Authenticate: Bearer` (and `resource_metadata="..."` when OAuth is on) |
+| 401 on `/mcp` or an archive route | No `Authorization: Bearer` header, or the key or OAuth access token is unknown, expired or revoked. The body is plain text, with `WWW-Authenticate: Bearer` (and `resource_metadata="..."` when OAuth is on). The request span's `okf.auth.failure` says which ([Why a credential was refused](#why-a-credential-was-refused)) |
 | 403 on every `/mcp` request through the ingress | The `Host` is not in `allowed_hosts` (rmcp's DNS-rebinding check). Add the public host name and restart the pod |
 | 404 on `/mcp` with "Session not found" | The `Mcp-Session-Id` was opened by another key, idled out past `session_idle_timeout`, or predates a restart. Reconnect with the key that opened it |
 | `create_concept`, `move_concept` or `split_concept` returns `AlreadyExists` (a REST route that returns it answers 409) | A concept is already at the target path (a valid path that is taken). It is not `InvalidPath`, which stays for malformed, escaping, reserved and machinery paths (a change from before issue #929: a client that matched `InvalidPath` for this case must match `AlreadyExists`). The message names the recovery: `edit_document` or `replace_body` changes the existing concept (`get_concept` reads it), or choose another path, or delete or move the existing concept first. The body's `path` is the taken path |

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2524,
+  "next_claim_seq": 2542,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "2255b96668e763e68b8a320f1c4e73761a247c9e61c28d813224b2fa51a75cf8"
+    "mac": "1a7f590fd1a0dab54d04697ee28d4e9939038a49198d4f221e74034c0d27fae9"
   },
-  "next_evidence_seq": 4401,
+  "next_evidence_seq": 4431,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "366b2f074e1a91883d7ffab3372481dee23dc5afc5735b4f74097ae2788a0c7d"
+    "mac": "9248d781758585bd470591feac72df5bfac5bd9e0f9a6145935ec843850165bc"
   },
   "claims": [
     {
@@ -11971,6 +11971,28 @@
             "by": "server",
             "mac": "59340a8226d5b70037e9b423defa4576596d10e6c6405ebcb40261638b3cc7f1"
           }
+        },
+        {
+          "id": "EVD-4428",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:507-513 at d58e03b9 (re-audit)",
+          "summary": "The CSRF check for a non-safe method with a non-matching header still returns OkfError::Forbidden (403) before the principal lookup; the diff only changed neighbouring 401 returns. The test a_cookie_write_needs_the_sessions_csrf_header is in the console_session tests (not rerun here).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 507,
+                "end": 513
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:49:33.455575987Z",
+          "seal": {
+            "by": "server",
+            "mac": "30807c738b12c978dfe884466f2ba0d04b114764b43307bde30a9c4b1ddf0040"
+          }
         }
       ],
       "verdicts": [
@@ -12000,13 +12022,26 @@
             "by": "server",
             "mac": "304becfe43191e9db4e534036655c2fcdd358993c89f526ab15b5f7e526d3d15"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: CSRF 403 branch unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4428"
+          ],
+          "recorded_at": "2026-11-28T08:49:43.477711885Z",
+          "seal": {
+            "by": "server",
+            "mac": "daff7e61c0dd0cbb62f5a18cb971643968ace50cede8923ba7844c391ea0f137"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-26T13:14:54.935252696Z",
+      "updated_at": "2026-11-28T08:49:43.477711885Z",
       "seal": {
         "by": "server",
-        "mac": "2c870960eed528b3fbb71ef5748ed8eb5495b835e14b75e36911b4c4ff1b2eb2"
+        "mac": "02b6fb886ccf6893fb0ead305f8b2615a75b5a9e1eeaa7d6a75893586b32a4fe"
       }
     },
     {
@@ -13580,6 +13615,28 @@
             "by": "server",
             "mac": "3ece83f16122529c292598bd3642bea18ab71170e0d52e48e0650b2026c77b9b"
           }
+        },
+        {
+          "id": "EVD-4429",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:507-513 at d58e03b9 (re-audit)",
+          "summary": "Same CSRF branch unchanged: a cookie write without a header equal to the session token is 403.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 507,
+                "end": 513
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:49:33.621700813Z",
+          "seal": {
+            "by": "server",
+            "mac": "b89268135e15b65205cb689de0c173ad6d2949bce1d926af6b9bd948e887062e"
+          }
         }
       ],
       "verdicts": [
@@ -13609,13 +13666,26 @@
             "by": "server",
             "mac": "8eb76c7e16f567acdff0e2ce0ec79d081e59d8469e90aeed4c2cc230b4db4262"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: CSRF branch unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4429"
+          ],
+          "recorded_at": "2026-11-28T08:49:43.654545450Z",
+          "seal": {
+            "by": "server",
+            "mac": "d29a17deb0b6814550776c3d5da893528a2ca398fa2c3b61e359089439451ec3"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:57.634988013Z",
-      "updated_at": "2026-11-26T13:14:55.046351579Z",
+      "updated_at": "2026-11-28T08:49:43.654545450Z",
       "seal": {
         "by": "server",
-        "mac": "f3ebc53344836c26eee1db98c0db404eb9f17ded00a5b703296607ba6309448d"
+        "mac": "e93ff7ef3c0d8ac40fe845e46d9cbf1befd12d2f75b68c0a7bd0b432f369f1ff"
       }
     },
     {
@@ -21118,6 +21188,28 @@
             "by": "server",
             "mac": "87a0b89447bf29fae96e815ccff3556a16b52a10a3fc3fa4a57a58f5a8c9c25f"
           }
+        },
+        {
+          "id": "EVD-4430",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:507-513 at d58e03b9 (re-audit)",
+          "summary": "CSRF branch unchanged; the HttpOnly cookie code is outside this diff's hunks.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 507,
+                "end": 513
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:49:33.801554573Z",
+          "seal": {
+            "by": "server",
+            "mac": "9722a758ff3acd4574620b7f9534c6d503dde4a7ef350adb6872878693ec4541"
+          }
         }
       ],
       "verdicts": [
@@ -21147,13 +21239,26 @@
             "by": "server",
             "mac": "160663b4b64499c2a5511a02e22faf6325bc400d5cce5f36a0a50d62e2849dc4"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: CSRF branch unchanged, cookie code untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4430"
+          ],
+          "recorded_at": "2026-11-28T08:49:43.834470540Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3f4f1fb58c8902d37bc3f3d3e78d0167bd1c4a873add00412d92adfb1aa5801"
+          }
         }
       ],
       "created_at": "2026-11-21T19:07:17.608189865Z",
-      "updated_at": "2026-11-26T13:05:28.290805960Z",
+      "updated_at": "2026-11-28T08:49:43.834470540Z",
       "seal": {
         "by": "server",
-        "mac": "452591dd3fb6211dd2d40553bb0cea22ffa1fe6e4f6caeb5c8abfb1b0bacef67"
+        "mac": "55902ee0cfaccf82c56af61f327965fa9d1ce92997a16bded5a1ff84c9e31046"
       }
     },
     {
@@ -167484,6 +167589,28 @@
             "by": "server",
             "mac": "30eace89101f197531362995c22945e5e06d832522f89370a8e10d0ae6011364"
           }
+        },
+        {
+          "id": "EVD-4426",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1228-1266 at d58e03b9 (re-audit)",
+          "summary": "The require_key Err(error) arm is still AppError(error).into_response(); the diff only moved line numbers and changed the 401 arm. Behaviour unchanged. The a_failed_credential_lookup test is in the 49 passing telemetry tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1262,
+                "end": 1266
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:49:33.144689341Z",
+          "seal": {
+            "by": "server",
+            "mac": "a2d22a08999a6b1b3b8fb8724d8730d7c4cb1e43d7ebb89f7333464f70b1b1ae"
+          }
         }
       ],
       "verdicts": [
@@ -167500,13 +167627,26 @@
             "by": "server",
             "mac": "c7861e8c147cfd9e671ce93765609ed1c8e85e1a9542f2c2f2ff4572b48b7646"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the lookup-failure arm is unchanged; anchor drift is line movement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4426"
+          ],
+          "recorded_at": "2026-11-28T08:49:43.150374763Z",
+          "seal": {
+            "by": "server",
+            "mac": "93562d1838269805298167baf730fd540e08b6b807991e10831c1aa9db7b0a1a"
+          }
         }
       ],
       "created_at": "2026-11-26T17:10:14.078008756Z",
-      "updated_at": "2026-11-26T17:12:49.351982962Z",
+      "updated_at": "2026-11-28T08:49:43.150374763Z",
       "seal": {
         "by": "server",
-        "mac": "e1043ad50d3d27dde8daba970bb498fff4d740b113de61de5b4f5d923b44d423"
+        "mac": "75d226a37983ecf356d942f4b70992a8292214d26b7b39f69a64c3b174bf30bb"
       }
     },
     {
@@ -168351,6 +168491,28 @@
             "by": "server",
             "mac": "fdcd9030296929008c41112afde1f0f53d77173c5f41766f41cc500cfb875465"
           }
+        },
+        {
+          "id": "EVD-4427",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1262-1266 at d58e03b9 (re-audit)",
+          "summary": "The lookup-failure arm of require_key is unchanged (AppError); this PR does touch src/auth.rs but not that arm, so the claim about #1093 still holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1262,
+                "end": 1266
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:49:33.303922761Z",
+          "seal": {
+            "by": "server",
+            "mac": "98c780c61b0d73800b48befe39f2d4826733eb563f725cf411755bc832f4639e"
+          }
         }
       ],
       "verdicts": [
@@ -168366,13 +168528,26 @@
             "by": "server",
             "mac": "480df80f0d7adfa8e6c7f75161f5275caf9234735bb6bc3f98eb54ee777cb3f9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: arm unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4427"
+          ],
+          "recorded_at": "2026-11-28T08:49:43.315124378Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a7df787cf12d0ee68bd27829e35da3c90f1e7e1475dba8c5397fa8bcee00b63"
+          }
         }
       ],
       "created_at": "2026-11-26T17:10:14.078008756Z",
-      "updated_at": "2026-11-26T17:12:50.548943779Z",
+      "updated_at": "2026-11-28T08:49:43.315124378Z",
       "seal": {
         "by": "server",
-        "mac": "cd7b6ae37a7e11b11e10cefd8b93022408ffe752068023ee7a38e821e4bfe298"
+        "mac": "c73701c329fe78b74f2daa4f5825fc93127be2e39113940c17f552c28bec8413"
       }
     },
     {
@@ -221875,6 +222050,1353 @@
       "seal": {
         "by": "server",
         "mac": "b62c1f769e02299262806c5b6ddb341926002948208d4af03de78cd6e722785b"
+      }
+    },
+    {
+      "id": "CLM-2524",
+      "statement": "Issue #1012 is delivered: every 401 from require_key and require_principal records why the bearer credential was refused as okf.auth.failure on the request span.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1012 'Record why a bearer credential was refused on a 401 (okf.auth.failure)'",
+      "derived_from": [],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4425",
+          "kind": "analysis",
+          "locator": "children of CLM-2524",
+          "summary": "All active children are supported: both middleware record the reason (CLM-2525, CLM-2526), a closed set (CLM-2527), identical client 401 (CLM-2528), no extra query (CLM-2529), no credential leak (CLM-2530), info-level export (CLM-2531), both acceptance cases (CLM-2532, CLM-2533), docs and changelog (CLM-2534, CLM-2535) and the PR-body statements. Caveats are recorded on the children (cookie-clearing header; gone-user and revoked-API-key sub-cases only by inspection).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T08:49:32.978945878Z",
+          "seal": {
+            "by": "server",
+            "mac": "e85e32bd7ca5e64c01aa38cef54505c63e1246221eb0563057dde5b631c456e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every child is supported; see the roll-up evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4425"
+          ],
+          "recorded_at": "2026-11-28T08:49:42.984835531Z",
+          "seal": {
+            "by": "server",
+            "mac": "3bc79acd4f14de237c76f11850d72d0f83c0d906af12372ce474a47ab566f5a3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:42.984835531Z",
+      "seal": {
+        "by": "server",
+        "mac": "53fd24318c9d7e83ca98df9b98f1b56b201c2e590979e4a2b6cc65202fbc0300"
+      }
+    },
+    {
+      "id": "CLM-2525",
+      "statement": "Every 401 that require_key (src/auth.rs) answers records okf.auth.failure on the request span, with the reason for that refusal.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1012: 'Record a closed-set okf.auth.failure on the request span for every 401 from require_key'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4401",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1228-1266",
+          "summary": "require_key's only 401 path is the Ok(Err(failure)) arm, which calls refuse() -> record_auth_failure() then unauthorized(). The missing/scheme cases come from credential() as Err(failure) fed into the same arm. Other arms: provisioner 403, admitted, and Err -> AppError 500.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1228,
+                "end": 1266
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:49.483320534Z",
+          "seal": {
+            "by": "server",
+            "mac": "d24dae77ef38763061a6322352cbcf3658780f5935649214db6904a7697f6697"
+          }
+        },
+        {
+          "id": "EVD-4402",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- a_401_records (http::telemetry_tests::a_401_records_why_the_credential_was_refused)",
+          "summary": "1 passed. The test drives DELETE /mcp (require_key) with 11 credential cases at info and trace filters, asserts 401 and exactly one request span whose okf.auth.failure equals the expected value for each reason.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1052,
+                "end": 1085
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:49.646722246Z",
+          "seal": {
+            "by": "server",
+            "mac": "d910d6ef45b44869b428243fc5f76685c2eca39cf1bd67a02a727befa83b888b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The only 401 arm of require_key records via refuse(); test passes for all six values on DELETE /mcp.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4401",
+            "EVD-4402"
+          ],
+          "recorded_at": "2026-11-28T08:49:14.925134176Z",
+          "seal": {
+            "by": "server",
+            "mac": "5497fa62876ae31d8dbc08e2b997e69f0e3d77be99666ff884891ffe8f3c30b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:14.925134176Z",
+      "seal": {
+        "by": "server",
+        "mac": "7c8673c947d909cf08e44790b5bf48cc73b499d3a8e889fc3d1b10fb3266b8c6"
+      }
+    },
+    {
+      "id": "CLM-2526",
+      "statement": "Every 401 that require_principal (src/http/console_session.rs) answers records okf.auth.failure on the request span, with the reason for that refusal.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1012: '... for every 401 from require_key and the API's require_principal'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4403",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:461-520",
+          "summary": "Every 401 return in require_principal goes through refuse() (bad bearer line 491; no bearer and no cookie line 498 with the header's failure; dead cookie and gone user via unauthorized_clearing lines 504, 516). The CSRF 403 and AppError 500 paths are not 401s.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 461,
+                "end": 520
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:49.797726512Z",
+          "seal": {
+            "by": "server",
+            "mac": "658a7b4c77ef7af169d0a1aa8e573b1d83262063ea2f24a3ab5c9a49022d947b"
+          }
+        },
+        {
+          "id": "EVD-4404",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- telemetry_tests (49 passed); a_401_records... and a_dead_session_cookie_on_the_api_is_unknown",
+          "summary": "Both pass. a_401_records covers GET /api/v1/whoami with all 11 bearer cases at info and trace; a_dead_session_cookie covers GET /api/v1/session with a dead cookie = unknown. Not covered by a test: the 'gone user' cookie path (line 516), covered by inspection only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1104,
+                "end": 1134
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:49.941652759Z",
+          "seal": {
+            "by": "server",
+            "mac": "a4a633e0791a6773b4467695e45f43ec1e2b0cc7f3a8f3f5a48ec683c40e2c97"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every 401 return in require_principal goes through refuse(); tests cover bearer reasons and dead cookie. The gone-user cookie path is by inspection only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4403",
+            "EVD-4404"
+          ],
+          "recorded_at": "2026-11-28T08:49:15.161126014Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0cb81e75e5cedf33a3541ed23765b4e4ea62b14a4df34be91f1bb09e093bfe4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:15.161126014Z",
+      "seal": {
+        "by": "server",
+        "mac": "2a21ca2cfa24c9cd4254ce18c3a0569840cbeda079336a562a2791e7b687f659"
+      }
+    },
+    {
+      "id": "CLM-2527",
+      "statement": "okf.auth.failure takes only the closed set missing, scheme, unknown, expired, revoked, wrong_resource.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1012: 'closed-set okf.auth.failure: missing, scheme, unknown, expired, revoked, wrong_resource'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4405",
+          "kind": "analysis",
+          "locator": "src/auth.rs:946-985 (AuthFailure enum and as_str); src/auth.rs:1155-1160",
+          "summary": "AuthFailure has exactly six variants and as_str is an exhaustive match to the six names; record_auth_failure is the only writer of okf.auth.failure (git grep shows no other span.record of the field) and takes AuthFailure, so no free-form string can be recorded.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 946,
+                "end": 985
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:50.100162440Z",
+          "seal": {
+            "by": "server",
+            "mac": "12375be76f4160ffafd76f88263011accc2f1e255ef9297ad103bb4974a896be"
+          }
+        },
+        {
+          "id": "EVD-4406",
+          "kind": "analysis",
+          "locator": "git grep okf.auth.failure -- src",
+          "summary": "Search anchor: the field name appears only at its declaration in request_span and in record_auth_failure (plus tests/comments), so the closed enum is the sole source of values.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "record\\(\"okf\\.auth\\.failure\"",
+              "scope": [
+                "src"
+              ],
+              "hits": 1,
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:47:50.265023855Z",
+          "seal": {
+            "by": "server",
+            "mac": "73d1029b551a23a39395972f30cad08a46b275d98f7c922888b28df668e49598"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Enum with six variants is the only source of the recorded value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4405",
+            "EVD-4406"
+          ],
+          "recorded_at": "2026-11-28T08:49:15.379834709Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b55fb0a8251bb061710c3f4489bedc9e69ab0c34f61041e49b5b75660ed78bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:15.379834709Z",
+      "seal": {
+        "by": "server",
+        "mac": "2c5d2d985407e306c4107498f06dcc8b4c6ea0a4316116a289da25d321f96ebd"
+      }
+    },
+    {
+      "id": "CLM-2528",
+      "statement": "The client-visible 401 (status, body and WWW-Authenticate header) is byte-identical for every okf.auth.failure reason.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Task requirement: 'the client-visible 401 (status, body, WWW-Authenticate) must be identical for every reason'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4407",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- telemetry_tests; http::telemetry_tests::every_refusal_answers_with_the_same_bytes",
+          "summary": "Passes. Sends all 11 refusal cases (all six reasons) to DELETE /mcp and GET /api/v1/whoami and asserts equal status, equal sorted header lines and equal body, plus a www-authenticate Bearer resource_metadata header and no invalid_token. Both paths build the response only via unauthorized() (src/auth.rs:1116-1124); refuse() adds no header or body.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1136,
+                "end": 1170
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:10.925700335Z",
+          "seal": {
+            "by": "server",
+            "mac": "3da955a33f0bcd5de2ea17f299235a027410bf82c5916dba55abcfc3dfd01caa"
+          }
+        },
+        {
+          "id": "EVD-4408",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:430-436",
+          "summary": "Caveat, pre-existing: on /api/v1 a dead session cookie (and a session whose user is gone) also gets Set-Cookie clearing headers (unauthorized_clearing), so that 401 differs by headers from a bearer refusal. The clearing depends on the client having sent a cookie, not on a bearer credential's state; every_refusal_answers_with_the_same_bytes sends bearer headers only, not a cookie, so this variant is not covered by the identity test.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 430,
+                "end": 436
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.064966991Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b38af292c6667d6ad715d8766d5d2a17f136e767f59cadfaccca89570ee29df"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test proves byte identity of status, headers and body across all six reasons on both routes, and the code builds every 401 with unauthorized(). Caveat: a dead session cookie on /api/v1 adds a pre-existing clearing Set-Cookie that the test does not cover (EVD-4408, neutral); it keys on the cookie the client sent, not on a bearer credential's state.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4407"
+          ],
+          "recorded_at": "2026-11-28T08:49:15.612485833Z",
+          "seal": {
+            "by": "server",
+            "mac": "e67a403f85b9215ec33f60193ff63f2df4ea58f9dac4829952edd0cb49b6579c"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:15.612485833Z",
+      "seal": {
+        "by": "server",
+        "mac": "93dc87e49b9bb503b982a01bfc4ca4a9a3051f54af4d530084851353f8e258f6"
+      }
+    },
+    {
+      "id": "CLM-2529",
+      "statement": "Telling an expired or revoked OAuth access token from an unknown one adds no database query that an unknown token skips.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "Task requirement: 'telling expired/revoked from unknown must not add a query that unknown tokens skip'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/store/oauth/tokens.rs",
+        "src/oauth/access.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4409",
+          "kind": "analysis",
+          "locator": "src/store/oauth/tokens.rs:160-188; src/oauth/access.rs:288-320",
+          "summary": "find_access issues one fetch_optional on oauth_tokens by sha256 with no revoked/expiry predicate, and the state is derived in Rust from the returned row; unknown and revoked/expired tokens cost that one query, a live token costs it too (on a cache miss). Expired-from-cache costs none. The extra find_grant is reached only by a live, in-resource token, as before. Diff removed the WHERE terms; it added no query.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/oauth/tokens.rs",
+              "lines": {
+                "start": 160,
+                "end": 188
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.207127846Z",
+          "seal": {
+            "by": "server",
+            "mac": "cab04b5d68e00ac6e08e3626091b6d5ca05a8f0a99d2e588ee5debab5174dd32"
+          }
+        },
+        {
+          "id": "EVD-4410",
+          "kind": "inspection",
+          "locator": "src/oauth/access.rs:288-320",
+          "summary": "Verifier on miss calls find_access once; Revoked/Expired/None return immediately; no second lookup is added in any refusal branch. No test counts queries (assertion by code reading, not measured).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/access.rs",
+              "lines": {
+                "start": 288,
+                "end": 320
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.392284292Z",
+          "seal": {
+            "by": "server",
+            "mac": "52581e16e63f4d5c9c2a56ba4613c32256947659c169f42d8096eee3e2975d3d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "find_access is one primary-key read in every state and no refusal branch adds a lookup; shown by code reading since no test counts queries.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4409",
+            "EVD-4410"
+          ],
+          "recorded_at": "2026-11-28T08:49:15.853253001Z",
+          "seal": {
+            "by": "server",
+            "mac": "8a5a97976b98755e4b152ee2c0cefe860e85ee314c9dde4775ba92d5d657974d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:15.853253001Z",
+      "seal": {
+        "by": "server",
+        "mac": "503aaf98927fb2512dc257bbed081bb5e3f776312b8c8ef622101186a60b9632"
+      }
+    },
+    {
+      "id": "CLM-2530",
+      "statement": "The token, a prefix of it, its hash and the key id are never recorded on a span, a log record or in the response body by the refusal path.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1012: 'Never record the token or a prefix of it'; task: 'the token, a prefix, its hash and key id must never be recorded'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4411",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- telemetry_tests; http::telemetry_tests::a_refused_credential_never_reaches_a_span_a_log_or_a_body",
+          "summary": "Passes. For each of 11 cases at info and trace, with trace-level log capture, asserts the token, its hex SHA-256 and the grant ids appear in no exported span/log text, stderr, body or response header. Also a_dead_session_cookie asserts the cookie value is absent from the dump.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1172,
+                "end": 1214
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.536887215Z",
+          "seal": {
+            "by": "server",
+            "mac": "3acdee2071b9c5bbbf6674480254a4ef430df8e3bd49e644917cff6f6b5976bd"
+          }
+        },
+        {
+          "id": "EVD-4412",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1137-1160",
+          "summary": "The only data recorded is failure.as_str(), a static string; refuse/record_auth_failure take no credential, hash or key id. The diff adds no new log/event that formats a token. Neutral limit: the test checks the token and hash, not a 'prefix' substring, but nothing prefix-shaped is formed anywhere.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1137,
+                "end": 1160
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.696075301Z",
+          "seal": {
+            "by": "server",
+            "mac": "d72c39031c75621e248f612adb24707eb4aa822e20c199b35d98b79f403a0948"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The recorded value is a static string and the leak test finds no token, hash or grant id in spans, logs, stderr, body or headers at both filters.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4411",
+            "EVD-4412"
+          ],
+          "recorded_at": "2026-11-28T08:49:16.095865507Z",
+          "seal": {
+            "by": "server",
+            "mac": "209cae9af9bd1025f4f96d5de1efa985c11525fda11645ca049d0b9802a80679"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:16.095865507Z",
+      "seal": {
+        "by": "server",
+        "mac": "669b9da4741441d940eb0a7506cd7088c679b3317a694df73ad6d69ec7ec45a1"
+      }
+    },
+    {
+      "id": "CLM-2531",
+      "statement": "okf.auth.failure is recorded on the request span, which is exported under the default OTLP traces filter (info).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Task requirement: 'the field must be recorded on a span exported under the default OTLP traces filter (info)'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/telemetry/config.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4413",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- telemetry_tests; a_401_records_why_the_credential_was_refused with FILTERS = [info, trace]",
+          "summary": "Passes at the span filter 'info' (the DEFAULT_OTLP_FILTER, src/telemetry/config.rs:18) and 'trace': exactly one request span with the attribute. The request span is info_span! with the field declared Empty (src/http/mod.rs:681) and recorded through the stored span handle, not Span::current().",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 664,
+                "end": 682
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:11.904057758Z",
+          "seal": {
+            "by": "server",
+            "mac": "81ef349c021a1edc93a5ee5a35c2513c3a506c79a6a89c33a3a0ae629e86af81"
+          }
+        },
+        {
+          "id": "EVD-4414",
+          "kind": "inspection",
+          "locator": "src/telemetry/config.rs:18",
+          "summary": "DEFAULT_OTLP_FILTER is \"info\" and traces_filter defaults to it (line 156), so the info-level request span is in the default export.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/config.rs",
+              "lines": {
+                "start": 18,
+                "end": 18
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:12.081748161Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a8c070332a682b79f090425750bb57542956dabe08996eda38641d0e1e6fe62"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Default OTLP traces filter is info, the request span is info_span with the field declared, and the test passes at info.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4413",
+            "EVD-4414"
+          ],
+          "recorded_at": "2026-11-28T08:49:16.348293384Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7919c3f35dabc9adc9e449c8c72ab2daec684573b5ce2f1bab9d2fbf9ed8cba"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:16.348293384Z",
+      "seal": {
+        "by": "server",
+        "mac": "68696b98746df5d02f621d33b485aa56b0125895c2cfdc8cf1a62e2a35b78572"
+      }
+    },
+    {
+      "id": "CLM-2532",
+      "statement": "DELETE /mcp without an Authorization header gives a request span with okf.auth.failure=missing.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1012 Acceptance: 'DELETE /mcp without Authorization gives a span with okf.auth.failure=missing'",
+      "derived_from": [
+        "CLM-2525"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4415",
+          "kind": "test",
+          "locator": "telemetry_tests::a_401_records_why_the_credential_was_refused (case (Missing, None) on DELETE /mcp)",
+          "summary": "The case list's first entry sends no authorization header to DELETE /mcp and asserts okf.auth.failure == \"missing\" on the single 'DELETE /mcp' span at info and trace. Test passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1033,
+                "end": 1035
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:36.051132036Z",
+          "seal": {
+            "by": "server",
+            "mac": "75bd7ce4e8c21205fe5deab8b9d8322789fb2d32a9194a5ca72349f070dc46e2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The passing test sends DELETE /mcp with no header and asserts missing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4415"
+          ],
+          "recorded_at": "2026-11-28T08:49:16.586254590Z",
+          "seal": {
+            "by": "server",
+            "mac": "1d4bb64b1bf318b3954f24e754fd13abec3ca192fd97da564611f25e4a54b53f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:16.586254590Z",
+      "seal": {
+        "by": "server",
+        "mac": "16d96a677ba314f8f185220fc6a95deb9029086dce1cfa352ef617cb6aad5d25"
+      }
+    },
+    {
+      "id": "CLM-2533",
+      "statement": "A request with an expired OAuth access token gives okf.auth.failure=expired.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1012 Acceptance: 'A request with an expired access token gives okf.auth.failure=expired'",
+      "derived_from": [
+        "CLM-2525"
+      ],
+      "artifacts": [
+        "src/oauth/access.rs",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4416",
+          "kind": "test",
+          "locator": "telemetry_tests::a_401_records_why_the_credential_was_refused (case Expired); oauth::access tests (19 passed)",
+          "summary": "A real access token minted with expiry -1 minute is sent to DELETE /mcp (OAuth app) and the span carries \"expired\"; the unit test in access.rs asserts authenticate gives AuthFailure::Expired for it. Both pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/access.rs",
+              "lines": {
+                "start": 477,
+                "end": 491
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:36.283844160Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f5cfc08830cec3eb179a8f28eebc603d0dc5448468ccdc701e9b509cb031cf9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Expired access token yields expired both at the verifier and on the span in passing tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4416"
+          ],
+          "recorded_at": "2026-11-28T08:49:16.852761396Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8f46b7d1fcde711edc82016149edad53c2a0b28f4d52e803a675495d0c44be2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:16.852761396Z",
+      "seal": {
+        "by": "server",
+        "mac": "79ff0a5f13e794a000a9573487f35261d71791f5debd29a8351eec0853a18cba"
+      }
+    },
+    {
+      "id": "CLM-2534",
+      "statement": "The docs/operations.md request-span attribute table lists okf.auth.failure.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task requirement: 'the docs span table (docs/operations.md) ... updated'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4417",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1751",
+          "summary": "The request-span row lists okf.auth.failure (on a 401 from a bearer check, closed set, linked to the new 'Why a credential was refused' section at line 5032) beside okf.key.id.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1751,
+                "end": 1751
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:36.527556671Z",
+          "seal": {
+            "by": "server",
+            "mac": "422fb76e44cef62640d552f5239de1e7c9c5b92ef65a2b799b831b89623a78ef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The span table row lists the attribute.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4417"
+          ],
+          "recorded_at": "2026-11-28T08:49:17.108549938Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e5f3335068aa93e7c0394dc980bd1b0bbea1df9443c67ebb903912b93946aec"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:17.108549938Z",
+      "seal": {
+        "by": "server",
+        "mac": "4502bc2962f869be9581196688a2f7f54c90fc3f2445bb0873a933e25f01b309"
+      }
+    },
+    {
+      "id": "CLM-2535",
+      "statement": "A changelog entry for the change exists under changelog/ with a date-and-time stamped file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task requirement: 'a changelog entry'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "changelog/20261128T083856Z-issue-1012-auth-failure-reason.md"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4418",
+          "kind": "inspection",
+          "locator": "changelog/20261128T083856Z-issue-1012-auth-failure-reason.md:1-44",
+          "summary": "New 44-line file with a Generated timestamp header, Added, Changed, Decisions sections describing okf.auth.failure and find_access. File name carries date and time (20261128T083856Z), matching the repo convention.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T083856Z-issue-1012-auth-failure-reason.md",
+              "lines": {
+                "start": 1,
+                "end": 44
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:36.741641837Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d6b5bae78f6c35634cb6c028bfb0f9c03cdcd326cb8ff83f5ce20a00e2f2ec8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timestamped changelog file present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4418"
+          ],
+          "recorded_at": "2026-11-28T08:49:17.365186655Z",
+          "seal": {
+            "by": "server",
+            "mac": "37cdf823f6cbfabeb10c7615990a495b2a37bda976cbe9c8af66579c8b419509"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:17.365186655Z",
+      "seal": {
+        "by": "server",
+        "mac": "a05e2e302a3ecf4dfabf6b633a77f2b29a3bab7bf700e3cf7b374cc6e9ba89c4"
+      }
+    },
+    {
+      "id": "CLM-2536",
+      "statement": "tokens::find_access reads the access-token row by hash in any state with the same single primary-key query, and the revoked and expiry tests moved from the WHERE clause into Rust.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'find_access reads the access-token row by hash in any state and returns AccessState ... Same single primary-key read as before; the revoked and expiry tests moved from the WHERE into Rust.'",
+      "derived_from": [
+        "CLM-2529"
+      ],
+      "artifacts": [
+        "src/store/oauth/tokens.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4419",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- find_access_names (store::oauth::tokens::tests::find_access_names_the_state_of_an_access_token; reported in the 19 passed)",
+          "summary": "Passes: live -> Live, refresh/unknown -> None, past expiry -> Expired, revoked -> Revoked. The query (src/store/oauth/tokens.rs:166-172) is a single fetch_optional by sha256 and kind='access' with no revoked_at/expires_at predicate; state computed at lines 174-188.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/oauth/tokens.rs",
+              "lines": {
+                "start": 160,
+                "end": 188
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:36.983713500Z",
+          "seal": {
+            "by": "server",
+            "mac": "af3716d90ca804e996842614b61fa9494a2ebdfb6212e9b21b8abbb3508af5ef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single PK query without state predicates; the test asserts all states.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4419"
+          ],
+          "recorded_at": "2026-11-28T08:49:17.614440659Z",
+          "seal": {
+            "by": "server",
+            "mac": "81c729ce968884bf71ac90244576679e714a6c89ceccf0074fb09fd4e7728b67"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:17.614440659Z",
+      "seal": {
+        "by": "server",
+        "mac": "edd89958c8a4d9dbb42b7105eaa9e297490436ffd6913c499fdc8f307afe2183"
+      }
+    },
+    {
+      "id": "CLM-2537",
+      "statement": "The OAuth verifier maps AccessState to Unknown/Revoked/Expired, a cached token past expiry to Expired, another resource to WrongResource, and a live token whose grant is not live to Revoked.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'the verifier maps AccessState to Unknown/Revoked/Expired, a cached token past expiry to Expired, another resource to WrongResource, and a live token whose grant is not live to Revoked'",
+      "derived_from": [
+        "CLM-2525"
+      ],
+      "artifacts": [
+        "src/oauth/access.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4420",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- access:: (19 passed): oauth::access tests asserting WrongResource, Expired, Revoked (cached and grant-revoked), Unknown",
+          "summary": "Tests at src/oauth/access.rs:477-513 and 600-660 assert each mapping with assert_eq on the AuthFailure, including a cached-then-expired token (Expired, entry dropped) and a live token of a revoked grant (Revoked). Code at 288-320 implements them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/access.rs",
+              "lines": {
+                "start": 288,
+                "end": 320
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:37.250751458Z",
+          "seal": {
+            "by": "server",
+            "mac": "4676d9d59f18971f8b949748911b7269b1e9ac909ad792bc0634a1f6d8129104"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and passing tests assert each mapping.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4420"
+          ],
+          "recorded_at": "2026-11-28T08:49:17.827638723Z",
+          "seal": {
+            "by": "server",
+            "mac": "1aae9a15752879fc095d792402713dde79c77dfc81c6c0f7b51ee8ec4f028df8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:17.827638723Z",
+      "seal": {
+        "by": "server",
+        "mac": "b14e563123e7dcf0b239454a9419c4a8458fd4449c5a8d7fe251cce982254d1b"
+      }
+    },
+    {
+      "id": "CLM-2538",
+      "statement": "A revoked or expired API key is recorded as okf.auth.failure=unknown, and a dead session cookie or a session whose user is gone is recorded as unknown.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'API keys that are revoked or expired are unknown ...; dead session cookies and sessions whose user is gone are unknown'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4421",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1015-1021; src/http/console_session.rs:500-520",
+          "summary": "KeyVerifier::verify maps find_key None (unknown, revoked or expired key alike) to Unknown; dead cookie (touch None) and absent session principal (session_principal None) go to unauthorized_clearing = Unknown. Test for the dead cookie exists and passes; no test sends a revoked or expired API key or a gone-user session and asserts unknown: those two sub-cases are by inspection only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1015,
+                "end": 1021
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:37.486184974Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfa9f4d6ddc949b48b4dda5863ced116f3200ae2d465fbfe9e2647fe9d98d91d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code maps every not-found API-key outcome and dead-cookie/gone-user paths to Unknown; dead cookie is tested. Revoked/expired key and gone-user sub-cases rest on inspection only (they are not separately tested).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4421"
+          ],
+          "recorded_at": "2026-11-28T08:49:18.061914832Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d3fd590d9d4925ed0536e95e713d213661eb4ee9b9932841ae44e7f66b99b5e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:18.061914832Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d7e7e6168cbd004bbd522659ef83fe559ee1d830d2b83adad0f84eea3c80401"
+      }
+    },
+    {
+      "id": "CLM-2539",
+      "statement": "Suspended users and teams never get a 401 in require_key or require_principal; suspension is refused at the catalog as a 403, so it needs no okf.auth.failure value.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'suspended users and teams never get a 401 in these layers (they are refused at the catalog with a 403)'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4422",
+          "kind": "inspection",
+          "locator": "src/auth.rs:435-450 (check_not_suspended); src/auth.rs:1228-1266; src/http/console_session.rs:461-520",
+          "summary": "Suspension is raised as OkfError::Suspended from catalog checks on Principal, never from authenticate/verify or the two middleware, whose 401 arms are only AuthFailure values. git grep Suspended in the two middleware files and the verifiers finds no 401 path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 430,
+                "end": 450
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:37.701931037Z",
+          "seal": {
+            "by": "server",
+            "mac": "41afef97f271e23a1169e175f9ecf7ba9dd476866282dce80a1af91d4cbfc29b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Suspension surfaces as OkfError::Suspended at catalog checks, not in the authentication layers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4422"
+          ],
+          "recorded_at": "2026-11-28T08:49:18.295938200Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ce8c99cf5f69cddf2e5de343d5ed16b611d721b4eb729ac2751c68bf9bfb452"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:18.295938200Z",
+      "seal": {
+        "by": "server",
+        "mac": "1e3345fffdc946156df9a2542108c47b78d29128c18353c6474ffd9c13ab32b9"
+      }
+    },
+    {
+      "id": "CLM-2540",
+      "statement": "With record_auth_failure made a no-op, a_401_records_why_the_credential_was_refused and a_dead_session_cookie_on_the_api_is_unknown fail.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'With record_auth_failure made a no-op, a_401_records_why_the_credential_was_refused and a_dead_session_cookie_on_the_api_is_unknown fail.'",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4423",
+          "kind": "analysis",
+          "locator": "src/http/telemetry_tests.rs:1052-1085, 1104-1134; src/auth.rs:1155-1160",
+          "summary": "Both tests assert attribute(span,\"okf.auth.failure\") equals Some(value); with record_auth_failure a no-op the field stays Empty and attribute returns None, so both assertions fail. Not executed (source must not be edited in this audit); an_admitted test asserts is_none and would still pass, consistent with the body naming only two tests, but every_refusal_answers_with_the_same_bytes and the leak test also would pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1052,
+                "end": 1134
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:37.921679117Z",
+          "seal": {
+            "by": "server",
+            "mac": "011612ff29fe81e7c915912a765183536a8fb7b4487d74de871d095095713015"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By reading: both tests require Some(expected) from the attribute, which a no-op recorder cannot produce. Not executed with the mutation (no source edits allowed in this audit).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4423"
+          ],
+          "recorded_at": "2026-11-28T08:49:18.501440940Z",
+          "seal": {
+            "by": "server",
+            "mac": "02e4e6b7282301042676138e857db239b4e482928b1ec6e9dda89be30931e974"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:18.501440940Z",
+      "seal": {
+        "by": "server",
+        "mac": "413d3725119e8f3e826616056491ae489b8c6b9c591989e9d0f2acf1a635560a"
+      }
+    },
+    {
+      "id": "CLM-2541",
+      "statement": "The tests the PR body names (a_401_records_why_the_credential_was_refused, every_refusal_answers_with_the_same_bytes, a_refused_credential_never_reaches_a_span_a_log_or_a_body, a_dead_session_cookie_on_the_api_is_unknown, an_admitted_request_records_no_auth_failure, the verifier tests in src/oauth/access.rs, find_access_names_the_state_of_an_access_token, credential_names_why_there_is_no_bearer_token) exist and pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation section",
+      "derived_from": [
+        "CLM-2524"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs",
+        "src/oauth/access.rs",
+        "src/store/oauth/tokens.rs",
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1012"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4424",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- telemetry_tests (49 passed); -- a_401_records (1 passed); -- access:: credential_names find_access_names (19 passed)",
+          "summary": "All named tests found by name and passing at head d58e03b9: the five telemetry tests, the oauth::access verifier tests, find_access_names_the_state_of_an_access_token and credential_names_why_there_is_no_bearer_token (auth.rs:1375). Pass counts are of filtered runs, not the full suite.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1374,
+                "end": 1388
+              },
+              "commit": "d58e03b9a1796df274e76890e67ed8cb2cf6dfc1"
+            }
+          },
+          "recorded_at": "2026-11-28T08:48:38.166986094Z",
+          "seal": {
+            "by": "server",
+            "mac": "c65886af8a262c96cb5d216a3c58cb91ef89b3b82387c545f858aaa0716b4949"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All named tests exist and pass in filtered runs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4424"
+          ],
+          "recorded_at": "2026-11-28T08:49:18.769665193Z",
+          "seal": {
+            "by": "server",
+            "mac": "d35e8e4e0158ca7e8926cc9b8f3eb0f50750e930f83016f367a6d1269219baaf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:47:28.760406909Z",
+      "updated_at": "2026-11-28T08:49:18.769665193Z",
+      "seal": {
+        "by": "server",
+        "mac": "4c0013f7e46b7cfe70948e68f8bb609b6dd482b1dacd5f2246ecb62b7c4a6a21"
       }
     }
   ]

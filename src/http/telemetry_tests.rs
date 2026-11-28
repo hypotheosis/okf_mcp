@@ -946,3 +946,286 @@ async fn a_response_has_no_trace_id_header_without_a_trace() {
         assert!(!headers.contains_key("x-trace-id"), "{uri}: {headers:?}");
     }
 }
+
+// --- Issue #1012: why a bearer credential was refused ---
+
+/// One request through the whole router, with the given headers.
+///
+/// # Returns
+/// The status, the headers as sorted `name: value` lines, and the body.
+async fn call(
+    test: &TestApp,
+    method: &str,
+    uri: &str,
+    headers: &[(&str, &str)],
+) -> (StatusCode, Vec<String>, String) {
+    let mut request = Request::builder().method(method).uri(uri);
+    for (name, value) in headers {
+        request = request.header(*name, *value);
+    }
+    let response = router(Arc::clone(&test.app), &CancellationToken::new())
+        .oneshot(request.body(Body::empty()).expect("request"))
+        .await
+        .expect("the router answers");
+    let (parts, body) = response.into_parts();
+    let bytes = axum::body::to_bytes(body, usize::MAX)
+        .await
+        .expect("the body");
+    let mut lines: Vec<String> = parts
+        .headers
+        .iter()
+        .map(|(name, value)| format!("{name}: {}", String::from_utf8_lossy(value.as_bytes())))
+        .collect();
+    lines.sort();
+    (
+        parts.status,
+        lines,
+        String::from_utf8_lossy(&bytes).into_owned(),
+    )
+}
+
+/// The `Authorization` header of each refusal reason, and the credential
+/// ids a refused request must never leak. OAuth is on, with one grant.
+async fn refusals(
+    test: &TestApp,
+) -> (Vec<(crate::auth::AuthFailure, Option<String>)>, Vec<String>) {
+    use crate::auth::AuthFailure;
+    use crate::oauth::testing::{CLIENT_ID, RESOURCE};
+    use crate::store::keys::Access;
+    use crate::store::oauth::testing::{insert_grant, mint_access};
+    use chrono::TimeDelta;
+
+    let pool = test.app.accounts().executor();
+    let now = test.app.clock().now();
+    let grant = insert_grant(pool, CLIENT_ID, Access::Write, &["main"], now).await;
+    let dead_grant = insert_grant(pool, CLIENT_ID, Access::Write, &["main"], now).await;
+    let other = mint_access(
+        &test.app,
+        &grant,
+        "https://other.example.com/mcp",
+        TimeDelta::hours(1),
+    )
+    .await;
+    let expired = mint_access(&test.app, &grant, RESOURCE, -TimeDelta::minutes(1)).await;
+    let revoked = mint_access(&test.app, &grant, RESOURCE, TimeDelta::hours(1)).await;
+    let of_dead_grant = mint_access(&test.app, &dead_grant, RESOURCE, TimeDelta::hours(1)).await;
+    crate::store::oauth::tokens::revoke(pool, &crate::keys::hash(&revoked), now)
+        .await
+        .expect("revoke the token");
+    test.app
+        .oauth()
+        .expect("OAuth is on")
+        .access
+        .forget(&[crate::keys::hash(&revoked)])
+        .await;
+    crate::invalidate::testing::applied(&test.app, async {
+        crate::store::keys::revoke_by_id(
+            pool,
+            &dead_grant,
+            &crate::store::audit::AuditActor::cli(),
+            now,
+        )
+        .await
+        .expect("revoke the grant");
+    })
+    .await;
+    let bearer = |token: &str| Some(format!("Bearer {token}"));
+    let cases = vec![
+        (AuthFailure::Missing, None),
+        (AuthFailure::Missing, Some("Bearer ".to_string())),
+        (AuthFailure::Scheme, Some(format!("Basic {SENTINEL}"))),
+        (AuthFailure::Scheme, Some(SENTINEL.to_string())),
+        (AuthFailure::Unknown, bearer(&format!("okfat_{SENTINEL}"))),
+        (AuthFailure::Unknown, bearer(&format!("okf_{SENTINEL}"))),
+        (AuthFailure::Unknown, bearer(SENTINEL)),
+        (AuthFailure::Expired, bearer(&expired)),
+        (AuthFailure::Revoked, bearer(&revoked)),
+        (AuthFailure::Revoked, bearer(&of_dead_grant)),
+        (AuthFailure::WrongResource, bearer(&other)),
+    ];
+    (cases, vec![grant, dead_grant])
+}
+
+/// Issue #1012: every 401 from `require_key` and `require_principal` names
+/// its reason on the request span, under the default `info` filter and
+/// under `trace`, and `DELETE /mcp` with no header is `missing`.
+#[tokio::test]
+async fn a_401_records_why_the_credential_was_refused() {
+    let test = crate::oauth::testing::oauth_app().await;
+    let (cases, _) = refusals(&test).await;
+    let routes = [
+        ("DELETE", "/mcp", "DELETE /mcp"),
+        ("GET", "/api/v1/whoami", "GET /api/v1/whoami"),
+    ];
+    for filter in FILTERS {
+        for (failure, authorization) in &cases {
+            for (method, uri, name) in routes {
+                let headers: Vec<(&str, &str)> = authorization
+                    .iter()
+                    .map(|value| ("authorization", value.as_str()))
+                    .collect();
+                let observed = observed(filter, async {
+                    let (status, _, _) = call(&test, method, uri, &headers).await;
+                    assert_eq!(status, StatusCode::UNAUTHORIZED, "{filter} {name}");
+                })
+                .await;
+                let spans = observed.spans_named(name);
+                assert_eq!(spans.len(), 1, "{filter} {name}: {}", dump(&observed));
+                assert_eq!(
+                    attribute(spans[0], "okf.auth.failure")
+                        .map(ToString::to_string)
+                        .as_deref(),
+                    Some(failure.as_str()),
+                    "{filter} {name} {authorization:?}"
+                );
+            }
+        }
+    }
+}
+
+/// Issue #1012: a request that is admitted records no failure.
+#[tokio::test]
+async fn an_admitted_request_records_no_auth_failure() {
+    let test = app().await;
+    let key = every_catalog_admin(&test).await;
+    for filter in FILTERS {
+        let observed = observed(filter, async {
+            let status = fetch(&test, "/api/v1/whoami", Some(&key), &[]).await;
+            assert_eq!(status, StatusCode::OK, "{filter}");
+        })
+        .await;
+        let span = &observed.spans_named("GET /api/v1/whoami")[0];
+        assert!(attribute(span, "okf.auth.failure").is_none(), "{filter}");
+    }
+}
+
+/// Issue #1012: on the API, a console session cookie that matches no live
+/// session is `unknown`, and the cookie's value is never exported.
+#[tokio::test]
+async fn a_dead_session_cookie_on_the_api_is_unknown() {
+    let test = app().await;
+    let cookie = format!("{}={SENTINEL}", crate::http::console_session::COOKIE);
+    for filter in FILTERS {
+        let observed = observed(filter, async {
+            let (status, _, _) = call(
+                &test,
+                "GET",
+                "/api/v1/session",
+                &[("cookie", cookie.as_str())],
+            )
+            .await;
+            assert_eq!(status, StatusCode::UNAUTHORIZED, "{filter}");
+        })
+        .await;
+        let span = &observed.spans_named("GET /api/v1/session")[0];
+        assert_eq!(
+            attribute(span, "okf.auth.failure")
+                .map(ToString::to_string)
+                .as_deref(),
+            Some("unknown"),
+            "{filter}"
+        );
+        assert!(!dump(&observed).contains(SENTINEL), "{filter}");
+    }
+}
+
+/// Issue #1012: telling the reasons apart changes nothing the client sees:
+/// the six reasons answer one status, one set of headers (the
+/// `WWW-Authenticate` challenge, with no `error` or description) and one
+/// body, byte for byte.
+#[tokio::test]
+async fn every_refusal_answers_with_the_same_bytes() {
+    let test = crate::oauth::testing::oauth_app().await;
+    let (cases, _) = refusals(&test).await;
+    for (method, uri) in [("DELETE", "/mcp"), ("GET", "/api/v1/whoami")] {
+        let mut answers = Vec::new();
+        for (_, authorization) in &cases {
+            let headers: Vec<(&str, &str)> = authorization
+                .iter()
+                .map(|value| ("authorization", value.as_str()))
+                .collect();
+            answers.push(call(&test, method, uri, &headers).await);
+        }
+        let (status, headers, body) = answers.first().expect("an answer");
+        assert_eq!(*status, StatusCode::UNAUTHORIZED);
+        assert!(
+            headers
+                .iter()
+                .any(|line| line.starts_with("www-authenticate: Bearer resource_metadata=")),
+            "{headers:?}"
+        );
+        assert!(
+            headers.iter().all(|line| !line.contains("invalid_token")),
+            "{headers:?}"
+        );
+        for answer in &answers {
+            assert_eq!(&answer.0, status, "{method} {uri}");
+            assert_eq!(&answer.1, headers, "{method} {uri}");
+            assert_eq!(&answer.2, body, "{method} {uri}");
+        }
+    }
+}
+
+/// Issue #1012: the credential never reaches a span, a log record, stderr
+/// or the body: not the marker a bad token carries, not a live-looking
+/// token's value, its hash or its grant's id.
+#[tokio::test]
+async fn a_refused_credential_never_reaches_a_span_a_log_or_a_body() {
+    let test = crate::oauth::testing::oauth_app().await;
+    let (cases, grants) = refusals(&test).await;
+    for filter in FILTERS {
+        for (_, authorization) in &cases {
+            let headers: Vec<(&str, &str)> = authorization
+                .iter()
+                .map(|value| ("authorization", value.as_str()))
+                .collect();
+            let observer = Observer::start("trace", filter, "trace", LogFormat::Text);
+            let (_, response_headers, body) = call(&test, "DELETE", "/mcp", &headers).await;
+            let observed = observer.finish();
+            let seen = format!("{}|{}|{}", observed.exported_text(), observed.stderr, body);
+            let token = authorization
+                .as_deref()
+                .and_then(|value| value.split_once(' '))
+                .map_or("", |(_, token)| token.trim());
+            let mut hidden = vec![SENTINEL.to_string()];
+            hidden.extend(grants.iter().cloned());
+            if !token.is_empty() {
+                hidden.push(token.to_string());
+                hidden.push(
+                    crate::keys::hash(token)
+                        .iter()
+                        .map(|byte| format!("{byte:02x}"))
+                        .collect(),
+                );
+            }
+            for value in hidden {
+                assert!(!seen.contains(&value), "{filter}: {value} leaked");
+                assert!(
+                    response_headers.iter().all(|line| !line.contains(&value)),
+                    "{filter}: {value} in a header"
+                );
+            }
+        }
+    }
+}
+
+/// Issue #1012: the `okf.auth.failure` values hold nothing a trace backend's
+/// scrubber hides.
+#[test]
+fn the_auth_failure_values_hold_nothing_a_scrubber_hides() {
+    use crate::auth::AuthFailure;
+    for failure in [
+        AuthFailure::Missing,
+        AuthFailure::Scheme,
+        AuthFailure::Unknown,
+        AuthFailure::Expired,
+        AuthFailure::Revoked,
+        AuthFailure::WrongResource,
+    ] {
+        for hidden in [
+            "auth", "token", "secret", "password", "key", "cookie", "session",
+        ] {
+            assert!(!failure.as_str().contains(hidden), "{failure:?}");
+        }
+    }
+}

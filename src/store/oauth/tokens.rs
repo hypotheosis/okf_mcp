@@ -128,8 +128,22 @@ pub async fn insert(
     Ok(())
 }
 
-/// A live access token by hash: not revoked, not expired. Whether its grant
-/// is still live is the key cache's to say (`Keys::find_grant`).
+/// What the store holds for a presented access token (issue #1012).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AccessState {
+    /// Not revoked and not expired.
+    Live(LiveAccessToken),
+    /// Revoked, whether or not it has also expired.
+    Revoked,
+    /// Not revoked, but past its expiry.
+    Expired,
+}
+
+/// An access token by hash, in whatever state: live, revoked or expired.
+/// One read by primary key, whatever the answer: a token that is not live
+/// costs the same query as a live one, and an unknown one costs no more
+/// than a revoked one. Whether a live token's grant is still live is the
+/// key cache's to say (`Keys::find_grant`).
 ///
 /// # Arguments
 /// * `pool` - the database.
@@ -137,7 +151,8 @@ pub async fn insert(
 /// * `now` - the request's time (server clock).
 ///
 /// # Returns
-/// Its facts, or `None`.
+/// Its state, or `None` for a hash that is not an access token (unknown, or
+/// a refresh token's).
 ///
 /// # Errors
 /// [`OkfError::Database`].
@@ -146,20 +161,28 @@ pub async fn find_access(
     pool: &PgPool,
     sha256: &[u8; 32],
     now: DateTime<Utc>,
-) -> Result<Option<LiveAccessToken>, OkfError> {
-    let row: Option<(String, String, DateTime<Utc>)> = sqlx::query_as(
-        "SELECT grant_id, resource, expires_at FROM oauth_tokens \
-         WHERE sha256 = $1 AND kind = 'access' AND revoked_at IS NULL AND expires_at > $2",
+) -> Result<Option<AccessState>, OkfError> {
+    // The grant, the resource, the expiry and the revocation time, if any.
+    type Row = (String, String, DateTime<Utc>, Option<DateTime<Utc>>);
+    let row: Option<Row> = sqlx::query_as(
+        "SELECT grant_id, resource, expires_at, revoked_at FROM oauth_tokens \
+         WHERE sha256 = $1 AND kind = 'access'",
     )
     .bind(sha256.as_slice())
-    .bind(now)
     .fetch_optional(pool)
     .await?;
-    // `Option::map` with a closure that destructures the tuple.
-    Ok(row.map(|(grant_id, resource, expires_at)| LiveAccessToken {
-        grant_id,
-        resource,
-        expires_at,
+    Ok(row.map(|(grant_id, resource, expires_at, revoked_at)| {
+        if revoked_at.is_some() {
+            AccessState::Revoked
+        } else if expires_at <= now {
+            AccessState::Expired
+        } else {
+            AccessState::Live(LiveAccessToken {
+                grant_id,
+                resource,
+                expires_at,
+            })
+        }
     }))
 }
 
@@ -568,7 +591,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn find_access_returns_live_access_tokens_only() {
+    async fn find_access_names_the_state_of_an_access_token() {
         let (db, grant) = with_grant().await;
         let token = |byte: u8, kind: TokenKind, expires_at: DateTime<Utc>| NewToken {
             sha256: [byte; 32],
@@ -599,15 +622,20 @@ mod tests {
 
         assert_eq!(
             live,
-            Some(LiveAccessToken {
+            Some(AccessState::Live(LiveAccessToken {
                 grant_id: grant.clone(),
                 resource: "https://okf.example.com/mcp".to_string(),
                 expires_at: later,
-            })
+            }))
         );
         assert_eq!(
             (refresh, expired, revoked, unknown),
-            (None, None, None, None)
+            (
+                None,
+                Some(AccessState::Expired),
+                Some(AccessState::Revoked),
+                None
+            )
         );
     }
 
@@ -980,10 +1008,10 @@ mod tests {
 
         assert_eq!(revoked, vec![[15; 32], [16; 32]]);
         assert!(again.is_empty(), "already revoked");
-        assert!(find_access(&db.pool, &[15; 32], now())
-            .await
-            .unwrap()
-            .is_none());
+        assert_eq!(
+            find_access(&db.pool, &[15; 32], now()).await.unwrap(),
+            Some(AccessState::Revoked)
+        );
         assert!(find_access(&db.pool, &[17; 32], now())
             .await
             .unwrap()
@@ -1116,8 +1144,9 @@ mod tests {
         let mut revoked = reuse.await.unwrap();
         revoked.sort();
 
-        assert!(
-            find_access(&db.pool, &a2, now()).await.unwrap().is_none(),
+        assert_eq!(
+            find_access(&db.pool, &a2, now()).await.unwrap(),
+            Some(AccessState::Revoked),
             "the successor access token is revoked"
         );
         assert_eq!(present(&db, &r2).await, RefreshUse::Unknown, "so is R2");

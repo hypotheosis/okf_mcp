@@ -600,12 +600,16 @@ unavailable.
   `okf_changesets_open` carries its last count. `GET /healthz` checks the
   account database only, so a lost store does not make a replica unready.
 
-Every query on a store's pool classifies its own driver errors (issue #995):
+A query run through the store's executor (`CatalogDb::executor()`, which
+every store-layer read takes) classifies its own driver errors (issue #995):
 a pool timeout, a closed pool, a transport or TLS failure and a refused login
-are `StoreUnavailable` wherever they happen, a read on an already open pool
-included, while a constraint violation or a bad statement stays a `Database`
-error (HTTP 500). Known gap, tracked as an issue: two paths probe a store
-already found down again within one call (#1017).
+are `StoreUnavailable` wherever in the query they happen, while a constraint
+violation or a bad statement stays a `Database` error (HTTP 500). The
+exception is a statement on a connection taken from the pool (`acquire`) or
+inside a transaction (`CatalogDb::begin`): the code that takes the connection
+classifies its errors itself, and a path that does not can still report a
+lost store as `Database`. Known gaps, each tracked as an issue: two paths
+probe a store already found down again within one call (#1017).
 
 ### What a separate store does and does not separate
 

@@ -90,7 +90,11 @@ pub async fn read(
         .acquire()
         .await
         .map_err(|error| db.classify(error))?;
-    pinned(&mut conn, catalog_id, pin).await
+    // The query runs on a raw connection, which the store's executor does not
+    // wrap: a transport failure mid-query is classified here.
+    pinned(&mut conn, catalog_id, pin)
+        .await
+        .map_err(|error| crate::stores::classify_store_failure(db.store(), error))
 }
 
 /// Checks exact excerpt membership and returns whether any pin is outdated.

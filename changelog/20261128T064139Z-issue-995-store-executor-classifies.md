@@ -29,6 +29,10 @@ did so once the catalog's state was cached.
   `options`) moved to `CatalogDb::pool()`; its callers outside tests are the
   registry, which has its own handling, and two reads that now classify with
   `CatalogDb::classify` (`catalog::build`'s transaction and the evidence read).
+- **Scope.** Only queries through `CatalogDb::executor()` are covered. A statement
+  on an acquired connection or inside a transaction is classified by the code
+  that takes the connection; `evidence::read` now classifies its query result
+  too (review of #1199).
 - **No new noise.** The error is logged once, as before, when it is made.
 - Tests: `stores::executor::tests` (every query kind on a closed pool is
   `StoreUnavailable`; a SQL error and `RowNotFound` stay `Database`; the

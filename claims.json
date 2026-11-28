@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2700,
+  "next_claim_seq": 2718,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6f74c09e616364bc3e9bfea5fe249d065170e1458a72d8cdb2372ebafe332f10"
+    "mac": "061d5ee3ffc13efc032191bcf00ea0da9cdd74dcbefc3a294657a02165d625ec"
   },
-  "next_evidence_seq": 4702,
+  "next_evidence_seq": 4723,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c5e4603c58588347f5793f83fd04073790103686617e75f77b670a782272e60b"
+    "mac": "16d8279e6792cb4eed8229f751a35116b3ff50cc8d85c41ee7db8d78de2a5b5d"
   },
   "claims": [
     {
@@ -236877,6 +236877,1175 @@
       "seal": {
         "by": "server",
         "mac": "50651a91a3638d1e51de9306158e2a64dd529357772edf297fe98b447a450fa5"
+      }
+    },
+    {
+      "id": "CLM-2700",
+      "statement": "Issue #1227 is resolved: the Dockerfile's release build no longer overflows rustc's query depth limit on invalidate::listen's future, and a release build gate exists.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1227",
+      "derived_from": [],
+      "artifacts": [
+        "src/invalidate.rs",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4720",
+          "kind": "analysis",
+          "locator": "children of CLM-2700",
+          "summary": "The fix, the gate, its lock, its docs and its tests are supported. CLM-2710 is refuted (the when-to-run rule differs between PR body, README and brief-common comment). CLM-2704, 2715 and 2717 are not_enough_info; they are body statements, not the fix itself.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T18:57:32.912822605Z",
+          "seal": {
+            "by": "server",
+            "mac": "13c64332af7e0cc9a218bcc918648653282d7ee67fe36ead07836f8c91a71040"
+          }
+        },
+        {
+          "id": "EVD-4722",
+          "kind": "analysis",
+          "locator": "children of CLM-2700",
+          "summary": "No child is refuted now. The fix, build-release gate, lock, docs, when-to-run rule, tests and validation children are supported. CLM-2704, 2715 and 2717 stay not_enough_info; they are PR-body statements and not the requirements of the issue.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:58:33.357074242Z",
+          "seal": {
+            "by": "server",
+            "mac": "d286f6998f50e7d6dd2cc6fb5a568065703c06fed0aa948010373f81483da5a6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The fix and gate hold, but child CLM-2710 is refuted (the when-to-run rule is stated differently in README and brief-common.md:32). Fix: align the README row and brief-common.md:32 with brief-common.md:39's input list, then re-audit CLM-2710.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4720"
+          ],
+          "recorded_at": "2026-11-28T18:57:36.454923165Z",
+          "seal": {
+            "by": "server",
+            "mac": "75d1c0435387035fdd8b64a402b0409303a43342232fd284ae59d1a502048d38"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The issue's requirements (fix, gate, lock, docs, tests) are supported and no child is refuted. Three PR-body statements remain not_enough_info (listed in the cited evidence).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4722"
+          ],
+          "recorded_at": "2026-11-28T18:58:36.503322737Z",
+          "seal": {
+            "by": "server",
+            "mac": "068f4e717fa9893a14edd02b5c9c63078d0ccc1655b19770fb48e4d00b279e67"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:58:36.503322737Z",
+      "seal": {
+        "by": "server",
+        "mac": "f0d636a443ba1b2c25bb6ed8498037560571a44293a12b3145fcb0d346b03c58"
+      }
+    },
+    {
+      "id": "CLM-2701",
+      "statement": "Feed::apply_payload in src/invalidate.rs wraps the App::apply future in Box::pin, and the change does not alter recursion_limit.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "issue #1227 suggested fix; PR: \"Feed::apply_payload (src/invalidate.rs) boxes the App::apply future with Box::pin\" and \"recursion_limit is left alone\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "src/invalidate.rs"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4702",
+          "kind": "inspection",
+          "locator": "src/invalidate.rs:540-545",
+          "summary": "Line 545 is Box::pin(app.apply(&message).instrument(span)).await inside Feed::apply_payload. git diff origin/main..HEAD shows no change to src/lib.rs (recursion_limit = 256 at lib.rs:22 untouched).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/invalidate.rs",
+              "lines": {
+                "start": 540,
+                "end": 545
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:47.702156121Z",
+          "seal": {
+            "by": "server",
+            "mac": "5b21bfe6c7182a586686eb3b06dbea3366d8dafbc4defa4e892092f33330a324"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Box::pin at invalidate.rs:545; lib.rs unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4702"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.157697691Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb4303ce3271e17e7b8c8e6fad3fcca8d1288aa838a387196e16d2f376965dff"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.157697691Z",
+      "seal": {
+        "by": "server",
+        "mac": "7834cb63d630cc87abc8d171c504a9ad114edc8eae676079bc39ab616f837fde"
+      }
+    },
+    {
+      "id": "CLM-2702",
+      "statement": "At head, the Dockerfile's command on its pinned rustc 1.99.1 (cargo +1.99.1 build --release --locked --bin okf-mcp, via gate.sh build-release) builds successfully in 1 m 45 s.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "demonstration",
+      "source": "PR: \"Verified: the same command builds in 1 m 45 s on rustc 1.99.1 (warm dependencies).\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "src/invalidate.rs"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4703",
+          "kind": "log",
+          "locator": "target/i1227-logs/try1.log (gate.sh build-release), target/i1227-logs/g-build-release.log",
+          "summary": "try1.log: Finished release profile in 1m 45s, gate exit 0 ran 105 s. The gate's cmd is cargo +1.99.1 (Dockerfile pin, Dockerfile:17) per gate.sh:84-87; the log itself does not print the toolchain. g-build-release.log re-ran at head: exit 0.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 87
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:47.862935439Z",
+          "seal": {
+            "by": "server",
+            "mac": "0658b45bb2ed0ed7990af6d403ec9c6f44bb9b5d8d41aae902a6a8d693e95b42"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "try1.log shows a successful release build in 1m 45s through the gate whose command pins +1.99.1 (the Dockerfile's version). The log does not print the toolchain; that rests on gate.sh:84-87. I did not rebuild (not permitted).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4703"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.317824401Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a703efe5bec7870b4b8048b2fca4af315d7b6334997508199ad04a3363d9fc6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.317824401Z",
+      "seal": {
+        "by": "server",
+        "mac": "bf2fc4138ac8d201defa2c7f24e63d7eb6bd51d002e786025fd7ef30549eee1b"
+      }
+    },
+    {
+      "id": "CLM-2703",
+      "statement": "Before the fix, the Dockerfile's command on rustc 1.99.1 failed with exit 101 after 159 s and the issue's error (queries overflow the depth limit computing layout of invalidate::listen).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR: \"exit 101 after 159 s, with the issue's exact error\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4704",
+          "kind": "log",
+          "locator": "target/i1227-logs/repro2.log:455-461",
+          "summary": "repro2.log ends with 'queries overflow the depth limit ... computing layout of {async fn body of okf_mcp::invalidate::listen()}', 'gate.sh: build-release ... ran 159 s (exit 101)'. The log does not record which source state or toolchain it ran on (timestamp 18:36 precedes the fix build at 18:40), so only the log's own content is checked.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:48.029648021Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8aed56855a927340b1428af8ee8209eb0b119e9048343bd5e863fe0794fbff4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "repro2.log shows the exact error, exit 101, 159 s. That it ran before the fix rests on the timeline (18:36 failing, 18:40 passing) since the log records no source state.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4704"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.480958764Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c6c4e31f41d1335d985e971fe68c8f6344571293729bce0569e00021d8ab774"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.480958764Z",
+      "seal": {
+        "by": "server",
+        "mac": "85b43a0646def5d83e13454698bcd8066cb74a3d41839c9d59549772c06432ca"
+      }
+    },
+    {
+      "id": "CLM-2704",
+      "statement": "The overflow does not reproduce on rustc 1.100.0 and does not reproduce with cargo +1.99.1 check --release.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR: \"It does not reproduce on rustc 1.100.0 ... and not with cargo +1.99.1 check --release\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4705",
+          "kind": "log",
+          "locator": "target/i1227-logs/repro.log:455-456, target/i1227-logs/check.log:399",
+          "summary": "repro.log shows a release build finishing exit 0 in 3m 11s and check.log a release check finishing in 1m 03s, but neither log records the toolchain or the source state (repro.log was seeded 18:32, before the 18:36 failing run; the gate then may not have had the +toolchain argument). The logs do not show 1.100.0 or +1.99.1 check.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:48.187477538Z",
+          "seal": {
+            "by": "server",
+            "mac": "459ecb93286238caca96ce90f16dee58645e6cac2f1f400e6cdfdc24633955a1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The logs have successful release build/check runs but record neither the toolchain nor the source state, so they cannot show 1.100.0 or +1.99.1 check. Fix: save the commands' output with 'cargo +1.100.0 build --release --locked --bin okf-mcp' and 'cargo +1.99.1 check --release --locked' (with 'rustc +<v> -V') on the pre-fix commit, or drop the sentence from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4705"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.632446025Z",
+          "seal": {
+            "by": "server",
+            "mac": "dbf3d45cf4cb4ad6ea071b59e428201a2a5d79a60e3b9d6c80ca24ae48873015"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.632446025Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5ec268a505d8b4961f7ff834ff6c53a4df67fe4cd56a036003a68aa47b7f87d"
+      }
+    },
+    {
+      "id": "CLM-2705",
+      "statement": "gate.sh has a build-release gate that runs cargo +<version> build --release --locked --bin okf-mcp, with <version> read from the Dockerfile's 'FROM rust:<version>-... AS chef' line, and the Dockerfile's own build step is that same command.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "PR: \"the Dockerfile's command ... with cargo +<version> read from the Dockerfile's FROM rust:<version>-... AS chef line\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh",
+        "Dockerfile"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4706",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:84-87; Dockerfile:17,31",
+          "summary": "gate.sh:85 seds the version out of 'FROM rust:<ver>-... AS chef' (exits 2 if absent) and builds cmd=(cargo \"+$image_rust\" build --release --locked --bin okf-mcp). Dockerfile:17 is FROM rust:1.99.1-slim-bookworm AS chef and :31 is RUN cargo build --release --locked --bin okf-mcp. Unit test run.sh:1892 asserts the exact args.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 87
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.358459937Z",
+          "seal": {
+            "by": "server",
+            "mac": "414b682155ca8ff76d78c7200a2fab95c9de92ff44b407fa58f4c4c09c787f1c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "gate.sh reads the version from the Dockerfile's chef FROM line and runs the same flags as Dockerfile:31; a test asserts the arguments.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4706"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.808817678Z",
+          "seal": {
+            "by": "server",
+            "mac": "36242ed8a0c452a60ae769eb2b7db9de9762058f9859b4c226974dbbbf25e7f6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.808817678Z",
+      "seal": {
+        "by": "server",
+        "mac": "01027d947702c31afafec5ff7804481e3cdca74683f90ca67fcc8cda414d26b8"
+      }
+    },
+    {
+      "id": "CLM-2706",
+      "statement": "The build-release gate takes the shared lock (locked=1) and has a 40 minute default limit overridable by AGENTIC_TIMEOUT_BUILD_RELEASE.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "task requirement: new gate must take the lock; PR: \"under the shared lock, 40 m limit (AGENTIC_TIMEOUT_BUILD_RELEASE)\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4707",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:84",
+          "summary": "Arm sets limit=${AGENTIC_TIMEOUT_BUILD_RELEASE:-40m}; locked=1. Logs show 'waited 0 s for the lock' on the gate line (g-build-release.log:3). Timeout path covered by run.sh:1906.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 84,
+                "end": 84
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.514688828Z",
+          "seal": {
+            "by": "server",
+            "mac": "e022802ae4f9ecdfc10ab27755b1517fd614edc792dd44ea0e9dd9458513f3bb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "gate.sh:84 sets locked=1 and the 40m default with the env override.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4707"
+          ],
+          "recorded_at": "2026-11-28T18:57:30.986882370Z",
+          "seal": {
+            "by": "server",
+            "mac": "d08468e9b43d89212254c9feb0cf969ea3f17e2c8a6a85b8f82daff8307203be"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:30.986882370Z",
+      "seal": {
+        "by": "server",
+        "mac": "88cfc236ed2e7aaccd2748b0f9ef54d841d643a02023969752378c70cb7bda0c"
+      }
+    },
+    {
+      "id": "CLM-2707",
+      "statement": "The existing gate.sh release gate (just test-release, 5m, no lock) is unchanged.",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "task requirement: must not rename gate.sh release; PR: \"gate.sh release (the release tooling's tests) is unchanged\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4708",
+          "kind": "inspection",
+          "locator": "tools/agentic/gate.sh:78; git diff origin/main..HEAD -- tools/agentic/gate.sh",
+          "summary": "The release arm (line 78: limit 5m, locked=0, just test-release) has no diff hunk; the diff only adds a header comment line, the usage string entry, and the new build-release arm.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/gate.sh",
+              "lines": {
+                "start": 78,
+                "end": 78
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.682273073Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d605445f42acea5eea9529a9deaa148654c10e6c0b32d60bec75622d8f40772"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The release arm has no hunk in the diff; the name and behavior are intact.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4708"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.159706977Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ff89a1af140b93b3a0459fbd00b440932b81aa4b68672249a6d7a3bdd60baf0"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.159706977Z",
+      "seal": {
+        "by": "server",
+        "mac": "9d2e7533c6588064d4365c5b0fe8224a5784d05de9b55374163108a46917126a"
+      }
+    },
+    {
+      "id": "CLM-2708",
+      "statement": "tools/agentic/brief-common.md's Gates list names build-release, and README.md and AGENTS.md list it too.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"brief-common.md, README.md, AGENTS.md: the gate is listed\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/brief-common.md",
+        "tools/agentic/README.md",
+        "AGENTS.md"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4709",
+          "kind": "inspection",
+          "locator": "tools/agentic/brief-common.md:32,39; tools/agentic/README.md gate.sh row; AGENTS.md:15",
+          "summary": "brief-common.md:32 lists 'tools/agentic/gate.sh build-release' in the Gates block and :39 describes it; README.md's gate.sh row and its AGENTIC_TIMEOUT table name it; AGENTS.md:15 lists it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 39
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:48.846516416Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a0691e5dcd3f9a7aad0387cbe2f7f6fdd4a94b0385950061f392f727e2f1f27"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three files name the gate; brief-common.md lists it in its Gates block.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4709"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.313388277Z",
+          "seal": {
+            "by": "server",
+            "mac": "7854a90fe5d1ce016fb356a2afc2b7fccc0740f69212f18ea41e0c71c7d8d037"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.313388277Z",
+      "seal": {
+        "by": "server",
+        "mac": "0b5ec3df07cc6a1993a53fbdd5674e2c52304bbdf941f753468023cc01ba26e5"
+      }
+    },
+    {
+      "id": "CLM-2709",
+      "statement": "tools/agentic/lessons.md has a short entry on release-only failures that names the Box::pin remedy.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"tools/agentic/lessons.md: a lesson on release-only failures\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/lessons.md"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4710",
+          "kind": "inspection",
+          "locator": "tools/agentic/lessons.md:80",
+          "summary": "One bullet (issue #1227) describing the failure, the rustc dependence, running gate.sh build-release, and 'Box::pin one inner future ... rather than raising recursion_limit'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 80,
+                "end": 80
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:49.009273382Z",
+          "seal": {
+            "by": "server",
+            "mac": "83f442339361ebbae3192e685038f9817c573f5789c5ed51a8522ca56be707e8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One bullet at lessons.md:80 names the gate and the Box::pin remedy.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4710"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.476033309Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7c49c68922848525955c2998c5fdee89eda86ef380132ff2ba234e0f588f479"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.476033309Z",
+      "seal": {
+        "by": "server",
+        "mac": "94f3d705d35bbb21ecc01e4ae33f6151201430ba14386b1432de0b4bdca5bc25"
+      }
+    },
+    {
+      "id": "CLM-2710",
+      "statement": "The PR body justifies when the gate runs, and that rule (src/, Cargo.toml, Cargo.lock, build.rs, migrations/, Dockerfile; not docs, tests/-only, tools/, scripts/, reader) matches what brief-common.md and the README say.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task requirement; PR: \"It runs for any change to src/, Cargo.toml, Cargo.lock, build.rs, migrations/ or the Dockerfile\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/brief-common.md",
+        "tools/agentic/README.md"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4711",
+          "kind": "inspection",
+          "locator": "tools/agentic/brief-common.md:39 vs pr-1227-body.md Changes section vs tools/agentic/README.md gate.sh row",
+          "summary": "brief-common.md:39 gives the same path list and exclusions as the PR body, with the same reason (takes minutes). Minor drift: README says 'any change to Rust code' and the brief-common code-block comment says 'Rust, Cargo.toml, Cargo.lock or the Dockerfile', both narrower than the body's list (no build.rs, migrations/). The PR body's reasoning ('any Rust change can trigger it, so a path filter on Rust inputs is cheap') is stated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 39
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:49.173129913Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d36bf09350883867a9dc855f009069eefadca33f1488191c8b38de297938c35"
+          }
+        },
+        {
+          "id": "EVD-4719",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md gate.sh row (build-release: 'run for any change to Rust code, #1227'); tools/agentic/brief-common.md:32",
+          "summary": "README says the gate runs 'for any change to Rust code' and brief-common.md:32's inline comment says 'touches Rust, Cargo.toml, Cargo.lock or the Dockerfile'; neither names build.rs or migrations/, which the PR body and brief-common.md:39 include. The three places do not state one rule.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 32
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:57:01.029847256Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5aa2e69c2bd05ea998c69ad28b49bbf00527e3b525cc58a791e3d98454d57a5"
+          }
+        },
+        {
+          "id": "EVD-4721",
+          "kind": "inspection",
+          "locator": "tools/agentic/brief-common.md:32,39; tools/agentic/README.md gate.sh row; pr-1227-body.md:12 at 29af06e9",
+          "summary": "At 29af06e9 brief-common.md:32 and :39, the README row and the PR body all list src/, Cargo.toml, Cargo.lock, build.rs, migrations/ and the Dockerfile; the body's exclusions (docs, tests/-only, tools/, scripts/, reader) match brief-common.md:39.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/brief-common.md",
+              "lines": {
+                "start": 32,
+                "end": 32
+              },
+              "commit": "29af06e94638146fbaaa31fe3e2275971158e5a4"
+            }
+          },
+          "recorded_at": "2026-11-28T18:58:28.814276765Z",
+          "seal": {
+            "by": "server",
+            "mac": "30b820df6b5be2e81a83a246f71540cba829f34723bd2c10d31cf54f578f23e4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The PR body states a justified rule, and brief-common.md:39 repeats it, but README.md ('any change to Rust code') and brief-common.md:32 ('Rust, Cargo.toml, Cargo.lock or the Dockerfile') state narrower ones without build.rs and migrations/. Minor, ours. Fix: make the README row and the brief-common.md:32 comment list the same inputs as brief-common.md:39 (src/, Cargo.toml, Cargo.lock, build.rs, migrations/, Dockerfile), or cut the body's list to match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4719"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.645307100Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1adb31fd0a1e66a1c4ea1e1843ce255a3cba4000ba9bd2157d358e017cf452b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The drift that refuted it is gone: all four places now state the same input list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4721"
+          ],
+          "recorded_at": "2026-11-28T18:58:33.186415096Z",
+          "seal": {
+            "by": "server",
+            "mac": "aaa283eb3f80709f0a3d1c83d6e584f6b43a2bae916dcd40910eb1be39cec25f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:58:33.186415096Z",
+      "seal": {
+        "by": "server",
+        "mac": "fef44580e40610f452ac6a71fd6e3b94370972b0ebea474ebca83d2773343888"
+      }
+    },
+    {
+      "id": "CLM-2711",
+      "statement": "tools/agentic/tests/run.sh has two new tests (build-release passes the pinned toolchain's arguments; timeout returns 124) and both pass.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"two tests (arguments with the pinned toolchain, timeout returns 124) ... The two new tests pass.\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4712",
+          "kind": "test",
+          "locator": "target/i1227-logs/g-agentic.log:26-27; tools/agentic/tests/run.sh:1892,1906",
+          "summary": "Log lines 'ok test_gate_build_release_builds_with_the_dockerfile_toolchain' and 'ok test_gate_build_release_timeout_returns_124'. The first asserts cargo got '+<pinned> build --release --locked --bin okf-mcp'; the second asserts rc 124 and the HANG message with a 1s limit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1892,
+                "end": 1914
+              },
+              "commit": "6c9ebb4aef9b6385faf3c992d4119d80ced580be"
+            }
+          },
+          "recorded_at": "2026-11-28T18:56:49.334549694Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c2b38e1437d68f431b838377b29eb3e61de5dadb41791be27b8d77156d22c1a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both tests exist, assert the arguments and 124, and show ok in g-agentic.log. I read the assertions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4712"
+          ],
+          "recorded_at": "2026-11-28T18:57:31.849431800Z",
+          "seal": {
+            "by": "server",
+            "mac": "2c440c3b0b38fcd6d94d94254ad7c697641e186b1872a89052088cf68e696173"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:31.849431800Z",
+      "seal": {
+        "by": "server",
+        "mac": "bdcd712d07841f63867360ef5e258da57397c71b15ff1a507c7d98ea8a6acf1d"
+      }
+    },
+    {
+      "id": "CLM-2712",
+      "statement": "gate.sh fmt, lint, dylint and mcpjam exit 0 on head 6c9ebb4a.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"fmt, lint, dylint, mcpjam: exit 0.\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4713",
+          "kind": "log",
+          "locator": "target/i1227-logs/summary.log:1-6; g-fmt.log, g-lint.log, g-dylint.log, g-mcpjam.log last lines",
+          "summary": "summary.log: fmt/lint/dylint/mcpjam exit 0; each log ends with 'gate.sh: <gate> ... (exit 0)'; mcpjam: 6 files, 47 tests passed. The logs do not record the commit, but the compiled crate path is this worktree and HEAD is 6c9ebb4a with a clean tree.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:49.498053943Z",
+          "seal": {
+            "by": "server",
+            "mac": "71eecb53c63fee2c69c8ec0a1279a550ede27d701b8ee23be35305cb60031522"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The logs show exit 0 for all four gates in this worktree. I read the logs and did not rerun them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4713"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.008097523Z",
+          "seal": {
+            "by": "server",
+            "mac": "719d425f3f9f45c9685126085ba149138067ed35ef399ad7cbbb3476c9f9aab1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.008097523Z",
+      "seal": {
+        "by": "server",
+        "mac": "f372a054f5ed374c4c6f2def1d0e16940d3d3a75a5000e66c6fcfd077d65892e"
+      }
+    },
+    {
+      "id": "CLM-2713",
+      "statement": "gate.sh test ran 3864 tests, 3864 passed, 20 skipped, with no FLAKY lines, in both store modes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"test: 3864 run, 3864 passed, 20 skipped, no FLAKY lines (both store modes).\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4714",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-test.log:3996,7904,7943",
+          "summary": "Two nextest summaries, both '3864 tests run: 3864 passed, 20 skipped' (118.969s and 125.134s); grep for FLAKY and 'TRY 2' finds none; gate line exit 0 (ran 392 s).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:49.653529071Z",
+          "seal": {
+            "by": "server",
+            "mac": "7648746945b7f0ffa4166472b9ac2813b59219839aa97b9e66365a4d0461f345"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both modes show 3864 run, 3864 passed, 20 skipped, with no FLAKY or TRY 2 lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4714"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.157484094Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d1d05827a4f85bcb53a62633b9aada4ee53c2b1dbe37cfa740c845f5b1fd0a7"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.157484094Z",
+      "seal": {
+        "by": "server",
+        "mac": "41058a83064b5926441c257938edb4a88436c61d828b31fd7856a36829325ca9"
+      }
+    },
+    {
+      "id": "CLM-2714",
+      "statement": "gate.sh build-release exits 0 on head, and its run took 0 s because the head's artifacts were already built.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"build-release: exit 0 (the head's artifacts were already built by the verify run, so the gate run itself took 0 s).\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4715",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-build-release.log:1-3",
+          "summary": "'Finished release profile ... in 0.18s' and 'gate.sh: build-release waited 0 s for the lock, seed 0 s, ran 0 s (exit 0)'; an already-built artifact explains 0 s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:49.823546006Z",
+          "seal": {
+            "by": "server",
+            "mac": "6823a2ab71322eb51432bfef848d0c1ee234e1560055642404a288d504990f04"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The log shows exit 0 and ran 0 s.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4715"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.307497517Z",
+          "seal": {
+            "by": "server",
+            "mac": "476349a879191f77036a7f678e0a2c81c24c3a2e906ea579f084090e642732cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.307497517Z",
+      "seal": {
+        "by": "server",
+        "mac": "3b20b941cf90c4192780ffebdbab2a76395e5f3bad3b56772b08f9b89b895064"
+      }
+    },
+    {
+      "id": "CLM-2715",
+      "statement": "tools/agentic/tests/run.sh gave 169 passed, 1 failed in the first run, the failure being test_an_int_with_a_returning_handler_gives_130, and that test passes when run alone in the foreground.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "PR: \"169 passed, 1 failed in the first run ... it passes run alone in the foreground.\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4716",
+          "kind": "log",
+          "locator": "target/i1227-logs/g-agentic.log:7 and last line",
+          "summary": "'FAIL test_an_int_with_a_returning_handler_gives_130' and '169 passed, 1 failed (jobs: 4)'. Not rerun by me (told not to run builds/gates), so the pass-alone and SIGINT-ignored-launcher explanation is not verified here.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:49.978532232Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1a83fae422b513d41cfbd792089e7ace73cc9c260b36e7b0ec236ae7ef4acfb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The log confirms 169 passed, 1 failed and the named test, but the cause (launcher ignoring SIGINT) and the pass-alone result are not in any log. Fix: save the output of running test_an_int_with_a_returning_handler_gives_130 alone in the foreground, or rerun tools/agentic/tests/run.sh from a launcher that does not ignore SIGINT and cite 170 passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4716"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.462757865Z",
+          "seal": {
+            "by": "server",
+            "mac": "d40674491096448e83cccadeb326ba1ab9d78f62cf04b8749eb09510416077b3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.462757865Z",
+      "seal": {
+        "by": "server",
+        "mac": "94b9d78d994f71fae702a6e0fa2808aae9e5c8794fd1cb817e79d327d483d8f4"
+      }
+    },
+    {
+      "id": "CLM-2716",
+      "statement": "The diff touches no console code, so test-ui was not needed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"Not run: test-ui (no console change)\"",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4717",
+          "kind": "inspection",
+          "locator": "git diff --name-only origin/main..HEAD",
+          "summary": "Changed files: AGENTS.md, changelog, src/invalidate.rs, tools/agentic/*. None is under the console or tests/ui_e2e.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T18:56:50.131015527Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8f99b8ca6cef49e9e657ea18260f670dc88ad93549985511725f256c0c213dc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changed file list contains no console or UI code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4717"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.612244376Z",
+          "seal": {
+            "by": "server",
+            "mac": "b555689036b1b80a663b8c0c026391dd2a6d3636b6a250ab0129bfeb6ba684f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.612244376Z",
+      "seal": {
+        "by": "server",
+        "mac": "17990b573d597afa646d58d116540aa57db980a01587d27a0aff0ed1a9c84fc9"
+      }
+    },
+    {
+      "id": "CLM-2717",
+      "statement": "No image has built since PR #1201 and v0.35.0 was tagged without one.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR: \"so no image has built since #1201\"; lessons.md and changelog repeat it",
+      "derived_from": [
+        "CLM-2700"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1227"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4718",
+          "kind": "analysis",
+          "locator": "git log origin/main (6b08d0c9 PR #1201, 14076fbf Release v0.35.0); tag v0.35.0",
+          "summary": "The ordering is real (PR #1201 merged before v0.35.0, tag exists) and the issue reports the build failing, but no registry or CI record of images is available locally to show no image built in between.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T18:56:50.282335998Z",
+          "seal": {
+            "by": "server",
+            "mac": "947a816afd6a5432beeac586f5aea3acca5c6a27bc8856c25dae1e4a3ed1f249"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Git history confirms the order of #1201 and v0.35.0 but not that no image built in between. Fix: cite the failing image-build runs (CI links) for the commits from 6b08d0c9 on, or soften the body to 'the image build fails at v0.35.0'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4718"
+          ],
+          "recorded_at": "2026-11-28T18:57:32.762443100Z",
+          "seal": {
+            "by": "server",
+            "mac": "0bebf8e312c9656b2cfadf60ade2172be0e226bbb01d2ec2043b6502b0350106"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T18:56:10.907017703Z",
+      "updated_at": "2026-11-28T18:57:32.762443100Z",
+      "seal": {
+        "by": "server",
+        "mac": "9cdcdb5e1aef971c4cde9c0c79c226a78d15c10db7d4fea98332c11c78e29030"
       }
     }
   ]

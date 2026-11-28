@@ -29,7 +29,7 @@ tools/agentic/gate.sh test
 tools/agentic/gate.sh test-ui              # if you touch the console or tests/ui_e2e/
 tools/agentic/gate.sh dylint               # required before every push (the lint is at deny)
 tools/agentic/gate.sh mcpjam               # required before every push (the MCPJam scenarios, tests/mcpjam/)
-tools/agentic/gate.sh build-release       # before every push that touches Rust, Cargo.toml, Cargo.lock or the Dockerfile (the image's release build)
+tools/agentic/gate.sh build-release       # before every push that touches src/, Cargo.toml, Cargo.lock, build.rs, migrations/ or the Dockerfile (the image's release build)
 tools/agentic/gate.sh worker               # the reader's Node tests (tests/read_worker/), while iterating
 tools/agentic/gate.sh narrow --lib -- <filter>   # while iterating
 ```

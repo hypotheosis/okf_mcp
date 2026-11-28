@@ -86,15 +86,18 @@ export async function render(main) {
     const reads = latest(main);
     async function load() {
         const current = reads();
+        let fresh;
         let keys;
         let ceiling;
         try {
             // /me/keys' `ceiling` is the account's ceiling on these keys'
             // catalogs now, for the cap notes; /me's `ceiling_access` says
             // whether the ceiling reaches anything.
-            [account, { keys, ceiling }] = await Promise.all([freshAccount(), api.get('/me/keys')]);
+            [fresh, { keys, ceiling }] = await Promise.all([freshAccount(), api.get('/me/keys')]);
         } catch { return; /* toasted */ }
         if (!current()) return;
+        // Only the newest read sets the snapshot the New key form uses.
+        account = fresh;
         keysCeiling = ceiling ?? {};
         table.redraw(keys);
         // What `max_keys_per_user` counts: live self-issued keys.

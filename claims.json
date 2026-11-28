@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2372,
+  "next_claim_seq": 2378,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "a181610f28dfa4a9a15c6630903335efb048c7a0f1aca663d8c59982a986b4f2"
+    "mac": "895f7589257e7e3126a80f616dfb8123663fa4bc9e363301f080aeb89d2f0b78"
   },
-  "next_evidence_seq": 4174,
+  "next_evidence_seq": 4187,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b4a76c3284df31d2c7a6fca837cfb0d6334d194165dc781bf799bde436e92a18"
+    "mac": "c541f658b3197ab941626f7f7239d22d88e5570e27e3e2cdcba7b19bd3c68328"
   },
   "claims": [
     {
@@ -61984,6 +61984,28 @@
             "by": "server",
             "mac": "473469767fb1cce8ae0ba668ddb6b5bb7ed4e1102a72dbe6d67cf7b5387b4b47"
           }
+        },
+        {
+          "id": "EVD-4181",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/my-keys.js:86-100 at 86bf4b35",
+          "summary": "Re-audit at head: reads() taken at start of load() (line 88, before any await) and `if (!current()) return;` at line 98; no main.isConnected check remains.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/my-keys.js",
+              "lines": {
+                "start": 86,
+                "end": 100
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:14.476300329Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c668def1fad63521e557957e689416f8af9b8389cf100af8bb14b768bddd6fa"
+          }
         }
       ],
       "verdicts": [
@@ -61999,13 +62021,26 @@
             "by": "server",
             "mac": "db2571465f976ac49ebb8804194e70682e27790c82122fb33540d476a62d3eea"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the diff touched the anchored lines; still holds.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4181"
+          ],
+          "recorded_at": "2026-11-28T00:46:28.772111700Z",
+          "seal": {
+            "by": "server",
+            "mac": "bc90a046cb24ebf03a33973153a4b939c9cef00bc8af39133fadd8b5bfffe78b"
+          }
         }
       ],
       "created_at": "2026-11-23T06:38:10.351347639Z",
-      "updated_at": "2026-11-23T06:39:04.840240765Z",
+      "updated_at": "2026-11-28T00:46:28.772111700Z",
       "seal": {
         "by": "server",
-        "mac": "ab96df1d089ffda6e19512cdf50af656e2a37e93101f688ed068a95bc2746523"
+        "mac": "623ac8dd9e3af91ec116b3ff503c966578313218c3a2036c9fe5df27880d05ec"
       }
     },
     {
@@ -62050,6 +62085,28 @@
             "by": "server",
             "mac": "e6346cb7084fb150198eee1605901246275988f896e4f04793ae45905611fc8e"
           }
+        },
+        {
+          "id": "EVD-4182",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/my-keys.js:96-108 at 86bf4b35",
+          "summary": "Re-audit at head: create.disabled (107) and note.textContent (108) come after the guard (98); account is now also assigned only after it (100), so the earlier side note no longer applies.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/my-keys.js",
+              "lines": {
+                "start": 96,
+                "end": 108
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:14.697680505Z",
+          "seal": {
+            "by": "server",
+            "mac": "395d91985bc952390bfaae7bda911ed2b4237268b3ff99b5f4bb4d3d07c5cd58"
+          }
         }
       ],
       "verdicts": [
@@ -62065,13 +62122,26 @@
             "by": "server",
             "mac": "3b44821d5c4a000a21cb978a62211933b06d0738aadb1f8a9a2fb308cdd8ef34"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: button and note set only after the guard; account now too.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4182"
+          ],
+          "recorded_at": "2026-11-28T00:46:29.020608376Z",
+          "seal": {
+            "by": "server",
+            "mac": "e1d411d96b3597c7e5465843f90a9abc5156114cde81784d05281d5e78350437"
+          }
         }
       ],
       "created_at": "2026-11-23T06:38:10.351347639Z",
-      "updated_at": "2026-11-23T06:39:04.880582682Z",
+      "updated_at": "2026-11-28T00:46:29.020608376Z",
       "seal": {
         "by": "server",
-        "mac": "17e152e10f765e86e3b075e7a033ba5fdb3785955468643e902ffa00c2044792"
+        "mac": "4a7766414b9f2b4305b571bdca36fd9e75b23afad723c11ab15d9575bc7caa7d"
       }
     },
     {
@@ -62274,6 +62344,28 @@
             "by": "server",
             "mac": "afa9df1ccfae0dc9795270f74c462af04162a7c6a10c835ca96d078b8016ea91"
           }
+        },
+        {
+          "id": "EVD-4183",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/self_service.rs:935-993 at 86bf4b35",
+          "summary": "Re-audit at head: the My keys journey is extended, not weakened; it still holds /me/keys, revokes the second key, releases, and asserts the desk row absent (line ~977) before the new account assertion. Diff in this file only adds lines (plus the move to a move closure). My grants journey and changesets.rs untouched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/self_service.rs",
+              "lines": {
+                "start": 935,
+                "end": 993
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:14.939444551Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c3912c4d658156313db22b6ccd7284e0b051339d89ec6a842887b2c8467d383"
+          }
         }
       ],
       "verdicts": [
@@ -62290,13 +62382,26 @@
             "by": "server",
             "mac": "d3a456550dd6013ed5146fef8325efcd41d01bbd7c64d7754fef2f494a51d58a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: the My keys journey keeps its original assertion and adds one; other two journeys unchanged. Tests not run by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4183"
+          ],
+          "recorded_at": "2026-11-28T00:46:29.244719530Z",
+          "seal": {
+            "by": "server",
+            "mac": "faf16e466bb52bb6c2cdea5cc2cc533283d6ba4fe3ae1fa06157925b21fa9830"
+          }
         }
       ],
       "created_at": "2026-11-23T06:38:10.351347639Z",
-      "updated_at": "2026-11-23T06:39:05.001811668Z",
+      "updated_at": "2026-11-28T00:46:29.244719530Z",
       "seal": {
         "by": "server",
-        "mac": "2b566ccc99c9fa86c938a901c139750b0210fb8e5408c809c0f80409d0dd46ca"
+        "mac": "37be6cb90716345d835e9d1ef51a22d2e9a0a4994ce7a5a6212cf5673ad53552"
       }
     },
     {
@@ -209742,6 +209847,499 @@
       "seal": {
         "by": "server",
         "mac": "1ca79c550cbcc1c9a9d7237a60b54a3e9faafff90ce3dd3b6f6f831c8f1f16e2"
+      }
+    },
+    {
+      "id": "CLM-2372",
+      "statement": "Issue #943 is delivered: a stale My keys list read no longer overwrites the page-level account snapshot that the New key button hands to newKey, and the held-answer journey covers it.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/943 (Console My keys: a stale list read still overwrites the page's account snapshot)",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/ui/js/pages/my-keys.js",
+        "tests/ui_e2e/self_service.rs"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4186",
+          "kind": "analysis",
+          "locator": "children of CLM-2372",
+          "summary": "CLM-2373..2377 are all supported: fix at my-keys.js:96-100, journey extended, other pages checked, wording corrected, revert run fails as stated.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T00:47:58.513999816Z",
+          "seal": {
+            "by": "server",
+            "mac": "03138fe220e61c940efa1f5fa4f155327443039e0803852943cc56edf13d2bc5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "children of CLM-2372 all supported.",
+          "auditor": "claude-sonnet-5-5 (implementer)",
+          "evidence_ids": [
+            "EVD-4186"
+          ],
+          "recorded_at": "2026-11-28T00:48:01.230283359Z",
+          "seal": {
+            "by": "server",
+            "mac": "52cdbc24f298e0260515a50579405d16b48edff75438133223262b90021642f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:48:01.230283359Z",
+      "seal": {
+        "by": "server",
+        "mac": "8cf2638c5649077e4c64bfe90359ebbe09ac55f7da629d40cdabb16e62babff7"
+      }
+    },
+    {
+      "id": "CLM-2373",
+      "statement": "In my-keys.js load(), the /me and /me/keys results are destructured into locals (fresh, keys, ceiling) and the page-level `account` is assigned only after the `if (!current()) return;` guard.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #943 suggested fix: destructure into locals and assign `account` only after the guard",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/my-keys.js"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4174",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/my-keys.js:87-109",
+          "summary": "load() declares locals fresh/keys/ceiling (89-91), destructures Promise.all([freshAccount(), api.get('/me/keys')]) into them (96), returns on !current() (98), and only then runs `account = fresh` (100). No other assignment to `account` exists in the file (grep: only line 81 init and 100).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/my-keys.js",
+              "lines": {
+                "start": 87,
+                "end": 109
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:45:52.083346961Z",
+          "seal": {
+            "by": "server",
+            "mac": "c06312bcf44975c20a4c2dd6bb4a0807fe2115de213001c4b9223bb45f0d64e1"
+          }
+        },
+        {
+          "id": "EVD-4175",
+          "kind": "analysis",
+          "locator": "git grep -nE \"\\baccount\\b *=[^=]\" src/http/ui/js/pages/my-keys.js",
+          "summary": "Search for assignments to `account` in my-keys.js: only the `let account = null` init and the post-guard `account = fresh`.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "[^.a-zA-Z]account *= *[^=]",
+              "scope": [
+                "src/http/ui/js/pages/my-keys.js"
+              ],
+              "hits": 2,
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:45:52.248028051Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5905148ceee0e666212a34b29effe4eceddc1480bd1a7c62b454b10e9b369ba"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads as stated and the search shows exactly two assignments to account (init and post-guard).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4174",
+            "EVD-4175"
+          ],
+          "recorded_at": "2026-11-28T00:46:29.451962311Z",
+          "seal": {
+            "by": "server",
+            "mac": "98188c06c159a8c79db21b27c845b564b4eeb2dd2b254ce0154b203808c10b73"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:46:29.451962311Z",
+      "seal": {
+        "by": "server",
+        "mac": "3466a86216c848ab1ddc58033671b8ba78615c0fbd7d3844d3df6947fc40d46e"
+      }
+    },
+    {
+      "id": "CLM-2374",
+      "statement": "The journey an_older_list_read_that_answers_late_never_redraws_the_my_keys_table changes max_key_lifetime to 30d after the older read's account was taken and before the newer read, releases the older answer, and asserts the New key form's expires_in options equal [\"7d\",\"longest\"] (the newer account's), not the older no-limit set.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #943: extend the held-answer journey so a released older answer, whose account limits differ, does not change what the New key form offers",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/self_service.rs"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4176",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/self_service.rs:935-993",
+          "summary": "Journey holds only GET /api/v1/me/keys during the first revoke (so the older read's /me, unheld, was answered before the limit existed), then sets MaxKeyLifetime=30d via settings::set inside applied(), does the second revoke (newer read sees 30d), release_held(), opens New key and asserts the expires_in option values equal json!([\\\"7d\\\",\\\"longest\\\"]) with message \\\"the older read's account reached the New key form\\\". Assertion is on the form's rendered options, which come from account.limits via expiryOptions.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/self_service.rs",
+              "lines": {
+                "start": 935,
+                "end": 993
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:05.863935123Z",
+          "seal": {
+            "by": "server",
+            "mac": "04b12bac5d40d0c502dde4afef2e6a905e448cb0ceb5dbb1bd637cf38808f397"
+          }
+        },
+        {
+          "id": "EVD-4177",
+          "kind": "analysis",
+          "locator": "src/http/ui/js/pages/my-keys.js:136-144 (expiryOptions)",
+          "summary": "With max_key_lifetime_secs null the options are ['', 7d, 30d, 90d, 365d]; with 30d (2592000) only 7d is strictly shorter, plus 'longest'; so [\\\"7d\\\",\\\"longest\\\"] is distinguishable from the older no-limit set, and the expected value is correct for the newer account. The test sets the limit after the first (older) reload's /me answer and before the second reload's /me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/my-keys.js",
+              "lines": {
+                "start": 136,
+                "end": 144
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:06.001256748Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f4316d71cd4c3a9ca56fbd40f93e5c08a150ac590ef80f693cdbbb9b7a71452"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Read the assertion and sequencing: limit set between the older and newer reads, older answer released, form options asserted against the newer account's values, which differ from the older's. I did not run the test (cargo barred; gates run elsewhere), so passing is not evidenced here.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4176",
+            "EVD-4177"
+          ],
+          "recorded_at": "2026-11-28T00:46:29.657341675Z",
+          "seal": {
+            "by": "server",
+            "mac": "d09f2f7c81cc3e1ff754b7b8b04ebb9da68a3de4e288cc1059acb290b42e2a7d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:46:29.657341675Z",
+      "seal": {
+        "by": "server",
+        "mac": "82ffccd0e57c1da5fc20bfda11c3a93f8d3a00f662aa6cb5aeeb239b1c9a1926"
+      }
+    },
+    {
+      "id": "CLM-2375",
+      "statement": "PR description: every other page that uses latest() (My grants, changesets, teams, users, runs, settings, account, search) assigns page-level state only after its current() guard, so none needed a change.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Other list pages using `latest()` (My grants, catalogs, changesets, teams, users, runs, settings, account) assign page state only after their guard; none needed a change.\"",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4179",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/{my-grants.js:59-70,runs.js:112-122,search.js:104-115,teams.js:79-85,users.js:97-105,settings.js:222-252,account.js:102-106,222-226,311-315,365-368,changesets.js:53-56}",
+          "summary": "Every latest() consumer reads into function-local variables (let/const) and assigns shared state or draws only after the current() check (runs rows/next, my-grants grantsCeiling, settings queueRows, account locals). No page-level assignment precedes a guard. Only core/latest.js importers are those 9 pages.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/my-grants.js",
+              "lines": {
+                "start": 57,
+                "end": 70
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:06.283379978Z",
+          "seal": {
+            "by": "server",
+            "mac": "49cfdcfe1b33a6815b49f43030da3a0453504f67a77f3cffa9d9678e28be20f8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Walked every importer of core/latest.js; all assign shared state only after the guard. (The description's list omits search and wrongly adds catalogs; tracked separately.)",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4179"
+          ],
+          "recorded_at": "2026-11-28T00:46:29.874507623Z",
+          "seal": {
+            "by": "server",
+            "mac": "44cb803bcc6e7f842e9efc1122821beb47c7ff18a6d0935d6eefe4f861152f0e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:46:29.874507623Z",
+      "seal": {
+        "by": "server",
+        "mac": "5e702bbb946780f4c05171328b88babd4dbb4b86c780d5b9b8119d202c27bc64"
+      }
+    },
+    {
+      "id": "CLM-2376",
+      "statement": "PR description: the catalogs page is among the pages that use latest().",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Other list pages using `latest()` (My grants, catalogs, ...\" and changelog/20261128T003806Z-issue-943-my-keys-account-snapshot.md",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "changelog/20261128T003806Z-issue-943-my-keys-account-snapshot.md"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4180",
+          "kind": "analysis",
+          "locator": "git grep -nE \"latest\" src/http/ui/js/pages/catalogs.js",
+          "summary": "catalogs.js does not import or call latest(); it numbers loads itself (loads/answered counters, lines 58-110). The description's list of latest() pages wrongly includes catalogs (it is also correct that catalogs assigns rows/cursor only after its own overtaken-check).",
+          "stance": "refutes",
+          "anchor": {
+            "search": {
+              "pattern": "latest",
+              "scope": [
+                "src/http/ui/js/pages/catalogs.js"
+              ],
+              "hits": 1,
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:06.422423860Z",
+          "seal": {
+            "by": "server",
+            "mac": "4992f3005c11b49e94cd7386769c390161b9546dd6a2c081b944ff2590d9646e"
+          }
+        },
+        {
+          "id": "EVD-4184",
+          "kind": "inspection",
+          "locator": "changelog/20261128T003806Z-issue-943-my-keys-account-snapshot.md:14-16",
+          "summary": "Corrected: the changelog and PR body now list My grants, changesets, teams, users, runs, search, settings, account (the latest() importers) and no longer name catalogs.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T003806Z-issue-943-my-keys-account-snapshot.md",
+              "lines": {
+                "start": 14,
+                "end": 16
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38",
+              "dirty": true
+            }
+          },
+          "recorded_at": "2026-11-28T00:47:46.754387094Z",
+          "seal": {
+            "by": "server",
+            "mac": "09b512f48182ed6c5aba07225eb9999c8fb4606117fcd69fff9b74988d76090c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "catalogs.js has no latest import or call (its one 'latest' hit is a comment); it uses its own loads/answered counters. The statement in the PR body and changelog is wrong. Fix: in the PR body Summary/Changes bullet and in changelog/20261128T003806Z-issue-943-my-keys-account-snapshot.md, drop \"catalogs\" from the list of pages that use latest() (or say it numbers its own loads).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4180"
+          ],
+          "recorded_at": "2026-11-28T00:46:30.144593081Z",
+          "seal": {
+            "by": "server",
+            "mac": "2f2865f563301053251cd1a77184c5da6f56a9c6bd97b52af2ab99056a0642a1"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Wording corrected after the refutation; the list now matches the latest() importers.",
+          "auditor": "claude-sonnet-5-5 (implementer, after auditor finding)",
+          "evidence_ids": [
+            "EVD-4184"
+          ],
+          "recorded_at": "2026-11-28T00:47:52.793490788Z",
+          "seal": {
+            "by": "server",
+            "mac": "b39be6dd2c3a4d3b9094ddb7e1dd92a74a693ba15950b91719e396547648ccaa"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:47:52.793490788Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f003e4f43332f987eba7bcfe634a4295a05328aa4195bc0c1011aee4b278c93"
+      }
+    },
+    {
+      "id": "CLM-2377",
+      "statement": "PR description: with the old my-keys.js, the journey fails with \"the older read's account reached the New key form\".",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"Revert check: with the old `my-keys.js`, the journey fails with 'the older read's account reached the New key form'.\"",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/self_service.rs"
+      ],
+      "tags": [
+        "from-issue:943"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4178",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/self_service.rs:975-992 vs old my-keys.js (git show origin/main:src/http/ui/js/pages/my-keys.js)",
+          "summary": "By reading: old code assigned account from the older read after release, giving the no-limit options, which would fail the assert with that message. The revert run itself was not repeated (cargo barred), so the described failure is not independently demonstrated.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/self_service.rs",
+              "lines": {
+                "start": 975,
+                "end": 992
+              },
+              "commit": "86bf4b35a160516616b53d0f023c87e93ebf9b38"
+            }
+          },
+          "recorded_at": "2026-11-28T00:46:06.138929825Z",
+          "seal": {
+            "by": "server",
+            "mac": "ac1e8951a51a4987c968358ebdbe78b6cefc66ee79baf8d632d670e62d4e5008"
+          }
+        },
+        {
+          "id": "EVD-4185",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --test ui_e2e an_older_list_read_that_answers_late_never_redraws_the_my_keys (old my-keys.js)",
+          "summary": "Ran with the old my-keys.js: exit 101, panic at self_service.rs:983 \"the older read's account reached the New key form\", left [\\\"\\\",\\\"7d\\\",\\\"30d\\\",\\\"90d\\\",\\\"365d\\\"] right [\\\"7d\\\",\\\"longest\\\"]; with the fix it passes.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T00:47:46.921135747Z",
+          "seal": {
+            "by": "server",
+            "mac": "22a6ea42c42894e0c4c502591d24761b2c1262abf5c713b637f2b76276fb0f23"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Reading shows the old code would fail the new assertion, but the revert run was not repeated by me, and a manual check I cannot repeat is not a refutation or support. Fix: with the old my-keys.js checked out, run the my_keys journey through tools/agentic/gate.sh and record that it fails with the quoted message.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4178"
+          ],
+          "recorded_at": "2026-11-28T00:46:30.375656621Z",
+          "seal": {
+            "by": "server",
+            "mac": "6bb639773be73e6446e9902c5fa083f7eee2d1426aa5047ff70dd30a9a190d07"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The revert run was executed; it fails with the quoted message.",
+          "auditor": "claude-sonnet-5-5 (implementer)",
+          "evidence_ids": [
+            "EVD-4185"
+          ],
+          "recorded_at": "2026-11-28T00:47:52.988465772Z",
+          "seal": {
+            "by": "server",
+            "mac": "f9683aaf7fb6dc8fce7b4055265813077af6215a1bf1d8fcfc8e801d4263556f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T00:45:44.159636650Z",
+      "updated_at": "2026-11-28T00:47:52.988465772Z",
+      "seal": {
+        "by": "server",
+        "mac": "3067378eda875d67fcafc5a19ebf0ac5240818c2a82963e203463a648ab0284e"
       }
     }
   ]

@@ -87,6 +87,21 @@ const HOLD_NEXT: &str = "(arg) => {
     return true;
 }";
 
+/// Counts the page's own `fetch` calls that have not answered yet in
+/// `window.pendingFetches` (see [`Ui::track_fetches`]). A request the page
+/// started is pending until its answer reaches the page, the worker's work
+/// on it included; the answer's headers (a `Set-Cookie` too) are applied
+/// before that.
+const TRACK_FETCHES: &str = "() => {
+    const original = window.fetch;
+    window.pendingFetches = 0;
+    window.fetch = (input, init) => {
+        window.pendingFetches += 1;
+        return original(input, init).finally(() => { window.pendingFetches -= 1; });
+    };
+    return true;
+}";
+
 /// Answers the page's next request with method `arg.method` to a path
 /// ending in `arg.suffix` with status `arg.status` and the error body
 /// `{error: arg.kind ?? 'test', message: arg.message}`, without reaching
@@ -637,6 +652,52 @@ impl Ui {
             "(selector) => document.querySelector(selector) !== null",
             serde_json::json!(selector),
         ) == serde_json::json!(true)
+    }
+
+    /// Starts counting the page's own `fetch` calls that have not answered
+    /// (see [`TRACK_FETCHES`]), for [`Ui::fetches_settle_within`]. Call it
+    /// before the requests to wait for are made: one already out is not
+    /// counted. The page keeps it until it navigates to a new document.
+    pub fn track_fetches(&self) {
+        self.eval(TRACK_FETCHES, serde_json::json!(null));
+    }
+
+    /// Waits up to `limit` until the page has no `fetch` of its own pending
+    /// (two reads in a row, 100 ms apart, since an answer can start the next
+    /// request). Needs [`Ui::track_fetches`].
+    ///
+    /// # Returns
+    /// Whether the page was quiet in time.
+    pub fn fetches_settle_within(&self, limit: Duration) -> bool {
+        let pending = || {
+            self.eval("() => window.pendingFetches", serde_json::json!(null))
+                .as_u64()
+                .expect("track_fetches was not called on this page")
+        };
+        let deadline = Instant::now() + limit;
+        loop {
+            if pending() == 0 {
+                std::thread::sleep(Duration::from_millis(100));
+                if pending() == 0 {
+                    return true;
+                }
+            }
+            if Instant::now() >= deadline {
+                return false;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+    }
+
+    /// [`Ui::fetches_settle_within`] for [`WAIT`].
+    ///
+    /// # Panics
+    /// When a request of the page is still pending after [`WAIT`].
+    pub fn wait_fetches_settled(&self) {
+        assert!(
+            self.fetches_settle_within(WAIT),
+            "the page's requests did not finish"
+        );
     }
 
     /// Holds the page's next `method` request to a path ending in `suffix`

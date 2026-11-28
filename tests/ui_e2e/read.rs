@@ -1913,8 +1913,10 @@ type SignInAnswer = String;
 /// old session had in flight is answered 401, and that answer clears the
 /// session cookie (`unauthorized_clearing`), so one that arrives after the
 /// sign-in's `Set-Cookie` signs the new account out again (issue #1183). The
-/// reader's own late requests can do the same, so the helper reads the
-/// session back as `second` and signs in once more if it is gone.
+/// reader tab's requests can do the same, so the helper first waits until the
+/// reader has none pending ([`Ui::track_fetches`] must have been called
+/// before its requests), and reads the session back as `second`, signing in
+/// once more if it is gone.
 ///
 /// # Returns
 /// What each attempt answered (the POST's status and where `fetch` followed
@@ -1925,6 +1927,7 @@ type SignInAnswer = String;
 /// When no attempt leaves `second` signed in.
 fn sign_in_second_in_another_tab(ui: &Ui) -> SignInAnswer {
     const ATTEMPTS: usize = 3;
+    ui.wait_fetches_settled();
     let post = format!(
         "async () => {{ const r = await fetch('/signin', {{ method: 'POST', body: \
          new URLSearchParams({{ email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }}); \
@@ -2006,6 +2009,7 @@ async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
     drive(server.base.clone(), move |ui| {
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
+        ui.track_fetches();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_text("#body", "marmalade");
         let first = ui.eval(OWNER_TAG, json!(null));
@@ -2046,6 +2050,7 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
     drive(server.base.clone(), move |ui| {
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
+        ui.track_fetches();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_text("#body", "marmalade");
         // Recent changes too, so Home offline would draw from a kept listing.
@@ -2060,6 +2065,38 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
         let listed = ui.wait_text("#offline-list", "Nothing yet");
         assert!(!listed.contains("Alpha"), "{listed}");
         drop(offline);
+    })
+    .await;
+}
+
+/// Issue #1183: the helper signs in as `second` only once the reader has no
+/// request of the first account pending, since one answered 401 after the
+/// sign-in clears the new session's cookie. A request held in the page keeps
+/// the wait from returning; releasing it lets it return at once.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_second_sign_in_waits_for_the_readers_pending_requests() {
+    let server = server_with_a_second_reader().await;
+    drive(server.base.clone(), move |ui| {
+        ui.sign_in_reader("/me", EMAIL, PASSWORD);
+        ui.wait_worker();
+        // The hold goes in first, so the count (installed over it) includes
+        // the held request.
+        ui.hold_next("GET", "/api/v1/session");
+        ui.track_fetches();
+        ui.eval(
+            "() => { fetch('/api/v1/session'); return true; }",
+            json!(null),
+        );
+        assert!(
+            !ui.fetches_settle_within(Duration::from_millis(1500)),
+            "the wait returned with a request of the page pending"
+        );
+        ui.release_held();
+        assert!(
+            ui.fetches_settle_within(Duration::from_secs(10)),
+            "the wait did not return once the request had answered"
+        );
+        sign_in_second_in_another_tab(ui);
     })
     .await;
 }

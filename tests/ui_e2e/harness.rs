@@ -87,6 +87,20 @@ const HOLD_NEXT: &str = "(arg) => {
     return true;
 }";
 
+/// Counts the page's own `fetch` calls that have not answered yet in
+/// `window.pendingFetches` (see [`Ui::track_fetches`]); a script that runs
+/// as a document starts. A request the page started is pending until its
+/// answer reaches the page, the worker's work on it included; the answer's
+/// headers (a `Set-Cookie` too) are applied before that.
+const TRACK_FETCHES: &str = "(() => {
+    const original = window.fetch;
+    window.pendingFetches = 0;
+    window.fetch = (input, init) => {
+        window.pendingFetches += 1;
+        return original(input, init).finally(() => { window.pendingFetches -= 1; });
+    };
+})()";
+
 /// Answers the page's next request with method `arg.method` to a path
 /// ending in `arg.suffix` with status `arg.status` and the error body
 /// `{error: arg.kind ?? 'test', message: arg.message}`, without reaching
@@ -639,6 +653,84 @@ impl Ui {
         ) == serde_json::json!(true)
     }
 
+    /// Runs `source` (a JS expression) at the start of every document this
+    /// journey's page loads from now on, before any script of the page's own
+    /// (DevTools' `Page.addScriptToEvaluateOnNewDocument`). Scripts added
+    /// first run first, so one that wraps `fetch` sits inside the later ones.
+    ///
+    /// # Returns
+    /// The DevTools connection that holds the script: dropping it removes it.
+    ///
+    /// # Panics
+    /// When Chromium refuses a DevTools call.
+    pub fn at_document_start(&self, source: &str) -> DevTools {
+        let mut devtools = DevTools::connect(&self.browser);
+        let attached = devtools.call(
+            None,
+            "Target.attachToTarget",
+            serde_json::json!({ "targetId": self.page.target_id(), "flatten": true }),
+        );
+        let session = attached["sessionId"].as_str().expect("a DevTools session");
+        devtools.call(Some(session), "Page.enable", serde_json::json!({}));
+        devtools.call(
+            Some(session),
+            "Page.addScriptToEvaluateOnNewDocument",
+            serde_json::json!({ "source": source }),
+        );
+        devtools
+    }
+
+    /// Starts counting the page's own `fetch` calls that have not answered
+    /// (see [`TRACK_FETCHES`]), for [`Ui::fetches_settle_within`], from the
+    /// first byte of every document the page loads from now on: boot's
+    /// requests that nothing waits for included. Call it before the page
+    /// navigates to what is to be counted, and keep the result alive.
+    ///
+    /// # Returns
+    /// The DevTools connection that holds the script (see
+    /// [`Ui::at_document_start`]).
+    pub fn track_fetches(&self) -> DevTools {
+        self.at_document_start(TRACK_FETCHES)
+    }
+
+    /// Waits up to `limit` until the page has no `fetch` of its own pending
+    /// (two reads in a row, 100 ms apart, since an answer can start the next
+    /// request). Needs [`Ui::track_fetches`].
+    ///
+    /// # Returns
+    /// Whether the page was quiet in time.
+    pub fn fetches_settle_within(&self, limit: Duration) -> bool {
+        let pending = || {
+            self.eval("() => window.pendingFetches", serde_json::json!(null))
+                .as_u64()
+                .expect("track_fetches was not called on this page")
+        };
+        let deadline = Instant::now() + limit;
+        loop {
+            if pending() == 0 {
+                std::thread::sleep(Duration::from_millis(100));
+                if pending() == 0 {
+                    return true;
+                }
+            }
+            if Instant::now() >= deadline {
+                return false;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+    }
+
+    /// [`Ui::fetches_settle_within`] for [`WAIT`].
+    ///
+    /// # Panics
+    /// When a request of the page is still pending after [`WAIT`].
+    pub fn wait_fetches_settled(&self) {
+        assert!(
+            self.fetches_settle_within(WAIT),
+            "the page's requests did not finish"
+        );
+    }
+
     /// Holds the page's next `method` request to a path ending in `suffix`
     /// until [`Ui::release_held`] (see [`HOLD_NEXT`]).
     ///
@@ -793,7 +885,19 @@ impl Ui {
 
     /// Polls `done` for [`WAIT`]; on a timeout panics with `what` and the
     /// answer of the JS function `report`.
-    fn poll_reporting(&self, what: &str, report: &str, mut done: impl FnMut() -> bool) {
+    fn poll_reporting(&self, what: &str, report: &str, done: impl FnMut() -> bool) {
+        self.poll_reporting_with(what, report, String::new, done);
+    }
+
+    /// [`Ui::poll_reporting`] whose panic message also carries `note()`,
+    /// for what only the test knows (what an earlier step answered).
+    fn poll_reporting_with(
+        &self,
+        what: &str,
+        report: &str,
+        note: impl FnOnce() -> String,
+        mut done: impl FnMut() -> bool,
+    ) {
         let deadline = Instant::now() + WAIT;
         while Instant::now() < deadline {
             if done() {
@@ -802,7 +906,40 @@ impl Ui {
             std::thread::sleep(Duration::from_millis(50));
         }
         let state = self.eval(report, serde_json::json!(null));
-        panic!("timed out waiting for {what}; the page: {state}");
+        panic!("timed out waiting for {what}; the page: {state}{}", note());
+    }
+
+    /// Like [`Ui::wait_text_is`], with `note()` added to a timeout's message.
+    ///
+    /// # Panics
+    /// When the text is not `expected` after [`WAIT`].
+    pub fn wait_text_is_noting(
+        &self,
+        selector: &str,
+        expected: &str,
+        report: &str,
+        note: impl FnOnce() -> String,
+    ) {
+        self.poll_reporting_with(
+            &format!("{selector} reading {expected:?}"),
+            report,
+            note,
+            || self.text(selector).trim() == expected,
+        );
+    }
+
+    /// The names (never the values) of the cookies the browser holds, sorted
+    /// and joined by commas, for a timeout's report: HttpOnly ones too,
+    /// which the page cannot see.
+    pub fn cookie_names(&self) -> String {
+        let mut devtools = DevTools::connect(&self.browser);
+        let answer = devtools.call(None, "Storage.getCookies", serde_json::json!({}));
+        let mut names: Vec<&str> = answer["cookies"]
+            .as_array()
+            .map(|cookies| cookies.iter().filter_map(|c| c["name"].as_str()).collect())
+            .unwrap_or_default();
+        names.sort_unstable();
+        names.join(",")
     }
 
     /// Sends the page's next `method` request to a path ending in `suffix`

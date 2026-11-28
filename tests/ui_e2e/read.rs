@@ -1899,46 +1899,116 @@ async fn server_with_a_second_reader() -> TestServer {
     server
 }
 
-/// Signs in as `second` in another tab (the same cookies), from the
-/// console's page, so none of its answers go through the reader's worker; the
-/// reader tab stays open. `GET /signin` sends a signed-in browser on to the
-/// console, so the tab posts the sign-in form itself, as the page would.
-fn sign_in_second_in_another_tab(ui: &Ui) {
+/// What `second`'s sign-in from the other tab answered, as JSON text, for a
+/// timeout's report.
+type SignInAnswer = String;
+
+/// Signs in as `second` in another tab (the same cookies), so none of its
+/// answers go through the reader's worker; the reader tab stays open.
+/// `GET /signin` sends a signed-in browser on to the console, so the tab
+/// posts the sign-in form itself, as the page would.
+///
+/// The tab sits on `/healthz`, a page with no script: the console would fetch
+/// its own data as the first account while the sign-in lands. A request the
+/// old session had in flight is answered 401, and that answer clears the
+/// session cookie (`unauthorized_clearing`), so one that arrives after the
+/// sign-in's `Set-Cookie` signs the new account out again (issue #1183). The
+/// reader tab's requests can do the same, so the helper first waits until the
+/// reader has none pending ([`Ui::track_fetches`] must have been called
+/// before the reader's page loaded: boot's own requests count), and reads the session back as `second`, signing in
+/// once more if it is gone.
+///
+/// # Returns
+/// What each attempt answered (the POST's status and where `fetch` followed
+/// the 303 to, then the `/api/v1/session` user), once a session reads as
+/// `second`.
+///
+/// # Panics
+/// When no attempt leaves `second` signed in.
+fn sign_in_second_in_another_tab(ui: &Ui) -> SignInAnswer {
+    const ATTEMPTS: usize = 3;
+    ui.wait_fetches_settled();
+    let post = format!(
+        "async () => {{ const r = await fetch('/signin', {{ method: 'POST', body: \
+         new URLSearchParams({{ email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }}); \
+         const s = await fetch('/api/v1/session', {{ headers: {{ Accept: 'application/json' }} }}); \
+         return {{ post: r.status, path: new URL(r.url).pathname, session: s.status, \
+         user: s.ok ? (await s.json()).user : null }}; }}"
+    );
+    let mut attempts = Vec::with_capacity(ATTEMPTS);
     ui.in_second_tab(|tab| {
         tab.goto(
-            &format!("{}/ui/", ui.base),
+            &format!("{}/healthz", ui.base),
             rustwright::GotoOptions::default(),
         )
-        .expect("open the console");
-        let post = format!(
-            "async () => (await fetch('/signin', {{ method: 'POST', body: new URLSearchParams({{ \
-             email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }})).status"
-        );
-        let status = tab
-            .evaluate(&post, None, rustwright::ActionOptions::default())
-            .expect("post the sign-in");
-        assert_eq!(status, json!(200), "the sign-in was refused");
-        // A new session, so the console is reloaded as `second`.
-        tab.goto(
-            &format!("{}/ui/", ui.base),
-            rustwright::GotoOptions::default(),
-        )
-        .expect("reload the console");
+        .expect("open a page without script");
+        for _ in 0..ATTEMPTS {
+            let answer = tab
+                .evaluate(&post, None, rustwright::ActionOptions::default())
+                .expect("post the sign-in");
+            assert_eq!(
+                answer["post"],
+                json!(200),
+                "the sign-in was refused: {answer}"
+            );
+            let signed_in = answer["user"] == json!("second");
+            attempts.push(answer);
+            if signed_in {
+                return;
+            }
+        }
     });
+    let answer = json!(attempts);
+    assert_eq!(
+        attempts.last().map(|last| &last["user"]),
+        Some(&json!("second")),
+        "no session for second after {ATTEMPTS} sign-ins: {answer}"
+    );
+    answer.to_string()
 }
 
+/// What the Account screen's wait for `second` reports on a timeout (issue
+/// #1183): the page's address, what it shows, whether the worker controls it,
+/// and what `/api/v1/session` answers now (never its csrf token or cookies).
+const SECOND_ACCOUNT_REPORT: &str = "async () => { \
+    const report = { href: location.pathname + location.hash, \
+        account_user: document.getElementById('account-user')?.textContent ?? null, \
+        reader_hidden: document.getElementById('reader')?.hidden ?? null, \
+        controlled: navigator.serviceWorker?.controller != null }; \
+    const controller = new AbortController(); \
+    const timer = setTimeout(() => controller.abort(), 2000); \
+    try { \
+        const response = await fetch('/api/v1/session', { signal: controller.signal, \
+            headers: { Accept: 'application/json' } }); \
+        report.session = { status: response.status, \
+            offline: response.headers.has('X-Read-Offline'), \
+            user: (await response.json().catch(() => ({}))).user ?? null }; \
+    } catch (error) { \
+        report.session = `error: ${error.name}`; \
+    } finally { clearTimeout(timer); } \
+    return report; }";
+
 /// Reloads the reader on the Account screen, so boot's session check is the
-/// only read, and waits until it names `second`.
-fn only_the_session_check_as_second(ui: &Ui) {
+/// only read, and waits until it names `second`. A timeout reports the page,
+/// the session answer, the cookie names and what the other tab's sign-in
+/// answered (`signed_in`).
+fn only_the_session_check_as_second(ui: &Ui, signed_in: &SignInAnswer) {
     ui.open_reader("/me");
     ui.reload_reader();
-    ui.wait_text("#account-user", "second");
+    ui.wait_text_is_noting("#account-user", "second", SECOND_ACCOUNT_REPORT, || {
+        format!(
+            "; the sign-in POST: {signed_in}; cookies: {}",
+            ui.cookie_names()
+        )
+    });
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
     let server = server_with_a_second_reader().await;
     drive(server.base.clone(), move |ui| {
+        // From the first document on: boot starts requests nothing waits for.
+        let _tracking = ui.track_fetches();
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
         ui.open_reader("/v/main/systems/alpha.md");
@@ -1948,10 +2018,10 @@ async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
         assert!(content_paths(ui)
             .iter()
             .any(|path| path.ends_with("/alpha.md")));
-        sign_in_second_in_another_tab(ui);
+        let signed_in = sign_in_second_in_another_tab(ui);
         // No concept is read as `second` before the copies are checked: the
         // session check alone hands them over, wiping the first account's.
-        only_the_session_check_as_second(ui);
+        only_the_session_check_as_second(ui, &signed_in);
         let paths = content_paths(ui);
         assert!(
             paths.iter().all(|path| !path.ends_with("/alpha.md")),
@@ -1979,6 +2049,8 @@ async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
 async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_offline() {
     let server = server_with_a_second_reader().await;
     drive(server.base.clone(), move |ui| {
+        // From the first document on: boot starts requests nothing waits for.
+        let _tracking = ui.track_fetches();
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
         ui.open_reader("/v/main/systems/alpha.md");
@@ -1986,8 +2058,8 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
         // Recent changes too, so Home offline would draw from a kept listing.
         ui.open_reader("/");
         ui.wait_visible("#recent");
-        sign_in_second_in_another_tab(ui);
-        only_the_session_check_as_second(ui);
+        let signed_in = sign_in_second_in_another_tab(ui);
+        only_the_session_check_as_second(ui, &signed_in);
         let offline = ui.go_offline();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_visible("#unavailable");
@@ -1995,6 +2067,54 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
         let listed = ui.wait_text("#offline-list", "Nothing yet");
         assert!(!listed.contains("Alpha"), "{listed}");
         drop(offline);
+    })
+    .await;
+}
+
+/// Holds the first `GET /api/v1/catalogs?readable=true` of each document
+/// until `window.releaseBootRead()`: the read boot starts without waiting
+/// for it (`catalogList()`), before the reader shows.
+const HOLD_BOOT_CATALOGS: &str = "(() => {
+    const original = window.fetch;
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    let held = false;
+    window.releaseBootRead = () => release();
+    window.fetch = (input, init) => {
+        if (!held && String(input).includes('/api/v1/catalogs?readable=true')) {
+            held = true;
+            return gate.then(() => original(input, init));
+        }
+        return original(input, init);
+    };
+})()";
+
+/// Issue #1183: the helper signs in as `second` only once the reader has no
+/// request of the first account pending, since one answered 401 after the
+/// sign-in clears the new session's cookie. The reader's boot starts a read
+/// that nothing waits for before it shows; held there, it keeps the wait from
+/// returning, and releasing it lets it return. The count must be installed
+/// as the document starts: one installed once the reader shows would not see
+/// that read.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn the_second_sign_in_waits_for_the_readers_boot_requests() {
+    let server = server_with_a_second_reader().await;
+    drive(server.base.clone(), move |ui| {
+        // The hold goes in first, so the count (installed after it) wraps
+        // the held request and includes it.
+        let _hold = ui.at_document_start(HOLD_BOOT_CATALOGS);
+        let _tracking = ui.track_fetches();
+        ui.sign_in_reader("/me", EMAIL, PASSWORD);
+        assert!(
+            !ui.fetches_settle_within(Duration::from_millis(1500)),
+            "the wait returned with the reader's boot read pending"
+        );
+        ui.eval("() => window.releaseBootRead()", json!(null));
+        assert!(
+            ui.fetches_settle_within(Duration::from_secs(10)),
+            "the wait did not return once the read had answered"
+        );
+        sign_in_second_in_another_tab(ui);
     })
     .await;
 }

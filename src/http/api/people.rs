@@ -147,6 +147,9 @@ struct DeleteUserQuery {
     /// Refuses (409) while the user is a member of any shared team.
     #[serde(default)]
     unless_shared_member: bool,
+    /// Refuses (409) while the user has an email address.
+    #[serde(default)]
+    unless_has_email: bool,
 }
 
 /// `GET /users`' answer.
@@ -420,6 +423,11 @@ struct CreateUserBody {
     /// out.
     #[serde(default)]
     display_name: String,
+    /// Its email address, set in the same transaction as the create; absent
+    /// or `null` leaves it unset. Refused like `PUT /users/{name}/email`
+    /// refuses one (422 malformed, 409 taken), and then nothing is created.
+    #[serde(default)]
+    email: Option<String>,
 }
 
 /// `POST /teams`' body.
@@ -588,16 +596,19 @@ async fn list_users(
     Ok(Json(UserList { users }))
 }
 
-/// `POST /users`: creates a user and its personal team.
+/// `POST /users`: creates a user and its personal team, with its email when
+/// the body has one (issue #980).
 ///
 /// # Returns
 /// 201 with the new user.
 ///
 /// # Errors
-/// 403 unless the key is an admin reaching every catalog; 409 for an invalid
-/// or taken name; 422 for a body without `name` or a refused `display_name`
-/// (over 80 characters, or holding a control character or line break); 500
-/// for a database failure.
+/// 403 unless the key is an admin reaching every catalog or a provisioner;
+/// 409 for an invalid or taken name, or for an email another user has (the
+/// same body for every holder, an admin included, and nothing is created);
+/// 422 for a body without `name`, a refused `display_name` (over 80
+/// characters, or holding a control character or line break) or an
+/// address that is not one; 500 for a database failure.
 #[tracing::instrument(level = "debug", skip_all)]
 async fn create_user(
     State(app): State<Arc<App>>,
@@ -613,7 +624,14 @@ async fn create_user(
         name: &body.name,
         display_name: &display_name,
     };
-    let created = users::create(app.accounts().executor(), &new, &actor, app.clock().now()).await?;
+    let created = users::create_with_email(
+        app.accounts().executor(),
+        &new,
+        body.email.as_deref(),
+        &actor,
+        app.clock().now(),
+    )
+    .await?;
     Ok((StatusCode::CREATED, Json(created.into())))
 }
 
@@ -1047,7 +1065,9 @@ async fn list_sign_ins(
 /// codes, sessions, memberships and personal team; its open changesets are
 /// discarded. Catalogs and their history stay (`users::delete`). With
 /// `?unless_shared_member=true` it deletes nothing while the user is a member
-/// of a shared team, decided under the delete's own locks (issue #535).
+/// of a shared team, decided under the delete's own locks (issue #535); with
+/// `?unless_has_email=true` it deletes nothing while the user has an email
+/// address, decided under the same locks (issue #980).
 ///
 /// # Returns
 /// 204.
@@ -1055,7 +1075,8 @@ async fn list_sign_ins(
 /// # Errors
 /// 400 for an unknown query parameter or a non-boolean value; 403 unless
 /// the key is an admin reaching every catalog; 404 for an unknown user; 409
-/// for a shared-team membership (with the parameter), a personal team that
+/// for a shared-team membership or an email address (with their parameters),
+/// a personal team that
 /// owns catalogs, the last owner of a shared team, or the last admin user;
 /// 500 for a database failure.
 #[tracing::instrument(level = "debug", skip_all)]
@@ -1071,6 +1092,7 @@ async fn delete_user(
     // user (the CLI may).
     let options = users::DeleteOptions {
         unless_shared_member: query.unless_shared_member,
+        unless_has_email: query.unless_has_email,
         ..users::DeleteOptions::default()
     };
     users::delete_on(
@@ -2593,6 +2615,276 @@ mod tests {
         assert_eq!(maybe.as_u16(), 400, "a non-boolean value deletes nothing");
         assert_eq!(off.as_u16(), 204, "false is the unchanged behaviour");
         assert_eq!(unshared.as_u16(), 204, "no shared team: deleted as before");
+    }
+
+    /// Makes `name` an admin with the address `email`, as root.
+    async fn admin_with_email(test: &TestApp, root: &str, name: &str, email: &str) {
+        user(test, root, name).await;
+        for (uri, body) in [
+            (
+                format!("/api/v1/users/{name}/admin"),
+                json!({"admin": true}),
+            ),
+            (
+                format!("/api/v1/users/{name}/email"),
+                json!({"email": email}),
+            ),
+        ] {
+            let (status, answer) = send(test, "PUT", &uri, Some(root), Some(body)).await;
+            assert_eq!(status.as_u16(), 200, "{uri}: {answer}");
+        }
+    }
+
+    #[tokio::test]
+    async fn creating_a_user_with_an_email_sets_it_and_a_taken_address_creates_nothing() {
+        let test = app().await;
+        let root = every_catalog_admin(&test).await;
+        let admin = Some(root.as_str());
+        admin_with_email(&test, &root, "boss", "boss@example.com").await;
+        user(&test, &root, "plain").await;
+        send(
+            &test,
+            "PUT",
+            "/api/v1/users/plain/email",
+            admin,
+            Some(json!({"email": "plain@example.com"})),
+        )
+        .await;
+        let create =
+            |name: &str, email: serde_json::Value| Some(json!({"name": name, "email": email}));
+
+        let (free, made) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("fresh", json!("Fresh@Example.com")),
+        )
+        .await;
+        let (_, read_back) = send(&test, "GET", "/api/v1/users/fresh", admin, None).await;
+        let (null, _) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("nomail", json!(null)),
+        )
+        .await;
+        let (by_admin_address, admin_answer) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("one", json!("BOSS@example.com")),
+        )
+        .await;
+        let (by_plain_address, plain_answer) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("two", json!("plain@example.com")),
+        )
+        .await;
+        let (by_new_address, new_answer) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("three", json!("fresh@example.com")),
+        )
+        .await;
+        let (bad, _) = send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            admin,
+            create("four", json!("not an address")),
+        )
+        .await;
+        let (_, listed) = send(&test, "GET", "/api/v1/users", admin, None).await;
+
+        assert_eq!(free.as_u16(), 201, "{made}");
+        assert_eq!(made["email"], "Fresh@Example.com");
+        assert_eq!(read_back["user"]["email"], "Fresh@Example.com");
+        assert_eq!(null.as_u16(), 201, "a null email is no email");
+        for status in [by_admin_address, by_plain_address, by_new_address] {
+            assert_eq!(status.as_u16(), 409);
+        }
+        // The same body whoever holds the address: an admin, a user, or the
+        // user the request itself would have made.
+        assert_eq!(admin_answer, plain_answer);
+        assert_eq!(admin_answer, new_answer);
+        assert_eq!(admin_answer["error"], "Refused");
+        assert_eq!(admin_answer["message"], user_rows::EMAIL_TAKEN_REFUSAL);
+        let object = admin_answer.as_object().unwrap();
+        assert_eq!(object.len(), 2, "kind and message only: {admin_answer}");
+        let text = admin_answer.to_string();
+        for holder in ["boss", "plain", "admin"] {
+            assert!(!text.contains(holder), "{text}");
+        }
+        assert_eq!(bad.as_u16(), 422);
+        let names: Vec<&str> = listed["users"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter_map(|user| user["name"].as_str())
+            .collect();
+        for refused in ["one", "two", "three", "four"] {
+            assert!(
+                !names.contains(&refused),
+                "{refused} was created: {names:?}"
+            );
+        }
+        // The same refusal a separate set-email gives for the same address.
+        user(&test, &root, "late").await;
+        let (set, set_answer) = send(
+            &test,
+            "PUT",
+            "/api/v1/users/late/email",
+            admin,
+            Some(json!({"email": "boss@example.com"})),
+        )
+        .await;
+        assert_eq!(set.as_u16(), 409);
+        assert_eq!(
+            set_answer, admin_answer,
+            "create and set-email answer alike"
+        );
+        // Recorded as create then set-email: two entries about the user.
+        let changed = entries(test.app.accounts().executor(), "user.email_changed").await;
+        let about_fresh = changed
+            .iter()
+            .filter(|entry| entry.person.as_deref() == Some("fresh"))
+            .count();
+        assert_eq!(about_fresh, 1);
+    }
+
+    #[tokio::test]
+    async fn an_email_at_create_needs_what_a_separate_set_email_needs() {
+        let test = app().await;
+        let keys = keys(&test).await;
+        let root = every_catalog_admin(&test).await;
+        user(&test, &root, "alice").await;
+        let denied = |method: &'static str, uri: &str, body: serde_json::Value| Row {
+            method,
+            uri: uri.to_string(),
+            body: Some(body),
+            read: 403,
+            write: 403,
+            admin: 403,
+            stranger: 403,
+        };
+        let rows = [
+            denied(
+                "POST",
+                "/api/v1/users",
+                json!({"name": "bob", "email": "bob@example.com"}),
+            ),
+            denied(
+                "PUT",
+                "/api/v1/users/alice/email",
+                json!({"email": "bob@example.com"}),
+            ),
+        ];
+
+        assert_matrix_with(&test, &keys, &rows).await;
+
+        let (listed, body) = send(
+            &test,
+            "GET",
+            "/api/v1/users?email=bob@example.com",
+            Some(&root),
+            None,
+        )
+        .await;
+        assert_eq!(listed.as_u16(), 200);
+        assert!(body["users"].as_array().unwrap().is_empty(), "{body}");
+    }
+
+    #[tokio::test]
+    async fn deleting_a_user_unless_it_has_an_email_keeps_one_that_does() {
+        let test = app().await;
+        let root = every_catalog_admin(&test).await;
+        let admin = Some(root.as_str());
+        for name in ["alice", "bob", "carol", "dave"] {
+            user(&test, &root, name).await;
+        }
+        for name in ["alice", "bob"] {
+            let (status, _) = send(
+                &test,
+                "PUT",
+                &format!("/api/v1/users/{name}/email"),
+                admin,
+                Some(json!({"email": format!("{name}@example.com")})),
+            )
+            .await;
+            assert_eq!(status.as_u16(), 200);
+        }
+
+        let (kept, error) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/alice?unless_has_email=true",
+            admin,
+            None,
+        )
+        .await;
+        let (still, detail) = send(&test, "GET", "/api/v1/users/alice", admin, None).await;
+        let (typo, _) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/alice?unless_has_emaill=true",
+            admin,
+            None,
+        )
+        .await;
+        let (maybe, _) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/alice?unless_has_email=maybe",
+            admin,
+            None,
+        )
+        .await;
+        let (off, _) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/bob?unless_has_email=false",
+            admin,
+            None,
+        )
+        .await;
+        let (emailless, _) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/carol?unless_has_email=true",
+            admin,
+            None,
+        )
+        .await;
+        let (both, both_error) = send(
+            &test,
+            "DELETE",
+            "/api/v1/users/dave?unless_has_email=true&unless_shared_member=true",
+            admin,
+            None,
+        )
+        .await;
+
+        assert_eq!(kept.as_u16(), 409, "{error}");
+        assert_eq!(error["error"], "Refused");
+        assert_eq!(error["message"], user_rows::HAS_EMAIL_REFUSAL);
+        assert_eq!(error.as_object().unwrap().len(), 2, "{error}");
+        let text = error.to_string();
+        assert!(!text.contains('@') && !text.contains("bob"), "{text}");
+        assert_eq!(still.as_u16(), 200, "the user stays");
+        assert_eq!(detail["user"]["email"], "alice@example.com");
+        assert_eq!(typo.as_u16(), 400, "a misspelled parameter deletes nothing");
+        assert_eq!(maybe.as_u16(), 400, "a non-boolean value deletes nothing");
+        assert_eq!(off.as_u16(), 204, "false is the unchanged behaviour");
+        assert_eq!(emailless.as_u16(), 204, "no email: deleted");
+        assert_eq!(both.as_u16(), 204, "both preconditions hold: {both_error}");
     }
 
     #[tokio::test]

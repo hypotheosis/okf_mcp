@@ -39,6 +39,7 @@ fn user_routes() -> Vec<Route> {
             Some(json!({"display_name": "Alice"})),
         ),
         ("DELETE", "/api/v1/users/{}", None),
+        ("DELETE", "/api/v1/users/{}?unless_has_email=true", None),
         (
             "PUT",
             "/api/v1/users/{}/admin",

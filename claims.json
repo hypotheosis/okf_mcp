@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2447,
+  "next_claim_seq": 2462,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "8df051366d1d016415229e04fc1baa8646f094d387ffc4bfcd649560366565a2"
+    "mac": "f6b35faa710f39c32cba812d43513e0d123e874dce85bb3f5bd0d2ad53c8a665"
   },
-  "next_evidence_seq": 4276,
+  "next_evidence_seq": 4301,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "da8a3e0ed2f0f836c205bf0e6318d164afe6ee8eee300458cdaebd3f761971f2"
+    "mac": "eb73096c94ceac43c49abd7f21963521e8b54cf045bdad921b35470eab73aa77"
   },
   "claims": [
     {
@@ -215381,6 +215381,1294 @@
       "seal": {
         "by": "server",
         "mac": "c80f8f6dbf2f8141eb90a12ebeab06feaf3039815908e42f32ab0dbbc2521ee2"
+      }
+    },
+    {
+      "id": "CLM-2447",
+      "statement": "Issue #980 is implemented: POST /api/v1/users takes an email atomically and DELETE /api/v1/users/{name} has an atomic unless_has_email precondition.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/980",
+      "derived_from": [],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4292",
+          "kind": "analysis",
+          "locator": "children of CLM-2447",
+          "summary": "All children (create atomicity, uniform 409, concurrency, shared validation, delete precondition, delete atomicity, query strictness, permissions, audit, CLI, docs, tests, PR-body statement) are supported, covering issue requirements 1-6.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T05:28:21.881973035Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a138f67ebcfa5502570a0b60d6305cc1820fd7b3db545600239ef600d1844d4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4292"
+          ],
+          "recorded_at": "2026-11-28T05:28:25.317805842Z",
+          "seal": {
+            "by": "server",
+            "mac": "6c5d0fad44f75688e3816194d9b7de1f7983d85935ab01125f56efccb5c89245"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:25.317805842Z",
+      "seal": {
+        "by": "server",
+        "mac": "2805d4b8471c9c0a7baea13c18c3c34abf1dba82aa4982c0d1a31834a273552b"
+      }
+    },
+    {
+      "id": "CLM-2448",
+      "statement": "create_with_email writes the user, personal team and email in one transaction, so a taken address (any letter case, including one committed concurrently) returns 409 Refused and leaves no user, team or audit rows.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 1; PR body: 'so a taken address creates nothing'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4276",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:237-313",
+          "summary": "create_with_email runs check_email, begins one tx, inserts user and team, audit rows, then store_email, then commit; any early return drops the tx (rollback). store_email maps a unique violation to Refused(EMAIL_TAKEN_REFUSAL). citext column makes it case-insensitive; a concurrent committer makes the UPDATE block on the unique index then fail.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 237,
+                "end": 313
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:54.836961523Z",
+          "seal": {
+            "by": "server",
+            "mac": "2dfe3b1557ff5f5df85cfb9557906fdda051b322ff6523c7657e4118ff0ed18a"
+          }
+        },
+        {
+          "id": "EVD-4277",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:166-200 and 224-262",
+          "summary": "Tests: taken address in two letter cases gives EMAIL_TAKEN_REFUSAL and rows_of(newcomer)==(0,0,0); a create that waits on an uncommitted holder (pg lock waiter) loses cleanly with (0,0,0). Read assertions; not rerun (gates forbidden).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 166,
+                "end": 262
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:54.983033612Z",
+          "seal": {
+            "by": "server",
+            "mac": "c174a1b0c6c34a2578d449273fd8742870415da1a62b032b092b281b29e12fd2"
+          }
+        },
+        {
+          "id": "EVD-4295",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:237-320 at 8364feac",
+          "summary": "Still one tx: user, team, member rows, then write_email (unique violation -> Refused(EMAIL_TAKEN_REFUSAL)), invalidate, audit, commit; early return drops tx. Reordering moved the address write earlier, so a refusal now rolls back even less. Tests at 166-262 and 304-333 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 237,
+                "end": 320
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.796210759Z",
+          "seal": {
+            "by": "server",
+            "mac": "6cbe4f44cfcd016dca6622d92c9c0b55159f4b3804c84d0ac97de0d6cabbfe26"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single-tx implementation read plus tests whose assertions I read (not rerun).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4276",
+            "EVD-4277"
+          ],
+          "recorded_at": "2026-11-28T05:28:16.860067613Z",
+          "seal": {
+            "by": "server",
+            "mac": "c905745c10e47759cc0b0d032b641ed486f07d160a3c1753235ebe7ae0cb68a4"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: still one tx.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4295"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.771179144Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e9c4528dfa2dfe9edba7dc382bf5c35253a4ce0ee4959df483395110c95f1e7"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:23.771179144Z",
+      "seal": {
+        "by": "server",
+        "mac": "13e5d7a4aeea525ebb5984163034e9f5e88efc1ec3ba078b321bc04585d4178f"
+      }
+    },
+    {
+      "id": "CLM-2449",
+      "statement": "The 409 for a taken address on POST /api/v1/users has the same status, body {error,message} and message ('Another user has this email') whoever holds the address, an admin the caller cannot see included, and names no account; no check ordering lets a caller tell holders apart.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 1; PR body: 'The 409 body is {error, message} only, identical for any holder (admin included)'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/http/api/people.rs",
+        "src/store/users.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4278",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:237-300,749-775; src/error.rs:500-515; src/http/mod.rs:153-156",
+          "summary": "The only email-conflict source is store_email's UPDATE, which never reads who holds it: a unique violation maps to a fixed string. Status (Refused->409) and body {error,message} derive only from the variant, and the message string is a constant; no per-holder field is added (error.rs adds extras only for other variants). The new user's name-taken check precedes the email step and is independent of the address; malformed address is 422 before any DB access. No header is set per error holder.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 737,
+                "end": 790
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.134533238Z",
+          "seal": {
+            "by": "server",
+            "mac": "28d1552fca6a867eda7508972df7aeebbd0c8db6c87d28de8c9b3b7615760a70"
+          }
+        },
+        {
+          "id": "EVD-4279",
+          "kind": "inspection",
+          "locator": "src/http/api/people.rs creating_a_user_with_an_email_sets_it_and_a_taken_address_creates_nothing; src/http/api/provisioner_tests.rs a_provisioner_creates_with_an_email_and_cleans_up_only_an_email_less_user",
+          "summary": "REST tests assert admin-held, plain-held and would-be-self-held addresses give 409 with equal bodies, body has exactly 2 keys, text contains none of the holder names, and equals PUT email 409 body; the provisioner version repeats it for an admin-held address the provisioner cannot otherwise see. Headers are not compared (only body/status), but none is set by the error path. Residual: timing side channel not addressed (not required).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/provisioner_tests.rs",
+              "lines": {
+                "start": 1004,
+                "end": 1146
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.283082365Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f55c59473b6e47eefa414f97bb5e017bc20e207141bd39ab849ec48c11dcc58"
+          }
+        },
+        {
+          "id": "EVD-4296",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:749-800 at 8364feac",
+          "summary": "write_email still maps any unique violation to the constant EMAIL_TAKEN_REFUSAL without reading the holder; no new refusal path or field. Status/body derivation (error.rs, http/mod.rs) and the REST/provisioner tests are untouched by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 749,
+                "end": 800
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.940701311Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d34af63294f435e378b13fd84c504509dc11400149b4691a219a77e06c88939"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The refusal is a constant string from a unique violation that never inspects the holder; status/body derive from the variant only; tests compare admin-held, user-held and self bodies. Caveat: tests compare bodies and status, not headers, and timing is unexamined.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4278",
+            "EVD-4279"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.054120704Z",
+          "seal": {
+            "by": "server",
+            "mac": "83461b0b15f55f53e5b70edad1f368a2a4e35c165f89f56708a9c12ecc02fe9c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: refusal path unchanged and holder-blind.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4296"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.925946483Z",
+          "seal": {
+            "by": "server",
+            "mac": "790c7c6c5490ef16cd38c3c25700113b3cf2b339e359fd97126babc4e72b2ad4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:23.925946483Z",
+      "seal": {
+        "by": "server",
+        "mac": "3098979a874403847dfe293815aa0036765d7c4344546f9a797cc3c13725604f"
+      }
+    },
+    {
+      "id": "CLM-2450",
+      "statement": "Two concurrent creates of one address: exactly one succeeds, the other gets the 409 refusal, and the loser leaves no rows.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 1",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4280",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:304-333",
+          "summary": "Two spawned create_with_email calls of same@example.com: match requires exactly one Ok, other refusal == EMAIL_TAKEN_REFUSAL, loser rows (0,0,0), winner (1,1,2). Mechanism: unique index on citext email serialises the second UPDATE.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 304,
+                "end": 333
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.426297276Z",
+          "seal": {
+            "by": "server",
+            "mac": "5815de7fd6a80630e3afe607e351a0a5e3baad75174ad2cf2df08b340c6e538a"
+          }
+        },
+        {
+          "id": "EVD-4297",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:304-333 and users.rs:287-292 at 8364feac",
+          "summary": "Test unchanged. Two creates: each now writes the address before the singleton, so the loser blocks on the winner's index entry and gets the unique violation (409) with no singleton held, and the winner commits; no new deadlock edge (the singleton is taken after the address by both).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 304,
+                "end": 333
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.100417134Z",
+          "seal": {
+            "by": "server",
+            "mac": "05f8723bcd12a3db022b838ecb337b70f43926bc292ae86250ad58e42c8ef8a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Concurrent-create test asserts one winner, 409 loser, no leftovers.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4280"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.244116573Z",
+          "seal": {
+            "by": "server",
+            "mac": "706251ffc85ef672e16e9c078046fe75d4817984cd1e34b8bd256118cd1684d0"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: test unchanged, order introduces no new cycle.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4297"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.065655841Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5eaa2323022d818a97c86b23e1d132ca4ef89256f84d848f9d4f7cd09185547"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:24.065655841Z",
+      "seal": {
+        "by": "server",
+        "mac": "8b69e7b56d624bf1821c5d7d969c1e49e1ab34e4fa231be2ae04aa2cd7ba6a7d"
+      }
+    },
+    {
+      "id": "CLM-2451",
+      "statement": "The create's email is validated and written exactly as set_email does: both call check_email, and both write through the one store_email statement; a malformed address is 422 and creates nothing.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #980 req 1; PR body: 'store_email, the one statement set_email now also uses'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4281",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:236-300 (create_with_email), 749-798 (store_email), 838-845 (set_email)",
+          "summary": "create_with_email calls check_email before the tx; set_email does likewise; both end in store_email (set_email's former inline UPDATE/DELETE tokens/invalidate/audit was moved verbatim into it). Malformed -> LimitExceeded -> 422, tested by a_malformed_address_creates_nothing and REST 'four'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 749,
+                "end": 798
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.578578364Z",
+          "seal": {
+            "by": "server",
+            "mac": "02e132f081541dd6f2586f7162ada7dccad78cf2658f39d19a5c024969934b66"
+          }
+        },
+        {
+          "id": "EVD-4298",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:237-262,770-800,847-877 at 8364feac",
+          "summary": "store_email is split: both create_with_email and set_email call check_email first and write via the single write_email statement (same SQL, citext compare, same refusal); the follow-up work (email_tokens delete, invalidate) stays in set_email, and create's invalidate already covers the new user. The claim that both use 'the one store_email statement' now holds under the name write_email.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 770,
+                "end": 800
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.253268518Z",
+          "seal": {
+            "by": "server",
+            "mac": "732ab9466801496ecfda55cfa2c0fcd84f7c23026101921e67d2ce1306bd6eef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Shared check_email and store_email confirmed in code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4281"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.425606627Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a998cb370239abb5ccb35686a3c05cb58de6dfd7edbe85765225ba1fc7bf4a2"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: both paths share check_email and write_email (renamed from store_email).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4298"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.212387518Z",
+          "seal": {
+            "by": "server",
+            "mac": "b977d00c4281bb67d1cb7803fa75d607134fc1fd7999b2c85eadf3d1bb1bd5c1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:24.212387518Z",
+      "seal": {
+        "by": "server",
+        "mac": "03fdda35e28f18b3424ca272b85bb2c450c62bfd5e40493ee7f24343c5a4b206"
+      }
+    },
+    {
+      "id": "CLM-2452",
+      "statement": "DELETE /api/v1/users/{name}?unless_has_email=true deletes nothing and answers 409 Refused 'the user has an email address' (naming no address or other user) while the user has an email, and deletes a user with no email.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 2; PR body: 'refuses with HAS_EMAIL_REFUSAL'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4282",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:1546-1563; src/http/api/people.rs deleting_a_user_unless_it_has_an_email_keeps_one_that_does",
+          "summary": "delete_in reads email IS NOT NULL after the user row lock and returns Refused(HAS_EMAIL_REFUSAL) (constant, names nothing); REST test asserts 409, body exactly {error:Refused,message:HAS_EMAIL_REFUSAL}, no '@' or other user name, user still present with email, email-less user 204, false -> 204.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 1546,
+                "end": 1563
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.717187532Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e3328ffbaf3717803d66ce57e1f252e0e34cd738e2c2245143b69ae47bacdc5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and REST test agree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4282"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.567440054Z",
+          "seal": {
+            "by": "server",
+            "mac": "f8feb76bda8be5f6057af8063cf20ae10dba6703a5dfa7811cadd8b68e98d1e4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:17.567440054Z",
+      "seal": {
+        "by": "server",
+        "mac": "c54a5e9a78a5d698732fc425bdccc3e5cdf71c99e480748418700670a7b076c6"
+      }
+    },
+    {
+      "id": "CLM-2453",
+      "statement": "The has-email check and the delete are atomic: the check runs under the user's FOR UPDATE row lock that set_email also takes, and no other code path writes users.email, so an email set concurrently is never lost with the account.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 2; PR body: 'read after the user row is locked FOR UPDATE (which set_email also takes)'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4283",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:1470-1563; set_email 838-845; git grep 'SET email' src",
+          "summary": "delete_in locks the user FOR UPDATE via audit::lock_people(target RowLock::Update) before reading email in the same tx (READ COMMITTED: each statement sees latest committed), and set_email takes lock_target RowLock::Update on the same row before writing, so a set is either committed before the read (seen) or blocks until delete commits (user gone). The only non-test statement writing users.email is store_email (grep: users.rs:760); other hits are tests or reads. No window between check and delete: same tx, lock held until commit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 1470,
+                "end": 1563
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:55.878566556Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e61329bfa1db6b8e5deba435f2aa4b411f9ff36d044d4189de3a3eebcb0e1b0"
+          }
+        },
+        {
+          "id": "EVD-4284",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:376-494",
+          "summary": "Three race tests using pg lock waiters: set in flight then conditional delete keeps user and address; set waiting on delete finds user gone; racing set vs delete never leaves a deleted user that had an email. Read, not rerun.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 376,
+                "end": 494
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.028693198Z",
+          "seal": {
+            "by": "server",
+            "mac": "a0220c1becec59fbcd33ac42699ab8fd20452aad4b751776afcae1793dc86db2"
+          }
+        },
+        {
+          "id": "EVD-4299",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:847-877 (set_email), 1488-1600 (delete_in) at 8364feac",
+          "summary": "delete_in's has-email check (1584) is unchanged and still under the user FOR UPDATE lock; set_email still takes lock_target RowLock::Update before write_email, and write_email at 779 is still the only non-test writer of users.email. The diff does not touch delete_in. Race tests 376-494 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 1575,
+                "end": 1600
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.407191955Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e236dd1b465fcf8ebbd1c0c32a16dc21afb6d332fad0a536097131a37b6685a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Row lock shared with set_email, same tx, sole email writer, plus lock-wait race tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4283",
+            "EVD-4284"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.753510361Z",
+          "seal": {
+            "by": "server",
+            "mac": "114e3de8753f4a2ee72dd4d26cb1b9e3936ce0f4cd975d7020d29a0bb620193c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: delete path untouched, set_email still locks the row before writing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4299"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.359603807Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2ac223ad0cbd1fe1bd508c6b65c7d95455595d3688477a73fee3695633f73ef"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:24.359603807Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f1dfea750f697f0def185952c0606bf7abd518f7e3c125bb50c62343b290576"
+      }
+    },
+    {
+      "id": "CLM-2454",
+      "statement": "The unless_has_email query is parsed as strictly as unless_shared_member: an unknown parameter is 400 and a non-boolean value is 400; when both preconditions apply the shared-team refusal comes first.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #980 req 2; PR body: 'deny_unknown_fields keeps typos and non-boolean values as 400'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4285",
+          "kind": "inspection",
+          "locator": "src/http/api/people.rs:143-152 and test deleting_a_user_unless_it_has_an_email_keeps_one_that_does",
+          "summary": "DeleteUserQuery has deny_unknown_fields and bool fields like unless_shared_member; test asserts ?unless_has_emaill=true 400, =maybe 400, dave with both flags 204 (and shared-member check precedes email check in delete_in at users.rs:1523-1545). Order test with a user failing both (shared member AND email) is absent: only the code order shows shared-first.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/people.rs",
+              "lines": {
+                "start": 143,
+                "end": 152
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.177859037Z",
+          "seal": {
+            "by": "server",
+            "mac": "82fc28fd642c99cb5f6aa606690278335cc24935ec558b23ef1bbbb5016d678e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "deny_unknown_fields and bool types give 400s (tested); shared-first order shown in code. No test combines both failing preconditions (minor gap).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4285"
+          ],
+          "recorded_at": "2026-11-28T05:28:17.931871966Z",
+          "seal": {
+            "by": "server",
+            "mac": "e012c74f7ccee175c07309b8014cefa9100535f0c731b600747f46327e9a3e36"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:17.931871966Z",
+      "seal": {
+        "by": "server",
+        "mac": "b4f23c11575e89a710fec02e682524c83281420cc32581df0169e5195a514c1a"
+      }
+    },
+    {
+      "id": "CLM-2455",
+      "statement": "Permissions for create and delete are unchanged (both require_manager), and setting an email at create needs exactly what set_email needs (require_manager; the new user is never an admin target).",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #980 req 3; PR body: 'Permissions unchanged (require_manager...)'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/http/api/people.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4286",
+          "kind": "inspection",
+          "locator": "src/http/api/people.rs create_user, delete_user, set_email handlers; test an_email_at_create_needs_what_a_separate_set_email_needs",
+          "summary": "create_user, delete_user and set_email all start with require_manager(&principal); the diff does not change any of those lines. set_email's refuse_admin_target concerns existing admin targets, and the freshly created user is never admin. Matrix test asserts read/write/admin/stranger keys 403 for both POST with email and PUT email, and the refused create wrote nothing.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/people.rs",
+              "lines": {
+                "start": 606,
+                "end": 636
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.332319951Z",
+          "seal": {
+            "by": "server",
+            "mac": "df2648c796d1792236baff247c83a8cbd17c870c3e6091feaa570f069fa0b42f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All handlers use require_manager, unchanged; matrix test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4286"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.079771931Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7dd666902e7c72f9be1a5de1d75c78795aa661b07371a76da28603ad3b0f332"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:18.079771931Z",
+      "seal": {
+        "by": "server",
+        "mac": "45257483827046a8cb49049f5f01cf9fde5891d28f02361a1715452ebec1402d"
+      }
+    },
+    {
+      "id": "CLM-2456",
+      "statement": "A create with an email records user.created then user.email_changed (cleared:false, no address in details), as create plus set_email does; a create without an email records no email entry.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #980 req 4; PR body: Audit bullet",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4287",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:288-299; src/store/users_email_atomic_tests.rs:80-145",
+          "summary": "user.created audit::record occurs at users.rs:288 before store_email at ~299, which records user.email_changed {cleared:false}. Test asserts exactly one of each for create_with_email and for create+set_email, details {} and {\"cleared\":false}, no '@'; a no-email create records none. Test checks counts and details but not their relative order; order follows from code sequence within one tx.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 80,
+                "end": 145
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.484646749Z",
+          "seal": {
+            "by": "server",
+            "mac": "743bbcfb2b226330bedaaf754e9fef471ffaa7ba32fa7247315efbea8985b14f"
+          }
+        },
+        {
+          "id": "EVD-4300",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:293-315 at 8364feac",
+          "summary": "Order after the fix: write_email, invalidate, audit::record(user.created), team_ref, then record_email_change(cleared=false) only if write_email returned changed; so user.created is still recorded before user.email_changed, details {\"cleared\":false}. A no-email create skips it. set_email records email_changed with cleared=email.is_none() as before. Tests at 80-145 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 293,
+                "end": 315
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.564195631Z",
+          "seal": {
+            "by": "server",
+            "mac": "db666b3bef6f320a39438a1f96a8b552c25e14fa337b59ee564848cadd79304b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code order and test counts/details match.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4287"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.263994683Z",
+          "seal": {
+            "by": "server",
+            "mac": "fb3cd7e81d0bab688686913fa2b80c7bbe918709b9ddb4a85fb56134df7ec0e9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: audit order preserved after the reorder.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4300"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.504117068Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0cbd79c3e9f03f2a12d286e379af8ef9efc6ba03c1b71055a738df091ddd2cb"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:44:24.504117068Z",
+      "seal": {
+        "by": "server",
+        "mac": "1b242533662e6e5565c130b04d2591df2ca5ab240ae0fc4ed806760d61bafc1a"
+      }
+    },
+    {
+      "id": "CLM-2457",
+      "statement": "The CLI has `user create NAME --email ADDRESS`, which creates through create_with_email so a taken address fails and creates nothing.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #980 req 5; PR body: 'CLI user create --email ADDRESS'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/cli.rs",
+        "src/cli/people.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4288",
+          "kind": "inspection",
+          "locator": "src/cli.rs:335-342; src/cli/people.rs:60-80,709-732",
+          "summary": "UserCommand::Create has --email Option<String>; handler calls create_with_email. Test user_create_with_an_email_and_a_taken_one_creating_nothing asserts alice created with email, bob with ALICE@example.com errors, and listing has no bob.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cli/people.rs",
+              "lines": {
+                "start": 60,
+                "end": 80
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.632039413Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d29f0af268e78d4af1b0f6817865c4e45f6284f0494d88806a3ee888f8021d3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Flag, handler and test confirmed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4288"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.423516872Z",
+          "seal": {
+            "by": "server",
+            "mac": "d43ee084dc543fe7d138e5319bc56294ff9bf99a76034825a1a9e96b9a5e1eba"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:18.423516872Z",
+      "seal": {
+        "by": "server",
+        "mac": "0c83796b3ba05353de2627a2c2051d104677f67cbc4de5fa5f10c67337f27dbd"
+      }
+    },
+    {
+      "id": "CLM-2458",
+      "statement": "docs/operations.md documents create --email, the POST /users email field and its 409, the unless_has_email delete precondition, and the audit rows, and a dated changelog/ entry exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #980 req 5; PR body: 'docs/operations.md and a changelog/ entry'",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/20261128T052004Z-issue-980-user-create-email.md"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4289",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- docs/operations.md changelog/",
+          "summary": "operations.md: CLI table row with --email, audit rows for user.created/user.email_changed, POST /users row (email field, same 409 whoever holds, 422), DELETE row with unless_has_email, message, lock, precedence; changelog/20261128T052004Z-issue-980-user-create-email.md added.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T052004Z-issue-980-user-create-email.md",
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.783318688Z",
+          "seal": {
+            "by": "server",
+            "mac": "b5aac5040b4add50b9f87c0a1783fbf20e219c4067ea606dabefd086211b1ed1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs and changelog diff read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4289"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.571036396Z",
+          "seal": {
+            "by": "server",
+            "mac": "cde0260801ad7184c744382b8a6311426a87bda2724b31526669364cfea547df"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:18.571036396Z",
+      "seal": {
+        "by": "server",
+        "mac": "e803cf02be9465848e2550db7ab098c21c77f2fb53bb3014bff66747b5ef3f25"
+      }
+    },
+    {
+      "id": "CLM-2459",
+      "statement": "Tests cover: free address succeeds; taken (admin-held included) gives the distinct 409, creates nothing and names no account; delete with the precondition deletes an email-less user and keeps one with an email with the distinct 409.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #980 req 6",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/http/api/people.rs",
+        "src/http/api/provisioner_tests.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4290",
+          "kind": "inspection",
+          "locator": "src/http/api/people.rs tests (creating_a_user_with_an_email..., deleting_a_user_unless_it_has_an_email...), src/http/api/provisioner_tests.rs:1004-1146",
+          "summary": "Free address 201 and read-back; admin-held and plain-held 409 with equal bodies, absent users; no account name in text; delete precondition keeps user with email (409 distinct message) and deletes email-less (204). All three requested test groups exist.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/provisioner_tests.rs",
+              "lines": {
+                "start": 1004,
+                "end": 1146
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:56.934240802Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7fc135d7f5e05b4ae88378e659a12ffd6922980efdca8a5e00b0840ff002fd4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests exist and assertions match the requirement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4290"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.724159687Z",
+          "seal": {
+            "by": "server",
+            "mac": "89f1d94a6082d0ed3708a75c22563785ce7eabfed07e600d01e162a446dc0921"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:18.724159687Z",
+      "seal": {
+        "by": "server",
+        "mac": "e07674cc2964b51914860df27606a152d5cb35f279c1383d82f7518ac8df75a4"
+      }
+    },
+    {
+      "id": "CLM-2460",
+      "statement": "PR body: 'the CLI delete mirrors no precondition, so it gets no flag. No console create-user form with a separate email step exists, so the console is untouched.'",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes section",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/cli.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4291",
+          "kind": "inspection",
+          "locator": "src/cli.rs:365-368; git grep users::create src/http/console_session.rs",
+          "summary": "UserCommand::Delete has only `name`, unchanged. The only users::create use in console_session.rs is at line 1471, in test code; the console has no create-user path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cli.rs",
+              "lines": {
+                "start": 365,
+                "end": 368
+              },
+              "commit": "dcb4b8da57a54e3b8b1b5ef10cedb4c2f3885c56"
+            }
+          },
+          "recorded_at": "2026-11-28T05:27:57.086585660Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f43af5fadae879815142479cd2eed593cdd0a874343d231d58323ca5472e160"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "CLI delete unchanged; console has no create path.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4291"
+          ],
+          "recorded_at": "2026-11-28T05:28:18.877632288Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e330452d7e46e203643f49a6e7431c4fc7f3dfa09b7c82148a27dc2fdfda78f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:27:09.075852497Z",
+      "updated_at": "2026-11-28T05:28:18.877632288Z",
+      "seal": {
+        "by": "server",
+        "mac": "c91a550343ccded904578773e88b4780642aee137f43e78ff44d2c6b99dd2658"
+      }
+    },
+    {
+      "id": "CLM-2461",
+      "statement": "A create-with-email racing a real set_email for the same address never deadlocks: both finish, one succeeds, the other gets the 409; every path that takes both the unique-email entry and the server_state singleton takes the entry first.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Re-audit request for PR 980 after review fix 8364feac (create_with_email writes the address before its first invalidate)",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4293",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:237-320 (create_with_email), 847-877 (set_email); git grep invalidate src/store/users.rs; git grep 'UPDATE users|INSERT INTO users' src",
+          "summary": "create_with_email: write_email (users.rs:~287) precedes its first invalidate (~293); set_email: write_email then invalidate. Every invalidate caller in users.rs (create 293, set_email 872, display name ~931, set_admin ~1024, delete_in ~1700) either writes the email entry first or writes no email at all; delete_in writes no unique-entry. Only non-test writer of users.email is write_email (users.rs:779); only non-test INSERT INTO users is users.rs:253 (create_with_email, email NULL at insert; src/db.rs hits are test fixtures in cfg(test)); passwords.rs UPDATEs set no email. Caveat: a delete of a holder A with an uncommitted delete makes a set_email on another user wait on A's tx before taking the singleton; delete_in's own singleton take occurs after, but the setter holds no singleton then, so no cycle from the email entry.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 277,
+                "end": 315
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.471684549Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc127a3c2f83701cdb792653fe828defa4cfeb8754ec494ae45a128bb1c8ca3e"
+          }
+        },
+        {
+          "id": "EVD-4294",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:499-589 a_create_racing_the_real_set_email_for_one_address_never_deadlocks",
+          "summary": "Test holds the server_state singleton, spawns the create then real set_email, waits for 2 lock waiters (any lock kind), releases, and requires exactly (Ok, Refused(EMAIL_TAKEN_REFUSAL)) or the reverse, plus exactly one holder row. In the old order both writers would reach 2 waiters and deadlock, so it discriminates. Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 495,
+                "end": 589
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.628893785Z",
+          "seal": {
+            "by": "server",
+            "mac": "b32007aae31870d414a34bab3ba526f949e68f0379c319e095e33695b425f26a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lock order enumerated across all writers/invalidate callers; discriminating race test read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4293",
+            "EVD-4294"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.622569971Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d171702b71eb09a35403a946a541e4977ca55a7582e5879a8e1f0fde3539028"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:43:48.903881119Z",
+      "updated_at": "2026-11-28T05:44:23.622569971Z",
+      "seal": {
+        "by": "server",
+        "mac": "78c9698f8089ad94108e479ca4e65fa2346bfb917fab1e04047f05b474c394f5"
       }
     }
   ]

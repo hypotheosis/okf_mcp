@@ -6,6 +6,30 @@
 # Every external command the tools run goes through agentic_run_bounded (output
 # streams: gates) or agentic_run_captured (output captured: gh and git), so a
 # stalled `gh`, `git` or test can't block past its budget or outlive it.
+#
+# Signals (#1193). agentic_run_bounded, agentic_run_captured (and agentic_gh /
+# agentic_git) and watchdog.sh's bounded_capture each own INT and TERM from the
+# moment their traps go in until their one exit, and hold this invariant:
+#   - While they own the signals, a signal is only recorded (the first one
+#     wins); the trap tears nothing down and returns. So no step can find its
+#     files removed or the caller's traps back in the middle of its work.
+#   - After a signal is recorded, nothing new is created, launched or written:
+#     every step that does one of those checks the record first, through one
+#     test (agentic_cap_live, or $agentic_bounded_signal for the bounded run).
+#     A signal that lands after that check and before its step (one statement)
+#     is seen by the next check, and the step is undone at the exit: a temp
+#     file is registered by the statement that creates it, and a launched
+#     group is stopped by the poll right after its launch.
+#   - The exit runs exactly once on every path: it removes the temp files, puts
+#     the caller's INT and TERM traps back (one statement per signal, so there
+#     is never a moment with neither trap), and re-raises a recorded signal
+#     exactly once. If the caller's handler returns, the helper returns 130
+#     (INT) or 143 (TERM), whatever its command did.
+#   - The long waits stop promptly on a recorded signal: the trap interrupts
+#     agentic_run_bounded's `wait`, and the captured calls' poll checks the
+#     record every 0.1 s; either then stops the command's group.
+# A signal before a helper's traps are in, or after its exit put the caller's
+# back, is the caller's own.
 
 # How long agentic_stop_group waits between TERM and KILL, in seconds.
 agentic_kill_after=${agentic_kill_after:-5}
@@ -36,18 +60,46 @@ agentic_stop_group() {
     done
 }
 
-# agentic_traps_restore <saved>: puts the caller's INT and TERM traps back. <saved>
-# is the output of `trap -p INT TERM` taken earlier (empty when there were none).
-agentic_traps_restore() {
-    trap - INT TERM
-    [ -z "$1" ] || eval "$1"
+# agentic_signals_begin <prefix>: takes INT and TERM over for a helper (see
+# "Signals" above). Saves the caller's traps, as `trap -p` prints them, in
+# <prefix>_saved_int and <prefix>_saved_term, sets <prefix>_signal to 0, and
+# installs traps that only record 130 (INT) or 143 (TERM) there, keeping the
+# first. Each helper has its own <prefix>, so one can run inside another
+# (remove-worktree.sh runs agentic_run_bounded inside a capture): the inner
+# exit re-raises into the outer's recording trap.
+agentic_signals_begin() {
+    printf -v "${1}_saved_int" '%s' "$(trap -p INT)"
+    printf -v "${1}_saved_term" '%s' "$(trap -p TERM)"
+    printf -v "${1}_signal" '%s' 0
+    # shellcheck disable=SC2064 # the prefix is expanded now, the record at the signal
+    trap "[ \"\$${1}_signal\" != 0 ] || ${1}_signal=130" INT
+    # shellcheck disable=SC2064
+    trap "[ \"\$${1}_signal\" != 0 ] || ${1}_signal=143" TERM
 }
 
-# The caller's INT and TERM traps while agentic_run_bounded runs, and the status
-# it aborts with (130 INT, 143 TERM) when a signal came and the caller's own
-# handler returned; 0 otherwise.
-agentic_bounded_saved_traps=""
-agentic_bounded_signalled=0
+# agentic_signals_end <prefix> <status>: gives INT and TERM back: restores the
+# traps agentic_signals_begin saved, one statement per signal, then re-raises a
+# recorded signal at this shell, once. The record is read after the restore, so
+# a signal that arrived during it is not lost. Returns 130 or 143 when a signal
+# was recorded (the caller's handler returned), <status> otherwise.
+agentic_signals_end() {
+    local saved_int=${1}_saved_int saved_term=${1}_saved_term signal=${1}_signal
+    # ${!name} is bash's indirect expansion: the value of the variable named
+    # by $name.
+    if [ -n "${!saved_int}" ]; then eval "${!saved_int}"; else trap - INT; fi
+    if [ -n "${!saved_term}" ]; then eval "${!saved_term}"; else trap - TERM; fi
+    case "${!signal}" in
+        130) kill -INT "$BASHPID"; return 130 ;;
+        143) kill -TERM "$BASHPID"; return 143 ;;
+    esac
+    return "$2"
+}
+
+# The bounded run's signal state (agentic_signals_begin agentic_bounded):
+# the caller's traps, and 0 or the recorded 130 / 143.
+# shellcheck disable=SC2034 # set and read through the agentic_bounded prefix
+agentic_bounded_saved_int="" agentic_bounded_saved_term=""
+agentic_bounded_signal=0
 
 # agentic_run_bounded <seconds> <cmd...>: runs cmd in its own session and
 # process group with at most <seconds> to finish. When time runs out the group
@@ -57,24 +109,23 @@ agentic_bounded_signalled=0
 # uninterruptible kernel wait) is ABANDONED, never waited for, so it can't
 # block the caller; a warning on stderr says so (naming the command, never its
 # output). A leader that survives KILL after a timeout is disowned. The status
-# is unchanged by an abandoned leftover. An INT or TERM meanwhile stops the group
-# and then kills this shell with the same signal.
+# is unchanged by an abandoned leftover. An INT or TERM meanwhile stops the
+# group, then reaches the caller's trap (or kills this shell): see "Signals"
+# above; cmd is not launched when the signal came first.
 # Returns cmd's status, or 124 when it ran out of time (agentic_timed_out=1). A
 # signal whose caller handler returns makes it return 130 (INT) or 143 (TERM).
 agentic_run_bounded() {
+    agentic_signals_begin agentic_bounded
     agentic_run_bounded_steps "$@"
-    local status=$?
-    # The one way out (#1193): a signal recorded at ANY step, including the
-    # stops after the wait, wins over the command's own status.
-    [ "$agentic_bounded_signalled" = 0 ] || status=$agentic_bounded_signalled
-    return "$status"
+    agentic_signals_end agentic_bounded $?
 }
 
-# agentic_run_bounded_steps: the body of agentic_run_bounded. It may return
-# early; agentic_run_bounded alone decides the status the caller sees.
+# agentic_run_bounded_steps: the body of agentic_run_bounded, which alone
+# decides the status the caller sees.
 agentic_run_bounded_steps() {
-    local pgid timer finished="" status=0
+    local pgid timer finished="" status=0 what="timed out"
     agentic_timed_out=0
+    [ "$agentic_bounded_signal" = 0 ] || return
     # A background job of a non-interactive shell is not a group leader, so
     # setsid makes the job itself the leader of a new session: pid = group id.
     setsid "${@:2}" &
@@ -82,22 +133,15 @@ agentic_run_bounded_steps() {
     # The timer is a plain sleep beside the command; whichever ends first wins.
     sleep "$1" &
     timer=$!
-    agentic_bounded_saved_traps=$(trap -p INT TERM)
-    agentic_bounded_signalled=0
-    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"
-        agentic_bounded_signalled=130; agentic_traps_restore "$agentic_bounded_saved_traps"
-        kill -INT "$BASHPID"' INT
-    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"
-        agentic_bounded_signalled=143; agentic_traps_restore "$agentic_bounded_saved_traps"
-        kill -TERM "$BASHPID"' TERM
-    wait -n -p finished "$pgid" "$timer" || status=$?
-    # A caller's own handler that returned after the signal: the group is
-    # stopped, so abort with the signal's status instead of going on as if the
-    # command had ended (#1193).
-    [ "$agentic_bounded_signalled" = 0 ] || return "$agentic_bounded_signalled"
-    if [ "$finished" = "$pgid" ]; then
-        kill "$timer" 2>/dev/null || true
-        wait "$timer" 2>/dev/null || true
+    # A recorded signal interrupts this wait; one recorded before it (after the
+    # check above) skips it. Either way the group is stopped below.
+    if [ "$agentic_bounded_signal" = 0 ]; then
+        wait -n -p finished "$pgid" "$timer" || status=$?
+    fi
+    kill "$timer" 2>/dev/null || true
+    wait "$timer" 2>/dev/null || true
+    # `wait -p` unsets finished when a signal interrupts it.
+    if [ "${finished:-}" = "$pgid" ]; then
         # The leader is reaped, so a live group is made of leftovers.
         if kill -0 -- "-$pgid" 2>/dev/null; then
             agentic_stop_group "$pgid"
@@ -109,27 +153,31 @@ agentic_run_bounded_steps() {
                     "behind; stopped them" >&2
             fi
         fi
-    else
+        return "$status"
+    fi
+    # The timer ended, or a signal was recorded.
+    if [ "$agentic_bounded_signal" = 0 ]; then
         # shellcheck disable=SC2034 # read by the scripts that source this file
         agentic_timed_out=1
-        agentic_stop_group "$pgid"
         status=124
-        if kill -0 "$pgid" 2>/dev/null; then
-            # The leader survived KILL: stop tracking it, never wait for it
-            # (bash still reaps it whenever it dies).
-            disown "$pgid" 2>/dev/null
-            echo "agentic: warning: '$2' timed out and its process survived KILL" \
-                "(uninterruptible wait?); abandoned, not waited for" >&2
-        else
-            # Dead, and bash has reaped it, so this returns at once.
-            wait "$pgid" 2>/dev/null || true
-            if kill -0 -- "-$pgid" 2>/dev/null; then
-                echo "agentic: warning: '$2' timed out and processes of its group survived" \
-                    "KILL (uninterruptible wait?); abandoned, not waited for" >&2
-            fi
+    else
+        what="was interrupted"
+    fi
+    agentic_stop_group "$pgid"
+    if kill -0 "$pgid" 2>/dev/null; then
+        # The leader survived KILL: stop tracking it, never wait for it
+        # (bash still reaps it whenever it dies).
+        disown "$pgid" 2>/dev/null
+        echo "agentic: warning: '$2' $what and its process survived KILL" \
+            "(uninterruptible wait?); abandoned, not waited for" >&2
+    else
+        # Dead, and bash has reaped it, so this returns at once.
+        wait "$pgid" 2>/dev/null || true
+        if kill -0 -- "-$pgid" 2>/dev/null; then
+            echo "agentic: warning: '$2' $what and processes of its group survived" \
+                "KILL (uninterruptible wait?); abandoned, not waited for" >&2
         fi
     fi
-    agentic_traps_restore "$agentic_bounded_saved_traps"
     return "$status"
 }
 
@@ -156,22 +204,76 @@ agentic_call_budget() {
     printf '%s\n' "$cap"
 }
 
+# The capture in progress (agentic_cap_begin to agentic_cap_finish): its temp
+# files, removed by the exit on every path, and its signal state
+# (agentic_signals_begin agentic_cap): the caller's traps, and 0 or the
+# recorded 130 / 143.
+agentic_cap_files=()
+# shellcheck disable=SC2034 # set and read through the agentic_cap prefix
+agentic_cap_saved_int="" agentic_cap_saved_term=""
+agentic_cap_signal=0
+
+# agentic_cap_begin: starts a capture and takes INT and TERM over (see
+# "Signals" above). Everything up to agentic_cap_finish, the budget included,
+# runs under its recording traps.
+agentic_cap_begin() {
+    agentic_cap_files=()
+    agentic_cap_pid=""
+    agentic_signals_begin agentic_cap
+}
+
+# agentic_cap_live: true while no signal is recorded. The one check a capture
+# makes before each step that creates a file, launches a process or writes
+# output; a step that finds it false returns at once, to agentic_cap_finish.
+agentic_cap_live() {
+    [ "$agentic_cap_signal" = 0 ]
+}
+
+# agentic_cap_mktemp <var> <template>: creates a temp file, registers it for
+# agentic_cap_finish and stores its path in <var>. Returns 1 when a signal is
+# recorded (nothing created) or mktemp fails. The file is registered by the
+# same statement that creates it: bash runs a trap only after a whole
+# statement, so a signal that arrives while mktemp runs finds the file already
+# registered. (`f=$(mktemp ...)` and then `files+=("$f")` leaves a gap.)
+agentic_cap_mktemp() {
+    agentic_cap_live || return 1
+    agentic_cap_files+=("$(mktemp "$2")") || {
+        unset 'agentic_cap_files[-1]'
+        return 1
+    }
+    printf -v "$1" '%s' "${agentic_cap_files[-1]}"
+}
+
+# agentic_cap_finish <status>: the one way out of a capture. Removes its temp
+# files, gives INT and TERM back and re-raises a recorded signal
+# (agentic_signals_end). Returns 130 (INT) or 143 (TERM) when a signal was
+# recorded at any step, whatever <status> says, and <status> otherwise.
+agentic_cap_finish() {
+    [ "${#agentic_cap_files[@]}" -eq 0 ] || rm -f -- "${agentic_cap_files[@]}"
+    agentic_cap_files=()
+    agentic_cap_pid=""
+    agentic_signals_end agentic_cap "$1"
+}
+
 # agentic_capture_supervise <seconds> <stdin-file> <stdout-file> <stderr-file>
 # <cmd...>: the supervisor behind every captured call (agentic_run_captured,
-# watchdog.sh's bounded_capture). It runs cmd in its own session and process
-# group with stdin from <stdin-file> and its output in the two files, never a
-# pipe, and polls for at most <seconds>. However the leader ends (on its own or
-# timed out), its whole group is then stopped by agentic_stop_group, which
-# decides by the group's liveness, not the leader's. So neither the child nor a
-# descendant that holds its output open (a daemon, a process that ignores TERM)
-# can make a caller wait for end-of-file: nothing is read from a pipe. Anything
-# that survives KILL (an uninterruptible kernel wait) is abandoned, never waited
-# for. Returns cmd's status, or 124 when it ran out of time or had none to run
-# with (agentic_timed_out=1). Sets agentic_cap_pid (the group's leader while the
-# command runs, for the callers' signal traps), agentic_cap_reason ("timed out",
-# "had no time left" or "failed", plus ", child left behind" or ", processes
-# left behind") and agentic_cap_left ("stopped them" or "some survived KILL and
-# were left behind" when the command exited leaving processes behind).
+# watchdog.sh's bounded_capture), run between agentic_cap_begin and
+# agentic_cap_finish. It runs cmd in its own session and process group with
+# stdin from <stdin-file> and its output in the two files, never a pipe, and
+# polls for at most <seconds>. However the leader ends (on its own, timed out,
+# or on a recorded signal), its whole group is then stopped by
+# agentic_stop_group, which decides by the group's liveness, not the leader's.
+# So neither the child nor a descendant that holds its output open (a daemon, a
+# process that ignores TERM) can make a caller wait for end-of-file: nothing is
+# read from a pipe. Anything that survives KILL (an uninterruptible kernel
+# wait) is abandoned, never waited for. Launches nothing when a signal is
+# recorded. Returns cmd's status, 124 when it ran out of time or had none to
+# run with (agentic_timed_out=1), or 1 on a recorded signal (the capture's
+# exit returns 130 or 143). Sets agentic_cap_pid (the group's leader),
+# agentic_cap_reason ("timed out", "had no time left", "was interrupted" or
+# "failed", plus ", child left behind" or ", processes left behind") and
+# agentic_cap_left ("stopped them" or "some survived KILL and were left
+# behind" when the command exited leaving processes behind).
 agentic_cap_pid=""
 agentic_cap_reason=""
 agentic_cap_left=""
@@ -186,14 +288,21 @@ agentic_capture_supervise() {
         agentic_cap_reason="had no time left"
         return 124
     fi
+    agentic_cap_live || return 1
     # stderr before stdin, so a failed <stdin-file> redirect lands in <stderr-file>.
     setsid "$@" >"$out" 2>"$err" <"$in" &
     agentic_cap_pid=$!
+    # The record is checked first, so a signal that landed just before the
+    # launch stops the group at once.
     for ((tick = 0; tick < budget * 10; tick++)); do
+        agentic_cap_live || break
         kill -0 "$agentic_cap_pid" 2>/dev/null || break
         sleep 0.1
     done
-    if kill -0 "$agentic_cap_pid" 2>/dev/null; then
+    if ! agentic_cap_live; then
+        status=1
+        agentic_cap_reason="was interrupted"
+    elif kill -0 "$agentic_cap_pid" 2>/dev/null; then
         agentic_timed_out=1
         status=124
         agentic_cap_reason="timed out"
@@ -222,63 +331,6 @@ agentic_capture_supervise() {
     return "$status"
 }
 
-# The temp files of the capture in progress, removed on every path out.
-agentic_cap_files=()
-# The caller's INT and TERM traps, as `trap -p` printed them, put back by
-# agentic_cap_cleanup.
-agentic_cap_saved_traps=""
-# 0, or 130 (INT) / 143 (TERM) once a signal was handled: the caller's own
-# handler returned, so the capture must stop (see agentic_cap_cleanup).
-agentic_cap_status=0
-
-# agentic_cap_begin: starts a capture. Remembers the caller's INT and TERM traps
-# and installs the ones that clean up. Call it before agentic_cap_mktemp.
-agentic_cap_begin() {
-    agentic_cap_files=()
-    agentic_cap_status=0
-    agentic_cap_saved_traps=$(trap -p INT TERM)
-    trap 'agentic_cap_cleanup INT' INT
-    trap 'agentic_cap_cleanup TERM' TERM
-}
-
-# agentic_cap_mktemp <var> <template>: creates a temp file, registers it for
-# agentic_cap_cleanup and stores its path in <var>. Returns 1 (after cleaning
-# up) when mktemp fails, and $agentic_cap_status when a signal was handled. The file is registered by the same statement that
-# creates it (#1193): bash runs a trap only after a whole statement, so a
-# signal that arrives while mktemp runs finds the file already registered.
-# (`f=$(mktemp ...)` and then `files+=("$f")` leaves a gap between the two.)
-agentic_cap_mktemp() {
-    agentic_cap_files+=("$(mktemp "$2")") || { agentic_cap_cleanup; return 1; }
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
-    printf -v "$1" '%s' "${agentic_cap_files[-1]}"
-}
-
-# agentic_cap_cleanup [signal]: kills what the capture left running (on a
-# signal), removes its temp files, puts the caller's INT and TERM traps back
-# and, on a signal, kills this shell with it (so the caller's trap sees it).
-# If that handler returns, execution resumes after the kill with everything
-# torn down: agentic_cap_status then holds 130 or 143 and the capture's callers
-# must stop and return it, never go on (#1193).
-agentic_cap_cleanup() {
-    # Copied first: a signal that lands in this function runs a nested cleanup
-    # that empties the global, and the traps below must still be the caller's.
-    local saved_traps=$agentic_cap_saved_traps
-    if [ -n "${1:-}" ]; then
-        [ -z "$agentic_cap_pid" ] || kill -KILL -- "-$agentic_cap_pid" 2>/dev/null
-    fi
-    [ "${#agentic_cap_files[@]}" -eq 0 ] || rm -f -- "${agentic_cap_files[@]}"
-    agentic_cap_files=()
-    agentic_cap_pid=""
-    # After a signal the caller's traps are already back (and agentic_cap_status
-    # is set): a later plain cleanup must not clear them again.
-    [ -n "${1:-}" ] || [ "$agentic_cap_status" = 0 ] || return 0
-    agentic_traps_restore "$saved_traps"
-    agentic_cap_saved_traps=""
-    [ -z "${1:-}" ] && return 0
-    case "$1" in INT) agentic_cap_status=130 ;; *) agentic_cap_status=143 ;; esac
-    kill "-$1" "$BASHPID"
-}
-
 # agentic_run_captured <seconds> <cmd...>: like agentic_run_bounded, but for
 # callers that capture the output (`x=$(agentic_gh ...)`) (#1191). The command's
 # stdout and stderr go to private temp files (mode 600) and stdin is /dev/null;
@@ -288,33 +340,25 @@ agentic_cap_cleanup() {
 # Returns cmd's status, or 124 on a timeout (or with no time left), or 130 (INT)
 # or 143 (TERM) when a signal came and the caller's own handler returned.
 agentic_run_captured() {
+    agentic_cap_begin
     agentic_run_captured_steps "$@"
     agentic_cap_finish $?
 }
 
-# agentic_cap_finish <status>: the one way out of a capture (#1193). Returns
-# 130 (INT) or 143 (TERM) when a signal was recorded at ANY step (create,
-# launch, wait, stop, copy-out, cleanup), whatever <status> says, and <status>
-# otherwise. The steps functions may return early; none returns to a caller
-# without going through here.
-agentic_cap_finish() {
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
-    return "$1"
-}
-
-# agentic_run_captured_steps: the body of agentic_run_captured.
+# agentic_run_captured_steps <seconds> <cmd...>: the body of a captured call,
+# between agentic_cap_begin and agentic_cap_finish. Returns early (to the exit)
+# at the first check that finds a signal recorded.
 agentic_run_captured_steps() {
     local budget=$1 cap_out cap_err status=0
     shift
-    agentic_cap_begin
-    agentic_cap_mktemp cap_out "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return $?
-    agentic_cap_mktemp cap_err "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return $?
+    agentic_cap_mktemp cap_out "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return
+    agentic_cap_mktemp cap_err "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return
     agentic_capture_supervise "$budget" /dev/null "$cap_out" "$cap_err" "$@" || status=$?
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
+    agentic_cap_live || return
     cat -- "$cap_out"
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
+    agentic_cap_live || return
     cat -- "$cap_err" >&2
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
+    agentic_cap_live || return
     case "$agentic_cap_reason" in
         "timed out"* | "had no time left"*)
             echo "agentic: warning: '$1' $agentic_cap_reason (status 124)" >&2 ;;
@@ -322,21 +366,25 @@ agentic_run_captured_steps() {
     [ -z "$agentic_cap_left" ] \
         || echo "agentic: warning: '$1' exited (status $status) leaving processes behind;" \
             "$agentic_cap_left" >&2
-    agentic_cap_cleanup
-    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     return "$status"
 }
 
 # agentic_gh <args...> / agentic_git <args...>: gh or git, bounded by
 # agentic_call_budget and captured (agentic_run_captured). Return 124 at once
-# when no time is left.
+# when no time is left. The budget is worked out under the capture's traps, so
+# a signal meanwhile launches nothing.
 agentic_gh() { agentic_bounded_call gh "$@"; }
 agentic_git() { agentic_bounded_call git "$@"; }
 agentic_bounded_call() {
+    agentic_cap_begin
+    agentic_bounded_call_steps "$@"
+    agentic_cap_finish $?
+}
+agentic_bounded_call_steps() {
     local budget
     budget=$(agentic_call_budget)
     [ "$budget" -gt 0 ] || return 124
-    agentic_run_captured "$budget" "$@"
+    agentic_run_captured_steps "$budget" "$@"
 }
 
 # --- Repository, reviewer and GitHub helpers --------------------------------

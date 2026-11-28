@@ -80,29 +80,43 @@ if [ "$delete_branch" = 1 ]; then
     fi
 fi
 
-cleaned="no Cargo.toml, cargo clean skipped"
-if [ -f "$wt/Cargo.toml" ]; then
-    # Registered as it is created, so an INT or TERM during the clean (which
-    # agentic_run_bounded passes on to these traps) can't leave it behind (#1193).
-    agentic_cap_begin
-    agentic_cap_mktemp log "${TMPDIR:-/tmp}/remove-worktree.XXXXXX" \
-        || refuse "could not create a temp file for the cargo clean output"
-    clean_status=0
+# clean_build_output_steps: the bounded `cargo clean` of the worktree, between
+# agentic_cap_begin and agentic_cap_finish, so its log follows lib.sh's
+# "Signals" invariant (#1193): an INT or TERM during the clean (which
+# agentic_run_bounded passes on to the capture's recording traps) leaves no
+# log behind, and nothing runs or prints after it. Sets cleaned. Returns 1,
+# with a REFUSE line printed, when the clean failed or timed out.
+clean_build_output_steps() {
+    local log clean_status=0 why summary
+    agentic_cap_mktemp log "${TMPDIR:-/tmp}/remove-worktree.XXXXXX" || {
+        agentic_cap_live && echo "REFUSE: could not create a temp file for the cargo clean output"
+        return 1
+    }
+    agentic_cap_live || return
     # cargo runs inside the worktree so its config and build dir resolve there.
     # shellcheck disable=SC2016 # $1 is for the inner bash, not this shell
     agentic_run_bounded "${AGENTIC_CLEAN_TIMEOUT:-600}" \
         bash -c 'cd "$1" && exec cargo clean' _ "$wt" >"$log" 2>&1 || clean_status=$?
+    agentic_cap_live || return
     if [ "$clean_status" != 0 ]; then
         why="failed (exit $clean_status)"
         [ "$agentic_timed_out" = 1 ] && why="timed out after ${AGENTIC_CLEAN_TIMEOUT:-600} s"
         echo "REFUSE: cargo clean $why in $wt; the worktree is kept. Output:"
+        agentic_cap_live || return
         tail -n 20 "$log"
-        agentic_cap_cleanup
-        exit 1
+        return 1
     fi
     summary=$(sed -n 's/^.*Removed \(.*\)$/\1/p' "$log" | tail -n 1)
-    agentic_cap_cleanup
     cleaned="cargo clean: removed ${summary:-nothing reported}"
+}
+
+cleaned="no Cargo.toml, cargo clean skipped"
+if [ -f "$wt/Cargo.toml" ]; then
+    clean_status=0
+    agentic_cap_begin
+    clean_build_output_steps || clean_status=$?
+    # A recorded signal is re-raised here, after the log is removed.
+    agentic_cap_finish "$clean_status" || exit 1
 fi
 
 agentic_git -C "$main" worktree remove "$wt" \

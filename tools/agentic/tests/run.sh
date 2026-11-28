@@ -1085,6 +1085,113 @@ test_bounded_capture_aborts_when_the_callers_term_handler_returns() {
     want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
 }
 
+# block_stub <path> <marker> <command>: an executable <path> that creates
+# $fx/<marker>, waits (up to 10 s) for $fx/release and then runs <command>, so
+# a test can send a signal at a known step (#1193).
+block_stub() {
+    mkdir -p "$(dirname "$1")"
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/$2\"" \
+        "i=0; while [ ! -e \"$fx/release\" ] && [ \$i -lt 100 ]; do sleep 0.1; i=\$((i + 1)); done" \
+        "$3" >"$1"
+    chmod +x "$1"
+}
+
+# term_at <ready> <call> [INT]: runs <call> in a caller shell (set -u, lib.sh
+# and watchdog.sh's bounded_capture sourced, a TERM (or INT) handler that
+# returns, $fx/bin first on PATH, TMPDIR=$fx/tmp; $2 is $fx in <call>). Once the
+# test-side condition <ready> holds (up to 10 s), sends the signal, releases the
+# stubs and waits (up to 10 s) for the shell. Sets out to its output and checks
+# 143 (130), the handler ran, the trap is kept and no temp file is left.
+term_at() {
+    local pid tick sig=${3:-TERM} want=143
+    [ "$sig" = TERM ] || want=130
+    mkdir -p "$fx/bin" "$fx/tmp"
+    # With job control on (set -m) the background shell does not start with INT
+    # ignored, so its INT trap can be installed.
+    [ "$sig" = TERM ] || set -m
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
+        trap "echo handled" '"$sig"'
+        '"$2"'; echo "rc=$?"; trap -p '"$sig" _ "$tools" "$fx" >"$fx/rc.out" 2>&1) &
+    pid=$!
+    set +m
+    for ((tick = 0; tick < 100; tick++)); do
+        eval "$1" && break
+        sleep 0.1
+    done
+    eval "$1" || { kill -KILL "$pid"; die "never reached the step: $1"; }
+    kill "-$sig" "$pid"
+    : >"$fx/release"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$pid" 2>/dev/null && { kill -KILL "$pid"; die "$sig did not stop it"; }
+    wait "$pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+    want_out "handled"; want_out "rc=$want"; want_out "trap -- 'echo handled' SIG$sig"
+}
+
+# term_during_budget <helper>: TERM while <helper> (bounded_capture result, or
+# agentic_bounded_call, behind agentic_gh) works out its budget on a blocked
+# clock. Nothing is launched.
+term_during_budget() {
+    new_fixtures
+    block_stub "$fx/bin/clock" clock-started 'echo 1000'
+    term_at '[ -e "$fx/clock-started" ]' 'export AGENTIC_NOW_CMD="$2/bin/clock"
+        agentic_deadline=2000; '"$1"' touch "$2/launched"'
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+}
+
+test_bounded_capture_aborts_when_termed_during_the_budget() {
+    # #1193 (review round 3): a TERM during $(agentic_call_budget), after the
+    # capture's traps are in, used to recreate the removed temp file and launch.
+    term_during_budget "bounded_capture result"
+}
+
+test_a_term_at_each_capture_step_launches_and_leaks_nothing() {
+    # #1193: the invariant across the steps the other tests don't cover. A TERM
+    # with a returning caller handler gives 143, keeps the trap, leaves no temp
+    # file; before the launch nothing starts, after it the group is stopped.
+    local helper pid
+    term_during_budget agentic_bounded_call
+    for helper in "bounded_capture result" "agentic_run_captured 30"; do
+        # While the command runs.
+        new_fixtures
+        term_at '[ -s "$fx/cmd.pid" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"'
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+        # While its leftover is being stopped: the leader is gone, a TERM-ignoring
+        # child is left.
+        new_fixtures
+        term_at '[ -s "$fx/leftover" ] && [ -s "$fx/cmd.pid" ] && [ ! -e "/proc/$(<"$fx/cmd.pid")" ]' \
+            'agentic_kill_after=1; '"$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            (trap \"\" TERM; echo \$BASHPID >\"\$1/leftover\"; exec sleep 30) & exit 0" _ "$2"'
+        pid=$(<"$fx/leftover")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the leftover running"; }
+    done
+}
+
+test_an_int_with_a_returning_handler_gives_130() {
+    # #1193: INT takes the same path as TERM: before the launch (the budget) and
+    # while the command runs, for a capture and for agentic_run_bounded.
+    local helper pid
+    new_fixtures
+    block_stub "$fx/bin/clock" clock-started 'echo 1000'
+    term_at '[ -e "$fx/clock-started" ]' 'export AGENTIC_NOW_CMD="$2/bin/clock"
+        agentic_deadline=2000; agentic_bounded_call touch "$2/launched"' INT
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    for helper in "agentic_run_captured 30" "agentic_run_bounded 30"; do
+        new_fixtures
+        term_at '[ -s "$fx/cmd.pid" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"' INT
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+    done
+}
+
 test_run_bounded_aborts_when_the_callers_term_handler_returns() {
     # #1193 (review): the same for agentic_run_bounded, which must stop the group,
     # return 143 and keep the caller's trap.

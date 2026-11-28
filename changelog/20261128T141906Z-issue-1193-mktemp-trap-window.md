@@ -31,3 +31,25 @@
   `bounded_capture`) return 130 or 143 when a signal was recorded at any step, whatever
   the step's own status; the bodies (`*_steps`) may return early. `agentic_cap_cleanup`
   copies the saved traps before its guard, closing the one-builtin gap.
+
+## Review round 3: signals deferred, one invariant
+- Review round 3 found a fourth window: a TERM during `$(agentic_call_budget)` in
+  `bounded_capture` ran the cleanup, and the supervisor then recreated the removed
+  file and launched the command. Instead of a fifth spot fix, the helpers now defer
+  signals. Between `agentic_cap_begin` (or the start of `agentic_run_bounded`) and the
+  one exit, the INT and TERM traps only record 130 or 143; nothing is torn down
+  mid-flight. Every step that creates a file, launches a process or writes output
+  checks the record first (`agentic_cap_live`), the supervisor's poll stops the group
+  on a recorded signal, and the exit (`agentic_cap_finish`, `agentic_signals_end`)
+  removes the files, restores the caller's traps one statement per signal and
+  re-raises once. The invariant is written at the top of `lib.sh`'s bounded-commands
+  section.
+- `agentic_cap_cleanup`, `agentic_traps_restore`, `agentic_cap_status` and
+  `agentic_bounded_signalled` are gone; new `agentic_signals_begin`,
+  `agentic_signals_end` and `agentic_cap_live`. `agentic_gh` / `agentic_git` and
+  `bounded_capture` work out their budget under the capture's traps.
+  `remove-worktree.sh`'s clean is a steps function with the same single exit.
+- Tests: a TERM during a blocked budget clock (`bounded_capture`, `agentic_gh`'s
+  path), while the command runs and while its leftover is stopped, each with a
+  returning caller handler: 143, trap kept, no temp file, nothing launched before
+  the launch and the group stopped after it.

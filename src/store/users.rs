@@ -214,7 +214,35 @@ pub async fn create(
     actor: &AuditActor,
     now: DateTime<Utc>,
 ) -> Result<UserRecord, OkfError> {
+    create_with_email(pool, new, None, actor, now).await
+}
+
+/// [`create`] that also sets the user's email address, in the same
+/// transaction: a taken address (in any letter case) creates nothing, so a
+/// client never holds an email-less user left over from a failed second
+/// request (issue #980). The address goes through the same check and the
+/// same statement as [`set_email`], and records what a create followed by a
+/// `set_email` records: `user.created`, then `user.email_changed`.
+///
+/// # Arguments
+/// As [`create`]; `email` - the address, or `None` for [`create`]'s result.
+///
+/// # Errors
+/// As [`create`], and [`OkfError::LimitExceeded`] for a malformed address
+/// (checked before anything is written); [`OkfError::Refused`] with
+/// [`EMAIL_TAKEN_REFUSAL`] when another user has it, including one that a
+/// concurrent create or `set_email` commits first. The refusal never names
+/// the holder.
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "users.create_with_email"))]
+pub async fn create_with_email(
+    pool: &PgPool,
+    new: &NewUser<'_>,
+    email: Option<&str>,
+    actor: &AuditActor,
+    now: DateTime<Utc>,
+) -> Result<UserRecord, OkfError> {
     check_name("user", new.name)?;
+    email.map(check_email).transpose()?;
     // A transaction rolls back when `tx` is dropped without `commit`, so
     // every early `?` return below undoes the rows inserted before it.
     let mut tx = pool.begin().await?;
@@ -268,6 +296,9 @@ pub async fn create(
     // the entry above makes): later entries naming either only read them
     // (`migrations/accounts/0014_audit_row_locks.sql`).
     audit::team_ref(&mut tx, new.name).await?;
+    if email.is_some() {
+        store_email(&mut tx, &user_id, email, actor, now).await?;
+    }
     tx.commit().await?;
     Ok(UserRecord {
         id: user_id,
@@ -276,7 +307,7 @@ pub async fn create(
         created_at: now,
         credentials: 0,
         teams: vec![new.name.to_string()],
-        email: None,
+        email: email.map(str::to_string),
         is_admin: false,
         has_password: false,
     })
@@ -701,6 +732,71 @@ pub(crate) fn is_lookup_email(email: &str) -> bool {
     check_email(email).is_ok()
 }
 
+/// The refusal text for an address another user has, for [`set_email`] and
+/// [`create_with_email`]. It is the same text whoever holds the address (an
+/// admin included) and names no one, so a client matches on it as a reason.
+pub const EMAIL_TAKEN_REFUSAL: &str = "Another user has this email";
+
+/// Writes `email` (or clears it) on the user `user_id`, whose row the caller
+/// holds locked, and does what a change owes: deletes its outstanding
+/// emailed links, drops its cache entry and records `user.email_changed`.
+/// The one place the address is stored, so [`set_email`] and
+/// [`create_with_email`] cannot disagree.
+///
+/// # Errors
+/// [`OkfError::Refused`] with [`EMAIL_TAKEN_REFUSAL`] when another user has
+/// the address (in any letter case); [`OkfError::Database`].
+async fn store_email(
+    tx: &mut PgConnection,
+    user_id: &str,
+    email: Option<&str>,
+    actor: &AuditActor,
+    now: DateTime<Utc>,
+) -> Result<(), OkfError> {
+    // The subquery reads the old value (the row is already locked), so
+    // `changed` compares it with the new one in the same statement. Both
+    // sides are `citext`, so `IS DISTINCT FROM` ignores letter case.
+    let updated = sqlx::query_scalar::<_, bool>(
+        "UPDATE users u SET email = $2::citext \
+         FROM (SELECT id, email FROM users WHERE id = $1) old \
+         WHERE u.id = old.id \
+         RETURNING old.email IS DISTINCT FROM u.email",
+    )
+    .bind(user_id)
+    .bind(email)
+    .fetch_one(&mut *tx)
+    .await;
+    let changed = match updated {
+        Ok(changed) => changed,
+        // `users.email` is the only UNIQUE column this statement writes.
+        Err(error) if is_unique_violation(&error) => {
+            return Err(OkfError::Refused {
+                reason: EMAIL_TAKEN_REFUSAL.to_string(),
+            })
+        }
+        Err(error) => return Err(error.into()),
+    };
+    if changed {
+        sqlx::query("DELETE FROM email_tokens WHERE user_id = $1")
+            .bind(user_id)
+            .execute(&mut *tx)
+            .await?;
+        // The user cache holds the email for console sessions, so a change
+        // drops its entry.
+        invalidate(tx, &[Invalidation::user(user_id)]).await?;
+        // Never the address: only that it changed (spec "People in entries").
+        let details = json!({ "cleared": email.is_none() });
+        audit::record(
+            tx,
+            actor,
+            &user_entry(Action::UserEmailChanged, user_id, details),
+            now,
+        )
+        .await?;
+    }
+    Ok(())
+}
+
 /// Sets or clears a user's email address. A changed address also deletes
 /// the user's outstanding emailed links, so a link sent to the old address
 /// stops working, bumps the administrative generation, so the key cache
@@ -743,47 +839,7 @@ pub async fn set_email(
     let mut tx = pool.begin().await?;
     let (user_id, is_admin) = lock_target(&mut tx, name, RowLock::Update, actor).await?;
     audit::refuse_admin_target(actor, is_admin, name)?;
-    // The subquery reads the old value (the row is already locked), so
-    // `changed` compares it with the new one in the same statement. Both
-    // sides are `citext`, so `IS DISTINCT FROM` ignores letter case.
-    let updated = sqlx::query_scalar::<_, bool>(
-        "UPDATE users u SET email = $2::citext \
-         FROM (SELECT id, email FROM users WHERE id = $1) old \
-         WHERE u.id = old.id \
-         RETURNING old.email IS DISTINCT FROM u.email",
-    )
-    .bind(&user_id)
-    .bind(email)
-    .fetch_one(&mut *tx)
-    .await;
-    let changed = match updated {
-        Ok(changed) => changed,
-        // `users.email` is the only UNIQUE column this statement writes.
-        Err(error) if is_unique_violation(&error) => {
-            return Err(OkfError::Refused {
-                reason: "Another user has this email".to_string(),
-            })
-        }
-        Err(error) => return Err(error.into()),
-    };
-    if changed {
-        sqlx::query("DELETE FROM email_tokens WHERE user_id = $1")
-            .bind(&user_id)
-            .execute(&mut *tx)
-            .await?;
-        // The user cache holds the email for console sessions, so a change
-        // drops its entry.
-        invalidate(&mut tx, &[Invalidation::user(&user_id)]).await?;
-        // Never the address: only that it changed (spec "People in entries").
-        let details = json!({ "cleared": email.is_none() });
-        audit::record(
-            &mut tx,
-            actor,
-            &user_entry(Action::UserEmailChanged, &user_id, details),
-            now,
-        )
-        .await?;
-    }
+    store_email(&mut tx, &user_id, email, actor, now).await?;
     tx.commit().await?;
     Ok(())
 }
@@ -1065,6 +1121,11 @@ const SOLE_OWNED_TEAMS: &str = "\
 /// be deleted`), so a client matches on this prefix.
 pub const SHARED_MEMBER_REFUSAL: &str = "the user is a member of shared team(s)";
 
+/// The start of the refusal [`DeleteOptions::unless_has_email`] gives. It
+/// names no address and no one else, and no other deletion refusal starts
+/// with it, so a client matches on this prefix.
+pub const HAS_EMAIL_REFUSAL: &str = "the user has an email address";
+
 /// What [`delete_on`] allows and requires of the user it deletes.
 ///
 /// The `Default` is the API's: the last admin user stays, and shared-team
@@ -1079,6 +1140,11 @@ pub struct DeleteOptions {
     /// same locks as the delete, so an external system's "delete only if
     /// unshared" has no read-then-delete race.
     pub unless_shared_member: bool,
+    /// Refuses the deletion while the user has an email address (issue
+    /// #980). Read under the user's row lock, which [`set_email`] takes too,
+    /// so an address set concurrently is either seen here or waits for the
+    /// delete and finds the user gone: never lost with the account.
+    pub unless_has_email: bool,
 }
 
 impl DeleteOptions {
@@ -1086,6 +1152,7 @@ impl DeleteOptions {
     pub const OPERATOR: Self = Self {
         allow_last_admin: true,
         unless_shared_member: false,
+        unless_has_email: false,
     };
 }
 
@@ -1476,6 +1543,21 @@ async fn delete_in(
         if !teams.is_empty() {
             return Err(OkfError::Refused {
                 reason: format!("{SHARED_MEMBER_REFUSAL}: {}", quoted(&teams)),
+            });
+        }
+    }
+    // The user row is locked, so this reads the address `set_email` would
+    // write after us (issue #980). After the shared-member check, which
+    // stays the first refusal (issue #535), and before every other.
+    if options.unless_has_email {
+        let has_email: bool =
+            sqlx::query_scalar("SELECT email IS NOT NULL FROM users WHERE id = $1")
+                .bind(&user_id)
+                .fetch_one(&mut *tx)
+                .await?;
+        if has_email {
+            return Err(OkfError::Refused {
+                reason: HAS_EMAIL_REFUSAL.to_string(),
             });
         }
     }
@@ -3288,6 +3370,7 @@ pub(crate) mod tests {
     const UNLESS_SHARED: DeleteOptions = DeleteOptions {
         allow_last_admin: false,
         unless_shared_member: true,
+        unless_has_email: false,
     };
 
     #[tokio::test(flavor = "multi_thread")]
@@ -4340,3 +4423,7 @@ pub(crate) mod tests {
 #[cfg(test)]
 #[path = "users_own_deletion_tests.rs"]
 mod own_deletion_tests;
+
+#[cfg(test)]
+#[path = "users_email_atomic_tests.rs"]
+mod email_atomic_tests;

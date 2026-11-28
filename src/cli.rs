@@ -335,6 +335,10 @@ pub enum UserCommand {
         /// characters, no control characters or line breaks.
         #[arg(long, default_value = "")]
         display_name: String,
+        /// Its email address, set in the same transaction as the create: a
+        /// taken address creates nothing.
+        #[arg(long, value_name = "ADDRESS")]
+        email: Option<String>,
     },
     /// Change a user's display name (empty clears it). Its personal team
     /// follows.

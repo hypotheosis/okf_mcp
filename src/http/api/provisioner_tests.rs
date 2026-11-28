@@ -1001,3 +1001,146 @@ async fn a_flood_past_the_pending_write_limit_loses_the_overflow_and_recovers() 
         .expect("the write finishes");
     assert_eq!(requests(&test).await, limit + 1, "capacity came back");
 }
+
+/// Issue #980: a provisioner may create a user with its email and delete it
+/// only while it has none; a taken address answers alike whoever holds it,
+/// an admin user (whom the provisioner otherwise cannot see) included.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_provisioner_creates_with_an_email_and_cleans_up_only_an_email_less_user() {
+    let test = app().await;
+    let root = every_catalog_admin(&test).await;
+    let key = provisioner(&test).await;
+    let p = Some(key.as_str());
+    for (name, address, admin) in [
+        ("staff", "staff@example.com", true),
+        ("member", "member@example.com", false),
+    ] {
+        send(
+            &test,
+            "POST",
+            "/api/v1/users",
+            Some(&root),
+            Some(json!({"name": name})),
+        )
+        .await;
+        send(
+            &test,
+            "PUT",
+            &format!("/api/v1/users/{name}/email"),
+            Some(&root),
+            Some(json!({"email": address})),
+        )
+        .await;
+        if admin {
+            send(
+                &test,
+                "PUT",
+                &format!("/api/v1/users/{name}/admin"),
+                Some(&root),
+                Some(json!({"admin": true})),
+            )
+            .await;
+        }
+    }
+
+    let (created, made) = send(
+        &test,
+        "POST",
+        "/api/v1/users",
+        p,
+        Some(json!({"name": "alice", "email": "alice@example.com"})),
+    )
+    .await;
+    let (by_admin, admin_answer) = send(
+        &test,
+        "POST",
+        "/api/v1/users",
+        p,
+        Some(json!({"name": "bob", "email": "staff@example.com"})),
+    )
+    .await;
+    let (by_member, member_answer) = send(
+        &test,
+        "POST",
+        "/api/v1/users",
+        p,
+        Some(json!({"name": "carol", "email": "member@example.com"})),
+    )
+    .await;
+    let (set, set_answer) = send(
+        &test,
+        "PUT",
+        "/api/v1/users/alice/email",
+        p,
+        Some(json!({"email": "staff@example.com"})),
+    )
+    .await;
+    let (lookup, found) = send(
+        &test,
+        "GET",
+        "/api/v1/users?email=staff@example.com",
+        p,
+        None,
+    )
+    .await;
+    let (kept, kept_answer) = send(
+        &test,
+        "DELETE",
+        "/api/v1/users/alice?unless_has_email=true",
+        p,
+        None,
+    )
+    .await;
+    send(
+        &test,
+        "POST",
+        "/api/v1/users",
+        p,
+        Some(json!({"name": "dave"})),
+    )
+    .await;
+    let (cleaned, _) = send(
+        &test,
+        "DELETE",
+        "/api/v1/users/dave?unless_has_email=true",
+        p,
+        None,
+    )
+    .await;
+    let (admin_target, _) = send(
+        &test,
+        "DELETE",
+        "/api/v1/users/staff?unless_has_email=true",
+        p,
+        None,
+    )
+    .await;
+
+    assert_eq!(created.as_u16(), 201, "{made}");
+    assert_eq!(by_admin.as_u16(), 409);
+    assert_eq!(by_member.as_u16(), 409);
+    assert_eq!(
+        admin_answer, member_answer,
+        "an admin's address is not told apart"
+    );
+    assert_eq!(set.as_u16(), 409);
+    assert_eq!(
+        set_answer, admin_answer,
+        "create and set-email answer alike"
+    );
+    assert_eq!(lookup.as_u16(), 200);
+    assert!(found["users"].as_array().unwrap().is_empty(), "{found}");
+    assert_eq!(kept.as_u16(), 409, "{kept_answer}");
+    assert_eq!(
+        kept_answer["message"],
+        crate::store::users::HAS_EMAIL_REFUSAL
+    );
+    assert_eq!(cleaned.as_u16(), 204);
+    assert_eq!(
+        admin_target.as_u16(),
+        403,
+        "an admin user stays out of reach"
+    );
+    let (gone, _) = send(&test, "GET", "/api/v1/users/bob", p, None).await;
+    assert_eq!(gone.as_u16(), 404, "a refused create made nothing");
+}

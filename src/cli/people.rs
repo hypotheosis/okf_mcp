@@ -60,13 +60,19 @@ pub(super) async fn user(
     now: DateTime<Utc>,
 ) -> anyhow::Result<String> {
     Ok(match command {
-        UserCommand::Create { name, display_name } => {
+        UserCommand::Create {
+            name,
+            display_name,
+            email,
+        } => {
             let display_name = DisplayName::parse(&display_name)?;
             let new = NewUser {
                 name: &name,
                 display_name: &display_name,
             };
-            let created = users::create(pool, &new, &AuditActor::cli(), now).await?;
+            let created =
+                users::create_with_email(pool, &new, email.as_deref(), &AuditActor::cli(), now)
+                    .await?;
             // The personal team shares the user's name.
             format!(
                 "created user {} (personal team {})\n",
@@ -698,6 +704,31 @@ mod tests {
              changesets are discarded by the server's store cleanup)\n"
         );
         assert!(!after.contains("alice"), "{after}");
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn user_create_with_an_email_and_a_taken_one_creating_nothing() {
+        let db = test_db().await;
+
+        okf(
+            &db,
+            &["user", "create", "alice", "--email", "alice@example.com"],
+        )
+        .await
+        .unwrap();
+        let taken = okf(
+            &db,
+            &["user", "create", "bob", "--email", "ALICE@example.com"],
+        )
+        .await;
+        let listed = okf(&db, &["user", "list"]).await.unwrap();
+
+        assert!(taken.is_err(), "{taken:?}");
+        assert!(
+            listed.contains("alice\tcredentials 0\temail alice@example.com"),
+            "{listed}"
+        );
+        assert!(!listed.contains("bob"), "{listed}");
     }
 
     #[tokio::test(flavor = "multi_thread")]

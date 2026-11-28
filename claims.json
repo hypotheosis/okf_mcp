@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2511,
+  "next_claim_seq": 2524,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "549415d1f22bbf87b1471d13b0dd93b32c37cb08553e9d6c75d28dd249182c4c"
+    "mac": "2255b96668e763e68b8a320f1c4e73761a247c9e61c28d813224b2fa51a75cf8"
   },
-  "next_evidence_seq": 4378,
+  "next_evidence_seq": 4401,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "341fb49f670155e5b9dafd6c892efba74bd41abf392a1fb48ab2ec06150be8a6"
+    "mac": "366b2f074e1a91883d7ffab3372481dee23dc5afc5735b4f74097ae2788a0c7d"
   },
   "claims": [
     {
@@ -8725,6 +8725,28 @@
             "by": "server",
             "mac": "b4dc9276926ae4907e37524b8ea800f90351869de868c6121725c89c4b7d7eb1"
           }
+        },
+        {
+          "id": "EVD-4398",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:290-299, 994-995",
+          "summary": "Re-audit at head: okf.refresh is still declared Empty on the span and the refresh test still asserts okf.refresh == rotated (the only change in that test is the okf.grant value). The diff does not touch RefreshResult.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 290,
+                "end": 299
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:08:08.451973674Z",
+          "seal": {
+            "by": "server",
+            "mac": "b450d457def2d65e287cab8b3d0f840d962373311eff41a5bde1a52c562ae527"
+          }
         }
       ],
       "verdicts": [
@@ -8753,13 +8775,26 @@
             "by": "server",
             "mac": "33d6aef450163ad5d4b5f7f9f42aea8470844a63f23022ce28dee6df21290735"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: okf.refresh recording unchanged; test assertion still present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4398"
+          ],
+          "recorded_at": "2026-11-28T08:08:13.300755824Z",
+          "seal": {
+            "by": "server",
+            "mac": "3f17f0687e451c34c817856af17b4b6a0054aed5d74dc828c243f5e2b9f33a01"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-27T12:01:12.945404557Z",
+      "updated_at": "2026-11-28T08:08:13.300755824Z",
       "seal": {
         "by": "server",
-        "mac": "70879cc6105d5deb5e9af2cdad4553af299ef2afed48afa4cb7b59d4134efda5"
+        "mac": "29c53e31142444c3126ec848dc4f04efc1144dbbafb503cdc454fa8d71a079ab"
       }
     },
     {
@@ -10004,6 +10039,28 @@
             "by": "server",
             "mac": "ce31a546d940104809bf06c76e2dc1d7381b680ece4ded41318f66287fa69dae"
           }
+        },
+        {
+          "id": "EVD-4397",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib a_refused_resource_says (2 passed); src/oauth/authorize.rs:804-817",
+          "summary": "Re-audit at head: authorize still refuses any resource not byte-equal to settings.resource with invalid_target, a missing one is still allowed; the token tests show refresh and exchange mismatches (trailing slash, other path, other host, unparseable) still answer 400 invalid_target. The diff only adds span.record calls.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 804,
+                "end": 817
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:08:08.298849277Z",
+          "seal": {
+            "by": "server",
+            "mac": "b06f97a91581ba1cde0c5f4d14245c12d3aa4df382527e8bcdf6ea135c1b1606"
+          }
         }
       ],
       "verdicts": [
@@ -10019,13 +10076,26 @@
             "by": "server",
             "mac": "33152d8bcac9276c8c184e274a825ca305c64511e3f5d2aa83ac085c51b34816"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: refusal conditions unchanged, tests show invalid_target still returned.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4397"
+          ],
+          "recorded_at": "2026-11-28T08:08:13.065752016Z",
+          "seal": {
+            "by": "server",
+            "mac": "31159cdad3cd93d9758be77e1fc31ef63549a39ce7feab2b25d4c52e5f619f90"
+          }
         }
       ],
       "created_at": "2026-11-21T19:06:56.236553050Z",
-      "updated_at": "2026-11-21T19:10:45.768967469Z",
+      "updated_at": "2026-11-28T08:08:13.065752016Z",
       "seal": {
         "by": "server",
-        "mac": "f5ea4c006c5e8dc34fb40d2c1df9b581188a7a38aed6b3dc200ec46c4ea30630"
+        "mac": "312d627fb47260ca28cb396c7e92faa94838685921e6f5b25dbcdcac0c9904e6"
       }
     },
     {
@@ -220761,6 +220831,1050 @@
       "seal": {
         "by": "server",
         "mac": "8609d9c32c0a782672cc199d58219beee59ab03d51f99d9238931f9cf5e75995"
+      }
+    },
+    {
+      "id": "CLM-2511",
+      "statement": "Issue #1011 items 1 and 2 are delivered: a refused resource records how it differed as a closed-set okf.resource (never the value), okf.grant span values are not scrubbable, and docs and a changelog are updated; item 3 is not implemented.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1011 (Proposed fix 1 and 2, Acceptance)",
+      "derived_from": [],
+      "artifacts": [
+        "src/oauth/resource.rs",
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs",
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4396",
+          "kind": "analysis",
+          "locator": "children of CLM-2511",
+          "summary": "All issue-requirement children are supported (refresh, exchange, authorize, closed set, no value leaked, declared up front, grant values, refusals kept, docs). The one refuted child, CLM-2523, is a PR-body statement about the authorize test (it asserts only status 303 with logs off), not a defect in the delivered behavior.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T08:07:47.006465045Z",
+          "seal": {
+            "by": "server",
+            "mac": "94d6e23af058079412f9b1a1cf6718eb82241e5e98aa78904a2060071cf7465f"
+          }
+        },
+        {
+          "id": "EVD-4400",
+          "kind": "analysis",
+          "locator": "children of CLM-2511",
+          "summary": "Every active child is now supported: refresh, exchange and authorize record okf.resource and still refuse; the set is closed; the value is never recorded; the field is declared up front; grant and refresh values are clean; docs and changelog are updated; item 3 is not implemented; the PR-body test statements hold after the authorize test fix.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T08:12:40.752192398Z",
+          "seal": {
+            "by": "server",
+            "mac": "8562e53163fea4d8f1ff4e31f338bd86acd2864ef7433c638990d374e9755046"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The behavior the issue asked for is delivered (all requirement children supported), but a child, the PR-body statement about the authorize test (CLM-2523), is refuted, so the parent cannot be marked supported. Fix: strengthen the authorize span test to assert the invalid_target redirect and marker absence (or reword the PR body), then re-audit CLM-2523.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4396"
+          ],
+          "recorded_at": "2026-11-28T08:07:56.067935285Z",
+          "seal": {
+            "by": "server",
+            "mac": "d5810203d3465164d7910f5b4bd93f369d1031702b8c44cc15de7afb82175fb6"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All children supported at a3c3167a, together covering items 1 and 2, the acceptance cases, docs and changelog, with item 3 absent.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4400"
+          ],
+          "recorded_at": "2026-11-28T08:12:44.493472115Z",
+          "seal": {
+            "by": "server",
+            "mac": "86973e2a98d1112253e43e15fae07153cbefc8037a1310200bece66f4e8d4e9d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:12:44.493472115Z",
+      "seal": {
+        "by": "server",
+        "mac": "044a6941854513a223e34c3b7346de6c12eadd375698881bb6a44ce18039546d"
+      }
+    },
+    {
+      "id": "CLM-2512",
+      "statement": "On the okf.oauth.token span, a refresh whose resource is not byte-equal to the grant's resource records okf.resource from oauth::resource::classify and still returns 400 invalid_target.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1011 Acceptance: \"A refresh sent with resource=<public_url>/mcp/ is still refused ... and its span carries okf.error=invalid_target and okf.resource=trailing_slash.\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4378",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib a_refused_resource_says (2 passed); src/oauth/token.rs:1006",
+          "summary": "Test sends a refresh with resource=<RESOURCE>/ (and other_path, other_host, unparseable); asserts 400, body error invalid_target, span okf.error=invalid_target and okf.resource=trailing_slash etc. Passed on head. Then asserts the same refresh token still rotates (200), so refusal did not spend it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 1003,
+                "end": 1067
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:11.466463010Z",
+          "seal": {
+            "by": "server",
+            "mac": "981ae9873a59302414d802845fc872a08571bc7ba00ae2620cedff48b28e3c19"
+          }
+        },
+        {
+          "id": "EVD-4379",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:565-573",
+          "summary": "Refresh: filter on form.resource != grant resource, record okf.resource from classify(), then return OAuthError::InvalidTarget. The comparison is the same byte inequality as before.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 565,
+                "end": 573
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:11.647665981Z",
+          "seal": {
+            "by": "server",
+            "mac": "935bfb34a6c51a43a3d16cf853e75f50c40ce6e641467af72579e427cd14009f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code records okf.resource then returns InvalidTarget; test asserts 400, invalid_target, span okf.error and okf.resource=trailing_slash (issue acceptance) and passes at head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4378",
+            "EVD-4379"
+          ],
+          "recorded_at": "2026-11-28T08:07:39.455199609Z",
+          "seal": {
+            "by": "server",
+            "mac": "a74655b7b32ffcebea7e2e7ca5d5b71fc690a56825f66f331b1c7993ad77c9ba"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:39.455199609Z",
+      "seal": {
+        "by": "server",
+        "mac": "e36546c5b2e5147d7d3b7dfd88329c7bcfe5d059f4a21e3970d8462c4ef25204"
+      }
+    },
+    {
+      "id": "CLM-2513",
+      "statement": "A code exchange whose resource differs from the code's stored resource records okf.resource on the token span and still returns 400 invalid_target; the authorize endpoint does the same on the authorize span and still redirects with invalid_target.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1011 Proposed fix 1: \"Do the same at authorize and at the code exchange.\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4380",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib a_refused_resource_says (2 passed); token.rs:1006 and authorize.rs:2006",
+          "summary": "Token test covers code exchange with trailing slash and other host (400, invalid_target, okf.resource set). Authorize test checks okf.resource per case on the authorize span, but asserts only status 303 (SEE_OTHER) and discards the Location header, so it does not assert error=invalid_target.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2003,
+                "end": 2036
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:11.806591141Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a655b45aa63da6bb708b4711f89fb8767d5d67dcd6fbdd8ef5335ad338f7027"
+          }
+        },
+        {
+          "id": "EVD-4381",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:427-435 and src/oauth/authorize.rs:804-817",
+          "summary": "Code exchange records okf.resource then returns InvalidTarget; authorize records okf.resource then returns back(\"invalid_target\", ...). Both return paths unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 804,
+                "end": 817
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:11.982030414Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2f506bf653b26de6da0838318b7a8847b5c5f22627417f5be17716744a0b4f0"
+          }
+        },
+        {
+          "id": "EVD-4382",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:427-435",
+          "summary": "Exchange mismatch branch records okf.resource via classify(resource, &stored.resource), then returns InvalidTarget.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 427,
+                "end": 435
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:12.215635780Z",
+          "seal": {
+            "by": "server",
+            "mac": "eb8c1ba410ce79165dd4400354b6ee671a251b4af19380ff46bb06b508930190"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both code sites record okf.resource and return the same invalid_target as before; the token test exercises the exchange mismatch (trailing slash, other host) and the authorize test checks the authorize span value for five cases. The authorize test does not itself assert the invalid_target redirect (recorded under the PR-body test claim), but the code path is read directly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4381",
+            "EVD-4382"
+          ],
+          "recorded_at": "2026-11-28T08:07:39.602753216Z",
+          "seal": {
+            "by": "server",
+            "mac": "2218a626e09232cef9a460c92cc1b506a44116a93781e8e700c70ca7e88ff35e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:39.602753216Z",
+      "seal": {
+        "by": "server",
+        "mac": "3bf1d6f29c859ba24f1e6617f0f2e211b94017d17e6d4348ce6b8a1520b2edc0"
+      }
+    },
+    {
+      "id": "CLM-2514",
+      "statement": "classify returns trailing_slash, origin, other_path, other_host or unparseable for the issue's five cases, plus other_form for an equivalent URL in another spelling (a case, default port, query, fragment or user info difference), and never any other value.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1011 Proposed fix 1: closed set trailing_slash, origin, other_path, other_host, unparseable",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/resource.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4383",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib oauth::resource (9 passed)",
+          "summary": "Unit tests assert each of the six values for specific inputs, plus a Hegel property test over arbitrary text that the output is in the closed set. 9 passed, 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/resource.rs",
+              "lines": {
+                "start": 100,
+                "end": 191
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:12.589160626Z",
+          "seal": {
+            "by": "server",
+            "mac": "6a17ce85b3d65103c3ed2d14fb7dd1c2ca1efcbacce568b892077180a4b99d39"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "9 tests in oauth::resource pass, covering each value and a property test on arbitrary text that the output stays in the six-value set.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4383"
+          ],
+          "recorded_at": "2026-11-28T08:07:39.750516864Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5e9f3018c4061b85c619f31ad5892449df0f4292bbc60ed49c1ec0d113db203"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:39.750516864Z",
+      "seal": {
+        "by": "server",
+        "mac": "19a7ec3ab3f46b91dca48871bf5c5bc8285466b10df77bfa7687b1952d408970"
+      }
+    },
+    {
+      "id": "CLM-2515",
+      "statement": "The sent resource value, or any part of it, is never recorded in the span, the logs or the error body: classify returns only a static string and the error messages are fixed text.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1011 Proposed fix 1: \"Never record the value itself.\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/resource.rs",
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4384",
+          "kind": "analysis",
+          "locator": "src/oauth/resource.rs:40-50,73; grep of tracing macros in src/oauth/token.rs and authorize.rs",
+          "summary": "classify returns ResourceMismatch whose as_str yields static literals; the sent string is only parsed. The three record sites pass only that static str. No tracing event macro in token.rs or authorize.rs; both handlers use skip_all (authorize) or skip of the form, and the InvalidTarget messages are fixed text.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/resource.rs",
+              "lines": {
+                "start": 38,
+                "end": 86
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:12.963979296Z",
+          "seal": {
+            "by": "server",
+            "mac": "cda08bf91c9e34592bc8bb492e91a44e64d9c25a9c1d4b4bd7bd36c5fed4020d"
+          }
+        },
+        {
+          "id": "EVD-4385",
+          "kind": "test",
+          "locator": "token.rs:1006 test, observe(\\\"trace\\\",\\\"trace\\\",\\\"trace\\\"); gate.sh narrow --lib a_refused_resource_says (2 passed)",
+          "summary": "Token test uses a marker in the sent value (path, host and bare), runs at trace level for stderr, spans and logs, and asserts the marker is absent from the response body and from exported_text (logs, log records, spans). Passed. Caveat: exported_text excludes stderr, and the authorize test runs with stderr and logs off, so authorize logs are covered by inspection only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 1003,
+                "end": 1067
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:13.300980498Z",
+          "seal": {
+            "by": "server",
+            "mac": "0d658cbbc386c70ebad9549a67b2eddac1d68e348c0e9492fa6e2a7f4adb5c4c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only a static str derived from the closed enum is recorded; no logging macro touches the value in either handler; the token test with trace-level logs shows the marker absent from body, spans and logs. Authorize logs are covered by inspection, not by test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4384",
+            "EVD-4385"
+          ],
+          "recorded_at": "2026-11-28T08:07:39.900925158Z",
+          "seal": {
+            "by": "server",
+            "mac": "9542527ca58d0ca24a6c96241ada3021faa24796893fee05b26478ebfed88710"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:39.900925158Z",
+      "seal": {
+        "by": "server",
+        "mac": "55c7560388baa7e40600742201c6a9c9e4ad7ce1d07bc8f6f871a8dc97926f88"
+      }
+    },
+    {
+      "id": "CLM-2516",
+      "statement": "okf.resource is declared as tracing::field::Empty up front on both the okf.oauth.token span and the authorize span, so a later record lands.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "Task requirement: okf.resource must be declared on the span up front",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4386",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:290-299; src/oauth/authorize.rs:747-752",
+          "summary": "okf.oauth.token fields list okf.resource = tracing::field::Empty; authorize instrument has fields(okf.resource = tracing::field::Empty). Tests observe the attribute on exported spans, so the declaration works.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 290,
+                "end": 299
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:13.967186306Z",
+          "seal": {
+            "by": "server",
+            "mac": "bbf55d40b2a20559339396776fa7ddd4574ae7f445d595f33bb9b3c5181344dc"
+          }
+        },
+        {
+          "id": "EVD-4387",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:747-752",
+          "summary": "authorize span declares okf.resource = tracing::field::Empty in its fields(...).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 747,
+                "end": 752
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:14.270052590Z",
+          "seal": {
+            "by": "server",
+            "mac": "c49b8f6faa694ef1b037cd16d4bd3af9aef2c6a006f0c9343ab648e82170b3c4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both spans declare okf.resource as field::Empty, and the tests read the recorded attribute off exported spans.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4386",
+            "EVD-4387"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.055912559Z",
+          "seal": {
+            "by": "server",
+            "mac": "202fa8c80bcfcca24c20929197445de5dd2017fb2a938b9c2e8c0fcf1438a758"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.055912559Z",
+      "seal": {
+        "by": "server",
+        "mac": "cdfe827e1457979baacc711d1aa4ada1b7d7afd5ff56bb4aca4e24f4d6746e77"
+      }
+    },
+    {
+      "id": "CLM-2517",
+      "statement": "The okf.grant span values are code and refresh, and no okf.grant or okf.refresh value contains auth, token, secret, password, key, cookie or session.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1011 Proposed fix 2 and task requirement on grant and refresh values",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs",
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4388",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib the_grant_span_values (1 passed); src/oauth/token.rs:1074",
+          "summary": "Test iterates Grant::span_value for both grants and every RefreshResult::as_str and asserts none contains any of the seven substrings. metrics.rs unit test asserts span_value is code and refresh. issue_token records okf.grant via span_value. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 1072,
+                "end": 1086
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:14.561650558Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1047fead57f9e1551b2d5a84324309093d4ea934e23ec5ad116e518a2b05254"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "span_value returns code and refresh, issue_token uses it, and the passing test checks all seven substrings against both grant values and every RefreshResult value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4388"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.220379605Z",
+          "seal": {
+            "by": "server",
+            "mac": "54e00e17af3082466079febbe31111f6d6c4c493271ccfb2b1431530c9bca3ef"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.220379605Z",
+      "seal": {
+        "by": "server",
+        "mac": "d5b3df32454a84fea9a489719bf2b1efca1001deee6de8e8ab1a9466d77db246"
+      }
+    },
+    {
+      "id": "CLM-2518",
+      "statement": "The grant label of okf_oauth_tokens_issued_total keeps the values authorization_code and refresh_token (Grant::as_str is unchanged), and the okf.refresh values are unchanged.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The grant label of okf_oauth_tokens_issued_total is unchanged. okf.refresh values hold no scrubbed substring and are unchanged.\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/telemetry/metrics.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4389",
+          "kind": "inspection",
+          "locator": "src/telemetry/metrics.rs:855-871 and git diff origin/main..HEAD -- src/telemetry/metrics.rs",
+          "summary": "Diff adds span_value only; Grant::as_str still returns authorization_code and refresh_token (metrics test asserts it). No hunk touches RefreshResult. The label users of Grant::as_str are untouched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/telemetry/metrics.rs",
+              "lines": {
+                "start": 853,
+                "end": 872
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:14.864286211Z",
+          "seal": {
+            "by": "server",
+            "mac": "2aeee5dca2f7907c7ab5c19cb8ec62154dbff729415204603f25ea98cb18488b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff only adds span_value; as_str is unchanged and still asserted in the metrics test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4389"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.377350617Z",
+          "seal": {
+            "by": "server",
+            "mac": "70e1e1502540f63674de7a9b50728990c490c9fb5f9e827e53ebf01341a19cd9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.377350617Z",
+      "seal": {
+        "by": "server",
+        "mac": "59058c801d78f0ee09324e7f28e763d684258734acae8bd4b07594638d1031b0"
+      }
+    },
+    {
+      "id": "CLM-2519",
+      "statement": "No item 3 behavior was added: every resource that was refused before (trailing slash, origin, other path, other host) is still refused, and no non-test hunk accepts a new spelling.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1011 Acceptance and task scope: the refused case must keep refusing; item 3 not implemented",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4390",
+          "kind": "analysis",
+          "locator": "git diff origin/main..HEAD -- src/oauth/token.rs src/oauth/authorize.rs (non-test hunks)",
+          "summary": "Non-test hunks: the refusing conditions are rewritten from is_some_and(!=) to if let Some(..).filter(!=) with identical byte comparison and the same InvalidTarget return; new span.record calls and a span parameter on exchange_code. No branch accepts a new spelling. Token test asserts all refusals (trailing slash, other path/host, unparseable on refresh; trailing slash and other host on exchange) still answer 400 invalid_target and the refresh token is still usable afterwards.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 563,
+                "end": 575
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:15.198528514Z",
+          "seal": {
+            "by": "server",
+            "mac": "0adaea723c6b8864f567d948ede19b03e93b8fcc879364ce0fb6ed53002f1294"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Non-test hunks keep the byte comparison and the InvalidTarget return, and add no accepting branch; the token test (see the refresh claim) asserts each refused case still answers invalid_target and the refresh token stays spendable.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4390"
+          ],
+          "recorded_at": "2026-11-28T08:07:46.850074506Z",
+          "seal": {
+            "by": "server",
+            "mac": "6baab8ff1b9cb0437c266ba6779f779a3c2a918c4bd805ab5c6c125e0d6d4db5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:46.850074506Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5a1679b2345c19f2909960f0fa7b216f13424dbd16006916b648c9f37c956c3"
+      }
+    },
+    {
+      "id": "CLM-2520",
+      "statement": "docs/operations.md describes okf.grant code/refresh and okf.resource with its six values, and a changelog entry under changelog/ records the telemetry-breaking okf.grant change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"docs/operations.md and a changelog entry (telemetry-breaking for saved queries on the old okf.grant values).\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/20261128T075726Z-issue-1011-token-span-resource.md"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4391",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1758, docs/operations.md:5020-5030; changelog/20261128T075726Z-issue-1011-token-span-resource.md",
+          "summary": "Span table row says okf.grant (code or refresh) and okf.resource; a new paragraph lists all six okf.resource values and states refusal remains. Changelog entry is timestamped, has a Changed (telemetry-breaking) section naming old and new okf.grant values and a Not done note for item 3.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5020,
+                "end": 5029
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:15.383720657Z",
+          "seal": {
+            "by": "server",
+            "mac": "12e3b69a0cc2ccafef830bf6d29d486f683bcaf93c0095cacd3cdfce62d40448"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs table row and new paragraph cover grant values and the six resource values; changelog entry flags the telemetry-breaking change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4391"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.612402968Z",
+          "seal": {
+            "by": "server",
+            "mac": "172295b15a0051777a05f304c9edded7bc66b22aebc1c775ddd33b7be34ae25b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.612402968Z",
+      "seal": {
+        "by": "server",
+        "mac": "1b9ce4ad4291394cc24aeee7952d77c085230ad2403ff724ffdbcca8f2c84dd7"
+      }
+    },
+    {
+      "id": "CLM-2521",
+      "statement": "No other place in the repository still names the old okf.grant span values authorization_code or refresh_token as span values (dashboards, alerts, docs, tests), outside the changelog entry that explains the change.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1011 Proposed fix 2: \"update the dashboards and docs that read them\"",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4392",
+          "kind": "analysis",
+          "locator": "grep -rnE 'okf\\.grant' repo excluding target and .git; grep for okf.grant near authorization_code or refresh_token",
+          "summary": "Whole-repo search at head finds okf.grant only in docs/operations.md:1758, token.rs, metrics.rs and the changelog. The only mentions of the old values as span values are in the changelog entry that explains the change. No dashboard or alert files reference them.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "okf\\.grant.{0,12}(authorization_code|refresh_token)",
+              "scope": [
+                "."
+              ],
+              "hits": 2,
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:15.561051905Z",
+          "seal": {
+            "by": "server",
+            "mac": "eedc1f634a8ba88682c3cc2d6f8592d0fb980a1d7699501cff793e791042bba8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Repo-wide search at head finds the old values next to okf.grant only in the changelog entry.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4392"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.771639094Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2c62af04a98b92639210470b80fb91db975f25afde83920ea15aa854b5e63b6"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.771639094Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a4b695d32f5277dbdd021d598b9dc5b83d1caefccd7d3a160365a9e6fa04aa1"
+      }
+    },
+    {
+      "id": "CLM-2522",
+      "statement": "PR body: \"With the refresh-path okf.resource record removed, the token span test fails.\"",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Tests section",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4393",
+          "kind": "demonstration",
+          "locator": "Temporarily replaced the span.record in refresh (token.rs:566-569) with a no-op, ran gate.sh narrow --lib a_refused_resource_says_how_it_differed_on_the_token_span, then git checkout of token.rs",
+          "summary": "Test FAILED at src/oauth/token.rs:1056: left None, right Some(\\\"trailing_slash\\\"), 0 passed 1 failed. Tree restored afterwards (git status shows only claims.json modified).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T08:07:15.712961184Z",
+          "seal": {
+            "by": "server",
+            "mac": "7cd22729321fb615fe10f908636e00dbb60a1e648f529d946f90d655c0081bb0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: with the refresh-path record neutralised the token span test fails (None vs trailing_slash).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4393"
+          ],
+          "recorded_at": "2026-11-28T08:07:40.928583436Z",
+          "seal": {
+            "by": "server",
+            "mac": "992bc8204333ae5b00bd629e219ab7e478e593bf0b942dc1813c575b7d621c4d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:07:40.928583436Z",
+      "seal": {
+        "by": "server",
+        "mac": "1125c44541d76734c614b4be89c8ffa8377ea9b480e3efe9719672aa4b060f84"
+      }
+    },
+    {
+      "id": "CLM-2523",
+      "statement": "PR body: the token and authorize span tests assert each refused case is still invalid_target, the span carries the expected okf.resource, and a marker string in the sent value appears nowhere in the exported spans, logs or error body.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Tests section",
+      "derived_from": [
+        "CLM-2511"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs",
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1011"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4394",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:2006-2036",
+          "summary": "Authorize test: Observer::start(\\\"off\\\",\\\"debug\\\",\\\"off\\\") so logs and stderr are not captured; the response is destructured as (status, _, _) and only status == 303 is asserted, so neither invalid_target in the redirect nor the marker's absence from the redirect body/Location is checked. A 303 also results from a sign-in redirect, so it does not itself prove the refusal. Only the span okf.resource and exported spans are checked.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2003,
+                "end": 2036
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:15.890357832Z",
+          "seal": {
+            "by": "server",
+            "mac": "6ec17e36826696564ba6c2d286ab090d64c6f461d3ae5b7e675e9439795c64cf"
+          }
+        },
+        {
+          "id": "EVD-4395",
+          "kind": "inspection",
+          "locator": "src/oauth/token.rs:1038-1065",
+          "summary": "Token test fully meets the statement (400, error invalid_target, okf.resource, marker absent from body and exported text at trace level).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 1038,
+                "end": 1065
+              },
+              "commit": "a79eba2d53b92bc87efcf31834ef5753fc8b0a27"
+            }
+          },
+          "recorded_at": "2026-11-28T08:07:16.064543841Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1dbc31c44784ff37c73ab0cb2e26543d11d602df63b2921cf30affd7f0e7067"
+          }
+        },
+        {
+          "id": "EVD-4399",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib a_refused_resource_says (2 passed) at a3c3167a; src/oauth/authorize.rs:2019-2039",
+          "summary": "Authorize test now keeps the Location header, asserts error=invalid_target and the marker absent from it, starts the Observer with logs at debug, and checks the span okf.resource and the marker's absence from exported text. Token test unchanged and already covered. Passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2019,
+                "end": 2039
+              },
+              "commit": "a3c3167a50b58e01bcd0438f87c7a5dd45bbc1ce"
+            }
+          },
+          "recorded_at": "2026-11-28T08:12:34.872671674Z",
+          "seal": {
+            "by": "server",
+            "mac": "859cc0197698bbef15064c072eb1a92b5f63c1fa1916b8ef74c5e0a0aa8c640e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The token test meets the statement, but the authorize span test asserts only status 303 (the Location header and body are discarded), runs with logs and stderr off, and so does not assert invalid_target or the marker's absence from the error output or logs. A 303 is also what a sign-in redirect returns. Fix: in a_refused_resource_says_how_it_differed_on_the_authorize_span, keep the Location header, assert it carries error=invalid_target and not the marker, and start the Observer with logs enabled (or reword the PR body to say the authorize test checks only the span value).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4394"
+          ],
+          "recorded_at": "2026-11-28T08:07:41.088581476Z",
+          "seal": {
+            "by": "server",
+            "mac": "292c8304ddd530cbfa6d37d4a58ab2ec4a3ad37948a57641dc5ee5d61962da7d"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Both tests now assert invalid_target, the expected okf.resource and marker absence from spans, logs and error output; both pass at a3c3167a.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4399",
+            "EVD-4395"
+          ],
+          "recorded_at": "2026-11-28T08:12:40.599699056Z",
+          "seal": {
+            "by": "server",
+            "mac": "34a18b143cf6f7ae83289e19f00acdf790ee1759e2de36f72f3c5d2a37be66fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T08:02:35.282069356Z",
+      "updated_at": "2026-11-28T08:12:40.599699056Z",
+      "seal": {
+        "by": "server",
+        "mac": "b62c1f769e02299262806c5b6ddb341926002948208d4af03de78cd6e722785b"
       }
     }
   ]

@@ -97,20 +97,32 @@ pub(crate) fn may_see_stores(principal: &Principal) -> bool {
     principal.access >= Access::Admin && !principal.provisioner
 }
 
-/// Every store's place by name: what a catalog listing joins its rows to.
+/// The place of each store in `names`, by name: what a catalog listing joins
+/// its rows to. It reads those stores' rows only (no counts), so a page costs
+/// what it references, not the installation.
 ///
 /// # Arguments
 /// * `app` - the application, for the account database.
+/// * `names` - the stores the page or the new catalog is on; repeats are fine.
 ///
 /// # Errors
 /// [`OkfError::Database`] for a failed read.
 #[tracing::instrument(level = "debug", skip_all)]
-pub(crate) async fn places(app: &App) -> Result<HashMap<String, StorePlace>, OkfError> {
-    Ok(stores::summaries(app.accounts().executor())
+pub(crate) async fn places<'a>(
+    app: &App,
+    names: impl IntoIterator<Item = &'a str>,
+) -> Result<HashMap<String, StorePlace>, OkfError> {
+    let names: Vec<String> = names
+        .into_iter()
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .map(str::to_string)
+        .collect();
+    Ok(stores::rows_named(app.accounts().executor(), &names)
         .await?
         .iter()
-        .map(|summary| {
-            let place = StorePlace::from(&summary.row);
+        .map(|row| {
+            let place = StorePlace::from(row);
             (place.name.clone(), place)
         })
         .collect())

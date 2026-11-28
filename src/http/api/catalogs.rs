@@ -163,14 +163,19 @@ impl CatalogSummary {
 /// Every store's place by name, read only for a caller who may see stores.
 type Places = HashMap<String, StorePlace>;
 
-/// The stores' places when `principal` may see them, else `None`.
+/// The places of the stores `names`, when `principal` may see stores, else
+/// `None`.
 ///
 /// # Errors
 /// [`OkfError::Database`] for a failed read.
 #[tracing::instrument(level = "debug", skip_all)]
-async fn places_for(app: &App, principal: &Principal) -> Result<Option<Places>, OkfError> {
+async fn places_for<'a>(
+    app: &App,
+    principal: &Principal,
+    names: impl IntoIterator<Item = &'a str>,
+) -> Result<Option<Places>, OkfError> {
     if may_see_stores(principal) {
-        Ok(Some(places(app).await?))
+        Ok(Some(places(app, names).await?))
     } else {
         Ok(None)
     }
@@ -313,7 +318,12 @@ async fn list_catalogs(
         }
     }
     let labels = app.labels().labels_for(&wanted).await?;
-    let places = places_for(&app, &principal).await?;
+    let places = places_for(
+        &app,
+        &principal,
+        page.items.iter().map(|row| row.store.as_str()),
+    )
+    .await?;
     let mut catalogs = Vec::with_capacity(page.items.len());
     let mut unavailable = page.unavailable;
     // Rows on a store the page found down stay unloaded; the rest load
@@ -418,9 +428,11 @@ async fn create_catalog(
         .and_then(|created| principal.suspension(created))
         .map(SuspensionInfo::from);
     // Where it was placed, for a caller who may see stores.
-    let store = match (&created, places_for(&app, &principal).await?) {
-        (Some(created), Some(mut places)) => places.remove(created.store.as_str()),
-        _ => None,
+    let store = match &created {
+        Some(created) => places_for(&app, &principal, [created.store.as_str()])
+            .await?
+            .and_then(|mut places| places.remove(created.store.as_str())),
+        None => None,
     };
     // Built from the row, not the loaded state: a new catalog holds only its
     // starter files (a root index.md and a log.md, no concepts), written
@@ -1580,6 +1592,27 @@ mod tests {
         };
         assert_eq!(count("main"), Some(json!(2)), "main and other: {body}");
         assert_eq!(count("store-b"), Some(json!(1)), "remote: {body}");
+    }
+
+    /// A page's places are read for the stores it references only: asking for
+    /// `main` never returns, or reads the counts of, another store.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn places_are_read_for_the_named_stores_only() {
+        let test = app().await;
+        test.catalog_on_new_store("store-b", "remote", &[("note.md", "# Remote\n")])
+            .await;
+
+        let main_only = places(&test.app, ["main", "main"]).await.expect("places");
+        let both = places(&test.app, ["store-b", "main", "no-such-store"])
+            .await
+            .expect("places");
+        let none = places(&test.app, []).await.expect("places");
+
+        assert_eq!(main_only.keys().collect::<Vec<_>>(), ["main"]);
+        let mut names: Vec<_> = both.keys().cloned().collect();
+        names.sort();
+        assert_eq!(names, ["main", "store-b"]);
+        assert!(none.is_empty());
     }
 
     /// A read key named `name` that reaches `catalogs`.

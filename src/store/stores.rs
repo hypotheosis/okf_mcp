@@ -183,6 +183,35 @@ pub async fn by_name<'e>(
     columns.map(StoreRow::try_from).transpose()
 }
 
+/// The rows of the stores called `names`, in name order: locations only, no
+/// counts. A name with no store is left out.
+///
+/// # Arguments
+/// * `executor` - the account database.
+/// * `names` - the stores' names.
+///
+/// # Returns
+/// Their rows.
+///
+/// # Errors
+/// [`OkfError::Database`], or a `ColumnDecode` for a hand-edited row.
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "stores.rows_named"))]
+pub async fn rows_named<'e>(
+    executor: impl PgExecutor<'e>,
+    names: &[String],
+) -> Result<Vec<StoreRow>, OkfError> {
+    sqlx::query_as::<_, StoreRowColumns>(
+        "SELECT name, location_kind, host, port, database, credential_kind, \
+             credential_ref FROM stores WHERE name = ANY($1) ORDER BY name",
+    )
+    .bind(names)
+    .fetch_all(executor)
+    .await?
+    .into_iter()
+    .map(StoreRow::try_from)
+    .collect()
+}
+
 /// The name of every store, in name order.
 ///
 /// # Arguments

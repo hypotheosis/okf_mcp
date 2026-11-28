@@ -11,6 +11,6 @@ ceiling checks).
   changes `max_key_lifetime` between the older and newer reads, releases the
   older answer, and asserts the New key form offers the newer account's
   expiry options (7 days, 30 days the longest) and not the older one's.
-- The other list pages that use `latest()` (My grants, catalogs,
-  changesets, teams, users, runs, settings, account) assign page state only
+- The other list pages that use `latest()` (My grants,
+  changesets, teams, users, runs, search, settings, account) assign page state only
   after their guard; none needed a change.

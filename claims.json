@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2690,
+  "next_claim_seq": 2700,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "25c5858dcb8c218ef5b51cda3b4a031b2dfb6726fdafc7e0ed9a931748ad0811"
+    "mac": "6f74c09e616364bc3e9bfea5fe249d065170e1458a72d8cdb2372ebafe332f10"
   },
-  "next_evidence_seq": 4684,
+  "next_evidence_seq": 4702,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e4f947c26dc0925a9d8ff9014f713cde23febb3221d3b324fd6cb59cf3a9dd19"
+    "mac": "c5e4603c58588347f5793f83fd04073790103686617e75f77b670a782272e60b"
   },
   "claims": [
     {
@@ -221622,6 +221622,28 @@
             "by": "server",
             "mac": "eb8c1ba410ce79165dd4400354b6ee671a251b4af19380ff46bb06b508930190"
           }
+        },
+        {
+          "id": "EVD-4696",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:804-818 at 46804de9; test.log:1774",
+          "summary": "Re-audit at head: the authorize refusal still records okf.resource (now on span okf.oauth.authorize) and returns back(\"invalid_target\"); the test asserts invalid_target and passes. Token-side unchanged by this diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 804,
+                "end": 818
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:56:11.081377111Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d03b5c160249e63eac41860223c499603d9e3b92628d28783e9c610e392a243"
+          }
         }
       ],
       "verdicts": [
@@ -221638,13 +221660,26 @@
             "by": "server",
             "mac": "2218a626e09232cef9a460c92cc1b506a44116a93781e8e700c70ca7e88ff35e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head after the span rename: behavior unchanged, test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4696"
+          ],
+          "recorded_at": "2026-11-28T17:56:22.115842689Z",
+          "seal": {
+            "by": "server",
+            "mac": "600212c6b3c2c7e175cf405e09bd735611d75446523880e859098baa87fe5758"
+          }
         }
       ],
       "created_at": "2026-11-28T08:02:35.282069356Z",
-      "updated_at": "2026-11-28T08:07:39.602753216Z",
+      "updated_at": "2026-11-28T17:56:22.115842689Z",
       "seal": {
         "by": "server",
-        "mac": "3bf1d6f29c859ba24f1e6617f0f2e211b94017d17e6d4348ce6b8a1520b2edc0"
+        "mac": "d5395dcb075a6552eaf6d5ff3af308b78c79e56c44bc3811961f4bc7584930fc"
       }
     },
     {
@@ -221869,6 +221904,28 @@
             "by": "server",
             "mac": "c49b8f6faa694ef1b037cd16d4bd3af9aef2c6a006f0c9343ab648e82170b3c4"
           }
+        },
+        {
+          "id": "EVD-4697",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:749-754 at 46804de9",
+          "summary": "Re-audit at head: fields(okf.resource = tracing::field::Empty) still declared on the authorize span (renamed okf.oauth.authorize); token span unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 749,
+                "end": 754
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:56:11.237725801Z",
+          "seal": {
+            "by": "server",
+            "mac": "cf875745a9a703657da713d8a279d011bb30454f0b1ac50cf2ff9a13b767bd94"
+          }
         }
       ],
       "verdicts": [
@@ -221885,13 +221942,26 @@
             "by": "server",
             "mac": "202fa8c80bcfcca24c20929197445de5dd2017fb2a938b9c2e8c0fcf1438a758"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: Empty declaration still on the (renamed) authorize span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4697"
+          ],
+          "recorded_at": "2026-11-28T17:56:22.335941155Z",
+          "seal": {
+            "by": "server",
+            "mac": "338fe841dc7ed677966a14abc8a3963484b54af939967d1b8d57728e290426bc"
+          }
         }
       ],
       "created_at": "2026-11-28T08:02:35.282069356Z",
-      "updated_at": "2026-11-28T08:07:40.055912559Z",
+      "updated_at": "2026-11-28T17:56:22.335941155Z",
       "seal": {
         "by": "server",
-        "mac": "cdfe827e1457979baacc711d1aa4ada1b7d7afd5ff56bb4aca4e24f4d6746e77"
+        "mac": "dc3f3f248ea4cf63fb791b8fcc001c97b3f92c22a8e614a00dc9ec4d755c2d69"
       }
     },
     {
@@ -222137,6 +222207,28 @@
             "by": "server",
             "mac": "12e3b69a0cc2ccafef830bf6d29d486f683bcaf93c0095cacd3cdfce62d40448"
           }
+        },
+        {
+          "id": "EVD-4699",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1791, 5060-5075 at 46804de9",
+          "summary": "Re-audit at head: okf.grant and okf.resource rows/paragraph still present; this diff only renamed the authorize span in the note.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5060,
+                "end": 5075
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:56:11.552505412Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe9945926e28faf3662d91fd9d9d472cab35428d7cd136a0428169b4244589aa"
+          }
         }
       ],
       "verdicts": [
@@ -222152,13 +222244,26 @@
             "by": "server",
             "mac": "172295b15a0051777a05f304c9edded7bc66b22aebc1c775ddd33b7be34ae25b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: content still present; only the authorize span name changed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4699"
+          ],
+          "recorded_at": "2026-11-28T17:56:22.834551467Z",
+          "seal": {
+            "by": "server",
+            "mac": "4246ce5e603cb92f43db76ccf1643fdb3c723d64b981a7a681bf0ece6570b927"
+          }
         }
       ],
       "created_at": "2026-11-28T08:02:35.282069356Z",
-      "updated_at": "2026-11-28T08:07:40.612402968Z",
+      "updated_at": "2026-11-28T17:56:22.834551467Z",
       "seal": {
         "by": "server",
-        "mac": "1b9ce4ad4291394cc24aeee7952d77c085230ad2403ff724ffdbcca8f2c84dd7"
+        "mac": "af122317a0a11848ba82dcd4bb19a834091870d688c7b3eb3b229d29aee729a7"
       }
     },
     {
@@ -222370,6 +222475,28 @@
             "by": "server",
             "mac": "859cc0197698bbef15064c072eb1a92b5f63c1fa1916b8ef74c5e0a0aa8c640e"
           }
+        },
+        {
+          "id": "EVD-4698",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:2005-2043 at 46804de9",
+          "summary": "Re-audit at head: the authorize test still asserts invalid_target, the expected okf.resource, and marker absence from the location (now via okf.oauth.authorize under the default filter); passes at test.log:1774.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2005,
+                "end": 2043
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:56:11.393926570Z",
+          "seal": {
+            "by": "server",
+            "mac": "33473784a16d2c753ab6ec06a720da7a826cb0e39531fb11461a5c7a1d4235e1"
+          }
         }
       ],
       "verdicts": [
@@ -222399,13 +222526,26 @@
             "by": "server",
             "mac": "34a18b143cf6f7ae83289e19f00acdf790ee1759e2de36f72f3c5d2a37be66fc"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: assertions retained and strengthened (default filter); passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4698"
+          ],
+          "recorded_at": "2026-11-28T17:56:22.568985068Z",
+          "seal": {
+            "by": "server",
+            "mac": "dd41f6b77c87e216979f92752a428c723a9c41341351fcfdbb020d53a0fe3014"
+          }
         }
       ],
       "created_at": "2026-11-28T08:02:35.282069356Z",
-      "updated_at": "2026-11-28T08:12:40.599699056Z",
+      "updated_at": "2026-11-28T17:56:22.568985068Z",
       "seal": {
         "by": "server",
-        "mac": "b62c1f769e02299262806c5b6ddb341926002948208d4af03de78cd6e722785b"
+        "mac": "68b9cc34e7a658f62dca6d8da53a69311034c755afda0893bd2a7f04b6d7d834"
       }
     },
     {
@@ -234893,6 +235033,28 @@
             "by": "server",
             "mac": "46077168bbf885bfcd22fb30092e63a75953101419dde7ce9420e6ba396d6ee0"
           }
+        },
+        {
+          "id": "EVD-4700",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1304-1330 at 46804de9; test PASS in gate log",
+          "summary": "Re-audit at head: this diff only adds \"okf.resource\" to the expected list; scan logic unchanged. Gate test run passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1304,
+                "end": 1330
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:56:11.713176624Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fb8317d97e7469050e68071d8673fcc2a214513a5168681bd3baedd6a914ceb"
+          }
         }
       ],
       "verdicts": [
@@ -234935,13 +235097,26 @@
             "by": "server",
             "mac": "8750cf3656b6503a68e0531d2a22bddc1faaee19cc8fa30bcc51ffb1e745cff2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on head: scan unchanged, one key added to the list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4700"
+          ],
+          "recorded_at": "2026-11-28T17:56:23.059946781Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc9e8d0a2e7b8a1864eb9a68666e0edabf0241b41188fa96b490fda3e42fc46e"
+          }
         }
       ],
       "created_at": "2026-11-28T17:18:20.872841047Z",
-      "updated_at": "2026-11-28T17:23:28.418823574Z",
+      "updated_at": "2026-11-28T17:56:23.059946781Z",
       "seal": {
         "by": "server",
-        "mac": "7353f65943c9560b9fff2be3b6876067b62d6a1963e6ead4bfb2d6443d5c6bd4"
+        "mac": "770459409910bc91b7ddca6c2c4fe5802869288cbf74ca8a55acbcfd7a23cb2d"
       }
     },
     {
@@ -236016,6 +236191,692 @@
       "seal": {
         "by": "server",
         "mac": "04369be9b9e1ab6af75eab8b5ecb36a975f4d8d98594c38bca1f86b5f767b0ff"
+      }
+    },
+    {
+      "id": "CLM-2690",
+      "statement": "Issue #1203 is resolved: the okf.resource field recorded at /oauth/authorize for a refused resource reaches the exporter under the default OTLP traces filter.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1203",
+      "derived_from": [],
+      "artifacts": [
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4701",
+          "kind": "analysis",
+          "locator": "children of CLM-2690",
+          "summary": "The span is info-level and named okf.oauth.authorize (CLM-2691), carries only the closed-set classification (CLM-2692), and a test under the default filter proves the field is exported (CLM-2693, CLM-2694); docs, changelog, scan and validation claims all hold.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:56:23.283390645Z",
+          "seal": {
+            "by": "server",
+            "mac": "81a54b589072c203e227deee73d4a6f5d7fb12a5bed01c5291d3a75923c696d7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported; a test under DEFAULT_OTLP_FILTER shows the field reaching the exporter.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4701"
+          ],
+          "recorded_at": "2026-11-28T17:56:26.099076786Z",
+          "seal": {
+            "by": "server",
+            "mac": "3e5d465b2d459c2bd15d195abe76694d3ac946c3f733d38d7dfe4627ff4f74cf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:56:26.099076786Z",
+      "seal": {
+        "by": "server",
+        "mac": "cc9c8c3215f1aa7caadfafdd80276fcae68bf941e1732ce8c342d315cb02b49a"
+      }
+    },
+    {
+      "id": "CLM-2691",
+      "statement": "The authorize handler's tracing span is named okf.oauth.authorize and is at level info, which DEFAULT_OTLP_FILTER (\"info\") keeps.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"The span is now `okf.oauth.authorize` at `info`, like `okf.oauth.token`.\"",
+      "source_anchor": {
+        "path": "src/oauth/authorize.rs",
+        "lines": {
+          "start": 745,
+          "end": 754
+        },
+        "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+      },
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs",
+        "src/telemetry/config.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4684",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:749-754; src/telemetry/config.rs:18",
+          "summary": "#[tracing::instrument(level = \"info\", name = \"okf.oauth.authorize\", ...)] on authorize; DEFAULT_OTLP_FILTER = \"info\", so info spans are exported.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 749,
+                "end": 754
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:20.417399026Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e205ae98d5faf5fc05bc3df71f50ec30bf8088cd129d495b29b1060dcf90e24"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Attribute shows level info and the new name; DEFAULT_OTLP_FILTER is \"info\" (config.rs:18), and the test runs under that filter and sees the span.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4684"
+          ],
+          "recorded_at": "2026-11-28T17:55:58.132715395Z",
+          "seal": {
+            "by": "server",
+            "mac": "2669738a76216e6a800852e8215d9fe81143475883b7e14c58fc5b60b1984ba5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:58.132715395Z",
+      "seal": {
+        "by": "server",
+        "mac": "27dba04168b64035c145c152cffc0cc68dacea5ed17918c0af294307aa9c1da2"
+      }
+    },
+    {
+      "id": "CLM-2692",
+      "statement": "The okf.oauth.authorize span records only okf.resource (a classification from resource::classify, never the sent value), and only when the request named a resource that is not this server's; it declares no outcome or okf.error field.",
+      "kind": "security",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR body: \"Only `okf.resource` is on it (a closed set from `resource::classify`, never the value), and only when the request named a `resource` that was not this server's.\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4685",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:749-754,804-815",
+          "summary": "The only declared field is okf.resource (Empty); the sole record call is in the branch where a sent resource differs from the configured one, recording resource::classify(..).as_str(), not the value. No outcome/okf.error field is declared or recorded on this span (the only other record( at line 1139 is a different span).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 804,
+                "end": 815
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:20.593437481Z",
+          "seal": {
+            "by": "server",
+            "mac": "41a1fd5e8407286e6889d88698251a3a2655cca6be4c3afae8dfbd972cd7fb26"
+          }
+        },
+        {
+          "id": "EVD-4686",
+          "kind": "log",
+          "locator": "target/i1203-logs/test.log:1774,1777",
+          "summary": "Both authorize span tests PASS (refused cases assert the expected classification, marker absent; accepted/missing cases assert okf.resource is None).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:55:20.756264494Z",
+          "seal": {
+            "by": "server",
+            "mac": "192b455fe16f38565c5e06892e0c299b186457e89aac76d3dcc6d47f9b802553"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Single declared field, single record site gated on a differing resource, classification only; passing tests assert marker absent and okf.resource unset otherwise. No outcome/okf.error.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4685",
+            "EVD-4686"
+          ],
+          "recorded_at": "2026-11-28T17:55:58.287862919Z",
+          "seal": {
+            "by": "server",
+            "mac": "26421263957ef8f67af71da7b53e53f9acf48c57a465e8f9c05d2ce6b4776b72"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:58.287862919Z",
+      "seal": {
+        "by": "server",
+        "mac": "e262b5aeeca1020cedadd8430066fe815c42ab936ec734a904f1ad54a02ed79b"
+      }
+    },
+    {
+      "id": "CLM-2693",
+      "statement": "A test runs the authorize refusal under DEFAULT_OTLP_FILTER as the traces filter and asserts the exported okf.oauth.authorize span carries the expected okf.resource classification and the sent marker value appears nowhere in the location.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"the #1011 test now runs with `DEFAULT_OTLP_FILTER` as the traces filter and reads `okf.oauth.authorize`\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4687",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:2005-2043",
+          "summary": "Observer::start(\"off\", DEFAULT_OTLP_FILTER, \"off\", ..) (traces filter is the default); asserts invalid_target redirect, marker not in location, spans_named(\"okf.oauth.authorize\") okf.resource values equal [expected] for each case incl. unparseable marker.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2005,
+                "end": 2043
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:20.913819708Z",
+          "seal": {
+            "by": "server",
+            "mac": "3074006b442ccc0c5521859fa3bcccb9cb5ebd1a6ac091aa35673a2d80caa2d9"
+          }
+        },
+        {
+          "id": "EVD-4688",
+          "kind": "log",
+          "locator": "target/i1203-logs/test.log:1774 (okf_mcp oauth::authorize::tests::a_refused_resource_says_how_it_differed_on_the_authorize_span)",
+          "summary": "Test PASS in the gate run.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:55:21.071340101Z",
+          "seal": {
+            "by": "server",
+            "mac": "07f861c2e71592f976cff00e70a852658e99beba942a7aa82ea51eccaf0e7ef5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test reads span under the default traces filter and asserts the classification per case; passes in the gate log. Assertions read, not just the name.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4687",
+            "EVD-4688"
+          ],
+          "recorded_at": "2026-11-28T17:55:58.441886948Z",
+          "seal": {
+            "by": "server",
+            "mac": "1e353fd8b20dc7e8a78841669d2b2219d1d82e69470a748ee5901ce9a09d5e31"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:58.441886948Z",
+      "seal": {
+        "by": "server",
+        "mac": "08eaaf05db83c99cc858f9cabfa4f371c13a9e71f3a160f1f818f4307849770b"
+      }
+    },
+    {
+      "id": "CLM-2694",
+      "statement": "A test shows a missing or accepted resource yields exactly one exported okf.oauth.authorize span under the default filter with okf.resource unrecorded.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"a new test shows a missing or accepted `resource` leaves `okf.resource` unrecorded\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src/oauth/authorize.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4689",
+          "kind": "inspection",
+          "locator": "src/oauth/authorize.rs:2045-2075",
+          "summary": "Loops over no resource and resource=PUBLIC_URL/mcp under DEFAULT_OTLP_FILTER; asserts non-error status, spans.len()==1 and attribute okf.resource is_none(). Passes at test.log:1777.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/authorize.rs",
+              "lines": {
+                "start": 2045,
+                "end": 2075
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:21.240914381Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce0da749085f1ef3e529bd0616fe01e547d3151610a49f90c9e86eb488237db4"
+          }
+        },
+        {
+          "id": "EVD-4695",
+          "kind": "log",
+          "locator": "target/i1203-logs/test.log:1777",
+          "summary": "oauth::authorize::tests::an_accepted_or_missing_resource_leaves_okf_resource_unrecorded PASS.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:56:10.920907060Z",
+          "seal": {
+            "by": "server",
+            "mac": "45cfafd8f9f9ce455cd44c3bb88149ce0be623b951244d66e0c825aab01c1617"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions read: one span, okf.resource none, for missing and accepted resource; test passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4689",
+            "EVD-4695"
+          ],
+          "recorded_at": "2026-11-28T17:56:21.875642159Z",
+          "seal": {
+            "by": "server",
+            "mac": "b548e932518afbf601177100f7ec8274b073f9ec32255cee6c95cfd2c4c6b3f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:56:21.875642159Z",
+      "seal": {
+        "by": "server",
+        "mac": "220b075bb573deccc3f24da6af11469e070b948bec05ac52f33a94656858df3a"
+      }
+    },
+    {
+      "id": "CLM-2695",
+      "statement": "okf.resource is in the floor set of the span-key scan in src/http/telemetry_tests.rs.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`okf.resource` joins the span-key scan's floor set.\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4690",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1306-1316",
+          "summary": "\"okf.resource\" is listed among the expected keys in no_okf_span_key_holds_a_substring_a_scrubber_hides.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1306,
+                "end": 1316
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:21.413973560Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7c7d184c1c457b84a4c9239fb509b45e229dbcf8a648a723579e84adb0e6e23"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The key is in the expected list at line 1311.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4690"
+          ],
+          "recorded_at": "2026-11-28T17:55:58.672778439Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa376389128813cc569b16622cf0d489c1e5ed33f05a01f6393aa1ef218f6c68"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:58.672778439Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f692f9d78afe6e1d2504c93d2cc2646163bba5123c03062d81caa86150ffe79"
+      }
+    },
+    {
+      "id": "CLM-2696",
+      "statement": "docs/operations.md has a span-table row for okf.oauth.authorize and the invalid_target note names the info span okf.oauth.authorize instead of the debug span authorize.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"`docs/operations.md`: a span-table row for `okf.oauth.authorize` and the invalid_target note name the new span.\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4691",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1792, 5062-5067",
+          "summary": "Span table row for okf.oauth.authorize (okf.resource only); invalid_target note now says \"the `info` span `okf.oauth.authorize`, which the default trace export keeps\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5062,
+                "end": 5067
+              },
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:21.584738286Z",
+          "seal": {
+            "by": "server",
+            "mac": "bdcbaea0cc18480f450609ac75ea7e0b927ca43942febd51fed3877be6e4bf11"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Row at operations.md:1792 and updated note at 5062-5067 name okf.oauth.authorize at info.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4691"
+          ],
+          "recorded_at": "2026-11-28T17:55:58.850783331Z",
+          "seal": {
+            "by": "server",
+            "mac": "4a3ef640c8c9040d801c92257c24e00106341e1a57edba3b6c787e8c30f5a8ed"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:58.850783331Z",
+      "seal": {
+        "by": "server",
+        "mac": "fe353ab7b5efa77e3823c1e2262e7509d75f76c0e5c9093adc44741c8abcd60d"
+      }
+    },
+    {
+      "id": "CLM-2697",
+      "statement": "A dated changelog file for issue 1203 exists under changelog/.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"changelog/20261128T180000Z-issue-1203-authorize-resource-span.md\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "changelog/20261128T180000Z-issue-1203-authorize-resource-span.md"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4692",
+          "kind": "inspection",
+          "locator": "changelog/20261128T180000Z-issue-1203-authorize-resource-span.md",
+          "summary": "File added in the commit range; describes the span rename/level, tests and docs changes accurately.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T180000Z-issue-1203-authorize-resource-span.md",
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:21.754106025Z",
+          "seal": {
+            "by": "server",
+            "mac": "ab6348989c852ec3447fa69eaeef8c58941941f1aef175afa14324ec79f7d091"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timestamped changelog file exists and matches the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4692"
+          ],
+          "recorded_at": "2026-11-28T17:55:59.004054615Z",
+          "seal": {
+            "by": "server",
+            "mac": "aa0a35e29002b08f285dcb0f82a65f7bc2b187ee995f5d622066b575e30e418a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:59.004054615Z",
+      "seal": {
+        "by": "server",
+        "mac": "636cc83a14bcc91a97e201dcadd0f59a48f916cc93f6b57b675a135132d58aeb"
+      }
+    },
+    {
+      "id": "CLM-2698",
+      "statement": "No code, test or doc in the repository (outside historical plan documents) referred to the old debug span named authorize.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"nothing in the repository used it\"",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "src",
+        "docs",
+        "tests"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4693",
+          "kind": "analysis",
+          "locator": "git grep -nE 'span `authorize`|`authorize` (debug )?span|debug.{0,20}authorize|authorize.{0,20}debug|spans_named\\(\"authorize\"\\)' -- src docs tests README.md",
+          "summary": "Grep at head over src, docs, tests finds no remaining reference to the old span name (the one hit class was the doc note and the test, both updated). Other \"authorize\" hits are the HTTP request span \"GET /oauth/authorize\" and unrelated .expect(\"authorize\"). Historical plan docs under docs/superpowers excluded.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "spans_named\\(\"authorize\"\\)|span `authorize`|`authorize` (debug )?span",
+              "scope": [
+                "docs/operations.md",
+                "src",
+                "tests"
+              ],
+              "hits": 0,
+              "commit": "46804de9c1eb20d2147c3939154f890be81672e0"
+            }
+          },
+          "recorded_at": "2026-11-28T17:55:21.926456930Z",
+          "seal": {
+            "by": "server",
+            "mac": "070573e4910f96edebb1394ec12187dade7bcea7e6c1a34cef98665eaa193f6f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero-hit search at head for the old name across src, operations.md, tests.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4693"
+          ],
+          "recorded_at": "2026-11-28T17:55:59.158811947Z",
+          "seal": {
+            "by": "server",
+            "mac": "41dfd2ba16f2d49522a76f96341e1c7c7b4c938e7941192eeb1dc312256bb7f2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:59.158811947Z",
+      "seal": {
+        "by": "server",
+        "mac": "a92678f94d628eff61857d87c7e4f44aecabca37a8013a2eafd8192dfeaccb36"
+      }
+    },
+    {
+      "id": "CLM-2699",
+      "statement": "The gate logs show fmt, lint, dylint and mcpjam exit 0 and test with 3864 run, 3864 passed, 20 skipped.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body Validation section",
+      "derived_from": [
+        "CLM-2690"
+      ],
+      "artifacts": [
+        "target/i1203-logs"
+      ],
+      "tags": [
+        "from-issue:1203"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4694",
+          "kind": "log",
+          "locator": "target/i1203-logs/status.txt; test.log:7904",
+          "summary": "status.txt: fmt, lint, dylint, test, mcpjam all exit 0; test.log summary \"3864 tests run: 3864 passed, 20 skipped\". Read from logs only (not rerun, per instructions).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:55:22.105270060Z",
+          "seal": {
+            "by": "server",
+            "mac": "de9b1a55bba55f17214a9ad52035872531c6363f1c5a6e49492193195c7c0ce5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Logs show the stated exits and counts (read, not rerun; head SHA on the logs not verified beyond the worktree's HEAD 46804de9).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4694"
+          ],
+          "recorded_at": "2026-11-28T17:55:59.322247654Z",
+          "seal": {
+            "by": "server",
+            "mac": "7d63f270221bab2f0b68724994041dee652fd9d751917f85db492f6b45825465"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:54:59.171579565Z",
+      "updated_at": "2026-11-28T17:55:59.322247654Z",
+      "seal": {
+        "by": "server",
+        "mac": "50651a91a3638d1e51de9306158e2a64dd529357772edf297fe98b447a450fa5"
       }
     }
   ]

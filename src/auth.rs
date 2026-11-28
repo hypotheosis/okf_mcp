@@ -929,7 +929,7 @@ pub(crate) fn principal_of(
 }
 
 /// Why a bearer credential was refused with a 401 (issue #1012): the
-/// `okf.auth.failure` span value on the request span.
+/// `okf.refusal` span value on the request span.
 ///
 /// The set is closed. [`AuthFailure::as_str`] is the only spelling that
 /// reaches telemetry; the credential, a prefix of it, its hash and its key
@@ -965,7 +965,7 @@ pub enum AuthFailure {
 }
 
 impl AuthFailure {
-    /// The `okf.auth.failure` span value.
+    /// The `okf.refusal` span value.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(uninstrumented_fn, reason = "a const mapping of a variant to its name")
@@ -1143,7 +1143,7 @@ pub(crate) fn refuse(
     unauthorized(app)
 }
 
-/// Records `okf.auth.failure` on the request span the telemetry middleware
+/// Records `okf.refusal` on the request span the telemetry middleware
 /// stored in `extensions`, if there is one (no span for an unmatched route).
 /// The span handle, not `Span::current()`: under a raised trace filter the
 /// current span is a child that declares no such field.
@@ -1154,7 +1154,7 @@ pub(crate) fn refuse(
 #[tracing::instrument(level = "trace", skip_all)]
 pub(crate) fn record_auth_failure(extensions: &axum::http::Extensions, failure: AuthFailure) {
     if let Some(crate::http::RequestSpan(span)) = extensions.get::<crate::http::RequestSpan>() {
-        span.record("okf.auth.failure", failure.as_str());
+        span.record("okf.refusal", failure.as_str());
     }
 }
 

@@ -1072,7 +1072,7 @@ async fn a_401_records_why_the_credential_was_refused() {
                 let spans = observed.spans_named(name);
                 assert_eq!(spans.len(), 1, "{filter} {name}: {}", dump(&observed));
                 assert_eq!(
-                    attribute(spans[0], "okf.auth.failure")
+                    attribute(spans[0], "okf.refusal")
                         .map(ToString::to_string)
                         .as_deref(),
                     Some(failure.as_str()),
@@ -1095,7 +1095,7 @@ async fn an_admitted_request_records_no_auth_failure() {
         })
         .await;
         let span = &observed.spans_named("GET /api/v1/whoami")[0];
-        assert!(attribute(span, "okf.auth.failure").is_none(), "{filter}");
+        assert!(attribute(span, "okf.refusal").is_none(), "{filter}");
     }
 }
 
@@ -1119,7 +1119,7 @@ async fn a_dead_session_cookie_on_the_api_is_unknown() {
         .await;
         let span = &observed.spans_named("GET /api/v1/session")[0];
         assert_eq!(
-            attribute(span, "okf.auth.failure")
+            attribute(span, "okf.refusal")
                 .map(ToString::to_string)
                 .as_deref(),
             Some("unknown"),
@@ -1209,7 +1209,7 @@ async fn a_refused_credential_never_reaches_a_span_a_log_or_a_body() {
     }
 }
 
-/// Issue #1012: the `okf.auth.failure` values hold nothing a trace backend's
+/// Issue #1012: the `okf.refusal` values (once `okf.auth.failure`) hold nothing a trace backend's
 /// scrubber hides.
 #[test]
 fn the_auth_failure_values_hold_nothing_a_scrubber_hides() {
@@ -1226,6 +1226,97 @@ fn the_auth_failure_values_hold_nothing_a_scrubber_hides() {
             "auth", "token", "secret", "password", "key", "cookie", "session",
         ] {
             assert!(!failure.as_str().contains(hidden), "{failure:?}");
+        }
+    }
+}
+
+/// Substrings a trace backend's default scrubber hides, in a key or a value.
+///
+/// The first twelve are Sentry's documented default list
+/// (<https://docs.sentry.io/security-legal-pii/scrubbing/server-side-scrubbing/>);
+/// the last three are a conservative project extra. Issue #884 (77e3614b)
+/// renamed `okf.oauth.grant` to `okf.grant` for the same reason, and #1205
+/// renamed `okf.auth.failure` to `okf.refusal`.
+const SCRUBBED_SUBSTRINGS: [&str; 15] = [
+    "password",
+    "secret",
+    "passwd",
+    "api_key",
+    "apikey",
+    "auth",
+    "credentials",
+    "mysql_pwd",
+    "privatekey",
+    "private_key",
+    "token",
+    "bearer",
+    "cookie",
+    "session",
+    "csrf",
+];
+
+/// Collects every `okf.*` span attribute key declared or recorded in `src`.
+///
+/// A key is declared unquoted before an `=` inside `fields(...)` or
+/// `info_span!(...)` (possibly on its own line), or recorded as a quoted
+/// literal by `record("okf....", ..)`. Span names and metric names are quoted
+/// and never followed by `=`, so they are not collected. Code after the first
+/// `#[cfg(test)]` and files named `*tests.rs` are skipped.
+fn okf_span_keys() -> std::collections::BTreeSet<String> {
+    let declared = regex::Regex::new(r#"(?:^|[^"A-Za-z0-9_.])(okf\.[a-z0-9_.]+)\s*=[^=]"#)
+        .expect("a valid pattern");
+    let recorded =
+        regex::Regex::new(r#"record\(\s*"(okf\.[a-z0-9_.]+)""#).expect("a valid pattern");
+    let mut keys = std::collections::BTreeSet::new();
+    let mut pending = vec![std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")];
+    while let Some(path) = pending.pop() {
+        if path.is_dir() {
+            pending.extend(
+                std::fs::read_dir(&path)
+                    .expect("src is readable")
+                    .map(|entry| entry.expect("an entry").path()),
+            );
+            continue;
+        }
+        let name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("");
+        if !name.ends_with(".rs") || name.ends_with("tests.rs") {
+            continue;
+        }
+        let text = std::fs::read_to_string(&path).expect("a source file");
+        let code = text.split("#[cfg(test)]").next().unwrap_or("");
+        for pattern in [&declared, &recorded] {
+            keys.extend(pattern.captures_iter(code).map(|found| found[1].to_owned()));
+        }
+    }
+    keys
+}
+
+/// Issue #1205: no `okf.*` span attribute key holds a substring a trace
+/// backend's scrubber hides (a key containing `auth` shows as `[Filtered]`).
+#[test]
+fn no_okf_span_key_holds_a_substring_a_scrubber_hides() {
+    let keys = okf_span_keys();
+    for expected in [
+        "okf.key.id",
+        "okf.grant",
+        "okf.refusal",
+        "okf.refresh",
+        "okf.error",
+    ] {
+        assert!(
+            keys.contains(expected),
+            "the scan missed {expected}: {keys:?}"
+        );
+    }
+    for key in &keys {
+        for hidden in SCRUBBED_SUBSTRINGS {
+            assert!(
+                !key.contains(hidden),
+                "{key} holds {hidden}, which a trace backend scrubs"
+            );
         }
     }
 }

@@ -678,7 +678,7 @@ fn request_span<B>(request: &axum::http::Request<B>) -> tracing::Span {
         http.response.status_code = tracing::field::Empty,
         enduser.id = tracing::field::Empty,
         okf.key.id = tracing::field::Empty,
-        okf.auth.failure = tracing::field::Empty,
+        okf.refusal = tracing::field::Empty,
     );
     if let Some(link) = crate::telemetry::propagation::link_from(request.headers()) {
         // The caller's trace is linked, never adopted (spec Decision 4).

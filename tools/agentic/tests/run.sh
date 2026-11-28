@@ -11,7 +11,8 @@
 #   With arguments, only the tests whose names contain one of them run.
 #
 # Parallelism (#1216). Most of the time goes on real sleeps, so up to
-# $AGENTIC_TEST_JOBS tests (default 4; 1 runs them one at a time) run at once.
+# $AGENTIC_TEST_JOBS tests run at once: 4 by default, and never more than 4 (a
+# larger value is clamped to 4 with a note on stderr); 1 runs them one at a time.
 # Each test is its own `run.sh --one <name>` process in its own process group, with
 # its own temporary directory, git repositories and fixtures, so tests share no
 # files, locks, branches or process scans. When a test ends, anything it left in
@@ -2695,13 +2696,13 @@ ticks_run() {
 test_ticks_default_to_a_tenth_of_a_second_and_bad_values_fall_back() {
     local want
     for want in "" 0 abc 1001 -5 2.5; do
-        [ "$(AGENTIC_TICKS_PER_SEC=$want bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100" ] \
-            || die "'$want' did not fall back to 10 ticks (0.100 s)"
+        [ "$(AGENTIC_TICKS_PER_SEC=$want bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100000" ] \
+            || die "'$want' did not fall back to 10 ticks (0.100000 s)"
     done
-    [ "$(env -u AGENTIC_TICKS_PER_SEC bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100" ] \
+    [ "$(env -u AGENTIC_TICKS_PER_SEC bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100000" ] \
         || die "the default is not 10 ticks a second"
-    [ "$(AGENTIC_TICKS_PER_SEC=100 bash -c 'source "$1"; echo "$agentic_tick"' _ "$tools/lib.sh")" = 0.010 ] \
-        || die "100 ticks a second is not a 0.010 s tick"
+    [ "$(AGENTIC_TICKS_PER_SEC=100 bash -c 'source "$1"; echo "$agentic_tick"' _ "$tools/lib.sh")" = 0.010000 ] \
+        || die "100 ticks a second is not a 0.010000 s tick"
 }
 
 test_finer_ticks_notice_a_finished_command_sooner() {
@@ -2737,8 +2738,64 @@ test_watch_polls_every_30_seconds_by_default() {
         || die "a 100 s poll did not add 9 passes (1000..1800): $(grep -c '^pr view 7 .*headRefOid' "$fx/calls.log") in all"
 }
 
+test_a_tick_is_a_whole_reciprocal_of_the_rate() {
+    local rate want
+    for rate in "1 1.000000" "2 0.500000" "7 0.142857" "10 0.100000" "1000 0.001000"; do
+        set -- $rate
+        want=$2
+        [ "$(AGENTIC_TICKS_PER_SEC=$1 bash -c 'source "$1"; echo "$agentic_tick"' _ "$tools/lib.sh")" = "$want" ] \
+            || die "rate $1: tick is not $want"
+    done
+}
+
+test_a_slow_tick_does_not_cut_a_budget_short() {
+    new_fixtures
+    local line rate
+    # A 1.2 s command under a 2 s budget must finish, not time out, at a rate of
+    # 1 tick a second (a 0.1000 tick used to make that budget 0.2 s) and at one
+    # that does not divide 1000 (7).
+    for rate in 1 7; do
+        line=$(ticks_run 2 "$rate" sleep 1.2)
+        [ "${line%% *}" = rc=0 ] || die "rate $rate: a 1.2 s command under a 2 s budget: $line"
+    done
+}
+
+test_the_job_limit_is_four() {
+    local out rc
+    out=$(AGENTIC_TEST_JOBS=99 "$tests_dir/run.sh" test_ticks_default_to 2>&1); rc=$?
+    [ "$rc" = 0 ] || die "rc=$rc: $out"
+    want_out "above the limit of 4; using 4"; want_out "(jobs: 4)"
+    out=$(AGENTIC_TEST_JOBS=4 "$tests_dir/run.sh" test_ticks_default_to 2>&1)
+    case "$out" in *"above the limit"*) die "4 was clamped: $out" ;; esac
+    want_out "(jobs: 4)" # (from the 4 run)
+    out=$(AGENTIC_TEST_JOBS=0 "$tests_dir/run.sh" test_ticks_default_to 2>&1); rc=$?
+    [ "$rc" = 2 ] || die "0 jobs: rc=$rc: $out"
+}
+
+test_the_pool_collects_tests_that_end_while_another_is_cleaned_up() {
+    new_fixtures
+    # The first test leaves a TERM-ignoring process in its group, so stopping
+    # its group takes 2 s; the three after it end meanwhile. A pool that
+    # counted on `wait -n` to name each would lose them and spin.
+    cat >"$fx/extra.sh" <<'EXTRA'
+test_zz_leaves_a_stubborn_process() {
+    (trap '' TERM; exec sleep 30) </dev/null >/dev/null 2>&1 &
+}
+test_zz_fast_a() { :; }
+test_zz_fast_b() { :; }
+test_zz_fast_c() { :; }
+EXTRA
+    out=$(AGENTIC_TEST_EXTRA_FILE=$fx/extra.sh AGENTIC_TEST_JOBS=4 timeout 30 \
+        "$tests_dir/run.sh" test_zz_ 2>&1); rc=$?
+    [ "$rc" = 0 ] || die "rc=$rc: $out"
+    want_out "4 passed, 0 failed"
+}
+
 # --- runner ---
 
+# Tests of run.sh itself add fixture tests this way (see the pool test).
+# shellcheck source=/dev/null
+[ -z "${AGENTIC_TEST_EXTRA_FILE:-}" ] || source "$AGENTIC_TEST_EXTRA_FILE"
 all_tests=$(declare -F | awk '$3 ~ /^test_/ {print $3}')
 
 # One test, in this process (`run.sh --one <name>`): its output and its
@@ -2753,9 +2810,13 @@ fi
 
 jobs=${AGENTIC_TEST_JOBS:-4}
 case "$jobs" in
-    [1-9] | [1-9][0-9]) ;;
-    *) echo "run.sh: AGENTIC_TEST_JOBS must be a number from 1 to 99, got '$jobs'" >&2; exit 2 ;;
+    [1-9] | [1-9][0-9] | [1-9][0-9][0-9]) ;;
+    *) echo "run.sh: AGENTIC_TEST_JOBS must be a whole number from 1, got '$jobs'" >&2; exit 2 ;;
 esac
+if [ "$jobs" -gt 4 ]; then
+    echo "run.sh: AGENTIC_TEST_JOBS=$jobs is above the limit of 4; using 4" >&2
+    jobs=4
+fi
 
 selected=""
 for test_name in $all_tests; do
@@ -2786,12 +2847,31 @@ stop_session() {
 }
 
 declare -A running_test=()
+# reap_one: waits until a test process ends, then collects EVERY tracked one
+# that has ended (stop_session can take seconds, in which time others end, and
+# a later `wait -n` would then return at once with nothing to report), once
+# each. A pass that collects nothing means the bookkeeping is wrong; after a
+# few of those it fails loudly instead of spinning.
+reap_idle=0
 reap_one() {
-    local finished=""
-    wait -n -p finished || true
-    [ -n "$finished" ] || return 0
-    stop_session "$finished"
-    unset 'running_test[$finished]'
+    local pid collected=0
+    wait -n 2>/dev/null || true
+    for pid in "${!running_test[@]}"; do
+        kill -0 "$pid" 2>/dev/null && continue
+        stop_session "$pid"
+        unset 'running_test[$pid]'
+        collected=1
+    done
+    if [ "$collected" = 1 ]; then
+        reap_idle=0
+        return 0
+    fi
+    reap_idle=$((reap_idle + 1))
+    if [ "$reap_idle" -ge 50 ]; then
+        echo "run.sh: lost track of ${#running_test[@]} running test(s): ${running_test[*]}" >&2
+        stop_all
+    fi
+    sleep 0.1
 }
 
 # On INT or TERM, stop every running test's session, then end.

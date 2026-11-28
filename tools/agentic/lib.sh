@@ -71,7 +71,10 @@ case "$agentic_ticks_per_sec" in
     [1-9] | [1-9][0-9] | [1-9][0-9][0-9] | 1000) ;;
     *) agentic_ticks_per_sec=10 ;;
 esac
-printf -v agentic_tick '0.%03d' "$((1000 / agentic_ticks_per_sec))"
+# The tick is 1/rate seconds in whole microseconds, with its whole-second part
+# (rate 1 is 1.000000 s, not 0.1 s).
+printf -v agentic_tick '%d.%06d' "$((1000000 / agentic_ticks_per_sec / 1000000))" \
+    "$((1000000 / agentic_ticks_per_sec % 1000000))"
 
 # agentic_stop_group <pgid>: TERM what is left of the process group, KILL it
 # after $agentic_kill_after seconds, and return once it is empty (at once when

@@ -21,3 +21,17 @@
 ## Measured (164 tests, `timeout 600`)
 - Before: 324.8 s serial (one watch test: 13.5 s).
 - After: 62 s at 4 jobs (two runs, 62.3 s and 62.0 s), 179.6 s at 1 job (one watch test: 2.4 s).
+
+## Review round 1
+- `lib.sh`: the tick is formatted from whole microseconds with its whole-second part
+  (`AGENTIC_TICKS_PER_SEC=1` is `1.000000`, not `0.1000`; 7 is `0.142857`).
+- `run.sh`: `AGENTIC_TEST_JOBS` above 4 is clamped to 4 with a note on stderr (0 and
+  non-numbers still exit 2).
+- `run.sh`: after each wake-up the pool collects every tracked test that has ended
+  (`kill -0`), once each, so tests that end while another's group is being stopped are
+  not missed; a pass that collects nothing 50 times in a row fails loudly.
+  `AGENTIC_TEST_EXTRA_FILE` lets run.sh's own tests add fixture tests to a nested run.
+- Tests: rate 1 and rate 7 ticks and budgets, the job cap, and a pool run in which three
+  tests end while a fourth's group takes 2 s to stop. That last one also passes on the
+  old pool: bash 5.3's `wait -n` returns children that ended earlier, so the loss could
+  not be reproduced; the new collection does not depend on that.

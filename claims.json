@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "0e93257d360a3a11a3dff4cc5828234875c0e61b7df583a60ba212889fba313e"
   },
-  "next_evidence_seq": 4266,
+  "next_evidence_seq": 4267,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "85b1c809f368bd42bfc63e04ddaf9c07444c8eed391b73cb93558579b673c72d"
+    "mac": "6c618bf4401558e0b8dee45ed3995c160bb7470b9cfb0574925d45ede42c9cb2"
   },
   "claims": [
     {
@@ -214455,6 +214455,28 @@
             "by": "server",
             "mac": "76bae0b9c8fab472238d5abff6c8285957ae3acd1269d933289af38583d49ab9"
           }
+        },
+        {
+          "id": "EVD-4266",
+          "kind": "inspection",
+          "locator": "src/okf/ops/relink.rs unlink_text and test unlink_leaves_code_spans_and_blocks_untouched",
+          "summary": "unlink_text reparses the whole text each pass; the exact-output regression \"`start\\n[a](alpha.md)` [b](alpha.md)\" becomes \"`start\\n[a](alpha.md)` b\"; the test fails on the previous per-line code (revert check run).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/relink.rs",
+              "lines": {
+                "start": 322,
+                "end": 362
+              },
+              "commit": "3f7e178dc39bcfab58269828a6f627a704dde7d9"
+            }
+          },
+          "recorded_at": "2026-11-28T04:04:35.237192528Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e0e0bc0c7ebda272f23308f8280a2ecb2729f8169dd2cea188ea5c7b7921dd9"
+          }
         }
       ],
       "verdicts": [
@@ -214473,10 +214495,10 @@
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T03:51:07.398100954Z",
+      "updated_at": "2026-11-28T04:04:35.237192528Z",
       "seal": {
         "by": "server",
-        "mac": "547c6d4045d7471eaa58ebbdb9acf0e81a941d5c02bb1ecc8060b163ac516f86"
+        "mac": "efdf6dcef523137541b244d63d9ab150691bef722a20ef9eddaf4779464c523e"
       }
     },
     {

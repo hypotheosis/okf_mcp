@@ -2,7 +2,7 @@
 
 Generated: 2026-11-28T11:08:32Z
 
-The `tls` tests failed in the full test gate on about half of all runs. The
+The `tls` tests failed in the full test gate on several runs. The
 cause is not in `postgres_with_tls`: it asks testcontainers for an ordinary
 random host port, as every other Postgres test does, and reads the mapped port
 back after the start. The TLS tests start the container with the same shared

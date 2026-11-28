@@ -1509,9 +1509,12 @@ async fn an_admin_sees_which_store_each_catalog_is_on() {
         ui.open("/catalogs");
         ui.wait_visible("[data-test=catalog-store-alpha]");
         assert_eq!(ui.text("[data-test=catalog-store-main]"), "main");
-        assert_eq!(
-            ui.attribute("[data-test=catalog-store-main]", "title"),
-            "account database"
+        // `main` is in the account database, or a database of its own when the
+        // tests run with separate stores.
+        let main_where = ui.attribute("[data-test=catalog-store-main]", "title");
+        assert!(
+            main_where == "account database" || main_where.contains(":"),
+            "{main_where}"
         );
         assert_eq!(ui.text("[data-test=catalog-store-alpha]"), "acme");
         assert_eq!(

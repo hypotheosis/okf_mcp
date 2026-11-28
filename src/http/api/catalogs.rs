@@ -1480,14 +1480,12 @@ mod tests {
         // Assert: each catalog reports its own store, in `GET /stores`' shape
         // and with nothing beyond it (no credential kind or reference).
         let place = ["database", "host", "location", "name", "port"];
-        for (catalog, store_name, location) in [
-            ("main", "main", "account-database"),
-            ("other", "main", "account-database"),
-            ("remote", "store-b", "host"),
-        ] {
+        // `main` is inside the account database, or a database of its own
+        // when the tests run with separate stores, so only the other
+        // store's location is fixed; each is compared with `GET /stores`.
+        for (catalog, store_name) in [("main", "main"), ("other", "main"), ("remote", "store-b")] {
             let store = &listed_catalog(&as_root, catalog)["store"];
             assert_eq!(store["name"], store_name, "{catalog}: {store}");
-            assert_eq!(store["location"], location, "{catalog}: {store}");
             assert_eq!(keys_of(store), place, "{catalog}: {store}");
             let entry = stores["stores"]
                 .as_array()
@@ -1499,6 +1497,10 @@ mod tests {
                 assert_eq!(store[field], entry[field], "{catalog}.{field}");
             }
         }
+        assert_eq!(
+            listed_catalog(&as_root, "remote")["store"]["location"],
+            "host"
+        );
         assert!(listed_catalog(&as_root, "remote")["store"]["host"].is_string());
         assert!(listed_catalog(&as_root, "remote")["store"]["port"].is_u64());
         assert_eq!(

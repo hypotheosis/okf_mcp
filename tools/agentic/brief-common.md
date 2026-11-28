@@ -29,12 +29,14 @@ tools/agentic/gate.sh test
 tools/agentic/gate.sh test-ui              # if you touch the console or tests/ui_e2e/
 tools/agentic/gate.sh dylint               # required before every push (the lint is at deny)
 tools/agentic/gate.sh mcpjam               # required before every push (the MCPJam scenarios, tests/mcpjam/)
+tools/agentic/gate.sh build-release       # before every push that touches Rust, Cargo.toml, Cargo.lock or the Dockerfile (the image's release build)
 tools/agentic/gate.sh worker               # the reader's Node tests (tests/read_worker/), while iterating
 tools/agentic/gate.sh narrow --lib -- <filter>   # while iterating
 ```
 
 - **`dylint`** runs the `uninstrumented_fn` policy lint (`docs/contributing/policy-lints.md`). The lint is at deny: a new function needs `#[instrument]` or a reason-bearing exemption, and the gate must exit 0 before you push. The first run builds the lint library (minutes).
 - **`mcpjam`** replays the MCPJam swarm goals as fixed MCP tool calls (`tests/mcpjam/README.md`) against a server built from your checkout, on a throwaway Postgres. It needs Docker and Node 22+, and must exit 0 before you push. A red scenario is a change in what the server stores or answers: fix the server, or, if the change is intended, the scenario.
+- **`build-release`** runs the Dockerfile's build step, `cargo build --release --locked --bin okf-mcp`, with the rustc the Dockerfile pins (`cargo +<version>`). The dev and test profiles do not show every compile error: rustc's query depth limit on a deep async future appeared only in the release build, and no image built for a day (#1227). `cargo check --release` does not show it, and a newer rustc did not either. It takes 2 to 5 minutes warm and needs the pinned toolchain installed (`rustup toolchain install <version>`). Run it for every change that touches `src/`, `Cargo.toml`, `Cargo.lock`, `build.rs`, `migrations/` or the `Dockerfile`; skip it for docs, `tests/` only, `tools/`, `scripts/` and the reader.
 - **Exit 124 means a test hung.** It is neither a pass nor an ordinary failure, so find the stuck test before anything else (the script prints how).
 - **Flaky tests retry once inside the run** (`retries = 1`, `.config/nextest.toml`). A test that passes on its second try shows as `TRY 2 PASS` and in the summary's flaky count. It is not a clean pass:
   - paste every FLAKY line into your report;

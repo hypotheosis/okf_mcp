@@ -24,8 +24,8 @@ use okf_mcp::store::oauth::clients::{self as client_rows, NewDcrClient};
 use okf_mcp::store::oauth::codes::{self as code_rows, NewSignInCode};
 use rustwright::GotoOptions;
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
 
 const PASSWORD: &str = "violet-lantern-orbit-42";
 

@@ -9,8 +9,8 @@ use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
 use serde_json::{json, Value};
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{call, files, structured, Client, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
 
 const CLAIM: &str = "The owner of this system is not recorded.";
 

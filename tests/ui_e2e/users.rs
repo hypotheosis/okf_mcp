@@ -18,10 +18,10 @@ use okf_mcp::store::teams::{self, NewTeam, Role};
 use okf_mcp::store::user_sessions;
 use okf_mcp::store::users::{self, NewUser};
 
-use crate::catalogs::switcher;
-use crate::harness::{drive, Ui};
-use crate::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 use crate::support::server::{files, TestServer, OWNER};
+use crate::ui_e2e::catalogs::switcher;
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 use okf_mcp::store::audit::AuditActor;
 use okf_mcp::store::users::AdminChange;
 

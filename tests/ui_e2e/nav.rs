@@ -7,8 +7,8 @@ use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
 
 /// The sidebar's visible parts in document order: the search box, each group
 /// label and each link (a link's own text only, without its badge; hidden entries left out).

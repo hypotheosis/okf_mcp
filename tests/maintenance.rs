@@ -1,5 +1,5 @@
 //! Maintenance contracts exercised through the real HTTP transport.
-mod support;
+use crate::support;
 
 use okf_mcp::config::Config;
 use okf_mcp::store::keys::{self, Access};

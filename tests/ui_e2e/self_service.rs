@@ -24,9 +24,9 @@ use okf_mcp::store::settings::{self, SettingKey};
 use okf_mcp::store::users;
 use serde_json::json;
 
-use crate::catalogs::switcher;
-use crate::harness::drive;
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::catalogs::switcher;
+use crate::ui_e2e::harness::drive;
 use okf_mcp::store::ceiling::NewEntitlement;
 use okf_mcp::store::users::AdminChange;
 

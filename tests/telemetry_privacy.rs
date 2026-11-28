@@ -13,7 +13,7 @@
 //! The tests share the process's global meter provider and tracing
 //! subscriber, so a lock makes them run one at a time.
 
-mod support;
+use crate::support;
 
 use std::collections::{BTreeSet, HashMap};
 use std::io;

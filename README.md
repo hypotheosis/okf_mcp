@@ -742,18 +742,29 @@ The report structs derive `serde::Serialize`; their JSON has the keys of
 
     just test                                    # every test, on one shared Postgres (needs cargo-nextest)
     cargo test                                   # the same, a Postgres container per test
-    cargo test --test writes                     # just the end-to-end write tests
-    cargo test --test restructure                # just the end-to-end restructuring tests
-    cargo test --test tls                        # just the TLS-to-Postgres tests
+    cargo test --test it writes::                # just the end-to-end write tests
+    cargo test --test it restructure::           # just the end-to-end restructuring tests
+    cargo test --test it tls::                   # just the TLS-to-Postgres tests
     OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog \
-        cargo test --test parity -- --ignored    # live parity against okf.py
+        cargo test --test it parity:: -- --ignored    # live parity against okf.py
     OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog \
-        cargo test --test roundtrip -- --ignored # the real catalog round-trips
+        cargo test --test it roundtrip:: -- --ignored # the real catalog round-trips
     OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog \
-        cargo test --release --test smoke -- --ignored --nocapture   # timings
-    UPDATE_GOLDEN=1 cargo test --test parity -- --ignored regenerate_goldens
+        cargo test --release --test it smoke:: -- --ignored --nocapture   # timings
+    UPDATE_GOLDEN=1 cargo test --test it -- --ignored --exact parity::regenerate_goldens
     just test-ui                                 # the web console's browser journeys
     just test-worker                             # the mobile reader's worker and page modules (Node)
+
+The integration tests are one test binary, `tests/it.rs` (`--test it`), with
+one module per former test file, so `writes::` selects `tests/writes.rs`. A
+`cargo test` filter matches a substring of the test's path, so `parity::` also
+selects the `admin_parity::` tests and `smoke::` the `ui_e2e::smoke::` ones;
+the `--ignored` commands above are not affected, because those are not
+`#[ignore]`. Three tests that set process-wide state (`telemetry_install`,
+`telemetry_sdk_disabled`, `cimd_no_proxy`) are binaries of their own:
+`cargo test --test telemetry_install`. So is `snapshot_weight`, whose counting
+`#[global_allocator]` would otherwise instrument every test in `it`:
+`cargo test --release --test snapshot_weight -- --ignored --nocapture`.
 
 The database tests need Docker. Each test gets a throwaway database of its
 own, dropped when it is done, on the server `TEST_PG_URL` names (a

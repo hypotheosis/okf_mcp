@@ -12,10 +12,10 @@ use okf_mcp::store::keys::{self, Access, Grants, NewKey};
 use okf_mcp::store::settings::{self, SettingKey};
 use okf_mcp::store::users::{self, AdminChange, NewUser};
 
-use crate::catalogs::switcher;
-use crate::harness::{drive, Ui};
-use crate::self_service::{console_base, login_server};
 use crate::support::server::TestServer;
+use crate::ui_e2e::catalogs::switcher;
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::self_service::{console_base, login_server};
 
 const PASSWORD: &str = "a long passphrase 1";
 const STAFF_EMAIL: &str = "staff@example.com";

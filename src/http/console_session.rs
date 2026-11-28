@@ -24,7 +24,7 @@ use sha2::{Digest, Sha256};
 use subtle::ConstantTimeEq;
 
 use crate::app::App;
-use crate::auth::{authenticate, bearer, unauthorized, Principal};
+use crate::auth::{authenticate, credential, refuse, AuthFailure, Principal};
 use crate::config::AuthConfig;
 use crate::error::OkfError;
 use crate::http::requester::ClientIp;
@@ -426,16 +426,11 @@ async fn session_principal(app: &App, user_id: &str) -> Result<Option<Principal>
     app.session_principal(user_id).await
 }
 
-/// [`unauthorized`], also clearing a session cookie that no longer works.
-#[cfg_attr(
-    dylint_lib = "hyp_tracing",
-    allow(
-        uninstrumented_fn,
-        reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
-    )
-)]
-fn unauthorized_clearing(app: &App) -> Response {
-    let mut response = unauthorized(app);
+/// [`refuse`] as [`AuthFailure::Unknown`], also clearing a session cookie
+/// that no longer works (no live session, or its user is gone).
+#[tracing::instrument(level = "debug", skip_all)]
+fn unauthorized_clearing(app: &App, extensions: &axum::http::Extensions) -> Response {
+    let mut response = refuse(app, extensions, AuthFailure::Unknown);
     append_all(response.headers_mut(), &clear_cookie(app));
     response
 }
@@ -466,12 +461,18 @@ pub async fn require_principal(
     // A bearer credential wins and the cookie is not read at all (spec
     // "Bearer and cookie"); a bad bearer is a 401 even beside a good cookie.
     // The borrowed token ends with this expression, before `request` changes.
-    let presented = match bearer(request.headers()) {
-        Some(token) => Some(authenticate(&app, token).await),
-        None => None,
+    let mut header_failure = AuthFailure::Missing;
+    let presented = match credential(request.headers()) {
+        Ok(token) => Some(authenticate(&app, token).await),
+        // No bearer credential: a cookie may still do. What is said about
+        // the header is kept for a 401 without one.
+        Err(failure) => {
+            header_failure = failure;
+            None
+        }
     };
     match presented {
-        Some(Ok(Some(principal))) => {
+        Some(Ok(Ok(principal))) => {
             split_event!(
                 debug,
                 {},
@@ -487,20 +488,20 @@ pub async fn require_principal(
             response.headers_mut().insert(ACCOUNT_HEADER, tag);
             return response;
         }
-        Some(Ok(None)) => return unauthorized(&app),
+        Some(Ok(Err(failure))) => return refuse(&app, request.extensions(), failure),
         // `AppError` logs it and answers 500 without detail.
         Some(Err(error)) => return AppError(error).into_response(),
         None => {}
     }
     // An owned copy: the request is changed below, which ends the borrow.
     let Some(id) = cookie(request.headers(), COOKIE).map(str::to_string) else {
-        return unauthorized(&app);
+        return refuse(&app, request.extensions(), header_failure);
     };
     let idle = app.settings().console_session_idle;
     let row =
         match user_sessions::touch(app.accounts().executor(), &id, idle, app.clock().now()).await {
             Ok(Some(row)) => row,
-            Ok(None) => return unauthorized_clearing(&app),
+            Ok(None) => return unauthorized_clearing(&app, request.extensions()),
             Err(error) => return AppError(error).into_response(),
         };
     if !is_safe_method(request.method()) && !csrf_matches(request.headers(), &row.csrf) {
@@ -512,7 +513,7 @@ pub async fn require_principal(
     }
     let principal = match session_principal(&app, &row.user_id).await {
         Ok(Some(principal)) => principal,
-        Ok(None) => return unauthorized_clearing(&app),
+        Ok(None) => return unauthorized_clearing(&app, request.extensions()),
         Err(error) => return AppError(error).into_response(),
     };
     split_event!(

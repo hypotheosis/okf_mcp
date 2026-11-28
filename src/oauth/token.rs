@@ -711,7 +711,7 @@ mod tests {
             .verify(&test.app, &oauth.settings.resource, access)
             .await
             .unwrap()
-            .is_some()
+            .is_ok()
     }
 
     fn text(body: &serde_json::Value, field: &str) -> String {
@@ -1625,7 +1625,7 @@ mod tests {
                 .verify(app, &oauth.settings.resource, access)
                 .await
                 .expect("verify answers")
-                .is_some()
+                .is_ok()
         }
 
         /// The stored code, read through `app`'s store.

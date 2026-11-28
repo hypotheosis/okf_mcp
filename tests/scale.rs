@@ -273,12 +273,13 @@ async fn a_million_catalogs_and_users_stay_within_bounds() {
         .expect("the administrator's authentication")
         .expect("a database answer");
     let admin_auth = started.elapsed();
-    assert!(principal.is_some(), "the administrator's key authenticates");
+    assert!(principal.is_ok(), "the administrator's key authenticates");
     let started = Instant::now();
-    tokio::time::timeout(BOUND, authenticate(&app, &admin))
+    let again = tokio::time::timeout(BOUND, authenticate(&app, &admin))
         .await
         .expect("the administrator's second authentication")
         .expect("a database answer");
+    assert!(again.is_ok(), "the second authentication admits it too");
     let admin_again = started.elapsed();
     eprintln!(
         "administrator ({SEEDED} catalogs owned by its team): first authentication \
@@ -301,7 +302,7 @@ async fn a_million_catalogs_and_users_stay_within_bounds() {
             .expect("an authentication")
             .expect("a database answer");
         latencies.push(started.elapsed());
-        assert!(principal.is_some(), "{key} authenticates");
+        assert!(principal.is_ok(), "{key} authenticates");
     }
     let median = latencies_at(&mut latencies, 50);
     let worst = latencies_at(&mut latencies, 99);

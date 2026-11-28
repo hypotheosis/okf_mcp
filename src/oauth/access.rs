@@ -14,18 +14,18 @@
 //! a revocation's commit and its bump.
 
 use std::collections::HashMap;
-use std::sync::{Arc, LazyLock, Mutex, MutexGuard};
+use std::sync::{LazyLock, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
 
 use crate::app::App;
-use crate::auth::{BearerVerifier, Principal};
+use crate::auth::{AuthFailure, BearerVerifier, Verdict};
 use crate::error::OkfError;
 use crate::keys;
 use crate::oauth::OAuth;
 use crate::shared::Redis;
-use crate::store::oauth::tokens::{self, LiveAccessToken};
+use crate::store::oauth::tokens::{self, AccessState, LiveAccessToken};
 use crate::telemetry::metrics::RedisOp;
 
 /// The most access tokens cached at once. Past it, expired entries are
@@ -231,8 +231,12 @@ impl AccessTokens {
     /// * `token` - the presented `okfat_` token.
     ///
     /// # Returns
-    /// The grant's principal; `None` for an unknown, revoked or expired
-    /// token, one issued for another resource, or one whose grant is revoked.
+    /// The grant's principal, or why the token is refused: `Unknown` (no
+    /// such access token), `Revoked` (the token, or its grant), `Expired`, or
+    /// `WrongResource`. A live-looking token is checked in that order of
+    /// cost, none of which adds a query: the one read of `oauth_tokens` by
+    /// hash answers unknown, revoked and expired alike, so the refusals
+    /// differ only in what is read from the row, never in what is asked.
     ///
     /// # Errors
     /// [`OkfError::Database`] from the lookup on a cache miss.
@@ -242,7 +246,7 @@ impl AccessTokens {
         app: &App,
         resource: &str,
         token: &str,
-    ) -> Result<Option<Arc<Principal>>, OkfError> {
+    ) -> Result<Verdict, OkfError> {
         let sha256 = keys::hash(token);
         let now = app.clock().now();
         // With Redis, the shared counter first (spec Decision 15). `None`:
@@ -285,29 +289,35 @@ impl AccessTokens {
         let live = match cached {
             Some(live) => live,
             None => match tokens::find_access(app.accounts().executor(), &sha256, now).await? {
-                Some(live) => {
+                Some(AccessState::Live(live)) => {
                     if use_cache {
                         self.remember(sha256, live.clone(), now, generation);
                     }
                     live
                 }
-                None => return Ok(None),
+                Some(AccessState::Revoked) => return Ok(Err(AuthFailure::Revoked)),
+                Some(AccessState::Expired) => return Ok(Err(AuthFailure::Expired)),
+                None => return Ok(Err(AuthFailure::Unknown)),
             },
         };
         if live.expires_at <= now {
             // Expiry is not a revocation: drop the entry without bumping the
             // generation, so lookups of other tokens in flight still cache.
             self.lock().tokens.remove(&sha256);
-            return Ok(None);
+            return Ok(Err(AuthFailure::Expired));
         }
         // The audience check (RFC 8707): a token issued for another
         // resource is not a credential here.
         if live.resource != resource {
-            return Ok(None);
+            return Ok(Err(AuthFailure::WrongResource));
         }
         // The credential cache reads a grant it does not hold, so one made on
-        // another replica is found at once.
-        app.find_grant(&live.grant_id).await
+        // another replica is found at once. A live token whose grant is not
+        // live belongs to a revoked (or expired) grant.
+        Ok(app
+            .find_grant(&live.grant_id)
+            .await?
+            .ok_or(AuthFailure::Revoked))
     }
 }
 
@@ -366,7 +376,7 @@ impl BearerVerifier for OAuthVerifier<'_> {
             reason = "one-line delegation to an instrumented function"
         )
     )]
-    async fn verify(&self, token: &str) -> Result<Option<Arc<Principal>>, OkfError> {
+    async fn verify(&self, token: &str) -> Result<Verdict, OkfError> {
         self.oauth
             .access
             .verify(self.app, &self.oauth.settings.resource, token)
@@ -378,6 +388,7 @@ impl BearerVerifier for OAuthVerifier<'_> {
 mod tests {
     use super::*;
     use chrono::TimeDelta;
+    use std::sync::Arc;
 
     use crate::auth::{authenticate, CredentialKind};
     use crate::mcp::testing::{app_with, TestApp};
@@ -450,7 +461,7 @@ mod tests {
         let expired = mint_access(&test.app, &grant, RESOURCE, -TimeDelta::minutes(1)).await;
         let revoked = mint_access(&test.app, &grant, RESOURCE, TimeDelta::hours(1)).await;
         // Seen once (cached), then revoked: `forget` makes it stop at once.
-        assert!(authenticate(&test.app, &revoked).await.unwrap().is_some());
+        assert!(authenticate(&test.app, &revoked).await.unwrap().is_ok());
         crate::store::oauth::tokens::revoke(
             test.app.accounts().executor(),
             &crate::keys::hash(&revoked),
@@ -466,8 +477,16 @@ mod tests {
             .await;
         let unknown = crate::keys::generate_with(crate::keys::ACCESS_TOKEN_PREFIX).unwrap();
 
-        for token in [other, expired, revoked, unknown] {
-            assert!(authenticate(&test.app, &token).await.unwrap().is_none());
+        for (token, failure) in [
+            (other, AuthFailure::WrongResource),
+            (expired, AuthFailure::Expired),
+            (revoked, AuthFailure::Revoked),
+            (unknown, AuthFailure::Unknown),
+        ] {
+            assert_eq!(
+                authenticate(&test.app, &token).await.unwrap().err(),
+                Some(failure)
+            );
         }
     }
 
@@ -475,7 +494,7 @@ mod tests {
     async fn revoking_the_grant_refuses_its_cached_token_after_a_reload() {
         let (test, grant) = with_grant().await;
         let token = mint_access(&test.app, &grant, RESOURCE, TimeDelta::hours(1)).await;
-        assert!(authenticate(&test.app, &token).await.unwrap().is_some());
+        assert!(authenticate(&test.app, &token).await.unwrap().is_ok());
 
         crate::invalidate::testing::applied(&test.app, async {
             key_rows::revoke_by_id(
@@ -489,7 +508,10 @@ mod tests {
         })
         .await;
 
-        assert!(authenticate(&test.app, &token).await.unwrap().is_none());
+        assert_eq!(
+            authenticate(&test.app, &token).await.unwrap().err(),
+            Some(AuthFailure::Revoked)
+        );
     }
 
     #[tokio::test(flavor = "multi_thread")]
@@ -571,7 +593,10 @@ mod tests {
         let stale = tokens::find_access(test.app.accounts().executor(), &hash, now)
             .await
             .unwrap()
-            .expect("live before the revocation");
+            .expect("a stored token");
+        let AccessState::Live(stale) = stale else {
+            panic!("live before the revocation");
+        };
 
         tokens::revoke(test.app.accounts().executor(), &hash, now)
             .await
@@ -584,8 +609,9 @@ mod tests {
             .verify(&test.app, RESOURCE, &token)
             .await
             .unwrap();
-        assert!(
-            after.is_none(),
+        assert_eq!(
+            after.err(),
+            Some(AuthFailure::Revoked),
             "the revoked token is not accepted from the cache"
         );
     }
@@ -619,7 +645,11 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(after.is_none(), "an expired cached token is refused");
+        assert_eq!(
+            after.err(),
+            Some(AuthFailure::Expired),
+            "an expired cached token is refused"
+        );
         assert!(
             !oauth.access.lock().tokens.contains_key(&hash),
             "and dropped"
@@ -640,13 +670,14 @@ mod tests {
     };
 
     /// `verify` on `app` for this server's resource.
-    async fn verify_on(app: &App, token: &str) -> Option<Arc<Principal>> {
+    async fn verify_on(app: &App, token: &str) -> Option<Arc<crate::auth::Principal>> {
         app.oauth()
             .expect("OAuth is on")
             .access
             .verify(app, RESOURCE, token)
             .await
             .expect("verify answers")
+            .ok()
     }
 
     /// Whether `app`'s cache holds `token`.

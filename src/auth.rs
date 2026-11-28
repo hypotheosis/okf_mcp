@@ -928,6 +928,63 @@ pub(crate) fn principal_of(
     principal
 }
 
+/// Why a bearer credential was refused with a 401 (issue #1012): the
+/// `okf.auth.failure` span value on the request span.
+///
+/// The set is closed. [`AuthFailure::as_str`] is the only spelling that
+/// reaches telemetry; the credential, a prefix of it, its hash and its key
+/// id never do, and no spelling contains a substring (`auth`, `token`,
+/// `secret`, `password`, `key`, `cookie`, `session`) that trace backends'
+/// default scrubbers hide. It never changes the response: every variant
+/// gets the identical 401 from `unauthorized`.
+///
+/// Where a refusal cannot be told apart without another query, it is the
+/// less specific name: an API key that is revoked or expired is `Unknown`
+/// (its cache load answers only "not live"), and so is a console session
+/// cookie that matches no live session.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AuthFailure {
+    /// No `Authorization` header, a `Bearer` one with an empty token, or no
+    /// console session cookie either (the API).
+    Missing,
+    /// An `Authorization` header that is not `Bearer <token>`: another
+    /// scheme, no space, or bytes that are not text.
+    Scheme,
+    /// A token (or session cookie) that matches no live credential: never
+    /// issued, a refresh token's value, an `okfat_` token with OAuth off, an
+    /// API key that is revoked or expired, a dead session, or a session
+    /// whose user is gone.
+    Unknown,
+    /// An OAuth access token past its expiry.
+    Expired,
+    /// An OAuth access token that was revoked, or whose grant is no longer
+    /// live (revoked, or past its own expiry).
+    Revoked,
+    /// An OAuth access token issued for another resource (RFC 8707).
+    WrongResource,
+}
+
+impl AuthFailure {
+    /// The `okf.auth.failure` span value.
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(uninstrumented_fn, reason = "a const mapping of a variant to its name")
+    )]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Missing => "missing",
+            Self::Scheme => "scheme",
+            Self::Unknown => "unknown",
+            Self::Expired => "expired",
+            Self::Revoked => "revoked",
+            Self::WrongResource => "wrong_resource",
+        }
+    }
+}
+
+/// A bearer token's verdict: its principal, or why it was refused.
+pub type Verdict = Result<Arc<Principal>, AuthFailure>;
+
 /// Turns a presented bearer token into the principal it acts as. The seam
 /// for credential kinds: API keys ([`KeyVerifier`]), OAuth access tokens
 /// ([`OAuthVerifier`]) and, in a later round, an external issuer.
@@ -941,15 +998,13 @@ pub trait BearerVerifier {
     /// * `token` - the bearer token, as presented.
     ///
     /// # Returns
-    /// The principal, or `None` for an unknown, expired, revoked or
-    /// wrong-audience token.
+    /// The principal, or the [`AuthFailure`] for an unknown, expired,
+    /// revoked or wrong-audience token. Naming the failure must cost no
+    /// query that a token of another failure does not also cost.
     ///
     /// # Errors
     /// [`OkfError::Database`] when the lookup needs the database and it fails.
-    fn verify(
-        &self,
-        token: &str,
-    ) -> impl Future<Output = Result<Option<Arc<Principal>>, OkfError>> + Send;
+    fn verify(&self, token: &str) -> impl Future<Output = Result<Verdict, OkfError>> + Send;
 }
 
 /// API keys, through the credential cache.
@@ -960,33 +1015,33 @@ pub struct KeyVerifier<'a> {
 
 impl BearerVerifier for KeyVerifier<'_> {
     #[tracing::instrument(level = "debug", skip_all)]
-    async fn verify(&self, token: &str) -> Result<Option<Arc<Principal>>, OkfError> {
-        self.app.find_key(token).await
+    async fn verify(&self, token: &str) -> Result<Verdict, OkfError> {
+        Ok(self.app.find_key(token).await?.ok_or(AuthFailure::Unknown))
     }
 }
 
 /// The principal of a bearer token. Dispatch is by prefix with no fallback
 /// between kinds: an `okfat_` token is only ever an OAuth access token
-/// (`None` with OAuth off), and anything else is looked up only among the
-/// API keys, which all carry `okf_`. Refresh tokens, sign-in codes and
-/// authorization codes are never bearer credentials and match nothing.
+/// (refused as unknown with OAuth off), and anything else is looked up only
+/// among the API keys, which all carry `okf_`. Refresh tokens, sign-in codes
+/// and authorization codes are never bearer credentials and match nothing.
 ///
 /// # Arguments
 /// * `app` - the shared state.
 /// * `token` - the bearer token.
 ///
 /// # Returns
-/// The principal, or `None`.
+/// The principal, or why the token was refused.
 ///
 /// # Errors
 /// [`OkfError::Database`] when a credential's load fails;
 /// [`OkfError::Busy`] for a lookup that shared another's failed load.
 #[tracing::instrument(level = "debug", skip_all)]
-pub async fn authenticate(app: &App, token: &str) -> Result<Option<Arc<Principal>>, OkfError> {
+pub async fn authenticate(app: &App, token: &str) -> Result<Verdict, OkfError> {
     if token.starts_with(keys::ACCESS_TOKEN_PREFIX) {
         return match app.oauth() {
             Some(oauth) => OAuthVerifier { app, oauth }.verify(token).await,
-            None => Ok(None),
+            None => Ok(Err(AuthFailure::Unknown)),
         };
     }
     KeyVerifier { app }.verify(token).await
@@ -1020,11 +1075,34 @@ pub fn challenge(app: &App) -> HeaderValue {
 /// empty token.
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn bearer(headers: &HeaderMap) -> Option<&str> {
-    let value = headers.get(header::AUTHORIZATION)?.to_str().ok()?;
-    let (scheme, token) = value.split_once(' ')?;
+    credential(headers).ok()
+}
+
+/// As [`bearer`], naming why there is no token.
+///
+/// # Arguments
+/// * `headers` - the request's headers.
+///
+/// # Returns
+/// The token (trimmed); [`AuthFailure::Missing`] without a header or with an
+/// empty `Bearer` token; [`AuthFailure::Scheme`] for any other header value.
+#[tracing::instrument(level = "debug", skip_all)]
+pub fn credential(headers: &HeaderMap) -> Result<&str, AuthFailure> {
+    let value = headers
+        .get(header::AUTHORIZATION)
+        .ok_or(AuthFailure::Missing)?
+        .to_str()
+        .map_err(|_| AuthFailure::Scheme)?;
+    // A bare `Bearer` is a scheme with no token; anything else bare is no scheme.
+    let (scheme, token) = value.split_once(' ').unwrap_or((value, ""));
+    if !scheme.eq_ignore_ascii_case("bearer") {
+        return Err(AuthFailure::Scheme);
+    }
     let token = token.trim();
-    // `then_some` turns a `bool` into `Some(value)` or `None`.
-    (scheme.eq_ignore_ascii_case("bearer") && !token.is_empty()).then_some(token)
+    if token.is_empty() {
+        return Err(AuthFailure::Missing);
+    }
+    Ok(token)
 }
 
 /// The 401 for a request without a usable credential, with [`challenge`].
@@ -1042,6 +1120,42 @@ pub(crate) fn unauthorized(app: &App) -> Response {
         "missing or unknown API key\n",
     )
         .into_response()
+}
+
+/// The 401 for a refused request, after recording why on the request span
+/// ([`record_auth_failure`]). The response is [`unauthorized`]'s whatever
+/// the failure.
+///
+/// # Arguments
+/// * `app` - the shared state.
+/// * `extensions` - the request's extensions, which hold the request span.
+/// * `failure` - why the credential was refused.
+///
+/// # Returns
+/// The response.
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) fn refuse(
+    app: &App,
+    extensions: &axum::http::Extensions,
+    failure: AuthFailure,
+) -> Response {
+    record_auth_failure(extensions, failure);
+    unauthorized(app)
+}
+
+/// Records `okf.auth.failure` on the request span the telemetry middleware
+/// stored in `extensions`, if there is one (no span for an unmatched route).
+/// The span handle, not `Span::current()`: under a raised trace filter the
+/// current span is a child that declares no such field.
+///
+/// # Arguments
+/// * `extensions` - the request's extensions.
+/// * `failure` - why the credential was refused.
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn record_auth_failure(extensions: &axum::http::Extensions, failure: AuthFailure) {
+    if let Some(crate::http::RequestSpan(span)) = extensions.get::<crate::http::RequestSpan>() {
+        span.record("okf.auth.failure", failure.as_str());
+    }
 }
 
 /// The `okf.key.id` span attribute for a principal: the credential's id for
@@ -1118,12 +1232,12 @@ pub async fn require_key(
 ) -> Response {
     // The borrowed token (`&str` into the headers) ends with this `match`,
     // before the request is changed below.
-    let found = match bearer(request.headers()) {
-        Some(token) => authenticate(&app, token).await,
-        None => Ok(None),
+    let found = match credential(request.headers()) {
+        Ok(token) => authenticate(&app, token).await,
+        Err(failure) => Ok(Err(failure)),
     };
     match found {
-        Ok(Some(principal)) if principal.provisioner => {
+        Ok(Ok(principal)) if principal.provisioner => {
             // Audited as the API's provisioner gate does: the key, the
             // method and the matched template, never the literal URI.
             crate::http::console_session::insert_client_ip(&app, &mut request);
@@ -1134,7 +1248,7 @@ pub async fn require_key(
             })
             .into_response()
         }
-        Ok(Some(principal)) => {
+        Ok(Ok(principal)) => {
             split_event!(
                 debug,
                 {},
@@ -1146,7 +1260,7 @@ pub async fn require_key(
             crate::http::console_session::insert_client_ip(&app, &mut request);
             next.run(request).await
         }
-        Ok(None) => unauthorized(&app),
+        Ok(Err(failure)) => refuse(&app, request.extensions(), failure),
         // `AppError` logs it and answers 500 without detail.
         Err(error) => AppError(error).into_response(),
     }
@@ -1255,6 +1369,22 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert(header::AUTHORIZATION, value.parse().unwrap());
         headers
+    }
+
+    #[test]
+    fn credential_names_why_there_is_no_bearer_token() {
+        assert_eq!(credential(&headers("Bearer reader-key")), Ok("reader-key"));
+        assert_eq!(credential(&HeaderMap::new()), Err(AuthFailure::Missing));
+        assert_eq!(credential(&headers("Bearer ")), Err(AuthFailure::Missing));
+        assert_eq!(credential(&headers("Bearer")), Err(AuthFailure::Missing));
+        assert_eq!(credential(&headers("Basic abc")), Err(AuthFailure::Scheme));
+        assert_eq!(credential(&headers("reader-key")), Err(AuthFailure::Scheme));
+        let mut binary = HeaderMap::new();
+        binary.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_bytes(b"Bearer \xff").expect("opaque bytes"),
+        );
+        assert_eq!(credential(&binary), Err(AuthFailure::Scheme));
     }
 
     #[test]

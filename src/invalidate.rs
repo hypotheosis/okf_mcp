@@ -537,7 +537,12 @@ impl Feed {
         // `parent: None`: a background root, like each housekeeping job.
         let span =
             tracing::info_span!(parent: None, "okf.invalidate.apply", okf.invalidation.kind = kind);
-        app.apply(&message).instrument(span).await;
+        // Boxed: this future's state would otherwise be laid out inside every
+        // future above it, and with the whole of `App::apply` under `listen`
+        // the layout query overflows rustc's depth limit in a release build
+        // (issue #1227). The box makes it one pointer there, at one
+        // allocation per notification.
+        Box::pin(app.apply(&message).instrument(span)).await;
         let lag = message.lag(Utc::now().timestamp_millis());
         metrics.invalidation_received(kind, lag);
         Some(lag)

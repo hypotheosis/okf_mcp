@@ -1899,50 +1899,69 @@ async fn server_with_a_second_reader() -> TestServer {
     server
 }
 
-/// What `second`'s sign-in POST from the other tab answered, as JSON text, for
-/// a timeout's report.
+/// What `second`'s sign-in from the other tab answered, as JSON text, for a
+/// timeout's report.
 type SignInAnswer = String;
 
-/// Signs in as `second` in another tab (the same cookies), from the
-/// console's page, so none of its answers go through the reader's worker; the
-/// reader tab stays open. `GET /signin` sends a signed-in browser on to the
-/// console, so the tab posts the sign-in form itself, as the page would.
+/// Signs in as `second` in another tab (the same cookies), so none of its
+/// answers go through the reader's worker; the reader tab stays open.
+/// `GET /signin` sends a signed-in browser on to the console, so the tab
+/// posts the sign-in form itself, as the page would.
+///
+/// The tab sits on `/healthz`, a page with no script: the console would fetch
+/// its own data as the first account while the sign-in lands. A request the
+/// old session had in flight is answered 401, and that answer clears the
+/// session cookie (`unauthorized_clearing`), so one that arrives after the
+/// sign-in's `Set-Cookie` signs the new account out again (issue #1183). The
+/// reader's own late requests can do the same, so the helper reads the
+/// session back as `second` and signs in once more if it is gone.
 ///
 /// # Returns
-/// What the POST answered (status, the address it ended at, whether it was
-/// redirected), once `fetch` has followed the 303 and the new session's
-/// cookie is set.
+/// What each attempt answered (the POST's status and where `fetch` followed
+/// the 303 to, then the `/api/v1/session` user), once a session reads as
+/// `second`.
+///
+/// # Panics
+/// When no attempt leaves `second` signed in.
 fn sign_in_second_in_another_tab(ui: &Ui) -> SignInAnswer {
-    let mut answer = String::new();
+    const ATTEMPTS: usize = 3;
+    let post = format!(
+        "async () => {{ const r = await fetch('/signin', {{ method: 'POST', body: \
+         new URLSearchParams({{ email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }}); \
+         const s = await fetch('/api/v1/session', {{ headers: {{ Accept: 'application/json' }} }}); \
+         return {{ post: r.status, path: new URL(r.url).pathname, session: s.status, \
+         user: s.ok ? (await s.json()).user : null }}; }}"
+    );
+    let mut attempts = Vec::with_capacity(ATTEMPTS);
     ui.in_second_tab(|tab| {
         tab.goto(
-            &format!("{}/ui/", ui.base),
+            &format!("{}/healthz", ui.base),
             rustwright::GotoOptions::default(),
         )
-        .expect("open the console");
-        let post = format!(
-            "async () => {{ const r = await fetch('/signin', {{ method: 'POST', body: \
-             new URLSearchParams({{ email: '{SECOND_EMAIL}', password: '{PASSWORD}' }}) }}); \
-             return {{ status: r.status, redirected: r.redirected, \
-             path: new URL(r.url).pathname }}; }}"
-        );
-        let posted = tab
-            .evaluate(&post, None, rustwright::ActionOptions::default())
-            .expect("post the sign-in");
-        assert_eq!(
-            posted["status"],
-            json!(200),
-            "the sign-in was refused: {posted}"
-        );
-        answer = posted.to_string();
-        // A new session, so the console is reloaded as `second`.
-        tab.goto(
-            &format!("{}/ui/", ui.base),
-            rustwright::GotoOptions::default(),
-        )
-        .expect("reload the console");
+        .expect("open a page without script");
+        for _ in 0..ATTEMPTS {
+            let answer = tab
+                .evaluate(&post, None, rustwright::ActionOptions::default())
+                .expect("post the sign-in");
+            assert_eq!(
+                answer["post"],
+                json!(200),
+                "the sign-in was refused: {answer}"
+            );
+            let signed_in = answer["user"] == json!("second");
+            attempts.push(answer);
+            if signed_in {
+                return;
+            }
+        }
     });
-    answer
+    let answer = json!(attempts);
+    assert_eq!(
+        attempts.last().map(|last| &last["user"]),
+        Some(&json!("second")),
+        "no session for second after {ATTEMPTS} sign-ins: {answer}"
+    );
+    answer.to_string()
 }
 
 /// What the Account screen's wait for `second` reports on a timeout (issue

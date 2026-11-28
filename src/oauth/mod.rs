@@ -11,6 +11,7 @@ pub mod expiring;
 pub mod metadata;
 pub mod pkce;
 pub mod ratelimit;
+pub mod resource;
 pub mod state;
 #[cfg(test)]
 pub(crate) mod testing;

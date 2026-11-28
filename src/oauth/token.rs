@@ -24,7 +24,7 @@ use crate::http::REQUEST_TIMEOUT;
 use crate::keys;
 use crate::oauth::error::OAuthError;
 use crate::oauth::state::{code_key, AuthorizationCode};
-use crate::oauth::{pkce, OAuth};
+use crate::oauth::{pkce, resource, OAuth};
 use crate::store::oauth::tokens::{
     self as token_rows, LiveAccessToken, NewToken, RefreshUse, RevokedToken, TokenKind,
 };
@@ -280,8 +280,11 @@ async fn revoke_family(app: &App, oauth: &OAuth, family_id: &str) -> Result<(), 
 /// `method` (`oauth_token`), `outcome` (`ok` or `failed`, the spellings of
 /// `okf_auth_attempts_total`), `okf.error` (the RFC 6749 error code, on
 /// failure) and, for a refresh, `okf.refresh` (what presenting the token
-/// found), and never a code, token or client id. No attribute key holds
-/// `auth` or `token`, which trace backends' default scrubbers hide.
+/// found) and, when `invalid_target` came from a `resource` that was not this
+/// server's, `okf.resource` (how it differed, a closed set from
+/// [`resource::classify`]; never the value), and never a code, token or
+/// client id. No attribute key or value holds `auth` or `token` (or another
+/// substring those scrubbers hide).
 #[tracing::instrument(
     level = "info",
     name = "okf.oauth.token",
@@ -291,7 +294,8 @@ async fn revoke_family(app: &App, oauth: &OAuth, family_id: &str) -> Result<(), 
         outcome = tracing::field::Empty,
         okf.grant = tracing::field::Empty,
         okf.error = tracing::field::Empty,
-        okf.refresh = tracing::field::Empty
+        okf.refresh = tracing::field::Empty,
+        okf.resource = tracing::field::Empty
     )
 )]
 async fn token(
@@ -332,11 +336,11 @@ async fn issue_token(
     })?;
     match required(&form.grant_type, "grant_type")? {
         "authorization_code" => {
-            span.record("okf.grant", Grant::AuthorizationCode.as_str());
-            exchange_code(&app, oauth, &form).await
+            span.record("okf.grant", Grant::AuthorizationCode.span_value());
+            exchange_code(span, &app, oauth, &form).await
         }
         "refresh_token" => {
-            span.record("okf.grant", Grant::RefreshToken.as_str());
+            span.record("okf.grant", Grant::RefreshToken.span_value());
             refresh(span, &app, oauth, &form).await
         }
         other => Err(OAuthError::UnsupportedGrantType(format!(
@@ -358,6 +362,7 @@ const USED_CODE_FLOOR: Duration = Duration::from_secs(REQUEST_TIMEOUT.as_secs() 
 /// `grant_type=authorization_code`.
 #[tracing::instrument(level = "debug", skip_all)]
 async fn exchange_code(
+    span: &tracing::Span,
     app: &App,
     oauth: &OAuth,
     form: &TokenForm,
@@ -420,6 +425,10 @@ async fn exchange_code(
         ));
     }
     if stored.resource != resource {
+        span.record(
+            "okf.resource",
+            resource::classify(resource, &stored.resource).as_str(),
+        );
         return Err(OAuthError::InvalidTarget(
             "resource differs from the authorization request".to_string(),
         ));
@@ -553,11 +562,11 @@ async fn refresh(
                     "the refresh token belongs to another client".to_string(),
                 ));
             }
-            if form
-                .resource
-                .as_deref()
-                .is_some_and(|asked| asked != resource)
-            {
+            if let Some(asked) = form.resource.as_deref().filter(|asked| *asked != resource) {
+                span.record(
+                    "okf.resource",
+                    resource::classify(asked, &resource).as_str(),
+                );
                 return Err(OAuthError::InvalidTarget(
                     "resource differs from the original grant".to_string(),
                 ));
@@ -648,7 +657,7 @@ mod tests {
         oauth_app_with_metrics_config, send, CLIENT_ID, LOOPBACK_CLIENT_ID, LOOPBACK_ON_PORT,
         LOOPBACK_REDIRECT_URI, REDIRECT_URI, RESOURCE, VERIFIER,
     };
-    use crate::telemetry::metrics::RefreshResult;
+    use crate::telemetry::metrics::{Grant, RefreshResult};
 
     fn exchange(code: &str) -> String {
         exchange_with(code, "", "")
@@ -982,12 +991,97 @@ mod tests {
                 .find(|attribute| attribute.key.as_str() == key)
                 .map(|attribute| attribute.value.to_string())
         };
-        assert_eq!(attribute("okf.grant").as_deref(), Some("refresh_token"));
+        assert_eq!(attribute("okf.grant").as_deref(), Some("refresh"));
         assert_eq!(attribute("okf.refresh").as_deref(), Some("rotated"));
         assert_eq!(attribute("okf.error"), None, "it succeeded");
         let exported = observed.exported_text();
         for secret in [refresh_token.as_str(), CLIENT_ID] {
             assert!(!exported.contains(secret), "{secret} in {exported}");
+        }
+    }
+
+    /// Issue #1011: a refused `resource` is still refused, and its span says
+    /// how it differed (never the value), for a refresh and a code exchange.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_refused_resource_says_how_it_differed_on_the_token_span() {
+        use crate::telemetry::config::LogFormat;
+        use crate::telemetry::subscriber::capture::{attribute, observe};
+
+        let test = oauth_app().await;
+        let marker = "zq-marker-9f3";
+        let code = authorization_code(&test).await;
+        let (_, _, first) = token(&test, exchange(&code)).await;
+        let refresh_token = text(&first, "refresh_token");
+        let refresh_with = |resource: &str| {
+            form(&[
+                ("grant_type", "refresh_token"),
+                ("refresh_token", &refresh_token),
+                ("client_id", CLIENT_ID),
+                ("resource", resource),
+            ])
+        };
+        let slash = format!("{RESOURCE}/");
+        let other_path = format!("{RESOURCE}/{marker}");
+        let other_host = format!("https://{marker}.example.net/mcp");
+        let mut cases = vec![
+            (refresh_with(&slash), "trailing_slash"),
+            (refresh_with(&other_path), "other_path"),
+            (refresh_with(&other_host), "other_host"),
+            (refresh_with(marker), "unparseable"),
+        ];
+        for (sent, expected) in [
+            (slash.as_str(), "trailing_slash"),
+            (other_host.as_str(), "other_host"),
+        ] {
+            let code = authorization_code(&test).await;
+            cases.push((exchange_with(&code, "resource", sent), expected));
+        }
+
+        for (request, expected) in cases {
+            let observed = tokio::task::block_in_place(|| {
+                observe("trace", "trace", "trace", LogFormat::Text, || {
+                    let (status, _, body) =
+                        tokio::runtime::Handle::current().block_on(token(&test, request));
+                    assert_eq!(status, StatusCode::BAD_REQUEST, "{expected}");
+                    assert_eq!(body["error"], "invalid_target", "{expected}");
+                    assert!(!body.to_string().contains(marker), "{body}");
+                })
+            });
+            let spans = observed.spans_named("okf.oauth.token");
+            assert_eq!(spans.len(), 1, "{expected}");
+            let span = spans[0];
+            assert_eq!(
+                attribute(span, "okf.error")
+                    .map(ToString::to_string)
+                    .as_deref(),
+                Some("invalid_target")
+            );
+            assert_eq!(
+                attribute(span, "okf.resource")
+                    .map(ToString::to_string)
+                    .as_deref(),
+                Some(expected)
+            );
+            assert!(!observed.exported_text().contains(marker), "{expected}");
+        }
+        // Refusing did not spend the refresh token.
+        let (status, _, _) = token(&test, refresh(&refresh_token, CLIENT_ID)).await;
+        assert_eq!(status, StatusCode::OK);
+    }
+
+    /// The `okf.grant` values are not hidden by a trace backend's scrubber.
+    #[test]
+    fn the_grant_span_values_hold_nothing_a_scrubber_hides() {
+        for value in [Grant::AuthorizationCode, Grant::RefreshToken]
+            .map(Grant::span_value)
+            .into_iter()
+            .chain(RefreshResult::ALL.map(RefreshResult::as_str))
+        {
+            for hidden in [
+                "auth", "token", "secret", "password", "key", "cookie", "session",
+            ] {
+                assert!(!value.contains(hidden), "{value} holds {hidden}");
+            }
         }
     }
 

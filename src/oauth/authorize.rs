@@ -49,7 +49,7 @@ use crate::oauth::state::{
     code_key, AcceptedCode, AuthorizationCode, PendingAuthorization, UserConsent,
     MAX_FAILED_ATTEMPTS,
 };
-use crate::oauth::{pkce, OAuth};
+use crate::oauth::{pkce, resource, OAuth};
 use crate::store::ceiling::{self, Ceiling};
 use crate::store::keys::Access;
 use crate::store::oauth::clients::{ClientKind, ClientRecord};
@@ -741,7 +741,15 @@ async fn trusted_client<'q>(
 /// `GET /oauth/authorize`: validates the request, then shows step 1 (the
 /// sign-in code path), the signed-in consent page, or sends the browser to
 /// `/signin`.
-#[tracing::instrument(level = "debug", skip_all)]
+///
+/// When it refuses a `resource` that is not this server's, its span carries
+/// `okf.resource`: how the value differed, a closed set
+/// ([`resource::classify`]), never the value.
+#[tracing::instrument(
+    level = "debug",
+    skip_all,
+    fields(okf.resource = tracing::field::Empty)
+)]
 async fn authorize(
     State(app): State<Arc<App>>,
     headers: HeaderMap,
@@ -793,11 +801,15 @@ async fn authorize(
     // strip it from the browser URL and send it only at the token endpoint.
     // This server has one resource, so a missing one means `/mcp`; a named
     // one must be it. The token endpoint still requires and checks it.
-    if query
+    if let Some(sent) = query
         .resource
         .as_deref()
-        .is_some_and(|resource| resource != oauth.settings.resource)
+        .filter(|sent| *sent != oauth.settings.resource)
     {
+        tracing::Span::current().record(
+            "okf.resource",
+            resource::classify(sent, &oauth.settings.resource).as_str(),
+        );
         return back(
             "invalid_target",
             "resource must name this server's MCP endpoint",
@@ -1986,6 +1998,45 @@ mod tests {
             send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert!(headers.get("location").is_none());
+    }
+
+    /// Issue #1011: a refused `resource` says how it differed on the
+    /// authorize span, and the value is nowhere in what was exported.
+    #[tokio::test]
+    async fn a_refused_resource_says_how_it_differed_on_the_authorize_span() {
+        use crate::telemetry::config::LogFormat;
+        use crate::telemetry::subscriber::capture::{attribute, Observer};
+
+        let test = oauth_app().await;
+        let marker = "zq-marker-9f3";
+        let cases = [
+            (format!("{PUBLIC_URL}/mcp/"), "trailing_slash"),
+            (PUBLIC_URL.to_string(), "origin"),
+            (format!("{PUBLIC_URL}/{marker}"), "other_path"),
+            (format!("https://{marker}.example.net/mcp"), "other_host"),
+            (marker.to_string(), "unparseable"),
+        ];
+        for (sent, expected) in cases {
+            let observer = Observer::start("off", "debug", "debug", LogFormat::Text);
+            let query = query_with("resource", &sent);
+            let (status, headers, _) =
+                send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
+            let observed = observer.finish();
+
+            // A 303 is also the sign-in redirect: the refusal is the error.
+            assert_eq!(status, StatusCode::SEE_OTHER, "{expected}");
+            let target = location(&headers);
+            assert_eq!(param(&target, "error").as_deref(), Some("invalid_target"));
+            assert!(!target.as_str().contains(marker), "{expected}");
+            let spans = observed.spans_named("authorize");
+            let recorded: Vec<_> = spans
+                .iter()
+                .filter_map(|span| attribute(span, "okf.resource"))
+                .map(ToString::to_string)
+                .collect();
+            assert_eq!(recorded, [expected], "{expected}");
+            assert!(!observed.exported_text().contains(marker), "{expected}");
+        }
     }
 
     #[tokio::test(flavor = "multi_thread")]

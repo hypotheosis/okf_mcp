@@ -82,7 +82,11 @@ fi
 
 cleaned="no Cargo.toml, cargo clean skipped"
 if [ -f "$wt/Cargo.toml" ]; then
-    log=$(mktemp "${TMPDIR:-/tmp}/remove-worktree.XXXXXX")
+    # Registered as it is created, so an INT or TERM during the clean (which
+    # agentic_run_bounded passes on to these traps) can't leave it behind (#1193).
+    agentic_cap_begin
+    agentic_cap_mktemp log "${TMPDIR:-/tmp}/remove-worktree.XXXXXX" \
+        || refuse "could not create a temp file for the cargo clean output"
     clean_status=0
     # cargo runs inside the worktree so its config and build dir resolve there.
     # shellcheck disable=SC2016 # $1 is for the inner bash, not this shell
@@ -93,11 +97,11 @@ if [ -f "$wt/Cargo.toml" ]; then
         [ "$agentic_timed_out" = 1 ] && why="timed out after ${AGENTIC_CLEAN_TIMEOUT:-600} s"
         echo "REFUSE: cargo clean $why in $wt; the worktree is kept. Output:"
         tail -n 20 "$log"
-        rm -f "$log"
+        agentic_cap_cleanup
         exit 1
     fi
     summary=$(sed -n 's/^.*Removed \(.*\)$/\1/p' "$log" | tail -n 1)
-    rm -f "$log"
+    agentic_cap_cleanup
     cleaned="cargo clean: removed ${summary:-nothing reported}"
 fi
 

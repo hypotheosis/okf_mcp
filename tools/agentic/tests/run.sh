@@ -1786,6 +1786,28 @@ test_remove_keeps_the_worktree_when_clean_times_out() {
     [ -d "$rw_wt" ] || die "removed it"
 }
 
+test_remove_leaves_no_log_when_termed_during_the_clean() {
+    # #1193: a TERM during the bounded cargo clean must not leave its log behind.
+    new_fixtures; rw_worktree cargo; touch "$fx/cargo.hang"; mkdir -p "$fx/tmp"
+    (cd "$repo" && PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" AGENTIC_BASE_REF=main \
+        exec "$tools/remove-worktree.sh" "$rw_wt" >"$fx/rw.out" 2>&1) &
+    local rw_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/cargo.log" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/cargo.log" ] || { kill -KILL "$rw_pid"; die "the stub cargo never started"; }
+    kill -TERM "$rw_pid"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$rw_pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$rw_pid" 2>/dev/null && { kill -KILL "$rw_pid"; die "TERM did not stop it"; }
+    wait "$rw_pid" 2>/dev/null
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+    [ -d "$rw_wt" ] || die "removed the worktree"
+}
+
 test_remove_skips_clean_without_cargo_toml() {
     new_fixtures; rw_worktree
     run_remove "$rw_wt"
@@ -2016,6 +2038,34 @@ test_watchdog_stops_alerting_once_the_report_is_done() {
     (cd "$repo" && "$tools/expect.sh" done "$work/ex-done") >/dev/null
     expect_watchdog 1400
     want_rc 0
+}
+
+# --- agentic_run_bounded: the caller's traps (#1193) ---
+
+test_run_bounded_puts_the_callers_traps_back() {
+    new_fixtures
+    local trapped
+    trapped=$(bash -c 'source "$1/lib.sh"; trap "echo mine" TERM; agentic_run_bounded 5 true
+        trap -p TERM' _ "$tools")
+    [ "$trapped" = "trap -- 'echo mine' SIGTERM" ] || die "the caller's TERM trap was lost: $trapped"
+}
+
+test_run_bounded_hands_a_term_to_the_callers_trap() {
+    # The signal stops the group, then reaches the caller's own handler.
+    new_fixtures
+    (exec bash -c 'source "$1/lib.sh"; trap "echo caller-trap; exit 7" TERM
+        agentic_run_bounded 30 bash -c ": >\"\$1\"; exec sleep 30" _ "$2"' \
+        _ "$tools" "$fx/started" >"$fx/rb.out" 2>&1) &
+    local rb_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/started" ] || { kill -KILL "$rb_pid"; die "the command never started"; }
+    kill -TERM "$rb_pid"
+    rc=0; wait "$rb_pid" || rc=$?
+    out=$(<"$fx/rb.out")
+    want_rc 7; want_out "caller-trap"
 }
 
 # --- agentic_run_bounded: processes that survive KILL (#948) ---

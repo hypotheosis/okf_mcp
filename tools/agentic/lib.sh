@@ -36,6 +36,16 @@ agentic_stop_group() {
     done
 }
 
+# agentic_traps_restore <saved>: puts the caller's INT and TERM traps back. <saved>
+# is the output of `trap -p INT TERM` taken earlier (empty when there were none).
+agentic_traps_restore() {
+    trap - INT TERM
+    [ -z "$1" ] || eval "$1"
+}
+
+# The caller's INT and TERM traps while agentic_run_bounded runs.
+agentic_bounded_saved_traps=""
+
 # agentic_run_bounded <seconds> <cmd...>: runs cmd in its own session and
 # process group with at most <seconds> to finish. When time runs out the group
 # is stopped (agentic_stop_group). However cmd ends, anything still left in its
@@ -57,8 +67,11 @@ agentic_run_bounded() {
     # The timer is a plain sleep beside the command; whichever ends first wins.
     sleep "$1" &
     timer=$!
-    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"; trap - INT; kill -INT "$BASHPID"' INT
-    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"; trap - TERM; kill -TERM "$BASHPID"' TERM
+    agentic_bounded_saved_traps=$(trap -p INT TERM)
+    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"
+        agentic_traps_restore "$agentic_bounded_saved_traps"; kill -INT "$BASHPID"' INT
+    trap 'kill "$timer" 2>/dev/null; agentic_stop_group "$pgid"
+        agentic_traps_restore "$agentic_bounded_saved_traps"; kill -TERM "$BASHPID"' TERM
     wait -n -p finished "$pgid" "$timer" || status=$?
     if [ "$finished" = "$pgid" ]; then
         kill "$timer" 2>/dev/null || true
@@ -94,7 +107,7 @@ agentic_run_bounded() {
             fi
         fi
     fi
-    trap - INT TERM
+    agentic_traps_restore "$agentic_bounded_saved_traps"
     return "$status"
 }
 
@@ -223,9 +236,7 @@ agentic_cap_cleanup() {
     [ "${#agentic_cap_files[@]}" -eq 0 ] || rm -f -- "${agentic_cap_files[@]}"
     agentic_cap_files=()
     agentic_cap_pid=""
-    trap - INT TERM
-    # The saved text is `trap -- '...' INT` lines, made by trap itself.
-    [ -z "$agentic_cap_saved_traps" ] || eval "$agentic_cap_saved_traps"
+    agentic_traps_restore "$agentic_cap_saved_traps"
     agentic_cap_saved_traps=""
     [ -z "${1:-}" ] || kill "-$1" "$BASHPID"
 }

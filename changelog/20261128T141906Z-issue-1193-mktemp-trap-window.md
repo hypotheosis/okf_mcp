@@ -14,3 +14,10 @@
   during a hung `cargo clean` leaves no file; the caller's traps survive both
   `agentic_run_captured` and `agentic_run_bounded`, and a TERM reaches the caller's trap.
 - `lessons.md`: one line.
+
+## Review round 1
+- When a caller's own TERM or INT handler returns after `agentic_cap_cleanup` or
+  `agentic_run_bounded` re-raised the signal, execution used to resume in a torn-down
+  capture. They now record 130 (INT) or 143 (TERM): `agentic_cap_mktemp`,
+  `agentic_run_captured`, `bounded_capture` and `agentic_run_bounded` stop and return
+  it, launching nothing; the caller's trap stays installed.

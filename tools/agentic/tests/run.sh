@@ -986,6 +986,42 @@ test_run_captured_leaves_no_temp_file_when_termed_during_mktemp() {
     [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
 }
 
+test_run_captured_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): a caller whose TERM handler returns must get 143 back, with
+    # the command never launched, no temp file left and its trap still installed.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_captured 5 touch "$2"; echo "rc=$?"; trap -p TERM' \
+        _ "$tools" "$fx/launched" >"$fx/rc.out" 2>&1) &
+    term_during_mktemp "$!"
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+test_run_bounded_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): the same for agentic_run_bounded, which must stop the group,
+    # return 143 and keep the caller's trap.
+    new_fixtures
+    (PATH="$fx/bin:$PATH" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_bounded 30 bash -c ": >\"\$1\"; exec sleep 30" _ "$2"
+        echo "rc=$?"; trap -p TERM' _ "$tools" "$fx/started" >"$fx/rc.out" 2>&1) &
+    local rb_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/started" ] || { kill -KILL "$rb_pid"; die "the command never started"; }
+    kill -TERM "$rb_pid"
+    wait "$rb_pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
 test_run_captured_puts_the_callers_traps_back() {
     # #1193: agentic_run_captured used to clear the caller's INT and TERM traps.
     new_fixtures; mkdir -p "$fx/tmp"

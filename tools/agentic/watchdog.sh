@@ -135,7 +135,9 @@ newest_log_time() {
 # the child nor a descendant holding its output open can stall the watchdog
 # (#675). Here stderr is discarded. A timeout warns on stderr, naming only the
 # command (never its output or arguments), and returns 124. A command that fails
-# returns its status with its output stored; it warns too unless -q is given
+# returns its status with its output stored (or 130 for INT, 143 for TERM when a
+# signal came and the caller's own handler returned: nothing is launched or read
+# then); it warns too unless -q is given
 # (for calls whose failure is expected, such as a recheck of a process that has
 # gone).
 bounded_capture() {
@@ -151,9 +153,10 @@ bounded_capture() {
     # the statement that creates it, so a signal can't leave it behind (#1193).
     local bc_file
     agentic_cap_begin
-    agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return 1
+    agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return $?
     agentic_capture_supervise "$(agentic_call_budget)" "$bc_in" "$bc_file" /dev/null "${@:2}" \
         || bc_status=$?
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     [ -z "$agentic_cap_left" ] \
         || echo "watchdog: warning: $2 call exited leaving processes behind; $agentic_cap_left" >&2
     if [ "$bc_status" -eq 124 ]; then

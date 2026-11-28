@@ -35,3 +35,14 @@ use `link_lines`, so a link written as code no longer refuses a delete, and a
 bullet inside a fenced block is not a listing. `links_to` is gone;
 `into_links_to` replaces it. `leading_link_to` and `relinked_bullet` (the
 okf.py mirrors) still read one line.
+
+## Review round 2
+
+A match that started at a `[` inside code was dropped whole, and the scan
+resumed after it, so it swallowed a real link after the span
+(`` `[` [x](a.md) ``). `find_links`, `link_lines` and `slugify` now run LINK and
+SLUG_LINK on a copy of the text with code bytes (not line breaks) blanked to
+`_`, same length, so offsets and lines are unchanged. Code can no longer open,
+close or swallow a link; link text and target are read from the original. It is
+still one parse and one linear regex pass, with no rescans. A `]` or `)` inside
+code no longer ends a link early either (`[a `]` b](x.md)` is a link).

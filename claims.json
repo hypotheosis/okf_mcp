@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2667,
+  "next_claim_seq": 2690,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "59a6c2cacc32f9eb3ced993f2cf5b6589bd36a676b176a159665b3adec2b5e77"
+    "mac": "25c5858dcb8c218ef5b51cda3b4a031b2dfb6726fdafc7e0ed9a931748ad0811"
   },
-  "next_evidence_seq": 4648,
+  "next_evidence_seq": 4684,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "26cacc9db7ff3a6c70ffa26c1e9509d5117fe10b1cf54ad2d0d6b701fbf68151"
+    "mac": "e4f947c26dc0925a9d8ff9014f713cde23febb3221d3b324fd6cb59cf3a9dd19"
   },
   "claims": [
     {
@@ -222425,7 +222425,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2680.",
+        "retired_at": "2026-11-28T17:21:46.449112172Z"
       },
       "evidence": [
         {
@@ -222457,10 +222459,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:42.984835531Z",
+      "updated_at": "2026-11-28T17:21:46.449112172Z",
       "seal": {
         "by": "server",
-        "mac": "53fd24318c9d7e83ca98df9b98f1b56b201c2e590979e4a2b6cc65202fbc0300"
+        "mac": "9eff9c01f57ba3fae077b6281f8e8cbecedb78e692184478ac13029bc6ad5b21"
       }
     },
     {
@@ -222481,7 +222483,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2685.",
+        "retired_at": "2026-11-28T17:23:02.296279390Z"
       },
       "evidence": [
         {
@@ -222527,6 +222531,28 @@
             "by": "server",
             "mac": "d910d6ef45b44869b428243fc5f76685c2eca39cf1bd67a02a727befa83b888b"
           }
+        },
+        {
+          "id": "EVD-4662",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1052-1085 at 8665eafa",
+          "summary": "Re-audit after the rename: a_401_records_why_the_credential_was_refused still asserts the span attribute equals the failure for each refusal, now under the key okf.refusal (line 1075). Behavior holds; the claim text still names the pre-rename key okf.auth.failure.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1066,
+                "end": 1085
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:21.452787145Z",
+          "seal": {
+            "by": "server",
+            "mac": "a6eeade622f38c513d00f541012f8e7269e8235cb4ea9c63e2b7be65d19acc60"
+          }
         }
       ],
       "verdicts": [
@@ -222543,13 +222569,26 @@
             "by": "server",
             "mac": "5497fa62876ae31d8dbc08e2b997e69f0e3d77be99666ff884891ffe8f3c30b3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa: behavior holds under the renamed key okf.refusal. The claim text still says okf.auth.failure.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4662"
+          ],
+          "recorded_at": "2026-11-28T17:20:02.735941934Z",
+          "seal": {
+            "by": "server",
+            "mac": "bcd2eaccb87679ffce91fe765c2c604328258c508223b226fb737ec7661311b0"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:14.925134176Z",
+      "updated_at": "2026-11-28T17:23:02.296279390Z",
       "seal": {
         "by": "server",
-        "mac": "7c8673c947d909cf08e44790b5bf48cc73b499d3a8e889fc3d1b10fb3266b8c6"
+        "mac": "88fcd9ec5ca8ce9a00b1d5cbebddbe51abb74daae446af136f73e8151bf07c5e"
       }
     },
     {
@@ -222570,7 +222609,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2686.",
+        "retired_at": "2026-11-28T17:23:02.451457731Z"
       },
       "evidence": [
         {
@@ -222616,6 +222657,28 @@
             "by": "server",
             "mac": "a4a633e0791a6773b4467695e45f43ec1e2b0cc7f3a8f3f5a48ec683c40e2c97"
           }
+        },
+        {
+          "id": "EVD-4663",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1104-1134 at 8665eafa",
+          "summary": "Re-audit after the rename: a_dead_session_cookie_on_the_api_is_unknown asserts okf.refusal == \\\"unknown\\\" (line 1122); require_principal's code path is untouched by the diff. Claim text still names the old key.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1104,
+                "end": 1134
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:21.606543666Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e9f2a81c7b2d434a67d04b96577c0ecf8cfc8751922ae21da277fa26e922875"
+          }
         }
       ],
       "verdicts": [
@@ -222632,13 +222695,26 @@
             "by": "server",
             "mac": "c0cb81e75e5cedf33a3541ed23765b4e4ea62b14a4df34be91f1bb09e093bfe4"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa: behavior holds under okf.refusal. Claim text names the old key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4663"
+          ],
+          "recorded_at": "2026-11-28T17:20:02.882679834Z",
+          "seal": {
+            "by": "server",
+            "mac": "67056d3359b59bdb809748a6f0ca7af2b0b2f18edf7090084871839d172fb97a"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:15.161126014Z",
+      "updated_at": "2026-11-28T17:23:02.451457731Z",
       "seal": {
         "by": "server",
-        "mac": "2a21ca2cfa24c9cd4254ce18c3a0569840cbeda079336a562a2791e7b687f659"
+        "mac": "64b26262ffae89c942b512ccae7ad5349fc8a2490f6a5880beab5742319764b3"
       }
     },
     {
@@ -222659,7 +222735,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2687.",
+        "retired_at": "2026-11-28T17:23:02.607777945Z"
       },
       "evidence": [
         {
@@ -222705,6 +222783,28 @@
             "by": "server",
             "mac": "73d1029b551a23a39395972f30cad08a46b275d98f7c922888b28df668e49598"
           }
+        },
+        {
+          "id": "EVD-4664",
+          "kind": "inspection",
+          "locator": "src/auth.rs:946-985 at 8665eafa",
+          "summary": "Re-audit after the rename: the AuthFailure enum and as_str still hold exactly the six values; only the doc comments changed to okf.refusal. Claim text names the old key.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 946,
+                "end": 985
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:21.761834933Z",
+          "seal": {
+            "by": "server",
+            "mac": "84c716c14462496c75a048ca3baad387793ee9421f774ac912041f205d197a88"
+          }
         }
       ],
       "verdicts": [
@@ -222721,13 +222821,26 @@
             "by": "server",
             "mac": "3b55fb0a8251bb061710c3f4489bedc9e69ab0c34f61041e49b5b75660ed78bf"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa: closed set unchanged, now under okf.refusal. Claim text names the old key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4664"
+          ],
+          "recorded_at": "2026-11-28T17:20:03.029435054Z",
+          "seal": {
+            "by": "server",
+            "mac": "cda27f5b6614886c61e9028c76e2468467f8477b525853dc1d4f67ba7a08ce6a"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:15.379834709Z",
+      "updated_at": "2026-11-28T17:23:02.607777945Z",
       "seal": {
         "by": "server",
-        "mac": "2c5d2d985407e306c4107498f06dcc8b4c6ea0a4316116a289da25d321f96ebd"
+        "mac": "a798c57887296692099816f189b630241d6e29e7b8883d95ca383084686224bc"
       }
     },
     {
@@ -222749,7 +222862,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2681.",
+        "retired_at": "2026-11-28T17:21:46.598576065Z"
       },
       "evidence": [
         {
@@ -222813,10 +222928,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:15.612485833Z",
+      "updated_at": "2026-11-28T17:21:46.598576065Z",
       "seal": {
         "by": "server",
-        "mac": "93dc87e49b9bb503b982a01bfc4ca4a9a3051f54af4d530084851353f8e258f6"
+        "mac": "a21935f0224e1111138653660e933557db335f6e421d6b376ada2d5373088e07"
       }
     },
     {
@@ -222974,6 +223089,28 @@
             "by": "server",
             "mac": "d72c39031c75621e248f612adb24707eb4aa822e20c199b35d98b79f403a0948"
           }
+        },
+        {
+          "id": "EVD-4667",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1137-1160; src/http/telemetry_tests.rs:1172-1214 at 8665eafa",
+          "summary": "Re-audit after the rename: record_auth_failure still records only failure.as_str(); diff changes only the key string and comments. The never-leaks test is unchanged apart from line shift.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1137,
+                "end": 1160
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:22.212825171Z",
+          "seal": {
+            "by": "server",
+            "mac": "71ed3cf5800760ddee90b63e020409a6433b384c3538c9cf68a77af25e117098"
+          }
         }
       ],
       "verdicts": [
@@ -222990,13 +223127,26 @@
             "by": "server",
             "mac": "209cae9af9bd1025f4f96d5de1efa985c11525fda11645ca049d0b9802a80679"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa: only the key string and comments changed on the refusal path; nothing new is recorded.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4667"
+          ],
+          "recorded_at": "2026-11-28T17:20:03.324668402Z",
+          "seal": {
+            "by": "server",
+            "mac": "e13f9807f91753115fbb6d59ef13075c278cb70a1fd268877d7d9300e1b1a769"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:16.095865507Z",
+      "updated_at": "2026-11-28T17:20:03.324668402Z",
       "seal": {
         "by": "server",
-        "mac": "669b9da4741441d940eb0a7506cd7088c679b3317a694df73ad6d69ec7ec45a1"
+        "mac": "25f0450664c6de775f2de1f083b732d730cb3a7d452710a44221c1ef5ea1b70c"
       }
     },
     {
@@ -223018,7 +223168,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2688.",
+        "retired_at": "2026-11-28T17:23:02.766845699Z"
       },
       "evidence": [
         {
@@ -223064,6 +223216,28 @@
             "by": "server",
             "mac": "1a8c070332a682b79f090425750bb57542956dabe08996eda38641d0e1e6fe62"
           }
+        },
+        {
+          "id": "EVD-4665",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:664-682 at 8665eafa",
+          "summary": "Re-audit after the rename: the same request span (info level) now declares okf.refusal; the span's level and export filter are unchanged by the diff. Claim text names the old key.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 664,
+                "end": 682
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:21.911008514Z",
+          "seal": {
+            "by": "server",
+            "mac": "af3806c3e8aea64f3333b2d0b5fe44dc2bfec5a9be0684e77fec44f07addd666"
+          }
         }
       ],
       "verdicts": [
@@ -223080,13 +223254,26 @@
             "by": "server",
             "mac": "a7919c3f35dabc9adc9e449c8c72ab2daec684573b5ce2f1bab9d2fbf9ed8cba"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa: the refusal key is on the same info-level request span. Claim text names the old key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4665"
+          ],
+          "recorded_at": "2026-11-28T17:20:03.177617151Z",
+          "seal": {
+            "by": "server",
+            "mac": "d828888c6600d5bdb2c2718f73d9232b90d482a727a52a4cdf0731e21f334e9b"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:16.348293384Z",
+      "updated_at": "2026-11-28T17:23:02.766845699Z",
       "seal": {
         "by": "server",
-        "mac": "68696b98746df5d02f621d33b485aa56b0125895c2cfdc8cf1a62e2a35b78572"
+        "mac": "aff43e18dce9e525f433aec3736e1b35458492e4d1c6838afaee39ad604771fa"
       }
     },
     {
@@ -223107,7 +223294,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2682.",
+        "retired_at": "2026-11-28T17:21:46.747998887Z"
       },
       "evidence": [
         {
@@ -223149,10 +223338,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:16.586254590Z",
+      "updated_at": "2026-11-28T17:21:46.747998887Z",
       "seal": {
         "by": "server",
-        "mac": "16d96a677ba314f8f185220fc6a95deb9029086dce1cfa352ef617cb6aad5d25"
+        "mac": "b69a0eba984afc79545ca81cc9fbd9e68a789ae5c59f3a78d26017f0146508b5"
       }
     },
     {
@@ -223174,7 +223363,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2683.",
+        "retired_at": "2026-11-28T17:21:46.898369381Z"
       },
       "evidence": [
         {
@@ -223216,10 +223407,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:16.852761396Z",
+      "updated_at": "2026-11-28T17:21:46.898369381Z",
       "seal": {
         "by": "server",
-        "mac": "79ff0a5f13e794a000a9573487f35261d71791f5debd29a8351eec0853a18cba"
+        "mac": "e152223a6689d56b6450c3996be9eb2b1b823f7d37405ec2b4866a5e7d244215"
       }
     },
     {
@@ -223240,7 +223431,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by CLM-2670: the span table now lists okf.refusal (issue #1205 renamed okf.auth.failure).",
+        "retired_at": "2026-11-28T17:21:12.716078683Z"
       },
       "evidence": [
         {
@@ -223264,6 +223457,28 @@
             "by": "server",
             "mac": "422fb76e44cef62640d552f5239de1e7c9c5b92ef65a2b799b831b89623a78ef"
           }
+        },
+        {
+          "id": "EVD-4666",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1784 at 8665eafa",
+          "summary": "Re-audit after the rename: the request-span row now lists okf.refusal, not okf.auth.failure, so the claim as worded (lists okf.auth.failure) no longer holds; its intent (the table lists the refusal key) does.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 1784,
+                "end": 1784
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:22.062342024Z",
+          "seal": {
+            "by": "server",
+            "mac": "91e46cefc3010849bddea1bdc5584e8ce85f1bc6b26e9827197915d74c1fc02e"
+          }
         }
       ],
       "verdicts": [
@@ -223279,13 +223494,26 @@
             "by": "server",
             "mac": "5e5f3335068aa93e7c0394dc980bd1b0bbea1df9443c67ebb903912b93946aec"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The span-table row now lists okf.refusal, so the statement as worded (lists okf.auth.failure) is false by design of the rename. Fix: retire CLM-2534 as superseded by the rename and rely on the new claim that the span table, the refusal section and the 401 row use okf.refusal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4666"
+          ],
+          "recorded_at": "2026-11-28T17:20:03.614361226Z",
+          "seal": {
+            "by": "server",
+            "mac": "9173e00ed4486e90bd413ca37a67cef318f16a7124f4309f2ced2f07fba1ef71"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:17.108549938Z",
+      "updated_at": "2026-11-28T17:21:12.716078683Z",
       "seal": {
         "by": "server",
-        "mac": "4502bc2962f869be9581196688a2f7f54c90fc3f2445bb0873a933e25f01b309"
+        "mac": "cdd4ed032e9eb3859b6a27fbeba43cc94ef892fd57af8af8fdaa13529368c813"
       }
     },
     {
@@ -223505,7 +223733,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2684.",
+        "retired_at": "2026-11-28T17:21:47.047043602Z"
       },
       "evidence": [
         {
@@ -223547,10 +223777,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:18.061914832Z",
+      "updated_at": "2026-11-28T17:21:47.047043602Z",
       "seal": {
         "by": "server",
-        "mac": "6d7e7e6168cbd004bbd522659ef83fe559ee1d830d2b83adad0f84eea3c80401"
+        "mac": "8bfedbf3c5e9adedc44d3bdeaa351b634adc06f51530322768a8975b3e335790"
       }
     },
     {
@@ -223572,7 +223802,9 @@
         "from-issue:1012"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Names okf.auth.failure, renamed to okf.refusal by #1205; replaced by CLM-2689.",
+        "retired_at": "2026-11-28T17:23:02.926707055Z"
       },
       "evidence": [
         {
@@ -223614,10 +223846,10 @@
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:18.295938200Z",
+      "updated_at": "2026-11-28T17:23:02.926707055Z",
       "seal": {
         "by": "server",
-        "mac": "1e3345fffdc946156df9a2542108c47b78d29128c18353c6474ffd9c13ab32b9"
+        "mac": "e6eb26526f7c98450a808bce328bb4e1cb05cc9d3c621584f4b9fee98788704f"
       }
     },
     {
@@ -223662,6 +223894,28 @@
             "by": "server",
             "mac": "011612ff29fe81e7c915912a765183536a8fb7b4487d74de871d095095713015"
           }
+        },
+        {
+          "id": "EVD-4668",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1154-1160; src/http/telemetry_tests.rs:1052-1134 at 8665eafa",
+          "summary": "Re-audit after the rename: both tests still read the span attribute that record_auth_failure sets (now okf.refusal on both sides), so a no-op record_auth_failure still fails them. Reasoned from the code, not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1066,
+                "end": 1126
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:22.361590120Z",
+          "seal": {
+            "by": "server",
+            "mac": "e47c1c4d0151aff779c5539602f61e5cdc74f5feba995e50601a37197ec229c9"
+          }
         }
       ],
       "verdicts": [
@@ -223677,13 +223931,26 @@
             "by": "server",
             "mac": "02e4e6b7282301042676138e857db239b4e482928b1ec6e9dda89be30931e974"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on 8665eafa by code reading (not executed): both tests still depend on record_auth_failure setting okf.refusal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4668"
+          ],
+          "recorded_at": "2026-11-28T17:20:03.468953892Z",
+          "seal": {
+            "by": "server",
+            "mac": "982cd33dbc27e4e59ef5b31a498a3b826359a92767a7aea8634d4e29d75b5b5a"
+          }
         }
       ],
       "created_at": "2026-11-28T08:47:28.760406909Z",
-      "updated_at": "2026-11-28T08:49:18.501440940Z",
+      "updated_at": "2026-11-28T17:20:03.468953892Z",
       "seal": {
         "by": "server",
-        "mac": "413d3725119e8f3e826616056491ae489b8c6b9c591989e9d0f2acf1a635560a"
+        "mac": "5b677f4ac849569903e54b4b3a3aa6eb84daeb41214148111ba4dda78a2fc037"
       }
     },
     {
@@ -234078,6 +234345,1677 @@
       "seal": {
         "by": "server",
         "mac": "4930a42228f1ba2f4071a119b1ab70d3b206aba0190fc4dc6b46a574db60362d"
+      }
+    },
+    {
+      "id": "CLM-2667",
+      "statement": "Issue #1205 is delivered: the okf.auth.failure span key is renamed to a scrubber-safe name with its values kept, the docs and telemetry tests are updated, and a test checks every okf.* span key against the scrubber's substrings.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1205 (requirements; step 4 out of scope)",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/auth.rs",
+        "docs/operations.md",
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4669",
+          "kind": "analysis",
+          "locator": "children of CLM-2667",
+          "summary": "The rename, values, docs, existing tests are supported, but child CLM-2673 is refuted: the new scan test skips keys in files with an early #[cfg(test)] (src/mcp/mod.rs, src/app.rs), so it does not check every okf.* span key.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T17:19:46.975753962Z",
+          "seal": {
+            "by": "server",
+            "mac": "450eb0783577eafd6424f074b714d0362ff05335ead45c18e1d0c706684ffb34"
+          }
+        },
+        {
+          "id": "EVD-4671",
+          "kind": "analysis",
+          "locator": "children of CLM-2667",
+          "summary": "After edd90dd8 every child that can be decided is supported, including CLM-2673 (whole-file scan). CLM-2677 (Sentry list is the documented one) and CLM-2678 (gates) stay not_enough_info and do not block.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:21:12.563695452Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a9c7f63b4bf488b43bdca5e515d3e1a2c7d663fc2d4e3c001665061a7605fb2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Rename, docs and tests are done, but the required test over every okf.* span key skips keys in mcp/mod.rs and app.rs. Fix: scan whole files in okf_span_keys (src/http/telemetry_tests.rs:1289) and add okf.tool, okf.error.kind and okf.clock.offset to its expected-keys list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4669"
+          ],
+          "recorded_at": "2026-11-28T17:20:02.591227463Z",
+          "seal": {
+            "by": "server",
+            "mac": "f69899217811a6c31659787454dccc39f060f8dc9a7aa3305bb2b56a97fdee5b"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Rename, values, docs, existing tests and the every-key scan test are all supported on edd90dd8. Step 4 is out of scope. CLM-2677 and CLM-2678 remain not_enough_info.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4671"
+          ],
+          "recorded_at": "2026-11-28T17:21:46.299446360Z",
+          "seal": {
+            "by": "server",
+            "mac": "550e859ca098c0755a36043a58adce35d062a095a55c2583accf4b052d4bb98a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:21:46.299446360Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee4403c02ddb755c57e0d8a98dfff7493e8229080a7758d49451d6651e0b48d3"
+      }
+    },
+    {
+      "id": "CLM-2668",
+      "statement": "The HTTP request span declares okf.refusal and src/auth.rs records the refusal reason under okf.refusal; the span no longer declares okf.auth.failure.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1205: rename the key to a scrubber-safe name; PR: \"the span field and its `record` call use `okf.refusal`\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4648",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:681; src/auth.rs:1157",
+          "summary": "request_span declares okf.refusal = tracing::field::Empty; record_auth_failure calls span.record(\"okf.refusal\", failure.as_str()). Neither site names okf.auth.failure.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1154,
+                "end": 1160
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:37.342474805Z",
+          "seal": {
+            "by": "server",
+            "mac": "e3f41f6cad767b260d8e802100ee51e3f76608cc9c4c2b47615a8620a51823e1"
+          }
+        },
+        {
+          "id": "EVD-4649",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:672-682",
+          "summary": "The request span's fields(...) lists okf.key.id and okf.refusal as the last two empty fields; no okf.auth.failure field.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 672,
+                "end": 682
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:37.491354358Z",
+          "seal": {
+            "by": "server",
+            "mac": "8737608cecf42614fb394231dc105cc59b88d30c7dd4d19f3f3509dd9ed8b9ab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Declaration and record call both use okf.refusal; no okf.auth.failure remains in code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4648",
+            "EVD-4649"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.267886676Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d44d6183ef3cfe48e042efacd9ada3a8b9ccdaacbb08c772869b65be09d1983"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.267886676Z",
+      "seal": {
+        "by": "server",
+        "mac": "a216bc06e93062a1508f45708208af59dcd2cac106122d921f4a63543a8aadc3"
+      }
+    },
+    {
+      "id": "CLM-2669",
+      "statement": "The values of the renamed key are unchanged: AuthFailure::as_str still yields missing, scheme, unknown, expired, revoked, wrong_resource.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1205: \"keeping the values\"; PR: \"The values are unchanged.\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4650",
+          "kind": "inspection",
+          "locator": "src/auth.rs:973-982; git diff origin/main..HEAD -- src/auth.rs",
+          "summary": "as_str maps the six variants to missing, scheme, unknown, expired, revoked, wrong_resource; the diff in src/auth.rs touches only doc comments and the record key, not as_str's body.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 973,
+                "end": 982
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:37.650901402Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad864380d9216ba6dd9a307bae5a5ac0959e95746ba2ff9e2b8035ccf372795a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "as_str body is untouched by the diff and yields the six values.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4650"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.414173825Z",
+          "seal": {
+            "by": "server",
+            "mac": "74189beffaac5a04a77429f94ab444670efde63203a302d9c734bddf3af3c488"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.414173825Z",
+      "seal": {
+        "by": "server",
+        "mac": "c488347885cb46bf0cc251090d33c02a814e384c00270877c74b21e5d4da1c50"
+      }
+    },
+    {
+      "id": "CLM-2670",
+      "statement": "docs/operations.md's span table, its \"Why a credential was refused\" section (prose and table header) and the 401 troubleshooting row use okf.refusal.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1205: update docs/operations.md's span table and its \"Why a credential was refused\" section; PR: \"span table, \\\"Why a credential was refused\\\" and the 401 row use the new key\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4651",
+          "kind": "inspection",
+          "locator": "docs/operations.md:1784, 5078-5081, 5831",
+          "summary": "Span table row (1784), the prose and table header of \"Why a credential was refused\" (5078, 5081) and the 401 troubleshooting row (5831) all say okf.refusal. grep for okf.auth.failure in docs/ finds no hit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 5075,
+                "end": 5082
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:37.811754592Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d105383748246109c6739c4e0e38ca3099972209637c10c987fffc076277838"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three doc locations name okf.refusal.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4651"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.559041537Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bd34811a5368e965368de173f9f55d66b721d07ae631f97c99540c521660365"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.559041537Z",
+      "seal": {
+        "by": "server",
+        "mac": "0b841b75fab047b6e498f779d153ef4d36f3a8dfa4c9da074aa8bc0e60f23cd4"
+      }
+    },
+    {
+      "id": "CLM-2671",
+      "statement": "No occurrence of the key okf.auth.failure remains in src or docs outside history notes (comments naming the old key in a test doc comment, changelog entries).",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1205: rename the key; universal check at head",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4652",
+          "kind": "analysis",
+          "locator": "git grep -n \"okf.auth.failure\" at head, whole repo",
+          "summary": "Remaining hits outside claims.json: changelog entries (#1012, #1205), a history note in src/http/telemetry_tests.rs:1212 and :1239 doc comments. No code, doc table or test lookup uses the old key.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "okf\\.auth\\.failure",
+              "scope": [
+                "docs",
+                "src"
+              ],
+              "hits": 2,
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:37.978446110Z",
+          "seal": {
+            "by": "server",
+            "mac": "5863fb81f784e342fddbcf9d8ba8a1dd54ad323dda7baadc019db87d7cc40df2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Whole-repo grep leaves only history notes (two doc comments in the test file, changelogs).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4652"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.705083214Z",
+          "seal": {
+            "by": "server",
+            "mac": "252e1f8e956b256900974fa7d57adac3e35b2f53e6182a0358fc3f8b18a19700"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.705083214Z",
+      "seal": {
+        "by": "server",
+        "mac": "6532f049f4f7edc1de74c8eee67a5e09940f70c21a807568858474d7f832e3b9"
+      }
+    },
+    {
+      "id": "CLM-2672",
+      "statement": "The existing span tests a_401_records_why_the_credential_was_refused, an_admitted_request_records_no_auth_failure and a_dead_session_cookie_on_the_api_is_unknown look up okf.refusal.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1205: update the telemetry tests; PR: \"existing span tests look up the new key\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4653",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1075, 1098, 1122",
+          "summary": "The three tests call attribute(span, \"okf.refusal\") with their original assertions (Some(failure.as_str()), is_none(), Some(\"unknown\")).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1072,
+                "end": 1126
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:18:38.129247892Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b9df8923cc7890050234695a462f4c5fe246ef7e41bc40ba3999eadfe009165"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Each test reads okf.refusal at the cited lines with unchanged assertions.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4653"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.850682539Z",
+          "seal": {
+            "by": "server",
+            "mac": "565cdcc255f3d4d627df810f61f5d00aa55b22939d7739cc15e22f0c70c31a10"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.850682539Z",
+      "seal": {
+        "by": "server",
+        "mac": "861300ed060859ebaad8674284d9208dec09ef8614c91cbe86ef7819f415c613"
+      }
+    },
+    {
+      "id": "CLM-2673",
+      "statement": "The new test no_okf_span_key_holds_a_substring_a_scrubber_hides scans every okf.* span attribute key declared or recorded in src and fails if any contains a substring of the scrubber list.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1205: add a test that checks every okf.* span key against the scrubber's substrings; PR: \"scans `src` for every `okf.*` span attribute key\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4654",
+          "kind": "analysis",
+          "locator": "src/http/telemetry_tests.rs:1289 (text.split(\\\"#[cfg(test)]\\\").next()) run over src/mcp/mod.rs and src/app.rs",
+          "summary": "The scan keeps only the text before the FIRST #[cfg(test)] in each file. src/mcp/mod.rs has #[cfg(test)] at lines 20-24 and src/app.rs at line 140, long before their span declarations, so the scan never sees okf.tool, okf.changeset, okf.error.kind (src/mcp/mod.rs:454-465) or okf.announcement.result, okf.clock.offset (src/app.rs:1304, 1533). Reproduced with the test's two regexes in a script: scanning whole files finds those 5 extra keys. The test's sanity list does not include any of them, so the gap is silent.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1285,
+                "end": 1292
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.023673423Z",
+          "seal": {
+            "by": "server",
+            "mac": "41c90703270e8289822b9b1226d235aea32719761f2abd3b36574fbacfc6bef4"
+          }
+        },
+        {
+          "id": "EVD-4655",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1265-1322",
+          "summary": "The test walks src recursively, collects declared (unquoted, before =) and record(\\\"okf....\\\") keys, asserts the keys okf.key.id, okf.grant, okf.refusal, okf.refresh, okf.error were found, then asserts no key contains any of 15 substrings. It does what it says for the files it reaches (17 keys found by the same regexes).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1298,
+                "end": 1322
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.172029583Z",
+          "seal": {
+            "by": "server",
+            "mac": "24c7e6d9951625389e8b335a0d2a0174f8967dbdf7d8b94261fb9fca3f483f6f"
+          }
+        },
+        {
+          "id": "EVD-4670",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1266-1300 at edd90dd8",
+          "summary": "Re-audit: the `split(\"#[cfg(test)]\")` is gone; both regexes now run over the whole text of every non-*tests.rs file under src, so keys in src/mcp/mod.rs and src/app.rs (okf.tool, okf.changeset, okf.error.kind, okf.announcement.result, okf.clock.offset) are collected. My whole-file script gives 22 keys, none holding a listed substring, so the test passes. Not executed. Note: the expected-keys list at lines 1304-1316 still has the original 5 entries; okf.tool, okf.error.kind and okf.clock.offset were NOT added, contrary to the commit report, so a future regression to a truncating scan would again go unnoticed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1266,
+                "end": 1300
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:12.409662665Z",
+          "seal": {
+            "by": "server",
+            "mac": "52e943e63985f1882e4c88eb6b70fc3b1449722943847de7cb03f2e4d2b116ce"
+          }
+        },
+        {
+          "id": "EVD-4677",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1304-1329 at c9759c6b",
+          "summary": "The expected-keys list now holds okf.key.id, grant, refusal, refresh, error, error.kind, tool and clock.offset, so a regression to a truncating scan (which loses okf.tool, okf.error.kind, okf.clock.offset) would fail the sanity check. Scan unchanged since edd90dd8 (whole files). Not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1304,
+                "end": 1329
+              },
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:16.664479206Z",
+          "seal": {
+            "by": "server",
+            "mac": "46077168bbf885bfcd22fb30092e63a75953101419dde7ce9420e6ba396d6ee0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The test truncates each file at its first #[cfg(test)], and src/mcp/mod.rs (cfg(test) at line 20) and src/app.rs (line 140) declare span keys after that point, so okf.tool, okf.changeset, okf.error.kind, okf.announcement.result and okf.clock.offset are never scanned. The issue asked for a check of every okf.* span key. None of the missed keys is scrubbed today, so this is a coverage hole, not a live bug. Fix: in okf_span_keys (src/http/telemetry_tests.rs:1289) scan the whole file instead of splitting at the first #[cfg(test)] (or cut only at a `#[cfg(test)]\\nmod tests {` block), and add okf.tool, okf.error.kind and okf.clock.offset to the expected-keys sanity list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4654"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.121566888Z",
+          "seal": {
+            "by": "server",
+            "mac": "e703c051448a43e033dbda07750ac86b57f2994a375846e1b0081067e0384211"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit on edd90dd8 by reading and a script run over the same regexes (test not executed): the first-cfg(test) truncation is gone, so all 22 keys are scanned and none holds a listed substring. Caveat: the expected-keys list was not extended with okf.tool, okf.error.kind and okf.clock.offset, so a regression to a truncating scan would not be caught by the sanity check.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4670"
+          ],
+          "recorded_at": "2026-11-28T17:21:46.148903226Z",
+          "seal": {
+            "by": "server",
+            "mac": "a279696a1adad382e5a3fc2f650063cc3bcc4b4489a8fbdb331d41206bde67ef"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "On c9759c6b the scan covers whole files and the expected list now includes okf.tool, okf.error.kind and okf.clock.offset, closing the earlier caveat. Read, not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4670",
+            "EVD-4677"
+          ],
+          "recorded_at": "2026-11-28T17:23:28.418823574Z",
+          "seal": {
+            "by": "server",
+            "mac": "8750cf3656b6503a68e0531d2a22bddc1faaee19cc8fa30bcc51ffb1e745cff2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:23:28.418823574Z",
+      "seal": {
+        "by": "server",
+        "mac": "7353f65943c9560b9fff2be3b6876067b62d6a1963e6ead4bfb2d6443d5c6bd4"
+      }
+    },
+    {
+      "id": "CLM-2674",
+      "statement": "Only okf.auth.failure held a scrubbed substring among the span keys; no other existing span key fails the check.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR: \"Only `okf.auth.failure` held a scrubbed substring; no other existing span key fails.\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4656",
+          "kind": "analysis",
+          "locator": "script over src/**/*.rs (whole files, same regexes as the test) against the 15 substrings",
+          "summary": "Whole-file scan of src finds 22 okf.* span keys (okf.archive.size, catalog, changeset, changeset.entries, cleanup.kind, clock.offset, error, error.kind, grant, housekeeping.slot, housekeeping.task, invalidation.kind, key.id, mail.provider, mail.template, outcome, refresh, refusal, resource, store, tool, announcement.result). None contains a listed substring. Only the old okf.auth.failure did (git show origin/main:src/http/mod.rs). Non-okf keys such as mcp.session.id are out of the claim's scope.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "okf\\.[a-z0-9_.]*(password|secret|passwd|api_key|apikey|auth|credentials|mysql_pwd|privatekey|private_key|token|bearer|cookie|session|csrf)[a-z0-9_.]*[ ]*=[^=]",
+              "scope": [
+                "src/app.rs",
+                "src/housekeeping.rs",
+                "src/http/archives.rs",
+                "src/http/mod.rs",
+                "src/mcp/mod.rs",
+                "src/oauth/token.rs"
+              ],
+              "hits": 0,
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.331285206Z",
+          "seal": {
+            "by": "server",
+            "mac": "bae2d51135d3eebc14d81e9a21b2c24786ef6f42418977f99e0d3774125027a2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A whole-file scan finds 22 okf.* span keys and none other than the old one holds a listed substring.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4656"
+          ],
+          "recorded_at": "2026-11-28T17:19:47.997369939Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c4ea2db82a6561bbc0ba785fa0978f916102609432f63bbdca30df400633b0f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:47.997369939Z",
+      "seal": {
+        "by": "server",
+        "mac": "499c8675f9f5d252760d657654c761670db8a3f7cf53e27874832bbaa0e96f72"
+      }
+    },
+    {
+      "id": "CLM-2675",
+      "statement": "Issue #884 renamed okf.oauth.grant to okf.grant because a key holding auth is scrubbed by trace backends.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"the same reason #884 renamed `okf.oauth.grant`\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/oauth/token.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4657",
+          "kind": "inspection",
+          "locator": "git show 77e3614b (Closes #884)",
+          "summary": "The commit message says okf.oauth.grant is renamed okf.grant because keys holding \\\"auth\\\" are scrubbed by trace backends, and closes #884; its operations.md note says the old key arrived as [Filtered]. src/oauth/token.rs:295 now declares okf.grant.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/oauth/token.rs",
+              "lines": {
+                "start": 277,
+                "end": 296
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.484500730Z",
+          "seal": {
+            "by": "server",
+            "mac": "f7f9205839880f62ad03123f07a7605121b5c3b910e85dfd5cfe56e32100c52a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Commit 77e3614b (Closes #884) states the rename and its reason.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4657"
+          ],
+          "recorded_at": "2026-11-28T17:19:48.143134765Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8e5b18c67c2d707e97ad7b30068d1ba41d5d269b96a50f8c00f96d84462ff55"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:48.143134765Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f1112a4bd044ad3a3ffeaf428895d01adcadcbca8a8e25e8f37e502a5d1d8a6"
+      }
+    },
+    {
+      "id": "CLM-2676",
+      "statement": "The okf.auth.failure key only existed since #1012.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"The key only exists since #1012\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4658",
+          "kind": "analysis",
+          "locator": "git log -S\\\"okf.auth.failure\\\" origin/main -- src (earliest: d58e03b9, 2026-11-28, issue #1012)",
+          "summary": "The earliest commit touching src that adds the string is d58e03b9 \\\"record why a bearer credential was refused on a 401 (okf.auth.failure)\\\", merged by PR #1204 for #1012; the #1012 changelog introduces it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T083856Z-issue-1012-auth-failure-reason.md",
+              "lines": {
+                "start": 1,
+                "end": 12
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.644434845Z",
+          "seal": {
+            "by": "server",
+            "mac": "3cd6a46177c7a2ff0dd77b6bccbe3a9242f995f23f7ab060b0f121311311f628"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "git log -S shows d58e03b9 (#1012) as the first commit adding the key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4658"
+          ],
+          "recorded_at": "2026-11-28T17:19:48.288487449Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e4848e0d233e80fcfe1ebc8140a61ce8a7b9b8f2e22eefc4be9a959dbb20b6b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:48.288487449Z",
+      "seal": {
+        "by": "server",
+        "mac": "1cd06cbb1e33f1cb8bf4d3377cf207f1c00059c8e95bb5224e88155d87d7ba0c"
+      }
+    },
+    {
+      "id": "CLM-2677",
+      "statement": "The scrub list in the test (password, secret, passwd, api_key, apikey, auth, credentials, mysql_pwd, privatekey, private_key, token, bearer) is Sentry's documented default list.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR: \"Sentry's documented default scrub list (password, secret, ... bearer)\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4659",
+          "kind": "inspection",
+          "locator": "src/http/telemetry_tests.rs:1233-1257",
+          "summary": "The constant holds exactly the twelve listed names then cookie, session, csrf, with a doc comment citing the Sentry docs URL. I did not fetch that page, so whether Sentry's list is exactly these twelve is unchecked.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1233,
+                "end": 1257
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:01.806196060Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cf04cc3b38d54911837e219cbc36d722d72387b621bb5432787f518157125ac"
+          }
+        },
+        {
+          "id": "EVD-4683",
+          "kind": "other",
+          "locator": "https://docs.sentry.io/security-legal-pii/scrubbing/server-side-scrubbing/ (fetched 2026-11-28 with WebFetch)",
+          "summary": "The page says: \"Values that themselves contain, or whose keynames contain, any of the following strings:\" and lists password, secret, passwd, api_key, apikey, auth, credentials, mysql_pwd, privatekey, private_key, token, bearer. These are the same twelve strings, in the same order, as the first 12 entries of SCRUBBED_SUBSTRINGS (src/http/telemetry_tests.rs:1240-1251). The page text was extracted by WebFetch's summarizer, which quoted it verbatim.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:29:44.477053283Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee1eedb4d82bdbd7a88c8c83a22c24e127e68db4eb35191ea7ef9b116e937848"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The list in the code matches the PR text, but I did not read Sentry's page, so \"documented default\" is unchecked. Fix: fetch https://docs.sentry.io/security-legal-pii/scrubbing/server-side-scrubbing/ and compare its default sensitive-field list with the first twelve entries of SCRUBBED_SUBSTRINGS.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4659"
+          ],
+          "recorded_at": "2026-11-28T17:19:48.440651133Z",
+          "seal": {
+            "by": "server",
+            "mac": "b537269d961921587cb01049ec9b8b5187e652fd9b11ab80916ae2e99b46fdc1"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Sentry's server-side scrubbing page lists exactly the twelve strings that head SCRUBBED_SUBSTRINGS, in the same order. Fetched page text, via a summarizing fetch tool that quoted it verbatim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4683"
+          ],
+          "recorded_at": "2026-11-28T17:29:49.392075951Z",
+          "seal": {
+            "by": "server",
+            "mac": "880b32315fcbeb7fc8bb4d2093ed3a2474684b1d090594d806efd139cb50b62c"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:29:49.392075951Z",
+      "seal": {
+        "by": "server",
+        "mac": "b29b980808a2387514f8a7f40ab6d013e1a8055ea0559275bf1bfb55d8ed2c05"
+      }
+    },
+    {
+      "id": "CLM-2678",
+      "statement": "gate.sh fmt, lint, dylint, test (3863 run, 3863 passed, 20 skipped, no FLAKY) and mcpjam all exit 0 on the head.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR: \"`gate.sh fmt`, `lint`, `dylint`, `test` (3863 run, 3863 passed, 20 skipped, no FLAKY), `mcpjam`: all exit 0 on the head.\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4660",
+          "kind": "log",
+          "locator": "not rerun (instructed not to run cargo or gate.sh); target/i1205-logs",
+          "summary": "Gate results are the author's account; the auditor was told not to run the shared gates and did not inspect the gate logs. Nothing here decides the claim.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T17:19:01.963184422Z",
+          "seal": {
+            "by": "server",
+            "mac": "73877185f27b16979e392419945e5f32d865d71b760dd9e084b6b27fdc459a93"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Gates were not rerun by the auditor (shared gates, instructed not to). Fix: the author attaches the gate.sh logs for fmt, lint, dylint, test and mcpjam on head 8665eafa, or reruns them after any fix to the scan test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4660"
+          ],
+          "recorded_at": "2026-11-28T17:19:48.585737906Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e3e0cf0c03fa4bbd66228df5a01115d9d94629984ea249f95417fa921b50a03"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:48.585737906Z",
+      "seal": {
+        "by": "server",
+        "mac": "bcc57a497e78977554a07d69f1338b55c86a0c4ee9de3f510a5929fc0d56f2b4"
+      }
+    },
+    {
+      "id": "CLM-2679",
+      "statement": "With okf.auth.failure put back on the span field, the new test fails with \"okf.auth.failure holds auth\".",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR: \"with `okf.auth.failure` put back on the span field the new test fails\"",
+      "derived_from": [
+        "CLM-2667"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4661",
+          "kind": "analysis",
+          "locator": "src/http/telemetry_tests.rs:1265-1322 applied to src/http/mod.rs:681 with okf.auth.failure",
+          "summary": "By reading: the declared regex captures okf.auth.failure from the fields(...) line in src/http/mod.rs (file has its first #[cfg(test)] at line 876, after the span at ~672-682), the key contains the substring auth, and the assertion message is \\\"{key} holds {hidden}, which a trace backend scrubs\\\", so the failure text would read \\\"okf.auth.failure holds auth, ...\\\". Not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1313,
+                "end": 1321
+              },
+              "commit": "8665eafa406edb3cb8895800761a1a43427c4b28"
+            }
+          },
+          "recorded_at": "2026-11-28T17:19:02.123723550Z",
+          "seal": {
+            "by": "server",
+            "mac": "1876c3a06077e8689eb0e51a47b56d511577a19fcd00308503b498a7f0e40a92"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "By code reading, restoring the field in src/http/mod.rs (reached before its first cfg(test)) makes the scan collect a key containing auth, and the assertion text matches the PR's quote. Not executed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4661"
+          ],
+          "recorded_at": "2026-11-28T17:19:48.729422413Z",
+          "seal": {
+            "by": "server",
+            "mac": "a25f6b04be0dc5b6f560d6fe2528019b156260a1b550897b011c82a250f13bd0"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:18:20.872841047Z",
+      "updated_at": "2026-11-28T17:19:48.729422413Z",
+      "seal": {
+        "by": "server",
+        "mac": "12c1c7cb9962a806b1ac958fd15490cf3bfb363466508bcc8498fba93553ce0d"
+      }
+    },
+    {
+      "id": "CLM-2680",
+      "statement": "Issue #1012's behavior holds under the renamed key: every 401 from require_key and require_principal records why the bearer credential was refused as okf.refusal on the request span.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1205 rename of okf.auth.failure; replaces CLM-2524",
+      "derived_from": [],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4672",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:1050-1085, 1104-1126 (a_401_records_why_the_credential_was_refused, a_dead_session_cookie_on_the_api_is_unknown); not executed",
+          "summary": "Read on edd90dd8: for 11 refusal cases, at info and trace, on DELETE /mcp (require_key) and GET /api/v1/whoami (require_principal) the test asserts 401 and one request span whose okf.refusal equals the expected value; the cookie test asserts okf.refusal == unknown. The production write is auth.rs:1157. Test results from the author's gate are not independently rerun.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1066,
+                "end": 1085
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:47.197817897Z",
+          "seal": {
+            "by": "server",
+            "mac": "5423cfb705d07b4bcb333f4cc126408ef1ef8e3a701c6d0ee4db8a73156c060c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests read on edd90dd8 cover both middleware across all refusal reasons under okf.refusal; not executed by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4672"
+          ],
+          "recorded_at": "2026-11-28T17:21:56.933505710Z",
+          "seal": {
+            "by": "server",
+            "mac": "332adfadbb8bf09a5d860d6cdeb39e09f6924c588f50663f063c39493731ba0f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:21:12.868096941Z",
+      "updated_at": "2026-11-28T17:21:56.933505710Z",
+      "seal": {
+        "by": "server",
+        "mac": "36c3c12b63c1ed7e874e1bcf3c7b7a4a65b6f98ca32f5d16d5f24462c8ba2ada"
+      }
+    },
+    {
+      "id": "CLM-2681",
+      "statement": "The client-visible 401 (status, body and WWW-Authenticate header) is byte-identical for every okf.refusal reason.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2528",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4673",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:1137-1167 (every_refusal_answers_with_the_same_bytes); not executed",
+          "summary": "Read on edd90dd8: the test collects the (status, headers, body) answer for every case in refusals() on two routes and asserts all equal the first, with 401 and a Bearer resource_metadata WWW-Authenticate. The diff did not touch the response path.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1137,
+                "end": 1167
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:47.350996014Z",
+          "seal": {
+            "by": "server",
+            "mac": "f9a65a13c19a6eb03f950b899d9b435a728a7e529a5303d2867767d7a98d026f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The identity test compares status, headers and body across all cases; response path untouched by the diff. Known pre-existing caveat: a dead-cookie 401 also carries clearing Set-Cookie headers, which the test does not cover.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4673"
+          ],
+          "recorded_at": "2026-11-28T17:21:57.084566538Z",
+          "seal": {
+            "by": "server",
+            "mac": "42a0f9dae08a8d76751f5c0bd45436f192db910e8fdb03e944c69fe88ac165d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:21:12.868096941Z",
+      "updated_at": "2026-11-28T17:21:57.084566538Z",
+      "seal": {
+        "by": "server",
+        "mac": "3cf0334943141f4d21828fcdf2063c25b6ab6d5c07630487be9373cacfb7ea9d"
+      }
+    },
+    {
+      "id": "CLM-2682",
+      "statement": "DELETE /mcp without an Authorization header gives a request span with okf.refusal=missing.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2532",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4674",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:1026-1029, 1066-1085",
+          "summary": "Read: refusals() lists (Missing, None) first; a_401_records... runs it on DELETE /mcp with no header and asserts okf.refusal equals AuthFailure::Missing.as_str() = \"missing\". Not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1032,
+                "end": 1085
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:47.504315671Z",
+          "seal": {
+            "by": "server",
+            "mac": "c32dd8360adfad5cf555289740ea4e240ef2defa3f1d8e539a90940283b08fa9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The no-header case is asserted as missing on the okf.refusal key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4674"
+          ],
+          "recorded_at": "2026-11-28T17:21:57.237612833Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2690763d15d0c5adb58508f0ab075862decaded2311a5d618a7792c1104cad2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:21:12.868096941Z",
+      "updated_at": "2026-11-28T17:21:57.237612833Z",
+      "seal": {
+        "by": "server",
+        "mac": "0d58af59210c6d95197024742b6a3ede864f8c4e909e7f754795a81b288b4724"
+      }
+    },
+    {
+      "id": "CLM-2683",
+      "statement": "A request with an expired OAuth access token gives okf.refusal=expired.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2533",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4675",
+          "kind": "test",
+          "locator": "src/http/telemetry_tests.rs:1009, 1030-1031, 1066-1085",
+          "summary": "Read: refusals() mints an access token with TTL -1 minute and pairs it with AuthFailure::Expired; a_401_records... asserts okf.refusal == \"expired\" for it. Not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/telemetry_tests.rs",
+              "lines": {
+                "start": 1009,
+                "end": 1031
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:47.658752960Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcc005d55d248d0165b1f23357bca862087a1e5146a347bd17b1a1aee682788b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The expired-token case is asserted as expired on the okf.refusal key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4675"
+          ],
+          "recorded_at": "2026-11-28T17:21:57.389745705Z",
+          "seal": {
+            "by": "server",
+            "mac": "100f6a5ec8cb8a6d9c963d0758b20da39d894a2c281a0f64b0ad3fc71a764af5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:21:12.868096941Z",
+      "updated_at": "2026-11-28T17:21:57.389745705Z",
+      "seal": {
+        "by": "server",
+        "mac": "4a711c150884b2eda4206ad7089fbda519935897e8bbb568ebfa30fdbdacab36"
+      }
+    },
+    {
+      "id": "CLM-2684",
+      "statement": "A revoked or expired API key is recorded as okf.refusal=unknown, and a dead session cookie or a session whose user is gone is recorded as unknown.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2538",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/telemetry_tests.rs",
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4676",
+          "kind": "inspection",
+          "locator": "src/cache/credentials.rs:350-371; src/auth.rs:1019; src/http/console_session.rs:504-516, 429-433",
+          "summary": "Read: Credentials::find returns None for an unknown, revoked (revoked_at set) or expired key; KeyVerifier maps None to AuthFailure::Unknown; a dead session cookie and a gone user both go through unauthorized_clearing, which refuses as Unknown. Only the dead-cookie case has a direct test (a_dead_session_cookie_on_the_api_is_unknown, line 1122 asserts okf.refusal == \"unknown\"); the revoked/expired API key and gone-user cases rest on code reading.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 429,
+                "end": 435
+              },
+              "commit": "edd90dd81235392c7a14e53d9bd0b0df21f7786d"
+            }
+          },
+          "recorded_at": "2026-11-28T17:21:47.813116190Z",
+          "seal": {
+            "by": "server",
+            "mac": "f5e6e88917f658e3687d07e2cb52fc1b598e7564d962ead41940d6d558bcde98"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading maps every not-found API-key outcome (including revoked and expired) and the dead-cookie and gone-user paths to Unknown; only the dead cookie has a direct test, so the revoked/expired key and gone-user sub-cases are by inspection, as in the claim this replaces.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4676"
+          ],
+          "recorded_at": "2026-11-28T17:21:57.543896225Z",
+          "seal": {
+            "by": "server",
+            "mac": "a98e6a2e314715c8f9d37158cb71b76f8633eae02bce793b125164771cf56853"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:21:12.868096941Z",
+      "updated_at": "2026-11-28T17:21:57.543896225Z",
+      "seal": {
+        "by": "server",
+        "mac": "c75c44e57815a47ce25a64228a275a80e8d020f75d242589b1ce24480f7db7f2"
+      }
+    },
+    {
+      "id": "CLM-2685",
+      "statement": "Every 401 that require_key (src/auth.rs) answers records okf.refusal on the request span, with the reason for that refusal.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2525",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4678",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1228-1266 (require_key); src/http/telemetry_tests.rs:1066-1085",
+          "summary": "require_key's only 401 arm is Ok(Err(failure)) -> refuse() -> record_auth_failure -> span.record(\"okf.refusal\"); other arms are 403 (provisioner), admitted and 500. a_401_records_why_the_credential_was_refused drives DELETE /mcp with 11 cases at info and trace and asserts okf.refusal equals the expected value. Test not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1228,
+                "end": 1266
+              },
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:16.835702661Z",
+          "seal": {
+            "by": "server",
+            "mac": "d526bc571128b441d2dff89504f7ce11fa9fdde4b43fc0c3a4e56ec8f3f1cdcf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only 401 arm records via refuse(); the test asserts every case.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4678"
+          ],
+          "recorded_at": "2026-11-28T17:23:28.581353751Z",
+          "seal": {
+            "by": "server",
+            "mac": "b45fc7906b60276129f77aaea3ea81b6599cf45c3d7c51cccd4480daac69ab40"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:23:02.139050053Z",
+      "updated_at": "2026-11-28T17:23:28.581353751Z",
+      "seal": {
+        "by": "server",
+        "mac": "0fa68c255b634bf2b548113969589b853e23fc95d47b95c0ae7b2f7bd399a91a"
+      }
+    },
+    {
+      "id": "CLM-2686",
+      "statement": "Every 401 that require_principal (src/http/console_session.rs) answers records okf.refusal on the request span, with the reason for that refusal.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2526",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4679",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:461-520; src/http/telemetry_tests.rs:1066-1126",
+          "summary": "Every 401 in require_principal goes through refuse() (bad bearer, no bearer or cookie, dead cookie and gone user via unauthorized_clearing); CSRF 403 and AppError 500 are not 401s. a_401_records covers GET /api/v1/whoami with all bearer cases and a_dead_session_cookie_on_the_api_is_unknown asserts okf.refusal == unknown. The gone-user path is by reading only. Not executed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 461,
+                "end": 520
+              },
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:16.996761811Z",
+          "seal": {
+            "by": "server",
+            "mac": "a242749e9f00bf69fa6e44be1b8811aeb944546dd8d9f1316a2b96c80ca0b972"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All 401 returns go through refuse(); bearer cases and dead cookie are tested; gone-user is by reading only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4679"
+          ],
+          "recorded_at": "2026-11-28T17:23:28.781840845Z",
+          "seal": {
+            "by": "server",
+            "mac": "537195c948ecfffaebfd9fdd20a920a9157b931945e56fdbf4c1cae800f70b3d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:23:02.139050053Z",
+      "updated_at": "2026-11-28T17:23:28.781840845Z",
+      "seal": {
+        "by": "server",
+        "mac": "98a07275fa1caa8b6d77b930deb7b7f0cc337de91926e402c597e00a0702da8e"
+      }
+    },
+    {
+      "id": "CLM-2687",
+      "statement": "okf.refusal takes only the closed set missing, scheme, unknown, expired, revoked, wrong_resource.",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1205 rename; replaces CLM-2527",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/auth.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4680",
+          "kind": "analysis",
+          "locator": "src/auth.rs:946-985, 1154-1160",
+          "summary": "AuthFailure has six variants and as_str is an exhaustive match to the six names; record_auth_failure is the only writer of okf.refusal (search shows one record(\"okf.refusal\") in src) and takes an AuthFailure, so no free-form string can be recorded.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "record\\(\"okf\\.refusal\"",
+              "scope": [
+                "src"
+              ],
+              "hits": 1,
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:17.172423150Z",
+          "seal": {
+            "by": "server",
+            "mac": "46f4f0ebe4b8429db427f6f555bf98e1ae01674c1e08659fb84d9516bf923605"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "A closed enum is the sole source of the recorded value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4680"
+          ],
+          "recorded_at": "2026-11-28T17:23:28.959308747Z",
+          "seal": {
+            "by": "server",
+            "mac": "09d079b0f87dbf8b3a3b4742da08a774bce0350888cde3e2cde9ea182bb0d47c"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:23:02.139050053Z",
+      "updated_at": "2026-11-28T17:23:28.959308747Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a943b088665ae7cbcf9d85f4022527fc4fee6158c918799d39b476ab856ddaf"
+      }
+    },
+    {
+      "id": "CLM-2688",
+      "statement": "okf.refusal is recorded on the request span, which is exported under the default OTLP traces filter (info).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1205 rename; replaces CLM-2531",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/http/mod.rs",
+        "src/telemetry/config.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4681",
+          "kind": "inspection",
+          "locator": "src/http/mod.rs:664-682; src/telemetry/config.rs:18",
+          "summary": "The request span declares okf.refusal = Empty and is created at info level; the default OTLP traces filter is info (config.rs:18). Both tests run at info and trace filters and find the attribute. Diff does not change span level or filter. Test not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/mod.rs",
+              "lines": {
+                "start": 664,
+                "end": 682
+              },
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:17.349237223Z",
+          "seal": {
+            "by": "server",
+            "mac": "2adf0de73368dc6699e397e209a1fb2760c283d5009a8785a8dbd30d9df82308"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The info-level request span declares the field and the default traces filter is info.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4681"
+          ],
+          "recorded_at": "2026-11-28T17:23:29.107478582Z",
+          "seal": {
+            "by": "server",
+            "mac": "97522130877f1d7be5482b15a2ff4cd574779ebdd578f555846d3cf428ea42a5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:23:02.139050053Z",
+      "updated_at": "2026-11-28T17:23:29.107478582Z",
+      "seal": {
+        "by": "server",
+        "mac": "3fb509093906ff7b9f8bfe18633e3271101fc461324fbb0d62f469c66b8a670a"
+      }
+    },
+    {
+      "id": "CLM-2689",
+      "statement": "Suspended users and teams never get a 401 in require_key or require_principal; suspension is refused at the catalog as a 403, so it needs no okf.refusal value.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1205 rename; replaces CLM-2539",
+      "derived_from": [
+        "CLM-2680"
+      ],
+      "artifacts": [
+        "src/auth.rs",
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1205"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4682",
+          "kind": "inspection",
+          "locator": "src/auth.rs:1228-1266, 1019, 1040-1047; src/http/console_session.rs:461-520",
+          "summary": "The 401 arms of require_key and require_principal yield only AuthFailure values; authenticate and the verifiers contain no Suspended path, which is raised as OkfError::Suspended by catalog checks (src/auth.rs:435-450 per the earlier audit). Read again at head: the diff does not touch these paths.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/auth.rs",
+              "lines": {
+                "start": 1228,
+                "end": 1266
+              },
+              "commit": "c9759c6bd7e1691f4763b32ccd7ea6912508bb93"
+            }
+          },
+          "recorded_at": "2026-11-28T17:23:17.514234337Z",
+          "seal": {
+            "by": "server",
+            "mac": "d069655fe8999db72d7045f32ebb2bdf51eecae8d58b6119e6450393e1e14d99"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The 401 arms yield only AuthFailure values; suspension is raised elsewhere. By reading only.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4682"
+          ],
+          "recorded_at": "2026-11-28T17:23:29.293637534Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6bed2568e4159f3f4bee771c4a989df299b8952538cd119672039f2cec9aca3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:23:02.139050053Z",
+      "updated_at": "2026-11-28T17:23:29.293637534Z",
+      "seal": {
+        "by": "server",
+        "mac": "04369be9b9e1ab6af75eab8b5ecb36a975f4d8d98594c38bca1f86b5f767b0ff"
       }
     }
   ]

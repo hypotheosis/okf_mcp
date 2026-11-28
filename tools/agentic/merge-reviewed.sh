@@ -12,9 +12,10 @@
 #      branch's requires resolved threads, and an answered thread is not a
 #      resolved one. Threads a person started are never resolved; one that is
 #      still open is named in the refusal. After resolving, and while GitHub
-#      reports UNKNOWN, it re-reads the state for up to $AGENTIC_STATE_WAIT
-#      seconds (default 60, counted from the last resolve). That is a polling
-#      budget, not a hard limit: see await_merge_state for the total bound.
+#      reports UNKNOWN, it re-reads the state for about $AGENTIC_STATE_WAIT
+#      seconds (default 60, counted from the last resolve) less the cleanup
+#      reserve. The wait is a hard bound, AGENTIC_STATE_WAIT + 2 s in all: see
+#      await_merge_state.
 # The merge is pinned to the inspected head, so a concurrent push makes it fail.
 # Every gh and git call is bounded ($AGENTIC_CALL_TIMEOUT, default 60 s); a call
 # that runs out of time is a refusal.

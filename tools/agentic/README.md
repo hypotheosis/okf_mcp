@@ -42,7 +42,7 @@ A PR gets at most `AGENTIC_MAX_REVIEW_ROUNDS` (default 3) reviews from the bot, 
 
 ## Testing these tools
 
-`just test-agentic` runs `tests/run.sh` under a 2-minute timeout. It takes a few seconds, needs no network or Docker, and never touches GitHub or this checkout. Add a case there for every change to the scripts.
+`just test-agentic` runs `tests/run.sh` under a 5-minute timeout (`just test-agentic`'s `timeout 300`). It takes about 5 minutes (#1216), needs no network or Docker, and never touches GitHub or this checkout. Add a case there for every change to the scripts.
 
 ## Configuration
 
@@ -51,7 +51,7 @@ A PR gets at most `AGENTIC_MAX_REVIEW_ROUNDS` (default 3) reviews from the bot, 
 | `AGENTIC_REPO` | from `gh repo view` | `owner/name` of the GitHub repository |
 | `AGENTIC_REVIEWER` | `brooke-reviews[bot]` | Full login of the review bot, compared exactly (a trailing `[bot]` is optional on either side) |
 | `AGENTIC_RETRIGGER` | `/prrb` | Comment that re-triggers the bot |
-| `AGENTIC_WATCH_TIMEOUT` | 900 (seconds) | How long `watch-review.sh` waits in all before it exits 2 |
+| `AGENTIC_WATCH_TIMEOUT` | 900 (seconds) | How long `watch-review.sh` waits in all before it exits 2, not counting the final diagnostics, which get 3 s plus the 10 s cleanup reserve more |
 | `AGENTIC_CALL_TIMEOUT` | 60 (seconds) | Most any single `gh` or `git` call, or any supervised watchdog call (`ps`, `git`, `find`, `tr`), may take. A captured call returns within this limit plus the cleanup reserve (`agentic_kill_after` + `agentic_reap_after`, 5 + 5 s by default), however its output is held open. A script with a deadline (`watch-review.sh`, `merge-reviewed.sh`'s state wait) caps each call's run time by the time left minus that reserve, so stopping a stalled call is over by the deadline too; no call starts when the time left is not more than the reserve. A call that runs out of time is stopped with its whole process group |
 | `AGENTIC_STATE_WAIT` | 60 (seconds) | How long `merge-reviewed.sh` re-reads `mergeStateStatus` while it is `UNKNOWN`, or `BLOCKED` right after it resolved threads. A hard bound: the wait ends within this + 2 s (1 s of grace, 1 s of whole-second clock), stopping a stalled lookup included. The cleanup reserve (10 s by default) is taken from the end, so lookups stop starting that early: the state is polled for about this minus 10 s, and the REFUSE message reports the time actually spent |
 | `AGENTIC_MAX_REVIEW_ROUNDS` | 3 | Most bot reviews a PR gets before it merges without another |

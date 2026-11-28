@@ -1486,6 +1486,99 @@ test_gate_skips_seeding_when_the_command_is_missing() {
     want_rc 0; want_no_out "seed"
 }
 
+# --- gate.sh timing line (#1190) ---
+
+# want_timing <regex>: the output has exactly one gate.sh timing line, and it
+# matches <regex> (an extended regex for the part after "gate.sh: ").
+want_timing() {
+    local n
+    n=$(grep -c '^gate\.sh: [a-z-]* \(waited\|seed\|ran\)' <<<"$out" || true)
+    [ "$n" = 1 ] || die "want one timing line, found $n in: $out"
+    grep -Eq -- "^gate\.sh: $1\$" <<<"$out" || die "no timing line matching '$1' in: $out"
+}
+
+# hold_gate_lock <seconds>: another process holds the gate lock for <seconds>.
+hold_gate_lock() {
+    mkdir -p "$repo/.git/agentic"
+    # shellcheck disable=SC2016 # $1 and $2 are expanded by the inner bash
+    bash -c 'exec 9>"$1"; flock 9; exec sleep "$2"' _ "$repo/.git/agentic/gates.lock" "$1" \
+        >/dev/null 2>&1 &
+    lock_holder=$! # not local: the EXIT trap runs after the function returns
+    trap 'kill "$lock_holder" 2>/dev/null' EXIT
+    sleep 0.2
+}
+
+test_gate_timing_line_on_success() {
+    new_fixtures; fake_just 'echo gate output'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0
+    want_timing 'lint waited [0-9]+ s for the lock, ran [0-9]+ s \(exit 0\)'
+    [ "$(tail -n1 <<<"$out")" = "$(grep '^gate\.sh: lint' <<<"$out")" ] \
+        || die "the timing line is not last: $out"
+}
+
+test_gate_timing_line_on_failure() {
+    new_fixtures; fake_just 'exit 3'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 3; want_timing 'lint waited [0-9]+ s for the lock, ran [0-9]+ s \(exit 3\)'
+}
+
+test_gate_timing_line_for_an_unlocked_gate_has_no_wait() {
+    new_fixtures; fake_just 'exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" fmt 2>&1)
+    rc=$?
+    want_rc 0; want_timing 'fmt ran [0-9]+ s \(exit 0\)'
+    want_no_out "lock"
+}
+
+test_gate_timing_line_on_the_gates_own_timeout() {
+    new_fixtures; fake_just 'exec sleep 30'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_TIMEOUT_LINT=1s "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 124; want_out "Treat this as a HANG"
+    want_timing 'lint waited [0-9]+ s for the lock, ran [0-9]+ s \(exit 124\)'
+}
+
+test_gate_timing_counts_the_wait_for_another_holder() {
+    new_fixtures; fake_just 'exit 0'
+    hold_gate_lock 2
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    kill "$lock_holder" 2>/dev/null; wait "$lock_holder" 2>/dev/null
+    want_rc 0; want_timing 'lint waited [0-9]+ s for the lock, ran [0-9]+ s \(exit 0\)'
+    waited=$(sed -n 's/^gate\.sh: lint waited \([0-9]*\) s.*/\1/p' <<<"$out")
+    [ "$waited" -ge 1 ] || die "waited $waited s behind a 2 s holder"
+}
+
+test_gate_timing_line_on_a_lock_timeout_says_it_waited_the_limit() {
+    new_fixtures; fake_just 'exit 0'
+    hold_gate_lock 30
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_TIMEOUT_LINT=1s "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    kill "$lock_holder"; wait "$lock_holder" 2>/dev/null
+    want_rc 124; want_out "for the gate lock"
+    want_timing 'lint waited [1-9][0-9]* s for the lock \(exit 124\)'
+}
+
+test_gate_timing_line_includes_the_seed_time_when_seeding_runs() {
+    new_fixtures; fake_seed 'sleep 1.2'; fake_just 'exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" AGENTIC_SEED_CMD=fake-seed \
+        "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0
+    want_timing 'lint waited [0-9]+ s for the lock, seed [1-9][0-9]* s, ran [0-9]+ s \(exit 0\)'
+}
+
+test_gate_timing_line_has_no_seed_part_when_nothing_seeds() {
+    new_fixtures; fake_seed; fake_just 'exit 0'
+    out=$(cd "$repo" && PATH="$fx/bin:$PATH" "$tools/gate.sh" lint 2>&1)
+    rc=$?
+    want_rc 0; want_timing 'lint waited [0-9]+ s for the lock, ran [0-9]+ s \(exit 0\)'
+    want_no_out "seed"
+}
+
 # --- remove-worktree.sh ---
 
 # A worktree of the throwaway repo on its own branch. With <cargo> it carries a

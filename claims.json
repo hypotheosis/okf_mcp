@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2461,
+  "next_claim_seq": 2462,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "1d484e8094ea4f2f1c9b912f182cf11105b742d7f44ac8f65b3d6a536b986715"
+    "mac": "f6b35faa710f39c32cba812d43513e0d123e874dce85bb3f5bd0d2ad53c8a665"
   },
-  "next_evidence_seq": 4293,
+  "next_evidence_seq": 4301,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "39f9ba61e669948eaf2ea3a9cb4c9100380174ff6c916e65a4949cfed5781429"
+    "mac": "eb73096c94ceac43c49abd7f21963521e8b54cf045bdad921b35470eab73aa77"
   },
   "claims": [
     {
@@ -215503,6 +215503,28 @@
             "by": "server",
             "mac": "c174a1b0c6c34a2578d449273fd8742870415da1a62b032b092b281b29e12fd2"
           }
+        },
+        {
+          "id": "EVD-4295",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:237-320 at 8364feac",
+          "summary": "Still one tx: user, team, member rows, then write_email (unique violation -> Refused(EMAIL_TAKEN_REFUSAL)), invalidate, audit, commit; early return drops tx. Reordering moved the address write earlier, so a refusal now rolls back even less. Tests at 166-262 and 304-333 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 237,
+                "end": 320
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.796210759Z",
+          "seal": {
+            "by": "server",
+            "mac": "6cbe4f44cfcd016dca6622d92c9c0b55159f4b3804c84d0ac97de0d6cabbfe26"
+          }
         }
       ],
       "verdicts": [
@@ -215519,13 +215541,26 @@
             "by": "server",
             "mac": "c905745c10e47759cc0b0d032b641ed486f07d160a3c1753235ebe7ae0cb68a4"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: still one tx.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4295"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.771179144Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e9c4528dfa2dfe9edba7dc382bf5c35253a4ce0ee4959df483395110c95f1e7"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:16.860067613Z",
+      "updated_at": "2026-11-28T05:44:23.771179144Z",
       "seal": {
         "by": "server",
-        "mac": "34146e21d080e14d1e6ba1647a5ab73674581d9f1734187d6e6f57d161fac03a"
+        "mac": "13e5d7a4aeea525ebb5984163034e9f5e88efc1ec3ba078b321bc04585d4178f"
       }
     },
     {
@@ -215594,6 +215629,28 @@
             "by": "server",
             "mac": "6f55c59473b6e47eefa414f97bb5e017bc20e207141bd39ab849ec48c11dcc58"
           }
+        },
+        {
+          "id": "EVD-4296",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:749-800 at 8364feac",
+          "summary": "write_email still maps any unique violation to the constant EMAIL_TAKEN_REFUSAL without reading the holder; no new refusal path or field. Status/body derivation (error.rs, http/mod.rs) and the REST/provisioner tests are untouched by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 749,
+                "end": 800
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.940701311Z",
+          "seal": {
+            "by": "server",
+            "mac": "2d34af63294f435e378b13fd84c504509dc11400149b4691a219a77e06c88939"
+          }
         }
       ],
       "verdicts": [
@@ -215610,13 +215667,26 @@
             "by": "server",
             "mac": "83461b0b15f55f53e5b70edad1f368a2a4e35c165f89f56708a9c12ecc02fe9c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: refusal path unchanged and holder-blind.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4296"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.925946483Z",
+          "seal": {
+            "by": "server",
+            "mac": "790c7c6c5490ef16cd38c3c25700113b3cf2b339e359fd97126babc4e72b2ad4"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:17.054120704Z",
+      "updated_at": "2026-11-28T05:44:23.925946483Z",
       "seal": {
         "by": "server",
-        "mac": "1a0504fcf7cfc2bf818ca52d794362a994016fa906eed53715a061283f7612c4"
+        "mac": "3098979a874403847dfe293815aa0036765d7c4344546f9a797cc3c13725604f"
       }
     },
     {
@@ -215661,6 +215731,28 @@
             "by": "server",
             "mac": "5815de7fd6a80630e3afe607e351a0a5e3baad75174ad2cf2df08b340c6e538a"
           }
+        },
+        {
+          "id": "EVD-4297",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:304-333 and users.rs:287-292 at 8364feac",
+          "summary": "Test unchanged. Two creates: each now writes the address before the singleton, so the loser blocks on the winner's index entry and gets the unique violation (409) with no singleton held, and the winner commits; no new deadlock edge (the singleton is taken after the address by both).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 304,
+                "end": 333
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.100417134Z",
+          "seal": {
+            "by": "server",
+            "mac": "05f8723bcd12a3db022b838ecb337b70f43926bc292ae86250ad58e42c8ef8a7"
+          }
         }
       ],
       "verdicts": [
@@ -215676,13 +215768,26 @@
             "by": "server",
             "mac": "706251ffc85ef672e16e9c078046fe75d4817984cd1e34b8bd256118cd1684d0"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 8364feac: test unchanged, order introduces no new cycle.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4297"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.065655841Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5eaa2323022d818a97c86b23e1d132ca4ef89256f84d848f9d4f7cd09185547"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:17.244116573Z",
+      "updated_at": "2026-11-28T05:44:24.065655841Z",
       "seal": {
         "by": "server",
-        "mac": "4bfb8a35196e6e9057c13a720e2a73c547dfb86b044a99d5692b1d3f45c455ca"
+        "mac": "8b69e7b56d624bf1821c5d7d969c1e49e1ab34e4fa231be2ae04aa2cd7ba6a7d"
       }
     },
     {
@@ -215727,6 +215832,28 @@
             "by": "server",
             "mac": "02e132f081541dd6f2586f7162ada7dccad78cf2658f39d19a5c024969934b66"
           }
+        },
+        {
+          "id": "EVD-4298",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:237-262,770-800,847-877 at 8364feac",
+          "summary": "store_email is split: both create_with_email and set_email call check_email first and write via the single write_email statement (same SQL, citext compare, same refusal); the follow-up work (email_tokens delete, invalidate) stays in set_email, and create's invalidate already covers the new user. The claim that both use 'the one store_email statement' now holds under the name write_email.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 770,
+                "end": 800
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.253268518Z",
+          "seal": {
+            "by": "server",
+            "mac": "732ab9466801496ecfda55cfa2c0fcd84f7c23026101921e67d2ce1306bd6eef"
+          }
         }
       ],
       "verdicts": [
@@ -215742,13 +215869,26 @@
             "by": "server",
             "mac": "5a998cb370239abb5ccb35686a3c05cb58de6dfd7edbe85765225ba1fc7bf4a2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: both paths share check_email and write_email (renamed from store_email).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4298"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.212387518Z",
+          "seal": {
+            "by": "server",
+            "mac": "b977d00c4281bb67d1cb7803fa75d607134fc1fd7999b2c85eadf3d1bb1bd5c1"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:17.425606627Z",
+      "updated_at": "2026-11-28T05:44:24.212387518Z",
       "seal": {
         "by": "server",
-        "mac": "99704edcb91c578b7f706efbd5a8c6fddb5decf79c63cd6d6ea87b9fd71a65a9"
+        "mac": "03fdda35e28f18b3424ca272b85bb2c450c62bfd5e40493ee7f24343c5a4b206"
       }
     },
     {
@@ -215883,6 +216023,28 @@
             "by": "server",
             "mac": "a0220c1becec59fbcd33ac42699ab8fd20452aad4b751776afcae1793dc86db2"
           }
+        },
+        {
+          "id": "EVD-4299",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:847-877 (set_email), 1488-1600 (delete_in) at 8364feac",
+          "summary": "delete_in's has-email check (1584) is unchanged and still under the user FOR UPDATE lock; set_email still takes lock_target RowLock::Update before write_email, and write_email at 779 is still the only non-test writer of users.email. The diff does not touch delete_in. Race tests 376-494 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 1575,
+                "end": 1600
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.407191955Z",
+          "seal": {
+            "by": "server",
+            "mac": "0e236dd1b465fcf8ebbd1c0c32a16dc21afb6d332fad0a536097131a37b6685a"
+          }
         }
       ],
       "verdicts": [
@@ -215899,13 +216061,26 @@
             "by": "server",
             "mac": "114e3de8753f4a2ee72dd4d26cb1b9e3936ce0f4cd975d7020d29a0bb620193c"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: delete path untouched, set_email still locks the row before writing.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4299"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.359603807Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2ac223ad0cbd1fe1bd508c6b65c7d95455595d3688477a73fee3695633f73ef"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:17.753510361Z",
+      "updated_at": "2026-11-28T05:44:24.359603807Z",
       "seal": {
         "by": "server",
-        "mac": "fd8f91a29e7f72a4dd6f27d26caffd4803585d2cd7feb34706c405c14a2a2328"
+        "mac": "2f1dfea750f697f0def185952c0606bf7abd518f7e3c125bb50c62343b290576"
       }
     },
     {
@@ -216083,6 +216258,28 @@
             "by": "server",
             "mac": "743bbcfb2b226330bedaaf754e9fef471ffaa7ba32fa7247315efbea8985b14f"
           }
+        },
+        {
+          "id": "EVD-4300",
+          "kind": "inspection",
+          "locator": "src/store/users.rs:293-315 at 8364feac",
+          "summary": "Order after the fix: write_email, invalidate, audit::record(user.created), team_ref, then record_email_change(cleared=false) only if write_email returned changed; so user.created is still recorded before user.email_changed, details {\"cleared\":false}. A no-email create skips it. set_email records email_changed with cleared=email.is_none() as before. Tests at 80-145 unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 293,
+                "end": 315
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:12.564195631Z",
+          "seal": {
+            "by": "server",
+            "mac": "db666b3bef6f320a39438a1f96a8b552c25e14fa337b59ee564848cadd79304b"
+          }
         }
       ],
       "verdicts": [
@@ -216098,13 +216295,26 @@
             "by": "server",
             "mac": "fb3cd7e81d0bab688686913fa2b80c7bbe918709b9ddb4a85fb56134df7ec0e9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited: audit order preserved after the reorder.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4300"
+          ],
+          "recorded_at": "2026-11-28T05:44:24.504117068Z",
+          "seal": {
+            "by": "server",
+            "mac": "c0cbd79c3e9f03f2a12d286e379af8ef9efc6ba03c1b71055a738df091ddd2cb"
+          }
         }
       ],
       "created_at": "2026-11-28T05:27:09.075852497Z",
-      "updated_at": "2026-11-28T05:28:18.263994683Z",
+      "updated_at": "2026-11-28T05:44:24.504117068Z",
       "seal": {
         "by": "server",
-        "mac": "2c73ea040ebb2cd07358f8f980d0cb59c9641c47325a97d7c9509f34575a7393"
+        "mac": "1b242533662e6e5565c130b04d2591df2ca5ab240ae0fc4ed806760d61bafc1a"
       }
     },
     {
@@ -216369,6 +216579,96 @@
       "seal": {
         "by": "server",
         "mac": "c91a550343ccded904578773e88b4780642aee137f43e78ff44d2c6b99dd2658"
+      }
+    },
+    {
+      "id": "CLM-2461",
+      "statement": "A create-with-email racing a real set_email for the same address never deadlocks: both finish, one succeeds, the other gets the 409; every path that takes both the unique-email entry and the server_state singleton takes the entry first.",
+      "kind": "safety",
+      "level": "unit",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Re-audit request for PR 980 after review fix 8364feac (create_with_email writes the address before its first invalidate)",
+      "derived_from": [
+        "CLM-2447"
+      ],
+      "artifacts": [
+        "src/store/users.rs",
+        "src/store/users_email_atomic_tests.rs"
+      ],
+      "tags": [
+        "from-issue:980"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4293",
+          "kind": "analysis",
+          "locator": "src/store/users.rs:237-320 (create_with_email), 847-877 (set_email); git grep invalidate src/store/users.rs; git grep 'UPDATE users|INSERT INTO users' src",
+          "summary": "create_with_email: write_email (users.rs:~287) precedes its first invalidate (~293); set_email: write_email then invalidate. Every invalidate caller in users.rs (create 293, set_email 872, display name ~931, set_admin ~1024, delete_in ~1700) either writes the email entry first or writes no email at all; delete_in writes no unique-entry. Only non-test writer of users.email is write_email (users.rs:779); only non-test INSERT INTO users is users.rs:253 (create_with_email, email NULL at insert; src/db.rs hits are test fixtures in cfg(test)); passwords.rs UPDATEs set no email. Caveat: a delete of a holder A with an uncommitted delete makes a set_email on another user wait on A's tx before taking the singleton; delete_in's own singleton take occurs after, but the setter holds no singleton then, so no cycle from the email entry.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users.rs",
+              "lines": {
+                "start": 277,
+                "end": 315
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.471684549Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc127a3c2f83701cdb792653fe828defa4cfeb8754ec494ae45a128bb1c8ca3e"
+          }
+        },
+        {
+          "id": "EVD-4294",
+          "kind": "inspection",
+          "locator": "src/store/users_email_atomic_tests.rs:499-589 a_create_racing_the_real_set_email_for_one_address_never_deadlocks",
+          "summary": "Test holds the server_state singleton, spawns the create then real set_email, waits for 2 lock waiters (any lock kind), releases, and requires exactly (Ok, Refused(EMAIL_TAKEN_REFUSAL)) or the reverse, plus exactly one holder row. In the old order both writers would reach 2 waiters and deadlock, so it discriminates. Read, not run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/users_email_atomic_tests.rs",
+              "lines": {
+                "start": 495,
+                "end": 589
+              },
+              "commit": "8364feacee7a82ebe435e4802a3697497713fd5d"
+            }
+          },
+          "recorded_at": "2026-11-28T05:44:11.628893785Z",
+          "seal": {
+            "by": "server",
+            "mac": "b32007aae31870d414a34bab3ba526f949e68f0379c319e095e33695b425f26a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Lock order enumerated across all writers/invalidate callers; discriminating race test read.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4293",
+            "EVD-4294"
+          ],
+          "recorded_at": "2026-11-28T05:44:23.622569971Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d171702b71eb09a35403a946a541e4977ca55a7582e5879a8e1f0fde3539028"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T05:43:48.903881119Z",
+      "updated_at": "2026-11-28T05:44:23.622569971Z",
+      "seal": {
+        "by": "server",
+        "mac": "78c9698f8089ad94108e479ca4e65fa2346bfb917fab1e04047f05b474c394f5"
       }
     }
   ]

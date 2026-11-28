@@ -36,6 +36,12 @@ tools/agentic/gate.sh narrow --lib -- <filter>   # while iterating
 - **`dylint`** runs the `uninstrumented_fn` policy lint (`docs/contributing/policy-lints.md`). The lint is at deny: a new function needs `#[instrument]` or a reason-bearing exemption, and the gate must exit 0 before you push. The first run builds the lint library (minutes).
 - **`mcpjam`** replays the MCPJam swarm goals as fixed MCP tool calls (`tests/mcpjam/README.md`) against a server built from your checkout, on a throwaway Postgres. It needs Docker and Node 22+, and must exit 0 before you push. A red scenario is a change in what the server stores or answers: fix the server, or, if the change is intended, the scenario.
 - **Exit 124 means a test hung.** It is neither a pass nor an ordinary failure, so find the stuck test before anything else (the script prints how).
+- **Flaky tests retry once inside the run** (`retries = 1`, `.config/nextest.toml`). A test that passes on its second try shows as `TRY 2 PASS` and in the summary's flaky count. It is not a clean pass:
+  - paste every FLAKY line into your report;
+  - a flaky test that already has an open issue (search `gh issue list --search "<test name>"`) needs nothing more;
+  - a flaky test with no open issue may be a race your change introduced. Run it narrowly a few times (plain repeats, no stress loops), and either fix it or report it as a candidate follow-up with what you found.
+- **One green full `test` run on the head you push is enough.** Don't re-run a green gate to collect more evidence unless your brief asks for it. A review round that changes only tests needs the narrowed module (`gate.sh narrow`) plus one full run; a round that changes only the PR description or `claims.json` needs no gate run.
+- **Wait for a long gate before you hand back.** Wait with one bounded wait (Monitor, or a single `timeout`-bounded `until` loop whose PID you record), never by handing back mid-gate.
 - **Bound every wait.** Never run tests outside `gate.sh`, and never wait on a background job without a bound.
 - **Tests you write that hold a lock or wait on another task** wrap the wait in `tokio::time::timeout`.
 
@@ -48,6 +54,16 @@ tools/agentic/gate.sh narrow --lib -- <filter>   # while iterating
 Run `git merge origin/main`. Never rebase or force-push. Keep both sides of a conflict, then re-run the gates before pushing. The review bot skips a PR that is behind `main`.
 
 **Before asking for a review or a re-review** (`/prrb`), always bring the PR up to date with `main` first: merge `origin/main`, re-run the gates, push, and only then ask. The bot skips a PR that is behind `main`, so a request made before that is wasted.
+
+## Design-only start
+A coordinator may start you while the previous issue's PR is still in review. Your brief then says **design-only**. Until the coordinator says go:
+- read the issue, the code and the plan;
+- write your design;
+- you may draft code and tests in your worktree;
+- run no `gate.sh` gates, no cargo builds or tests, and no Docker;
+- don't push or open a PR.
+
+Report the design (approach, files, tests, open questions) in one hand-back and wait. When the coordinator says go, merge `origin/main` first, because the previous PR has just merged, then build, gate and push as usual.
 
 ## Review replies
 When you address a review, reply in each inline thread (as a reply to that comment), not only in a top-level comment. `merge-reviewed.sh` refuses to merge while any reviewer thread has no reply. Keep the PR description and its claims in step with the final code after every round.
@@ -66,5 +82,6 @@ A PR gets at most 3 review rounds from the bot (`AGENTIC_MAX_REVIEW_ROUNDS`).
   - gate results, with test counts from your own logs;
   - plan divergences, and which plan sections you corrected;
   - what you verified by reverting a fix to see its test fail.
+- **Settle every risk you name before the review sees it.** If your report or PR names a residual risk, a gap, an untested case or a claim stronger than its evidence, either fix it in this PR or say in the PR body why it is out of scope (and list it as a candidate follow-up). The review bot reliably flags a risk the PR names but leaves open, and a review round costs 15-40 minutes (#1183 took two such rounds). Word claims no stronger than the tests behind them.
 - Keep your context: the coordinator will message you when the review lands.
 - Don't hand back while your own background work is still running: finish, push, then report.

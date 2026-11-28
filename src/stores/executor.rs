@@ -13,14 +13,21 @@
 //! unwraps it. A call site needs no change, and a new one cannot forget.
 //! (A Python reader: this is a proxy object that forwards each call to the
 //! real pool and rewrites the exception on the way out.)
+//!
+//! It also takes the connection itself (as sqlx's own pool executor does)
+//! so the acquisition can be retried once after a refused login
+//! (`CatalogDb::retrying`, issue #998): a query cannot be run twice, but
+//! getting its connection can. The cost is the same as the pool's own
+//! executor: one acquire per call, the connection held for the call (for a
+//! stream, until it is dropped or ends).
 
 use futures_util::future::BoxFuture;
 use futures_util::stream::BoxStream;
-use futures_util::{StreamExt, TryStreamExt};
-use sqlx::postgres::{PgPool, PgQueryResult, PgRow, PgStatement, PgTypeInfo};
+use futures_util::TryStreamExt;
+use sqlx::postgres::{PgQueryResult, PgRow, PgStatement, PgTypeInfo};
 use sqlx::{Either, Execute, Executor, Postgres};
 
-use super::{classify_store_error, is_store_unreachable, StoreName};
+use super::{classify_store_error, is_store_unreachable, CatalogDb, StoreName};
 
 /// A store's pool, for store-layer functions that take an executor.
 ///
@@ -30,18 +37,17 @@ use super::{classify_store_error, is_store_unreachable, StoreName};
 /// errors.
 #[derive(Debug, Clone, Copy)]
 pub struct StoreExecutor<'a> {
-    store: &'a StoreName,
-    pool: &'a PgPool,
+    db: &'a CatalogDb,
 }
 
 impl<'a> StoreExecutor<'a> {
-    /// Wraps `pool`, the pool of `store`.
+    /// The executor of `db`'s pool.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(uninstrumented_fn, reason = "one-line constructor")
     )]
-    pub(super) fn new(store: &'a StoreName, pool: &'a PgPool) -> Self {
-        Self { store, pool }
+    pub(super) fn new(db: &'a CatalogDb) -> Self {
+        Self { db }
     }
 }
 
@@ -84,11 +90,14 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
         'c: 'e,
         E: 'q + Execute<'q, Postgres>,
     {
-        let store = self.store;
-        self.pool
-            .fetch_many(query)
-            .map_err(move |error| mark_unavailable(store, error))
-            .boxed()
+        let db = self.db;
+        Box::pin(async_stream::try_stream! {
+            let mut connection = db.acquire_raw().await.map_err(|error| mark_unavailable(db.store(), error))?;
+            let mut rows = connection.fetch_many(query);
+            while let Some(row) = rows.try_next().await.map_err(|error| mark_unavailable(db.store(), error))? {
+                yield row;
+            }
+        })
     }
 
     #[cfg_attr(
@@ -106,9 +115,17 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
         'c: 'e,
         E: 'q + Execute<'q, Postgres>,
     {
-        let store = self.store;
-        let rows = self.pool.fetch_optional(query);
-        Box::pin(async move { rows.await.map_err(|error| mark_unavailable(store, error)) })
+        let db = self.db;
+        Box::pin(async move {
+            let mut connection = db
+                .acquire_raw()
+                .await
+                .map_err(|error| mark_unavailable(db.store(), error))?;
+            connection
+                .fetch_optional(query)
+                .await
+                .map_err(|error| mark_unavailable(db.store(), error))
+        })
     }
 
     #[cfg_attr(
@@ -126,12 +143,16 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
     where
         'c: 'e,
     {
-        let store = self.store;
-        let prepared = self.pool.prepare_with(sql, parameters);
+        let db = self.db;
         Box::pin(async move {
-            prepared
+            let mut connection = db
+                .acquire_raw()
                 .await
-                .map_err(|error| mark_unavailable(store, error))
+                .map_err(|error| mark_unavailable(db.store(), error))?;
+            connection
+                .prepare_with(sql, parameters)
+                .await
+                .map_err(|error| mark_unavailable(db.store(), error))
         })
     }
 
@@ -150,12 +171,16 @@ impl<'c> Executor<'c> for StoreExecutor<'c> {
     where
         'c: 'e,
     {
-        let store = self.store;
-        let described = self.pool.describe(sql);
+        let db = self.db;
         Box::pin(async move {
-            described
+            let mut connection = db
+                .acquire_raw()
                 .await
-                .map_err(|error| mark_unavailable(store, error))
+                .map_err(|error| mark_unavailable(db.store(), error))?;
+            connection
+                .describe(sql)
+                .await
+                .map_err(|error| mark_unavailable(db.store(), error))
         })
     }
 }

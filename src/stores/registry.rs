@@ -174,13 +174,19 @@ impl Opened {
             reason = "builds a value; the task it starts has its own span"
         )
     )]
-    fn keep(self, migration: StoreMigration) -> OpenStore {
+    fn keep(self, migration: StoreMigration, connect_timeout: Duration) -> OpenStore {
         let pool = self.db.pool().clone();
         let keeper = self
             .credential
             .and_then(|(source, base)| spawn_keeper(source, base, pool));
+        // A store whose login is kept current lets a refused connection wait
+        // for the next refresh and try once more (issue #998).
+        let db = match &keeper {
+            Some(keeper) => self.db.with_renewal(keeper.watch(), connect_timeout),
+            None => self.db,
+        };
         OpenStore {
-            db: self.db,
+            db,
             migration,
             _keeper: keeper,
             feed: Mutex::new(None),
@@ -653,7 +659,9 @@ impl Stores {
                 if migration != StoreMigration::default() {
                     tracing::info!(store = %store, %migration, "migrated a store's schema");
                 }
-                Ok(Arc::new(opened.keep(migration)))
+                Ok(Arc::new(
+                    opened.keep(migration, self.inner.settings.connect_timeout),
+                ))
             }
             Err(error) => {
                 split_event!(
@@ -2055,6 +2063,208 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn a_role_with_two_adjacent_quotation_marks_still_refreshes_after_a_rotation() {
         a_plain_read_after_a_rotation_refreshes("app\"\"").await;
+    }
+
+    /// A store with a rotating secret, open, with one connection held so the
+    /// next operation needs a new physical connection (issue #998).
+    struct RotatingStore {
+        db: crate::db::pg_support::TestDb,
+        stores: Stores,
+        secrets: Arc<MockSecrets>,
+        role: String,
+        store: CatalogDb,
+        refreshes: tokio::sync::watch::Receiver<u64>,
+        _held: sqlx::pool::PoolConnection<sqlx::Postgres>,
+    }
+
+    impl RotatingStore {
+        async fn open() -> Self {
+            let db = crate::db::test_db().await;
+            let role = make_role(&db.pool, "pw-1").await;
+            let secrets = MockSecrets::holding(&Self::secret(&role, "pw-1"));
+            let stores = Stores::with_providers(
+                db.pool.clone(),
+                settings(),
+                Providers::new(
+                    Arc::new(|_| None),
+                    Arc::clone(&secrets) as Arc<dyn SecretReader>,
+                    Arc::new(ClockSigner::plain(&Arc::new(AtomicU64::new(0)))),
+                ),
+            );
+            add_row(&db.pool, "shared-1", "secrets-manager", EXAMPLE_ARN).await;
+            let name = StoreName::parse("shared-1").unwrap();
+            let store = stores.get(&name).await.unwrap();
+            let held = store.pool().acquire().await.unwrap();
+            let refreshes = stores.credential_task(&name).await.unwrap();
+            Self {
+                db,
+                stores,
+                secrets,
+                role,
+                store,
+                refreshes,
+                _held: held,
+            }
+        }
+
+        fn secret(role: &str, password: &str) -> String {
+            serde_json::json!({ "username": role, "password": password }).to_string()
+        }
+
+        /// The secret and the database both move to `password`: the open
+        /// pool's login is now refused.
+        async fn rotate_to(&self, password: &str) {
+            self.secrets.set(Ok(Self::secret(&self.role, password)));
+            set_password(&self.db.pool, &self.role, password).await;
+        }
+
+        async fn close(self) {
+            let Self {
+                db,
+                stores,
+                role,
+                store,
+                _held,
+                ..
+            } = self;
+            drop((store, _held));
+            stores.forget_all().await;
+            drop_role(&db.pool, &role).await;
+        }
+    }
+
+    async fn read_one(db: &CatalogDb) -> Result<i32, OkfError> {
+        Ok(sqlx::query_scalar("SELECT 1")
+            .fetch_one(db.executor())
+            .await?)
+    }
+
+    /// Issue #998: a read that needs a new connection after the secret
+    /// rotated succeeds on its first try, with no second request to ride on.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_read_refused_its_login_after_a_rotation_succeeds_on_the_first_try() {
+        let mut rotating = RotatingStore::open().await;
+        let before = rotating.secrets.calls.load(Ordering::SeqCst);
+
+        rotating.rotate_to("pw-2").await;
+        let one = tokio::time::timeout(REFRESH_DEADLINE, read_one(&rotating.store))
+            .await
+            .expect("the read finished in time")
+            .expect("the first read succeeds");
+
+        assert_eq!(one, 1);
+        // The wait was on the refresh count: it moved, and the login was
+        // fetched again.
+        a_refresh_is_applied(&mut rotating.refreshes).await;
+        assert!(rotating.secrets.calls.load(Ordering::SeqCst) > before);
+        rotating.close().await;
+    }
+
+    /// Rotates the secret under an open store and runs `operation` on it,
+    /// which must succeed on its first try. One rotation per store: the
+    /// credential task refreshes at most once every `MIN_REFRESH_GAP`.
+    async fn first_try_after_a_rotation<T, Fut>(operation: impl FnOnce(CatalogDb) -> Fut)
+    where
+        Fut: std::future::Future<Output = Result<T, OkfError>>,
+    {
+        let rotating = RotatingStore::open().await;
+        rotating.rotate_to("pw-2").await;
+
+        let done = tokio::time::timeout(REFRESH_DEADLINE, operation(rotating.store.clone()))
+            .await
+            .expect("the operation finished in time");
+
+        assert!(done.is_ok(), "{:?}", done.err());
+        drop(done);
+        rotating.close().await;
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn begin_waits_out_a_refused_login() {
+        first_try_after_a_rotation(|store| async move { store.begin().await }).await;
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn acquire_waits_out_a_refused_login() {
+        first_try_after_a_rotation(|store| async move { store.acquire().await }).await;
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn begin_with_waits_out_a_refused_login() {
+        first_try_after_a_rotation(|store| async move {
+            store
+                .begin_with("BEGIN ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+                .await
+        })
+        .await;
+    }
+
+    /// A query that streams (`fetch`) takes its connection inside the
+    /// stream, and gets the same retry.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_streamed_query_waits_out_a_refused_login() {
+        use futures_util::TryStreamExt;
+        first_try_after_a_rotation(|store| async move {
+            let rows: Vec<i32> = sqlx::query_scalar::<_, i32>("SELECT 1")
+                .fetch(store.executor())
+                .try_collect()
+                .await?;
+            Ok(rows)
+        })
+        .await;
+    }
+
+    /// A login that stays refused ends in `StoreUnavailable` within
+    /// `store_connect_timeout`, after exactly one refresh and one retry.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_login_that_stays_refused_after_the_refresh_is_unavailable_in_time() {
+        let rotating = RotatingStore::open().await;
+        let before = rotating.secrets.calls.load(Ordering::SeqCst);
+        // The secret gives a password the database does not accept.
+        rotating
+            .secrets
+            .set(Ok(RotatingStore::secret(&rotating.role, "pw-wrong")));
+        set_password(&rotating.db.pool, &rotating.role, "pw-other").await;
+
+        let started = std::time::Instant::now();
+        let refused = read_one(&rotating.store).await.unwrap_err();
+
+        assert!(
+            matches!(refused, OkfError::StoreUnavailable { .. }),
+            "{refused:?}"
+        );
+        assert!(
+            started.elapsed() < settings().connect_timeout + Duration::from_secs(1),
+            "{:?}",
+            started.elapsed()
+        );
+        // One fetch for the refusal; the second refusal's own signal is held
+        // back by the minimum gap between refreshes.
+        assert_eq!(rotating.secrets.calls.load(Ordering::SeqCst), before + 1);
+        rotating.close().await;
+    }
+
+    /// Many reads refused at once wait on one refresh, and all succeed.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn concurrent_reads_refused_during_a_rotation_share_one_refresh() {
+        let rotating = RotatingStore::open().await;
+        let before = rotating.secrets.calls.load(Ordering::SeqCst);
+        rotating.rotate_to("pw-2").await;
+
+        let readers = 3;
+        let reads = (0..readers).map(|_| read_one(&rotating.store));
+        let answers = tokio::time::timeout(REFRESH_DEADLINE, futures_util::future::join_all(reads))
+            .await
+            .expect("the reads finished in time");
+
+        for answer in answers {
+            assert_eq!(answer.expect("each read succeeds"), 1);
+        }
+        // Not one fetch per reader. (A refusal naming no single role, from a
+        // test running beside this one, can add one.)
+        let fetches = rotating.secrets.calls.load(Ordering::SeqCst) - before;
+        assert!((1..=2).contains(&fetches), "{fetches} fetches");
+        rotating.close().await;
     }
 
     /// Opens an IAM store, forgets it (one store, or all), and checks that

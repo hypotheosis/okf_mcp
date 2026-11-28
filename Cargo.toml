@@ -179,6 +179,10 @@ tar = "0.4.46"
 redis = { version = "=1.8.2", default-features = false, features = ["tokio-comp", "connection-manager", "cluster-async", "script", "tokio-rustls-comp"] }
 # `StreamExt::next` on the pub/sub message stream (already in the lock via redis).
 futures-util = { version = "0.3", default-features = false, features = ["alloc"] }
+# `try_stream!` for `StoreExecutor::fetch_many`, which takes its connection (with
+# the refused-login retry) inside the stream, as sqlx's own pool executor does.
+# Already in the lock through sqlx.
+async-stream = "0.3"
 # Only to install ring as the process CryptoProvider before a `rediss://`
 # connect: the lock builds rustls with both ring and aws-lc-rs, and rustls then
 # refuses to guess (rustls 0.23 `crypto/mod.rs`).

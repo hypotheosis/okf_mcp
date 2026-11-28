@@ -85,11 +85,7 @@ pub async fn read(
     pin: &RevisionPin,
 ) -> Result<PinnedConcept, OkfError> {
     report::pin(pin)?;
-    let mut conn = db
-        .pool()
-        .acquire()
-        .await
-        .map_err(|error| db.classify(error))?;
+    let mut conn = db.acquire().await?;
     // The query runs on a raw connection, which the store's executor does not
     // wrap: a transport failure mid-query is classified here.
     pinned(&mut conn, catalog_id, pin)

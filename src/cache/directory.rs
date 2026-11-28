@@ -541,12 +541,14 @@ impl CatalogDirectory {
     ///
     /// # Arguments
     /// * `names` - as for [`CatalogDirectory::resolve_many`].
-    /// * `known_down` - stores this request already found unreachable.
+    /// * `known_down` - stores this request already found unreachable. Their
+    ///   rows are still returned (from the account database, generation 0)
+    ///   and the stores are in the returned down set.
     ///
     /// # Errors
     /// As [`CatalogDirectory::resolve_many`].
     #[tracing::instrument(level = "debug", skip_all)]
-    async fn resolve_many_skipping(
+    pub(crate) async fn resolve_many_skipping(
         &self,
         names: &[String],
         known_down: &HashSet<StoreName>,

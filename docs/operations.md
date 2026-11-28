@@ -615,8 +615,15 @@ violation or a bad statement stays a `Database` error (HTTP 500). The
 exception is a statement on a connection taken from the pool (`acquire`) or
 inside a transaction (`CatalogDb::begin`): the code that takes the connection
 classifies its errors itself, and a path that does not can still report a
-lost store as `Database`. Known gaps, each tracked as an issue: two paths
-probe a store already found down again within one call (#1017).
+lost store as `Database`.
+
+A call probes a lost store once (issue #1017). The stores a call has found
+down are kept for that call only, never across requests, and a later read in
+the same call does not probe them again: the `list_catalogs` selection that
+falls back to a key's granted catalogs, and the per-store read of
+`list_changesets` without `catalog`, skip such a store. The account rows of
+its catalogs are still read (to check reach), so the answer is the same
+partial result with the same `unavailable` entries, only sooner.
 
 ### What a separate store does and does not separate
 

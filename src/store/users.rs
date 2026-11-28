@@ -746,6 +746,7 @@ pub const EMAIL_TAKEN_REFUSAL: &str = "Another user has this email";
 /// # Errors
 /// [`OkfError::Refused`] with [`EMAIL_TAKEN_REFUSAL`] when another user has
 /// the address (in any letter case); [`OkfError::Database`].
+#[tracing::instrument(level = "debug", skip_all)]
 async fn store_email(
     tx: &mut PgConnection,
     user_id: &str,

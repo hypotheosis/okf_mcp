@@ -3,7 +3,8 @@
 # Sourced, not run: `source "$(dirname "$0")/lib.sh"`.
 
 # --- Bounded commands -------------------------------------------------------
-# Every external command the tools run goes through agentic_run_bounded, so a
+# Every external command the tools run goes through agentic_run_bounded (output
+# streams: gates) or agentic_run_captured (output captured: gh and git), so a
 # stalled `gh`, `git` or test can't block past its budget or outlive it.
 
 # How long agentic_stop_group waits between TERM and KILL, in seconds.
@@ -110,15 +111,129 @@ agentic_call_budget() {
     printf '%s\n' "$cap"
 }
 
+# agentic_capture_supervise <seconds> <stdin-file> <stdout-file> <stderr-file>
+# <cmd...>: the supervisor behind every captured call (agentic_run_captured,
+# watchdog.sh's bounded_capture). It runs cmd in its own session and process
+# group with stdin from <stdin-file> and its output in the two files, never a
+# pipe, and polls for at most <seconds>. However the leader ends (on its own or
+# timed out), its whole group is then stopped by agentic_stop_group, which
+# decides by the group's liveness, not the leader's. So neither the child nor a
+# descendant that holds its output open (a daemon, a process that ignores TERM)
+# can make a caller wait for end-of-file: nothing is read from a pipe. Anything
+# that survives KILL (an uninterruptible kernel wait) is abandoned, never waited
+# for. Returns cmd's status, or 124 when it ran out of time or had none to run
+# with (agentic_timed_out=1). Sets agentic_cap_pid (the group's leader while the
+# command runs, for the callers' signal traps), agentic_cap_reason ("timed out",
+# "had no time left" or "failed", plus ", child left behind" or ", processes
+# left behind") and agentic_cap_left ("stopped them" or "some survived KILL and
+# were left behind" when the command exited leaving processes behind).
+agentic_cap_pid=""
+agentic_cap_reason=""
+agentic_cap_left=""
+agentic_capture_supervise() {
+    local budget=$1 in=$2 out=$3 err=$4 tick status=0
+    shift 4
+    agentic_timed_out=0
+    agentic_cap_pid="" agentic_cap_reason="" agentic_cap_left=""
+    if [ "$budget" -le 0 ]; then
+        # shellcheck disable=SC2034 # read by the scripts that source this file
+        agentic_timed_out=1
+        agentic_cap_reason="had no time left"
+        return 124
+    fi
+    # stderr before stdin, so a failed <stdin-file> redirect lands in <stderr-file>.
+    setsid "$@" >"$out" 2>"$err" <"$in" &
+    agentic_cap_pid=$!
+    for ((tick = 0; tick < budget * 10; tick++)); do
+        kill -0 "$agentic_cap_pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    if kill -0 "$agentic_cap_pid" 2>/dev/null; then
+        agentic_timed_out=1
+        status=124
+        agentic_cap_reason="timed out"
+    else
+        # It has exited, so this returns at once. Reaping it first means a
+        # live group below is made of descendants, not of its zombie.
+        wait "$agentic_cap_pid" || status=$?
+        agentic_cap_reason="failed"
+        kill -0 -- "-$agentic_cap_pid" 2>/dev/null && agentic_cap_left=1
+    fi
+    # Every path ends here: stop whatever is left of the group, by group.
+    agentic_stop_group "$agentic_cap_pid"
+    if kill -0 "$agentic_cap_pid" 2>/dev/null; then
+        # The leader survived KILL: stop tracking it, never wait for it
+        # (bash still reaps it whenever it dies).
+        disown "$agentic_cap_pid" 2>/dev/null
+        agentic_cap_reason="$agentic_cap_reason, child left behind"
+    elif kill -0 -- "-$agentic_cap_pid" 2>/dev/null; then
+        agentic_cap_reason="$agentic_cap_reason, processes left behind"
+    fi
+    if [ -n "$agentic_cap_left" ]; then
+        agentic_cap_left="stopped them"
+        kill -0 -- "-$agentic_cap_pid" 2>/dev/null \
+            && agentic_cap_left="some survived KILL and were left behind"
+    fi
+    return "$status"
+}
+
+# The temp files of the capture in progress, removed on every path out.
+agentic_cap_files=()
+
+# agentic_cap_cleanup [signal]: kills what the capture left running (on a
+# signal), removes its temp files and, on a signal, kills this shell with it.
+agentic_cap_cleanup() {
+    if [ -n "${1:-}" ]; then
+        [ -z "$agentic_cap_pid" ] || kill -KILL -- "-$agentic_cap_pid" 2>/dev/null
+    fi
+    [ "${#agentic_cap_files[@]}" -eq 0 ] || rm -f -- "${agentic_cap_files[@]}"
+    agentic_cap_files=()
+    agentic_cap_pid=""
+    trap - INT TERM
+    [ -z "${1:-}" ] || kill "-$1" "$BASHPID"
+}
+
+# agentic_run_captured <seconds> <cmd...>: like agentic_run_bounded, but for
+# callers that capture the output (`x=$(agentic_gh ...)`) (#1191). The command's
+# stdout and stderr go to private temp files (mode 600) and stdin is /dev/null;
+# after the command has ended and its group is stopped, the files are copied to
+# this function's stdout and stderr, partial output included after a timeout,
+# and removed. Nothing waits for end-of-file on a pipe a leftover could hold.
+# Returns cmd's status, or 124 on a timeout (or with no time left).
+agentic_run_captured() {
+    local budget=$1 cap_out cap_err status=0
+    shift
+    agentic_cap_files=()
+    trap 'agentic_cap_cleanup INT' INT
+    trap 'agentic_cap_cleanup TERM' TERM
+    cap_out=$(mktemp "${TMPDIR:-/tmp}/agentic-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
+    agentic_cap_files+=("$cap_out")
+    cap_err=$(mktemp "${TMPDIR:-/tmp}/agentic-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
+    agentic_cap_files+=("$cap_err")
+    agentic_capture_supervise "$budget" /dev/null "$cap_out" "$cap_err" "$@" || status=$?
+    cat -- "$cap_out"
+    cat -- "$cap_err" >&2
+    case "$agentic_cap_reason" in
+        "timed out"* | "had no time left"*)
+            echo "agentic: warning: '$1' $agentic_cap_reason (status 124)" >&2 ;;
+    esac
+    [ -z "$agentic_cap_left" ] \
+        || echo "agentic: warning: '$1' exited (status $status) leaving processes behind;" \
+            "$agentic_cap_left" >&2
+    agentic_cap_cleanup
+    return "$status"
+}
+
 # agentic_gh <args...> / agentic_git <args...>: gh or git, bounded by
-# agentic_call_budget. Return 124 at once when no time is left.
+# agentic_call_budget and captured (agentic_run_captured). Return 124 at once
+# when no time is left.
 agentic_gh() { agentic_bounded_call gh "$@"; }
 agentic_git() { agentic_bounded_call git "$@"; }
 agentic_bounded_call() {
     local budget
     budget=$(agentic_call_budget)
     [ "$budget" -gt 0 ] || return 124
-    agentic_run_bounded "$budget" "$@"
+    agentic_run_captured "$budget" "$@"
 }
 
 # --- Repository, reviewer and GitHub helpers --------------------------------

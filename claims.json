@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2594,
+  "next_claim_seq": 2610,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f2748d404183513effafbed944694bafb80f0cce2fd5f847a0689b15f4f969ae"
+    "mac": "f5b623dab4cb33431dee31db0d6f159927a795ec23d68a275b6fd5f54b70f542"
   },
-  "next_evidence_seq": 4514,
+  "next_evidence_seq": 4538,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "48b21de0b96d270c52d7fd22c80249c0878d4a801f4f6bfa4d9431c20cc56326"
+    "mac": "9f9dee4d892590f8da91d7f4fd0026baea16bcfabb6465577f25254fc2d1f762"
   },
   "claims": [
     {
@@ -66403,6 +66403,28 @@
             "by": "server",
             "mac": "978a9fd91c1de0a3d7ba939a3a0637ac84b915000df796c47fe16234db386074"
           }
+        },
+        {
+          "id": "EVD-4529",
+          "kind": "inspection",
+          "locator": "tools/agentic/watchdog.sh:141-172 at c7d31247 (re-audit after #1191 refactor)",
+          "summary": "bounded_capture still captures to a private watchdog-call temp file, polls via agentic_call_budget (AGENTIC_CALL_TIMEOUT), stops the group and abandons a KILL-surviving leader, now through lib.sh's agentic_capture_supervise (lib.sh:133-182). The call sites are untouched, and git grep finds no agentic_bounded_call or agentic_git call in watchdog.sh (comments only). 37 test_watchdog_* tests pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 141,
+                "end": 172
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:23:05.660240848Z",
+          "seal": {
+            "by": "server",
+            "mac": "8640a58baee1be5390bf6c5ff5e17e06b9493b85aa21af91fa180a61b3ebdbe1"
+          }
         }
       ],
       "verdicts": [
@@ -66487,13 +66509,26 @@
             "by": "server",
             "mac": "25a6e88cab4925d5e0e52e50dbe16826fcdfa305ac7440f970dfd22dd2a37565"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head after the refactor: behaviour preserved via the shared supervisor; tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4529"
+          ],
+          "recorded_at": "2026-11-28T13:23:33.105179882Z",
+          "seal": {
+            "by": "server",
+            "mac": "3d5ddb9a313e7631fe9168c062ef7a94aa7ec19713880e196c07c077b51d3ca3"
+          }
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-26T13:15:58.760327353Z",
+      "updated_at": "2026-11-28T13:23:33.105179882Z",
       "seal": {
         "by": "server",
-        "mac": "7af4d612abab0a10f8f460010b133b34447b71e02c523fac496f0876b75f6da4"
+        "mac": "448bce26c48c6f442081ef5265c40671ce852173e67a33975053e1c7c733beb4"
       }
     },
     {
@@ -66648,6 +66683,28 @@
             "by": "server",
             "mac": "ff4ed5c46abb3276afa1b667fb476a9d39d9e1448a1967364b6b40f39e4ab3b1"
           }
+        },
+        {
+          "id": "EVD-4530",
+          "kind": "test",
+          "locator": "subset run of test_watchdog_* on c7d31247: test_watchdog_skips_a_pass_when_the_ps_scan_hangs, test_watchdog_once_exits_0_when_the_ps_scan_hangs, test_watchdog_abandons_a_*_it_cannot_stop (6), test_watchdog_exits_1_when_its_start_up_git_call_hangs",
+          "summary": "All passed after the bounded_capture refactor, so a timed-out supervised call still warns without an alarm, skips the pass or item, and the start-up git failure still exits 1. watchdog.sh:159-172 keeps the 124 return and warning.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 159,
+                "end": 172
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:23:05.831127832Z",
+          "seal": {
+            "by": "server",
+            "mac": "b41f6318d1824e659c222d930ad3be522c047159a5a2d0e313a6fe1dc8bf7c55"
+          }
         }
       ],
       "verdicts": [
@@ -66704,13 +66761,26 @@
             "by": "server",
             "mac": "f11806d0278cf41fe1e4a363dffd0596368e267b256005098235555cc9a0ccf2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: the hang/skip/exit tests pass after the refactor.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4530"
+          ],
+          "recorded_at": "2026-11-28T13:23:33.312890299Z",
+          "seal": {
+            "by": "server",
+            "mac": "53408d3d7511eb7bbdcf3ed77910ad149b8f178ab0af1c2bca7d17b4ecf2863a"
+          }
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-26T13:15:58.882005146Z",
+      "updated_at": "2026-11-28T13:23:33.312890299Z",
       "seal": {
         "by": "server",
-        "mac": "13e07ff78f0872cda10be7fac0b6872028c6456be80037de84b0ca909fe053c6"
+        "mac": "6fbe3e1a4d5537b7799240473a588263a5ce023e05d1e6e607c0f7ea34d615d7"
       }
     },
     {
@@ -66983,6 +67053,28 @@
             "by": "server",
             "mac": "c0d486b30ef59b716186bc3e6b1e8cc3f7e964b43a39c290789716dc11a9d9b0"
           }
+        },
+        {
+          "id": "EVD-4531",
+          "kind": "inspection",
+          "locator": "tools/agentic/watchdog.sh:159-172; tools/agentic/lib.sh:133-182; test_watchdog_alert_leaves_out_command_lines",
+          "summary": "bounded_capture's warnings interpolate only $2 (the command word) and agentic_cap_reason/agentic_cap_left, which hold fixed text; the supervisor prints nothing itself. Stderr of the call is /dev/null in watchdog. test_watchdog_alert_leaves_out_command_lines passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 157,
+                "end": 172
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:23:06.009112252Z",
+          "seal": {
+            "by": "server",
+            "mac": "f4923ea14cfe0ee897738bd0052a88442c0368e93a0efd012bbe7b6dc8a520aa"
+          }
         }
       ],
       "verdicts": [
@@ -67024,13 +67116,26 @@
             "by": "server",
             "mac": "62db151767478896fbae6f632708ecb657b3c8d65b0d5c715ff4c8fade8debfd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: warnings still name only the command word.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4531"
+          ],
+          "recorded_at": "2026-11-28T13:23:33.468748949Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c2006464b6210829fc5504fef818496ab86c9052f91b93f21d12eff4d06355d"
+          }
         }
       ],
       "created_at": "2026-11-23T08:37:18.948193469Z",
-      "updated_at": "2026-11-26T13:15:59.082375756Z",
+      "updated_at": "2026-11-28T13:23:33.468748949Z",
       "seal": {
         "by": "server",
-        "mac": "55800f726214bfef2834969019c690fe995abe342d9bd9f03ebf4cc0f8892d18"
+        "mac": "5c137cadb3bf9cc05e279a91ce45da89fa975ab6bb22486fea85a95018887075"
       }
     },
     {
@@ -67752,6 +67857,28 @@
             "by": "server",
             "mac": "0ffd96e5274e037d569c156a06f552e3a4bd3fa1414d7ba9cf4a52c43f7b3500"
           }
+        },
+        {
+          "id": "EVD-4532",
+          "kind": "test",
+          "locator": "test_watchdog_kills_a_group_member_that_ignores_term_after_a_timeout; test_watchdog_stops_what_a_call_leaves_behind_on_a_normal_exit (passed on c7d31247); tools/agentic/lib.sh:133-182",
+          "summary": "The logic now lives in agentic_capture_supervise with the same order: reap leader on normal exit, then agentic_stop_group by group liveness on every path, disown a leader alive after KILL. Both named tests passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 133,
+                "end": 182
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:23:06.172253159Z",
+          "seal": {
+            "by": "server",
+            "mac": "927a53be2b3667073d886921909e632aea7bcae95bfa31b9237dad773730171c"
+          }
         }
       ],
       "verdicts": [
@@ -67795,13 +67922,26 @@
             "by": "server",
             "mac": "08859d6881aee66e97bd39511924db77b47abc98959e5d9d608034fc82b5957f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head: group-stop logic moved intact to lib.sh; both named tests pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4532"
+          ],
+          "recorded_at": "2026-11-28T13:23:33.622930594Z",
+          "seal": {
+            "by": "server",
+            "mac": "b83489859bb249baa2fb1bc7803d54dd889bb246b4753c8e925fbe24d0c1b304"
+          }
         }
       ],
       "created_at": "2026-11-23T09:46:38.002577735Z",
-      "updated_at": "2026-11-26T13:20:14.118422780Z",
+      "updated_at": "2026-11-28T13:23:33.622930594Z",
       "seal": {
         "by": "server",
-        "mac": "8cea5405345bc551bcd5322c3c6442003870bddd88ad6cdc409a663a25817e15"
+        "mac": "5c95bceaaed3fe53d6d200120e291bbd291572c68b204b52369bab168ae7b9d2"
       }
     },
     {
@@ -227676,6 +227816,1119 @@
       "seal": {
         "by": "server",
         "mac": "0fe94f9e51561bd30f1bbd647e4d35d4784dcd4eb8b2a5aef60349766691a625"
+      }
+    },
+    {
+      "id": "CLM-2594",
+      "statement": "Issue #1191 is resolved: a captured agentic_gh/agentic_git call (x=$(agentic_gh ...)) returns within AGENTIC_CALL_TIMEOUT plus the TERM-to-KILL grace even when a daemonised or KILL-surviving child holds its output open, with callers seeing the same stdout, stderr and exit codes.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1191",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/watchdog.sh",
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4533",
+          "kind": "analysis",
+          "locator": "children of CLM-2594",
+          "summary": "All behavioural, test, caller, shared-supervisor and documentation children are supported; the only child not decided is the PR's '141 passed, 0 failed' total (not_enough_info because the full suite was not run in this audit). Behaviour is covered by the passing new tests, the 37 watchdog tests, and the reproduction of the old defect.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T13:23:39.117481232Z",
+          "seal": {
+            "by": "server",
+            "mac": "7cb44eb80bc34197722d252ec9f7cdf04eafc24f10937a60881b8592d2ff2341"
+          }
+        },
+        {
+          "id": "EVD-4537",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh test_captured_call_* on c7d31247 (t3.log)",
+          "summary": "All children supported; full suite 141/141 on head, including the setsid-holder test (returns in about 1.1 s with a 1 s limit, partial output kept) and the pass-through test.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T13:44:54.407243962Z",
+          "seal": {
+            "by": "server",
+            "mac": "fee2da53a5690993d2d09a9b02d606c95de62cdc74580ca86643f5bad7deace9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Every child that states behaviour is supported, but one child (the full-suite 141 passed count) is undecided because the full run was out of scope. Fix: run tools/agentic/tests/run.sh in full on c7d31247, then re-audit CLM-2605 and this roll-up.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4533"
+          ],
+          "recorded_at": "2026-11-28T13:23:42.946472731Z",
+          "seal": {
+            "by": "server",
+            "mac": "193d1c989b2eec69002435fe8da816910ce73ddccda801811dad67c9fb15414c"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Every child claim is now supported, including the full-suite total, so the issue's requirements hold.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4537"
+          ],
+          "recorded_at": "2026-11-28T13:44:57.793443958Z",
+          "seal": {
+            "by": "server",
+            "mac": "edd47157dc42f68893016be6ea79202a19d3f352bc694d73f615c23a82e4c7f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:44:57.793443958Z",
+      "seal": {
+        "by": "server",
+        "mac": "60fbc6b5e46793eba7132a5475e62b84e4dcbdf4e02fbccf5197f105225a608b"
+      }
+    },
+    {
+      "id": "CLM-2595",
+      "statement": "tools/agentic/lib.sh defines agentic_run_captured <seconds> <cmd...>, which sends the command's stdout and stderr to private mode-600 mktemp files and its stdin to /dev/null.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1191 'Possible fix'; PR body: 'new agentic_run_captured <seconds> <cmd...>. The command's stdout and stderr go to private mode-600 temp files and stdin is /dev/null.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4514",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:203-216",
+          "summary": "agentic_run_captured calls mktemp twice (default mode 0600) for cap_out and cap_err, and passes /dev/null as the stdin file plus both temp files to agentic_capture_supervise, which redirects the command's stdout, stderr and stdin to them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 203,
+                "end": 216
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:50.554730172Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fab978eb0231e6481e11209a79dfb92378a5ba39db69def3e77eb8280e2965b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code at lib.sh:203-216 uses mktemp (0600) for both files and /dev/null for stdin.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4514"
+          ],
+          "recorded_at": "2026-11-28T13:23:30.674152890Z",
+          "seal": {
+            "by": "server",
+            "mac": "3ba30c5a18dba6fe91325a37fc69e4b669c895f4d692d1ee2a70313e2392c7d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:30.674152890Z",
+      "seal": {
+        "by": "server",
+        "mac": "d966781978c2f342b4c0fd4a769611cb782dbeb26537229a44215f562ef35980"
+      }
+    },
+    {
+      "id": "CLM-2596",
+      "statement": "agentic_run_captured stops the command's process group as agentic_run_bounded does (agentic_stop_group, decided by group liveness, leader disowned if it survives KILL) and returns the command's status, or 124 on a timeout or when no time is left.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'The process group is stopped as agentic_run_bounded does ... It returns the command's status, or 124 on a timeout or when no time is left.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4515",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:133-182",
+          "summary": "The supervisor polls the setsid leader up to budget*10 ticks, sets agentic_timed_out=1/status 124 on timeout, calls agentic_stop_group on every path, disowns a leader that survives KILL, returns the reaped status otherwise; budget<=0 returns 124 without starting the command.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 133,
+                "end": 182
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:50.720687359Z",
+          "seal": {
+            "by": "server",
+            "mac": "4b9f305a88099344d482c89401dc18fd8e9a916a4ecfcd0a60992f4fcf4028d5"
+          }
+        },
+        {
+          "id": "EVD-4516",
+          "kind": "test",
+          "locator": "subset of tools/agentic/tests/run.sh (test_captured_call_* and test_watchdog_*), 42 passed, 0 failed",
+          "summary": "Ran on head c7d31247: test_captured_call_returns_in_time_when_a_setsid_child_holds_stdout (asserts rc=124, 1120 ms), test_captured_call_with_no_time_left_returns_124_without_running, test_captured_call_returns_at_once_when_the_leader_leaves_a_holder_behind (asserts rc=3) and the watchdog group-stop tests all passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2041,
+                "end": 2100
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:50.897020563Z",
+          "seal": {
+            "by": "server",
+            "mac": "6b6c6dc9b97bfe5faf5896af35b3ef7865d6e161ddd1bbfd5d5b7366c129a865"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Supervisor code stops the group on every path, disowns a surviving leader and returns 124/status; tests assert rc=124, rc=3 and no-time-left 124.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4515",
+            "EVD-4516"
+          ],
+          "recorded_at": "2026-11-28T13:23:30.843529589Z",
+          "seal": {
+            "by": "server",
+            "mac": "35e9d90fbf18ff8d5d82e93cdd38d04f79ae7093a937d0bf69a9bbf9c16c147c"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:30.843529589Z",
+      "seal": {
+        "by": "server",
+        "mac": "4b55328600b3e5e9bee70cf5d605e5682afdbbecbf93d81bf8b057fa9add30fb"
+      }
+    },
+    {
+      "id": "CLM-2597",
+      "statement": "agentic_run_captured copies the temp files to its own stdout and stderr after the command ended, keeping partial output after a timeout, and removes the files on every path, including INT and TERM.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'The files are then copied to stdout and stderr (partial output is kept after a timeout) and removed on every path, including INT and TERM.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4517",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:183-226",
+          "summary": "agentic_run_captured installs INT/TERM traps before mktemp; after supervision it cats cap_out to stdout and cap_err to stderr (also after timeout, so partial output is kept) then agentic_cap_cleanup rm -f's both files; the signal path kills the group, removes files and re-raises. mktemp failure also cleans up.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 183,
+                "end": 226
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.058763704Z",
+          "seal": {
+            "by": "server",
+            "mac": "2204defc8307d13bac6af76f0ce7437db0b4da28789f0a76111d24f0741d7645"
+          }
+        },
+        {
+          "id": "EVD-4518",
+          "kind": "test",
+          "locator": "test_captured_call_returns_in_time_when_a_setsid_child_holds_stdout; test_captured_call_removes_its_files_when_it_is_terminated (subset run, all passed)",
+          "summary": "First test asserts out=partial and partial-err after a timeout then want_no_temp_files; the TERM test waits for two temp files, sends TERM to the harness, waits for exit and asserts the tmp dir is empty. Both passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2041,
+                "end": 2060
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.227483952Z",
+          "seal": {
+            "by": "server",
+            "mac": "9c725914caff9adab1c1d3677594b45af4391cec06176c6f055b80e155fc9ece"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code copies both files out after supervision and cleans up on normal and signal paths; tests confirm partial output kept and an empty tmp dir after timeout and after TERM.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4517",
+            "EVD-4518"
+          ],
+          "recorded_at": "2026-11-28T13:23:31.062177995Z",
+          "seal": {
+            "by": "server",
+            "mac": "314062db7a0affd26c1f23578ec5ec87cf717b7cf53931244c4afb6b8762de22"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:31.062177995Z",
+      "seal": {
+        "by": "server",
+        "mac": "a6a2fdd86fca388fc9b52a9ad88d72aadb4146398bfb6f75a1521d7c5e45438a"
+      }
+    },
+    {
+      "id": "CLM-2598",
+      "statement": "agentic_gh and agentic_git (via agentic_bounded_call) run through agentic_run_captured, while agentic_run_bounded is unchanged and still streams for gate.sh and remove-worktree.sh's clean.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "inspection",
+      "source": "Issue #1191 'Possible fix'; PR body: 'agentic_gh and agentic_git (via agentic_bounded_call) use it. agentic_run_bounded still streams, for gate.sh and remove-worktree.sh's clean.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Registered at integrity level 3 with verification method inspection (rigor gap); replaced by the same claim verified by analysis.",
+        "retired_at": "2026-11-28T13:23:49.810783915Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4519",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:227-237; gate.sh:105,161,170; remove-worktree.sh:89",
+          "summary": "agentic_bounded_call now ends in agentic_run_captured; agentic_gh/agentic_git go through it. git diff origin/main..HEAD shows no hunk in agentic_run_bounded (lines 39-98); gate.sh and remove-worktree.sh still call agentic_run_bounded directly.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 227,
+                "end": 237
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.384096705Z",
+          "seal": {
+            "by": "server",
+            "mac": "0cafdd2c68e939613e6710f2fdbba537a80bb57c299143b2fe4bcaac840ef306"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "agentic_bounded_call calls agentic_run_captured; agentic_run_bounded has no diff hunk and gate.sh/remove-worktree.sh still call it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4519"
+          ],
+          "recorded_at": "2026-11-28T13:23:31.270181723Z",
+          "seal": {
+            "by": "server",
+            "mac": "4639fd9c4c98eab957318351249c021d5fee7c1b1dc29f5b9701cf761e2ee8b8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:49.810783915Z",
+      "seal": {
+        "by": "server",
+        "mac": "304ca8480d3435de532f49c4ecb61fbb417e228dec88e5ea64c13f607db88129"
+      }
+    },
+    {
+      "id": "CLM-2599",
+      "statement": "watchdog.sh's bounded_capture calls lib.sh's agentic_capture_supervise, the same supervisor agentic_run_captured uses, so tools/agentic has one capture implementation and no second copy of the poll/stop/disown logic.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1191 'watchdog bounded_capture shares the logic'; PR body: 'The supervisor (agentic_capture_supervise) moved out of watchdog.sh's bounded_capture into lib.sh, and bounded_capture calls it, so there is one capture implementation.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/watchdog.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4520",
+          "kind": "inspection",
+          "locator": "tools/agentic/watchdog.sh:141-172; tools/agentic/lib.sh:133",
+          "summary": "bounded_capture has no poll/stop/disown code of its own; it calls agentic_capture_supervise with its stdin file, temp file and /dev/null for stderr. git grep shows the only definition of the supervisor is lib.sh:133 and the two callers are lib.sh:213 and watchdog.sh:157.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 141,
+                "end": 172
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.542030033Z",
+          "seal": {
+            "by": "server",
+            "mac": "764b5c23251c8f598eb64763b040274f43d3000207f526be7cd0ef45a88e795e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The supervision logic exists once, in lib.sh, with two callers (agentic_run_captured and bounded_capture).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4520"
+          ],
+          "recorded_at": "2026-11-28T13:23:31.425236671Z",
+          "seal": {
+            "by": "server",
+            "mac": "df0006533af0bd31b3c9fe23c5e9457691357fa69ed7de5b5f296cdc39ce71b1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:31.425236671Z",
+      "seal": {
+        "by": "server",
+        "mac": "97aa20b7dbbd9c9b19bb019168b448b27d54a61843a2be0cdd1ad46836cb3a56"
+      }
+    },
+    {
+      "id": "CLM-2600",
+      "statement": "watchdog.sh's bounded_capture keeps its warnings and statuses unchanged after the refactor (timeout/no-time-left returns 124 with a warning naming only the command; a failed command returns its status with output stored, warning unless -q).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: 'Its warnings and statuses are unchanged.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/watchdog.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4521",
+          "kind": "test",
+          "locator": "subset of tools/agentic/tests/run.sh test_watchdog_* (37 tests, all passed on head c7d31247)",
+          "summary": "The six abandon tests (ps scan, ps re-read, cmdline read, git worktree list, reflog, find), start-up git hang exit 1, once/loop skip tests, group-kill tests and alert-leaves-out-command-lines test all passed. Code reading of watchdog.sh:141-172 shows the same texts ('had no time left', 'timed out', 'failed', leftover warning naming $2 only), 124 return and -q handling as before.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 141,
+                "end": 172
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.708850463Z",
+          "seal": {
+            "by": "server",
+            "mac": "e7e2446483e9381794798d973ff4cd82a4291dc08cb1eeb3a787df217ca6c976"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Warning texts, statuses and -q handling are the same in the diff, and the 37 watchdog tests that exercise them pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4521"
+          ],
+          "recorded_at": "2026-11-28T13:23:31.623976705Z",
+          "seal": {
+            "by": "server",
+            "mac": "87c54870162d3932d65360e49af7d7b3721ddea2ba5f5f454ab108138cb5e690"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:31.623976705Z",
+      "seal": {
+        "by": "server",
+        "mac": "63e66a1ad534c1fe877ea6483e804e0ff0045636d1697b7e05c547333adc2d9f"
+      }
+    },
+    {
+      "id": "CLM-2601",
+      "statement": "tests/run.sh has a test where a setsid child that ignores TERM holds stdout for 30 s, captured with a 1 s limit: the call returns in under 4 s, keeps the partial output, and the holder is still alive until killed afterwards by its recorded PID; it passes.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1191 'Tests'; PR body: 'a setsid child that ignores TERM and holds stdout for 30 s is captured with a 1 s limit (returns in about 1 s, keeps partial output, is killed afterwards by its recorded pid)'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4522",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:2041 test_captured_call_returns_in_time_when_a_setsid_child_holds_stdout (passed, 1120 ms)",
+          "summary": "Test runs agentic_run_captured 1 on a leader that echoes partial, starts a setsid holder (TERM ignored, pid recorded, sleep 30) and sleeps 30; asserts rc=124, out=partial, partial-err, ms<4000, holder alive then killed by recorded pid, no temp files. Read the assertions; passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2041,
+                "end": 2059
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:51.878105622Z",
+          "seal": {
+            "by": "server",
+            "mac": "6c2f7092e64bd58353816d0e2a3971131b6ce74c84b04847007bc9204ecccacd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions read and the test passed on head; the scenario matches the issue's.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4522"
+          ],
+          "recorded_at": "2026-11-28T13:23:31.817951083Z",
+          "seal": {
+            "by": "server",
+            "mac": "ec2b2766523e81105c6c6ddac0ba8dc68388127d1e19d86f9ac56ef24f4ee6d7"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:31.817951083Z",
+      "seal": {
+        "by": "server",
+        "mac": "836c82faba79a13a5295dceb294e561d31d5d2b848ca1dbbea14dcd1caa28cfb"
+      }
+    },
+    {
+      "id": "CLM-2602",
+      "statement": "tests/run.sh tests that normal output, stderr, stdin (/dev/null) and exit status pass through agentic_run_captured, that no time left returns 124 without running the command, and that no temp files remain, also after TERM.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'normal output, stderr, stdin and exit status pass through; no time left returns 124 without running; no temp files are left, also after TERM.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4523",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:2077-2110 (three tests, passed on head)",
+          "summary": "pass_through test asserts rc=7, out=out-line, stdin=[] (read from /dev/null), err=err-line on stderr, no warning and no temp files; no_time_left asserts rc=124, the command did not run, no temp files; TERM test asserts the tmp dir empty after the harness is TERMed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2077,
+                "end": 2115
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:52.033907132Z",
+          "seal": {
+            "by": "server",
+            "mac": "e69a526bf1bdbbdfb884e029427bbea6d3b3e8a76ba702d155689fa13becb2c4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Three tests assert each listed behaviour and passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4523"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.009359711Z",
+          "seal": {
+            "by": "server",
+            "mac": "90cd97551aca0b5c8a26448d4f71b2aa8a4e7064d55af41081d1a2879a86ce52"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:32.009359711Z",
+      "seal": {
+        "by": "server",
+        "mac": "eadba5a830e64ce13ccd645fb37c48e69dba81c8132ffc9c410161144ed1ebeb"
+      }
+    },
+    {
+      "id": "CLM-2603",
+      "statement": "tests/run.sh has a test that a leader exiting while leaving such a holder behind makes agentic_run_captured return at once with the leader's status.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'a leader that exits leaving such a holder returns at once'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4524",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:2061 test_captured_call_returns_at_once_when_the_leader_leaves_a_holder_behind (passed, 415 ms)",
+          "summary": "Leader prints done, starts a TERM-ignoring setsid holder and exits 3; asserts rc=3, out=done, ms<4000, holder alive until killed by recorded pid, no temp files. Passed on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2061,
+                "end": 2075
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:52.198361643Z",
+          "seal": {
+            "by": "server",
+            "mac": "53aa8d0e1e3f4f065e04fe73811c9884aa55c3b5fb08112bc578912ceb038d62"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts rc=3, output and return under 4 s with a live holder; passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4524"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.208785149Z",
+          "seal": {
+            "by": "server",
+            "mac": "181386dda7f9f75d9d982ef80052ebba09ec068d94b0619e8c860246b6660ef2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:32.208785149Z",
+      "seal": {
+        "by": "server",
+        "mac": "58a6aded9bb13a974daf3475ebbbf9fa824d86d812a63c5f9cb9012983f1bb93"
+      }
+    },
+    {
+      "id": "CLM-2604",
+      "statement": "The callers of agentic_gh/agentic_git (watch-review.sh, merge-reviewed.sh, remove-worktree.sh, lib.sh) use only stdout, stderr and the status: none reads stdin or depends on streaming; the only visible difference is that stderr arrives when the call ends.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1191 'callers must see the same behaviour'; PR body: 'Callers checked (watch-review.sh, merge-reviewed.sh, remove-worktree.sh, lib.sh): none reads stdin or depends on streaming; they use stdout and the status. The only visible difference is that stderr arrives when the call ends.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/watch-review.sh",
+        "tools/agentic/merge-reviewed.sh",
+        "tools/agentic/remove-worktree.sh",
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4525",
+          "kind": "analysis",
+          "locator": "git grep -n -- '--input\\|<<\\|--body-file' tools/agentic/*.sh; tools/agentic/{watch-review,merge-reviewed,remove-worktree}.sh agentic_gh/agentic_git call sites",
+          "summary": "Every agentic_gh/agentic_git call site (watch-review.sh:53,85,95; merge-reviewed.sh:32,89,116,144,183,189,192,194; remove-worktree.sh:55,77,104,108; lib.sh:246,268,277,290,328) passes arguments only, uses $(...), if/|| or >/dev/null; none feeds stdin (the only heredoc/herestrings feed jq/read). No caller reads agentic_timed_out after them (remove-worktree.sh:93 reads it after agentic_run_bounded, unchanged). Difference confirmed: stderr is cat'ed after the call.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "agentic_(gh|git) .*(<<|<<<| < |--input)",
+              "scope": [
+                "tools/agentic"
+              ],
+              "hits": 0,
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:52.397236188Z",
+          "seal": {
+            "by": "server",
+            "mac": "c94b41d84b0d2cd237210cb35d8775dbb287b7dab1362794fe22ec000827528c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "I read every call site and none gives the command stdin or depends on streaming; the zero-hit search backs the absence of stdin-fed calls. The stderr-at-end difference is the one the claim names.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4525"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.402621416Z",
+          "seal": {
+            "by": "server",
+            "mac": "48b2c65e1b59d0fc960b153b3b6156834f8cc51fc0ea4289d9d982d78444b988"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:32.402621416Z",
+      "seal": {
+        "by": "server",
+        "mac": "ccf10ddc426f9fe1eb746983cf6c3bb92dbdb969b622039778e31606d4c4f964"
+      }
+    },
+    {
+      "id": "CLM-2605",
+      "statement": "tools/agentic/tests/run.sh: 141 passed, 0 failed.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: 'tools/agentic/tests/run.sh (what just test-agentic runs): 141 passed, 0 failed.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4526",
+          "kind": "test",
+          "locator": "grep -c '^test_[a-z0-9_]*()' tools/agentic/tests/run.sh (141 at head, 136 at origin/main); subset run of 42",
+          "summary": "Head has 141 test functions (136 on origin/main plus the 5 new), consistent with the claim and with CLM-2423's earlier 136 passed. I ran only the 5 new tests plus the 37 watchdog tests: 42 passed, 0 failed. The other 99 were not run (instructed not to run the full 5-minute suite).",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T13:22:52.554645125Z",
+          "seal": {
+            "by": "server",
+            "mac": "f93a1d5d077c8faaa16f6b24cc9e00a10a45b17e3acb0910cf16b305ce38b105"
+          }
+        },
+        {
+          "id": "EVD-4536",
+          "kind": "test",
+          "locator": "timeout 600 tools/agentic/tests/run.sh on c7d31247 (target/i1191-logs/t3.log)",
+          "summary": "Full suite on head c7d31247: \"141 passed, 0 failed\", real 4m54.8s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T13:44:49.174128656Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed1e6c518add5ee8e4bfac742a8a30cdef6586c86062e8c090ec7f3ef3375368"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "141 test functions exist at head and the 42 I ran pass, but I did not run the other 99, so the 141 passed, 0 failed total is unconfirmed. Fix: run tools/agentic/tests/run.sh in full on commit c7d31247 and confirm the last line reads '141 passed, 0 failed'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4526"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.555900517Z",
+          "seal": {
+            "by": "server",
+            "mac": "efe23ba19f938e85f0d75f259320824ed2f7c55c7ee846f0d9c3dd4aec042d72"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Full suite run on the head commit passed 141 of 141.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4536"
+          ],
+          "recorded_at": "2026-11-28T13:44:54.257637236Z",
+          "seal": {
+            "by": "server",
+            "mac": "21682e6e31534d5db59af82ca4d42cb357468bf7fb0eb4c9db3a93bec997266a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:44:54.257637236Z",
+      "seal": {
+        "by": "server",
+        "mac": "edb5b1df9bcf23d7f9e7dc1c21fa7a8125c9dea7a6dd6aea1d463cb4f6ccd351"
+      }
+    },
+    {
+      "id": "CLM-2606",
+      "statement": "The first new test waits for the holder when run against the old code (a $(agentic_run_bounded ...) capture is held open past its limit by the setsid holder).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body: 'The first test waits for the holder when run against the old code.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4527",
+          "kind": "demonstration",
+          "locator": "scratch harness: out=$(agentic_run_bounded 1 bash -c 'echo partial; setsid bash -c \"trap \\\"\\\" TERM; ...; exec sleep 8\" & sleep 30') sourced from head lib.sh",
+          "summary": "The unchanged streaming helper under a command substitution returned rc=124 out=partial only after 8 s, i.e. when the holder's sleep ended, though the limit was 1 s: the issue's defect reproduces, and the new test's scenario (holder, 1 s limit, under-4 s assertion) would fail on it. Caveat: agentic_run_captured does not exist in the old code, so the new test cannot literally run against it.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T13:22:52.709042570Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e6418fdfff46a764b565d3075886aaac095883d28fefda7dda2e71e98ded80a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: the old streaming helper under $(...) returned after 8 s despite a 1 s limit, so the new test's scenario fails on the old approach. The test itself cannot run on old code (the function is new).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4527"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.757591872Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7240414fa140b8ca4ee28e6d4903f927327b8a1c02305aa6f41c0e151f301ee"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:23:32.757591872Z",
+      "seal": {
+        "by": "server",
+        "mac": "2598d8042224e59315201613741ece6a491975d7e4285ed38b409f1d5fc762e1"
+      }
+    },
+    {
+      "id": "CLM-2607",
+      "statement": "tools/agentic/README.md, lessons.md and a dated changelog entry (changelog/2026-11-28T13-13-25Z-issue-1191-bounded-captured-calls.md) document agentic_run_captured, the shared supervisor, the stderr-arrives-at-end difference and the rule to capture to files.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'README, lessons.md and a changelog entry updated.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/lessons.md",
+        "changelog/2026-11-28T13-13-25Z-issue-1191-bounded-captured-calls.md"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "Statement named the changelog file with the wrong filename format; replaced by a corrected claim.",
+        "retired_at": "2026-11-28T13:22:11.050879360Z"
+      },
+      "evidence": [],
+      "verdicts": [],
+      "created_at": "2026-11-28T13:22:01.849278098Z",
+      "updated_at": "2026-11-28T13:22:11.050879360Z",
+      "seal": {
+        "by": "server",
+        "mac": "a48f6de0274f83e6c583bc7badb263a5fe7b9ec33ba300bbe15933ae2e45541f"
+      }
+    },
+    {
+      "id": "CLM-2608",
+      "statement": "tools/agentic/README.md, lessons.md and a dated changelog entry (changelog/20261128T131325Z-issue-1191-bounded-captured-calls.md) document agentic_run_captured, the shared supervisor, the stderr-arrives-at-end difference and the rule to capture to files.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'README, lessons.md and a changelog entry updated.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/lessons.md",
+        "changelog/20261128T131325Z-issue-1191-bounded-captured-calls.md"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4528",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:18,55; tools/agentic/lessons.md:60; changelog/20261128T131325Z-issue-1191-bounded-captured-calls.md",
+          "summary": "README row for lib.sh describes agentic_run_captured, temp files, /dev/null stdin, stderr arriving at the end, and the shared supervisor; the AGENTIC_CALL_TIMEOUT row states the bound; lessons.md adds the capture-to-files rule; the dated changelog entry exists and covers the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 60,
+                "end": 60
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:22:52.870001569Z",
+          "seal": {
+            "by": "server",
+            "mac": "6dafbac878d361b08758d54d3b07ef4987fbc3be3a45ec633f4cd23601d90e77"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "README, lessons.md and the changelog file all exist and describe the change.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4528"
+          ],
+          "recorded_at": "2026-11-28T13:23:32.905986716Z",
+          "seal": {
+            "by": "server",
+            "mac": "347ff73b95337c0ccd70518b73769beded1de15d19c1e009cf78a84818e1ff86"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:22:11.426961873Z",
+      "updated_at": "2026-11-28T13:23:32.905986716Z",
+      "seal": {
+        "by": "server",
+        "mac": "b3a565fa2ea6a9e0abc67e5adafd398b1bcd55a515d930ae57292215d9ad3ce6"
+      }
+    },
+    {
+      "id": "CLM-2609",
+      "statement": "agentic_gh and agentic_git (via agentic_bounded_call) run through agentic_run_captured, while agentic_run_bounded is unchanged and still streams for gate.sh and remove-worktree.sh's clean.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1191 'Possible fix'; PR body: 'agentic_gh and agentic_git (via agentic_bounded_call) use it. agentic_run_bounded still streams, for gate.sh and remove-worktree.sh's clean.'",
+      "derived_from": [
+        "CLM-2594"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1191"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4534",
+          "kind": "analysis",
+          "locator": "tools/agentic/lib.sh:227-237; git diff origin/main..HEAD -- tools/agentic/lib.sh (no hunk in lines 39-98); gate.sh:105,161,170; remove-worktree.sh:89",
+          "summary": "agentic_bounded_call ends in agentic_run_captured, and agentic_gh/agentic_git call it. The diff has no hunk inside agentic_run_bounded; gate.sh and remove-worktree.sh still call agentic_run_bounded directly. The test_gate and bounded-call tests in the 42-test subset I ran pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 227,
+                "end": 237
+              },
+              "commit": "c7d31247fd260476ac2a5f0f9a0edb6c4b10851e"
+            }
+          },
+          "recorded_at": "2026-11-28T13:23:53.949050926Z",
+          "seal": {
+            "by": "server",
+            "mac": "03ceecb767e70f0d58dbc89516c3a6c45c140b2e6b94c7a68e0626a92073cf35"
+          }
+        },
+        {
+          "id": "EVD-4535",
+          "kind": "analysis",
+          "locator": "correction to the previous evidence item on this claim",
+          "summary": "The last sentence of the previous item is wrong: the subset I ran held only test_captured_call_* and test_watchdog_* tests, not gate tests. Support rests on the code and diff reading alone; no gate test was run.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T13:23:59.467874022Z",
+          "seal": {
+            "by": "server",
+            "mac": "49ff0b5887f4e74bc128d36a43940f0324311d73ea8cd4017f85fff4e1db2c71"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and diff reading show the routing and the untouched streaming helper; the gate tests were not run (see the correcting evidence).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4534"
+          ],
+          "recorded_at": "2026-11-28T13:23:59.625496648Z",
+          "seal": {
+            "by": "server",
+            "mac": "7cad1f452eb7edbf9e7bcca6eb6f0418db258778abbe8ddbecfe7380a10f2073"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T13:23:50.104224360Z",
+      "updated_at": "2026-11-28T13:23:59.625496648Z",
+      "seal": {
+        "by": "server",
+        "mac": "0339aeab78dec7c94c5322f89583dd42b434e750a11b535ba30daba694ea8b7f"
       }
     }
   ]

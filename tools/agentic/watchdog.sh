@@ -126,25 +126,20 @@ newest_log_time() {
 
 # bounded_capture [-q] [-i <file>] <variable> <cmd...>: runs cmd and stores its
 # output in <variable>; every external command a pass needs goes through it.
-# Unlike agentic_bounded_call this supervisor can ABANDON a child: cmd writes to
-# a private temp file (not a pipe), reads <file> (default /dev/null) on stdin,
-# runs in its own session and process group, and is polled for up to
-# agentic_call_budget seconds. However the leader ends (on its own or timed
-# out), its whole group is then stopped by agentic_stop_group (lib.sh), which
-# decides by the group's liveness, not the leader's: TERM, KILL after
-# $agentic_kill_after seconds while any member is left, then at most 5 s more.
-# So a descendant that ignores TERM, or that a leader left behind on a normal
-# exit, is gone when this returns. Anything still there after that (a process
-# stuck in an uninterruptible kernel wait, such as a ps reading a /proc entry,
-# ignores KILL) is left behind and never waited for, and the temp file is
-# deleted. So neither the child nor a descendant holding its output open can
-# stall the watchdog (#675). A timeout warns on stderr, naming only the command
-# (never its output or arguments), and returns 124. A command that fails returns
-# its status with its output stored; it warns too unless -q is given (for calls
-# whose failure is expected, such as a recheck of a process that has gone).
+# The supervision is lib.sh's agentic_capture_supervise, which agentic_gh and
+# agentic_git share through agentic_run_captured: cmd writes to a private temp
+# file (not a pipe), reads <file> (default /dev/null) on stdin, runs in its own
+# session and process group, and is polled for up to agentic_call_budget
+# seconds; however it ends, its whole group is stopped (TERM, KILL, and
+# abandoned only if it survives KILL), and the temp file is deleted. So neither
+# the child nor a descendant holding its output open can stall the watchdog
+# (#675). Here stderr is discarded. A timeout warns on stderr, naming only the
+# command (never its output or arguments), and returns 124. A command that fails
+# returns its status with its output stored; it warns too unless -q is given
+# (for calls whose failure is expected, such as a recheck of a process that has
+# gone).
 bounded_capture() {
-    local bc_quiet=0 bc_in=/dev/null bc_file bc_pid='' bc_tick bc_budget bc_status=0 bc_reason=""
-    local bc_left=""
+    local bc_quiet=0 bc_in=/dev/null bc_status=0
     while :; do
         case "$1" in
             -q) bc_quiet=1; shift ;;
@@ -152,56 +147,26 @@ bounded_capture() {
             *) break ;;
         esac
     done
-    bc_budget=$(agentic_call_budget)
-    bc_file=$(mktemp "${TMPDIR:-/tmp}/watchdog-call.XXXXXX") || return 1
-    # Installed before cmd starts, so a signal can't leave the temp file behind.
-    trap '[ -z "$bc_pid" ] || kill -KILL -- "-$bc_pid" 2>/dev/null; rm -f "$bc_file"; trap - INT; kill -INT "$BASHPID"' INT
-    trap '[ -z "$bc_pid" ] || kill -KILL -- "-$bc_pid" 2>/dev/null; rm -f "$bc_file"; trap - TERM; kill -TERM "$BASHPID"' TERM
-    if [ "$bc_budget" -le 0 ]; then
-        bc_reason="had no time left"; bc_status=124
-    else
-        # stderr first, so a failed <file> redirect prints nothing.
-        setsid "${@:2}" >"$bc_file" 2>/dev/null <"$bc_in" &
-        bc_pid=$!
-        for ((bc_tick = 0; bc_tick < bc_budget * 10; bc_tick++)); do
-            kill -0 "$bc_pid" 2>/dev/null || break
-            sleep 0.1
-        done
-        if kill -0 "$bc_pid" 2>/dev/null; then
-            bc_status=124; bc_reason="timed out"
-        else
-            # It has exited, so this returns at once. Reaping it first means a
-            # live group below is made of descendants, not of its zombie.
-            wait "$bc_pid" || bc_status=$?
-            bc_reason="failed"
-            kill -0 -- "-$bc_pid" 2>/dev/null && bc_left=1
-        fi
-        # Every path ends here: stop whatever is left of the group, by group.
-        agentic_stop_group "$bc_pid"
-        if kill -0 "$bc_pid" 2>/dev/null; then
-            # The leader survived KILL: stop tracking it, never wait for it
-            # (bash still reaps it whenever it dies).
-            disown "$bc_pid" 2>/dev/null
-            bc_reason="$bc_reason, child left behind"
-        elif kill -0 -- "-$bc_pid" 2>/dev/null; then
-            bc_reason="$bc_reason, processes left behind"
-        fi
-        if [ -n "$bc_left" ]; then
-            bc_left="stopped them"
-            kill -0 -- "-$bc_pid" 2>/dev/null && bc_left="some survived KILL and were left behind"
-            echo "watchdog: warning: $2 call exited leaving processes behind; $bc_left" >&2
-        fi
-    fi
-    trap - INT TERM
+    agentic_cap_files=()
+    # Installed before the temp file exists, so a signal can't leave it behind.
+    trap 'agentic_cap_cleanup INT' INT
+    trap 'agentic_cap_cleanup TERM' TERM
+    local bc_file
+    bc_file=$(mktemp "${TMPDIR:-/tmp}/watchdog-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
+    agentic_cap_files+=("$bc_file")
+    agentic_capture_supervise "$(agentic_call_budget)" "$bc_in" "$bc_file" /dev/null "${@:2}" \
+        || bc_status=$?
+    [ -z "$agentic_cap_left" ] \
+        || echo "watchdog: warning: $2 call exited leaving processes behind; $agentic_cap_left" >&2
     if [ "$bc_status" -eq 124 ]; then
-        rm -f "$bc_file"
-        echo "watchdog: warning: $2 call $bc_reason (status 124); skipping it" >&2
+        agentic_cap_cleanup
+        echo "watchdog: warning: $2 call $agentic_cap_reason (status 124); skipping it" >&2
         return 124
     fi
     printf -v "$1" '%s' "$(<"$bc_file")"
-    rm -f "$bc_file"
+    agentic_cap_cleanup
     if [ "$bc_status" -ne 0 ] && [ "$bc_quiet" = 0 ]; then
-        echo "watchdog: warning: $2 call $bc_reason (status $bc_status); skipping it" >&2
+        echo "watchdog: warning: $2 call $agentic_cap_reason (status $bc_status); skipping it" >&2
     fi
     return "$bc_status"
 }

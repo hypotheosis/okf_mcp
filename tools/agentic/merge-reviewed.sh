@@ -69,13 +69,14 @@ fi
 # seconds from now: no sleep and no new lookup starts after that. Each lookup
 # and each sleep is capped by the time left (agentic_deadline, scoped to this
 # call); a lookup that runs out of time ends the wait with the state as it was.
-# The total is bounded, but not by $AGENTIC_STATE_WAIT alone: the last lookup
-# may run up to 2 s past it (1 s of grace, plus up to 1 s from the whole-second
-# clock), and stopping that lookup's process group (agentic_stop_group, lib.sh)
-# takes up to $agentic_kill_after + $agentic_reap_after more (5 + 5 s by
-# default). So the wait ends within AGENTIC_STATE_WAIT + 2 + 10 s by default
-# (72 s), never leaving the lookup's processes running except one that
-# survives KILL, which lib.sh abandons with a warning.
+# The total is a hard bound: the wait ends within AGENTIC_STATE_WAIT + 2 s (1 s
+# of grace, plus up to 1 s from the whole-second clock), and stopping a stalled
+# lookup is inside that, because agentic_call_budget reserves
+# agentic_cleanup_reserve ($agentic_kill_after + $agentic_reap_after, 10 s by
+# default) from the time left. So the last lookup starts that much earlier: the
+# state is polled for about AGENTIC_STATE_WAIT - reserve s (about 50 s by
+# default), not the whole wait. A lookup's processes are never left running,
+# except one that survives KILL, which lib.sh abandons with a warning.
 # Sets $waited to the seconds spent.
 await_merge_state() {
     local started deadline left rc latest

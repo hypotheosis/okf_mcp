@@ -21,8 +21,8 @@ use okf_mcp::store::sign_in_events::{self, Method, Outcome};
 use okf_mcp::store::{ceiling, passkeys, users};
 use rustwright::GotoOptions;
 
-use crate::harness::{drive, Ui, SIGN_IN_REPORT};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui, SIGN_IN_REPORT};
 use okf_mcp::store::audit::AuditActor;
 use okf_mcp::store::ceiling::NewEntitlement;
 use okf_mcp::store::users::AdminChange;

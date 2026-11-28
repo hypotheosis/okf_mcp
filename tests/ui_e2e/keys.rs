@@ -14,8 +14,8 @@ use okf_mcp::store::users::{self, NewUser};
 
 use serde_json::json;
 
-use crate::harness::drive;
 use crate::support::server::{files, TestServer, OWNER};
+use crate::ui_e2e::harness::drive;
 
 /// Creates the user `alice`, a second one to reassign credentials to.
 async fn alice(server: &TestServer) {
@@ -865,7 +865,7 @@ async fn the_code_form_never_offers_every_expiry_before_the_limit_is_known() {
     let admin = server
         .key("console-admin", Access::Admin, &["main"], Some("main"))
         .await;
-    let offered = |ui: &crate::harness::Ui| {
+    let offered = |ui: &crate::ui_e2e::harness::Ui| {
         ui.eval(
             "() => [...document.querySelectorAll('#code-form select[name=expires_in] option')].map(o => o.value)",
             json!(null),
@@ -936,7 +936,7 @@ async fn a_failed_limit_read_keeps_the_code_form_closed_until_it_succeeds() {
         ui.open("/keys");
         ui.wait_visible("#code-new");
         ui.wait_text("#toasts", "limit list down");
-        let toasts = |ui: &crate::harness::Ui| {
+        let toasts = |ui: &crate::ui_e2e::harness::Ui| {
             ui.eval(
                 "() => document.querySelectorAll('#toasts .toast').length",
                 json!(null),
@@ -1009,7 +1009,7 @@ async fn a_pending_limit_read_does_not_open_the_code_form_over_a_newer_drawer() 
         ui.login(&admin);
         ui.eval(LIMIT_READS, json!(null));
         let row = "[data-test=key-console-admin]";
-        let held = |ui: &crate::harness::Ui| {
+        let held = |ui: &crate::ui_e2e::harness::Ui| {
             ui.eval("() => window.limitHeld.length", json!(null))
                 .as_u64()
                 .unwrap_or(0)
@@ -1136,7 +1136,7 @@ async fn the_console_colours_beat_picos_in_both_themes() {
         ui.login(&admin);
         ui.open("/keys");
         ui.wait_visible("#key-new");
-        let colour = |ui: &crate::harness::Ui| {
+        let colour = |ui: &crate::ui_e2e::harness::Ui| {
             ui.eval(
                 // Pico fades colours over .2s; no transition reads the end value.
                 "() => { const b = document.getElementById('key-new'); \

@@ -2,7 +2,7 @@
 //! tool call with an OAuth access token, over real HTTP with a real rmcp
 //! client, beside a static key on the same server.
 
-mod support;
+use crate::support;
 
 use chrono::{TimeDelta, Utc};
 use okf_mcp::config::OAuthConfig;

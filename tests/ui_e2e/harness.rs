@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use rustwright::{chromium, ActionOptions, Browser, GotoOptions, LaunchOptions, Page};
 
-use crate::browser_home::BrowserHome;
+use crate::ui_e2e::browser_home::BrowserHome;
 
 /// How long `wait_*` polls before failing. A generous upper bound, not a
 /// pace: a poll returns the moment its condition holds, so a passing journey

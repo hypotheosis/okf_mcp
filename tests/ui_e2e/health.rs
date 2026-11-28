@@ -7,8 +7,8 @@ use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
 use serde_json::{json, Value};
 
-use crate::harness::drive;
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::drive;
 
 const INDEX: &str = "# Main\n\n- [Alpha](systems/alpha.md): the first system\n";
 const ALPHA: &str = "---\ntype: system\ntitle: Alpha\ndescription: The first system.\n---\n# Alpha\n\nAlpha runs [Beta](beta.md) and [Gone](gone.md).\n";

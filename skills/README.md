@@ -21,5 +21,5 @@ Symlink each skill into your Claude Code skills directory:
 Then ask Claude Code for "daily maintenance", or invoke
 `/okf-daily-maintenance`.
 
-`cargo test --test skills` checks that every tool and argument the skills
+`cargo test --test it skills::` checks that every tool and argument the skills
 cite exists on the server.

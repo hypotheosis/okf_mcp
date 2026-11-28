@@ -12,9 +12,9 @@ use okf_mcp::store::settings::{self, Brand, SettingKey};
 use rustwright::GotoOptions;
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
-use crate::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 use crate::support::server::TestServer;
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 
 /// `max_keys_per_user` as `GET /api/v1/settings` answers it now, read with
 /// the key the console stored: the server's state, not the page's.

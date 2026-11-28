@@ -12,8 +12,7 @@ use testcontainers_modules::testcontainers::{ContainerAsync, ContainerRequest, I
 
 // Only the Postgres helper: `#[path]` compiles that one file as a module,
 // without the HTTP server helpers in `support/mod.rs`.
-#[path = "support/pg.rs"]
-mod pg;
+use crate::support::pg;
 
 /// Installs the copied key and certificate as the `postgres` user's
 /// (Postgres refuses a key it does not own, and the copy is root's), then

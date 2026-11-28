@@ -7,7 +7,7 @@
 //! Each test works on the shared server when `TEST_PG_URL` names one (as
 //! `just test` does), else on a container of its own.
 
-mod support;
+use crate::support;
 
 use std::process::{Command, Stdio};
 use std::time::{Duration, SystemTime};

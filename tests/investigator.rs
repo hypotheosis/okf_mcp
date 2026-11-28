@@ -8,7 +8,6 @@ mod evaluation;
 #[cfg(unix)]
 #[path = "support/investigator_acceptance.rs"]
 mod acceptance;
-mod support;
 
 const BASE: &str = r#"
 endpoint = "https://EXAMPLE.com:443/mcp?catalog=pg"

@@ -3,12 +3,31 @@ name = "okf_mcp"
 default-run = "okf-mcp"
 version = "0.34.0"
 edition = "2021"
+autotests = false
 license = "AGPL-3.0-only"
 authors = ["Peter Grace <pete.grace@gmail.com>"]
 
 [lib]
 name = "okf_mcp"
 path = "src/lib.rs"
+
+[[test]]
+name = "it"
+path = "tests/it.rs"
+
+# Tests that set process-wide state (the global tracing subscriber, the global meter provider,
+# environment variables) keep a binary of their own: see the module docs in tests/it.rs.
+[[test]]
+name = "telemetry_install"
+path = "tests/telemetry_install.rs"
+
+[[test]]
+name = "telemetry_sdk_disabled"
+path = "tests/telemetry_sdk_disabled.rs"
+
+[[test]]
+name = "cimd_no_proxy"
+path = "tests/cimd_no_proxy.rs"
 
 [[bin]]
 name = "okf-mcp"

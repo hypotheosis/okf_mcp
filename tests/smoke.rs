@@ -31,7 +31,7 @@
 //! server" puts `/infra/time-server.md` first) runs only when the catalog
 //! has that concept with that alias, as `pg_knowledge_catalog` does.
 
-mod support;
+use crate::support;
 
 use std::time::{Duration, Instant};
 

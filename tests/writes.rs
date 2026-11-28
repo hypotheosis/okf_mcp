@@ -8,7 +8,7 @@
 //! - concurrent writes to one handle from two connections;
 //! - a write without a handle refused by the parameter check.
 
-mod support;
+use crate::support;
 
 use okf_mcp::archive::{read_tarball, Files};
 use okf_mcp::config::Config;

@@ -21,7 +21,7 @@
 //! (`generate_series`), not through the store functions, which would take
 //! hours.
 
-mod support;
+use crate::support;
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};

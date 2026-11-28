@@ -9,8 +9,8 @@ use okf_mcp::store::import::{import, ImportOptions, ImportScope};
 use okf_mcp::store::keys::Access;
 use serde_json::json;
 
-use crate::harness::drive;
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::drive;
 
 /// `systems/alpha.md` as first imported.
 const ALPHA: &str = "---\ntype: system\ntitle: Alpha\n---\n# Alpha\n\n\
@@ -61,7 +61,7 @@ async fn the_tree_opens_a_concept_and_a_link_in_its_body_opens_the_next() {
         ui.open("/browse/main");
         ui.wait_text("#concept-title", "/index.md");
         ui.wait_visible("#markdown-body");
-        let folder_open = |ui: &crate::harness::Ui| {
+        let folder_open = |ui: &crate::ui_e2e::harness::Ui| {
             ui.eval(
                 "() => document.querySelector(\"[data-folder='systems']\").open",
                 json!(null),
@@ -407,7 +407,7 @@ const DEEP_TOP: &str = "() => new Promise(done => { let frames = 0; const look =
 
 /// Asserts the `deep` heading is rendered, with the whole body, and scrolled
 /// into view.
-fn assert_deep_in_view(ui: &crate::harness::Ui) {
+fn assert_deep_in_view(ui: &crate::ui_e2e::harness::Ui) {
     ui.wait_visible("#markdown-body h2[data-slug='deep']");
     let place = ui.eval(DEEP_TOP, json!(null));
     assert_eq!(place["truncated"], json!(false), "the whole body: {place}");

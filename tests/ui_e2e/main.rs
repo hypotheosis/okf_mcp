@@ -4,12 +4,9 @@
 
 // The journeys' futures hold the whole router, whose middleware stack
 // (settings check, own-writes capture, telemetry) nests deeply enough to
-// overflow the default query depth (128) when their layout is computed, as
-// in the library (`src/lib.rs`).
-#![recursion_limit = "256"]
-
-#[path = "../support/mod.rs"]
-mod support;
+// overflow the default query depth (128) when their layout is computed.
+// The raised `recursion_limit` is set once, in `tests/it.rs`, as in the
+// library (`src/lib.rs`).
 
 // `oidc_mock` reaches this through `super::`.
 use okf_mcp::config::OidcProviderConfig;

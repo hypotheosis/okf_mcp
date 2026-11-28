@@ -24,10 +24,12 @@ use webauthn_rs::prelude::{Passkey, Url, Uuid, WebauthnBuilder};
 
 use rustwright::GotoOptions;
 
-use crate::harness::{drive, Ui};
-use crate::oidc_mock::{self as idp, MockIdp};
-use crate::self_service::{console_base, login_server, login_server_with, member, EMAIL, PASSWORD};
 use crate::support::server::TestServer;
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::oidc_mock::{self as idp, MockIdp};
+use crate::ui_e2e::self_service::{
+    console_base, login_server, login_server_with, member, EMAIL, PASSWORD,
+};
 use okf_mcp::store::audit::AuditActor;
 use okf_mcp::store::ceiling::NewEntitlement;
 
@@ -1116,7 +1118,7 @@ fn ceiling_rows(ui: &Ui) -> Vec<String> {
 async fn the_ceiling_is_paged_with_a_find_box() {
     let server = login_server().await;
     member(&server, Access::Write).await;
-    crate::self_service::seed_alices_catalogs(&server, 150).await;
+    crate::ui_e2e::self_service::seed_alices_catalogs(&server, 150).await;
     drive(console_base(&server), |ui| {
         ui.sign_in_password(EMAIL, PASSWORD);
         open_account(ui);

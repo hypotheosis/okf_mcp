@@ -16,8 +16,8 @@ use okf_mcp::store::teams::{self, NewTeam};
 use okf_mcp::store::users::{self, NewUser};
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{files, TestServer, OWNER};
+use crate::ui_e2e::harness::{drive, Ui};
 
 async fn server() -> TestServer {
     TestServer::start(

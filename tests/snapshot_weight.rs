@@ -16,7 +16,7 @@
 //! (rows read, the build's scratch) are freed by then, so the difference is
 //! what the snapshot keeps resident.
 
-mod support;
+use crate::support;
 
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicI64, Ordering};

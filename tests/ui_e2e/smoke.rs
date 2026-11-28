@@ -5,8 +5,8 @@
 use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
 
-use crate::harness::drive;
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::drive;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn an_admin_visits_every_page_without_a_console_error() {

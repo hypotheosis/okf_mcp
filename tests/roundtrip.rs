@@ -6,7 +6,7 @@
 //!
 //! `OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog cargo test --test roundtrip -- --ignored`
 
-mod support;
+use crate::support;
 
 use std::path::Path;
 use std::process::Command;

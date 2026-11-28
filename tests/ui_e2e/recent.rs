@@ -10,8 +10,8 @@ use okf_mcp::store::import::{import, ImportOptions, ImportScope};
 use okf_mcp::store::keys::Access;
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
 
 /// `systems/alpha.md` as first imported.
 const ALPHA: &str = "---\ntype: system\ntitle: Alpha\n---\n# Alpha\n\nNothing yet.\n";

@@ -9,7 +9,7 @@
 //!   outside `log.md`;
 //! - a delete refused by a racing log link (issue #661), then retried.
 
-mod support;
+use crate::support;
 
 use okf_mcp::archive::{read_tarball, Files};
 use okf_mcp::config::Config;

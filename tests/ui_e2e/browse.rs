@@ -233,6 +233,7 @@ async fn history_loads_older_revisions_once_and_a_late_page_draws_nowhere() {
         ui.click("#history-older");
         ui.wait_text("#history", "edit 3");
         ui.click("#history-older");
+        ui.poll_eval("() => document.querySelectorAll('#history tbody tr').length === 12");
         ui.wait_hidden("#history-older");
         assert_eq!(history_rows(ui), numbers(12, 1));
         ui.assert_no_console_errors();

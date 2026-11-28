@@ -17,7 +17,7 @@ Follow-up from the review of #992 (catalog stores, epic #958).
   with `OkfError::Busy` ("a migration waited more than N ms ... start it again")
   and the Postgres report goes to the log. A retry is safe (see
   `docs/operations.md`, Postgres). The value is a constant: `migrate` and
-  `migrate_store` have 19 callers and no config in reach, so a setting is a
+  `migrate_store` are called from about twenty places with no config in reach, so a setting is a
   follow-up.
 - **Indexes.** `0044_teams_store_index.sql` and
   `0045_catalogs_store_index.sql` build `teams_store` and `catalogs_store`

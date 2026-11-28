@@ -1915,7 +1915,7 @@ type SignInAnswer = String;
 /// sign-in's `Set-Cookie` signs the new account out again (issue #1183). The
 /// reader tab's requests can do the same, so the helper first waits until the
 /// reader has none pending ([`Ui::track_fetches`] must have been called
-/// before its requests), and reads the session back as `second`, signing in
+/// before the reader's page loaded: boot's own requests count), and reads the session back as `second`, signing in
 /// once more if it is gone.
 ///
 /// # Returns
@@ -2007,9 +2007,10 @@ fn only_the_session_check_as_second(ui: &Ui, signed_in: &SignInAnswer) {
 async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
     let server = server_with_a_second_reader().await;
     drive(server.base.clone(), move |ui| {
+        // From the first document on: boot starts requests nothing waits for.
+        let _tracking = ui.track_fetches();
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
-        ui.track_fetches();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_text("#body", "marmalade");
         let first = ui.eval(OWNER_TAG, json!(null));
@@ -2048,9 +2049,10 @@ async fn signing_in_as_someone_else_in_another_tab_never_mixes_their_copies() {
 async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_offline() {
     let server = server_with_a_second_reader().await;
     drive(server.base.clone(), move |ui| {
+        // From the first document on: boot starts requests nothing waits for.
+        let _tracking = ui.track_fetches();
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
         ui.wait_worker();
-        ui.track_fetches();
         ui.open_reader("/v/main/systems/alpha.md");
         ui.wait_text("#body", "marmalade");
         // Recent changes too, so Home offline would draw from a kept listing.
@@ -2069,32 +2071,48 @@ async fn a_session_check_as_someone_else_alone_hides_the_first_accounts_copies_o
     .await;
 }
 
+/// Holds the first `GET /api/v1/catalogs?readable=true` of each document
+/// until `window.releaseBootRead()`: the read boot starts without waiting
+/// for it (`catalogList()`), before the reader shows.
+const HOLD_BOOT_CATALOGS: &str = "(() => {
+    const original = window.fetch;
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    let held = false;
+    window.releaseBootRead = () => release();
+    window.fetch = (input, init) => {
+        if (!held && String(input).includes('/api/v1/catalogs?readable=true')) {
+            held = true;
+            return gate.then(() => original(input, init));
+        }
+        return original(input, init);
+    };
+})()";
+
 /// Issue #1183: the helper signs in as `second` only once the reader has no
 /// request of the first account pending, since one answered 401 after the
-/// sign-in clears the new session's cookie. A request held in the page keeps
-/// the wait from returning; releasing it lets it return at once.
+/// sign-in clears the new session's cookie. The reader's boot starts a read
+/// that nothing waits for before it shows; held there, it keeps the wait from
+/// returning, and releasing it lets it return. The count must be installed
+/// as the document starts: one installed once the reader shows would not see
+/// that read.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
-async fn the_second_sign_in_waits_for_the_readers_pending_requests() {
+async fn the_second_sign_in_waits_for_the_readers_boot_requests() {
     let server = server_with_a_second_reader().await;
     drive(server.base.clone(), move |ui| {
+        // The hold goes in first, so the count (installed after it) wraps
+        // the held request and includes it.
+        let _hold = ui.at_document_start(HOLD_BOOT_CATALOGS);
+        let _tracking = ui.track_fetches();
         ui.sign_in_reader("/me", EMAIL, PASSWORD);
-        ui.wait_worker();
-        // The hold goes in first, so the count (installed over it) includes
-        // the held request.
-        ui.hold_next("GET", "/api/v1/session");
-        ui.track_fetches();
-        ui.eval(
-            "() => { fetch('/api/v1/session'); return true; }",
-            json!(null),
-        );
         assert!(
             !ui.fetches_settle_within(Duration::from_millis(1500)),
-            "the wait returned with a request of the page pending"
+            "the wait returned with the reader's boot read pending"
         );
-        ui.release_held();
+        ui.eval("() => window.releaseBootRead()", json!(null));
         assert!(
             ui.fetches_settle_within(Duration::from_secs(10)),
-            "the wait did not return once the request had answered"
+            "the wait did not return once the read had answered"
         );
         sign_in_second_in_another_tab(ui);
     })

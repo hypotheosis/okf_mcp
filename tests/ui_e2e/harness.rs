@@ -88,19 +88,18 @@ const HOLD_NEXT: &str = "(arg) => {
 }";
 
 /// Counts the page's own `fetch` calls that have not answered yet in
-/// `window.pendingFetches` (see [`Ui::track_fetches`]). A request the page
-/// started is pending until its answer reaches the page, the worker's work
-/// on it included; the answer's headers (a `Set-Cookie` too) are applied
-/// before that.
-const TRACK_FETCHES: &str = "() => {
+/// `window.pendingFetches` (see [`Ui::track_fetches`]); a script that runs
+/// as a document starts. A request the page started is pending until its
+/// answer reaches the page, the worker's work on it included; the answer's
+/// headers (a `Set-Cookie` too) are applied before that.
+const TRACK_FETCHES: &str = "(() => {
     const original = window.fetch;
     window.pendingFetches = 0;
     window.fetch = (input, init) => {
         window.pendingFetches += 1;
         return original(input, init).finally(() => { window.pendingFetches -= 1; });
     };
-    return true;
-}";
+})()";
 
 /// Answers the page's next request with method `arg.method` to a path
 /// ending in `arg.suffix` with status `arg.status` and the error body
@@ -654,12 +653,44 @@ impl Ui {
         ) == serde_json::json!(true)
     }
 
+    /// Runs `source` (a JS expression) at the start of every document this
+    /// journey's page loads from now on, before any script of the page's own
+    /// (DevTools' `Page.addScriptToEvaluateOnNewDocument`). Scripts added
+    /// first run first, so one that wraps `fetch` sits inside the later ones.
+    ///
+    /// # Returns
+    /// The DevTools connection that holds the script: dropping it removes it.
+    ///
+    /// # Panics
+    /// When Chromium refuses a DevTools call.
+    pub fn at_document_start(&self, source: &str) -> DevTools {
+        let mut devtools = DevTools::connect(&self.browser);
+        let attached = devtools.call(
+            None,
+            "Target.attachToTarget",
+            serde_json::json!({ "targetId": self.page.target_id(), "flatten": true }),
+        );
+        let session = attached["sessionId"].as_str().expect("a DevTools session");
+        devtools.call(Some(session), "Page.enable", serde_json::json!({}));
+        devtools.call(
+            Some(session),
+            "Page.addScriptToEvaluateOnNewDocument",
+            serde_json::json!({ "source": source }),
+        );
+        devtools
+    }
+
     /// Starts counting the page's own `fetch` calls that have not answered
-    /// (see [`TRACK_FETCHES`]), for [`Ui::fetches_settle_within`]. Call it
-    /// before the requests to wait for are made: one already out is not
-    /// counted. The page keeps it until it navigates to a new document.
-    pub fn track_fetches(&self) {
-        self.eval(TRACK_FETCHES, serde_json::json!(null));
+    /// (see [`TRACK_FETCHES`]), for [`Ui::fetches_settle_within`], from the
+    /// first byte of every document the page loads from now on: boot's
+    /// requests that nothing waits for included. Call it before the page
+    /// navigates to what is to be counted, and keep the result alive.
+    ///
+    /// # Returns
+    /// The DevTools connection that holds the script (see
+    /// [`Ui::at_document_start`]).
+    pub fn track_fetches(&self) -> DevTools {
+        self.at_document_start(TRACK_FETCHES)
     }
 
     /// Waits up to `limit` until the page has no `fetch` of its own pending

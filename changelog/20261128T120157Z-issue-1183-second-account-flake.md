@@ -60,19 +60,29 @@ after that point would also be wrong, since the reader's 401 path
 (`signIn()`) wipes the first account's copies and the journeys would then
 pass without testing the hand-over.
 
-- `Ui::track_fetches` wraps the page's `fetch` to count its pending requests
-  (a request is pending until its answer reaches the page, the worker's work
-  included; the headers, `Set-Cookie` too, are applied before that), and
-  `Ui::fetches_settle_within` / `Ui::wait_fetches_settled` wait until none is
+- `Ui::track_fetches` installs, with DevTools'
+  `Page.addScriptToEvaluateOnNewDocument` (`Ui::at_document_start`, which
+  enables the page agent first, as the script otherwise does not run), a
+  wrapper of the page's `fetch` that counts its pending requests. It runs as
+  each document starts, before any script of the page's, so boot's requests
+  that nothing waits for (`catalogList()` starts its read without awaiting it
+  before the reader shows) are counted too. A request is pending until its
+  answer reaches the page, the worker's work on it included; the headers
+  (`Set-Cookie` too) are applied before that. The first version installed the
+  count with `eval` after `sign_in_reader`, which missed those requests
+  (second review round).
+- `Ui::fetches_settle_within` / `Ui::wait_fetches_settled` wait until none is
   pending on two reads in a row.
-- Both journeys call `track_fetches` right after the worker is ready, and
+- Both journeys call `track_fetches` before they sign the reader in, and
   `sign_in_second_in_another_tab` waits for the reader to be quiet before it
   signs in. The reader tab stays open and untouched, so what each journey
   tests is unchanged.
-- `the_second_sign_in_waits_for_the_readers_pending_requests` holds a request
-  in the reader and asserts the wait does not return while it is held and does
-  once it is released. With the wait made a no-op the test fails at once
-  ("the wait returned with a request of the page pending").
+- `the_second_sign_in_waits_for_the_readers_boot_requests` holds the first
+  `/api/v1/catalogs?readable=true` of the document (a script at document
+  start, installed before the count so the count includes it), and asserts
+  the wait does not return while it is held and does once it is released.
+  With the count installed after `sign_in_reader` instead, it fails ("the
+  wait returned with the reader's boot read pending").
 - Not covered: a request the worker starts on its own (not for a page
   request). The worker's background work is cache writes and the `sw.js`
   update check, none of which is an `/api/v1` read. The product race itself

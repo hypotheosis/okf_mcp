@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2390,
+  "next_claim_seq": 2394,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "102e9f2e5dcd641ce67bb24a12c8a6a364d16c414dc98e033933846eb5ca6b17"
+    "mac": "24779b66a60b91f08134531a1ee76c5c5ff55ae5fc22ab286a7e3cb722951fe9"
   },
-  "next_evidence_seq": 4193,
+  "next_evidence_seq": 4197,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "55901f85d2b62a02168d957fe94f3e10c08602e6efcbb58297ba5a9dc3d934f4"
+    "mac": "9002d4669f49941b9ddc4adf0da05c3ea1ddfa487adb21ecd5797b265d26acc8"
   },
   "claims": [
     {
@@ -209890,7 +209890,9 @@
         "from-issue:1186"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Review of PR #1188: snapshot_weight is no longer a module of `it` (its counting global allocator would instrument every test); replaced by CLM-2390.",
+        "retired_at": "2026-11-28T01:24:17.378364188Z"
       },
       "evidence": [
         {
@@ -209945,10 +209947,10 @@
         }
       ],
       "created_at": "2026-11-28T01:12:42.359909036Z",
-      "updated_at": "2026-11-28T01:13:44.788732941Z",
+      "updated_at": "2026-11-28T01:24:17.378364188Z",
       "seal": {
         "by": "server",
-        "mac": "e46b050b8df81cc74cbb93024e6f4b43e482d4e76690d0b8228b18773d7231aa"
+        "mac": "c2084a79340e8c29a46a7668a98edd8a1ba2b16e63e2773b0cdba26ca5d09d83"
       }
     },
     {
@@ -210451,7 +210453,9 @@
         "from-issue:1186"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Review of PR #1188: snapshot_weight keeps its own support again, so the random_prefixes copy count changed (3, not 2); replaced by CLM-2392.",
+        "retired_at": "2026-11-28T01:24:17.646600826Z"
       },
       "evidence": [
         {
@@ -210483,10 +210487,10 @@
         }
       ],
       "created_at": "2026-11-28T01:12:42.359909036Z",
-      "updated_at": "2026-11-28T01:13:46.502086460Z",
+      "updated_at": "2026-11-28T01:24:17.646600826Z",
       "seal": {
         "by": "server",
-        "mac": "e08b48dfcabb5ce87e3ea20fd6dcdf5eba1ff8a17f9dde390b794e701f625e1c"
+        "mac": "127001f1a5fb4adaf0f496937d55c26a5cf2c0a9973f61b77cdc84bfdbb7c22e"
       }
     },
     {
@@ -210692,7 +210696,9 @@
         "from-issue:1186"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Review of PR #1188: `parity:: ... regenerate_goldens` ORs the filters and runs every ignored parity test; the README now uses `--exact parity::regenerate_goldens`; replaced by CLM-2393.",
+        "retired_at": "2026-11-28T01:24:17.892384948Z"
       },
       "evidence": [
         {
@@ -210734,10 +210740,10 @@
         }
       ],
       "created_at": "2026-11-28T01:12:42.359909036Z",
-      "updated_at": "2026-11-28T01:13:47.213903078Z",
+      "updated_at": "2026-11-28T01:24:17.892384948Z",
       "seal": {
         "by": "server",
-        "mac": "bebe4e38410a71bd980c586ad3b33e8c6dcda990c05881459253e4dcb9b43d46"
+        "mac": "28590ab07f0836e5e01d3dbb8053e94c134708fa8e5337dcbde0fc42d1288365"
       }
     },
     {
@@ -210870,7 +210876,9 @@
         "from-issue:1186"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Review of PR #1188: snapshot_weight is a [[test]] target again, so the target list changed; replaced by CLM-2391.",
+        "retired_at": "2026-11-28T01:24:17.513477025Z"
       },
       "evidence": [
         {
@@ -210912,10 +210920,276 @@
         }
       ],
       "created_at": "2026-11-28T01:13:59.609280317Z",
-      "updated_at": "2026-11-28T01:14:04.856252977Z",
+      "updated_at": "2026-11-28T01:24:17.513477025Z",
       "seal": {
         "by": "server",
-        "mac": "060f92b97e350b0cf7d233cb19b534cf5673e2cdb598a923d41886165b878f14"
+        "mac": "11f6771abce87d0330721bc730cde75d2c3518904dea811d8e30e12174a78a57"
+      }
+    },
+    {
+      "id": "CLM-2390",
+      "statement": "tests/it.rs carries the only `#![recursion_limit = \"256\"]` in tests/, declares `support` once, declares every former test binary except telemetry_install, telemetry_sdk_disabled, cimd_no_proxy and snapshot_weight as a module (ui_e2e via `#[path = \"ui_e2e/main.rs\"]`), and `cargo test --test it -- --list` lists the tests of those modules and no `snapshot_weight::` test.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1186 Plan step 2; PR #1188 review",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "tests/it.rs"
+      ],
+      "tags": [
+        "from-issue:1186"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4196",
+          "kind": "test",
+          "locator": "tests/it.rs:17,51,58; cargo test --test it -- --list | grep -c '^snapshot_weight::' at b08ad924",
+          "summary": "it.rs keeps the one recursion_limit (line 17), one `mod support` (51), ui_e2e via #[path] (58), and no snapshot_weight module; the built `it` binary lists 0 `snapshot_weight::` tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/it.rs",
+              "lines": {
+                "start": 1,
+                "end": 61
+              },
+              "commit": "b08ad924ab1239302e185b26f1af18cd86bfa344"
+            }
+          },
+          "recorded_at": "2026-11-28T01:24:46.681898207Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb5c3ff6ed6c3b2316c60f1a0bb00c9bfcb187e60f477e44b8aea215fcd5e2e0"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "it.rs structure confirmed and the built binary lists no snapshot_weight tests.",
+          "auditor": "claude-opus-5-5",
+          "evidence_ids": [
+            "EVD-4196"
+          ],
+          "recorded_at": "2026-11-28T01:24:57.097276544Z",
+          "seal": {
+            "by": "server",
+            "mac": "490d04f61d043c4a2e41cdf812dd9fd33b1c010317d1ce612bc2d87b177ce5af"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:24:30.592263032Z",
+      "updated_at": "2026-11-28T01:24:57.097276544Z",
+      "seal": {
+        "by": "server",
+        "mac": "bcebdf1672595cc4e4a3e2b7e9aa98606aa73feabb057fc896a72fc1289a6785"
+      }
+    },
+    {
+      "id": "CLM-2391",
+      "statement": "Cargo.toml sets `autotests = false` and declares `[[test]] name = \"it\" path = \"tests/it.rs\"`, so cargo's integration-test targets are exactly it, telemetry_install, telemetry_sdk_disabled, cimd_no_proxy and snapshot_weight, and the reason snapshot_weight stays separate (its counting `#[global_allocator]`) is documented in Cargo.toml, tests/it.rs and README.md.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue #1186 Plan step 1; PR #1188 review",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "Cargo.toml",
+        "tests/it.rs",
+        "README.md"
+      ],
+      "tags": [
+        "from-issue:1186"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4193",
+          "kind": "analysis",
+          "locator": "cargo metadata --no-deps (test targets) at b08ad924; Cargo.toml:32-36; tests/it.rs:15-16; README.md:765-767",
+          "summary": "cargo metadata lists test targets cimd_no_proxy, it, snapshot_weight, telemetry_install, telemetry_sdk_disabled. Cargo.toml's comment above the snapshot_weight target, tests/it.rs module docs and the README each give the counting #[global_allocator] as the reason.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "Cargo.toml",
+              "lines": {
+                "start": 14,
+                "end": 36
+              },
+              "commit": "b08ad924ab1239302e185b26f1af18cd86bfa344"
+            }
+          },
+          "recorded_at": "2026-11-28T01:24:42.375912323Z",
+          "seal": {
+            "by": "server",
+            "mac": "0ca01ebaa205a680a771b1688867e0e3fb9b415a6000eed777e6d740daf36098"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "cargo metadata shows exactly the five test targets; the reason is written in all three places.",
+          "auditor": "claude-opus-5-5",
+          "evidence_ids": [
+            "EVD-4193"
+          ],
+          "recorded_at": "2026-11-28T01:24:57.277563025Z",
+          "seal": {
+            "by": "server",
+            "mac": "e541a0db3ba6b4a7e8f84d1bce6dbf4033793b4bae20000e5086011bb9a51287"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:24:30.592263032Z",
+      "updated_at": "2026-11-28T01:24:57.277563025Z",
+      "seal": {
+        "by": "server",
+        "mac": "f9f96b173d888085dc77eec82119a2431b981ef5e0a445666fe8beff8cf7a341"
+      }
+    },
+    {
+      "id": "CLM-2392",
+      "statement": "`cargo nextest list` lists the suites it (522), snapshot_weight (2), telemetry_install (2), telemetry_sdk_disabled (1) and cimd_no_proxy (1) besides the lib and bins, and `support::redis::tests::random_prefixes_have_the_documented_shape_and_never_repeat` appears in exactly three integration suites (it, snapshot_weight, telemetry_install).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1188 body Numbers (after review)",
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "tests/it.rs",
+        "Cargo.toml"
+      ],
+      "tags": [
+        "from-issue:1186"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4194",
+          "kind": "test",
+          "locator": "cargo nextest list --message-format json at b08ad924",
+          "summary": "Suites: okf_mcp 3243, it 522, snapshot_weight 2, telemetry_install 2, telemetry_sdk_disabled 1, cimd_no_proxy 1, bin/okf-maintenance 12, bin/okf-mcp 0. The random_prefixes support test is in suites okf_mcp::it, okf_mcp::snapshot_weight, okf_mcp::telemetry_install (and the lib's own, differently pathed test in okf_mcp).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T01:24:42.527201916Z",
+          "seal": {
+            "by": "server",
+            "mac": "e783fecc5af9c8991011f8eba3c7e15d05a3bf9ff24e9a7eb266d0888d565697"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The nextest JSON listing gives those suite sizes and the three integration copies.",
+          "auditor": "claude-opus-5-5",
+          "evidence_ids": [
+            "EVD-4194"
+          ],
+          "recorded_at": "2026-11-28T01:24:57.489511712Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8b5b748cee6ac390c034a1ca290c697a4550889f0aefe05144c5ced4f5aff25"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:24:30.592263032Z",
+      "updated_at": "2026-11-28T01:24:57.489511712Z",
+      "seal": {
+        "by": "server",
+        "mac": "1a9bd2f4a9c5b837fa457bd6d7b95314e0f59cf05a743c34e6458225f819c0ca"
+      }
+    },
+    {
+      "id": "CLM-2393",
+      "statement": "README.md regenerates the parity goldens with `UPDATE_GOLDEN=1 cargo test --test it -- --ignored --exact parity::regenerate_goldens`, a command that selects only the ignored `parity::regenerate_goldens` test.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "test",
+      "source": "README.md Testing section; PR #1188 review",
+      "source_anchor": {
+        "path": "README.md",
+        "lines": {
+          "start": 754,
+          "end": 754
+        },
+        "commit": "b08ad924ab1239302e185b26f1af18cd86bfa344"
+      },
+      "derived_from": [
+        "CLM-2372"
+      ],
+      "artifacts": [
+        "README.md",
+        "tests/parity.rs"
+      ],
+      "tags": [
+        "from-issue:1186"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4195",
+          "kind": "test",
+          "locator": "cargo test --test it -- --ignored --exact parity::regenerate_goldens --list at b08ad924; README.md:754",
+          "summary": "The listing prints exactly one test, `parity::regenerate_goldens: test`; README line 754 holds the command.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "README.md",
+              "lines": {
+                "start": 754,
+                "end": 754
+              },
+              "commit": "b08ad924ab1239302e185b26f1af18cd86bfa344"
+            }
+          },
+          "recorded_at": "2026-11-28T01:24:42.772529767Z",
+          "seal": {
+            "by": "server",
+            "mac": "c1a00662a2fcacb1f9ebf7dbd7de09b00da83a6299f6c86905c684ff93985ffb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The exact-filter listing selects only regenerate_goldens; README carries the command.",
+          "auditor": "claude-opus-5-5",
+          "evidence_ids": [
+            "EVD-4195"
+          ],
+          "recorded_at": "2026-11-28T01:24:57.695594480Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ee9cbdb30802c3f205c5390c8db75af265d28ebb7d849c5e1df71a713984a88"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:24:30.592263032Z",
+      "updated_at": "2026-11-28T01:24:57.695594480Z",
+      "seal": {
+        "by": "server",
+        "mac": "43ea51a6dab9256f84ff836eedc2f1fee00e93b0fbafd93c4c08d83b9da216f0"
       }
     }
   ]

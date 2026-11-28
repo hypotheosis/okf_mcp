@@ -1002,6 +1002,23 @@ test_run_captured_aborts_when_the_callers_term_handler_returns() {
     want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
 }
 
+test_bounded_capture_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): the watchdog's bounded_capture (its function is cut out of
+    # watchdog.sh, which can't be sourced) returns 143 the same way.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        source <(sed -n "/^bounded_capture() {/,/^}/p" "$1/watchdog.sh")
+        trap "echo handled" TERM
+        bounded_capture result touch "$2"; echo "rc=$?"; trap -p TERM' \
+        _ "$tools" "$fx/launched" >"$fx/rc.out" 2>&1) &
+    term_during_mktemp "$!"
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
 test_run_bounded_aborts_when_the_callers_term_handler_returns() {
     # #1193 (review): the same for agentic_run_bounded, which must stop the group,
     # return 143 and keep the caller's trap.

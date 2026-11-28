@@ -46,3 +46,18 @@ SLUG_LINK on a copy of the text with code bytes (not line breaks) blanked to
 close or swallow a link; link text and target are read from the original. It is
 still one parse and one linear regex pass, with no rescans. A `]` or `)` inside
 code no longer ends a link early either (`[a `]` b](x.md)` is a link).
+
+## Review round 3
+
+Blanking code to `_` could make a link: `` [x](`a b.md`) `` is no CommonMark
+link (a bare destination can't hold a space), so the backticked part is code,
+but the masked `[x](________)` matched LINK and gave the target `` `a b.md` ``.
+Code is now masked to bytes that never occur in UTF-8 (`0xFF` for a code span,
+`0xFE` for a code block), and LINK and SLUG_LINK run as byte regexes that
+accept a span byte only in the link text, and either byte only as the char
+before the `[`. A destination, a title and the space before one can never hold
+a mask byte, so a match's `(...)` is always the original bytes: masking can
+hide a link but can never make one `okf.py` would not see. CommonMark reads a
+real link's destination as raw text, so `` [x](`a.md`) `` has no code and is
+still the link `` `a.md` ``, as in `okf.py`. A code block is now never part of
+a link's text. It is still one parse and one linear regex pass.

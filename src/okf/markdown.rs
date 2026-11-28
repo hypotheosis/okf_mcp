@@ -36,6 +36,7 @@ use std::sync::LazyLock;
 
 use indexmap::IndexMap;
 use regex::Regex;
+use regex::bytes::Regex as BytesRegex;
 
 use crate::okf::paths::{dirname, join, normpath};
 use crate::okf::pystr::py_unquote;
@@ -53,15 +54,40 @@ macro_rules! angle_destination {
     };
 }
 
+/// The byte that stands for a code span's bytes in masked text
+/// ([`CodeRanges::mask`]). It never occurs in UTF-8, so it can't be mistaken
+/// for text. [`LINK`] and [`SLUG_LINK`] accept it only in a link's text.
+const SPAN_BYTE: u8 = 0xFF;
+/// The byte that stands for a code block's bytes in masked text. It never
+/// occurs in UTF-8, and no part of a link accepts it.
+const BLOCK_BYTE: u8 = 0xFE;
+
+/// A link's text between `[` and `]`, for [`LINK`] and [`SLUG_LINK`]: any char
+/// but `]` and `\`, an escape, or a masked code span (CommonMark allows code
+/// in link text). A macro for the same reason as [`angle_destination`].
+macro_rules! link_label {
+    () => {
+        r"(?:[^\]\\]|\\.|(?-u:\xFF))*"
+    };
+}
+
 /// A markdown link `[text](target "title")` or `[text](<target> "title")`,
 /// not an image (`![...]`). Group 3 is a plain destination (no whitespace, no
 /// `)`); group 4 is an angle-bracket destination (CommonMark): anything
 /// between `<` and `>` except a line break, `<`, `>` or the `\x1c-\x1f`
 /// control bytes, so it may hold spaces and `)`. The two are plain
 /// alternatives of the linear-time `regex` crate.
-static LINK: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(concat!(
-        r#"(?:\A|[^!])(\[((?:[^\]\\]|\\.)*)\]\((?:<("#,
+///
+/// It runs on masked bytes ([`CodeRanges::mask`]). Its Unicode classes match
+/// only valid UTF-8, so a mask byte matches only where it is named: a code
+/// span in the text, and either mask byte as the char before the `[`. A
+/// destination, the space before a title and the title itself never match
+/// one, so every byte from a match's `(` to its `)` is the original text.
+static LINK: LazyLock<BytesRegex> = LazyLock::new(|| {
+    BytesRegex::new(concat!(
+        r#"(?:\A|[^!]|(?-u:[\xFE\xFF]))(\[("#,
+        link_label!(),
+        r#")\]\((?:<("#,
         angle_destination!(),
         r#")>|([^)\s\x1c-\x1f]+))(?:[\s\x1c-\x1f]+"[^"]*")?\))"#,
     ))
@@ -88,10 +114,13 @@ static URI_SCHEME: LazyLock<Regex> = LazyLock::new(|| {
 });
 /// A link or image whose text `slugify` keeps. Group 1 is the text. The
 /// destination is an angle-bracket one (as in [`LINK`], with an optional
-/// title) or, failing that, anything up to the first `)`.
-static SLUG_LINK: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(concat!(
-        r#"!?\[((?:[^\]\\]|\\.)*)\]\((?:<"#,
+/// title) or, failing that, anything up to the first `)`. It runs on masked
+/// bytes and, like [`LINK`], accepts a mask byte only in the text.
+static SLUG_LINK: LazyLock<BytesRegex> = LazyLock::new(|| {
+    BytesRegex::new(concat!(
+        r#"!?\[("#,
+        link_label!(),
+        r#")\]\((?:<"#,
         angle_destination!(),
         r#">(?:[\s\x1c-\x1f]+"[^"]*")?|[^)]*)\)"#,
     ))
@@ -127,7 +156,13 @@ pub struct LinkMatch {
 /// backticks with the body.
 ///
 /// The ranges come back sorted and disjoint.
-struct CodeRanges(Vec<std::ops::Range<usize>>);
+struct CodeRanges(Vec<CodeRange>);
+
+/// One [`CodeRanges`] entry: its byte range and whether it is a code block.
+struct CodeRange {
+    range: std::ops::Range<usize>,
+    block: bool,
+}
 
 impl CodeRanges {
     /// Parses `text`. Text with no backtick, tilde, tab or run of four
@@ -150,19 +185,35 @@ impl CodeRanges {
         let ranges = parser
             .into_offset_iter()
             .filter_map(|(event, range)| match event {
-                pulldown_cmark::Event::Code(_)
-                | pulldown_cmark::Event::Start(pulldown_cmark::Tag::CodeBlock(_)) => Some(range),
+                pulldown_cmark::Event::Code(_) => Some(CodeRange {
+                    range,
+                    block: false,
+                }),
+                pulldown_cmark::Event::Start(pulldown_cmark::Tag::CodeBlock(_)) => {
+                    Some(CodeRange { range, block: true })
+                }
                 _ => None,
             })
             .collect();
         Self(ranges)
     }
 
-    /// `text` with every code byte but line breaks replaced by `_`: the same
-    /// length, so byte offsets and lines are unchanged. [`LINK`] and
-    /// [`SLUG_LINK`] run on it, so code can neither open, close nor swallow a
-    /// link, and one linear pass finds the links around it (`` `[` [x](a.md) ``
-    /// has the link `[x](a.md)`). A link's text is read from the original.
+    /// `text` as bytes, with every code byte but line breaks replaced by
+    /// [`SPAN_BYTE`] (in a code span) or [`BLOCK_BYTE`] (in a code block):
+    /// the same length, so byte offsets and lines are unchanged. [`LINK`] and
+    /// [`SLUG_LINK`] run on it in one linear pass, and by construction:
+    ///
+    /// * code can't open, close or swallow a link (`` `[` [x](a.md) `` has
+    ///   the link `[x](a.md)`), since no mask byte is `[`, `]` or `(`;
+    /// * code can't become a destination, a title or the space before one,
+    ///   since neither regex accepts a mask byte there. A match's `(...)` is
+    ///   always the original bytes, so masking never makes a link `okf.py`
+    ///   would not see. CommonMark reads a real link's destination as raw
+    ///   text, so code found there means it is no link (`` [x](`a b.md`) ``);
+    /// * only a code span may sit in a link's text, as CommonMark allows; a
+    ///   code block ends any link around it.
+    ///
+    /// A link's text and target are read from the original.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(
@@ -170,21 +221,22 @@ impl CodeRanges {
             reason = "per-element predicate or scanner called in a hot loop (parser or analysis)"
         )
     )]
-    fn mask<'a>(&self, text: &'a str) -> Cow<'a, str> {
+    fn mask<'a>(&self, text: &'a str) -> Cow<'a, [u8]> {
         if self.0.is_empty() {
-            return Cow::Borrowed(text);
+            return Cow::Borrowed(text.as_bytes());
         }
         let mut bytes = text.as_bytes().to_vec();
-        for range in &self.0 {
-            for byte in &mut bytes[range.clone()] {
+        for code in &self.0 {
+            let mask = if code.block { BLOCK_BYTE } else { SPAN_BYTE };
+            // `get_mut` instead of indexing: pulldown-cmark's ranges lie
+            // within the text, and a bad one is skipped rather than a panic.
+            for byte in bytes.get_mut(code.range.clone()).into_iter().flatten() {
                 if !matches!(*byte, b'\n' | b'\r') {
-                    *byte = b'_';
+                    *byte = mask;
                 }
             }
         }
-        // Every range starts and ends on a `char` boundary and `_` is ASCII,
-        // so the bytes are valid UTF-8; the fallback only guards that.
-        String::from_utf8(bytes).map_or(Cow::Borrowed(text), Cow::Owned)
+        Cow::Owned(bytes)
     }
 }
 
@@ -225,7 +277,7 @@ pub(crate) fn link_lines(text: &str) -> impl Iterator<Item = (&str, Vec<LinkMatc
     })
 }
 
-/// The links of `text`, found on `masked`: `text` with its code blanked out
+/// The links of `text`, found on `masked`: `text` with its code masked
 /// ([`CodeRanges::mask`]), the same length.
 #[cfg_attr(
     dylint_lib = "hyp_tracing",
@@ -234,7 +286,7 @@ pub(crate) fn link_lines(text: &str) -> impl Iterator<Item = (&str, Vec<LinkMatc
         reason = "per-element predicate or scanner called in a hot loop (parser or analysis)"
     )
 )]
-fn links_in_masked(text: &str, masked: &str) -> Vec<LinkMatch> {
+fn links_in_masked(text: &str, masked: &[u8]) -> Vec<LinkMatch> {
     // Python's `(?<!!)` means: the char before `[` is not `!`. `regex` has no
     // lookbehind, so LINK consumes that char instead (`[^!]`, or `\A` at the
     // text start) and the real link is group 1. Because a rejected `![` simply
@@ -254,7 +306,9 @@ fn links_in_masked(text: &str, masked: &str) -> Vec<LinkMatch> {
         ) else {
             break; // unreachable: groups 1, 2 and one of 3, 4 are mandatory
         };
-        // The ranges are the same in `text`, which still holds the code.
+        // The ranges are the same in `text`, which still holds the code. They
+        // start and end at a `[`, `]`, `<`, `>`, `(`, `)` or whitespace char,
+        // all of which are whole chars of `text`, so slicing can't split one.
         links.push(LinkMatch {
             text: text[label.range()].to_string(),
             target: text[target.range()].to_string(),
@@ -440,8 +494,8 @@ pub fn headings(lines: &[&str]) -> Vec<Heading> {
 #[tracing::instrument(level = "debug", skip_all)]
 pub fn slugify(text: &str) -> String {
     // A link written as code (`` `[a](b)` ``) is literal heading text, so
-    // SLUG_LINK runs on the text with its code blanked out; the kept link text
-    // is read from the original.
+    // SLUG_LINK runs on the text with its code masked; the kept link text is
+    // read from the original.
     let masked = CodeRanges::of(text).mask(text);
     let mut linked = String::new();
     let mut copied = 0;
@@ -887,6 +941,43 @@ mod tests {
     fn many_code_span_brackets_before_a_link_stay_linear() {
         let text = format!("{}[x](a.md)", "`[` ".repeat(50_000));
         assert_eq!(targets(&text), ["a.md"]);
+    }
+
+    #[test]
+    fn code_never_becomes_a_destination_or_title() {
+        // A bare destination may not hold a space, so this is no link and
+        // CommonMark reads `` `a b.md` `` as code. Code cannot stand in for a
+        // destination's bytes.
+        assert!(find_links("[x](`a b.md`)").is_empty());
+        assert!(find_links("[x](a`b c`)").is_empty());
+        // Nor for the whitespace before a title, or an angle destination.
+        assert!(find_links("[x](a.md` `\"t\")").is_empty());
+        assert!(find_links("[x](<a` b>`)").is_empty());
+        // Code that CommonMark never sees, in a valid destination, is kept.
+        assert_eq!(targets("[x](<a` `b>)"), ["a` `b"]);
+        // A real link after or inside the rejected one is still found.
+        assert_eq!(targets("[x](`a b.md`) [y](b.md)"), ["b.md"]);
+        assert_eq!(targets("[x](`a b`[y](b.md))"), ["b.md"]);
+        // The heading anchor keeps the text literal, as GitHub renders it.
+        assert_eq!(slugify("See [x](`a b`)"), "see-xa-b");
+    }
+
+    #[test]
+    fn a_destination_with_backticks_and_no_space_is_a_link() {
+        // CommonMark scans a destination as raw text, so `` `a.md` `` is the
+        // destination and not code; okf.py's LINK_RE reads the same target.
+        let text = "[x](`a.md`)";
+        let found = find_links(text);
+        assert_eq!(targets(text), ["`a.md`"]);
+        assert_eq!(&text[found[0].range.clone()], text);
+        assert_eq!(targets("[x](a`b`.md \"t\")"), ["a`b`.md"]);
+    }
+
+    #[test]
+    fn a_link_label_cannot_span_a_code_block() {
+        assert!(targets("[a\n```\n[b]\n```\nc](d.md)").is_empty());
+        // A code span right before a link still lets it open.
+        assert_eq!(targets("`c`[x](a.md)"), ["a.md"]);
     }
 
     #[test]

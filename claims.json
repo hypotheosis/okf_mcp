@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2645,
+  "next_claim_seq": 2649,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "c946091775a0e4f0aed43b541dc7c234d011be4b7c2f5a6f1b86100a10ee2d1e"
+    "mac": "1e0dbc096bbdb1ec3d8d15e0709a38bd8a5601f7bbc69324179bbb3cfd2b4a67"
   },
-  "next_evidence_seq": 4608,
+  "next_evidence_seq": 4616,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "e52fa8aff59d22a78a695509ae2fd0fc317ccb81dc5b6ee1e77f669965f574ee"
+    "mac": "516af3c5c2298aa004fb0cab78ca8ec6b11b6e82cdebb98bc6aa928f11ecabd2"
   },
   "claims": [
     {
@@ -230654,7 +230654,9 @@
         "from-issue:1193"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "agentic_cap_cleanup no longer exists (round 3 deferral); the restore and re-raise are now claimed by CLM-2642 (agentic_cap_finish / agentic_signals_end).",
+        "retired_at": "2026-11-28T16:07:34.503030643Z"
       },
       "evidence": [
         {
@@ -230709,10 +230711,10 @@
         }
       ],
       "created_at": "2026-11-28T14:26:56.685942330Z",
-      "updated_at": "2026-11-28T14:28:44.304325354Z",
+      "updated_at": "2026-11-28T16:07:34.503030643Z",
       "seal": {
         "by": "server",
-        "mac": "4d10e58569eca0f207bd8abb3151b5c4e3d33ec95a435be39def854eac8e5384"
+        "mac": "6e3b71f1005a82ed70eb63d02fe1aa1ebe11a8b2f3550f4181f6d4332790c932"
       }
     },
     {
@@ -231493,6 +231495,18 @@
             "by": "server",
             "mac": "2128350aadcdceaeccd3d3b27df3df204b8e6c5f97ba7106c477a3b5e5749ec9"
           }
+        },
+        {
+          "id": "EVD-4615",
+          "kind": "test",
+          "locator": "pr-1193-only.sh at dcc3307e: test_{run_captured,run_bounded,bounded_capture}_aborts_when_the_callers_term_handler_returns; own injections new.out",
+          "summary": "At dcc3307e all three returning-handler tests pass (4 of 4 with the set -e test, one filtered run). My injections of TERM before every statement across run_captured, bounded_capture, run_bounded, bounded_call and the nested clean all returned 143 with the caller handler run, nothing launched after the signal and TMPDIR empty.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:17:31.884408975Z",
+          "seal": {
+            "by": "server",
+            "mac": "ddcd07308545ebf70de579ba2461baf435f4126bc379a2f6c503228e900bb5c6"
+          }
         }
       ],
       "verdicts": [
@@ -231575,13 +231589,26 @@
             "by": "server",
             "mac": "d7f79098ee129cbb66f92b436a4fb96ac7d389732b50147c231e349a9a0940d9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The returning-handler tests pass at dcc3307e and injection before every statement gives 143, handler run, nothing launched, no temp file (EVD-4615).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4615"
+          ],
+          "recorded_at": "2026-11-28T16:17:36.797264033Z",
+          "seal": {
+            "by": "server",
+            "mac": "814b4b6a7e4f45e1e42b23e92f4c29f16188c13b880542181a2a1e69db5ce77f"
+          }
         }
       ],
       "created_at": "2026-11-28T14:41:29.298479115Z",
-      "updated_at": "2026-11-28T15:40:57.682973478Z",
+      "updated_at": "2026-11-28T16:17:36.797264033Z",
       "seal": {
         "by": "server",
-        "mac": "05fd9fa74f23b354e962dc057ffdc4aeca47bba41be0a6f2756630cbbefd7211"
+        "mac": "b7fb194bca7d4f2a5ce6fcfa442d8a36c3e052a1db0783b72daff233f9192a58"
       }
     },
     {
@@ -231710,7 +231737,9 @@
       "artifacts": [],
       "tags": [],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Review round 4 (6098843889) showed the statement was false at e5e687cb (builtins sat between checks and acts); replaced by an exact statement of the invariant at dcc3307e.",
+        "retired_at": "2026-11-28T16:07:34.357723633Z"
       },
       "evidence": [
         {
@@ -231855,10 +231884,10 @@
         }
       ],
       "created_at": "2026-11-28T15:26:56.177216561Z",
-      "updated_at": "2026-11-28T15:40:57.396488081Z",
+      "updated_at": "2026-11-28T16:07:34.357723633Z",
       "seal": {
         "by": "server",
-        "mac": "b0ff032b14d878426ba5c1c42a52c641ac4a4d4e2724ad1e970797284979d504"
+        "mac": "d92d4feceecf47decdef1c185b64b4b3568efad74d48dc71f542ad616cd5fcda"
       }
     },
     {
@@ -231951,6 +231980,18 @@
             "by": "server",
             "mac": "fc6124ca33c3a4873cbd9bc930b9a3f8b2b614f9a0a15a0249a400859d2b6926"
           }
+        },
+        {
+          "id": "EVD-4614",
+          "kind": "test",
+          "locator": "pr-1193-only.sh at dcc3307e: test_the_helpers_clean_up_under_a_callers_set_e + sweep test; own injections new.out",
+          "summary": "At dcc3307e test_the_helpers_clean_up_under_a_callers_set_e passes (4 of 4 in the filtered run with the three returning-handler tests). agentic_signals_begin/end and agentic_cap_finish are only extended by the owner stack; traps still record only, removal/restore/re-raise only in the exit. ~780 injections of TERM: every in-scope run gave rc=143, handler run once, no leftover temp file.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:17:31.744555373Z",
+          "seal": {
+            "by": "server",
+            "mac": "12905951e0cfffe2cc4a86d16260e162d7fdf8fa7d1e7fba237f907e3d8b1ca8"
+          }
         }
       ],
       "verdicts": [
@@ -231980,13 +232021,26 @@
             "by": "server",
             "mac": "bd1d9d638d24c41d8714058ba7a7645d96ece142bb4da6875b84044e3d5e16a2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Exit-only teardown, once, is unchanged by the round-4 edits; the set -e test passes and no injection produced a second or missing exit (EVD-4614).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4614"
+          ],
+          "recorded_at": "2026-11-28T16:17:36.658206313Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d08b9b091035a121d3f9b6e4f5e389f502bca0fb7f07a862c8bbb70a83cd3dd"
+          }
         }
       ],
       "created_at": "2026-11-28T15:26:56.177216561Z",
-      "updated_at": "2026-11-28T15:40:57.540047280Z",
+      "updated_at": "2026-11-28T16:17:36.658206313Z",
       "seal": {
         "by": "server",
-        "mac": "5055147af06e845ac80f62990e98cb413817e3ed75e34d6092b0f6b8bdf21be8"
+        "mac": "e7fce2a593698198b7e11e85de975e2b84a45c6b1c69e26c067c0d5b502778a1"
       }
     },
     {
@@ -232147,6 +232201,303 @@
       "seal": {
         "by": "server",
         "mac": "ee27398b50ab904a64a68618fba3337fcdb7269ebca2af02c8dcfc26cfca475b"
+      }
+    },
+    {
+      "id": "CLM-2645",
+      "statement": "In agentic_run_bounded_steps, agentic_capture_supervise, agentic_run_captured_steps, agentic_bounded_call_steps (lib.sh), bounded_capture_steps (watchdog.sh) and clean_build_output_steps (remove-worktree.sh), every statement that launches a process (external command, pipeline, $(...), background job) or writes output or a file is either the statement directly after a check of the recorded signal (agentic_cap_live, or [ \"$agentic_bounded_signal\" = 0 ]) with no statement between them, or a call to a helper whose first statement is that check and whose second is the act (agentic_cap_mktemp, agentic_cap_say, agentic_bounded_warn, agentic_capture_supervise's launch); only the undoing (agentic_stop_group, the timer's kill/wait, agentic_cap_finish's rm) runs after a signal. So a signal landing between a check and the next statement lets at most that one statement run.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR #1218 review round 4 (6098843889) and the coordinator's sweep request",
+      "source_anchor": {
+        "path": "tools/agentic/lib.sh",
+        "lines": {
+          "start": 16,
+          "end": 44
+        },
+        "commit": "dcc3307e1b023942ae42c400a2d6682f8972cd37"
+      },
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/watchdog.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "issue-1193",
+        "round-4"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4608",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:155-215 (run_bounded_steps), 332-385 (supervise), 400-440, 456-470; watchdog.sh:153-182; remove-worktree.sh:67-92",
+          "summary": "Read every statement of the six bodies after agentic_signals_begin/cap_begin to the exit. Each launch/write is directly after its check or in a check-then-act helper: setsid & after `[ sig = 0 ] || return`; timer `sleep &` inside `if [ sig = 0 ]`; supervise setsid after agentic_cap_live and sleep 0.1 after a check directly before it; run_captured_steps mktemp x2, supervise, cat x2, warnings; bounded_call_steps `budget=$(...)` after the check; bounded_capture_steps budget, mktemp, supervise, warnings, `printf -v \"$1\" \"$(<f)\"` after a check; clean steps REFUSE echo (`live && echo`), run_bounded >\"$log\", echo, tail, summary=$(sed|tail) each after a check. Everything else after a signal is kill/wait/disown/assignment/test (builtins) or the exempt stop_group / cap_finish rm. I found no launch or write missed by the author's list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 155,
+                "end": 215
+              },
+              "commit": "dcc3307e1b023942ae42c400a2d6682f8972cd37"
+            }
+          },
+          "recorded_at": "2026-11-28T16:16:58.857880539Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d5a8edf24a5331183ee5adeaa6ce4dfeb16293d055246d426428570ec94fa8e"
+          }
+        },
+        {
+          "id": "EVD-4609",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit4/drv.sh, runall.sh, an2.sh, an3.sh (own DEBUG-trap injection, no command wrappers), outputs new.out clean.out mk.out",
+          "summary": "Independent driver: set -T DEBUG trap sends TERM (caller handler that returns) before each statement (func:line) of every function reached, then logs EVERY simple command run afterwards at any depth (builtins, externals, redirects, subshells), without wrapping commands. 16 scenarios (captured ok/fail/leftover/timeout, bounded_capture ok/-q/fail/leftover/timeout, bounded_call leftover/no-budget, run_bounded ok/fail/leftover/timeout, clean ok/fail/mktemp-failure) = ~780 injections. For every injection after the traps are in (in-scope), at most one act statement ran afterwards (mktemp, setsid, sleep, cat, echo, budget/summary subst); the only multi-act block was the single pipeline sed|tail of one statement. All in-scope runs gave rc=143 with handler run and no leftover temp file; non-143 results occurred only for injections before the helper's traps are in (agentic_cap_begin lines, wrappers before the begin call), the caller's window. Also line-level pair test: TERM between `agentic_cap_live && echo REFUSE` (clean steps line 4) and its echo: only that echo runs. Nested bounded run: injection at every statement of the inner agentic_signals_begin and agentic_run_bounded:170-174 launched no setsid or sleep (rc=143).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:16:59.005177752Z",
+          "seal": {
+            "by": "server",
+            "mac": "95e3aad592a61de5ad4d461a5e21f2954ebdd1dd1e4e6d4e602c76fff014f299"
+          }
+        },
+        {
+          "id": "EVD-4610",
+          "kind": "analysis",
+          "locator": "tools/agentic/tests/signal-sweep.sh:36-95 critique",
+          "summary": "Weaknesses of the author's sweep (none produced a missed act): it recognises only cat sed tail mktemp rm date setsid sleep echo (not printf to stdout/stderr, redirect-created files, other externals); TERM only, never INT; injection is per func:line so the gap between two statements on one line (`live && echo`, `a || b`) is never tested; the scenario set leaves out the mktemp-failure path and bounded_capture -q/-i options (I covered mktemp failure in my own run); signal-time injection only at statements of the main shell, not inside `$(...)` bodies. Currently harmless: the helper bodies contain no unwrapped launch or write.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T16:16:59.149951818Z",
+          "seal": {
+            "by": "server",
+            "mac": "d763357b4d5add21327961127e3c09c7d6e88c2f320b24b09a67899977b62c83"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Static reading of every statement after the traps go in finds each launch/write directly behind a check or inside a check-then-act helper, with no launch or write missing from the author's list (EVD-4608). My own unwrapped DEBUG-trap injection over 16 scenarios (~780 injection points, every simple command logged after the signal) found at most one act statement after any in-scope signal and no leaked file (EVD-4609). The sweep test's weaknesses (EVD-4610) are coverage limits of the test, not defects in the helpers.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4608",
+            "EVD-4609"
+          ],
+          "recorded_at": "2026-11-28T16:17:13.388396694Z",
+          "seal": {
+            "by": "server",
+            "mac": "a8cf222de8e730613fe2f9a25f6b027694605ff39fba3cdc6420794ac6717c87"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:07:34.649483847Z",
+      "updated_at": "2026-11-28T16:17:13.388396694Z",
+      "seal": {
+        "by": "server",
+        "mac": "20191eec270daf763ee49ba46f1052d67f52eb256eb5168cbbf58600a9d9903e"
+      }
+    },
+    {
+      "id": "CLM-2646",
+      "statement": "A bounded run inside a capture (remove-worktree.sh's cargo clean) launches nothing when the capture's trap recorded a signal before agentic_run_bounded installed its own traps: agentic_signals_begin copies the outer owner's (agentic_signals_owner) record into the inner one after its traps are in, and agentic_signals_end restores the owner.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "round-4 sweep",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "issue-1193",
+        "round-4"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4611",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit4/drv3.sh/drv4.sh on clean_build_output (fx.sb); lib.sh:100-120 agentic_signals_begin",
+          "summary": "Nested case (clean_build_output_steps -> agentic_run_bounded inside the capture): TERM sent before each of the 11 statements of the inner agentic_signals_begin (second call, so the outer capture's trap is the only recorder at that moment) and before agentic_run_bounded:170-174: every run returned rc=143, caller handler ran, no setsid/sleep launched after the signal, no temp file left (counted 0 launches after INJECT). Code: begin sets owner, installs traps, then copies the outer's recorded signal (lib.sh:116-119) and agentic_signals_end restores agentic_signals_owner from the _outer variable. Signal landing before the inner traps are in is recorded by the outer cap trap and copied.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 100,
+                "end": 140
+              },
+              "commit": "dcc3307e1b023942ae42c400a2d6682f8972cd37"
+            }
+          },
+          "recorded_at": "2026-11-28T16:17:13.534307083Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a98d94c3c8ea09b42a9937aead15ce8ef82b148112ab7d34b84058a4099fa9a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Injection at every statement of the nested agentic_signals_begin and the inner call lines inside clean_build_output left no command launched after the signal and returned 143 with the handler run (EVD-4611); the code copies the outer owner's record after the inner traps are in and restores the owner at the end.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4611"
+          ],
+          "recorded_at": "2026-11-28T16:17:31.321082194Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7699c5bc9e85e736fea96c98aec61cd8246e35c3271dbacac46991dc85188b4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:07:34.649483847Z",
+      "updated_at": "2026-11-28T16:17:31.321082194Z",
+      "seal": {
+        "by": "server",
+        "mac": "240e4f4cda7683912a7acbff7161a5bc1e3b70a3b3f2e4a57080bdb37acd1964"
+      }
+    },
+    {
+      "id": "CLM-2647",
+      "statement": "test_a_term_before_any_statement_lets_only_that_statement_run (tools/agentic/tests/run.sh, driver tools/agentic/tests/signal-sweep.sh) sends TERM before each statement of each helper in 8 scenarios and fails when any wrapped external command or echo runs after the statement the signal landed before (outside agentic_stop_group / agentic_cap_finish), when the status is not 143, the caller's handler did not run or was not kept, or a temp file is left; it fails on the scripts at e5e687cb (28 gaps, including remove-worktree's sed|tail after the clean_status test and agentic_run_captured_steps' warning echo) and passes at dcc3307e, in about 12 s.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "coordinator round-4 request",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh",
+        "tools/agentic/tests/signal-sweep.sh"
+      ],
+      "tags": [
+        "issue-1193",
+        "round-4"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4612",
+          "kind": "test",
+          "locator": "pr-1193-only.sh <root> 'test_a_term_before_any_statement' at dcc3307e (root=worktree) and at e5e687cb (git archive e5e687cb tools/agentic plus new run.sh and signal-sweep.sh; root=target/i1193-logs/audit4/old)",
+          "summary": "At dcc3307e: \"ok test_a_term_before_any_statement_lets_only_that_statement_run (11843 ms) 1 passed, 0 failed\". At e5e687cb with the new test files: 0 passed, 1 failed, and the failure text has 28 \"TERM before ...\" entries (agentic_run_bounded_steps:160/161, agentic_run_bounded:140-144, agentic_capture_supervise:332, agentic_run_captured_steps:396/400 (warning echo), bounded_capture_steps:22/24/31, clean_build_output_steps:10/13/14/15 including sed and tail after the clean_status test). The run.sh test body has 8 scenarios (6 sweeps plus the 2-iteration clean loop).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1267,
+                "end": 1299
+              },
+              "commit": "dcc3307e1b023942ae42c400a2d6682f8972cd37"
+            }
+          },
+          "recorded_at": "2026-11-28T16:17:13.679418290Z",
+          "seal": {
+            "by": "server",
+            "mac": "06499859dbb4cc58a2412de04a8d026aaa268e8082701badd9b95b60f1f2136c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Rerun myself: passes at dcc3307e in about 12 s and fails with 28 gap entries at e5e687cb, including sed|tail after the clean_status test and the run_captured_steps warning echo (EVD-4612). Scenario count of 8 matches run.sh.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4612"
+          ],
+          "recorded_at": "2026-11-28T16:17:31.464023755Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e232570e220864d7a3321f3e78d606950641644c24ea50803496a07522effd9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:07:34.649483847Z",
+      "updated_at": "2026-11-28T16:17:31.464023755Z",
+      "seal": {
+        "by": "server",
+        "mac": "34e21688f88627f9cb4e16fbbe93ba39036af3588f4f9f995b602037685c0b20"
+      }
+    },
+    {
+      "id": "CLM-2648",
+      "statement": "tools/agentic/lessons.md's #1193 rule says each statement that creates, launches or writes comes directly after its own check or goes through a helper that checks then acts, and changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md has a review round 4 section describing the sweep, the fixed gaps and the sweep test.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "round-4",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lessons.md",
+        "changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md"
+      ],
+      "tags": [
+        "issue-1193",
+        "round-4"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4613",
+          "kind": "inspection",
+          "locator": "tools/agentic/lessons.md:73; changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md:66-86; git diff e5e687cb dcc3307e",
+          "summary": "lessons.md #1193 rule now says each statement that creates, launches or writes comes directly after its own check (agentic_cap_live, nothing between) or goes through a helper that checks then acts (agentic_cap_mktemp, agentic_cap_say), so a signal lets at most the one statement run. The changelog has \"Review round 4\" describing the exact invariant, the fixed gaps (sed|tail summary, leftover warning, poll sleep, timer launch, REFUSE echo, bounded_capture warnings via agentic_cap_say, nested bounded takeover) and the sweep test with 8 scenarios and 28 gaps at the old head, none at the fix. Each item matches what I saw in the code diff and in the old-head failure (EVD for CLM-2647). Minor: the changelog says the 28 gaps include \"both review windows\"; confirmed (clean:13 sed/tail, run_captured_steps:396/400 echo).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 73,
+                "end": 73
+              },
+              "commit": "dcc3307e1b023942ae42c400a2d6682f8972cd37"
+            }
+          },
+          "recorded_at": "2026-11-28T16:17:13.824607127Z",
+          "seal": {
+            "by": "server",
+            "mac": "b3921e9f46288a7d2653e794a793fca32d452759688e62e7c0a088c32b78da2a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "lessons.md and the changelog round-4 section say what the claim states and match the code and the old-head sweep failure (EVD-4613).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head dcc3307e)",
+          "evidence_ids": [
+            "EVD-4613"
+          ],
+          "recorded_at": "2026-11-28T16:17:31.605752873Z",
+          "seal": {
+            "by": "server",
+            "mac": "e5fa2eabb2a938ad9ac1072c0e25a06b6f6ad9acf04c8537c39e11112b6ad39f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:07:34.649483847Z",
+      "updated_at": "2026-11-28T16:17:31.605752873Z",
+      "seal": {
+        "by": "server",
+        "mac": "f05ce59fb5df6508f7bcf9f252654d2819aa6b35347aa475b3e91ce64ca7eebe"
       }
     }
   ]

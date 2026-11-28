@@ -25,3 +25,9 @@
   final plain cleanup cleared the traps already restored. `agentic_cap_cleanup` now
   leaves them alone once a signal was handled, and `agentic_run_captured` and
   `bounded_capture` re-check the status after the copy-out and the final cleanup.
+- Review round 2: a TERM during the stop after the wait of `agentic_run_bounded` was
+  also lost. The three functions now have one way out each: `agentic_run_bounded`
+  and the new `agentic_cap_finish` (used by `agentic_run_captured` and
+  `bounded_capture`) return 130 or 143 when a signal was recorded at any step, whatever
+  the step's own status; the bodies (`*_steps`) may return early. `agentic_cap_cleanup`
+  copies the saved traps before its guard, closing the one-builtin gap.

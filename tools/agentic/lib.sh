@@ -62,6 +62,17 @@ agentic_bounded_signalled=0
 # Returns cmd's status, or 124 when it ran out of time (agentic_timed_out=1). A
 # signal whose caller handler returns makes it return 130 (INT) or 143 (TERM).
 agentic_run_bounded() {
+    agentic_run_bounded_steps "$@"
+    local status=$?
+    # The one way out (#1193): a signal recorded at ANY step, including the
+    # stops after the wait, wins over the command's own status.
+    [ "$agentic_bounded_signalled" = 0 ] || status=$agentic_bounded_signalled
+    return "$status"
+}
+
+# agentic_run_bounded_steps: the body of agentic_run_bounded. It may return
+# early; agentic_run_bounded alone decides the status the caller sees.
+agentic_run_bounded_steps() {
     local pgid timer finished="" status=0
     agentic_timed_out=0
     # A background job of a non-interactive shell is not a group leader, so
@@ -249,6 +260,9 @@ agentic_cap_mktemp() {
 # torn down: agentic_cap_status then holds 130 or 143 and the capture's callers
 # must stop and return it, never go on (#1193).
 agentic_cap_cleanup() {
+    # Copied first: a signal that lands in this function runs a nested cleanup
+    # that empties the global, and the traps below must still be the caller's.
+    local saved_traps=$agentic_cap_saved_traps
     if [ -n "${1:-}" ]; then
         [ -z "$agentic_cap_pid" ] || kill -KILL -- "-$agentic_cap_pid" 2>/dev/null
     fi
@@ -258,7 +272,7 @@ agentic_cap_cleanup() {
     # After a signal the caller's traps are already back (and agentic_cap_status
     # is set): a later plain cleanup must not clear them again.
     [ -n "${1:-}" ] || [ "$agentic_cap_status" = 0 ] || return 0
-    agentic_traps_restore "$agentic_cap_saved_traps"
+    agentic_traps_restore "$saved_traps"
     agentic_cap_saved_traps=""
     [ -z "${1:-}" ] && return 0
     case "$1" in INT) agentic_cap_status=130 ;; *) agentic_cap_status=143 ;; esac
@@ -274,6 +288,22 @@ agentic_cap_cleanup() {
 # Returns cmd's status, or 124 on a timeout (or with no time left), or 130 (INT)
 # or 143 (TERM) when a signal came and the caller's own handler returned.
 agentic_run_captured() {
+    agentic_run_captured_steps "$@"
+    agentic_cap_finish $?
+}
+
+# agentic_cap_finish <status>: the one way out of a capture (#1193). Returns
+# 130 (INT) or 143 (TERM) when a signal was recorded at ANY step (create,
+# launch, wait, stop, copy-out, cleanup), whatever <status> says, and <status>
+# otherwise. The steps functions may return early; none returns to a caller
+# without going through here.
+agentic_cap_finish() {
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
+    return "$1"
+}
+
+# agentic_run_captured_steps: the body of agentic_run_captured.
+agentic_run_captured_steps() {
     local budget=$1 cap_out cap_err status=0
     shift
     agentic_cap_begin

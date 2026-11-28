@@ -1030,13 +1030,51 @@ test_run_captured_aborts_when_a_signal_arrives_during_the_copy_out() {
     want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
 }
 
+# term_after_stop_begins <script>: runs <script> (bash -c; $1=tools, $2 and $3
+# files) in the background. Its command leaves a TERM-ignoring child behind, so
+# the stop after the wait takes a while. Waits until the command's leader is gone,
+# i.e. until that stop has begun, then sends TERM, and stops the leftover by its
+# recorded pid. Sets out from the script's output.
+term_after_stop_begins() {
+    local pid tick leader
+    (exec bash -c "$1" _ "$tools" "$fx/leftover" "$fx/leader.pid" "${2:-}" >"$fx/rc.out" 2>&1) &
+    pid=$!
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -s "$fx/leader.pid" ] && [ -s "$fx/leftover" ] && break
+        sleep 0.1
+    done
+    [ -s "$fx/leftover" ] || { kill -KILL "$pid"; die "the command never started"; }
+    leader=$(<"$fx/leader.pid")
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "/proc/$leader" ] || break
+        sleep 0.05
+    done
+    kill -TERM "$pid"
+    wait "$pid" 2>/dev/null
+    kill -KILL "$(<"$fx/leftover")" 2>/dev/null
+    out=$(<"$fx/rc.out")
+}
+
+# The command: starts a child that ignores TERM and outlives it, records the
+# leader's and the child's pids, and ends at once.
+leftover_cmd='bash -c '"'"'echo $$ >"$2"; (trap "" TERM; echo $BASHPID >"$1"; exec sleep 30) & exit 0'"'"' _'
+
+test_run_bounded_aborts_when_term_arrives_while_stopping_leftovers() {
+    # #1193 (review round 2): the stop after the wait is a window too.
+    new_fixtures
+    term_after_stop_begins 'set -u; source "$1/lib.sh"; agentic_kill_after=2
+        trap "echo handled" TERM
+        agentic_run_bounded 30 '"$leftover_cmd"' "$2" "$3"; echo "rc=$?"; trap -p TERM'
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
 test_bounded_capture_aborts_when_the_callers_term_handler_returns() {
     # #1193 (review): the watchdog's bounded_capture (its function is cut out of
     # watchdog.sh, which can't be sourced) returns 143 the same way.
     new_fixtures
     slow_mktemp_stub
     (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
-        source <(sed -n "/^bounded_capture() {/,/^}/p" "$1/watchdog.sh")
+        source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
         trap "echo handled" TERM
         bounded_capture result touch "$2"; echo "rc=$?"; trap -p TERM' \
         _ "$tools" "$fx/launched" >"$fx/rc.out" 2>&1) &

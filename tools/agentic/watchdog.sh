@@ -141,6 +141,14 @@ newest_log_time() {
 # (for calls whose failure is expected, such as a recheck of a process that has
 # gone).
 bounded_capture() {
+    bounded_capture_steps "$@"
+    agentic_cap_finish $?
+}
+
+# bounded_capture_steps: the body of bounded_capture. It may return early;
+# bounded_capture returns through agentic_cap_finish (lib.sh), so a signal
+# recorded at any step gives 130 or 143.
+bounded_capture_steps() {
     local bc_quiet=0 bc_in=/dev/null bc_status=0
     while :; do
         case "$1" in

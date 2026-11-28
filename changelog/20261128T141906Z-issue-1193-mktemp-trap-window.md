@@ -62,3 +62,25 @@
   `set -e` a failing command skipped the exit (each wrapper takes the body's
   status with `|| status=$?`). Tests: a stub `setsid` that blocks before the
   group exists, and every helper under `set -euo pipefail`.
+
+## Review round 4: one check before each act, swept by a test
+- Review round 4 found statements that wrote or launched with a builtin between them
+  and their check: `remove-worktree.sh`'s `sed | tail` summary after the
+  `if [ "$clean_status" != 0 ]` test, and the leftover warning after the timeout
+  warning's `case` in `agentic_run_captured_steps`. The invariant is now exact: every
+  statement that creates, launches or writes is directly after its own check, or a call
+  to a helper whose first statement is the check and whose second is the act, so a
+  signal lets at most the one statement it lands before run.
+- The sweep fixed, besides those two: the poll's `sleep 0.1` (now checked directly
+  before), the bounded run's timer launch after `setsid` (now its own check), the
+  `REFUSE` echo after `why=`, `bounded_capture`'s leftover, timeout and failure
+  warnings (all through the new `agentic_cap_say`), and a bounded run inside a capture
+  (`remove-worktree.sh`'s `cargo clean`): a signal the capture recorded just before
+  `agentic_run_bounded` put its traps in used to let the whole clean run.
+  `agentic_signals_begin` now takes over the outer owner's record
+  (`agentic_signals_owner`).
+- Test: `tests/signal-sweep.sh` runs a helper under a DEBUG trap, sends TERM before
+  one statement and logs every external command, echo and statement that runs after
+  it; `test_a_term_before_any_statement_lets_only_that_statement_run` does that for
+  every statement of each helper on each writing path (8 scenarios). On the round-3
+  head it lists 28 gaps, both review windows among them; on the fix, none.

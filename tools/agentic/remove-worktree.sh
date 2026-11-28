@@ -101,11 +101,13 @@ clean_build_output_steps() {
     if [ "$clean_status" != 0 ]; then
         why="failed (exit $clean_status)"
         [ "$agentic_timed_out" = 1 ] && why="timed out after ${AGENTIC_CLEAN_TIMEOUT:-600} s"
+        agentic_cap_live || return
         echo "REFUSE: cargo clean $why in $wt; the worktree is kept. Output:"
         agentic_cap_live || return
         tail -n 20 "$log"
         return 1
     fi
+    agentic_cap_live || return
     summary=$(sed -n 's/^.*Removed \(.*\)$/\1/p' "$log" | tail -n 1)
     cleaned="cargo clean: removed ${summary:-nothing reported}"
 }

@@ -164,18 +164,19 @@ bounded_capture_steps() {
     agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return
     agentic_capture_supervise "$bc_budget" "$bc_in" "$bc_file" /dev/null "${@:2}" \
         || bc_status=$?
-    agentic_cap_live || return
     [ -z "$agentic_cap_left" ] \
-        || echo "watchdog: warning: $2 call exited leaving processes behind; $agentic_cap_left" >&2
+        || agentic_cap_say "watchdog: warning: $2 call exited leaving processes behind;" \
+            "$agentic_cap_left" || return
     if [ "$bc_status" -eq 124 ]; then
-        echo "watchdog: warning: $2 call $agentic_cap_reason (status 124); skipping it" >&2
+        agentic_cap_say "watchdog: warning: $2 call $agentic_cap_reason (status 124);" \
+            "skipping it" || return
         return 124
     fi
     agentic_cap_live || return
     printf -v "$1" '%s' "$(<"$bc_file")"
-    agentic_cap_live || return
     if [ "$bc_status" -ne 0 ] && [ "$bc_quiet" = 0 ]; then
-        echo "watchdog: warning: $2 call $agentic_cap_reason (status $bc_status); skipping it" >&2
+        agentic_cap_say "watchdog: warning: $2 call $agentic_cap_reason" \
+            "(status $bc_status); skipping it" || return
     fi
     return "$bc_status"
 }

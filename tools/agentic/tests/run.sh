@@ -1226,6 +1226,79 @@ test_an_int_with_a_returning_handler_gives_130() {
     done
 }
 
+# sweep <region> <points> <call>: the signal sweep of lib.sh's "Signals"
+# invariant (#1193) over one helper, through tests/signal-sweep.sh: a first
+# run of <call> lists the statements of the functions in <points> that run,
+# then one run per statement sends TERM right before it. Each run must give
+# 143 with the caller's handler run and kept, leave no temp file, and run no
+# wrapped command (an external one, or echo; as a statement or from one) after
+# the statement the signal landed before, except the undoing
+# (agentic_stop_group, agentic_cap_finish).
+# A statement a run does not reach (the timing changed the path) is skipped.
+# What ran after a signal is added to sweep_bad, so one run lists every gap.
+sweep() {
+    local point log hit=0 bad
+    mkdir -p "$fx/bin" "$fx/tmp"
+    sweep_run() {
+        PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" bash "$tools/tests/signal-sweep.sh" \
+            "$tools" "$1" "$region" "$points" "$call" "${2:-}" 2>&1
+    }
+    local region=$1 points=$2 call=$3
+    out=$(sweep_run "$fx/points")
+    [ -s "$fx/points" ] || die "the sweep of $region listed no statements"
+    for point in $(awk '!seen[$0]++' "$fx/points"); do
+        log="$fx/sweep.log"
+        : >"$log"
+        out=$(sweep_run "$log" "$point")
+        grep -q '^INJECT' "$log" || continue
+        hit=$((hit + 1))
+        want_out "handled"; want_out "rc=143"; want_out "trap -- 'printf \"handled\\n\"' SIGTERM"
+        [ -z "$(ls -A "$fx/tmp")" ] || die "TERM before $point left $(ls -A "$fx/tmp")"
+        bad=$(awk '/^INJECT/ { n = $2; next }
+            n != "" && $1 > n && $2 ~ /^(cat|sed|tail|mktemp|rm|date|setsid|sleep|echo)$/ \
+                && $3 != "agentic_stop_group" && $3 != "agentic_cap_finish"' "$log")
+        [ -z "$bad" ] || sweep_bad+="TERM before $point ($(grep '^INJECT' "$log")) let these run:
+$bad
+"
+    done
+    [ "$hit" -gt 0 ] || die "the sweep of $region reached no statement"
+}
+
+test_a_term_before_any_statement_lets_only_that_statement_run() {
+    # #1193 (review round 4): the invariant statement by statement, for each
+    # helper on each path that writes: a leftover and a failure, a timeout, the
+    # budget's clock, and remove-worktree.sh's clean, failed and not.
+    local left='bash -c "(trap \"\" TERM; exec sleep 5) & exit 3"'
+    local bounded="agentic_run_bounded agentic_run_bounded_steps agentic_bounded_warn" clean
+    local capture="agentic_cap_live agentic_cap_mktemp agentic_cap_say agentic_capture_supervise"
+    sweep_bad=""
+    new_fixtures
+    sweep agentic_run_captured_steps "agentic_run_captured_steps $capture" \
+        "agentic_run_captured 5 $left"
+    new_fixtures
+    sweep agentic_run_captured_steps agentic_run_captured_steps "agentic_run_captured 1 sleep 5"
+    new_fixtures
+    sweep bounded_capture_steps bounded_capture_steps "bounded_capture result $left"
+    new_fixtures
+    sweep bounded_capture_steps bounded_capture_steps \
+        "AGENTIC_CALL_TIMEOUT=1 bounded_capture result sleep 5"
+    new_fixtures
+    sweep agentic_bounded_call_steps agentic_bounded_call_steps \
+        "agentic_deadline=\$((\$(date +%s) + 100)); agentic_bounded_call $left"
+    new_fixtures
+    sweep agentic_run_bounded_steps "$bounded" "agentic_run_bounded 30 $left"
+    for clean in 'echo "     Removed 3 files"' 'echo broken; exit 2'; do
+        new_fixtures
+        mkdir -p "$fx/bin"
+        printf '%s\n' '#!/usr/bin/env bash' "$clean" >"$fx/bin/cargo"
+        chmod +x "$fx/bin/cargo"
+        sweep clean_build_output_steps "clean_build_output_steps $bounded" \
+            "wt=$fx; clean_build_output"
+    done
+    out=""
+    [ -z "$sweep_bad" ] || die "$sweep_bad"
+}
+
 test_run_bounded_aborts_when_the_callers_term_handler_returns() {
     # #1193 (review): the same for agentic_run_bounded, which must stop the group,
     # return 143 and keep the caller's trap.

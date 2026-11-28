@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2462,
+  "next_claim_seq": 2477,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f6b35faa710f39c32cba812d43513e0d123e874dce85bb3f5bd0d2ad53c8a665"
+    "mac": "a903bc15a01103e6c6817f1502dc4d5f9d756629e59caa42c0f606ede6adceee"
   },
-  "next_evidence_seq": 4301,
+  "next_evidence_seq": 4322,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "eb73096c94ceac43c49abd7f21963521e8b54cf045bdad921b35470eab73aa77"
+    "mac": "0e71d89c89da3ec38cdfe3332114b2146ecade16f4dae8b6efc11dd08108259d"
   },
   "claims": [
     {
@@ -108491,6 +108491,28 @@
             "by": "server",
             "mac": "b44c280c0612b4d8c01c7dcad0d158e4485a938d7907540516788392568512d9"
           }
+        },
+        {
+          "id": "EVD-4315",
+          "kind": "inspection",
+          "locator": "src/db.rs:370-405 (migrate_store prelude) at 072eb866",
+          "summary": "The diff touches only the code after lock_migrations; the early current-store return that precedes it and uses reads only is unchanged (hunk starts at the call to migrate_store_locked).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 370,
+                "end": 405
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:08:49.979894653Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f61e61a7f7c01b58ac2930d8eca4a00147076a254e492421190b84bc3bc81ab"
+          }
         }
       ],
       "verdicts": [
@@ -108532,13 +108554,26 @@
             "by": "server",
             "mac": "19e6e181b563b04ff9b8e91cbb74ba2fdb859413d59f99bb2158e6f0bfd2037b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; current-store path untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4315"
+          ],
+          "recorded_at": "2026-11-28T06:08:59.051252586Z",
+          "seal": {
+            "by": "server",
+            "mac": "9f7b885bc34bde206dd9f62d6ced60660c0e5c47abb7b012beb69023bc7807f2"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-26T13:07:29.685976155Z",
+      "updated_at": "2026-11-28T06:08:59.051252586Z",
       "seal": {
         "by": "server",
-        "mac": "8150d0ff99a5b371b1722998307e7fcf3d7b7830291698d791611eb446ed0366"
+        "mac": "9b9749130646e41d178b5a6ace892f8571e8701231991e005e6477f4774a9e5b"
       }
     },
     {
@@ -108649,6 +108684,28 @@
             "by": "server",
             "mac": "8ab5a6f6947f012bd2fef33fc9ff961fedf25f8dbf6824d131b30d6a8591f3a6"
           }
+        },
+        {
+          "id": "EVD-4314",
+          "kind": "inspection",
+          "locator": "src/db.rs:395-420 (migrate_store), 483-530 (migrate_store_locked) at 072eb866",
+          "summary": "migrate_store still locks via lock_migrations then calls migrate_store_locked (schema, adopt, run, identity/refuse) in unchanged order; the diff only wraps that call in bound_lock_waits/restore_lock_timeout and name_lock_timeout, then unlocks.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 395,
+                "end": 420
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:08:49.836841244Z",
+          "seal": {
+            "by": "server",
+            "mac": "22cae573fa45eda291119c5c70fc8669b65aee26f2784e34304fc7d7bac84cfa"
+          }
         }
       ],
       "verdicts": [
@@ -108691,13 +108748,26 @@
             "by": "server",
             "mac": "a5ecb2b21e5cb76741bdc5648416e42f48472b3113ad03f4cf20e823908ad6ff"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; order unchanged, only wrapped.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4314"
+          ],
+          "recorded_at": "2026-11-28T06:08:58.866320720Z",
+          "seal": {
+            "by": "server",
+            "mac": "9b6ce5dd017474e597303c39926e3b185ba32ae80857ff2f8aa66693fd100b88"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-26T13:07:29.778619119Z",
+      "updated_at": "2026-11-28T06:08:58.866320720Z",
       "seal": {
         "by": "server",
-        "mac": "458c84ee03774db782ab73a9176fbb01c064cb5b8c80aeb6e84faee16180482b"
+        "mac": "40c1f78a9a533dd2c05a21c8d0cb1141416af6c706cef1af79de378348baf7c6"
       }
     },
     {
@@ -108808,6 +108878,28 @@
             "by": "server",
             "mac": "2e7b98b4c7b1e6f9f0a407398fe040d3f4e3ef0f8f234bc91847814017f39730"
           }
+        },
+        {
+          "id": "EVD-4313",
+          "kind": "inspection",
+          "locator": "src/db.rs:286-345 at 072eb866",
+          "summary": "After the refactor migrate_within takes lock_migrations on one acquired connection, then migrate_account_locked runs MIGRATOR.run(&mut *conn) and migrate_store_locked(conn, main) on that same connection inside the hold; unlock follows on every path. Still one connection, so a pool of one works.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 286,
+                "end": 345
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:08:49.637752422Z",
+          "seal": {
+            "by": "server",
+            "mac": "ba4201056875f87d8a1b8d1bf9061f37ecec3e49086554268a9416ec2a213ad4"
+          }
         }
       ],
       "verdicts": [
@@ -108850,13 +108942,26 @@
             "by": "server",
             "mac": "f648143c81c66925fb53d8934c45248e3d95200f07550d443feaadc7ef2c79f2"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head after the refactor; still same connection and hold.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4313"
+          ],
+          "recorded_at": "2026-11-28T06:08:58.569041518Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e287dc24f811977121768c1a46c7d19100f1c819e3b67f917a498659005f6c9"
+          }
         }
       ],
       "created_at": "2026-11-24T04:44:08.942132253Z",
-      "updated_at": "2026-11-26T13:07:29.871044963Z",
+      "updated_at": "2026-11-28T06:08:58.569041518Z",
       "seal": {
         "by": "server",
-        "mac": "d5a95f6979e405557cace8a708baeb6d5d21bf64c31034c8ec12ec0e4b285a19"
+        "mac": "3454767828271c550dc6be2abb176de9d2fad31165790c97872fb9cc082e9738"
       }
     },
     {
@@ -122163,6 +122268,28 @@
             "by": "server",
             "mac": "3509959218b02f44656f347e42e4968fb914dbcf087bd40c7145d9cb99d31403"
           }
+        },
+        {
+          "id": "EVD-4316",
+          "kind": "inspection",
+          "locator": "src/db.rs:328-344 at 072eb866",
+          "summary": "migrate_account_locked still runs MIGRATOR then migrate_store_locked(main), adopting main after the account migrations.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 328,
+                "end": 344
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:08:50.189296656Z",
+          "seal": {
+            "by": "server",
+            "mac": "d3dbc8b24f99ac1df30aaff4bec5e038a6850b9bd8b1fe537e719f0149414d11"
+          }
         }
       ],
       "verdicts": [
@@ -122205,13 +122332,26 @@
             "by": "server",
             "mac": "4b6197ca6961ef5a8732d527275c7bd8d9c62b83b9d0204dfa9e67994f835f43"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head; adoption of main after account migrations preserved.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4316"
+          ],
+          "recorded_at": "2026-11-28T06:08:59.226234563Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6bf53461e24b879836ca99bd226dedf115f7cd7d067f0691992bb34eb564f92"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-26T13:07:29.961632163Z",
+      "updated_at": "2026-11-28T06:08:59.226234563Z",
       "seal": {
         "by": "server",
-        "mac": "0520bf5468f305c88503875c37e3011a74fa1c5ff5ff2130ac7b170726790b3a"
+        "mac": "bf235b0c53566508080552e4068088c92a17a4abd7193b594016dd568574466d"
       }
     },
     {
@@ -216669,6 +216809,1039 @@
       "seal": {
         "by": "server",
         "mac": "78c9698f8089ad94108e479ca4e65fa2346bfb917fab1e04047f05b474c394f5"
+      }
+    },
+    {
+      "id": "CLM-2462",
+      "statement": "Issue #993 is delivered: migration lock waits are bounded (including no-transaction and catalog-store migrations, without editing applied migrations), a lock timeout fails with a clear retryable error described in docs/operations.md, and teams.store and catalogs.store are indexed with CONCURRENTLY no-transaction migrations.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/993",
+      "derived_from": [],
+      "artifacts": [
+        "src/db.rs",
+        "migrations/accounts/",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4317",
+          "kind": "analysis",
+          "locator": "children of CLM-2462",
+          "summary": "Children cover the issue: bound in both migrators (2464), restore (2465), clear retryable error (2466) and docs (2467), checksum safety (2463), indexes and cleanup (2468, 2475), tests (2470, 2471), changelog (2472). Refuted child CLM-2473 (caller count 19 is wrong, cosmetic doc statement) and not_enough_info child CLM-2474 (revert check unrepeatable) concern PR-description facts, not the delivered behavior.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T06:08:59.380171374Z",
+          "seal": {
+            "by": "server",
+            "mac": "36d5389f8a587b3fb8bd01fec0c33fef2b6ba94560efd7a81f31748a660b75e4"
+          }
+        },
+        {
+          "id": "EVD-4321",
+          "kind": "analysis",
+          "locator": "children of CLM-2462",
+          "summary": "All active children are now supported: 2463-2472, 2474, 2475 and the replacement 2476 (the refuted 2473 is retired). Together they cover the bound, restore, retryable error, docs, checksum safety, indexes, tests and changelog.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T06:22:08.058276312Z",
+          "seal": {
+            "by": "server",
+            "mac": "4dc30e8570062b17b13561b815bf0c5f7f6d328e7568b57c13383e9e6b8d581f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Delivered behavior is supported, but child CLM-2473 (the 19-callers statement in PR body and changelog) is refuted, so the roll-up cannot be supported. Fix: correct the caller count in the PR body and changelog, then re-audit CLM-2473 and this claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4317"
+          ],
+          "recorded_at": "2026-11-28T06:09:03.050302024Z",
+          "seal": {
+            "by": "server",
+            "mac": "ad526b62b3c50c22ae426c5c10daf4d45666d5e99f496582bff78a1adb635281"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Every active child is supported at head df49ce03; the earlier refuting child is retired and replaced.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4321"
+          ],
+          "recorded_at": "2026-11-28T06:22:13.710273289Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fc9ffeebc8a88a08205c10582151ff349678d56d004084c73d42bc0fac543c2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:22:13.710273289Z",
+      "seal": {
+        "by": "server",
+        "mac": "dd4e84ef369d0a533456d9d573ad18f859087d2b0b4f02c51d2f0f369a4d5f5d"
+      }
+    },
+    {
+      "id": "CLM-2463",
+      "statement": "No applied migration is edited: the commit range adds only migrations/accounts/0044 and 0045 and changes nothing under migrations/catalog or in 0001-0043.",
+      "kind": "constraint",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "Issue #993: any migration change must stay checksum-safe; PR body: 'Migrations 0036-0043 are untouched'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "migrations/"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4301",
+          "kind": "log",
+          "locator": "git diff --name-status origin/main..HEAD",
+          "summary": "Range adds only changelog file, modifies docs/operations.md and src/db.rs, adds migrations/accounts/0044 and 0045. No file under migrations/catalog or 0001-0043 appears.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "migrations/accounts/0044_teams_store_index.sql",
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:55.317265607Z",
+          "seal": {
+            "by": "server",
+            "mac": "53c136b0eebd9b258d5a6c9d235ef89de4acf5b86390bc58e39e9a3d48f563b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Name-status of the range lists only 0044 and 0045 as new migration files; nothing applied is edited.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4301"
+          ],
+          "recorded_at": "2026-11-28T06:08:20.769160969Z",
+          "seal": {
+            "by": "server",
+            "mac": "c34d90648bb777b1f7c7076f214b8d959155900db880700657b5ed0e3e63d439"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:20.769160969Z",
+      "seal": {
+        "by": "server",
+        "mac": "46aef1f2b37038b67c5a319ed3d9332ee60e6fcc0d528eeff94e04acf66ce12d"
+      }
+    },
+    {
+      "id": "CLM-2464",
+      "statement": "db::migrate and db::migrate_store set the session lock_timeout to MIGRATION_LOCK_TIMEOUT (10 s) after taking the migration advisory lock and before running any migration, so the bound covers account migrations, no-transaction migrations (same connection) and catalog-store migrations.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'db::migrate and db::migrate_store set the session's lock_timeout to MIGRATION_LOCK_TIMEOUT (10 s) after taking the migration advisory lock ... it covers every future migration, including no-transaction ones (same session) and the catalog-store migrations'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4302",
+          "kind": "inspection",
+          "locator": "src/db.rs:286-318 (migrate_within), 328-344, 406-416 (migrate_store)",
+          "summary": "Both migrate (via migrate_within, after lock_migrations) and migrate_store (after lock_migrations) call bound_lock_waits on the same connection before migrate_account_locked / migrate_store_locked. set_config(..., false) is a session setting, so sqlx's no-transaction files and CATALOG_MIGRATOR.run_direct, which run on the same connection, are covered. migrate also bounds migrate_store_locked(main). Other callers of catalog migration (registry.rs:941, 1005) go through migrate_store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 286,
+                "end": 345
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:55.460260174Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d149226a5915ece4cac041a98782857ac1827b4e611627e934d8c59cea67dce"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading: the session-level setting is applied on the migration connection in both entry points, before all migrations including no-transaction and catalog ones. Runtime effect rests on the test (not run by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4302"
+          ],
+          "recorded_at": "2026-11-28T06:08:20.926641118Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc8c61041f88ddf083743e8e06cfeff6b653b84cfd5881c844146c4aca5e76f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:20.926641118Z",
+      "seal": {
+        "by": "server",
+        "mac": "99aa80bd79fb2bbb530538427930539a45e33ec91c1bb10fbb472324a5304d30"
+      }
+    },
+    {
+      "id": "CLM-2465",
+      "statement": "The previous lock_timeout is restored on the connection before it returns to its pool, on success and on failure of the migrations.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'and restore the previous value before the connection returns to its pool'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4303",
+          "kind": "inspection",
+          "locator": "src/db.rs:215-224, 295-306, 406-416",
+          "summary": "restore_lock_timeout runs after the migration result is computed on both Ok and Err paths (result kept, then restore); only if setting the bound itself fails is there nothing to restore. Test asserts lock_timeout is \"0\" on the pooled connection after a failed run.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 215,
+                "end": 224
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:55.604567245Z",
+          "seal": {
+            "by": "server",
+            "mac": "63519924e63991b26403276bad3ea1dbed59e87b1fca153bf99e00597f99c9c2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Restore is unconditional after the migration result on both paths; test asserts the restored value.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4303"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.057769871Z",
+          "seal": {
+            "by": "server",
+            "mac": "30fa6830bafae94cc6881eade0d7452dab5149f673d630283881ac0eca4b4f1d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.057769871Z",
+      "seal": {
+        "by": "server",
+        "mac": "63365bba861f432cb3ab76525bb84c45be9b917a36758747a7fcb05f57adee47"
+      }
+    },
+    {
+      "id": "CLM-2466",
+      "statement": "A migration cut off by the lock bound (SQLSTATE 55P03) fails with OkfError::Busy whose message says it waited more than N ms and to start it again; the Postgres error is logged.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'A migration cut off by the bound fails with OkfError::Busy (\"a migration waited more than N ms ... start it again\"); Postgres' report is logged.'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs",
+        "src/error.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4304",
+          "kind": "inspection",
+          "locator": "src/db.rs:226-257 (name_lock_timeout); src/error.rs:705-742",
+          "summary": "name_lock_timeout matches Migrate::Execute/ExecuteMigration and Database errors with SQLSTATE 55P03, logs via tracing::error, returns Busy with \"a migration waited more than N ms ... start it again once that transaction ends\". 55P03 is not in error.rs RETRYABLE_SQLSTATES, so From<sqlx::Error> does not pre-convert it to a generic Busy; Migrate errors are not converted by it either. Busy displays as \"busy: {reason}; retry\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 226,
+                "end": 257
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:55.745486246Z",
+          "seal": {
+            "by": "server",
+            "mac": "545115f9f1ddce6ed9f67804554e33545bc576cfd7aa3c6094530c4f5c631756"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The mapping and message exist as stated, and no earlier conversion intercepts 55P03.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4304"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.239488061Z",
+          "seal": {
+            "by": "server",
+            "mac": "1ed820a1fdbf497941f20fce2db2e4dfce6b483bc640f8a694ac7a323a5e6433"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.239488061Z",
+      "seal": {
+        "by": "server",
+        "mac": "0015be3cbdd5523fa2add6cd98c279cfba390adae3ece3eeb0c5082ed45d7f1a"
+      }
+    },
+    {
+      "id": "CLM-2467",
+      "statement": "docs/operations.md (Postgres, Migrations) describes the lock-timeout failure (the busy message, the 10 s bound), that a retry is safe, and how to find the blocking transaction.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'docs/operations.md (Postgres, Migrations) says what the failure looks like and that a retry is safe'; issue: retry note in the operations docs",
+      "source_anchor": {
+        "path": "docs/operations.md",
+        "lines": {
+          "start": 366,
+          "end": 380
+        },
+        "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+      },
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4305",
+          "kind": "inspection",
+          "locator": "docs/operations.md:366-380",
+          "summary": "The new bullet gives the 10 s bound, the busy message text (elided with \"...\"), the Postgres report, that a retry is safe (rollback or INVALID index rebuilt), pg_stat_activity oldest xact_start to find the blocker, and that the bound is not on run time. Matches Busy's \"busy: ...; retry\" format.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 366,
+                "end": 380
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:55.888693524Z",
+          "seal": {
+            "by": "server",
+            "mac": "56216061d50a82cc9f03230933a67327d55ed91395dd7545e41371295a29a959"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The docs bullet covers each element.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4305"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.429695546Z",
+          "seal": {
+            "by": "server",
+            "mac": "373d4cafca465108105ecdbbf5b240c81f499f0f4e0f013a28935b7e60357804"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.429695546Z",
+      "seal": {
+        "by": "server",
+        "mac": "d330cc815fbd1ce39c084debc5626e62b9c0535171279f3cacdf488a18783f69"
+      }
+    },
+    {
+      "id": "CLM-2468",
+      "statement": "Migrations 0044_teams_store_index.sql and 0045_catalogs_store_index.sql are each a no-transaction file holding one CREATE INDEX CONCURRENTLY IF NOT EXISTS statement on exactly the columns of the foreign keys (teams_store on teams (store); catalogs_store on catalogs (store)), and both index names are in db::CONCURRENT_INDEXES.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS on exactly the foreign keys' columns, one no-transaction file each (as 0025-0027); both names are in CONCURRENT_INDEXES'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "migrations/accounts/0044_teams_store_index.sql",
+        "migrations/accounts/0045_catalogs_store_index.sql",
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4306",
+          "kind": "inspection",
+          "locator": "migrations/accounts/0044:1-14, 0045:1-8; 0036_stores.sql:53; 0037_catalogs_store.sql:23; src/db.rs:75-84",
+          "summary": "Each file starts with \"-- no-transaction\" and holds one CREATE INDEX CONCURRENTLY IF NOT EXISTS (teams ON (store); catalogs ON (store)). FKs are teams_store_fkey FOREIGN KEY (store) (0036:53) and catalogs_store_fkey FOREIGN KEY (store) (0037:23), single columns. CONCURRENT_INDEXES has 8 entries including teams_store and catalogs_store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "migrations/accounts/0045_catalogs_store_index.sql",
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.029757825Z",
+          "seal": {
+            "by": "server",
+            "mac": "cbdf0c9d8b4bf351e8a60524ed0f2990683a08aa9585e0481e7cbcd81b54d039"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Files and FK columns match exactly; list updated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4306"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.619222529Z",
+          "seal": {
+            "by": "server",
+            "mac": "1733fdb8a0999843dcf2bd9a5a7d6b6811c9c1c39fb0f6292d4c43b624ad5026"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.619222529Z",
+      "seal": {
+        "by": "server",
+        "mac": "810813801fd554b6029a5e895de0da4fd489a9065df7595ec520f8c7af33f1c8"
+      }
+    },
+    {
+      "id": "CLM-2469",
+      "statement": "store::stores::summaries counts teams WHERE store = s.name for every store listed, and both teams.store and catalogs.store are ON DELETE RESTRICT foreign keys to stores(name), so the indexes are used by existing code.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: 'store::stores::summaries counts teams WHERE store = s.name for every store listed, and the ON DELETE RESTRICT check reads both tables on store removal'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/store/stores.rs",
+        "migrations/accounts/0036_stores.sql",
+        "migrations/accounts/0037_catalogs_store.sql"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4307",
+          "kind": "inspection",
+          "locator": "src/store/stores.rs:247; migrations/accounts/0036_stores.sql:53-54; 0037_catalogs_store.sql:23-24",
+          "summary": "stores.rs:247 has (SELECT count(*) FROM teams t WHERE t.store = s.name). Both FKs are REFERENCES stores (name) ON DELETE RESTRICT. Catalog reads filtering c.store = $1 exist (catalogs.rs:1691, repair.rs:303).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/stores.rs",
+              "lines": {
+                "start": 244,
+                "end": 249
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.174565098Z",
+          "seal": {
+            "by": "server",
+            "mac": "de5d855fe591d8684724b0ae6d0476ede8cc7722f5e78b629cd131e5d4808650"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Query and RESTRICT FKs found at the cited lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4307"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.753566691Z",
+          "seal": {
+            "by": "server",
+            "mac": "85712609e7efa25cb710202c5010b5a6e18ec06835516a57a2ee0228c29020fe"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.753566691Z",
+      "seal": {
+        "by": "server",
+        "mac": "34d9476eb47b2f9a69b63d24927778680a96f711d8aa18eea1e982f50eef77c6"
+      }
+    },
+    {
+      "id": "CLM-2470",
+      "statement": "A test in src/db.rs blocks a migration behind another transaction's ACCESS EXCLUSIVE lock on teams, detects the holder's wait with test_locks::wait_waiter and no sleeps, and asserts Busy at a 500 ms bound, lock_timeout restored to 0 on the pooled connection, and a valid index after the retry.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Issue extra requirement: a test (src/test_locks.rs helpers, no sleeps) that a blocked migration fails within the bound; PR body 'Tests added'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs",
+        "src/test_locks.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4308",
+          "kind": "inspection",
+          "locator": "src/db.rs test a_migration_blocked_by_a_lock_fails_at_the_bound_and_a_retry_succeeds (~3788-3861); src/test_locks.rs:84",
+          "summary": "Read the test: holder takes LOCK TABLE teams ACCESS EXCLUSIVE, join(migrate_within(500ms), test_locks::wait_waiter) under a 30 s timeout (a backstop, not a sleep); asserts Busy, \"waited more than 500 ms\", \"start it again\", lock_timeout \"0\" on a one-connection pool, then retry after rollback and indisvalid true. No sleep calls in the test (grep of sleep between its lines: none). wait_waiter polls pg_locks with yield_now. I did not run it (cargo gates are not mine).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 3788,
+                "end": 3860
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.317840166Z",
+          "seal": {
+            "by": "server",
+            "mac": "1b7fd829dfa1a95e02a537e15257889532aa041e07196b051d1e5228af8deb9c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test as written does what the claim says (assertions read). Whether it passes is the gate's result, not claimed here.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4308"
+          ],
+          "recorded_at": "2026-11-28T06:08:21.936621705Z",
+          "seal": {
+            "by": "server",
+            "mac": "408462f57ea1a300fc1b138e301bd93dd5fbd018e5c7adde2d49c2f72da47bee"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:21.936621705Z",
+      "seal": {
+        "by": "server",
+        "mac": "2d91f4c40acc10407cc824c7c9289569d16dc7522f35e2f05fde61e162710b2e"
+      }
+    },
+    {
+      "id": "CLM-2471",
+      "statement": "A test in src/db.rs asserts both new indexes exist, are valid, are btree on the single column store of teams and catalogs, and that EXPLAIN of WHERE store = ... with seq scans off uses teams_store and catalogs_store.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'EXPLAIN (seq scans off) of WHERE store = ... uses teams_store and catalogs_store'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4309",
+          "kind": "inspection",
+          "locator": "src/db.rs test the_store_columns_are_indexed_for_the_foreign_key_checks_and_store_reads (~3862-3910)",
+          "summary": "Test queries pg_index for both names, asserts count 2, indexdef ends \"ON public.catalogs USING btree (store)\" / \"ON public.teams USING btree (store)\", indisvalid all true, then EXPLAIN with enable_seqscan off for each table and asserts the plan contains the index name. Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 3862,
+                "end": 3910
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.465500497Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d7af71b580a8ed32f4ee98e9a18068d25bead70a02f0fb4e1bb49847d0806f3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions read as claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4309"
+          ],
+          "recorded_at": "2026-11-28T06:08:22.122040276Z",
+          "seal": {
+            "by": "server",
+            "mac": "8e3c7c34cff68a103b3d01551d7d10be3e6e2e5048e89656320495f9f82a4e22"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:22.122040276Z",
+      "seal": {
+        "by": "server",
+        "mac": "b9d525632cf3647f529d271fccd6a72a9efa3f2af00e672c684555c05a010268"
+      }
+    },
+    {
+      "id": "CLM-2472",
+      "statement": "A changelog entry for the change exists under changelog/ with a date-and-time stamped file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue extra requirement: changelog entry exists; project CLAUDE.md",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "changelog/"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4310",
+          "kind": "inspection",
+          "locator": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+          "summary": "File added in the range, timestamped name, 33 lines covering both parts of the issue and the tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.606985580Z",
+          "seal": {
+            "by": "server",
+            "mac": "2a09a3231490aeec004bc764a4d28c94157fe27ce00edf0dd91f1839ffff22a4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present and stamped.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4310"
+          ],
+          "recorded_at": "2026-11-28T06:08:22.307833568Z",
+          "seal": {
+            "by": "server",
+            "mac": "f9c0f01a836c8bdaa96c82dc1f01d59b4a68cd09ba2c9aa1b150ecd5fa82223b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:22.307833568Z",
+      "seal": {
+        "by": "server",
+        "mac": "41203dc4414ebc5b25d6f651f0d5114fde59d2039f3cf9eb3b383ecd50ec0926"
+      }
+    },
+    {
+      "id": "CLM-2473",
+      "statement": "PR body: 'The timeout is a constant, not a config setting: migrate and migrate_store have no config in reach and 19 callers.' - there are 19 callers of migrate and migrate_store.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: 'migrate and migrate_store have no config in reach and 19 callers'; changelog says the same",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/",
+        "tests/"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "retired",
+        "reason": "The \"19 callers\" wording was removed from the PR body and changelog; replaced by a claim on the reworded statement.",
+        "retired_at": "2026-11-28T06:22:02.522158747Z"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4311",
+          "kind": "log",
+          "locator": "grep -rnE \"\\bmigrate\\(|migrate_store\\(\" src tests --include=*.rs, minus fn definitions and comments",
+          "summary": "22 call sites (1 in cli.rs, 1 in tests/support/server.rs, 3 in registry.rs, 17 in src/db.rs tests). Production callers are only 4 (cli.rs:2014, registry.rs:941, 1005, plus tests/support). The figure 19 matches no obvious way of counting.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/cli.rs",
+              "lines": {
+                "start": 2012,
+                "end": 2016
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.748584373Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c2586e10d37055a83e408b27602c6dcb280a2cb0001e92a2173818613f74126"
+          }
+        },
+        {
+          "id": "EVD-4318",
+          "kind": "inspection",
+          "locator": "changelog/20261128T060015Z-issue-993-store-migration-locks.md:20; target/i993-logs/pr-993-body.md:10 at df49ce03",
+          "summary": "Both now say \"about twenty\" call sites; 22 counted earlier, so the claim holds. The statement under audit is the reworded one.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+              "lines": {
+                "start": 18,
+                "end": 22
+              },
+              "commit": "df49ce03b822245ed25f197c4e1f75ed4e1a8df7"
+            }
+          },
+          "recorded_at": "2026-11-28T06:21:55.654802009Z",
+          "seal": {
+            "by": "server",
+            "mac": "31c044ee50f56e2ccbea6ee64d0a237157b526e0c336f406b384e3e1069ee7ee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Counting call sites of migrate/migrate_store in src and tests gives 22, and only 4 outside the unit tests in db.rs; 19 matches neither. Ours (PR body and changelog). Fix: reword both the PR body and changelog/20261128T060015Z-issue-993-store-migration-locks.md to a count that matches (22 call sites, or \"about twenty\"), or drop the number.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4311"
+          ],
+          "recorded_at": "2026-11-28T06:08:22.488204674Z",
+          "seal": {
+            "by": "server",
+            "mac": "1dfbd6dcf040d10f7e0d451ef90f09f72f35bbc11273f1c0b2d6c99127b8a312"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:22:02.522158747Z",
+      "seal": {
+        "by": "server",
+        "mac": "6c3a2336262b66ddeddaa33e3bdccf335586e692496630bb8e5fc353afe75cdd"
+      }
+    },
+    {
+      "id": "CLM-2474",
+      "statement": "PR body: 'Revert check: with the bound forced to 0 the lock test fails (the migration was still waiting after 30 s).'",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "demonstration",
+      "source": "PR body, Validation section",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4319",
+          "kind": "log",
+          "locator": "target/i993-logs/revert.log (lines 7-21)",
+          "summary": "Log shows the lock test FAILED, panic at src/db.rs:3838 \"the migration should give up at the bound, not wait for the holder: Elapsed(())\", finished in 32.67s (30 s backstop). Matches the claim. I read the log; I did not see the sed revert itself, and src/db.rs is unchanged at head.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T06:21:55.922713640Z",
+          "seal": {
+            "by": "server",
+            "mac": "214ecdc44e0bcf1b35c167d67bf539d2a3e5020ded255f8323c622a095d8978e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "A manual revert run that I may not repeat (no cargo runs allowed). Fix: rerun the lock test with MIGRATION bound forced to 0 and record the output, or drop the sentence from the PR body.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-28T06:08:22.671446779Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a68a118be6cff2b6daeb32437776a818b43a10e945c6e3197c6ba9ad5a4b69f"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The revert log shows the lock test failing with the backstop timeout at 32.67 s when the bound was forced off.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4319"
+          ],
+          "recorded_at": "2026-11-28T06:22:02.389313387Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce10f466081663c1f530f8b429933b9c01318ea5fdaa1451a8d0b490c1b3adfc"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:22:02.389313387Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa60ad09b5efc23df8b10c470f6287f5acd07f76da6ad385a5b1ff44215783f4"
+      }
+    },
+    {
+      "id": "CLM-2475",
+      "statement": "A cut-short CREATE INDEX CONCURRENTLY of teams_store or catalogs_store leaves an INVALID index that the next migrate drops (drop_invalid_indexes over CONCURRENT_INDEXES, before the migrator runs) and rebuilds.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: 'a cut-short CREATE INDEX CONCURRENTLY leaves an INVALID index that the next start drops and rebuilds'",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "src/db.rs"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4312",
+          "kind": "inspection",
+          "locator": "src/db.rs:328-344 (migrate_account_locked), 75-84 (CONCURRENT_INDEXES)",
+          "summary": "drop_invalid_indexes(conn, \"public\", &CONCURRENT_INDEXES) runs before MIGRATOR.run, and the list now has teams_store and catalogs_store. The retry in the lock test ends with indisvalid = true for teams_store. A cut-short build is from CIC being cancelled, which leaves an INVALID index (Postgres behaviour; same mechanism as 0025-0027).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/db.rs",
+              "lines": {
+                "start": 328,
+                "end": 344
+              },
+              "commit": "072eb866915386d0a6b311ca57028e68191f3f60"
+            }
+          },
+          "recorded_at": "2026-11-28T06:07:56.889198453Z",
+          "seal": {
+            "by": "server",
+            "mac": "7dff3fe18eb310437bf38bbe951a804160901c53448d39b34dee33582a281541"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Cleanup runs before the migrator and covers both new names; the lock test's retry asserts a valid index.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4312"
+          ],
+          "recorded_at": "2026-11-28T06:08:22.860488200Z",
+          "seal": {
+            "by": "server",
+            "mac": "008d21798aa2423968896bd07b8d3b2707a97169e2a591f775636f78616e7eae"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:07:25.358154679Z",
+      "updated_at": "2026-11-28T06:08:22.860488200Z",
+      "seal": {
+        "by": "server",
+        "mac": "761ac20616f51d7fa1cfe8cd85a402285ffc67d84b5c808bd97114d70c1a7598"
+      }
+    },
+    {
+      "id": "CLM-2476",
+      "statement": "PR body and changelog: migrate and migrate_store have no config in reach and about twenty call sites (22 in src and tests).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body line 10; changelog line 20 at df49ce03",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "changelog/"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4320",
+          "kind": "inspection",
+          "locator": "changelog/20261128T060015Z-issue-993-store-migration-locks.md:18-22; pr-993-body.md:10; grep count 22 call sites",
+          "summary": "Both texts say \"about twenty\"; earlier grep counted 22 call sites in src and tests, consistent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+              "lines": {
+                "start": 18,
+                "end": 22
+              },
+              "commit": "df49ce03b822245ed25f197c4e1f75ed4e1a8df7"
+            }
+          },
+          "recorded_at": "2026-11-28T06:22:07.899289706Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5fedfdfac970436213b41bb6ec12f24a720146bdaba1ebfdc58e0c084027578"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reworded count is consistent with 22 call sites.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4320"
+          ],
+          "recorded_at": "2026-11-28T06:22:13.537825964Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6a9751c391302a31556ec8063e06dda756e5bd9c4528741a25787e3c124b9c9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:22:02.741360565Z",
+      "updated_at": "2026-11-28T06:22:13.537825964Z",
+      "seal": {
+        "by": "server",
+        "mac": "ea497fd5917deddeee19afa50285deb4b708b040232b7f2f9d97b44d23e80c11"
       }
     }
   ]

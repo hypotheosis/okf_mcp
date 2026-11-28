@@ -35,8 +35,8 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::LazyLock;
 
 use indexmap::IndexMap;
-use regex::Regex;
 use regex::bytes::Regex as BytesRegex;
+use regex::Regex;
 
 use crate::okf::paths::{dirname, join, normpath};
 use crate::okf::pystr::py_unquote;

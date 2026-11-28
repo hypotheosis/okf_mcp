@@ -1144,8 +1144,9 @@ mod tests {
         let mut revoked = reuse.await.unwrap();
         revoked.sort();
 
-        assert!(
-            find_access(&db.pool, &a2, now()).await.unwrap().is_none(),
+        assert_eq!(
+            find_access(&db.pool, &a2, now()).await.unwrap(),
+            Some(AccessState::Revoked),
             "the successor access token is revoked"
         );
         assert_eq!(present(&db, &r2).await, RefreshUse::Unknown, "so is R2");

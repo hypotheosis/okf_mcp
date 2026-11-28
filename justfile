@@ -55,7 +55,7 @@ test-worker:
 # Browser end-to-end tests of the web console (needs Docker and Chromium;
 # RUSTWRIGHT_CHROMIUM names the binary if it is not on PATH).
 test-ui:
-    scripts/test-pg.sh run cargo test --test ui_e2e -- --test-threads=2
+    scripts/test-pg.sh run cargo test --test it ui_e2e:: -- --test-threads=2
 
 # The dylint policy lints (docs/contributing/policy-lints.md). Needs
 # `cargo install --locked cargo-dylint dylint-link`; the first run builds the

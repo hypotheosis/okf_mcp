@@ -14,9 +14,8 @@
 // The tests' futures hold whole servers, whose router's middleware stack
 // nests deeply enough to overflow the default query depth (128) when their
 // layout is computed, as in the library (`src/lib.rs`).
-#![recursion_limit = "256"]
 
-mod support;
+use crate::support;
 
 use std::time::Duration;
 

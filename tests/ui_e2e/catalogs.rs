@@ -14,9 +14,9 @@ use okf_mcp::store::teams::{self, NewTeam, Role};
 use okf_mcp::store::users::AdminChange;
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
-use crate::self_service::{console_base, login_server, EMAIL, PASSWORD};
 use crate::support::server::{files, TestServer, OWNER};
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::self_service::{console_base, login_server, EMAIL, PASSWORD};
 
 const ALPHA: &str = "---\ntype: system\ntitle: Alpha\n---\n# Alpha\n\nAlpha.\n";
 
@@ -907,7 +907,7 @@ fn input_value(ui: &Ui, selector: &str) -> serde_json::Value {
 async fn an_admin_edits_a_catalogs_display_name_and_description_together() {
     let server = server().await;
     let root = server.key("console-root", Access::Admin, &[], None).await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     let ran = drive(server.base.clone(), move |ui| {
         ui.login(&root);
         ui.open("/catalogs");
@@ -938,7 +938,7 @@ async fn an_admin_edits_a_catalogs_display_name_and_description_together() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_non_admin_team_owner_renames_their_catalog_and_a_member_sees_no_editor() {
     let server = login_server().await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     let ran = drive(console_base(&server), |ui| {
         ui.sign_in_password("carol@example.com", PASSWORD);
         ui.open("/catalogs");
@@ -991,7 +991,7 @@ async fn a_non_admin_team_owner_renames_their_catalog_and_a_member_sees_no_edito
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_team_owner_sets_member_access_and_entitles_a_member_from_the_drawer() {
     let server = login_server().await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     let ran = drive(console_base(&server), |ui| {
         ui.sign_in_password("bob@example.com", PASSWORD);
         ui.open("/catalogs");
@@ -1035,7 +1035,7 @@ async fn a_team_owner_sets_member_access_and_entitles_a_member_from_the_drawer()
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn a_large_team_is_picked_from_a_page_at_a_time_with_load_more() {
     let server = login_server().await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     // 102 members in all: bob, carol and 100 more, past the page of 100.
     let pool = &server.db.pool;
     for number in 0..100 {
@@ -1085,7 +1085,7 @@ async fn a_large_team_is_picked_from_a_page_at_a_time_with_load_more() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn an_entitle_in_flight_is_sent_once_and_a_refusal_shows_its_reason() {
     let server = login_server().await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     let ran = drive(console_base(&server), |ui| {
         ui.sign_in_password("bob@example.com", PASSWORD);
         ui.open("/catalogs");
@@ -1130,7 +1130,7 @@ async fn an_entitle_in_flight_is_sent_once_and_a_refusal_shows_its_reason() {
 async fn the_delete_dialog_still_asks_for_the_slug_of_a_labelled_catalog() {
     let server = server().await;
     let root = server.key("console-root", Access::Admin, &[], None).await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     drive(server.base.clone(), move |ui| {
         ui.login(&root);
         ui.open("/catalogs");
@@ -1361,7 +1361,7 @@ async fn the_catalogs_page_loads_more_and_keeps_its_cursor_when_reloads_fail() {
 async fn a_slow_catalog_delete_shows_pending_and_leaves_the_console_usable() {
     let server = server().await;
     let root = server.key("console-root", Access::Admin, &[], None).await;
-    crate::account::acme_with_owner_and_member(&server).await;
+    crate::ui_e2e::account::acme_with_owner_and_member(&server).await;
     let ran = drive(server.base.clone(), move |ui| {
         ui.login(&root);
         ui.open("/catalogs");

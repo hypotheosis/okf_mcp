@@ -7,7 +7,7 @@
 //! Each test works on the shared server when `TEST_PG_URL` names one (as
 //! `just test` does), else on a container of its own.
 
-mod support;
+use crate::support;
 
 use std::process::{Command, Stdio};
 use std::time::{Duration, SystemTime};
@@ -109,7 +109,12 @@ async fn racing_processes_build_the_template_once() {
     let racers: Vec<_> = (0..RACERS)
         .map(|_| {
             Command::new(&binary)
-                .args(["--exact", "template_race_child", "--ignored", "--nocapture"])
+                .args([
+                    "--exact",
+                    "test_database::template_race_child",
+                    "--ignored",
+                    "--nocapture",
+                ])
                 .env(pg::SERVER_URL_VAR, &server_url)
                 .env(RACE_TEMPLATE_VAR, &template)
                 .stdout(Stdio::piped())

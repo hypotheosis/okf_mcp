@@ -4,7 +4,7 @@
 //! property, an enum or const value, or one of the known output fields below,
 //! so a renamed or misspelled tool fails here rather than in a session.
 
-mod support;
+use crate::support;
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};

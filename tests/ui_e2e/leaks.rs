@@ -9,9 +9,9 @@ use std::time::{Duration, Instant};
 
 use okf_mcp::config::Config;
 
-use crate::browser_home::{processes_using, BrowserHome};
-use crate::harness::drive;
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::browser_home::{processes_using, BrowserHome};
+use crate::ui_e2e::harness::drive;
 
 /// Whether process `pid` is gone. A process that was killed but not yet
 /// reaped (a zombie, state `Z` in `/proc/<pid>/stat`) counts as gone.

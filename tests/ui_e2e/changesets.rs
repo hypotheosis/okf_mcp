@@ -9,8 +9,8 @@ use okf_mcp::store::keys::Access;
 use okf_mcp::store::users::{self, NewUser};
 use serde_json::json;
 
-use crate::harness::drive;
 use crate::support::server::{call, files, open_changeset, structured, Client, TestServer};
+use crate::ui_e2e::harness::drive;
 
 const ALPHA: &str = "---\ntype: system\ntitle: Alpha\n---\n# Alpha\n\nAlpha runs.\n";
 
@@ -174,7 +174,7 @@ async fn publish_server() -> (TestServer, String, String) {
 }
 
 /// Opens the drawer of the changeset `handle` from the table.
-fn click_handle(ui: &crate::harness::Ui, handle: &str) {
+fn click_handle(ui: &crate::ui_e2e::harness::Ui, handle: &str) {
     let clicked = ui.eval(
         "(handle) => { const cell = [...document.querySelectorAll('[data-test=changeset-handle]')] \
          .find(el => el.textContent === handle); if (cell) cell.click(); return !!cell; }",

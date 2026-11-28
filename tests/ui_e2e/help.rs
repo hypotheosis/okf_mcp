@@ -12,9 +12,9 @@ use okf_mcp::store::keys::Access;
 use okf_mcp::store::users::{self, AdminChange};
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
-use crate::self_service::{console_base, login_server_with, member, EMAIL, PASSWORD};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
+use crate::ui_e2e::self_service::{console_base, login_server_with, member, EMAIL, PASSWORD};
 
 /// The documentation site every journey here configures.
 const DOCS: &str = "https://docs.example.com/";

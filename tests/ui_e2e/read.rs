@@ -14,8 +14,8 @@ use okf_mcp::store::keys::Access;
 use okf_mcp::store::user_sessions;
 use serde_json::json;
 
-use crate::harness::{drive, Ui};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::{drive, Ui};
 
 const PASSWORD: &str = "violet-lantern-orbit-42";
 const EMAIL: &str = "reader@example.com";

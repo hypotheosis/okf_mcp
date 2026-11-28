@@ -5,9 +5,9 @@ use okf_mcp::config::Config;
 use okf_mcp::store::keys::Access;
 use rustwright::GotoOptions;
 
-use crate::harness::drive;
-use crate::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 use crate::support::server::{files, TestServer};
+use crate::ui_e2e::harness::drive;
+use crate::ui_e2e::self_service::{console_base, login_server, member, EMAIL, PASSWORD};
 
 async fn server() -> TestServer {
     TestServer::start(
@@ -133,7 +133,7 @@ async fn the_theme_toggle_flips_and_persists() {
         .await;
     drive(server.base.clone(), move |ui| {
         ui.login(&key);
-        let theme = |ui: &crate::harness::Ui| {
+        let theme = |ui: &crate::ui_e2e::harness::Ui| {
             ui.eval(
                 "() => document.documentElement.dataset.theme",
                 serde_json::json!(null),

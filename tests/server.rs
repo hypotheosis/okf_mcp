@@ -2,7 +2,7 @@
 //! `/healthz`, catalog selection, the session binding and the archive
 //! routes, over real HTTP with rmcp's client and `reqwest`.
 
-mod support;
+use crate::support;
 
 use okf_mcp::config::Config;
 use okf_mcp::store::keys::{self, Access};

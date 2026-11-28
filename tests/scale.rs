@@ -16,12 +16,12 @@
 //!
 //! Ignored by default: it needs Docker, writes several GiB of rows and takes
 //! minutes. Run it once, alone, with
-//! `tools/agentic/gate.sh narrow --release --test scale -- --ignored --nocapture`
+//! `tools/agentic/gate.sh narrow --release --test it scale:: -- --ignored --nocapture`
 //! and read the numbers it prints. The rows are seeded with SQL
 //! (`generate_series`), not through the store functions, which would take
 //! hours.
 
-mod support;
+use crate::support;
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};

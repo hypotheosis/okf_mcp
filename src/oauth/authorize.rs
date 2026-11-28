@@ -2017,13 +2017,17 @@ mod tests {
             (marker.to_string(), "unparseable"),
         ];
         for (sent, expected) in cases {
-            let observer = Observer::start("off", "debug", "off", LogFormat::Text);
+            let observer = Observer::start("off", "debug", "debug", LogFormat::Text);
             let query = query_with("resource", &sent);
-            let (status, _, _) =
+            let (status, headers, _) =
                 send(&test, "GET", &format!("/oauth/authorize?{query}"), None).await;
             let observed = observer.finish();
 
+            // A 303 is also the sign-in redirect: the refusal is the error.
             assert_eq!(status, StatusCode::SEE_OTHER, "{expected}");
+            let target = location(&headers);
+            assert_eq!(param(&target, "error").as_deref(), Some("invalid_target"));
+            assert!(!target.as_str().contains(marker), "{expected}");
             let spans = observed.spans_named("authorize");
             let recorded: Vec<_> = spans
                 .iter()

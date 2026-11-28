@@ -65,6 +65,9 @@ A coordinator may start you while the previous issue's PR is still in review. Yo
 
 Report the design (approach, files, tests, open questions) in one hand-back and wait. When the coordinator says go, merge `origin/main` first, because the previous PR has just merged, then build, gate and push as usual.
 
+## The agentic test suite
+`tools/agentic/tests/run.sh` runs 4 tests at a time (`AGENTIC_TEST_JOBS=1` for one at a time) and takes a name-substring filter (`run.sh watch_stalled`); keep the suite well under its 300 s cap (about 2 minutes), and give a new test's waits configurable, small values.
+
 ## Review replies
 When you address a review, reply in each inline thread (as a reply to that comment), not only in a top-level comment. `merge-reviewed.sh` refuses to merge while any reviewer thread has no reply. Keep the PR description and its claims in step with the final code after every round.
 

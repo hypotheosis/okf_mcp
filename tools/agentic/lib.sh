@@ -59,6 +59,20 @@ agentic_reap_after=${agentic_reap_after:-5}
 # Set by agentic_run_bounded: 1 when its last command ran out of time.
 agentic_timed_out=0
 
+# How often the bounded and captured calls look at their command, in checks
+# per second (AGENTIC_TICKS_PER_SEC, 1..1000; the default 10 is a 0.1 s tick).
+# Every call costs at least one tick, so on a fake clock, where a watcher makes
+# hundreds of calls, the tests raise it to 100. The limits stay in whole
+# seconds: a loop ends after limit * ticks-per-second ticks or when the clock
+# ($EPOCHREALTIME) says the limit has passed, whichever comes first, so the
+# time a tick's own work takes never stretches a limit at fine ticks.
+agentic_ticks_per_sec=${AGENTIC_TICKS_PER_SEC:-10}
+case "$agentic_ticks_per_sec" in
+    [1-9] | [1-9][0-9] | [1-9][0-9][0-9] | 1000) ;;
+    *) agentic_ticks_per_sec=10 ;;
+esac
+printf -v agentic_tick '0.%03d' "$((1000 / agentic_ticks_per_sec))"
+
 # agentic_stop_group <pgid>: TERM what is left of the process group, KILL it
 # after $agentic_kill_after seconds, and return once it is empty (at once when
 # it already is) or, when something survives KILL, $agentic_reap_after seconds
@@ -66,7 +80,7 @@ agentic_timed_out=0
 # wait (D state, for example reading a hung mount); callers must check the
 # group again and never wait for it.
 agentic_stop_group() {
-    local tick
+    local tick end
     # Just after the launch the leader may not have called setsid() yet: it is
     # alive but its group does not exist. Wait (up to 1 s) for the group, and
     # KILL the leader by pid if it never appears (#1193).
@@ -76,15 +90,19 @@ agentic_stop_group() {
         sleep 0.01
     done
     [ "$tick" -lt 100 ] || { kill -KILL "$1" 2>/dev/null; return 0; }
-    for ((tick = 0; tick < agentic_kill_after * 10; tick++)); do
+    end=$((${EPOCHREALTIME/[.,]/} + agentic_kill_after * 1000000))
+    for ((tick = 0; tick < agentic_kill_after * agentic_ticks_per_sec; tick++)); do
+        [ "${EPOCHREALTIME/[.,]/}" -lt "$end" ] || break
         kill -0 -- "-$1" 2>/dev/null || return 0
-        sleep 0.1
+        sleep "$agentic_tick"
     done
     kill -KILL -- "-$1" 2>/dev/null || return 0
     # KILL can't be ignored; allow a few seconds for the dead to be reaped.
-    for ((tick = 0; tick < agentic_reap_after * 10; tick++)); do
+    end=$((${EPOCHREALTIME/[.,]/} + agentic_reap_after * 1000000))
+    for ((tick = 0; tick < agentic_reap_after * agentic_ticks_per_sec; tick++)); do
+        [ "${EPOCHREALTIME/[.,]/}" -lt "$end" ] || break
         kill -0 -- "-$1" 2>/dev/null || return 0
-        sleep 0.1
+        sleep "$agentic_tick"
     done
 }
 
@@ -355,7 +373,7 @@ agentic_cap_pid=""
 agentic_cap_reason=""
 agentic_cap_left=""
 agentic_capture_supervise() {
-    local budget=$1 in=$2 out=$3 err=$4 tick status=0
+    local budget=$1 in=$2 out=$3 err=$4 tick end status=0
     shift 4
     agentic_timed_out=0
     agentic_cap_pid="" agentic_cap_reason="" agentic_cap_left=""
@@ -371,11 +389,13 @@ agentic_capture_supervise() {
     agentic_cap_pid=$!
     # The record is checked first, so a signal that landed just before the
     # launch stops the group at once, and again directly before each sleep.
-    for ((tick = 0; tick < budget * 10; tick++)); do
+    end=$((${EPOCHREALTIME/[.,]/} + budget * 1000000))
+    for ((tick = 0; tick < budget * agentic_ticks_per_sec; tick++)); do
+        [ "${EPOCHREALTIME/[.,]/}" -lt "$end" ] || break
         agentic_cap_live || break
         kill -0 "$agentic_cap_pid" 2>/dev/null || break
         agentic_cap_live || break
-        sleep 0.1
+        sleep "$agentic_tick"
     done
     if ! agentic_cap_live; then
         status=1

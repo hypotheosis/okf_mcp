@@ -7,13 +7,47 @@
 # nothing touches GitHub, the real checkout or the wall clock (the gate and
 # watchdog tests wait about a second each).
 #
+# Usage: run.sh [<name-substring>...]
+#   With arguments, only the tests whose names contain one of them run.
+#
+# Parallelism (#1216). Most of the time goes on real sleeps, so up to
+# $AGENTIC_TEST_JOBS tests (default 4; 1 runs them one at a time) run at once.
+# Each test is its own `run.sh --one <name>` process in its own process group, with
+# its own temporary directory, git repositories and fixtures, so tests share no
+# files, locks, branches or process scans. When a test ends, anything it left in
+# its group is stopped before the result is reported. The tests in
+# $serial_tests assert upper bounds on wall-clock time; they run alone after
+# the others, so machine load from the other tests can't trip them. Results
+# are printed in declaration order whatever order they finished in.
+# Set AGENTIC_TEST_JOBS=1 to reproduce a failure without parallelism.
+#
 # Exit status: 0 when every test passes, 1 otherwise.
 set -u
 tests_dir=$(cd "$(dirname "$0")" && pwd)
 tools=$(dirname "$tests_dir")
+script=$tests_dir/$(basename "$0")
+one=""
+if [ "${1:-}" = --one ]; then
+    one=$2
+    shift 2
+fi
 work=$(mktemp -d)
 work=$(cd "$work" && pwd -P)
 trap 'rm -rf "$work"' EXIT
+
+# The on-the-clock tests: they bound real elapsed time tightly, so they run
+# serially, after the parallel ones.
+serial_tests=(
+    test_merge_refuses_on_hung_call
+    test_merge_state_wait_is_bounded_with_a_slow_lookup
+    test_watch_stalled_gh_still_ends_at_deadline
+    test_a_stalled_call_is_stopped_by_the_deadline_not_after_it
+    test_gate_returns_the_gate_exit_status
+    test_fake_gate_wait_fails_loudly_when_its_marker_never_appears
+    test_captured_call_returns_in_time_when_a_setsid_child_holds_stdout
+    test_captured_call_returns_at_once_when_the_leader_leaves_a_holder_behind
+    test_watchdog_ignores_a_reader_that_uses_cpu
+)
 
 export PATH="$tests_dir/stub:$PATH"
 export AGENTIC_REPO=owner/repo AGENTIC_RETRIGGER=/prrb
@@ -22,6 +56,10 @@ unset AGENTIC_REVIEWER AGENTIC_MAX_REVIEW_ROUNDS AGENTIC_NOW_CMD AGENTIC_SLEEP_C
 # gate.sh's build-dir seeding would run a machine-local tool; tests that cover
 # it name a stub.
 export AGENTIC_SEED_CMD=
+# The scripts under test poll every 0.1 s by default; a test that makes many
+# calls on a fake clock would pay that per call. Tests of the tick itself set
+# their own value.
+export AGENTIC_TICKS_PER_SEC=100
 
 bot='brooke-reviews[bot]'
 head_a=aaaaaaa1111111111111111111111111111111111
@@ -33,19 +71,24 @@ git_quiet() {
 }
 
 # A main checkout with an origin, and a linked worktree OUTSIDE the main
-# checkout (a sibling directory), as `git worktree add ../wt` would make.
+# checkout (a sibling directory), as `git worktree add ../wt` would make. Built
+# by the first new_fixtures of a test, in the test's own $work.
 repo=$work/repo
-git init -q -b main "$repo"
-git_quiet -C "$repo" commit -q --allow-empty -m init
-git clone -q --bare "$repo" "$work/origin.git"
-git -C "$repo" remote add origin "$work/origin.git"
-git -C "$repo" fetch -q origin
-git -C "$repo" worktree add -q -b wt "$work/wt"
-mkdir "$work/wt2" "$work/elsewhere"
+build_world() {
+    [ ! -d "$repo" ] || return 0
+    git init -q -b main "$repo"
+    git_quiet -C "$repo" commit -q --allow-empty -m init
+    git clone -q --bare "$repo" "$work/origin.git"
+    git -C "$repo" remote add origin "$work/origin.git"
+    git -C "$repo" fetch -q origin
+    git -C "$repo" worktree add -q -b wt "$work/wt"
+    mkdir "$work/wt2" "$work/elsewhere"
+}
 
 # --- helpers (each test runs in its own subshell, so `exit 1` fails just it) ---
 
 new_fixtures() {
+    build_world
     fx=$(mktemp -d "$work/fx.XXXXXX")
     mkdir "$fx/api"
     : >"$fx/calls.log"
@@ -479,6 +522,9 @@ test_watch_at_cap_exits_4_without_retrigger() {
 }
 
 test_watch_gives_up_when_pr_view_keeps_failing() {
+    # 9 passes of 100 s instead of 30 of 30 s: still several past the 90 s and
+    # 300 s re-trigger thresholds, and the deadline is the same.
+    export AGENTIC_WATCH_POLL=100
     new_fixtures; good_pr "$head_a"; touch "$fx/pr-view.fail"
     printf '[{"user":{"login":"%s"},"body":"skipped: out of date with main"}]\n' "$bot" \
         >"$fx/api/issues_7_comments.1.json"
@@ -499,6 +545,9 @@ test_watch_retrigger_keeps_overall_deadline() {
 # --- watchdog.sh ---
 
 test_watch_reviews_api_error_never_retriggers() {
+    # 9 passes of 100 s instead of 30 of 30 s: still several past the 90 s and
+    # 300 s re-trigger thresholds, and the deadline is the same.
+    export AGENTIC_WATCH_POLL=100
     new_fixtures; good_pr "$head_a"; touch "$fx/api/pulls_7_reviews.fail"
     run_watch
     want_rc 2; want_out "TIMEOUT"; want_out "could not read the reviews"
@@ -507,6 +556,9 @@ test_watch_reviews_api_error_never_retriggers() {
 }
 
 test_watch_reactions_api_error_never_retriggers() {
+    # 9 passes of 100 s instead of 30 of 30 s: still several past the 90 s and
+    # 300 s re-trigger thresholds, and the deadline is the same.
+    export AGENTIC_WATCH_POLL=100
     new_fixtures; good_pr "$head_a"
     echo '[]' >"$fx/api/pulls_7_reviews.1.json"
     touch "$fx/api/issues_7_reactions.fail"
@@ -551,6 +603,9 @@ test_watch_earlier_rounds_reaction_does_not_delay_retrigger() {
 }
 
 test_watch_merge_state_error_never_retriggers() {
+    # 9 passes of 100 s instead of 30 of 30 s: still several past the 90 s and
+    # 300 s re-trigger thresholds, and the deadline is the same.
+    export AGENTIC_WATCH_POLL=100
     new_fixtures; good_pr "$head_a"
     echo '[]' >"$fx/api/pulls_7_reviews.1.json"
     touch "$fx/merge-state.fail"
@@ -1240,7 +1295,8 @@ sweep() {
     local point log hit=0 bad
     mkdir -p "$fx/bin" "$fx/tmp"
     sweep_run() {
-        PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" bash "$tools/tests/signal-sweep.sh" \
+        PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" AGENTIC_TICKS_PER_SEC=10 \
+            bash "$tools/tests/signal-sweep.sh" \
             "$tools" "$1" "$region" "$points" "$call" "${2:-}" 2>&1
     }
     local region=$1 points=$2 call=$3
@@ -2622,20 +2678,176 @@ test_captured_call_removes_its_files_when_it_is_terminated() {
     want_no_temp_files
 }
 
+# --- poll and tick overrides (#1216) ---
+
+# ticks_run <budget> <ticks> <cmd...>: agentic_run_captured with
+# AGENTIC_TICKS_PER_SEC=<ticks>; prints "rc=<status> ms=<elapsed>".
+ticks_run() {
+    local budget=$1 ticks=$2
+    shift 2
+    AGENTIC_TICKS_PER_SEC=$ticks bash -c '
+        source "$1"; budget=$2; shift 2
+        start=$(date +%s%N)
+        agentic_run_captured "$budget" "$@" >/dev/null 2>&1
+        echo "rc=$? ms=$((($(date +%s%N) - start) / 1000000))"' _ "$tools/lib.sh" "$budget" "$@"
+}
+
+test_ticks_default_to_a_tenth_of_a_second_and_bad_values_fall_back() {
+    local want
+    for want in "" 0 abc 1001 -5 2.5; do
+        [ "$(AGENTIC_TICKS_PER_SEC=$want bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100" ] \
+            || die "'$want' did not fall back to 10 ticks (0.100 s)"
+    done
+    [ "$(env -u AGENTIC_TICKS_PER_SEC bash -c 'source "$1"; echo "$agentic_ticks_per_sec $agentic_tick"' _ "$tools/lib.sh")" = "10 0.100" ] \
+        || die "the default is not 10 ticks a second"
+    [ "$(AGENTIC_TICKS_PER_SEC=100 bash -c 'source "$1"; echo "$agentic_tick"' _ "$tools/lib.sh")" = 0.010 ] \
+        || die "100 ticks a second is not a 0.010 s tick"
+}
+
+test_finer_ticks_notice_a_finished_command_sooner() {
+    new_fixtures
+    local line ms
+    line=$(ticks_run 5 100 sleep 0.3); ms=${line##*ms=}
+    [ "${line%% *}" = rc=0 ] || die "a 0.3 s command under a 5 s budget: $line"
+    [ "$ms" -lt 1500 ] || die "took $ms ms: the 0.3 s command was not noticed at once"
+}
+
+test_finer_ticks_do_not_stretch_the_time_limit() {
+    new_fixtures
+    local line ms
+    # The limit is measured on the clock, not by counting ticks: 1 s stays 1 s
+    # (plus the cleanup, which has nothing to stop but the sleep itself).
+    line=$(agentic_kill_after=1 agentic_reap_after=1 ticks_run 1 1000 sleep 30); ms=${line##*ms=}
+    [ "${line%% *}" = rc=124 ] || die "a 30 s command under a 1 s budget: $line"
+    [ "$ms" -ge 1000 ] || die "stopped after $ms ms, before its 1 s budget"
+    [ "$ms" -le 4000 ] || die "stopped after $ms ms: finer ticks stretched the 1 s budget"
+}
+
+test_watch_polls_every_30_seconds_by_default() {
+    new_fixtures; good_pr "$head_a"
+    echo '[]' >"$fx/api/pulls_7_reviews.1.json"
+    unset AGENTIC_WATCH_POLL
+    run_watch
+    # 900 s at 30 s: a pass at 1000 and every 30 s to 1870 is 30 passes that call gh
+    # (the pass at the 1900 deadline has no time left for a call).
+    [ "$(grep -c '^pr view 7 .*headRefOid' "$fx/calls.log")" = 30 ] \
+        || die "$(grep -c '^pr view 7 .*headRefOid' "$fx/calls.log") passes, want 30"
+    AGENTIC_WATCH_POLL=100 run_watch
+    [ "$(grep -c '^pr view 7 .*headRefOid' "$fx/calls.log")" = 39 ] \
+        || die "a 100 s poll did not add 9 passes (1000..1800): $(grep -c '^pr view 7 .*headRefOid' "$fx/calls.log") in all"
+}
+
 # --- runner ---
+
+all_tests=$(declare -F | awk '$3 ~ /^test_/ {print $3}')
+
+# One test, in this process (`run.sh --one <name>`): its output and its
+# "<status> <ms>" line go to $AGENTIC_TEST_RESULTS for the parent to print.
+if [ -n "$one" ]; then
+    t0=$(date +%s%N)
+    if result=$("$one" 2>&1); then status=0; else status=1; fi
+    printf '%s\n' "$result" >"$AGENTIC_TEST_RESULTS/$one.out"
+    echo "$status $((($(date +%s%N) - t0) / 1000000))" >"$AGENTIC_TEST_RESULTS/$one.res"
+    exit "$status"
+fi
+
+jobs=${AGENTIC_TEST_JOBS:-4}
+case "$jobs" in
+    [1-9] | [1-9][0-9]) ;;
+    *) echo "run.sh: AGENTIC_TEST_JOBS must be a number from 1 to 99, got '$jobs'" >&2; exit 2 ;;
+esac
+
+selected=""
+for test_name in $all_tests; do
+    if [ $# = 0 ]; then
+        selected="$selected $test_name"
+        continue
+    fi
+    for filter in "$@"; do
+        case "$test_name" in *"$filter"*) selected="$selected $test_name"; break ;; esac
+    done
+done
+[ -n "$selected" ] || { echo "run.sh: no test matches: $*" >&2; exit 1; }
+
+results=$work/results
+mkdir "$results"
+export AGENTIC_TEST_RESULTS=$results
+
+# stop_session <pid>: stop whatever is left in a finished test's group
+# (its pid is its group id): TERM, KILL after 2 s.
+stop_session() {
+    local tick
+    kill -TERM -- "-$1" 2>/dev/null || return 0
+    for ((tick = 0; tick < 20; tick++)); do
+        kill -0 -- "-$1" 2>/dev/null || return 0
+        sleep 0.1
+    done
+    kill -KILL -- "-$1" 2>/dev/null || true
+}
+
+declare -A running_test=()
+reap_one() {
+    local finished=""
+    wait -n -p finished || true
+    [ -n "$finished" ] || return 0
+    stop_session "$finished"
+    unset 'running_test[$finished]'
+}
+
+# On INT or TERM, stop every running test's session, then end.
+stop_all() {
+    local pid
+    for pid in "${!running_test[@]}"; do stop_session "$pid"; done
+    exit 130
+}
+trap stop_all INT TERM
+
+# run_pool <jobs> <test>...: runs the tests, at most <jobs> at once.
+run_pool() {
+    local pool_jobs=$1 name pid
+    shift
+    # Monitor mode: a job gets its own process group (its pid) and normal INT
+    # handling; an async job of a plain script has INT ignored, which the
+    # tests that send themselves an INT would inherit.
+    set -m
+    for name in "$@"; do
+        while [ "${#running_test[@]}" -ge "$pool_jobs" ]; do reap_one; done
+        "$BASH" "$script" --one "$name" </dev/null >/dev/null 2>&1 &
+        pid=$!
+        running_test[$pid]=$name
+    done
+    while [ "${#running_test[@]}" -gt 0 ]; do reap_one; done
+    set +m
+}
+
+parallel_tests=()
+tail_tests=()
+for test_name in $selected; do
+    case " ${serial_tests[*]} " in
+        *" $test_name "*) tail_tests+=("$test_name") ;;
+        *) parallel_tests+=("$test_name") ;;
+    esac
+done
+[ "${#parallel_tests[@]}" = 0 ] || run_pool "$jobs" "${parallel_tests[@]}"
+[ "${#tail_tests[@]}" = 0 ] || run_pool 1 "${tail_tests[@]}"
 
 passed=0
 failed=0
-for test_name in $(declare -F | awk '$3 ~ /^test_/ {print $3}'); do
-    t0=$(date +%s%N)
-    if result=$("$test_name" 2>&1); then
+for test_name in $selected; do
+    if [ -s "$results/$test_name.res" ]; then
+        read -r status ms <"$results/$test_name.res"
+    else
+        status=1 ms=0
+        echo "no result was written (the test process died)" >"$results/$test_name.out"
+    fi
+    if [ "$status" = 0 ]; then
         passed=$((passed + 1))
-        echo "ok   $test_name ($(( ($(date +%s%N) - t0) / 1000000 )) ms)"
+        echo "ok   $test_name ($ms ms)"
     else
         failed=$((failed + 1))
         echo "FAIL $test_name"
-        printf '%s\n' "$result"
+        cat "$results/$test_name.out"
     fi
 done
-echo "$passed passed, $failed failed"
+echo "$passed passed, $failed failed (jobs: $jobs)"
 [ "$failed" = 0 ]

@@ -80,7 +80,7 @@ fi
 # except one that survives KILL, which lib.sh abandons with a warning.
 # Sets $waited to the seconds spent.
 await_merge_state() {
-    local started deadline left rc latest
+    local started deadline left rc latest state_poll=${AGENTIC_STATE_POLL:-3}
     started=$(agentic_now)
     deadline=$((started + ${AGENTIC_STATE_WAIT:-60}))
     # One second of grace, so the read after the last sleep still gets a budget.
@@ -102,7 +102,7 @@ await_merge_state() {
         fi
         left=$((deadline - $(agentic_now)))
         [ "$left" -gt 0 ] || break
-        agentic_sleep "$((left < 3 ? left : 3))"
+        agentic_sleep "$((left < state_poll ? left : state_poll))"
     done
     agentic_deadline=""
 }

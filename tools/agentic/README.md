@@ -42,7 +42,7 @@ A PR gets at most `AGENTIC_MAX_REVIEW_ROUNDS` (default 3) reviews from the bot, 
 
 ## Testing these tools
 
-`just test-agentic` runs `tests/run.sh` under a 5-minute timeout (`just test-agentic`'s `timeout 300`). It takes about 5 minutes (#1216), needs no network or Docker, and never touches GitHub or this checkout. Add a case there for every change to the scripts.
+`just test-agentic` runs `tests/run.sh` under a 5-minute timeout (`just test-agentic`'s `timeout 300`), running 4 tests at a time (`AGENTIC_TEST_JOBS`; `tests/run.sh <name-substring>` runs a subset). It needs no network or Docker, and never touches GitHub or this checkout. Add a case there for every change to the scripts.
 
 ## Configuration
 

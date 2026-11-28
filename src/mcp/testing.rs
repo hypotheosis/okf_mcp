@@ -280,7 +280,7 @@ impl TestApp {
     }
 
     /// Points `store`'s row at `127.0.0.1:port` and drops its open pool.
-    async fn repoint(&self, store: &crate::stores::StoreName, port: u16) {
+    pub(crate) async fn repoint(&self, store: &crate::stores::StoreName, port: u16) {
         sqlx::query("UPDATE stores SET host = '127.0.0.1', port = $2 WHERE name = $1")
             .bind(store.as_str())
             .bind(i32::from(port))

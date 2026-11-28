@@ -1240,7 +1240,9 @@ impl ToolContext {
     /// # Errors
     /// [`OkfError::StoreUnavailable`] when a store that comes before the one
     /// holding the handle (or any, for an unknown handle) cannot be
-    /// reached, since the handle might be on it; [`OkfError::Database`].
+    /// reached, since the handle might be on it (a store already in
+    /// [`ToolContext::down_stores`] is answered so without connecting);
+    /// [`OkfError::Database`].
     #[tracing::instrument(level = "debug", skip_all)]
     async fn changeset_by_handle(
         &self,
@@ -1249,7 +1251,14 @@ impl ToolContext {
         if !changesets::is_issued_handle(handle) {
             return Ok(None);
         }
+        // Stores this call already found down are not connected to again
+        // (a second connect timeout); the answer is the same error. Only
+        // this call's own set: nothing is remembered for the next call.
+        let known_down = self.down_stores();
         for store in self.stores_main_first().await? {
+            if known_down.contains(&store) {
+                return Err(OkfError::store_unavailable(&store));
+            }
             let db = self.app.store_db(&store).await?;
             let found = changesets::by_handle(db.executor(), handle)
                 .await

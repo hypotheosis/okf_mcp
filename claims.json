@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2428,
+  "next_claim_seq": 2444,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f91f24faf2d7f01cc051415e5ca8aae05f7511e01344bc481d7e930ec9d64731"
+    "mac": "0e93257d360a3a11a3dff4cc5828234875c0e61b7df583a60ba212889fba313e"
   },
-  "next_evidence_seq": 4247,
+  "next_evidence_seq": 4266,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "23861a8f3a57d8b6aee718c7670105e4982edadf15a581f4cc9a99d66b821188"
+    "mac": "85b1c809f368bd42bfc63e04ddaf9c07444c8eed391b73cb93558579b673c72d"
   },
   "claims": [
     {
@@ -56688,6 +56688,28 @@
             "by": "server",
             "mac": "e0a726946d4966b9bf27b5a040ba40d706728c33292034af57e14cf396da3107"
           }
+        },
+        {
+          "id": "EVD-4265",
+          "kind": "analysis",
+          "locator": "src/okf/ops/relink.rs:286-300 and 328-345 at 2be9c606",
+          "summary": "links_to still finds links through find_links and unlink_text through link_lines; both match with the same LINK regex (links_outside_code), so angle-bracket destinations are still seen. The PR only filtered code and split links_to into into_links_to; no independent parser added.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/relink.rs",
+              "lines": {
+                "start": 286,
+                "end": 300
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:51:41.695853315Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fd8a7e9f2b9860d6b1b49e1a786df78f28419df030a5ce62693b79bc04dd1a4"
+          }
         }
       ],
       "verdicts": [
@@ -56703,13 +56725,26 @@
             "by": "server",
             "mac": "843f270d0a187cc9e12ba1d4898bf76b406e2e7749a62e1ff680891f47712ec8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on 2be9c606 after relink.rs anchor changed: delete still reaches links through the LINK regex via find_links/link_lines.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4265"
+          ],
+          "recorded_at": "2026-11-28T03:51:44.105204674Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ff7a9e227f4aad82b01f7704300dd4ce71a515a6713bd6815ed0cd831eb8c31"
+          }
         }
       ],
       "created_at": "2026-11-23T03:31:16.042630208Z",
-      "updated_at": "2026-11-23T03:38:27.217345181Z",
+      "updated_at": "2026-11-28T03:51:44.105204674Z",
       "seal": {
         "by": "server",
-        "mac": "dff6b2c295f4b2c5cfdb5a8f41d6348cc8f66b41045d0f27a278dfe92effcea9"
+        "mac": "d6f14e4e2a1ff5638502acc69d8c66e196ea44931dec6780862e4db895fae77f"
       }
     },
     {
@@ -213859,6 +213894,1098 @@
       "seal": {
         "by": "server",
         "mac": "7c79d8aac56fdc7ea5ddd7c363bf08f3f58af581d0f66e9ff33f23b7db5d219d"
+      }
+    },
+    {
+      "id": "CLM-2428",
+      "statement": "Issue #953 is delivered: link syntax inside inline code spans and fenced or indented code blocks is not treated as a link by find_links, lint, the link graph, backlinks, relink and the other LINK/SLUG_LINK users",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/953 and task-owner requirements",
+      "derived_from": [],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4264",
+          "kind": "analysis",
+          "locator": "children of CLM-2428",
+          "summary": "All issue-named behaviors (code span, fenced, next-to-span, lint, relink) are supported, but the owner's requirement that other link users ignore code is refuted for the per-line bullet helpers in replay.rs (CLM-2437), so the whole is not fully delivered.",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T03:51:15.927434700Z",
+          "seal": {
+            "by": "server",
+            "mac": "c6433f9ddeac724288da08b414f3f754d835d9c722983ef065a6149ad12cf5b4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "Child CLM-2437 is refuted: replay.rs per-line bullet helpers still match bullets inside fenced blocks. Fix: route replay.rs listing_line and the legacy-bullet scan through link_lines (or a whole-text code mask) with a fenced-bullet index test, or have the owner accept the limitation explicitly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4264"
+          ],
+          "recorded_at": "2026-11-28T03:51:24.488894675Z",
+          "seal": {
+            "by": "server",
+            "mac": "2ea8e29f677b810dbeb051a5542045552f19084c2c66cc21e075f443bbb7d7d7"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:24.488894675Z",
+      "seal": {
+        "by": "server",
+        "mac": "dcb7db454277001121b387868af4439b148a9a2bc6c0569af2484bce2cc6260f"
+      }
+    },
+    {
+      "id": "CLM-2429",
+      "statement": "find_links does not return a link whose text lies inside an inline code span (e.g. `[x](<a b.md>)`)",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #953: 'a link inside a code span is not found'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4247",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:225-250 and test a_link_in_a_code_span_is_not_found (809-813)",
+          "summary": "links_outside_code drops a match when its `[`, `]` or closing `)` is inside a pulldown-cmark Code range; the test asserts empty results for \"Write `[x](<a b.md>)` to link.\" and \"`[x](a.md)`\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 809,
+                "end": 813
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:29.826340655Z",
+          "seal": {
+            "by": "server",
+            "mac": "399793692b75b4c3798ee2faf21f3a82617afa894a35105788c358480af15a75"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test read; test not run by auditor (build lock held by gates).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4247"
+          ],
+          "recorded_at": "2026-11-28T03:51:06.307892498Z",
+          "seal": {
+            "by": "server",
+            "mac": "260af99daf382e3d1951ef8e71d7d41ad973fc45fed8e1edece303b7cb78aa91"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:06.307892498Z",
+      "seal": {
+        "by": "server",
+        "mac": "0078ee3a5efa32c52902d13dc523a36622efedade12e90abd8285a65085b5ed0"
+      }
+    },
+    {
+      "id": "CLM-2430",
+      "statement": "find_links does not return a link inside a fenced code block (backtick, tilde, nested longer fence) or an indented code block, and still finds links after the block closes",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #953: 'a link inside a fenced block is not found'; owner: test for an indented block",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4248",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:814-840 (fenced, ~~~, nested fence, indented tests)",
+          "summary": "CodeRanges::of records Start(CodeBlock) ranges; tests assert empty for ``` and ~~~ blocks, a 4-backtick fence holding a 3-backtick one, and an indented block, and that a link after the closing fence or block is found (b.md).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 814,
+                "end": 840
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:29.975033654Z",
+          "seal": {
+            "by": "server",
+            "mac": "810a1082c3ca569ededc64030e68595d5ae66c73dc07a7126499c514e508156e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests cover fenced, tilde, nested fence, indented, and link-after-block; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4248"
+          ],
+          "recorded_at": "2026-11-28T03:51:06.496306666Z",
+          "seal": {
+            "by": "server",
+            "mac": "6f2639e4172bafd5c31c602d86384978729536cc736041bc6e1dbc9ef2307670"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:06.496306666Z",
+      "seal": {
+        "by": "server",
+        "mac": "988c5de4370bff8866b29387996eebf5d6d4175b4799a3e7942851305c082eee"
+      }
+    },
+    {
+      "id": "CLM-2431",
+      "statement": "find_links still returns a link next to a code span, or with code only inside its label, with LinkMatch ranges that slice the original text exactly",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #953: 'a link next to a code span is still found'; keep byte offsets right for relink",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4249",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:824-833 a_link_next_to_a_code_span_is_still_found",
+          "summary": "Test asserts targets a.md,b.md for \"`code` [x](a.md) and `more` [y](b.md)\", that text[found[0].range] == \"[x](a.md)\", and that \"[`x`](a.md)\" is still found. Ranges are the regex match ranges, unshifted for find_links (shift 0).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 824,
+                "end": 833
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.127097634Z",
+          "seal": {
+            "by": "server",
+            "mac": "b331e7607db82bb0ef1f1dad1c1e2e03d75d96d133434fb22f78ac099e08931c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts targets and exact range slice; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4249"
+          ],
+          "recorded_at": "2026-11-28T03:51:06.650784887Z",
+          "seal": {
+            "by": "server",
+            "mac": "e20c27fb5d33cb52944421d5a2180cc77d1d5199886db2b970baffecb247b348"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:06.650784887Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a6a71b2778abef17e01f826d45acb6396741738d41b84fb45a80ee03429a210"
+      }
+    },
+    {
+      "id": "CLM-2432",
+      "statement": "find_links handles a double-backtick span containing a single backtick (hides a link inside it) and an unclosed backtick (link still found)",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Task owner: tests for a double-backtick span containing a single backtick, an unclosed backtick (link still found)",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4250",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:840-857",
+          "summary": "Tests: \"``a ` [x](a.md) b``\" yields no links, \"``a ` b`` [x](a.md)\" yields a.md; \"a ` [x](a.md)\" and \"``a ` [x](a.md)\" (unclosed/different-length runs) yield a.md. Matches CommonMark backtick-run rules delegated to pulldown-cmark.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 840,
+                "end": 857
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.267259644Z",
+          "seal": {
+            "by": "server",
+            "mac": "7338edffe5bff0fd456bd17f05e12ce1ba05e3649c36c326b3d8c778ecd03638"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both required tests exist with correct CommonMark expectations; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4250"
+          ],
+          "recorded_at": "2026-11-28T03:51:06.804663355Z",
+          "seal": {
+            "by": "server",
+            "mac": "d697df91e1178626a284e20a8a2419f51219c9798691065ec1c712569c39ad0f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:06.804663355Z",
+      "seal": {
+        "by": "server",
+        "mac": "4506cd6fddc6a93a2c76c37d64ac303c3847befc106b88a3c00580bc6aa61362"
+      }
+    },
+    {
+      "id": "CLM-2433",
+      "statement": "A leading --- frontmatter block cannot pair its backticks with the body when find_links parses a whole file",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Task owner: frontmatter must not confuse the parser",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4251",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:146-152 and test frontmatter_does_not_pair_backticks_with_the_body (858-862)",
+          "summary": "Parser is created with ENABLE_YAML_STYLE_METADATA_BLOCKS, so a leading --- block is metadata and emits no Code events; the test has a lone backtick in the frontmatter title and a `c` span in the body and still finds a.md.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 858,
+                "end": 862
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.417743649Z",
+          "seal": {
+            "by": "server",
+            "mac": "a1bbc2b8c11b80fa802dbfafe94dbd55e0fae9e1b0ccdc1875eace10f4d352ec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Metadata-block option plus a test with a stray frontmatter backtick; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4251"
+          ],
+          "recorded_at": "2026-11-28T03:51:06.965579358Z",
+          "seal": {
+            "by": "server",
+            "mac": "8ff786ad2560b2750b6bf4ca267fffccd1b330ce9194ebbf657b064106db5190"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:06.965579358Z",
+      "seal": {
+        "by": "server",
+        "mac": "f7d4c3e42eb3b42bb39ffb4bf23d14f532faaab43b09e09f9a2f69436aaa3a12"
+      }
+    },
+    {
+      "id": "CLM-2434",
+      "statement": "Code ranges are parsed once per find_links / link_lines call (linear time), not once per match, and a test covers many code spans",
+      "kind": "performance",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Task owner: parsing stays linear (once per call, not per match)",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4252",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:191-208 (find_links, link_lines), 876-880 test",
+          "summary": "find_links calls CodeRanges::of once; link_lines builds CodeRanges once before the line map and shares it; contains() is a partition_point binary search. Parsing is O(n) and lookup O(log r) per match; a 50,000-span test exists (it asserts only the result, not time).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 191,
+                "end": 208
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.568370325Z",
+          "seal": {
+            "by": "server",
+            "mac": "a7b392023ad5cca40cdbe7ce4f4f02370371dccb7ab950e313dd3a6e7fd335fa"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One CodeRanges::of per call, binary-search lookup; analysis by reading. The many-spans test asserts the result only, so it would not catch a time regression.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4252"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.119761078Z",
+          "seal": {
+            "by": "server",
+            "mac": "22127263c6aaffb100097287770ef85f44f1c4a3b3a717e94d0f2d834a37c017"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.119761078Z",
+      "seal": {
+        "by": "server",
+        "mac": "0301c5ba5f8d23a2dce0aed29ea9596664c50295f82472cf456f335a95b3dd21"
+      }
+    },
+    {
+      "id": "CLM-2435",
+      "statement": "The link graph that feeds lint broken-link, backlinks, links_report and get_concept links is built from link_lines, so it ignores links in code spans and blocks that cover several lines; a lint test asserts no broken-link finding for such links",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #953: check check_links/lint, backlinks against the same rule",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/snapshot.rs",
+        "src/okf/analysis/lint.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4253",
+          "kind": "analysis",
+          "locator": "src/okf/snapshot.rs:592-596; src/okf/analysis/lint.rs:705-725; markdown.rs:864-875",
+          "summary": "links_of iterates link_lines(text), which feeds SnapshotDoc.links (the source of lint, backlinks_of, links_report). Lint test publishes a concept with an inline span link and a fenced-block link and asserts no broken-link finding; link_lines test covers multi-line fence and multi-line span.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/snapshot.rs",
+              "lines": {
+                "start": 592,
+                "end": 596
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.718560629Z",
+          "seal": {
+            "by": "server",
+            "mac": "e29f27d8b53ff9c7f9479d68cd61651c21edce5118af6bad955b38ec32e75818"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "links_of is the single producer of SnapshotDoc.links and uses link_lines; lint test asserts no broken-link. Read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4253"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.258195054Z",
+          "seal": {
+            "by": "server",
+            "mac": "a519d6d135b99c39469a95511d211c55a673501fe4661e79e5491b8a3aaa91fc"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.258195054Z",
+      "seal": {
+        "by": "server",
+        "mac": "d2be0faaec15954f065a4fe218e5fcd7ff2bca31e4e3a92a0b70114a7c882add"
+      }
+    },
+    {
+      "id": "CLM-2436",
+      "statement": "relink (rewrite_text on moves) and delete's unlink_text leave code spans, fenced blocks and indented blocks byte-for-byte untouched, while rewriting plain links, with tests asserting it",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #953: 'relink leaves code spans untouched'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/ops/relink.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4254",
+          "kind": "analysis",
+          "locator": "src/okf/ops/relink.rs:154-185, 328-375, tests 625-665",
+          "summary": "rewrite_text and unlink_text iterate link_lines; unlink_line uses the code-aware links on its first pass (later passes re-find on the shortened single line, which can only see inline code in that line). Tests assert exact output: plain links rewritten/unlinked, span, fenced block and indented block unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/relink.rs",
+              "lines": {
+                "start": 625,
+                "end": 665
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:30.869658216Z",
+          "seal": {
+            "by": "server",
+            "mac": "76bae0b9c8fab472238d5abff6c8285957ae3acd1269d933289af38583d49ab9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Exact-output tests for rewrite_text and unlink_text; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4254"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.398100954Z",
+          "seal": {
+            "by": "server",
+            "mac": "24e0b025392cd6261525aec06c9c521a501cee6b0d4a876b33a64f43db0cb4fd"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.398100954Z",
+      "seal": {
+        "by": "server",
+        "mac": "547c6d4045d7471eaa58ebbdb9acf0e81a941d5c02bb1ecc8060b163ac516f86"
+      }
+    },
+    {
+      "id": "CLM-2437",
+      "statement": "No caller under src/ matches link syntax (LINK, SLUG_LINK, find_links, per-line) on raw text outside the code-aware path, including fenced blocks",
+      "kind": "functional",
+      "level": "software",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Task owner: other LINK/SLUG_LINK users must ignore code too",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/ops/replay.rs",
+        "src/okf/ops/moves.rs",
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4260",
+          "kind": "analysis",
+          "locator": "src/okf/ops/replay.rs:599-612 and 753-765 (listing_line)",
+          "summary": "replay.rs scans text.split('\\n') line by line, filters is_bullet(line) (starts with \"* \" or \"- \"), then calls find_links(line) on the single line with no knowledge of enclosing fences. listing_line (used to find a bullet listing a target in an index) therefore matches a bullet written inside a fenced block; the same holds for the legacy-bullet scan at 599-612. The PR text discloses 'inline code spans only' but the requirement says other users must ignore code too.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/replay.rs",
+              "lines": {
+                "start": 753,
+                "end": 765
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:43.055846338Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fff43978abbb3e9905fda598ad8e20094dc780c04f311ea055b2c5bad9d0050"
+          }
+        },
+        {
+          "id": "EVD-4261",
+          "kind": "analysis",
+          "locator": "git grep -nE \"find_links\\(|link_lines\\(|LINK\\.|SLUG_LINK\\.\" src (non-test hits)",
+          "summary": "Non-test callers: snapshot.rs:595, relink.rs:157/331 (link_lines, code-aware); markdown.rs:231 (LINK.captures_at inside links_outside_code) and :435 (SLUG_LINK in slugify, code-aware); links.rs:564 mask_links (input already had code spans and fences masked, fine); replay.rs:397 lists_target (whole text, code-aware); relink.rs:289, replay.rs:607/641/761/807, moves.rs:159, log_index.rs per-line or per-bullet find_links (inline code only, no fence awareness). No raw LINK/SLUG_LINK use outside markdown.rs.",
+          "stance": "neutral",
+          "anchor": {
+            "search": {
+              "pattern": "find_links\\(|link_lines\\(|LINK\\.captures|SLUG_LINK\\.",
+              "scope": [
+                "src"
+              ],
+              "hits": 41,
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:43.204448556Z",
+          "seal": {
+            "by": "server",
+            "mac": "83be5cbbc39156145766fd8de173f6f5941f15e0e290c85f69a36eba83375153"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "replay.rs listing_line and the legacy-bullet scan (and moves.rs relinked_bullet) call find_links on a single line, so a bullet written inside a fenced block (or a multi-line span) is still matched as a link/listing. The PR discloses inline-only, but the owner's requirement is that other users ignore code too. Fix: make replay.rs listing_line and the legacy bullet scan iterate link_lines(text) (or a shared per-line code mask) so bullets inside fenced blocks are skipped, and add a test with an index.md that has \"* [x](a.md)\" inside a fence; otherwise record the limitation as an accepted exception in the issue.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4260"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.550507868Z",
+          "seal": {
+            "by": "server",
+            "mac": "11ffa877a0cf3d7384517add7b8f1cb12c671fc747123ccf32a75decb06a86d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.550507868Z",
+      "seal": {
+        "by": "server",
+        "mac": "fa3499ae7b3100f28addeeacaa0a64e1c1365ab6e1d9819703a74708e7a3456c"
+      }
+    },
+    {
+      "id": "CLM-2438",
+      "statement": "A changelog entry for #953 exists under changelog/",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task owner: a changelog entry",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "changelog/20261128T034503Z-issue-953-links-in-code.md"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4255",
+          "kind": "inspection",
+          "locator": "changelog/20261128T034503Z-issue-953-links-in-code.md",
+          "summary": "Timestamped changelog file exists in the commit, describing the change, callers and tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T034503Z-issue-953-links-in-code.md",
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:31.009868156Z",
+          "seal": {
+            "by": "server",
+            "mac": "6bba70ce9854df9642b8e932174facd1eb836e23cc71287da528d2095c365021"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present in the commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4255"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.701780447Z",
+          "seal": {
+            "by": "server",
+            "mac": "580f4d1bd40a89b6e5216db95e1f3d79bbabe6087dfdb6743b4e609a3497ef11"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.701780447Z",
+      "seal": {
+        "by": "server",
+        "mac": "6f5e388817275376c67df2da51d5d4fc527540f2bb4e7a3f6c55b5d7ecae8ba6"
+      }
+    },
+    {
+      "id": "CLM-2439",
+      "statement": "PR body: slugify keeps a link written as code literal in a heading (SLUG_LINK match starting inside code is not stripped), with a test",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR draft: '`slugify` keeps a link written as code literal.'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4256",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:432-445, test slugify_keeps_a_link_written_as_code_literal (882-886)",
+          "summary": "slugify computes CodeRanges and the SLUG_LINK replacer returns the whole match unchanged when whole.start() is in code. Test asserts \"Use `[a](b)` here\" -> \"use-ab-here\" and \"Use [a](b) and `x`\" -> \"use-a-and-x\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 432,
+                "end": 445
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:31.151092619Z",
+          "seal": {
+            "by": "server",
+            "mac": "eed600a6e71dca7c5cebd89a1f1da73775d63b1c789441eb50bd0c637bd66efd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test agree; read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4256"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.851487742Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f4438d6ffc5a00528ce562f5d5d831f859d04b81eb368871a0127614b498a95"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.851487742Z",
+      "seal": {
+        "by": "server",
+        "mac": "9c1198708bb7485a2c0b1ae423a6c362ef21ed5cabb15a8a6689445f7ecdbea1"
+      }
+    },
+    {
+      "id": "CLM-2440",
+      "statement": "PR body: text with no backtick, tilde, tab or four-space run skips the parse",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR draft: 'Text with no backtick, tilde, tab or four-space run skips the parse.'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4257",
+          "kind": "inspection",
+          "locator": "src/okf/markdown.rs:143-146",
+          "summary": "CodeRanges::of returns empty unless text contains '`', '~', '\\t' or four spaces.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 143,
+                "end": 146
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:31.301915866Z",
+          "seal": {
+            "by": "server",
+            "mac": "deced85da12728de05071cfb6d6cbe93c3221577fae3b93e26cb6e4bb295a0f2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Early return matches the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4257"
+          ],
+          "recorded_at": "2026-11-28T03:51:07.996110849Z",
+          "seal": {
+            "by": "server",
+            "mac": "df46724bded46035c97953597779927317fe8cd0cd17cf2b7848879023ce0c17"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:07.996110849Z",
+      "seal": {
+        "by": "server",
+        "mac": "f21ad119293699683faa318c7db45d0d89ea0ed7d7e68d0fb74b9ea4914a17b7"
+      }
+    },
+    {
+      "id": "CLM-2441",
+      "statement": "PR body: an MCPJam scenario publishes a concept whose example link is in code",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR draft: 'an MCPJam scenario publishing a concept whose example link is in code'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/careful-fact-curator.test.ts"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4258",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/careful-fact-curator.test.ts:44-59",
+          "summary": "New test creates a concept with an inline-span link and a fenced-block link, publishes, and expects the body to contain the span.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/careful-fact-curator.test.ts",
+              "lines": {
+                "start": 44,
+                "end": 59
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:31.453549555Z",
+          "seal": {
+            "by": "server",
+            "mac": "1b01170e186716d961c40d06b9d032b41a77cd91b629b8477ae26a3b49687d8c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Scenario present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4258"
+          ],
+          "recorded_at": "2026-11-28T03:51:08.150643530Z",
+          "seal": {
+            "by": "server",
+            "mac": "249af14f99f2ee272dfbaa70b0f6bbebf412ecf424db1c898f2345b0f1519cbf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:08.150643530Z",
+      "seal": {
+        "by": "server",
+        "mac": "02daab3d6b7a282aae9dc89fa7fd55150d09f77a759fd472eb5c32b53d0ee910"
+      }
+    },
+    {
+      "id": "CLM-2442",
+      "statement": "PR body: no docs describe what counts as a link, so none changed",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR draft: 'No docs describe what counts as a link, so none changed.'",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "docs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4259",
+          "kind": "analysis",
+          "locator": "git grep -niE \"code span|inline code|fenced|what counts as a link\" -- docs README.md AGENTS.md",
+          "summary": "Only docs/superpowers plan/progress files mention find_links (historical M1 plans); no reference doc defines what counts as a link.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "what counts as a link|code span.*link|links? in code",
+              "case_insensitive": true,
+              "scope": [
+                "AGENTS.md",
+                "README.md",
+                "docs"
+              ],
+              "hits": 3,
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:31.606377148Z",
+          "seal": {
+            "by": "server",
+            "mac": "097b0ea82097d4c3c3d1b33e0821f7692bf2660f999dd0683ddd98be69fff295"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Search of reference docs finds no definition of what counts as a link; only historical plans mention find_links.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4259"
+          ],
+          "recorded_at": "2026-11-28T03:51:08.338176684Z",
+          "seal": {
+            "by": "server",
+            "mac": "c9473d58256b67eaf725ae5009e36248eb211e4b9e63a8e6ea1df41d8f068393"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:08.338176684Z",
+      "seal": {
+        "by": "server",
+        "mac": "e821501a58986f38222eb249c24a0ed66fec1a521095c90bc301f4ef3199446d"
+      }
+    },
+    {
+      "id": "CLM-2443",
+      "statement": "PR body: bullet helpers for index/log lines (moves, replay, log_index) still call find_links on one line, so they see inline code spans only",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR draft last bullet of Changes",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/ops/moves.rs",
+        "src/okf/ops/replay.rs",
+        "src/okf/ops/log_index.rs"
+      ],
+      "tags": [
+        "from-issue:953"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4262",
+          "kind": "inspection",
+          "locator": "src/okf/ops/moves.rs:159; replay.rs:607,641,761,807; log_index.rs (find_links on line/bullet)",
+          "summary": "moves.rs relinked_bullet, replay.rs per-line helpers call find_links(bullet/line) on one line. log_index.rs:1305 is inside a test helper (find_links on the whole text), so log_index has no production per-line caller found by grep; the PR bullet naming log_index is slightly loose.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/moves.rs",
+              "lines": {
+                "start": 150,
+                "end": 160
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:50:43.356731678Z",
+          "seal": {
+            "by": "server",
+            "mac": "87dc10ea00ee03c42b0172cc22ac1d25dfb280772342bb2e9da78d08a4a0eefa"
+          }
+        },
+        {
+          "id": "EVD-4263",
+          "kind": "analysis",
+          "locator": "git grep -n \"find_links\" src/okf/ops/log_index.rs",
+          "summary": "log_index.rs has a single find_links use, inside a test helper (no_broken_link, line 1305), not a production bullet helper, so the PR's \"(moves, replay, log_index)\" over-lists log_index.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/okf/ops/log_index.rs",
+              "lines": {
+                "start": 1303,
+                "end": 1306
+              },
+              "commit": "2be9c606e82ec7f73255320753a2fdff8820086c"
+            }
+          },
+          "recorded_at": "2026-11-28T03:51:15.768158962Z",
+          "seal": {
+            "by": "server",
+            "mac": "3af736a879c461df3cf0b17a6aac80fac13d319cc38f9ad93ffc778cf27c8683"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "moves.rs and replay.rs do call find_links per line or bullet, but log_index.rs's only find_links call is in a test helper, so naming it is wrong. Fix: in the PR description change \"(moves, replay, log_index)\" to \"(moves, replay)\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4263"
+          ],
+          "recorded_at": "2026-11-28T03:51:24.346178155Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d81c1989384388cc9903331808850b73834d710c08f7c5d4cfdc0cbb96d7538"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:49:56.126540413Z",
+      "updated_at": "2026-11-28T03:51:24.346178155Z",
+      "seal": {
+        "by": "server",
+        "mac": "9ffaf8d5b8ca8412361a2875aab1ca7bfad645f12105d0bf6625f8b907c8cf7f"
       }
     }
   ]

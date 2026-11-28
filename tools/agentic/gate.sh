@@ -37,6 +37,13 @@
 # with a warning on stderr, so it can't hang gate.sh; the lock is
 # still freed.
 #
+# Timing (#1190): on every exit after the gate was chosen, one summary line goes
+# to stderr, after the gate's own output (and after the HANG hint):
+#   gate.sh: <gate> waited <N> s for the lock, seed <N> s, ran <N> s (exit <code>)
+# "waited" only for gates that take the lock; "seed" only when the seeding
+# command ran; "ran" only when the gate started (a lock timeout never starts it,
+# and its "waited" is the whole limit). Whole seconds, from $SECONDS.
+#
 # Exit codes:
 #   the gate's own, when it exits by itself; if it left processes behind they
 #     are stopped and a warning on stderr says so;
@@ -88,13 +95,16 @@ esac
 # command is missing nothing happens, and when it fails the gate builds from
 # scratch as before. An empty AGENTIC_SEED_CMD turns it off.
 seed_cmd=${AGENTIC_SEED_CMD-cargo-warm}
+seed_s=""
 case "$gate" in
     fmt | worker | release) ;;
     *)
         if [ -n "$seed_cmd" ] && command -v "$seed_cmd" >/dev/null 2>&1; then
             agentic_kill_after=5
+            seed_from=$SECONDS
             agentic_run_bounded 300 "$seed_cmd" seed . \
                 || echo "gate.sh: '$seed_cmd seed' failed; building from scratch" >&2
+            seed_s=$((SECONDS - seed_from))
         fi
         ;;
 esac
@@ -116,6 +126,22 @@ agentic_kill_after=$kill_after
 status=0
 agentic_timed_out=0
 lock_timed_out=0
+waited_s=""
+ran_s=""
+
+# print_timing <exit code>: the one summary line (see "Timing" above).
+print_timing() {
+    local parts=()
+    [ -z "$waited_s" ] || parts+=("waited $waited_s s for the lock")
+    [ -z "$seed_s" ] || parts+=("seed $seed_s s")
+    [ -z "$ran_s" ] || parts+=("ran $ran_s s")
+    local line="gate.sh: $gate" part sep=" "
+    for part in "${parts[@]}"; do
+        line+="$sep$part"
+        sep=", "
+    done
+    echo "$line (exit $1)" >&2
+}
 if [ "$locked" = 1 ]; then
     # gate.sh holds the lock itself, on fd 9, from before the gate starts until
     # its process group is empty, cleanup included. The gate never inherits
@@ -127,16 +153,22 @@ if [ "$locked" = 1 ]; then
     waited_from=$SECONDS
     # A lock wait that runs out is a hang too: the holder is stuck.
     if flock -w "$limit_s" 9; then
+        waited_s=$((SECONDS - waited_from))
         # The limit counts the wait.
-        limit_s=$((limit_s - (SECONDS - waited_from)))
+        limit_s=$((limit_s - waited_s))
         [ "$limit_s" -ge 1 ] || limit_s=1
+        ran_from=$SECONDS
         agentic_run_bounded "$limit_s" "${cmd[@]}" 9>&- || status=$?
+        ran_s=$((SECONDS - ran_from))
     else
+        waited_s=$((SECONDS - waited_from))
         lock_timed_out=1
         status=124
     fi
 else
+    ran_from=$SECONDS
     agentic_run_bounded "$limit_s" "${cmd[@]}" || status=$?
+    ran_s=$((SECONDS - ran_from))
 fi
 if [ "$status" = 124 ] || [ "$status" = 137 ]; then
     if [ "$lock_timed_out" = 1 ]; then
@@ -154,6 +186,8 @@ gate.sh: '$gate' $reason. Treat this as a HANG, not a failure:
   - any test that holds a lock or waits on another task must wrap the wait in
     tokio::time::timeout and fail with a message naming what it waited for.
 EOF
+    print_timing 124
     exit 124
 fi
+print_timing "$status"
 exit "$status"

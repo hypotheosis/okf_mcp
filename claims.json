@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2415,
+  "next_claim_seq": 2416,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "15027cb2f41165e4123dd5a9ba6c6e48ec9e3c069cc8323a16dc48904cebd543"
+    "mac": "3778c19943ea99673de70d1d6acde5f572c2f9cebccd5c50a32a8638d2221c4d"
   },
-  "next_evidence_seq": 4225,
+  "next_evidence_seq": 4231,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "ced32c68cc501f95d6b01981bf822ab2488205536c2991afeadca97ea39bcaa0"
+    "mac": "e8e9a3a51db07c38341cf2fa95812455305b9d6ffea30fcf3c66a1c672e6ab7c"
   },
   "claims": [
     {
@@ -212287,6 +212287,28 @@
             "by": "server",
             "mac": "d4cda3373589e49159a1a0eeb57c56176ea32fa3bfa053445a30fbee35d886f6"
           }
+        },
+        {
+          "id": "EVD-4229",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/browse.js:262-330 at HEAD 1b7b4d92",
+          "summary": "File unchanged since the first audit (git diff 3dddbca..HEAD touches only tests and changelog); the pending guard, latest(), hide-on-null-next and retry-after-failure behaviors are as recorded earlier.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/browse.js",
+              "lines": {
+                "start": 262,
+                "end": 330
+              },
+              "commit": "1b7b4d9279511644f6fd322515c913775e968e4b"
+            }
+          },
+          "recorded_at": "2026-11-28T03:15:26.214474115Z",
+          "seal": {
+            "by": "server",
+            "mac": "cedb8032efd7d2a8e027f950efd23a58dcf3dd95adb2881d801c6f480988ff37"
+          }
         }
       ],
       "verdicts": [
@@ -212302,13 +212324,26 @@
             "by": "server",
             "mac": "beabe40fcfde04eaa166a5ad2371dc83fdcd7209e76edabeda2f20578d81c161"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "browse.js unchanged; re-pinned at HEAD.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4229"
+          ],
+          "recorded_at": "2026-11-28T03:15:43.718356700Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce66e6946ff810ad3f7c084007f4a30f47568ea8aa605b7228e4d04907ab7d3a"
+          }
         }
       ],
       "created_at": "2026-11-28T02:09:23.204124900Z",
-      "updated_at": "2026-11-28T02:10:17.870451891Z",
+      "updated_at": "2026-11-28T03:15:43.718356700Z",
       "seal": {
         "by": "server",
-        "mac": "7f45a64ab9f995aa5f528be629bfd14b017685a74e03d06cc25d3a0bd2cafac9"
+        "mac": "979ff7d194a88cc03fd930e50a9d547061e7fcabf33e0a442bc71ded06bad761"
       }
     },
     {
@@ -212354,6 +212389,40 @@
             "by": "server",
             "mac": "22cdbca394158ff26a14331b4d823b4e45366ed1b4ee258bf07974caa977ec1f"
           }
+        },
+        {
+          "id": "EVD-4228",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browse.rs:243-290; gate.sh narrow --test it -- ui_e2e::browse::history_loads (see below)",
+          "summary": "At current HEAD the double-click journey, now using the shared server_with_long_history helper and numbers() fn, still has click_twice under hold_answer with held_matches()==1, the held late answer after leaving the tab, the poll for 12 rows and wait_hidden on the last page.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browse.rs",
+              "lines": {
+                "start": 243,
+                "end": 290
+              },
+              "commit": "1b7b4d9279511644f6fd322515c913775e968e4b"
+            }
+          },
+          "recorded_at": "2026-11-28T03:15:26.075357452Z",
+          "seal": {
+            "by": "server",
+            "mac": "d64551331b32832a01b4ad4419e458717da68731bee11f390e2cd780afe88ac0"
+          }
+        },
+        {
+          "id": "EVD-4230",
+          "kind": "test",
+          "locator": "gate.sh narrow --test it -- ui_e2e::browse::history_loads (1 passed)",
+          "summary": "Ran the double-click journey at HEAD 1b7b4d92: ui_e2e::browse::history_loads_older_revisions_once_and_a_late_page_draws_nowhere passed in 6.71s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T03:15:38.435869810Z",
+          "seal": {
+            "by": "server",
+            "mac": "467cde729198ee2c6450b5f31572c41d094b3b60141f9092c7fed2a7f9c8cf59"
+          }
         }
       ],
       "verdicts": [
@@ -212369,13 +212438,27 @@
             "by": "server",
             "mac": "b71ea46d5f443c87998266af8f6169f19999e9cf87ce3b8132e2571ae22330e6"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at HEAD 1b7b4d92: the journey still asserts each behavior and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4228",
+            "EVD-4230"
+          ],
+          "recorded_at": "2026-11-28T03:15:43.587190262Z",
+          "seal": {
+            "by": "server",
+            "mac": "622d0fa70cf80dfab5d6a19b77aee5e500a2d4543e962302cbdb4edd130d4648"
+          }
         }
       ],
       "created_at": "2026-11-28T02:09:23.204124900Z",
-      "updated_at": "2026-11-28T02:10:18.015839924Z",
+      "updated_at": "2026-11-28T03:15:43.587190262Z",
       "seal": {
         "by": "server",
-        "mac": "c091c045a6e5f7ed1d32970ba7ea7700a6210685d661952c607f265eaf1cfde2"
+        "mac": "9c922c322809a6b582bb97121cd3b671ddab3c0d4bf13cf93a9e0cb67757668e"
       }
     },
     {
@@ -212777,6 +212860,109 @@
       "seal": {
         "by": "server",
         "mac": "99a921169923e1dd657f9828c52254f0343855f907edbec75a7a7d849a8903b6"
+      }
+    },
+    {
+      "id": "CLM-2415",
+      "statement": "A ui_e2e journey (a_failed_load_older_keeps_the_rows_and_a_retry_asks_for_the_same_page) fails the before=<next> request, asserts the rows stay, #history-status shows and Load older is visible again, then retries and asserts the same cursor is requested once, the rows append once and the error clears.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "review round 1 on PR 1192: cover a failed Load older followed by a retry",
+      "derived_from": [
+        "CLM-2400"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browse.rs",
+        "src/http/ui/js/pages/browse.js"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4225",
+          "kind": "test",
+          "locator": "gate.sh narrow --test it -- ui_e2e::browse::a_failed_load (1 passed)",
+          "summary": "Ran the journey at HEAD: 1 passed in 6.34s.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T03:15:25.488875254Z",
+          "seal": {
+            "by": "server",
+            "mac": "0b1e3dd2c5a5980e71aa6261d0da890447720007e09a7480318c807d763f96b3"
+          }
+        },
+        {
+          "id": "EVD-4226",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browse.rs:208-241",
+          "summary": "fail_next 503 for limit=5&before=8, click; waits for #history-status containing the message, #history-older visible, rows still 12..8; then hold_answer on the same request, asserts held_matches()==1, release, rows 12..3, #history-status hidden, button visible.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browse.rs",
+              "lines": {
+                "start": 208,
+                "end": 241
+              },
+              "commit": "1b7b4d9279511644f6fd322515c913775e968e4b"
+            }
+          },
+          "recorded_at": "2026-11-28T03:15:25.651592729Z",
+          "seal": {
+            "by": "server",
+            "mac": "613f1cb2383cad8b13a7ca5bef8938371b6cfa58cac36e45ffcd5f092b9dad5b"
+          }
+        },
+        {
+          "id": "EVD-4227",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/browse.js:309-318",
+          "summary": "The catch branch keeps rows, sets the status text with the error message, un-hides it, resets pending to false and re-shows the button; success hides the status. The retry reuses the unchanged `next`, so it requests the same cursor.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/browse.js",
+              "lines": {
+                "start": 295,
+                "end": 330
+              },
+              "commit": "1b7b4d9279511644f6fd322515c913775e968e4b"
+            }
+          },
+          "recorded_at": "2026-11-28T03:15:25.861461949Z",
+          "seal": {
+            "by": "server",
+            "mac": "1cbcd866c6bcbc314d02fd4d90e0aebd2c5bbb575527f7c1724db4f54797ddab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The journey passes and its assertions match each listed step; code in the catch branch supports them.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4225",
+            "EVD-4226",
+            "EVD-4227"
+          ],
+          "recorded_at": "2026-11-28T03:15:43.368055870Z",
+          "seal": {
+            "by": "server",
+            "mac": "b58ae50f0a1df38a84a88c9936a26c26736e2a0b6df81e34e24b85a449480028"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T03:15:14.979126445Z",
+      "updated_at": "2026-11-28T03:15:43.368055870Z",
+      "seal": {
+        "by": "server",
+        "mac": "176ef17a4785943ca42a512d7adfa796685ebe285c6e19d63af4bca81b7e0b38"
       }
     }
   ]

@@ -147,13 +147,11 @@ bounded_capture() {
             *) break ;;
         esac
     done
-    agentic_cap_files=()
-    # Installed before the temp file exists, so a signal can't leave it behind.
-    trap 'agentic_cap_cleanup INT' INT
-    trap 'agentic_cap_cleanup TERM' TERM
+    # The traps go in before the temp file exists and the file is registered by
+    # the statement that creates it, so a signal can't leave it behind (#1193).
     local bc_file
-    bc_file=$(mktemp "${TMPDIR:-/tmp}/watchdog-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
-    agentic_cap_files+=("$bc_file")
+    agentic_cap_begin
+    agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return 1
     agentic_capture_supervise "$(agentic_call_budget)" "$bc_in" "$bc_file" /dev/null "${@:2}" \
         || bc_status=$?
     [ -z "$agentic_cap_left" ] \

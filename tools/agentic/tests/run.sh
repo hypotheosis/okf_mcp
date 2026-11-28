@@ -872,6 +872,69 @@ test_watchdog_abandons_a_find_it_cannot_stop() {
     watch_abandoning find
 }
 
+# slow_mktemp_stub: a stub `mktemp` that records that it started in
+# $fx/mktemp-started, sleeps 1 s and then runs the real mktemp, so a signal can
+# be sent while it runs (#1193). Sets up $fx/tmp, the TMPDIR of the test.
+slow_mktemp_stub() {
+    local real
+    real=$(command -v mktemp)
+    mkdir -p "$fx/bin" "$fx/tmp"
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/mktemp-started\"" 'sleep 1' \
+        "exec $real \"\$@\"" >"$fx/bin/mktemp"
+    chmod +x "$fx/bin/mktemp"
+}
+
+# term_during_mktemp <pid>: waits (up to 10 s) for the stub mktemp to start, sends
+# TERM to <pid> while it sleeps, and waits (up to 10 s) for <pid> to end. The
+# stub's marker file is the signal: no fixed sleep decides when TERM is sent.
+term_during_mktemp() {
+    local tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/mktemp-started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/mktemp-started" ] || die "the stub mktemp never started"
+    kill -TERM "$1"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$1" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$1" 2>/dev/null && { kill -KILL "$1"; die "TERM did not stop it"; }
+    wait "$1" 2>/dev/null
+    return 0
+}
+
+test_watchdog_leaves_no_temp_file_when_termed_during_mktemp() {
+    # #1193: a TERM that arrives while a call's `mktemp` runs must not leave the
+    # temp file behind (the file was created but not yet registered for cleanup).
+    new_fixtures; printf '%s\n' "693000.50 1.00" >"$fx/uptime"
+    slow_mktemp_stub
+    (cd "$work/wt" && PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" AGENTIC_UPTIME_FILE="$fx/uptime" \
+        exec "$tools/watchdog.sh" >"$fx/watchdog.out" 2>&1) &
+    term_during_mktemp "$!"
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+}
+
+test_run_captured_leaves_no_temp_file_when_termed_during_mktemp() {
+    # #1193: the same for agentic_run_captured, which makes two temp files.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c \
+        'source "$1/lib.sh"; agentic_run_captured 5 true' _ "$tools") >/dev/null 2>&1 &
+    term_during_mktemp "$!"
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+}
+
+test_run_captured_puts_the_callers_traps_back() {
+    # #1193: agentic_run_captured used to clear the caller's INT and TERM traps.
+    new_fixtures; mkdir -p "$fx/tmp"
+    local trapped
+    trapped=$(TMPDIR="$fx/tmp" bash -c \
+        'source "$1/lib.sh"; trap "echo mine" TERM; agentic_run_captured 5 true; trap -p TERM' \
+        _ "$tools")
+    [ "$trapped" = "trap -- 'echo mine' SIGTERM" ] || die "the caller's TERM trap was lost: $trapped"
+}
+
 # group_stub <leader body>: a stub `ps` whose call first starts a member of its
 # own process group (no setsid) that ignores TERM and holds the call's output
 # open, recording its pid in $fx/members, and then runs <leader body>.

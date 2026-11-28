@@ -179,9 +179,33 @@ agentic_capture_supervise() {
 
 # The temp files of the capture in progress, removed on every path out.
 agentic_cap_files=()
+# The caller's INT and TERM traps, as `trap -p` printed them, put back by
+# agentic_cap_cleanup.
+agentic_cap_saved_traps=""
+
+# agentic_cap_begin: starts a capture. Remembers the caller's INT and TERM traps
+# and installs the ones that clean up. Call it before agentic_cap_mktemp.
+agentic_cap_begin() {
+    agentic_cap_files=()
+    agentic_cap_saved_traps=$(trap -p INT TERM)
+    trap 'agentic_cap_cleanup INT' INT
+    trap 'agentic_cap_cleanup TERM' TERM
+}
+
+# agentic_cap_mktemp <var> <template>: creates a temp file, registers it for
+# agentic_cap_cleanup and stores its path in <var>. Returns 1 (after cleaning
+# up) when mktemp fails. The file is registered by the same statement that
+# creates it (#1193): bash runs a trap only after a whole statement, so a
+# signal that arrives while mktemp runs finds the file already registered.
+# (`f=$(mktemp ...)` and then `files+=("$f")` leaves a gap between the two.)
+agentic_cap_mktemp() {
+    agentic_cap_files+=("$(mktemp "$2")") || { agentic_cap_cleanup; return 1; }
+    printf -v "$1" '%s' "${agentic_cap_files[-1]}"
+}
 
 # agentic_cap_cleanup [signal]: kills what the capture left running (on a
-# signal), removes its temp files and, on a signal, kills this shell with it.
+# signal), removes its temp files, puts the caller's INT and TERM traps back
+# and, on a signal, kills this shell with it (so the caller's trap sees it).
 agentic_cap_cleanup() {
     if [ -n "${1:-}" ]; then
         [ -z "$agentic_cap_pid" ] || kill -KILL -- "-$agentic_cap_pid" 2>/dev/null
@@ -190,6 +214,9 @@ agentic_cap_cleanup() {
     agentic_cap_files=()
     agentic_cap_pid=""
     trap - INT TERM
+    # The saved text is `trap -- '...' INT` lines, made by trap itself.
+    [ -z "$agentic_cap_saved_traps" ] || eval "$agentic_cap_saved_traps"
+    agentic_cap_saved_traps=""
     [ -z "${1:-}" ] || kill "-$1" "$BASHPID"
 }
 
@@ -203,13 +230,9 @@ agentic_cap_cleanup() {
 agentic_run_captured() {
     local budget=$1 cap_out cap_err status=0
     shift
-    agentic_cap_files=()
-    trap 'agentic_cap_cleanup INT' INT
-    trap 'agentic_cap_cleanup TERM' TERM
-    cap_out=$(mktemp "${TMPDIR:-/tmp}/agentic-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
-    agentic_cap_files+=("$cap_out")
-    cap_err=$(mktemp "${TMPDIR:-/tmp}/agentic-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
-    agentic_cap_files+=("$cap_err")
+    agentic_cap_begin
+    agentic_cap_mktemp cap_out "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return 1
+    agentic_cap_mktemp cap_err "${TMPDIR:-/tmp}/agentic-call.XXXXXX" || return 1
     agentic_capture_supervise "$budget" /dev/null "$cap_out" "$cap_err" "$@" || status=$?
     cat -- "$cap_out"
     cat -- "$cap_err" >&2

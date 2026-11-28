@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "0e93257d360a3a11a3dff4cc5828234875c0e61b7df583a60ba212889fba313e"
   },
-  "next_evidence_seq": 4267,
+  "next_evidence_seq": 4268,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "6c618bf4401558e0b8dee45ed3995c160bb7470b9cfb0574925d45ede42c9cb2"
+    "mac": "af3c5b0d564837a2da6511ca407f93a093938415e1b2f290fc56c64fbdd72040"
   },
   "claims": [
     {
@@ -213992,6 +213992,28 @@
             "by": "server",
             "mac": "399793692b75b4c3798ee2faf21f3a82617afa894a35105788c358480af15a75"
           }
+        },
+        {
+          "id": "EVD-4267",
+          "kind": "inspection",
+          "locator": "src/okf/markdown.rs links_in_masked; tests a_link_after_a_code_span_with_an_opening_bracket_is_found, many_code_span_brackets_before_a_link_stay_linear",
+          "summary": "After review round 2, LINK runs on the text with code blanked to same-length filler, so code cannot swallow a real link; \"`[` [x](a.md)\" finds [x](a.md) with the exact range, in one linear pass. New tests fail on the previous code.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 195,
+                "end": 250
+              },
+              "commit": "3dc6fccb02944e3e0de7a3443f6cdba24a8c303b"
+            }
+          },
+          "recorded_at": "2026-11-28T04:40:51.835279806Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed8365d65af872a444c00887a89053b9cae17838496986973713cb3b0441f848"
+          }
         }
       ],
       "verdicts": [
@@ -214010,10 +214032,10 @@
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T03:51:06.307892498Z",
+      "updated_at": "2026-11-28T04:40:51.835279806Z",
       "seal": {
         "by": "server",
-        "mac": "0078ee3a5efa32c52902d13dc523a36622efedade12e90abd8285a65085b5ed0"
+        "mac": "77c71237650588ce39bb0fa61461dc2db756d9a8e6b42793b56069ce958281a8"
       }
     },
     {

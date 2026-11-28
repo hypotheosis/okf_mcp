@@ -2867,6 +2867,7 @@ mod tests {
             work_catalog.id,
             "owned.md",
             20,
+            None,
         )
         .await
         .unwrap();

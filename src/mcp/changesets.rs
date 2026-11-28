@@ -2061,7 +2061,7 @@ mod publish_tests {
         assert!(published_text(&test, "a.md")
             .await
             .ends_with("# A\n\nNew.\n"));
-        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5)
+        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5, None)
             .await
             .unwrap();
         assert_eq!(
@@ -2157,7 +2157,7 @@ mod publish_tests {
             "the publish rolled back"
         );
         let state = test.app.catalog("pg").await.unwrap().unwrap();
-        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5)
+        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5, None)
             .await
             .unwrap();
         assert_eq!(rows.len(), 1, "no revision was written");
@@ -2238,7 +2238,7 @@ mod publish_tests {
         assert!(published.report.published);
         assert_eq!(state_of(&test, &handle).await, ChangesetState::Published);
         let state = test.app.catalog("pg").await.unwrap().unwrap();
-        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5)
+        let rows = history::revisions(&test.app.main_db().await, state.id(), "a.md", 5, None)
             .await
             .unwrap();
         // The publishing key's actor, not the opener's.
@@ -2725,6 +2725,7 @@ mod publish_tests {
             limit,
             user: None,
             since: None,
+            before: None,
         };
         // `history` shows it, even when `limit` leaves the newest rows out.
         let live = crate::mcp::history::history(&ours, shown(Some(1), "/a.md"))
@@ -2795,6 +2796,7 @@ mod publish_tests {
                 limit: None,
                 user: None,
                 since: None,
+                before: None,
             },
         )
         .await
@@ -4372,10 +4374,10 @@ mod restructure_publish_tests {
             ]
         );
         assert!(published.report.replayed.is_empty());
-        let old = history::revisions(&test.app.main_db().await, state.id(), "infra/x.md", 5)
+        let old = history::revisions(&test.app.main_db().await, state.id(), "infra/x.md", 5, None)
             .await
             .unwrap();
-        let new = history::revisions(&test.app.main_db().await, state.id(), "infra/z.md", 5)
+        let new = history::revisions(&test.app.main_db().await, state.id(), "infra/z.md", 5, None)
             .await
             .unwrap();
         // Each path keeps its own history (plan Decision 16).

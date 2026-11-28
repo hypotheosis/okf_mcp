@@ -91,6 +91,7 @@ fn history_of(path: &str) -> HistoryParams {
         limit: None,
         user: None,
         since: None,
+        before: None,
     }
 }
 

@@ -32,7 +32,7 @@ const DEFAULT_LIMIT: u32 = 20;
 
 /// The most revisions one call returns, whatever `limit` asks for, so a
 /// response stays a reasonable size for an MCP client (as `search`'s cap).
-const MAX_LIMIT: u32 = 200;
+pub(crate) const MAX_LIMIT: u32 = 200;
 
 /// `history`'s arguments. Doc comments are the parameters' descriptions in
 /// the tool's input schema (`JsonSchema` reads them).
@@ -48,6 +48,8 @@ pub struct HistoryParams {
     pub user: Option<String>,
     /// Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`).
     pub since: Option<String>,
+    /// Only revisions numbered below this one, to page back past the newest: pass the previous page's `next` (a revision number). Past the oldest revision the page is empty.
+    pub before: Option<i32>,
 }
 
 /// One revision.
@@ -86,6 +88,8 @@ pub struct History {
     pub latest_revision: Option<i32>,
     /// Newest first.
     pub revisions: Vec<Revision>,
+    /// Pass this as `before` for the next, older page: the page's last revision number. Null when no older revision matches the filters, so a non-null `next` never leads to an empty page.
+    pub next: Option<i32>,
 }
 
 /// The stored paths a reference may mean, as `get_concept` spells them: as
@@ -123,6 +127,19 @@ fn revision_limit(requested: Option<u32>) -> i64 {
     // `map_or(default, f)` is Python's `default if x is None else f(x)`;
     // `clamp(lo, hi)` is `min(max(x, lo), hi)`.
     i64::from(requested.map_or(DEFAULT_LIMIT, |limit| limit.clamp(1, MAX_LIMIT)))
+}
+
+/// A page size as a row count, for slicing.
+///
+/// # Arguments
+/// * `limit` - the page size from [`revision_limit`], 1..=[`MAX_LIMIT`].
+///
+/// # Returns
+/// `limit` as a `usize`.
+#[tracing::instrument(level = "trace", skip_all)]
+fn limit_rows(limit: i64) -> usize {
+    // The limit is at most 200, so the conversion cannot fail.
+    usize::try_from(limit).unwrap_or(usize::MAX)
 }
 
 /// The people some revisions record, resolved for showing: a revision keeps
@@ -267,6 +284,7 @@ impl Selection {
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) async fn history(ctx: &ToolContext, params: HistoryParams) -> Result<History, OkfError> {
     let limit = revision_limit(params.limit);
+    let page_len = limit_rows(limit);
     let selection = Selection::of(ctx, params.user.as_deref(), params.since.as_deref()).await?;
     let paths = candidates(&params.path);
     let set = ctx.read_set(params.catalog.as_deref()).await?;
@@ -279,13 +297,31 @@ pub(crate) async fn history(ctx: &ToolContext, params: HistoryParams) -> Result<
             // `.await` suspends this call until Postgres answers, freeing the
             // thread for other requests meanwhile.
             let db = ctx.app().store_db(state.store()).await?;
-            let rows = revisions_by(&db, state.id(), path, limit, &selection.filter()).await?;
+            // One row more than the page holds: its presence is the proof
+            // that an older matching revision exists, so `next` is never
+            // given for an empty page.
+            let mut rows = revisions_by(
+                &db,
+                state.id(),
+                path,
+                limit + 1,
+                params.before,
+                &selection.filter(),
+            )
+            .await?;
+            let more = rows.len() > page_len;
+            rows.truncate(page_len);
+            let next = if more {
+                rows.last().map(|row| row.revision)
+            } else {
+                None
+            };
             if rows.is_empty() {
-                // Nothing matched the filters: the path still has a history
-                // if an unfiltered read finds a revision, and the answer is
-                // then an empty list, not "no such document".
-                let exists = selection.is_filtered()
-                    && !revisions_by(&db, state.id(), path, 1, &Filter::default())
+                // Nothing matched the filters or the `before` bound: the path
+                // still has a history if an unfiltered read finds a revision,
+                // and the answer is then an empty list, not "no such document".
+                let exists = (selection.is_filtered() || params.before.is_some())
+                    && !revisions_by(&db, state.id(), path, 1, None, &Filter::default())
                         .await?
                         .is_empty();
                 if !exists {
@@ -325,6 +361,7 @@ pub(crate) async fn history(ctx: &ToolContext, params: HistoryParams) -> Result<
                 current_revision: state.current().revision(path),
                 latest_revision: latest_revision(db.executor(), state.id(), path).await?,
                 revisions,
+                next,
             });
         }
     }
@@ -506,7 +543,9 @@ impl OkfServer {
                        null for a deleted one); pass it to `revert` as `expected_revision`. \
                        Without `catalog`, the first selected catalog with any revision of the path \
                        answers. At most `limit` revisions (default 20, at most 200); filter with \
-                       `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's \
+                       `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). A page \
+                       also gives `next`; pass it as `before` for the next, older page \
+                       (null when no older revision matches). For a catalog's \
                        changes across documents, use `recent_changes`.",
         annotations(
             title = "Document History",
@@ -568,6 +607,7 @@ mod tests {
             limit: None,
             user: None,
             since: None,
+            before: None,
         }
     }
 

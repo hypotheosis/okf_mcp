@@ -18,6 +18,8 @@ pub mod context;
 pub(crate) mod guide;
 pub(crate) mod history;
 #[cfg(test)]
+mod history_paging_tests;
+#[cfg(test)]
 mod history_people_tests;
 #[cfg(test)]
 mod labels_tests;

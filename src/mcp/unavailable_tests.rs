@@ -162,6 +162,7 @@ async fn get_concept_fails_when_an_earlier_catalogs_store_is_unavailable() {
             limit: None,
             user: None,
             since: None,
+            before: None,
         },
     ))
     .await;

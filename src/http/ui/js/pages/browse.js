@@ -13,6 +13,7 @@ import { store } from '../core/store.js';
 import { catalogLabel, teamLabel } from '../core/labels.js';
 import { go, browseHash, route } from '../core/router.js';
 import { ago, count } from '../core/format.js';
+import { latest } from '../core/latest.js';
 import { listTable } from '../components/list-table.js';
 import { segments } from '../components/segments.js';
 import { tree } from '../components/tree.js';
@@ -258,22 +259,74 @@ async function linksTab(where) {
     return h('div', {}, h('h2', {}, 'Links out'), out, h('h2', {}, 'Backlinks'), back);
 }
 
+let historyPageSize = 20;
+
+// A test hook: a journey shrinks the page so a few revisions make several pages.
+export function setHistoryPageSize(size) {
+    historyPageSize = size;
+}
+
+// One page of a document's revisions, newest first; `before` (the previous
+// page's `next`) continues below its last row.
+function historyPage(where, before) {
+    const query = new URLSearchParams({ limit: String(historyPageSize) });
+    if (before != null) query.set('before', String(before));
+    return api.get(`${base(where)}/history/${encPath(where.path)}?${query}`);
+}
+
+// The History tab: the newest page, then Load older while the answer still
+// carries a `next`.
 async function historyTab(view, where) {
     let data;
     try {
-        data = await api.get(`${base(where)}/history/${encPath(where.path)}`);
+        data = await historyPage(where, null);
     } catch {
         return h('p', { class: 'muted' }, 'History could not be loaded.');
     }
+    let rows = data.revisions;
+    let next = data.next ?? null;
+    let pending = false;
     const table = listTable([
         { key: 'revision', label: 'Rev', sort: row => row.revision },
         { key: 'op', label: 'Op', render: row => pill(row.op, row.op === 'delete' ? 'error' : 'muted') },
         { key: 'actor', label: 'Actor', class: 'mono' },
         { key: 'message', label: 'Message' },
         { key: 'at', label: 'When', render: row => ago(row.at), sort: row => row.at },
-    ], data.revisions, { onRow: row => openRevision(view, where.catalog, where.path, row), empty: 'No revisions.' });
+    ], rows, { onRow: row => openRevision(view, where.catalog, where.path, row), empty: 'No revisions.' });
     table.id = 'history';
-    return table;
+    const status = h('p', { id: 'history-status', class: 'small muted error', hidden: true });
+    const older = h('button', { type: 'button', id: 'history-older', class: 'secondary', hidden: next == null, onclick: () => loadOlder() }, 'Load older');
+    const wrap = h('div', {}, table, status, older);
+    // Counts the reads of this tab: the answer of one that was replaced, or
+    // that arrives after the tab or the page was left, draws nothing.
+    const reads = latest(wrap);
+    async function loadOlder() {
+        // A second click while a read is in flight must not fetch (and
+        // append) the same page twice.
+        if (pending || next == null) return;
+        pending = true;
+        older.hidden = true;
+        const current = reads();
+        let page;
+        try {
+            page = await historyPage(where, next);
+        } catch (error) {
+            if (!current()) return;
+            status.textContent = `Loading older revisions failed.${error?.message ? ` ${error.message}` : ''}`;
+            status.hidden = false;
+            pending = false;
+            older.hidden = false;
+            return;
+        }
+        if (!current()) return;
+        pending = false;
+        rows = rows.concat(page.revisions);
+        next = page.next ?? null;
+        status.hidden = true;
+        table.redraw(rows);
+        older.hidden = next == null;
+    }
+    return wrap;
 }
 
 function rawTab(raw, note) {

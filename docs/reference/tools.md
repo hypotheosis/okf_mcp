@@ -229,7 +229,7 @@ Read first: how to use this server to remember and recall what the person shares
 
 **Document History** (read-only)
 
-See how a note has changed. A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too, but no tool reads an old revision's text of an index.md directly: `read_document` gives the current one, and `revert` puts an old one in a changeset as a draft, which `read_document` with `changeset` shows. `latest_revision` is the newest revision number, a deletion included (it equals `current_revision` for a live document; `current_revision` is null for a deleted one); pass it to `revert` as `expected_revision`. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). For a catalog's changes across documents, use `recent_changes`.
+See how a note has changed. A document's revisions, newest first: revision, op (create, update, delete, import), actor, user, user_label, message and time. `user` is the person whose credential published the revision (null for an import or a key no user owned); `actor` names the credential. Deleted documents keep their history; log.md, indexes and other files have one too, but no tool reads an old revision's text of an index.md directly: `read_document` gives the current one, and `revert` puts an old one in a changeset as a draft, which `read_document` with `changeset` shows. `latest_revision` is the newest revision number, a deletion included (it equals `current_revision` for a live document; `current_revision` is null for a deleted one); pass it to `revert` as `expected_revision`. Without `catalog`, the first selected catalog with any revision of the path answers. At most `limit` revisions (default 20, at most 200); filter with `user` (a user's id, or `deleted:<id>` as a revision shows it) and `since` (RFC 3339, inclusive). A page also gives `next`; pass it as `before` for the next, older page (null when no older revision matches). For a catalog's changes across documents, use `recent_changes`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -238,6 +238,7 @@ See how a note has changed. A document's revisions, newest first: revision, op (
 | `limit` | integer | no | At most this many revisions (default 20, at most 200; 0 counts as 1). |
 | `user` | string | no | Only revisions made by this person: a user's id (the `name` `whoami` shows as `user`), or, for a user since deleted, the `deleted:<id>` a revision shows. A bare value is always a name. |
 | `since` | string | no | Only revisions made at or after this time (RFC 3339, `2026-11-02T21:00:00Z`). |
+| `before` | integer | no | Only revisions numbered below this one, to page back past the newest: pass the previous page's `next` (a revision number). Past the oldest revision the page is empty. |
 
 ## `index`
 

@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2496,
+  "next_claim_seq": 2511,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "b93e94d8e5963176db3b58052ef1f1f9af2b376c8d9e57d722313380d8be2bf4"
+    "mac": "549415d1f22bbf87b1471d13b0dd93b32c37cb08553e9d6c75d28dd249182c4c"
   },
-  "next_evidence_seq": 4351,
+  "next_evidence_seq": 4378,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "96ebf8eae3cea68830aacbdfea45cebee5ab380616074be58048228b34c3e1a6"
+    "mac": "341fb49f670155e5b9dafd6c892efba74bd41abf392a1fb48ab2ec06150be8a6"
   },
   "claims": [
     {
@@ -121746,7 +121746,9 @@
         "from-issue:978"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the #998 rewrite of docs/operations.md (CLM-2507 covers the new text).",
+        "retired_at": "2026-11-28T07:48:34.394571105Z"
       },
       "evidence": [
         {
@@ -121770,6 +121772,28 @@
             "by": "server",
             "mac": "d073308600cc01100225028b37e41decfe541124cfff10436c3ec6f23f76ae5e"
           }
+        },
+        {
+          "id": "EVD-4374",
+          "kind": "inspection",
+          "locator": "docs/operations.md:484-493",
+          "summary": "The paragraph the claim describes ('A refused login fails the request that met it with StoreUnavailable ... issue #998 tracking a retry') was replaced by this change with text saying the request succeeds after a refresh-and-retry. The claim's statement no longer matches the docs.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 484,
+                "end": 493
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:45:30.867341934Z",
+          "seal": {
+            "by": "server",
+            "mac": "6be547414538291600e3f62aef86f1e4fff53bb28ef64c80554966c720ad3508"
+          }
         }
       ],
       "verdicts": [
@@ -121785,13 +121809,26 @@
             "by": "server",
             "mac": "414cd86f939bc5ddad1b397b6a1f23b7d1c953fa734a89fba00719499082c6be"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "The docs text this claim describes was intentionally replaced by this change (retry landed, #998 closed). The claim is superseded, not a defect in the change. Fix: retire CLM-1233 with the reason 'superseded by the #998 docs rewrite (CLM-2507 covers the new text)'.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4374"
+          ],
+          "recorded_at": "2026-11-28T07:45:42.873403963Z",
+          "seal": {
+            "by": "server",
+            "mac": "e960182b23ea3717d780168ba51467a358dfe7778d3679add223fe74dfa8a032"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-24T16:26:04.271726550Z",
+      "updated_at": "2026-11-28T07:48:34.394571105Z",
       "seal": {
         "by": "server",
-        "mac": "c14c053c2e95df549d547b360a39e4e03ba9946773e96bf58ccffb17a246716c"
+        "mac": "83327a666f27c400437ea108bce5bfe2be408a8bc7af581d5d5c8a31143d77b8"
       }
     },
     {
@@ -218198,6 +218235,28 @@
             "by": "server",
             "mac": "24bfe40b9f2e2bf5e15491930f55710423beedb1788edbd2a406ee746f73ed19"
           }
+        },
+        {
+          "id": "EVD-4375",
+          "kind": "inspection",
+          "locator": "src/stores/executor.rs:36-45, 86-180",
+          "summary": "StoreExecutor is still #[derive(Clone, Copy)] over &CatalogDb; fetch_many, fetch_optional, prepare_with and describe still map errors with mark_unavailable(db.store(), error) after acquire_raw. The wrapper now holds the CatalogDb instead of store+pool but the described contract holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/executor.rs",
+              "lines": {
+                "start": 36,
+                "end": 45
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:45:31.068504809Z",
+          "seal": {
+            "by": "server",
+            "mac": "599832d26355c94f2d8ea9849fb6f7420ba4e29b718fc3a8a415e26860542624"
+          }
         }
       ],
       "verdicts": [
@@ -218213,13 +218272,26 @@
             "by": "server",
             "mac": "bcae752436f92ffac59556869e7e92717221fdc2d1e9b13a24132f0cc3657303"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: still a Copy wrapper; the four methods still rewrite unreachable errors.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4375"
+          ],
+          "recorded_at": "2026-11-28T07:45:43.034454524Z",
+          "seal": {
+            "by": "server",
+            "mac": "11dd2fbdbd82ff65cc3123760a91cfd59a9944f670d595180c8bbc278aa70065"
+          }
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:22.619272050Z",
+      "updated_at": "2026-11-28T07:45:43.034454524Z",
       "seal": {
         "by": "server",
-        "mac": "7837f09ff52813c6132c18b7ce93dd6059a340d0646dbbda790c2f7568c7dabc"
+        "mac": "200e68b47f156f2183b34efdffc30b9d1dca8e47e98ec5c19dca485f8209acda"
       }
     },
     {
@@ -218579,7 +218651,9 @@
         "from-issue:995"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #998: catalog::build and the evidence read now use CatalogDb::begin_with and acquire, so they no longer call pool().",
+        "retired_at": "2026-11-28T07:48:34.244097121Z"
       },
       "evidence": [
         {
@@ -218603,6 +218677,28 @@
             "by": "server",
             "mac": "1336688343fc29b725b4eeef196cd44b09af4ff41d557a8910e8f139de8265d3"
           }
+        },
+        {
+          "id": "EVD-4373",
+          "kind": "analysis",
+          "locator": "src/catalog.rs:475-477; src/store/maintenance/evidence.rs:88",
+          "summary": "At head catalog::build calls db.begin_with(...) and evidence::read calls db.acquire(); neither calls CatalogDb::pool() any more. The claim's list of non-test pool() callers (registry, catalog::build, the evidence read) is no longer true, since this change moved those two.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "src/catalog.rs",
+              "lines": {
+                "start": 473,
+                "end": 478
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:45:30.651745844Z",
+          "seal": {
+            "by": "server",
+            "mac": "351797b5aee6d0a7ff4bb45a64183cb523b702f776471fe10887b67fe1b6b57f"
+          }
         }
       ],
       "verdicts": [
@@ -218618,13 +218714,26 @@
             "by": "server",
             "mac": "38fbef24ed0886e0dd0aac8f94b2dd3ac95c4d3c563cb91a5f5c3734e2ec6977"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This change moved catalog::build and evidence::read off CatalogDb::pool(), so the statement that they are among its non-test callers is false at head. Fix: retire CLM-2484 with the reason 'superseded by #998' and, if wanted, add a claim saying the only non-test callers of CatalogDb::pool() are the registry (open, migrate, listener, close), housekeeping and the main-pool accessor in src/db.rs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4373"
+          ],
+          "recorded_at": "2026-11-28T07:45:42.710595297Z",
+          "seal": {
+            "by": "server",
+            "mac": "1614d92a5de5fde3585c66b8807e9ad376e728ffdee10e25bddf1de256317e27"
+          }
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:23.419310320Z",
+      "updated_at": "2026-11-28T07:48:34.244097121Z",
       "seal": {
         "by": "server",
-        "mac": "fe4e5227b8c4836501dfee1ec0990522d50988c27538159e65909653915a5c37"
+        "mac": "6b99b8df9677580dcf5d8cf931ceca93e56b8078491f7becbd14d01c1ba58b32"
       }
     },
     {
@@ -218905,6 +219014,28 @@
             "by": "server",
             "mac": "4817d09a74135989416ebb8738fe07dcb7bcbddf95fe172d6d1b3baa46249925"
           }
+        },
+        {
+          "id": "EVD-4376",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:1997-2052 (a_plain_read_after_a_rotation_refreshes)",
+          "summary": "Test is unchanged. The database is set to 'pw-rotating', matching neither login, so after the retry the read is still refused and still returns StoreUnavailable; then it waits for a refresh and the next read works. Behaviour still consistent with the claim at head under the new retry (analysis; not run).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 1997,
+                "end": 2052
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:45:31.290832111Z",
+          "seal": {
+            "by": "server",
+            "mac": "8951c55dbb7a41c8836a1d1186966e11c5ba19fc0a849c115ac553e6620c1bfa"
+          }
         }
       ],
       "verdicts": [
@@ -218920,13 +219051,26 @@
             "by": "server",
             "mac": "46634246daee8fc0d6368b16ec9aad56c3bd751f930874f69f73772f6f24c455"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head by reading: the test's database password matches neither login, so the read is still refused after the retry and still StoreUnavailable. Not run by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4376"
+          ],
+          "recorded_at": "2026-11-28T07:45:43.210250200Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b49d867d89db654c6de9bd70eab120bd2e2dc3816ba34ea5464d97deb1238a2"
+          }
         }
       ],
       "created_at": "2026-11-28T06:55:08.589273363Z",
-      "updated_at": "2026-11-28T06:55:58.396415118Z",
+      "updated_at": "2026-11-28T07:45:43.210250200Z",
       "seal": {
         "by": "server",
-        "mac": "c4f1f6db00106d8935496e3078a7287686845484038f66de8bfe4f1c0dab367e"
+        "mac": "4689d6eb6277e01a023753e2cc8a7c3c167ff142a35e391cd715e73cbeccc4c9"
       }
     },
     {
@@ -219408,6 +219552,28 @@
             "by": "server",
             "mac": "b70b532f96fd5978507b26523b7f8483bd46fd2f2d577733d258e5b67a537d3b"
           }
+        },
+        {
+          "id": "EVD-4372",
+          "kind": "inspection",
+          "locator": "src/store/maintenance/evidence.rs:87-95; src/stores/mod.rs:410-415",
+          "summary": "At head read calls db.acquire(), whose body maps the error with self.classify (mod.rs:410-415, now also retried once), and still maps the pinned result with classify_store_failure. Both steps still classified.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/maintenance/evidence.rs",
+              "lines": {
+                "start": 87,
+                "end": 95
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:45:30.454721392Z",
+          "seal": {
+            "by": "server",
+            "mac": "729c4b3eb69c063cd23ec92d43a094e990acb5aec5f2f0a6a9fec1d35df09c69"
+          }
         }
       ],
       "verdicts": [
@@ -219423,13 +219589,1178 @@
             "by": "server",
             "mac": "33ca3d9acb3cfae447da1190a3646a0866b12a091e25ef016f98f3099ad9089a"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at head: acquire still classified inside db.acquire, pinned result still classified.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4372"
+          ],
+          "recorded_at": "2026-11-28T07:45:42.513522256Z",
+          "seal": {
+            "by": "server",
+            "mac": "57f6aa7fdfeddb8c79591fb3d9f9a73a4fe4ba1be8055aad0700997d31acd521"
+          }
         }
       ],
       "created_at": "2026-11-28T07:09:27.502667007Z",
-      "updated_at": "2026-11-28T07:09:46.419538009Z",
+      "updated_at": "2026-11-28T07:45:42.513522256Z",
       "seal": {
         "by": "server",
-        "mac": "a66af26711ce8f3db00e15807124e2d058051f33d6bc33d0552cba3d9c8dcc9b"
+        "mac": "468c3255074edfb9dd63e1c69101f34e509a010f06c4d1fffc4435f84da8efd8"
+      }
+    },
+    {
+      "id": "CLM-2496",
+      "statement": "Issue #998 is delivered: an acquisition on an already-open store pool that is refused its login waits for the credential task's next refresh and acquires once more, so the triggering request succeeds.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "hypotheosis/okf_mcp#998 Retry the acquisition once on an open store pool after a refused login",
+      "derived_from": [],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/stores/executor.rs",
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4377",
+          "kind": "analysis",
+          "locator": "children of CLM-2496",
+          "summary": "Children cover the issue: retry only on refused login (2497), watch wait, bounded (2498), once (2499), executor (2500), begin/acquire/begin_with (2501), coalescing (2502), failure/timeout (2503), no secrets (2504), the two acceptance tests (2505, 2506), docs (2507), changelog (2508), plus PR statements 2509 and 2510. All supported; tests were read, not run (gates elsewhere).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T07:45:43.385942506Z",
+          "seal": {
+            "by": "server",
+            "mac": "47e0678b5a51468045f7a5183a35919ef6cdd0249d64e9b5419b7b3daa27540d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All fourteen children are supported, covering every requirement and acceptance item; caveats recorded on the children.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4377"
+          ],
+          "recorded_at": "2026-11-28T07:45:47.026054685Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a0cb75e75638293e1a67eddf12adb8e8d22e10c59a2139eab2df358b13104b0"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:47.026054685Z",
+      "seal": {
+        "by": "server",
+        "mac": "7a43e2a603f374a8c66aeea1333415624383ed06e513e3f73c9039ea6e677de8"
+      }
+    },
+    {
+      "id": "CLM-2497",
+      "statement": "CatalogDb::retrying retries only when the first attempt fails with a refused login (is_auth_failure, SQLSTATE class 28); a PoolTimedOut, PoolClosed, Io, WorkerCrashed or SQL error is returned at once with one attempt (test other_failures_are_not_retried).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: Retry only on a refused login (never on timeout or transport error)",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/stores/credentials.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4351",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:358-398",
+          "summary": "retrying matches the first attempt's result: Err(error) if credentials::is_auth_failure(&error) continues; any other result is returned at once. is_auth_failure (credentials.rs:452) tests SQLSTATE starts_with 28.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 358,
+                "end": 398
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:01.327998672Z",
+          "seal": {
+            "by": "server",
+            "mac": "18b762fba561c432e99454b179aedbd00ed55f4afc9fee77f2b1b25b76201664"
+          }
+        },
+        {
+          "id": "EVD-4352",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:758-782 (other_failures_are_not_retried; not run, gates elsewhere)",
+          "summary": "Read the test: for PoolTimedOut, PoolClosed, Io, WorkerCrashed and RowNotFound it asserts the attempt ran exactly once and elapsed time is zero on a paused clock. Test not executed by me (cargo forbidden).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 758,
+                "end": 782
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:01.508407348Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0e9a34d78a2d9cc2795576696d5a314240649e427034bf9ac2538e7ead51ddf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code returns every non-class-28 result at once; the test covers five non-auth errors with one attempt. Tests read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4351",
+            "EVD-4352"
+          ],
+          "recorded_at": "2026-11-28T07:45:05.841316560Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7a886303928de986eaeea4163a1eb1288be7940290b88dc0d90c78182100d90"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:05.841316560Z",
+      "seal": {
+        "by": "server",
+        "mac": "96b63f0bb0169c958ee67c46a6c4fda4b4887d384a62cd96c3d7cc7c9c9385a0"
+      }
+    },
+    {
+      "id": "CLM-2498",
+      "statement": "The wait in CatalogDb::retrying is a tokio watch wait_for on the credential task's refresh count wrapped in tokio::time::timeout of store_connect_timeout minus the time already spent since the first attempt; there is no sleep and no polling loop.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: wait for the credential task's next refresh (bounded by store_connect_timeout; a watch/notify, never a sleep or poll)",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4353",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:366-398",
+          "summary": "seen read from the watch before the attempt; wait = renewal.wait.saturating_sub(started.elapsed()); tokio::time::timeout(wait, refreshed.wait_for(|count| *count > seen)). No sleep/poll in the function (search below).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 366,
+                "end": 398
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:01.673647277Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcbdd578a6413df77dc91ccf1692e2fb9eb00aa028f117beb88c237398804825"
+          }
+        },
+        {
+          "id": "EVD-4354",
+          "kind": "analysis",
+          "locator": "git grep -E 'sleep|interval|poll' src/stores/executor.rs; retrying body has none",
+          "summary": "No sleep/interval/poll in the executor file, where the stream acquire lives (zero hits); the retrying body (mod.rs:358-398) read in full contains none.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "sleep|interval|poll_fn|loop \\{",
+              "case_insensitive": true,
+              "scope": [
+                "src/stores/executor.rs"
+              ],
+              "hits": 0,
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:01.859441750Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3ab411321188704b4da6c2efe2668a5f2d33056f6a61ad4e3cff29a3a80c218"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The body is a single watch wait_for under a remaining-time timeout; no sleep, interval or loop.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4353",
+            "EVD-4354"
+          ],
+          "recorded_at": "2026-11-28T07:45:06.018120826Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bded2f715b23fa80a5a71675015a85ebbe68ddf2c8d3661114c1e33a2a20880"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:06.018120826Z",
+      "seal": {
+        "by": "server",
+        "mac": "f2046f7d1a991b13b9ef2c7a043dec56ad92c409e069c12b0043e9af84b8fd4d"
+      }
+    },
+    {
+      "id": "CLM-2499",
+      "statement": "CatalogDb::retrying never loops: it runs the attempt at most twice, and a login still refused on the second attempt is returned (test a_login_that_stays_refused_is_tried_twice_and_no_more).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: never loop; PR body: \"Then one more attempt; there is no loop.\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4355",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:358-398, 700-717",
+          "summary": "retrying has two straight-line calls to attempt() (first, then final `attempt().await` returned as is) and no loop. Test a_login_that_stays_refused_is_tried_twice_and_no_more asserts ran == 2 and is_err. Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 698,
+                "end": 717
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:02.061373323Z",
+          "seal": {
+            "by": "server",
+            "mac": "6975d28ed9dc0c68cd1df5c70e17d713be01020259b2260fa03ee5f833371742"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Two straight-line attempts, final result returned unconditionally; test asserts two attempts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4355"
+          ],
+          "recorded_at": "2026-11-28T07:45:06.244822472Z",
+          "seal": {
+            "by": "server",
+            "mac": "423d296f2e97b7d0d1231fb3c55b156507f13430996ed055b3ec52ee3780c8f4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:06.244822472Z",
+      "seal": {
+        "by": "server",
+        "mac": "43b717303dc0ff31d793096fde6cddc2c3f211860eee6f750a15517f4954de9d"
+      }
+    },
+    {
+      "id": "CLM-2500",
+      "statement": "Every StoreExecutor query path (fetch_many, fetch_optional, prepare_with, describe, and so execute/fetch/fetch_one) now takes its connection through CatalogDb::acquire_raw, which runs under CatalogDb::retrying.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: Both StoreExecutor queries and CatalogDb::begin (and any acquire site in CatalogDb) get it",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/executor.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4356",
+          "kind": "inspection",
+          "locator": "src/stores/executor.rs:86-180",
+          "summary": "fetch_many (inside try_stream!), fetch_optional, prepare_with and describe each call db.acquire_raw() (executor.rs:95,121,149,177) then run on the connection; acquire_raw = self.retrying(|| self.pool.acquire()) (mod.rs:419). execute/fetch/fetch_one are sqlx defaults over these.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/executor.rs",
+              "lines": {
+                "start": 86,
+                "end": 180
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:02.253926687Z",
+          "seal": {
+            "by": "server",
+            "mac": "951eb172f74cb13f9bd5f7fa84304bf0069105165f18335341075be5c46518d0"
+          }
+        },
+        {
+          "id": "EVD-4357",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:2145-2215 (a_read_..._first_try, a_streamed_query_waits_out_a_refused_login)",
+          "summary": "Two tests drive fetch_one and a streamed fetch through StoreExecutor on an open pool after a rotation and assert success on the first try. Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2145,
+                "end": 2215
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:02.404309161Z",
+          "seal": {
+            "by": "server",
+            "mac": "b11ae3cca1b2737423adf5e9839d3110beab1adb8f2a969254e7da2f485ae400"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four overridden Executor methods acquire via acquire_raw (retrying); the other methods are sqlx defaults built on them; two DB tests cover fetch_one and a stream.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4356",
+            "EVD-4357"
+          ],
+          "recorded_at": "2026-11-28T07:45:06.443779840Z",
+          "seal": {
+            "by": "server",
+            "mac": "02d4abc80c508ae8eda024ffe70416a6b61de6912de6e66c332468967020dd69"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:06.443779840Z",
+      "seal": {
+        "by": "server",
+        "mac": "e917df3f2e3183b3d58c8f1a703a01ee7eeaaad4bb2c5f3a90f298b60b930d19"
+      }
+    },
+    {
+      "id": "CLM-2501",
+      "statement": "CatalogDb::begin, the new CatalogDb::begin_with and CatalogDb::acquire all go through CatalogDb::retrying, and no other non-test pool acquire or begin on a handle that has a credential task remains outside it (catalog::build and evidence::read were moved from the raw pool).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "#998: CatalogDb::begin (and any acquire site in CatalogDb) get it; PR body: \"The two raw-pool users (catalog::build, the evidence read) moved to the new methods.\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/catalog.rs",
+        "src/store/maintenance/evidence.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4358",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:410-437, 481-486",
+          "summary": "acquire_raw, begin_with and begin each call self.retrying(...) over self.pool.acquire/begin_with/begin. catalog.rs:475 and evidence.rs:88 now call db.begin_with / db.acquire.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 410,
+                "end": 486
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:20.527602060Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff9a19c77bb751c72c96f1c80833e00fc469c3e7612a82fbeb90c0f158eeb9d5"
+          }
+        },
+        {
+          "id": "EVD-4359",
+          "kind": "analysis",
+          "locator": "git grep -nE '\\.pool\\(\\)\\.(acquire|begin)|PgListener::connect_with' src (non-test)",
+          "summary": "Remaining non-test raw pool acquires: registry.rs:948 migrate_on and :992 claim_database (run at open, before a credential task exists, and covered by open's own refused-login retry), and invalidate.rs:460 PgListener::connect_with (change-feed listener, own reconnect). None is a request path. Not a blocker; noted as a residual raw acquire.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 944,
+                "end": 950
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:20.787686042Z",
+          "seal": {
+            "by": "server",
+            "mac": "e2f37dd87403b216ed00301a44ff370c7621c6116db1c7a6a4d1599a43b44aec"
+          }
+        },
+        {
+          "id": "EVD-4360",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:2183-2200 (begin/acquire/begin_with_waits_out_a_refused_login)",
+          "summary": "Three tests rotate under an open pool and assert begin, acquire and begin_with each succeed on first try.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2181,
+                "end": 2203
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:21.039971240Z",
+          "seal": {
+            "by": "server",
+            "mac": "207a8e0af04b03dd77a001f6e1432e06ae76e07c8368a72ed94ce51e1c812f84"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "begin, begin_with and acquire use retrying; the two former raw users are moved. The only remaining raw acquires are open-time (migrate_on, claim_database, before any credential task) and the change-feed listener, none a request path (neutral EVD-4359).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4358",
+            "EVD-4360"
+          ],
+          "recorded_at": "2026-11-28T07:45:06.681043950Z",
+          "seal": {
+            "by": "server",
+            "mac": "86154aea4d1854ed35a39ea631e7442f9f10d1c5e567f4463ac56dfee4f1604f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:06.681043950Z",
+      "seal": {
+        "by": "server",
+        "mac": "2ce4ec1843cc0b7f29bc859d679179c288f7c3069e05e843751498cad5e0b6bd"
+      }
+    },
+    {
+      "id": "CLM-2502",
+      "statement": "Many concurrent refused requests wait on the same refresh: each caller signals, the credential task drains every signal heard before one fetch, bumps the refresh count once, and every waiter sees it; there is no fetch per caller (tests every_caller_refused_at_once_is_released_by_one_refresh and concurrent_reads_refused_during_a_rotation_share_one_refresh).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: Many concurrent refused requests wait on the same refresh (no N refreshes); PR body: \"Coalescing. Each refused caller signals; the task drains every signal it has heard before one fetch, bumps the count once, and every waiter sees it. Not one fetch per caller.\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/stores/credentials.rs",
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4361",
+          "kind": "inspection",
+          "locator": "src/stores/credentials.rs:632-650",
+          "summary": "keep_current drains `while refused.try_recv().is_ok() {}` before one source.fetch(), then count.send_modify once per applied fetch; every waiter's wait_for sees that one bump.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/credentials.rs",
+              "lines": {
+                "start": 632,
+                "end": 650
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:21.301316736Z",
+          "seal": {
+            "by": "server",
+            "mac": "138cad5b24e6de7854b34d14bec37957400e45bc508beef1db9fba8b7f4a11d4"
+          }
+        },
+        {
+          "id": "EVD-4362",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:801-840; src/stores/registry.rs:2249-2272",
+          "summary": "Unit test: 8 callers refused, one watch bump releases all (ran == 16). DB test: 3 concurrent reads all succeed and fetches <= 2 (the 2 allows a stray refusal from another test). Bound is 1..=2, slightly loose but excludes one-per-caller for 3 readers only weakly (3 fetches would fail). Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 799,
+                "end": 840
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:21.540546964Z",
+          "seal": {
+            "by": "server",
+            "mac": "485fab1a06d1de72fb401b7b6e59218748b590fd054d63f3c64e612b6f3ff0a3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The task drains all signals before one fetch and bumps once; unit test releases 8 waiters with one bump; DB test bounds fetches. Not run by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4361",
+            "EVD-4362"
+          ],
+          "recorded_at": "2026-11-28T07:45:06.898944768Z",
+          "seal": {
+            "by": "server",
+            "mac": "2cb585b491a79ae8e46fe429e091e47c8668c333abba6d7441c3bfa9bfca8175"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:06.898944768Z",
+      "seal": {
+        "by": "server",
+        "mac": "fd55f4bd8bd9ed2d0c59a9db8cce7274cf4c31115a4c94b8024c939060fb49e8"
+      }
+    },
+    {
+      "id": "CLM-2503",
+      "statement": "A refresh that fails or does not arrive within store_connect_timeout (counted from the first attempt), or a credential task that has ended, makes the request return the original refusal as StoreUnavailable without a second attempt and without hanging.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998: A refresh that fails or times out ends in StoreUnavailable within the timeout; nothing hangs",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/stores/credentials.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4363",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:380-388, src/stores/credentials.rs:643-657",
+          "summary": "`if !matches!(renewed, Ok(true)) { return Err(refused) }` covers timeout (Err) and a closed watch (Ok(false)). A failed fetch (Err arm) does not bump the count, so waiters hit the timeout, which is counted from the first attempt via saturating_sub(started.elapsed()). Caveat: after a late refresh the second attempt can itself wait up to the pool acquire_timeout (= store_connect_timeout, registry.rs:807), so total latency is bounded by about 2x store_connect_timeout, not 1x, in that case.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 378,
+                "end": 398
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:21.783112242Z",
+          "seal": {
+            "by": "server",
+            "mac": "add6fc9aef051a0f8c0fa43bc3285ec47cb0410edd6453e6949bd7b4503388c9"
+          }
+        },
+        {
+          "id": "EVD-4364",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:719-756 (no_refresh_within_the_timeout..., an_ended_credential_task...)",
+          "summary": "Paused-clock tests: with no refresh, elapsed == wait exactly, ran == 1, error classifies to StoreUnavailable; with the sender dropped, returns at once with ran == 1. No test covers a fetch that fails in the real task (the failure path is reasoned from credentials.rs:645-657, not tested), only the no-refresh equivalent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 717,
+                "end": 756
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:22.019719822Z",
+          "seal": {
+            "by": "server",
+            "mac": "e80ef5b4baa9d59a091bd2b038a97cb7351c9c5df4141ae80c1950d2590e13cf"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Timeout, closed watch and failed fetch all return the first refusal with no second attempt; paused-clock tests assert elapsed equals the wait. Caveat recorded in EVD-4363: after a late successful refresh the second attempt may add up to one pool acquire_timeout, and the failed-fetch path has no direct test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4363",
+            "EVD-4364"
+          ],
+          "recorded_at": "2026-11-28T07:45:07.109663293Z",
+          "seal": {
+            "by": "server",
+            "mac": "7c048a4af20d45ec9a1cb9bd8446c1c641b93da94fabe814b17a36130294c6bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:07.109663293Z",
+      "seal": {
+        "by": "server",
+        "mac": "e1026dd15ff1cdd47c71fa33b9c701a04928047194a13a3f1100e7aa4f980de4"
+      }
+    },
+    {
+      "id": "CLM-2504",
+      "statement": "The new retry code adds no secret to logs, errors or spans: the only new event is a debug event carrying the store name with no error text, and every failure path returns the original sqlx error unchanged.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "#998: No secrets in logs/errors/spans; PR body: \"No secrets. The only new log line is a debug event with the store name in the local-only sink, no error text.\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4365",
+          "kind": "inspection",
+          "locator": "src/stores/mod.rs:388-397",
+          "summary": "The one new event (split_event! debug) logs only store = %self.store with a fixed message; no error text, no role. Failure returns the unchanged refused sqlx error; signal_auth_refused(&refused) is the pre-existing broadcast of the role name to tasks, not to logs. retrying is #[instrument(skip_all)] so no args in the span. Residual: the second attempt's error is classified/propagated as before (pre-existing paths).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 355,
+                "end": 398
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:40.208637114Z",
+          "seal": {
+            "by": "server",
+            "mac": "bf914427b45b29864e830f284bd56c54e742ad9616a967c125f2a1ed9ab1157c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The one new event carries the store name only; the span skips all args; errors pass through unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4365"
+          ],
+          "recorded_at": "2026-11-28T07:45:07.330672711Z",
+          "seal": {
+            "by": "server",
+            "mac": "e651fdf16ff90941c11d3a19729e91f8af5848ca4bb688c65daacde6f50bdd98"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:07.330672711Z",
+      "seal": {
+        "by": "server",
+        "mac": "f0150c4357bfcdc5ed7bff9fd97ebc09bf38d85de51f3cbdefad7caac0728bfd"
+      }
+    },
+    {
+      "id": "CLM-2505",
+      "statement": "Regression test a_read_refused_its_login_after_a_rotation_succeeds_on_the_first_try, on an already-open store pool holding one connection, rotates the secret and database password and asserts a plain executor read returns 1 on its first try, then waits on the credential task's refresh count and asserts the secret was fetched again.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998 acceptance: a regression test on an already-open pool where after a password rotation a plain read succeeds on the first try, waiting deterministically on the refresh count",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4366",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:2090-2182 (RotatingStore::open, test at :2145)",
+          "summary": "RotatingStore opens a secrets-manager store, holds one pool connection, takes the credential task's watch receiver; test records secret calls, rotate_to(\"pw-2\") (secret and role password), then read_one under REFRESH_DEADLINE must be Ok and equal 1, then a_refresh_is_applied(wait_for count>=1) and calls > before. The wait is on the refresh watch, not a sleep. Assertion read, not just the name. Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2068,
+                "end": 2165
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:40.441497842Z",
+          "seal": {
+            "by": "server",
+            "mac": "395ff2d0c4f77329ef10a92d748cfad42d52cc3951827c51a227676437102f6d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts first-try success after a rotation on an open pool with a held connection, then waits on the refresh watch.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4366"
+          ],
+          "recorded_at": "2026-11-28T07:45:07.525073524Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a931068fa3f6090efcbee78653f7212c49c926afba01fb67c9749c13f4d3443"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:07.525073524Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5a043817aa27457791c46aaf25f43c22054682756550418d6470ef5f17235a7"
+      }
+    },
+    {
+      "id": "CLM-2506",
+      "statement": "Test a_login_that_stays_refused_after_the_refresh_is_unavailable_in_time asserts that a login that stays refused after the refresh ends in OkfError::StoreUnavailable in under store_connect_timeout plus one second, with exactly one extra secret fetch, and unit tests assert at most two attempts.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "#998 acceptance: a login that stays refused still ends in StoreUnavailable within the timeout with at most one retry",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4367",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:2218-2247; src/stores/mod.rs:698-717",
+          "summary": "DB test sets the secret to pw-wrong and role password pw-other, calls read_one: asserts StoreUnavailable, elapsed < connect_timeout + 1s, secret calls == before + 1. Unit test asserts ran == 2. Not executed by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2217,
+                "end": 2247
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:40.650763238Z",
+          "seal": {
+            "by": "server",
+            "mac": "7ea24b12506f2707ce5cbd0a2d0b5abda7d7d41e4dac8b0d1bbc7f235729ba0c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test asserts StoreUnavailable, an elapsed bound and exactly one fetch; unit test asserts two attempts.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4367"
+          ],
+          "recorded_at": "2026-11-28T07:45:07.720209449Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2f9e090b021113b0e6aaf74a1616f5c74dc3c081a38343e1990c2f2046dd207"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:07.720209449Z",
+      "seal": {
+        "by": "server",
+        "mac": "6b68345215c348b16e30af76402eb25b4d46846abde6926a23bcc86f6dd718fd"
+      }
+    },
+    {
+      "id": "CLM-2507",
+      "statement": "The plan's Task 9 note is corrected to say the retry landed (CatalogDb::retrying, watch on the refresh count, bounded by store_connect_timeout, once, only on a refused login, no retry for env), and docs/operations.md \"Adding a store\" replaces the old 'a refused login fails the request' sentence with the new behaviour and no longer says #998 tracks a retry.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "#998: Docs: the plan's Task 9 correction note and docs/operations.md describe the new behaviour",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "docs/superpowers/plans/2026-11-23-okf-mcp-catalog-stores.md"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4368",
+          "kind": "inspection",
+          "locator": "docs/operations.md:484-493; docs/superpowers/plans/2026-11-23-okf-mcp-catalog-stores.md:351",
+          "summary": "operations.md replaces the old paragraph with the retry behaviour (wait at most store_connect_timeout, coalesced refresh, only refused login, 10 s gap, env no retry); the Task 9 'Not done' bullet became 'Corrected (issue #998, 2026-11-28)' describing the same, and a Task 19 line is annotated. git grep of '998' in docs/operations.md and README finds no remaining 'tracks a retry'.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 484,
+                "end": 493
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:40.867642836Z",
+          "seal": {
+            "by": "server",
+            "mac": "f36668ea84311b88616187521ded212a9fd06aa2d9dadbbd0fed33930da73573"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both docs rewritten as described and consistent with the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4368"
+          ],
+          "recorded_at": "2026-11-28T07:45:07.888062527Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb479881a0b3c38984000aecc03e1c1bb0098ff395956e0c731fcdfad8e71787"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:07.888062527Z",
+      "seal": {
+        "by": "server",
+        "mac": "a05abe95ff26328577b4c9090e38069f27cae32a176ff931d5013b83ad7e3fd1"
+      }
+    },
+    {
+      "id": "CLM-2508",
+      "statement": "A changelog entry changelog/20261128T073102Z-issue-998-retry-refused-login.md exists and describes the retry, the executor change and the tests.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "#998: a changelog/ entry exists",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "changelog/20261128T073102Z-issue-998-retry-refused-login.md"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4369",
+          "kind": "inspection",
+          "locator": "changelog/20261128T073102Z-issue-998-retry-refused-login.md:1-49",
+          "summary": "File exists (49 lines), dated stamp in name and body, with Added/Changed/Notes covering retrying, executor change and tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T073102Z-issue-998-retry-refused-login.md",
+              "lines": {
+                "start": 1,
+                "end": 49
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:41.082501349Z",
+          "seal": {
+            "by": "server",
+            "mac": "72c2c3c738180bc451c290fe3c36977bc043c1107187fa3307854b1d20081acb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The file exists with the described content.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4369"
+          ],
+          "recorded_at": "2026-11-28T07:45:08.055142762Z",
+          "seal": {
+            "by": "server",
+            "mac": "84146c82d6aa9b5cc87f40ab7707cfc30e728755acb313ae74a8fc233ab29050"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:08.055142762Z",
+      "seal": {
+        "by": "server",
+        "mac": "0f6d768db2ea2ff1c46828d5ed3bd93ccbf3131de970f534eb5736003e1b9f56"
+      }
+    },
+    {
+      "id": "CLM-2509",
+      "statement": "PR body: a store with no credential task (env, the account database) has no renewal and makes one attempt; a store gets renewal only when spawn_keeper returns a Keeper (secrets-manager, iam).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"No credential task (env, the account database): no renewal, one attempt.\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "src/stores/credentials.rs"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4370",
+          "kind": "inspection",
+          "locator": "src/stores/credentials.rs:571-575 (spawn_keeper); src/stores/registry.rs:177-188; src/stores/mod.rs:785-798",
+          "summary": "spawn_keeper returns None for Refresh::Never (env); keep() calls with_renewal only when a keeper exists; CatalogDb::new sets renewal None (the account database and main). Test a_store_without_a_credential_task_does_not_retry asserts one attempt.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 177,
+                "end": 190
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:41.296015317Z",
+          "seal": {
+            "by": "server",
+            "mac": "707b9149ddb537a60616e2a25559cdd1a813340166c90b23563d393b22d7419d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Renewal exists only when spawn_keeper yields a keeper (None for env); other handles keep renewal None; unit test asserts one attempt.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4370"
+          ],
+          "recorded_at": "2026-11-28T07:45:08.220570112Z",
+          "seal": {
+            "by": "server",
+            "mac": "20240eeaec803bee194230a8994d5f87bf41740c4ad16fcafa94ae7726b9dff0"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:08.220570112Z",
+      "seal": {
+        "by": "server",
+        "mac": "4735c315f979fdf8b2bee447ff2d0beb883f13b0d9cd44e83c7c4afd39f8381b"
+      }
+    },
+    {
+      "id": "CLM-2510",
+      "statement": "PR body: the task's 10 second minimum gap between refreshes is unchanged, and the executor takes the new direct dependency async-stream, already in Cargo.lock through sqlx, for fetch_many.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"The task's 10 second minimum gap between refreshes is unchanged\"; \"new direct dependency `async-stream`, already in the lock through sqlx\"",
+      "derived_from": [
+        "CLM-2496"
+      ],
+      "artifacts": [
+        "src/stores/credentials.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "tags": [
+        "from-issue:998"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4371",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- src/stores/credentials.rs Cargo.toml Cargo.lock",
+          "summary": "credentials.rs diff touches only the #[cfg(test)] attributes and doc of Keeper::watch; MIN_REFRESH_GAP (line 61) is unchanged at 10 s. Cargo.toml adds async-stream = \"0.3\"; Cargo.lock only adds the name to the root package's dependency list, the async-stream package entry (Cargo.lock:309) already existed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/credentials.rs",
+              "lines": {
+                "start": 59,
+                "end": 62
+              },
+              "commit": "f801317388e61c0f10de1fa71f304d0f559156af"
+            }
+          },
+          "recorded_at": "2026-11-28T07:44:41.515316294Z",
+          "seal": {
+            "by": "server",
+            "mac": "8085bedd13893ea57fb38b02cd972a1d1dfc74f24b07f10408c825989e3c252a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "MIN_REFRESH_GAP untouched; async-stream added to Cargo.toml and was already a locked package.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4371"
+          ],
+          "recorded_at": "2026-11-28T07:45:08.378104067Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c11d64c4e2b00c506116f816d60523783d60e88772b3deac1331e40c764fd08"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T07:43:39.215018128Z",
+      "updated_at": "2026-11-28T07:45:08.378104067Z",
+      "seal": {
+        "by": "server",
+        "mac": "8609d9c32c0a782672cc199d58219beee59ab03d51f99d9238931f9cf5e75995"
       }
     }
   ]

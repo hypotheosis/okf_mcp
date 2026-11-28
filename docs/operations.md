@@ -481,11 +481,18 @@ it:
 | `secrets-manager` | A secret's ARN, for example `arn:aws:secretsmanager:eu-west-1:111122223333:secret:okf/acme-AbCdEf`. The secret's value is JSON with `username` and `password` (the format RDS-managed secrets use) | The secret's `username` and `password`. Read when the pool opens, and again when the database refuses a login |
 | `iam` | The database user the token is signed for (the user must be allowed to log in with IAM) | The server signs a short-lived RDS IAM token with the AWS credentials it runs with (the same chain as the mail sender's SES client) and replaces the pool's token every 10 minutes and when a login is refused. The token is signed for the region in an RDS host name (`name.id.REGION.rds.amazonaws.com`); for any other host name (a proxy, a CNAME) the server's own region is used, and there is no per-store region setting |
 
-A refused login fails the request that met it with `StoreUnavailable`; the
-pool then takes the refreshed credential, so a later request works. A
-rotation can therefore cost one failed request per replica (issue #998
-tracks a retry). The AWS credentials are used only for `secrets-manager` and
-`iam` stores.
+When a connection is refused its login (the secret rotated, the token
+expired), the server fetches a fresh login and tries once more, so the
+request that met the refusal succeeds. It waits for the refresh, at most
+`store_connect_timeout`, and acquires one more time; requests refused
+together wait on the same refresh, which fetches the login once. Only a
+refused login is retried: a timeout or a network failure is not, and a login
+still refused after the refresh ends in `StoreUnavailable`. The refresh runs
+at most once every 10 seconds, so a second rotation inside that gap can fail
+requests until the next one. The retry attempt has its own bound, the pool's
+connect timeout, so a request that waited for a refresh can take up to twice
+`store_connect_timeout` in all. A store using `env` has no refresh and no retry.
+The AWS credentials are used only for `secrets-manager` and `iam` stores.
 
 ### Placement
 

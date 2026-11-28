@@ -536,17 +536,16 @@ pub(super) struct Keeper {
     _stop: oneshot::Sender<()>,
     /// Counts the refreshes that replaced the options; closes when the task
     /// ends.
-    #[cfg(test)]
     refreshed: watch::Receiver<u64>,
 }
 
 impl Keeper {
-    /// Tests: watches the refresh count; the channel closes when the task
-    /// ends.
-    #[cfg(test)]
+    /// Watches the refresh count; the channel closes when the task ends. A
+    /// store handle holds one so an operation refused its login can wait
+    /// for the next refresh (`CatalogDb::retrying`).
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
-        allow(uninstrumented_fn, reason = "a test hook")
+        allow(uninstrumented_fn, reason = "one-line accessor")
     )]
     pub(super) fn watch(&self) -> watch::Receiver<u64> {
         self.refreshed.clone()
@@ -575,9 +574,7 @@ pub(super) fn spawn_keeper(
         Refresh::Every(every) => Some(every),
     };
     let (stop, stopped) = oneshot::channel();
-    let (count, _refreshed) = watch::channel(0_u64);
-    #[cfg(test)]
-    let refreshed = _refreshed;
+    let (count, refreshed) = watch::channel(0_u64);
     let current = pool.clone();
     let login = move || current.connect_options().get_username().to_string();
     let apply = move |credential: Credential| {
@@ -594,7 +591,6 @@ pub(super) fn spawn_keeper(
     ));
     Some(Keeper {
         _stop: stop,
-        #[cfg(test)]
         refreshed,
     })
 }

@@ -9,8 +9,16 @@
 //! database. (A Python reader: this is the "newtype" pattern, two classes
 //! that wrap the same object so the type checker can tell them apart.)
 
+use std::future::Future;
+use std::time::Duration;
+
+use futures_util::FutureExt;
+use sqlx::pool::PoolConnection;
 use sqlx::postgres::PgPool;
 use sqlx::{Postgres, Transaction};
+use tokio::sync::watch;
+
+use crate::telemetry::subscriber::split_event;
 
 pub mod bounded;
 mod credentials;
@@ -19,6 +27,7 @@ pub mod placement;
 mod registry;
 
 pub(crate) use credentials::{is_auth_failure, signal_auth_refused};
+
 pub use executor::StoreExecutor;
 #[cfg(test)]
 pub(crate) use registry::same_database;
@@ -269,6 +278,19 @@ pub struct CatalogDb {
     // (the audit entry, the users it locks, the catalog's registry row)
     // runs an account transaction beside the store's, and takes it from here.
     accounts: AccountDb,
+    // How a connection refused its login waits for a fresh one (issue
+    // #998): `None` for a store whose login never changes.
+    renewal: Option<Renewal>,
+}
+
+/// What a store handle needs to wait out a refused login: the credential
+/// task's refresh count, and how long to wait for it.
+#[derive(Debug, Clone)]
+struct Renewal {
+    // Counts the refreshes the credential task has applied; closes when the
+    // task ends (the store was forgotten).
+    refreshed: watch::Receiver<u64>,
+    wait: Duration,
 }
 
 impl CatalogDb {
@@ -287,7 +309,132 @@ impl CatalogDb {
             store,
             pool,
             accounts,
+            renewal: None,
         }
+    }
+
+    /// This handle, made to wait for the credential task's next refresh when
+    /// a connection is refused its login (see `CatalogDb::retrying`).
+    ///
+    /// # Arguments
+    /// * `refreshed` - the credential task's refresh count.
+    /// * `wait` - the longest to wait for a refresh (`store_connect_timeout`).
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(uninstrumented_fn, reason = "one-line builder")
+    )]
+    pub(super) fn with_renewal(mut self, refreshed: watch::Receiver<u64>, wait: Duration) -> Self {
+        self.renewal = Some(Renewal { refreshed, wait });
+        self
+    }
+
+    /// Runs `attempt` (an acquire, or a begin, on this store's pool) and,
+    /// when the pool is refused its login, waits for the credential task's
+    /// next refresh and runs it once more (issue #998).
+    ///
+    /// A pool that needs a new physical connection after the secret
+    /// rotated or the token expired is refused (SQLSTATE class 28). The
+    /// credential task refreshes the pool's login when told, so this tells
+    /// it, waits for the refresh count to pass the value read before the
+    /// first attempt, and tries again. Every caller refused at once waits on
+    /// the same refresh: the task takes one fetch for all of them, and a
+    /// refresh that landed while the attempt was in flight counts, so
+    /// nobody waits for one that already happened.
+    ///
+    /// Only a refused login retries; a timeout or a transport error is
+    /// returned at once, so a real outage costs no extra time. There is no
+    /// second retry: a login still refused after the refresh is returned.
+    /// The wait is bounded by `store_connect_timeout` counted from the first
+    /// attempt; when the task ends or the time runs out, the first error
+    /// is returned. A store whose login never changes has no renewal and
+    /// runs `attempt` once.
+    ///
+    /// # Arguments
+    /// * `attempt` - the pool call; run at most twice.
+    ///
+    /// # Returns
+    /// What `attempt` returned the last time it ran.
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn retrying<T, F, Fut>(&self, mut attempt: F) -> Result<T, sqlx::Error>
+    where
+        F: FnMut() -> Fut,
+        Fut: Future<Output = Result<T, sqlx::Error>>,
+    {
+        let Some(renewal) = &self.renewal else {
+            return attempt().await;
+        };
+        let started = tokio::time::Instant::now();
+        // Read before the attempt: a refresh that lands during it still
+        // counts, because it is newer than this value.
+        let seen = *renewal.refreshed.borrow();
+        let refused = match attempt().await {
+            Err(error) if credentials::is_auth_failure(&error) => error,
+            done => return done,
+        };
+        credentials::signal_auth_refused(&refused);
+        let mut refreshed = renewal.refreshed.clone();
+        let wait = renewal.wait.saturating_sub(started.elapsed());
+        // `Ok(Ok(_))` is a refresh; the other two are the time running out
+        // and the task ending (the store was forgotten). The guard `wait_for`
+        // returns is dropped inside `map`, before `refreshed` goes.
+        let renewed = tokio::time::timeout(
+            wait,
+            refreshed
+                .wait_for(|count| *count > seen)
+                .map(|seen| seen.is_ok()),
+        )
+        .await;
+        if !matches!(renewed, Ok(true)) {
+            return Err(refused);
+        }
+        split_event!(
+            debug,
+            {},
+            { store = %self.store, },
+            "a store's connection was refused its login; retrying after a refresh"
+        );
+        attempt().await
+    }
+
+    /// A connection from the store's pool, trying once more after a refused
+    /// login (`CatalogDb::retrying`).
+    ///
+    /// # Returns
+    /// The connection, which goes back to the pool when dropped.
+    ///
+    /// # Errors
+    /// [`OkfError::StoreUnavailable`] when no connection can be had within
+    /// `store_connect_timeout`, or the login stays refused;
+    /// [`OkfError::Database`] or `Busy` otherwise.
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub async fn acquire(&self) -> Result<PoolConnection<Postgres>, OkfError> {
+        self.acquire_raw()
+            .await
+            .map_err(|error| self.classify(error))
+    }
+
+    /// [`CatalogDb::acquire`] with the driver's own error, for the executor,
+    /// which classifies on its way out.
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn acquire_raw(&self) -> Result<PoolConnection<Postgres>, sqlx::Error> {
+        self.retrying(|| self.pool.acquire()).await
+    }
+
+    /// Begins a transaction with `statement` (for example
+    /// `BEGIN ISOLATION LEVEL REPEATABLE READ, READ ONLY`), trying once more
+    /// after a refused login. See [`CatalogDb::begin`] for the errors and
+    /// the order a transaction must be taken in.
+    ///
+    /// # Arguments
+    /// * `statement` - the `BEGIN` statement, from the code, never from input.
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub async fn begin_with(
+        &self,
+        statement: &'static str,
+    ) -> Result<Transaction<'static, Postgres>, OkfError> {
+        self.retrying(|| self.pool.begin_with(statement))
+            .await
+            .map_err(|error| self.classify(error))
     }
 
     /// The account database this store serves: the other side of a change
@@ -332,8 +479,7 @@ impl CatalogDb {
     /// reached to open another, or refuses the login); [`OkfError::Database`] or `Busy` otherwise.
     #[tracing::instrument(level = "trace", skip_all)]
     pub async fn begin(&self) -> Result<Transaction<'static, Postgres>, OkfError> {
-        self.pool
-            .begin()
+        self.retrying(|| self.pool.begin())
             .await
             .map_err(|error| self.classify(error))
     }
@@ -368,7 +514,7 @@ impl CatalogDb {
         allow(uninstrumented_fn, reason = "one-line accessor")
     )]
     pub fn executor(&self) -> StoreExecutor<'_> {
-        StoreExecutor::new(&self.store, &self.pool)
+        StoreExecutor::new(self)
     }
 
     /// The raw pool, for what an executor cannot do: close it, read its
@@ -418,6 +564,8 @@ impl CatalogDb {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
 
     #[tokio::test]
@@ -445,6 +593,270 @@ mod tests {
         }
         let other = db.classify(sqlx::Error::RowNotFound);
         assert!(matches!(other, OkfError::Database { .. }), "{other:?}");
+    }
+
+    /// A driver error with SQLSTATE 28P01 (a refused password) whose
+    /// message names a role no credential task has, so signalling it wakes
+    /// none of the tests' tasks running beside this one.
+    #[derive(Debug)]
+    struct Refused;
+
+    impl std::fmt::Display for Refused {
+        fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            formatter.write_str(sqlx::error::DatabaseError::message(self))
+        }
+    }
+
+    impl std::error::Error for Refused {}
+
+    impl sqlx::error::DatabaseError for Refused {
+        fn message(&self) -> &str {
+            "password authentication failed for user \"no-such-role-998\""
+        }
+        fn code(&self) -> Option<std::borrow::Cow<'_, str>> {
+            Some(std::borrow::Cow::Borrowed("28P01"))
+        }
+        fn as_error(&self) -> &(dyn std::error::Error + Send + Sync + 'static) {
+            self
+        }
+        fn as_error_mut(&mut self) -> &mut (dyn std::error::Error + Send + Sync + 'static) {
+            self
+        }
+        fn into_error(self: Box<Self>) -> Box<dyn std::error::Error + Send + Sync + 'static> {
+            self
+        }
+        fn kind(&self) -> sqlx::error::ErrorKind {
+            sqlx::error::ErrorKind::Other
+        }
+    }
+
+    fn refused() -> sqlx::Error {
+        sqlx::Error::Database(Box::new(Refused))
+    }
+
+    /// A store handle on a lazy pool, waiting up to `wait` for a refresh
+    /// counted by the returned sender.
+    fn renewing_db(wait: Duration) -> (CatalogDb, watch::Sender<u64>) {
+        let pool = sqlx::postgres::PgPoolOptions::new()
+            .connect_lazy("postgres://u:p@127.0.0.1:1/x")
+            .unwrap();
+        let (refreshes, refreshed) = watch::channel(0_u64);
+        let db = CatalogDb::new(
+            StoreName::parse("shared-1").unwrap(),
+            pool.clone(),
+            AccountDb::new(pool),
+        )
+        .with_renewal(refreshed, wait);
+        (db, refreshes)
+    }
+
+    /// An attempt that is refused its login `refusals` times, then works,
+    /// and counts how often it ran.
+    fn attempts_refused(
+        refusals: usize,
+        ran: &std::sync::atomic::AtomicUsize,
+    ) -> impl Future<Output = Result<(), sqlx::Error>> + '_ {
+        let nth = ran.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        std::future::ready(if nth < refusals {
+            Err(refused())
+        } else {
+            Ok(())
+        })
+    }
+
+    /// Issue #998: a refused login waits for the refresh count to move, then
+    /// runs the attempt once more.
+    #[tokio::test]
+    async fn a_refused_login_waits_for_a_refresh_and_retries_once() {
+        let (db, refreshes) = renewing_db(Duration::from_secs(30));
+        let ran = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let worker = {
+            let (db, ran) = (db.clone(), Arc::clone(&ran));
+            tokio::spawn(async move { db.retrying(|| attempts_refused(1, &ran)).await })
+        };
+
+        // The retry waits: the attempt ran once and has not run again.
+        tokio::time::timeout(Duration::from_secs(10), async {
+            while ran.load(std::sync::atomic::Ordering::SeqCst) < 1 {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("the first attempt ran");
+        assert!(!worker.is_finished());
+        refreshes.send_modify(|count| *count += 1);
+        let done = tokio::time::timeout(Duration::from_secs(10), worker)
+            .await
+            .expect("the retry ran after the refresh")
+            .unwrap();
+
+        assert!(done.is_ok());
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 2);
+    }
+
+    /// A login still refused after the refresh is returned, after one retry
+    /// and no more.
+    #[tokio::test]
+    async fn a_login_that_stays_refused_is_tried_twice_and_no_more() {
+        let (db, refreshes) = renewing_db(Duration::from_secs(30));
+        let ran = std::sync::atomic::AtomicUsize::new(0);
+        refreshes.send_modify(|count| *count += 1);
+        // The attempt itself sees a newer count than the one read before it.
+        let result = db
+            .retrying(|| {
+                refreshes.send_modify(|count| *count += 1);
+                attempts_refused(usize::MAX, &ran)
+            })
+            .await;
+
+        assert!(result.is_err());
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 2);
+    }
+
+    /// With no refresh the wait ends at `store_connect_timeout` with the
+    /// refusal, without a second attempt.
+    #[tokio::test(start_paused = true)]
+    async fn no_refresh_within_the_timeout_returns_the_refusal() {
+        let wait = Duration::from_secs(5);
+        let (db, _refreshes) = renewing_db(wait);
+        let ran = std::sync::atomic::AtomicUsize::new(0);
+        let started = tokio::time::Instant::now();
+
+        let error = db
+            .retrying(|| attempts_refused(usize::MAX, &ran))
+            .await
+            .unwrap_err();
+
+        assert!(is_auth_failure(&error));
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 1);
+        assert_eq!(started.elapsed(), wait);
+        assert!(matches!(
+            db.classify(error),
+            OkfError::StoreUnavailable { .. }
+        ));
+    }
+
+    /// A credential task that has ended (the store was forgotten) cannot
+    /// refresh: the refusal returns at once.
+    #[tokio::test(start_paused = true)]
+    async fn an_ended_credential_task_returns_the_refusal_at_once() {
+        let (db, refreshes) = renewing_db(Duration::from_secs(5));
+        drop(refreshes);
+        let ran = std::sync::atomic::AtomicUsize::new(0);
+        let started = tokio::time::Instant::now();
+
+        let result = db.retrying(|| attempts_refused(usize::MAX, &ran)).await;
+
+        assert!(result.is_err());
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 1);
+        assert_eq!(started.elapsed(), Duration::ZERO);
+    }
+
+    /// Only a refused login retries: a timeout or a transport error is
+    /// returned at once, so a real outage costs no extra time.
+    #[tokio::test(start_paused = true)]
+    async fn other_failures_are_not_retried() {
+        let (db, _refreshes) = renewing_db(Duration::from_secs(5));
+        for failure in [
+            || sqlx::Error::PoolTimedOut,
+            || sqlx::Error::PoolClosed,
+            || sqlx::Error::Io(std::io::Error::other("connection refused")),
+            || sqlx::Error::WorkerCrashed,
+            || sqlx::Error::RowNotFound,
+        ] {
+            let ran = std::sync::atomic::AtomicUsize::new(0);
+            let started = tokio::time::Instant::now();
+
+            let result: Result<(), _> = db
+                .retrying(|| {
+                    ran.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                    std::future::ready(Err(failure()))
+                })
+                .await;
+
+            assert!(result.is_err());
+            assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 1);
+            assert_eq!(started.elapsed(), Duration::ZERO);
+        }
+    }
+
+    /// A store whose login never changes has no renewal: one attempt.
+    #[tokio::test]
+    async fn a_store_without_a_credential_task_does_not_retry() {
+        let pool = sqlx::postgres::PgPoolOptions::new()
+            .connect_lazy("postgres://u:p@127.0.0.1:1/x")
+            .unwrap();
+        let db = CatalogDb::new(StoreName::main(), pool.clone(), AccountDb::new(pool));
+        let ran = std::sync::atomic::AtomicUsize::new(0);
+
+        let result = db.retrying(|| attempts_refused(usize::MAX, &ran)).await;
+
+        assert!(result.is_err());
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 1);
+    }
+
+    /// Callers refused together wait on the same refresh: one bump of the
+    /// count releases all of them.
+    #[tokio::test]
+    async fn every_caller_refused_at_once_is_released_by_one_refresh() {
+        let (db, refreshes) = renewing_db(Duration::from_secs(30));
+        let ran = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let callers = 8;
+        let workers: Vec<_> = (0..callers)
+            .map(|_| {
+                let (db, ran) = (db.clone(), Arc::clone(&ran));
+                tokio::spawn(async move {
+                    // Refused the first time this caller runs it, then works.
+                    let mut first = true;
+                    db.retrying(|| {
+                        let refuse = std::mem::replace(&mut first, false);
+                        ran.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                        std::future::ready(if refuse { Err(refused()) } else { Ok(()) })
+                    })
+                    .await
+                })
+            })
+            .collect();
+        tokio::time::timeout(Duration::from_secs(10), async {
+            while ran.load(std::sync::atomic::Ordering::SeqCst) < callers {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("every caller was refused");
+
+        refreshes.send_modify(|count| *count += 1);
+
+        for worker in workers {
+            let done = tokio::time::timeout(Duration::from_secs(10), worker)
+                .await
+                .expect("released by the one refresh")
+                .unwrap();
+            assert!(done.is_ok());
+        }
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 2 * callers);
+    }
+
+    /// A refresh that landed while the attempt was in flight is the one
+    /// the retry needs: it does not wait for another.
+    #[tokio::test(start_paused = true)]
+    async fn a_refresh_during_the_attempt_is_not_waited_for_again() {
+        let (db, refreshes) = renewing_db(Duration::from_secs(5));
+        let ran = std::sync::atomic::AtomicUsize::new(0);
+        let started = tokio::time::Instant::now();
+
+        let result = db
+            .retrying(|| {
+                if ran.load(std::sync::atomic::Ordering::SeqCst) == 0 {
+                    refreshes.send_modify(|count| *count += 1);
+                }
+                attempts_refused(1, &ran)
+            })
+            .await;
+
+        assert!(result.is_ok());
+        assert_eq!(ran.load(std::sync::atomic::Ordering::SeqCst), 2);
+        assert_eq!(started.elapsed(), Duration::ZERO);
     }
 
     #[test]

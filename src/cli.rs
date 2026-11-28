@@ -1804,8 +1804,8 @@ fn comma_list(items: &[String]) -> Option<String> {
 }
 
 /// One `catalog list` line, tab-separated: name, `generation N`, `owner T`
-/// (`-` for none), then the free-text description last, since it may
-/// contain anything.
+/// (`-` for none), `store S` (the store holding its data), then the
+/// free-text description last, since it may contain anything.
 ///
 /// # Arguments
 /// * `catalog` - the catalog.
@@ -1818,6 +1818,7 @@ fn format_catalog(catalog: &catalogs::Catalog) -> String {
         &catalog.name,
         &format!("generation {}", catalog.generation),
         &labelled("owner", catalog.owner_team.as_deref()),
+        &format!("store {}", catalog.store),
         &catalog.description,
     ])
 }
@@ -2633,6 +2634,7 @@ mod tests {
             generation: 3,
             created_at: chrono::Utc::now(),
             owner_team: Some("family".to_string()),
+            store: "main".to_string(),
         };
         let legacy = catalogs::Catalog {
             owner_team: None,
@@ -2642,9 +2644,20 @@ mod tests {
 
         assert_eq!(
             format_catalog(&catalog),
-            "pg\tgeneration 3\towner family\tNotes\tand more"
+            "pg\tgeneration 3\towner family\tstore main\tNotes\tand more"
         );
-        assert_eq!(format_catalog(&legacy), "pg\tgeneration 3\towner -\t");
+        assert_eq!(
+            format_catalog(&legacy),
+            "pg\tgeneration 3\towner -\tstore main\t"
+        );
+        let elsewhere = catalogs::Catalog {
+            store: "store-b".to_string(),
+            ..catalog
+        };
+        assert_eq!(
+            format_catalog(&elsewhere),
+            "pg\tgeneration 3\towner family\tstore store-b\tNotes\tand more"
+        );
     }
 
     #[test]

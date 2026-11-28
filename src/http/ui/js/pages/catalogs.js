@@ -4,7 +4,12 @@
 // open a catalog's drawer for its maintenance switch, which an every-catalog
 // admin and the owners of the catalog's team change (M14 Task 9e). An owner
 // of a shared team also sets the team's member access and entitles its
-// members from the drawer (issue #352), in a console session only.
+// members from the drawer (issue #352), in a console session only. An admin
+// also sees which store each catalog is on: a column that sorts by store, a
+// filter, the location as a tooltip and in the drawer, and a notice naming
+// the store of any catalog left out because its store is down (issue #1030).
+// The API sends `store` to admins only, so every use below tolerates its
+// absence.
 import { $, h, fill, pill } from '../core/dom.js';
 import { api, enc } from '../core/api.js';
 import { store } from '../core/store.js';
@@ -22,6 +27,12 @@ import { named } from '../core/labels.js';
 // the user left this page and came back reloads the page shown now, not the
 // one the write started on (which is gone).
 let mounted = null;
+
+// Where a store is, as text: `account database`, or `host:port/database`.
+// The server gives an admin exactly the fields `GET /stores` shows.
+function storeLocation(place) {
+    return place.location === 'host' ? `${place.host}:${place.port}/${place.database}` : 'account database';
+}
 
 export async function render(main) {
     // Team name -> true when personal, from the last read of GET /teams
@@ -48,13 +59,60 @@ export async function render(main) {
               personalTeams.has(row.owner_team)
                   ? [' ', pill(personalTeams.get(row.owner_team) ? 'personal team' : 'team')]
                   : null) },
+        ...(admin ? [{ key: 'store', label: 'Store', sort: row => row.store?.name ?? '',
+          render: row => row.store
+              ? h('span', { class: 'mono', title: storeLocation(row.store),
+                            dataset: { test: `catalog-store-${row.name}` } }, row.store.name)
+              : h('span', { class: 'muted' }, '-') }] : []),
         { key: 'concepts', label: 'Concepts', sort: row => row.concepts, class: 'num' },
         { key: 'files', label: 'Files', sort: row => row.files, class: 'num' },
         { key: 'generation', label: 'Generation', sort: row => row.generation, class: 'num' },
         { key: 'last_change', label: 'Last change', sort: row => row.last_change ?? '',
           render: row => ago(row.last_change) },
     ];
-    const table = listTable(columns, [], { onRow: admin ? openEdit : openOwner, empty: 'This key reaches no catalog.' });
+    // The store filter (admins): narrows the rows drawn to one store. Its
+    // options are the stores of the rows loaded, rebuilt after every draw
+    // with the choice kept while that store still has a row.
+    const storeFilter = admin
+        ? h('select', { id: 'catalogs-store-filter', 'aria-label': 'Filter catalogs by store' },
+            h('option', { value: '' }, 'All stores'))
+        : null;
+    const table = listTable(columns, [], {
+        onRow: admin ? openEdit : openOwner,
+        empty: () => (storeFilter?.value ? 'No catalog on this store.' : 'This key reaches no catalog.'),
+    });
+    storeFilter?.addEventListener('change', () => {
+        const chosen = storeFilter.value;
+        table.setFilter(chosen ? row => row.store?.name === chosen : null);
+    });
+    function drawStoreFilter() {
+        if (!storeFilter) return;
+        const chosen = storeFilter.value;
+        const names = [...new Set(rows.map(row => row.store?.name).filter(Boolean))].sort();
+        storeFilter.replaceChildren(h('option', { value: '' }, 'All stores'),
+            ...names.map(name => h('option', { value: name }, name)));
+        storeFilter.value = names.includes(chosen) ? chosen : '';
+        // A store that has no row any more is no longer a filter.
+        if (storeFilter.value !== chosen) table.setFilter(null);
+    }
+    // Catalogs left out because their store cannot be reached, by catalog
+    // (the answer's `unavailable_stores`, sent to admins): the notice names
+    // each such store with its catalogs. Reset by a first page, added to by
+    // a continuation.
+    const down = new Map();
+    const downNote = h('p', { id: 'catalogs-unavailable', class: 'error small', role: 'status', hidden: true });
+    function drawDown() {
+        const byStore = new Map();
+        for (const [catalog, name] of down) byStore.set(name, [...(byStore.get(name) ?? []), catalog]);
+        downNote.hidden = byStore.size === 0;
+        downNote.textContent = [...byStore].sort(([a], [b]) => (a < b ? -1 : 1))
+            .map(([name, catalogs]) => `Store ${name} cannot be reached; left out: ${catalogs.sort().join(', ')}.`)
+            .join(' ');
+    }
+    const noteDown = answer => {
+        for (const [catalog, name] of Object.entries(answer.unavailable_stores ?? {})) down.set(catalog, name);
+        drawDown();
+    };
 
     // What is drawn: the rows and the cursor that continues them (GET
     // /catalogs answers one page, with `next` while more follow). Only a
@@ -110,6 +168,9 @@ export async function render(main) {
         cursor = answer.next ?? null;
         loadFailed = false;
         moreFailed = false;
+        down.clear();
+        noteDown(answer);
+        drawStoreFilter();
         table.redraw(rows);
         showMore();
     }
@@ -136,6 +197,8 @@ export async function render(main) {
         rows = rows.concat(page.catalogs);
         cursor = page.next ?? null;
         moreFailed = false;
+        noteDown(page);
+        drawStoreFilter();
         table.redraw(rows);
         showMore();
     }
@@ -257,6 +320,7 @@ export async function render(main) {
         if (!ticket.current()) return;
         ticket.open(row.label, subtitle(row),
             edit,
+            storeSection(row),
             owner,
             members.section,
             switcher.section,
@@ -330,7 +394,9 @@ export async function render(main) {
         h('div', { class: 'page-head' },
             h('div', {}, h('h1', {}, 'Catalogs'), h('p', { class: 'muted' }, 'The catalogs this key reaches.')),
             h('div', { class: 'actions' },
+                storeFilter,
                 creator ? h('button', { type: 'button', id: 'catalog-create', onclick: openCreate }, 'New catalog') : null)),
+        downNote,
         table,
         stale,
         more,
@@ -627,6 +693,17 @@ function entitlements(row, ticket) {
 }
 
 // A catalog drawer's subtitle.
+// The drawer's Store section: the store and where it is. Null when the
+// answer carries no `store` (a key that may not see stores).
+function storeSection(row) {
+    if (!row.store) return null;
+    return h('section', { id: 'catalog-store', dataset: { test: 'catalog-store' } },
+        h('h3', {}, 'Store'),
+        h('p', {}, h('span', { class: 'mono', id: 'catalog-store-name' }, row.store.name), ' ',
+            h('span', { class: 'muted small', id: 'catalog-store-location' }, storeLocation(row.store))),
+        h('p', { class: 'muted small' }, 'A catalog stays on the store it was created on.'));
+}
+
 function subtitle(row) {
     return `generation ${row.generation} - ${count(row.concepts, 'concept')}, ${count(row.files, 'file')}`;
 }

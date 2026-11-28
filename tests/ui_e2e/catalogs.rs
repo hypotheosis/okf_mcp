@@ -1444,3 +1444,104 @@ async fn a_refused_catalog_delete_keeps_its_reason_and_enables_delete_again() {
         .await
         .is_ok());
 }
+
+/// Issue #1030: an admin's Catalogs page names each catalog's store, with its
+/// location as the tooltip and in the drawer, and filters by store; a key
+/// below admin sees no store at all.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn an_admin_sees_which_store_each_catalog_is_on() {
+    let server = server().await;
+    let actor = okf_mcp::store::audit::AuditActor::cli();
+    // A second store, in a database of its own, holding catalog `alpha`.
+    let database = server.db.extra_store_database("acme").await;
+    let options = server.db.pool.connect_options();
+    let (host, port) = (options.get_host().to_string(), options.get_port());
+    let acme = okf_mcp::stores::StoreName::parse("acme").expect("a store name");
+    let row = okf_mcp::store::stores::StoreRow {
+        name: acme.clone(),
+        location: okf_mcp::store::stores::StoreLocation::Host {
+            host: host.clone(),
+            port,
+            database: database.clone(),
+            credential_kind: okf_mcp::store::stores::CredentialKind::Env,
+            credential_ref: crate::support::pg::STORE_PASSWORD_VAR.to_string(),
+        },
+    };
+    okf_mcp::store::stores::add(
+        &server.db.pool,
+        server.app.stores(),
+        row,
+        &actor,
+        Utc::now(),
+    )
+    .await
+    .expect("add the store");
+    let team = NewTeam {
+        name: "team-a",
+        display_name: &okf_mcp::labels::DisplayName::default(),
+        owner: OWNER,
+    };
+    teams::create(&server.db.pool, &team, &actor, Utc::now())
+        .await
+        .expect("create the team");
+    teams::set_store(&server.db.pool, "team-a", Some(&acme), &actor, Utc::now())
+        .await
+        .expect("pin the team");
+    let new = okf_mcp::store::catalogs::NewCatalog {
+        name: "alpha",
+        display_name: &okf_mcp::labels::DisplayName::default(),
+        description: "",
+        owner_team: "team-a",
+    };
+    crate::support::server::applied(&server.app, async {
+        okf_mcp::store::catalogs::create_in(server.app.stores(), &new, &actor, Utc::now()).await
+    })
+    .await
+    .expect("create the catalog on the store");
+    let location = format!("{host}:{port}/{database}");
+    let root = server.key("console-root", Access::Admin, &[], None).await;
+    let reader = server
+        .key("console-reader", Access::Read, &["main"], Some("main"))
+        .await;
+
+    drive(server.base.clone(), move |ui| {
+        ui.login(&root);
+        ui.open("/catalogs");
+        ui.wait_visible("[data-test=catalog-store-alpha]");
+        assert_eq!(ui.text("[data-test=catalog-store-main]"), "main");
+        // `main` is in the account database, or a database of its own when the
+        // tests run with separate stores.
+        let main_where = ui.attribute("[data-test=catalog-store-main]", "title");
+        assert!(
+            main_where == "account database" || main_where.contains(":"),
+            "{main_where}"
+        );
+        assert_eq!(ui.text("[data-test=catalog-store-alpha]"), "acme");
+        assert_eq!(
+            ui.attribute("[data-test=catalog-store-alpha]", "title"),
+            location
+        );
+
+        // The filter narrows the table to one store.
+        ui.select("#catalogs-store-filter", "acme");
+        ui.wait_hidden("[data-catalog=main]");
+        assert!(ui.present("[data-catalog=alpha]"));
+        ui.select("#catalogs-store-filter", "");
+        ui.wait_visible("[data-catalog=main]");
+
+        // The drawer shows the store and where it is.
+        ui.click("[data-catalog=alpha]");
+        ui.wait_text("#catalog-store-name", "acme");
+        assert_eq!(ui.text("#catalog-store-location"), location);
+        ui.click("#drawer-close");
+        ui.click("#signout");
+
+        // A key below admin is told no store.
+        ui.login(&reader);
+        ui.open("/catalogs");
+        ui.wait_visible("[data-catalog=main]");
+        assert!(!ui.present("#catalogs-store-filter"));
+        assert!(!ui.present("[data-test=catalog-store-main]"));
+    })
+    .await;
+}

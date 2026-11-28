@@ -62,6 +62,8 @@ pub struct Catalog {
     /// The name of the team that owns it; `None` only for a catalog from
     /// before migration 0009 not yet assigned.
     pub owner_team: Option<String>,
+    /// The name of the store holding its documents (`catalogs.store`).
+    pub store: String,
 }
 
 // One SELECT shared by `list` and `find` (a macro so `concat!` can append
@@ -284,7 +286,7 @@ pub(crate) async fn register(
                                store, provisioned_at) \
          VALUES ($1, $2, $3, $4, $6, $7, NULL) \
          RETURNING id, name, display_name, description, 0::bigint AS generation, created_at, \
-                   $5::text AS owner_team",
+                   $5::text AS owner_team, store",
     )
     .bind(name)
     .bind(description)

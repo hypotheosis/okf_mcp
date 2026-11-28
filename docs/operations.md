@@ -505,6 +505,30 @@ are. `stores list` shows each store, which one is the default, its credential
 kind and reference, and how many teams are pinned to it. There is no command
 or route to remove a store.
 
+### Which store a catalog is on
+
+A catalog's store is fixed when it is created, so it is read-only anywhere it
+is shown. To see it:
+
+- `okf-mcp catalog list` prints `store NAME` after the owner.
+- `GET /api/v1/catalogs` (and the answer to `POST /api/v1/catalogs`) add a
+  `store` object to each catalog, for an admin credential only: `{name,
+  location, host, port, database}`, the same fields and values `GET
+  /api/v1/stores` gives (`location` is `account-database` or `host`; the host,
+  port and database are `null` for `main`). It never holds a credential kind,
+  reference or user. A key below admin and a provisioner key get no `store`
+  key at all, so their answer is what it was before.
+- When a catalog is left out of a listing because its store cannot be reached
+  ([When a store cannot be reached](#when-a-store-cannot-be-reached)), an admin
+  also gets `unavailable_stores`, a map from each id in `unavailable` to its
+  store's name, so the operator sees which store is down. Other callers get
+  `unavailable` alone.
+- `GET /api/v1/stores` gives each store a `catalogs` count: the catalogs placed
+  on it, as the listings count them (half-created and deleted ones are not
+  counted).
+- The console's Catalogs page shows a Store column for an admin (see [Web
+  console](#web-console)).
+
 ### Migrating stores
 
 A store's schema migrations (`migrations/catalog/`, history in
@@ -592,7 +616,9 @@ unavailable.
   `list_catalogs`, `list_changesets` without `catalog`, `GET /api/v1/search`,
   `GET /api/v1/catalogs`, `GET /api/v1/changesets` and the console's search
   add `unavailable`, a sorted list of catalog ids (only catalogs the caller
-  reaches), omitted when every store answered.
+  reaches), omitted when every store answered. `GET /api/v1/catalogs` also
+  adds `unavailable_stores` for an admin, naming each such catalog's store
+  ([Which store a catalog is on](#which-store-a-catalog-is-on)).
 - **First-match reads** (`get_concept`, `read_document` and `history`
   without `catalog`) walk the connection's selection in order. They answer
   from a catalog before the first lost store; if none of those has the
@@ -2070,7 +2096,8 @@ replica that took the request.
 | `okf-mcp unassigned` | Every key, grant, sign-in code and catalog with no user or owner, one per line (`key NAME (id ID, actor ACTOR)`, `grant NAME (id ID)`, `code NAME (id ID)`, `catalog NAME`), or `nothing is unassigned` |
 
 `catalog list` prints name, `generation N`, `owner T` (`-` when unassigned),
-then the description. `key list`, `oauth grant list` and `oauth code list`
+`store S` (the [store](#catalog-stores) holding the catalog's data; `main` for
+the account database), then the description. `key list`, `oauth grant list` and `oauth code list`
 end with `user U` (`-` when unassigned); `key list` and `oauth grant list` then add `kind` and `client`. Every listing is tab-separated with
 no header row, so `cut -f` works on it.
 
@@ -4407,7 +4434,7 @@ default store) and never changes.
 
 | Method and path | Key | Does |
 |---|---|---|
-| `GET /api/v1/stores` | admin | `{stores}` in name order: `name`, `location` (`account-database` or `host`), `host`, `port`, `database`, `credential_kind`, `credential_ref` (a variable name, secret ARN or IAM identity, never the credential; all `null` for `main`), `created_at`, `is_default`, `pinned_teams` (a count) |
+| `GET /api/v1/stores` | admin | `{stores}` in name order: `name`, `location` (`account-database` or `host`), `host`, `port`, `database`, `credential_kind`, `credential_ref` (a variable name, secret ARN or IAM identity, never the credential; all `null` for `main`), `created_at`, `is_default`, `pinned_teams` (a count), `catalogs` (how many catalogs it holds, a count) |
 | `POST /api/v1/stores` | admin, every catalog | Body `{name, host, port, database, credential_kind, credential_ref}` (`credential_kind` is `env`, `secrets-manager` or `iam`). Opens a connection to the new store first and answers 201 with the store only if that works. 409 when it cannot be reached (the reply names no host, port or credential; the cause is in the server log), when a name or a host, port and database is already used (refused before the store's database is touched), or when the store's schema cannot be migrated (a retry is safe: a database left claimed by an add that failed is re-claimed by the next add); 422 for a malformed body |
 | `PUT /api/v1/settings/default_store` | admin, every catalog | Body `{value}`, a store's name. Answers `{key, value}`. 404 for an unknown store |
 | `PUT /api/v1/teams/{team}/store` | admin, every catalog | Body `{store}`. Pins the team: catalogs it owns are created there from now on. Answers `{team, store, changed}`. 404 for an unknown team or store |
@@ -4668,7 +4695,7 @@ curl -s -H "Authorization: Bearer $OKF_MCP_KEY" \
 
 | Method and path | Key | Does |
 |---|---|---|
-| `GET /api/v1/catalogs?after=&limit=` | any | One page of the catalogs the key reaches, by name (see [Catalog listings are paginated](#catalog-listings-are-paginated)), as `{catalogs, next}`, each catalog with `name`, `display_name`, `label` (the display name, else the description, else "Untitled catalog"), `description`, `owner_team` (`null` when unassigned), `owner_team_label`, `files`, `concepts`, `generation` (of the loaded snapshot, what `expect_generation` compares against), `last_change` (`null` when empty), `suspended` (`{team, notice}` while its owner team is suspended, otherwise `null`: a suspended catalog is listed, never hidden; see [Suspending a team](#suspending-a-team)) and `maintenance` (`on` or `off`). When a store cannot be reached, `unavailable` lists the ids of this page's catalogs left out because of it ([When a store cannot be reached](#when-a-store-cannot-be-reached)); it is absent otherwise |
+| `GET /api/v1/catalogs?after=&limit=` | any | One page of the catalogs the key reaches, by name (see [Catalog listings are paginated](#catalog-listings-are-paginated)), as `{catalogs, next}`, each catalog with `name`, `display_name`, `label` (the display name, else the description, else "Untitled catalog"), `description`, `owner_team` (`null` when unassigned), `owner_team_label`, `files`, `concepts`, `generation` (of the loaded snapshot, what `expect_generation` compares against), `last_change` (`null` when empty), `suspended` (`{team, notice}` while its owner team is suspended, otherwise `null`: a suspended catalog is listed, never hidden; see [Suspending a team](#suspending-a-team)), `maintenance` (`on` or `off`) and, for an admin credential only, `store` (`{name, location, host, port, database}` as `GET /api/v1/stores` gives them; see [Which store a catalog is on](#which-store-a-catalog-is-on)). When a store cannot be reached, `unavailable` lists the ids of this page's catalogs left out because of it ([When a store cannot be reached](#when-a-store-cannot-be-reached)); it is absent otherwise; an admin also gets `unavailable_stores`, a map from each of those ids to its store's name |
 | `POST /api/v1/catalogs` | admin, every catalog | `{name, display_name, description, owner}` (`display_name` and `description` optional, `display_name` checked as for users; `owner` required, a team's name). 201 with the new catalog's summary; 403 for a key granted named catalogs, since it would not reach the new one; 404 for an unknown owner; 409 for an invalid or taken name; 422 without `owner` or for a refused `display_name` |
 | `PATCH /api/v1/catalogs/{catalog}` | admin on the catalog; an owner of its owner team signed in to the console; a provisioner | `{display_name?, description?}`, at least one (`deny_unknown_fields`). Answers `{name, previous, description, previous_display_name, display_name, label}`. 422 for a refused `display_name`. The CLI is `catalog update` |
 | `GET /api/v1/labels?after=&limit=` | any credential; not a provisioner | `{users, teams, catalogs, next}`, each of the first three a map from id to label. `catalogs` is one page of the catalogs the caller reaches (paginated as `GET /api/v1/catalogs`; labels shared within a page are told apart). Every caller, an admin that reaches every catalog included, gets its own user, its teams and the owner teams of the catalogs on its page. The console reads it to show labels where an answer names something by id (see [Display names and labels](#display-names-and-labels)) |
@@ -4737,6 +4764,12 @@ curl -s -H "Authorization: Bearer $OKF_MCP_KEY" https://okf-mcp.example.com/api/
 ```
 
 The Catalogs page lists the catalogs with their owner team and counts. An
+admin also sees a Store column (the store's name, with its location, either
+`account database` or `host:port/database`, as the tooltip), which sorts by
+store, and a Store filter above the table; a catalog's drawer shows the store
+and its location. A key below admin sees neither. When catalogs are left out
+because their store is down, a notice names each such store and its catalogs.
+An
 admin opens a row to change its description or delete it (typing its name to
 confirm, with a force box for unpublished changes); an admin key that reaches
 every catalog also gets New catalog (with a required owner team) and the

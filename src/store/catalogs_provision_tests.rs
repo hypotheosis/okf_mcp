@@ -396,7 +396,7 @@ async fn create_and_recovery_work_on_a_one_connection_pool() {
 async fn find_half(pool: &PgPool, id: i64) -> Catalog {
     sqlx::query_as::<_, Catalog>(
         "SELECT id, name, display_name, description, 0::bigint AS generation, created_at, \
-                NULL::text AS owner_team FROM catalogs WHERE id = $1",
+                NULL::text AS owner_team, store FROM catalogs WHERE id = $1",
     )
     .bind(id)
     .fetch_one(pool)

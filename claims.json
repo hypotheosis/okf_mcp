@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2476,
+  "next_claim_seq": 2477,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "8d40590106d241b4770badd10247f6fe36fb10a8acf62ea379ed9c47490f24a7"
+    "mac": "a903bc15a01103e6c6817f1502dc4d5f9d756629e59caa42c0f606ede6adceee"
   },
-  "next_evidence_seq": 4318,
+  "next_evidence_seq": 4322,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9a916eee8e8f6fd136888cd188328e8096e7c91885817df9a5ba1e4cedc4b536"
+    "mac": "0e71d89c89da3ec38cdfe3332114b2146ecade16f4dae8b6efc11dd08108259d"
   },
   "claims": [
     {
@@ -216843,6 +216843,18 @@
             "by": "server",
             "mac": "36d5389f8a587b3fb8bd01fec0c33fef2b6ba94560efd7a81f31748a660b75e4"
           }
+        },
+        {
+          "id": "EVD-4321",
+          "kind": "analysis",
+          "locator": "children of CLM-2462",
+          "summary": "All active children are now supported: 2463-2472, 2474, 2475 and the replacement 2476 (the refuted 2473 is retired). Together they cover the bound, restore, retryable error, docs, checksum safety, indexes, tests and changelog.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T06:22:08.058276312Z",
+          "seal": {
+            "by": "server",
+            "mac": "4dc30e8570062b17b13561b815bf0c5f7f6d328e7568b57c13383e9e6b8d581f"
+          }
         }
       ],
       "verdicts": [
@@ -216858,13 +216870,26 @@
             "by": "server",
             "mac": "ad526b62b3c50c22ae426c5c10daf4d45666d5e99f496582bff78a1adb635281"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Every active child is supported at head df49ce03; the earlier refuting child is retired and replaced.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4321"
+          ],
+          "recorded_at": "2026-11-28T06:22:13.710273289Z",
+          "seal": {
+            "by": "server",
+            "mac": "0fc9ffeebc8a88a08205c10582151ff349678d56d004084c73d42bc0fac543c2"
+          }
         }
       ],
       "created_at": "2026-11-28T06:07:25.358154679Z",
-      "updated_at": "2026-11-28T06:09:03.050302024Z",
+      "updated_at": "2026-11-28T06:22:13.710273289Z",
       "seal": {
         "by": "server",
-        "mac": "1f24df3f86571d57c7e8edd64ef7dbdddc13e680d6b02a37515fa0fa1a03fba7"
+        "mac": "dd4e84ef369d0a533456d9d573ad18f859087d2b0b4f02c51d2f0f369a4d5f5d"
       }
     },
     {
@@ -217548,7 +217573,9 @@
         "from-issue:993"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "The \"19 callers\" wording was removed from the PR body and changelog; replaced by a claim on the reworded statement.",
+        "retired_at": "2026-11-28T06:22:02.522158747Z"
       },
       "evidence": [
         {
@@ -217572,6 +217599,28 @@
             "by": "server",
             "mac": "3c2586e10d37055a83e408b27602c6dcb280a2cb0001e92a2173818613f74126"
           }
+        },
+        {
+          "id": "EVD-4318",
+          "kind": "inspection",
+          "locator": "changelog/20261128T060015Z-issue-993-store-migration-locks.md:20; target/i993-logs/pr-993-body.md:10 at df49ce03",
+          "summary": "Both now say \"about twenty\" call sites; 22 counted earlier, so the claim holds. The statement under audit is the reworded one.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+              "lines": {
+                "start": 18,
+                "end": 22
+              },
+              "commit": "df49ce03b822245ed25f197c4e1f75ed4e1a8df7"
+            }
+          },
+          "recorded_at": "2026-11-28T06:21:55.654802009Z",
+          "seal": {
+            "by": "server",
+            "mac": "31c044ee50f56e2ccbea6ee64d0a237157b526e0c336f406b384e3e1069ee7ee"
+          }
         }
       ],
       "verdicts": [
@@ -217590,10 +217639,10 @@
         }
       ],
       "created_at": "2026-11-28T06:07:25.358154679Z",
-      "updated_at": "2026-11-28T06:08:22.488204674Z",
+      "updated_at": "2026-11-28T06:22:02.522158747Z",
       "seal": {
         "by": "server",
-        "mac": "2b79fb61adab5854da1b518e6a72d438599a614f42921387deb9e3a88ba9e0f6"
+        "mac": "6c3a2336262b66ddeddaa33e3bdccf335586e692496630bb8e5fc353afe75cdd"
       }
     },
     {
@@ -217616,7 +217665,20 @@
       "status": {
         "state": "active"
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "EVD-4319",
+          "kind": "log",
+          "locator": "target/i993-logs/revert.log (lines 7-21)",
+          "summary": "Log shows the lock test FAILED, panic at src/db.rs:3838 \"the migration should give up at the bound, not wait for the holder: Elapsed(())\", finished in 32.67s (30 s backstop). Matches the claim. I read the log; I did not see the sed revert itself, and src/db.rs is unchanged at head.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T06:21:55.922713640Z",
+          "seal": {
+            "by": "server",
+            "mac": "214ecdc44e0bcf1b35c167d67bf539d2a3e5020ded255f8323c622a095d8978e"
+          }
+        }
+      ],
       "verdicts": [
         {
           "verdict": "not_enough_info",
@@ -217628,13 +217690,26 @@
             "by": "server",
             "mac": "1a68a118be6cff2b6daeb32437776a818b43a10e945c6e3197c6ba9ad5a4b69f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The revert log shows the lock test failing with the backstop timeout at 32.67 s when the bound was forced off.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4319"
+          ],
+          "recorded_at": "2026-11-28T06:22:02.389313387Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce10f466081663c1f530f8b429933b9c01318ea5fdaa1451a8d0b490c1b3adfc"
+          }
         }
       ],
       "created_at": "2026-11-28T06:07:25.358154679Z",
-      "updated_at": "2026-11-28T06:08:22.671446779Z",
+      "updated_at": "2026-11-28T06:22:02.389313387Z",
       "seal": {
         "by": "server",
-        "mac": "078e67b27606063097e48752214dcf58b524486c27753f1aec8ba59373392a02"
+        "mac": "fa60ad09b5efc23df8b10c470f6287f5acd07f76da6ad385a5b1ff44215783f4"
       }
     },
     {
@@ -217701,6 +217776,72 @@
       "seal": {
         "by": "server",
         "mac": "761ac20616f51d7fa1cfe8cd85a402285ffc67d84b5c808bd97114d70c1a7598"
+      }
+    },
+    {
+      "id": "CLM-2476",
+      "statement": "PR body and changelog: migrate and migrate_store have no config in reach and about twenty call sites (22 in src and tests).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body line 10; changelog line 20 at df49ce03",
+      "derived_from": [
+        "CLM-2462"
+      ],
+      "artifacts": [
+        "changelog/"
+      ],
+      "tags": [
+        "from-issue:993"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4320",
+          "kind": "inspection",
+          "locator": "changelog/20261128T060015Z-issue-993-store-migration-locks.md:18-22; pr-993-body.md:10; grep count 22 call sites",
+          "summary": "Both texts say \"about twenty\"; earlier grep counted 22 call sites in src and tests, consistent.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T060015Z-issue-993-store-migration-locks.md",
+              "lines": {
+                "start": 18,
+                "end": 22
+              },
+              "commit": "df49ce03b822245ed25f197c4e1f75ed4e1a8df7"
+            }
+          },
+          "recorded_at": "2026-11-28T06:22:07.899289706Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5fedfdfac970436213b41bb6ec12f24a720146bdaba1ebfdc58e0c084027578"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reworded count is consistent with 22 call sites.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4320"
+          ],
+          "recorded_at": "2026-11-28T06:22:13.537825964Z",
+          "seal": {
+            "by": "server",
+            "mac": "f6a9751c391302a31556ec8063e06dda756e5bd9c4528741a25787e3c124b9c9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:22:02.741360565Z",
+      "updated_at": "2026-11-28T06:22:13.537825964Z",
+      "seal": {
+        "by": "server",
+        "mac": "ea497fd5917deddeee19afa50285deb4b708b040232b7f2f9d97b44d23e80c11"
       }
     }
   ]

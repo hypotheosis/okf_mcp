@@ -2869,7 +2869,7 @@ reap_one() {
     reap_idle=$((reap_idle + 1))
     if [ "$reap_idle" -ge 50 ]; then
         echo "run.sh: lost track of ${#running_test[@]} running test(s): ${running_test[*]}" >&2
-        stop_all
+        stop_all 1
     fi
     sleep 0.1
 }
@@ -2878,7 +2878,7 @@ reap_one() {
 stop_all() {
     local pid
     for pid in "${!running_test[@]}"; do stop_session "$pid"; done
-    exit 130
+    exit "${1:-130}"
 }
 trap stop_all INT TERM
 

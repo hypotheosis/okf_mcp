@@ -18,7 +18,7 @@
   and keep the 1 s limit, the default watch poll is still 30 s.
 - `lessons.md`, `brief-common.md`, `README.md`: one entry each.
 
-## Measured (164 tests, `timeout 600`)
+## Measured (`timeout 600`; 164 tests for the first three lines, 168 for the last)
 - Before: 324.8 s serial (one watch test: 13.5 s).
 - After: 62 s at 4 jobs (two runs, 62.3 s and 62.0 s), 179.6 s at 1 job (one watch test: 2.4 s).
 
@@ -35,3 +35,4 @@
   tests end while a fourth's group takes 2 s to stop. That last one also passes on the
   old pool: bash 5.3's `wait -n` returns children that ended earlier, so the loss could
   not be reproduced; the new collection does not depend on that.
+- After review round 1 (168 tests): 63.3 s at 4 jobs (a 63.7 s run before a last small edit); no 1-job rerun at this head.

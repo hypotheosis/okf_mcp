@@ -2017,6 +2017,104 @@ echo "rc=$?"'
     [ ! -e "$fx/pgrep.called" ] || die "pgrep was called"
 }
 
+# --- agentic_run_captured: captured calls stay bounded (#1191) ---
+# A `$(agentic_gh ...)` waits for end-of-file on its pipe. A child in its own
+# session that ignores TERM and holds stdout open must not stretch the call.
+
+# captured_harness <body>: writes $fx/harness.sh, which sources lib.sh, keeps
+# every temp file in $fx/tmp and then runs <body>.
+captured_harness() {
+    mkdir -p "$fx/tmp"
+    cat >"$fx/harness.sh" <<HARNESS
+export TMPDIR="$fx/tmp"
+source "$tools/lib.sh"
+agentic_kill_after=1
+agentic_reap_after=1
+$1
+HARNESS
+}
+
+want_no_temp_files() {
+    [ -z "$(ls -A "$fx/tmp")" ] || die "temp files left: $(ls -A "$fx/tmp")"
+}
+
+test_captured_call_returns_in_time_when_a_setsid_child_holds_stdout() {
+    new_fixtures
+    trap 'xargs -r kill -KILL <"$fx/holder.pid" 2>/dev/null' EXIT
+    # The holder leaves the leader's group, ignores TERM and keeps stdout and
+    # stderr open for 30 s; the leader prints, then hangs past the limit.
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    captured_harness 'start=$(date +%s%N)
+out=$(agentic_run_captured 1 bash -c "echo partial; echo partial-err >&2; setsid bash -c \"trap \\\"\\\" TERM; echo \\\$\\\$ >\\\"$GH_FIXTURES/holder.pid\\\"; exec sleep 30\" & sleep 30")
+echo "rc=$? ms=$(( ($(date +%s%N) - start) / 1000000 )) out=$out"'
+    out=$(cd "$work" && timeout 20 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=124"; want_out "out=partial"; want_out "partial-err"
+    ms=${out#*ms=}; ms=${ms%% *}
+    [ "$ms" -lt 4000 ] || die "returned after $ms ms, want under 4000"
+    holder=$(cat "$fx/holder.pid") || die "no holder pid"
+    kill -0 "$holder" 2>/dev/null || die "holder $holder is not running (test set-up)"
+    kill -KILL "$holder"
+    want_no_temp_files
+}
+
+test_captured_call_returns_at_once_when_the_leader_leaves_a_holder_behind() {
+    new_fixtures
+    trap 'xargs -r kill -KILL <"$fx/holder.pid" 2>/dev/null' EXIT
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    captured_harness 'start=$(date +%s%N)
+out=$(agentic_run_captured 10 bash -c "echo done; setsid bash -c \"trap \\\"\\\" TERM; echo \\\$\\\$ >\\\"$GH_FIXTURES/holder.pid\\\"; exec sleep 30\" & sleep 0.3; exit 3")
+echo "rc=$? ms=$(( ($(date +%s%N) - start) / 1000000 )) out=$out"'
+    out=$(cd "$work" && timeout 20 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=3"; want_out "out=done"
+    ms=${out#*ms=}; ms=${ms%% *}
+    [ "$ms" -lt 4000 ] || die "returned after $ms ms, want under 4000"
+    kill -KILL "$(cat "$fx/holder.pid")" || die "holder not running"
+    want_no_temp_files
+}
+
+test_captured_call_passes_output_stderr_and_status_through() {
+    new_fixtures
+    # shellcheck disable=SC2016 # expanded by the harness, not here
+    captured_harness 'out=$(agentic_run_captured 10 bash -c "echo out-line; echo err-line >&2; read -r x; echo stdin=[\$x]; exit 7" 2>"$GH_FIXTURES/err")
+echo "rc=$?"
+echo "out=$out"
+echo "err=$(cat "$GH_FIXTURES/err")"'
+    out=$(cd "$work" && timeout 20 bash "$fx/harness.sh" 2>&1 </dev/null)
+    rc=$?
+    want_rc 0; want_out "rc=7"; want_out "out=out-line"; want_out "stdin=[]"
+    want_out "err=err-line"
+    want_no_out "warning"
+    want_no_temp_files
+}
+
+test_captured_call_with_no_time_left_returns_124_without_running() {
+    new_fixtures
+    captured_harness 'out=$(agentic_run_captured 0 touch "$GH_FIXTURES/ran"); echo "rc=$?"'
+    out=$(cd "$work" && timeout 20 bash "$fx/harness.sh" 2>&1)
+    rc=$?
+    want_rc 0; want_out "rc=124"
+    [ ! -e "$fx/ran" ] || die "the command ran"
+    want_no_temp_files
+}
+
+test_captured_call_removes_its_files_when_it_is_terminated() {
+    new_fixtures
+    captured_harness 'agentic_run_captured 30 sleep 30'
+    (cd "$work" && exec bash "$fx/harness.sh" >/dev/null 2>&1) &
+    harness_pid=$!
+    trap 'kill -KILL "$harness_pid" 2>/dev/null' EXIT
+    # shellcheck disable=SC2016 # the inner shell expands them
+    timeout 5 bash -c 'until [ "$(ls "$1" | wc -l)" -ge 2 ]; do sleep 0.1; done' _ "$fx/tmp" \
+        || die "no temp files appeared"
+    kill -TERM "$harness_pid"
+    # shellcheck disable=SC2016 # the inner shell expands them
+    timeout 10 bash -c 'while kill -0 "$1" 2>/dev/null; do sleep 0.1; done' _ "$harness_pid" \
+        || die "the harness did not stop on TERM"
+    want_no_temp_files
+}
+
 # --- runner ---
 
 passed=0

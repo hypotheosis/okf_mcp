@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "2632fea6d9f70b868aedd9ee369a31dce84d851f653ad60a3bce41279865ceff"
   },
-  "next_evidence_seq": 4589,
+  "next_evidence_seq": 4591,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "6688917e01aecae2c0db89bea4663d696489a44e1d33e15a65e3ab17e549185b"
+    "mac": "73a8a256652fd28b0a5863c2339d80ef18733c0fd96ea26bdb8c1281ed405289"
   },
   "claims": [
     {
@@ -231376,6 +231376,30 @@
             "by": "server",
             "mac": "eb6e724687dd9f3e89eefe3f6a2b6c189b3539b26a888ee4d9a30144e1869dca"
           }
+        },
+        {
+          "id": "EVD-4589",
+          "kind": "demonstration",
+          "locator": "scratch .../scratchpad/e1193c (runs a-d, drv.sh) at head 25286fb5",
+          "summary": "Re-ran my copy-out experiment on 25286fb5, marker-synchronised (stub cat / stub echo announce via marker file, wait for release file). agentic_run_captured, signal during copy-out cat: TERM gives rc=143, INT gives rc=130, caller trap still installed, handler ran, no temp file left. bounded_capture (function cut out of watchdog.sh), signal during the leftover-processes warning echo (after the status check): TERM rc=143, INT rc=130, handler ran, trap still installed, no temp file left. Minor cosmetic: bounded_capture still evaluates $(<file) on the removed file and prints one 'No such file' line on stderr before the next status check returns. Code read of the new guard in agentic_cap_cleanup, the re-checks after each cat, after the final cleanup, after printf and after both cleanups in bounded_capture: every signal window between supervise and return ends in return 130/143 with traps kept.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T15:00:08.926024533Z",
+          "seal": {
+            "by": "server",
+            "mac": "167075784514918f9f506d117f19b4a18fd06ec363fa99fbd6f844b0c74bf9da"
+          }
+        },
+        {
+          "id": "EVD-4590",
+          "kind": "demonstration",
+          "locator": "scratch .../scratchpad/e1193c/drv3.sh at head 25286fb5",
+          "summary": "One residual window, shown only by injection: a TERM that lands between the guard `[ status = 0 ]` passing in a plain (no-signal) agentic_cap_cleanup and the expansion of \"$agentic_cap_saved_traps\" in the next statement. The nested signal cleanup restores the caller's traps and empties agentic_cap_saved_traps; the outer call then runs agentic_traps_restore \"\" and clears them. Injected via a `[` function wrapper firing kill -TERM after that test: handler ran, rc=143, but `trap -p TERM` printed nothing (caller trap lost). The window is one builtin-to-builtin gap (bash runs traps between simple commands), not realistically hittable, and cannot be tested without such a hook; a fix is to take the saved-traps string into a local before the guard or have the plain cleanup not clear traps when saved_traps is empty.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T15:00:09.087031823Z",
+          "seal": {
+            "by": "server",
+            "mac": "8cb8f3fea671096e233fc835ea6e8e2c3a39695058cc73172775305edac7d714"
+          }
         }
       ],
       "verdicts": [
@@ -231404,13 +231428,27 @@
             "by": "server",
             "mac": "822fa52acc9c33f533603a5dbc124acbfcaf9797589de55e7f37f78980f57406"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "At 25286fb5 all three functions return 130/143, launch nothing, leave no temp file and keep the caller's trap for a signal at every window I could synchronise: mktemp, supervision, copy-out (agentic_run_captured, TERM and INT), the warning echo in bounded_capture (TERM and INT), and run_bounded. INT shares code with TERM. One single-gap race (signal between the guard and the saved-traps expansion in a plain cleanup) loses the caller's trap; I reproduced it only by injection (EVD-4590), judge it unreachable in practice, and report it as a follow-up rather than a refutation.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 25286fb5)",
+          "evidence_ids": [
+            "EVD-4586",
+            "EVD-4589"
+          ],
+          "recorded_at": "2026-11-28T15:00:14.787316762Z",
+          "seal": {
+            "by": "server",
+            "mac": "2058cd5b54cfc1a6042320d696764b43c3b10c2600d1db4466b49a58b4d43819"
+          }
         }
       ],
       "created_at": "2026-11-28T14:41:29.298479115Z",
-      "updated_at": "2026-11-28T14:58:03.306524572Z",
+      "updated_at": "2026-11-28T15:00:14.787316762Z",
       "seal": {
         "by": "server",
-        "mac": "77ceef617f87f1a6abf606301439d65d148b55feefd522270dc050ff4ac56cda"
+        "mac": "98c76a6283448ea6ff912fe78c7d0033fe45282189d626839032e7a501a3c666"
       }
     }
   ]

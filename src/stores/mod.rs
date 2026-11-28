@@ -397,7 +397,7 @@ impl CatalogDb {
     }
 
     /// A connection from the store's pool, trying once more after a refused
-    /// login ((`CatalogDb::retrying`)).
+    /// login (`CatalogDb::retrying`).
     ///
     /// # Returns
     /// The connection, which goes back to the pool when dropped.

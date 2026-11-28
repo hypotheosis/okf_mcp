@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2577,
+  "next_claim_seq": 2589,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "20ad4f547b7d2cd40d8dadd5bfc56e0d2f7447f08822bfd61be859fb4b85c5f8"
+    "mac": "bdcdeda27598db85d1103fc25c4b7f240a0b3005b59553283a342ad47e4f195a"
   },
-  "next_evidence_seq": 4487,
+  "next_evidence_seq": 4501,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c4e04974556f7c10e7fbb40fdf84a32e9ede6a92940df684fa97d57eb3b7d92a"
+    "mac": "2c6a2ee1968b2770ca3139ed43c15d83a05bec95516c48414b98666924a95a5c"
   },
   "claims": [
     {
@@ -193921,6 +193921,28 @@
             "by": "server",
             "mac": "c406c8ebfa01e81adfd6dccde4e6d6b7c87b6876d0b2eb362a6761f4f18e26c1"
           }
+        },
+        {
+          "id": "EVD-4500",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:793-818 at cdd0a3c9",
+          "summary": "poll_reporting now forwards to poll_reporting_with with an empty note (String::new); the 60 s WAIT deadline, 50 ms sleep, done() predicate and the report eval are unchanged; the panic text is the same plus note(), empty here. Sign-in's waits are unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 793,
+                "end": 818
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:23:18.862338273Z",
+          "seal": {
+            "by": "server",
+            "mac": "767a79a9aaedd30179b0994e9f7970357d14ad58271754f48da0662e28f7424e"
+          }
         }
       ],
       "verdicts": [
@@ -193936,13 +193958,26 @@
             "by": "server",
             "mac": "8cb1141d70a1bfc7e5c003f92b2b78eac6bd17eb2c7a0da08aa301fe87bf3f1f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at cdd0a3c9 after #1183 touched poll_reporting; behavior unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4500"
+          ],
+          "recorded_at": "2026-11-28T12:23:23.110227443Z",
+          "seal": {
+            "by": "server",
+            "mac": "7f9fe75294d75c7553cecbee08bd6f26ff845b1157cdfac3c0e4516ebc37baa0"
+          }
         }
       ],
       "created_at": "2026-11-27T12:15:46.408453272Z",
-      "updated_at": "2026-11-27T12:17:02.350510298Z",
+      "updated_at": "2026-11-28T12:23:23.110227443Z",
       "seal": {
         "by": "server",
-        "mac": "de7dd76f70268f6fffee7d631cb4f830a96ce748a04e0b474892c87715e48bf9"
+        "mac": "2fc1481c8499dca56274361c9e6615098e1d79cf62a335803e631572351849d6"
       }
     },
     {
@@ -226245,6 +226280,787 @@
       "seal": {
         "by": "server",
         "mac": "d63e4fc179160d0347932397b948647e508cb2db996b2747fee771cdbffb1674"
+      }
+    },
+    {
+      "id": "CLM-2577",
+      "statement": "Issue #1183 is resolved: the two read:: second-account journeys no longer time out waiting for #account-user to name second, and the cause is found and fixed (or concurrency capped), with the instrumentation kept and a changelog entry added.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1183",
+      "derived_from": [],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4499",
+          "kind": "analysis",
+          "locator": "children of CLM-2577",
+          "summary": "Reporting, instrumentation, changelog and the cause mechanism are supported; whether the fix actually ends the flake is not_enough_info, as is the claim that the observed run proved the cause.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T12:23:01.983931342Z",
+          "seal": {
+            "by": "server",
+            "mac": "b1a5a4c194abd2da76939492fbbf45b988c1df4d8bb1ed684ed1d5100d5ca4e9"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Children show the instrumentation, report, changelog and cause mechanism are in place, but CLM-2585 (fix ends the flake) and CLM-2583 (the observed failure proves the cause) are undecided. Fix: decide CLM-2585 by closing the reader tab's late-401 window and repeating the full gate enough times to show no failures.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-28T12:23:23.257391056Z",
+          "seal": {
+            "by": "server",
+            "mac": "9336f670b6fae3d1603b93bece9ea39b65f9989cc03072872350b91eda1afa45"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:23:23.257391056Z",
+      "seal": {
+        "by": "server",
+        "mac": "95c3aa7679c109375c337b3fe83e203274bae5d2631ee323a62bb902ff065ceb"
+      }
+    },
+    {
+      "id": "CLM-2578",
+      "statement": "When only_the_session_check_as_second times out, the panic message reports the page address, the /api/v1/session answer, the #account-user text, the cookie names (never values) and the second tab's sign-in POST outcome.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "Issue #1183 brief: the wait reports the page address, the /session answer, the #account-user text, cookie names only (never values), and the second tab's POST outcome",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4487",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1970-1999; tests/ui_e2e/harness.rs:824-850",
+          "summary": "SECOND_ACCOUNT_REPORT returns pathname+hash, #account-user text, reader hidden, worker control, and /api/v1/session status, offline header and user only (no csrf, no body beyond user). The note closure appends the sign-in answers (post status, final path, session status/user per attempt) and ui.cookie_names(), which collects only cookie name fields via Storage.getCookies (HttpOnly included). Panic message in poll_reporting_with prints state then note. Not exercised on an actual timeout by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1970,
+                "end": 1999
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:37.629034541Z",
+          "seal": {
+            "by": "server",
+            "mac": "89a790adeb011ce54ea5637f3363b2d3ac61ee6fb7e693b2529b0e71b4f50651"
+          }
+        },
+        {
+          "id": "EVD-4488",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:842-851",
+          "summary": "cookie_names maps cookies to c[\"name\"] only, sorts and joins; values never read.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 842,
+                "end": 851
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:37.772355526Z",
+          "seal": {
+            "by": "server",
+            "mac": "53d545da18b5cc8c85d336d06da87fc41317775ec3b62ecccb441a3199ff0973"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The report closure and cookie_names cover each required item and read no cookie values.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4487",
+            "EVD-4488"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.007616267Z",
+          "seal": {
+            "by": "server",
+            "mac": "62c660ca96baed4d21fca7f2b5ded58ce071e55a300ad4ad5f076fd3f3d81d88"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.007616267Z",
+      "seal": {
+        "by": "server",
+        "mac": "e6037873731430ac2d0b2c988c371ad8cd7d5f46a03ee92ef67cfdd8d5bbaa66"
+      }
+    },
+    {
+      "id": "CLM-2579",
+      "statement": "The instrumentation is kept: both journeys reach it through only_the_session_check_as_second, which calls Ui::wait_text_is_noting.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1183: keep the instrumentation",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4489",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1992-2000, 2016-2019, 2054-2055",
+          "summary": "Both journeys call only_the_session_check_as_second(ui, &signed_in), which waits via wait_text_is_noting; the old ui.wait_text call is gone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1992,
+                "end": 2000
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:37.917833784Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed52c5e218077c9adea7737ce6a41f749f7bb275da8c78be5bae00e5e780f911"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both journeys use the noting wait.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4489"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.164143279Z",
+          "seal": {
+            "by": "server",
+            "mac": "57e5d054043024657bf88fdd08aff916154b740c8ce0157fe7d5e0b9cad2b045"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.164143279Z",
+      "seal": {
+        "by": "server",
+        "mac": "66beaa0155f6dcca6c46acbf97ecf0376bf4f8c2193fccb25252cd934dd0f74e"
+      }
+    },
+    {
+      "id": "CLM-2580",
+      "statement": "A changelog entry for the change exists under changelog/ with a timestamped file name.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1183: add a changelog entry",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "changelog/20261128T120157Z-issue-1183-second-account-flake.md"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4490",
+          "kind": "inspection",
+          "locator": "changelog/20261128T120157Z-issue-1183-second-account-flake.md",
+          "summary": "File exists, tracked at head, timestamped name, describes cause, changes and no cap.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T120157Z-issue-1183-second-account-flake.md",
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.063145241Z",
+          "seal": {
+            "by": "server",
+            "mac": "3fc57b74ccda884abe23b42f7b828dfb75eddcf84a34dba62b9589395d087146"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "File present and tracked.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4490"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.322184659Z",
+          "seal": {
+            "by": "server",
+            "mac": "40445ca6fe820022d13c0c775e0305edfda1c6b9c6a0683ecb903a09bb4ab7d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.322184659Z",
+      "seal": {
+        "by": "server",
+        "mac": "6dbdb5809a0a68876441bbf3c8e7b15f921106a169d6aca3c9925ac79f9844b3"
+      }
+    },
+    {
+      "id": "CLM-2581",
+      "statement": "The /api/v1 middleware answers a request whose session cookie no longer maps to a live session with 401 plus a Set-Cookie that clears the session cookie (unauthorized_clearing).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The `/api/v1` middleware answers a request whose session cookie no longer works with 401 and a `Set-Cookie` that clears the cookie (`unauthorized_clearing`, `src/http/console_session.rs`).\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "src/http/console_session.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4491",
+          "kind": "inspection",
+          "locator": "src/http/console_session.rs:432-436, 498-505, 648-661",
+          "summary": "require_principal: when user_sessions::touch finds no live row (Ok(None)) it returns unauthorized_clearing, which is a 401 plus clear_cookie (Set-Cookie of the session cookie with zero lifetime, same COOKIE name).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/console_session.rs",
+              "lines": {
+                "start": 498,
+                "end": 505
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.208248396Z",
+          "seal": {
+            "by": "server",
+            "mac": "93f7d59e7864d4394fe22fe962a1cb181a0ed1a434cc424b6ff0912f68718663"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code at lines 498-505 does exactly this.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4491"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.461059757Z",
+          "seal": {
+            "by": "server",
+            "mac": "41a7b5adb1db363fbc135c3dc8509ac6621f3448616a5d77ce04e706d802c27a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.461059757Z",
+      "seal": {
+        "by": "server",
+        "mac": "5d694fbe1efb80a4eef7f786be2692fe65e5da15b5ae58ad09534872e563e559"
+      }
+    },
+    {
+      "id": "CLM-2582",
+      "statement": "Signing in revokes the session the browser's request cookie names (rotation).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Signing in as `second` ends the session the browser held.\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "src/http/signin.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4492",
+          "kind": "inspection",
+          "locator": "src/http/signin.rs:563-576",
+          "summary": "After user_sessions::start, if the request carries a session cookie the old session is revoked in the same transaction, so a later request with the old cookie finds no live session.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/signin.rs",
+              "lines": {
+                "start": 563,
+                "end": 576
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.356472649Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed9d81041c1a808c038f0988e0e137e81d3b8c1109feb6357e077e5327d54955"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "signin.rs:573-575 revokes the old session.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4492"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.607290546Z",
+          "seal": {
+            "by": "server",
+            "mac": "05f55fd86b306bc98a906c32c83f7b840598f70908a325e95fe47a5faa761c53"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.607290546Z",
+      "seal": {
+        "by": "server",
+        "mac": "207d7d7ff829cf1962224a798c9d2620d25def9059890a27f0a4ef3a9c14a0d2"
+      }
+    },
+    {
+      "id": "CLM-2583",
+      "statement": "The observed failing gate run really showed /api/v1/session answering 401, an empty cookie list, the signed-out reader and a 200 sign-in POST, so the cause is a late 401 from the old session clearing the new cookie.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Evidence: with the new report, a failing full-gate run said `/api/v1/session` answered 401, the cookie list was empty, the reader showed its signed-out screen, and the sign-in POST had answered 200\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "changelog/20261128T120157Z-issue-1183-second-account-flake.md"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4493",
+          "kind": "analysis",
+          "locator": "changelog/20261128T120157Z-issue-1183-second-account-flake.md \"What was slow\"",
+          "summary": "The only record of the failing run is a quote in the changelog (and PR body); no gate log is in the repository, and the quoted POST shape (status/redirected/path) differs from the helper's current output. The mechanism (CLM-2581, CLM-2582) is consistent with the quote but I could not reproduce or see the run; the specific late request that cleared the cookie was not identified (no request log).",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T120157Z-issue-1183-second-account-flake.md",
+              "lines": {
+                "start": 11,
+                "end": 24
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.501220693Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfa490a375b6176d83f22dcc63862903e177a30deaf8f0c91aac65e7d2249745"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The mechanism exists in the code, but the failing run is only quoted, not recorded, and the clearing request was never identified, so the causal story is plausible but unproven. Fix: attach the failing run's log (or reproduce it) showing the request that answered 401 after the sign-in's Set-Cookie, or soften the PR body to \"consistent with\".",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4493"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.757976354Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce7f53ff0367f3eaea5a2ba75af661f359281f56f9036469a951c62f0faf110e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.757976354Z",
+      "seal": {
+        "by": "server",
+        "mac": "11a1afeb1b32244573d06979d387fc17f05870d91345ac16a0a0198e23cb62b0"
+      }
+    },
+    {
+      "id": "CLM-2584",
+      "statement": "sign_in_second_in_another_tab posts the sign-in from /healthz (not the console), reads /api/v1/session back in the same tab, signs in again up to three times if it does not name second, and no longer reloads the console as second.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"`sign_in_second_in_another_tab` posts the sign-in from `/healthz` (a page with no script), reads `/api/v1/session` back in the same tab and signs in again, up to three times, if it does not name `second`. The reload of the console as `second` is removed.\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4494",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:1926-1965",
+          "summary": "ATTEMPTS=3; tab goes to {base}/healthz; each attempt fetches POST /signin then GET /api/v1/session in the same evaluate and returns user; loop returns when user == \"second\"; final assert on the last attempt's user; no goto of /ui/ remains. /healthz is a plain route (src/http/mod.rs:431).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1926,
+                "end": 1965
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.645268472Z",
+          "seal": {
+            "by": "server",
+            "mac": "f681bb5945cccc8f2cc298229a79ffe95dbe7c3819cb8adea24566ce252b1041"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code matches each part of the statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4494"
+          ],
+          "recorded_at": "2026-11-28T12:22:57.895107245Z",
+          "seal": {
+            "by": "server",
+            "mac": "105064b8aee94b9aa2c80d298d7818032845c96f83fb86cbe13f57c253eb8f4f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:57.895107245Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f9c796bca97566c5fe1e6b8724b0659d9ea6e12d82eabc476e007a4ba9efe00"
+      }
+    },
+    {
+      "id": "CLM-2585",
+      "statement": "The change removes the cause: after the change no late 401 of the first account can clear second's session cookie before the journeys check #account-user, so the journeys no longer flake under gate load.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1183: fix the cause; PR body: \"This PR makes the sign-in helper robust to that\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4495",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/read.rs:1911-1925, 1992-2000",
+          "summary": "The helper's own doc comment says the reader's own late requests can still clear the cookie, and the retry only covers a clear that lands before the read-back inside the second tab. The reader tab (first account, with its service worker and open console data requests) stays open and is then reloaded and waited on in only_the_session_check_as_second; a late first-account 401 arriving after the read-back is not handled. Removing the console reload in the second tab removes one source, but the reader tab's in-flight requests are unchanged. Validation cited is 3 passes of 3 full runs, against a pre-fix rate of 1 failure in 3, so it cannot distinguish fixed from lucky.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1911,
+                "end": 1925
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:38.789910945Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce763df785f3447d9ba17fc2b0f32b3e377b5803cc0e4f419423ae13cc3e832f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "The fix removes the console's own in-flight requests from the second tab and retries a lost sign-in, but the reader tab's late first-account 401s after the read-back are not prevented, as the helper's own comment admits, and three passing runs cannot show a roughly 1-in-3 flake is gone. Fix: before the sign-in, wait for the reader tab's pending /api/v1 requests to finish (or run the two journeys repeatedly, say 20 full-gate runs, and record zero failures), and make only_the_session_check_as_second sign in again from the second tab if the wait reports a 401.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4495"
+          ],
+          "recorded_at": "2026-11-28T12:22:58.033014979Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c558e71a52169dceb8efe0bda3670ee4c65f75b8c1dc5beb83775c911b7babf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:58.033014979Z",
+      "seal": {
+        "by": "server",
+        "mac": "6e613c2c3e3bd3a6abfbe54e15075d90a73ef9991b0acc607dc7cc670cf1888f"
+      }
+    },
+    {
+      "id": "CLM-2586",
+      "statement": "The change adds no nextest concurrency cap and does not change product code under src/ or web files.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"No nextest concurrency cap: the failure is a race, not slowness.\"; \"The product is not changed here.\"; \"test-ui and worker were not run: no console JS or worker file changed.\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4496",
+          "kind": "log",
+          "locator": "git diff origin/main..HEAD --name-only",
+          "summary": "Changed files: the changelog entry, tests/ui_e2e/harness.rs, tests/ui_e2e/read.rs, tools/agentic/lessons.md. Nothing under src/, web/, or nextest config.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T12:22:38.929336349Z",
+          "seal": {
+            "by": "server",
+            "mac": "a1d6764279817265fc887104f2b51136d1654eff909d2330709cce6ba7543955"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff touches only tests, lessons and changelog.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4496"
+          ],
+          "recorded_at": "2026-11-28T12:22:58.171801067Z",
+          "seal": {
+            "by": "server",
+            "mac": "d101b913c73dded2b752444254b92dafb100be28d2769edd5b9558420e9bd577"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:58.171801067Z",
+      "seal": {
+        "by": "server",
+        "mac": "40269c7c2d0b6740ee234278bd504d196dbf953603527ab84765c660691c9f03"
+      }
+    },
+    {
+      "id": "CLM-2587",
+      "statement": "gate.sh fmt exits 0 on the head, and gate.sh lint, dylint, three test runs (270-280 s each, both journeys passing 6 of 6) and mcpjam all exit 0.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body Validation section: \"fmt: exit 0 ... lint: exit 0, ran 99 s ... test (three runs ...): exit 0 ... mcpjam: exit 0, ran 88 s\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4497",
+          "kind": "log",
+          "locator": "cargo fmt --check (head cdd0a3c9)",
+          "summary": "cargo fmt --check exits 0. I did not rerun lint, dylint, the three full test runs or mcpjam (about 15 min of gate time, and the gate lock is shared); their timings and counts are the author's account only.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T12:22:39.066884543Z",
+          "seal": {
+            "by": "server",
+            "mac": "395af7e56641e04423be91f3ad9d6ed64f58294dc88a899c54e0e7199ef47f52"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only fmt was rerun (passes); the rest are gate runs I did not repeat. Fix: paste the gate.sh summary lines (^gate.sh: ) for lint, dylint, test and mcpjam from the head commit into the PR, or rerun them on cdd0a3c9.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4497"
+          ],
+          "recorded_at": "2026-11-28T12:22:58.308282685Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee470f095941453801223535fc6e2500a7fa8afa12706ed0cede99c7b8d53511"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:58.308282685Z",
+      "seal": {
+        "by": "server",
+        "mac": "e15c645b68af66e4885268490ac0bbd5f1924b5022006c370b2a49c696f765ec"
+      }
+    },
+    {
+      "id": "CLM-2588",
+      "statement": "harness.rs adds Ui::wait_text_is_noting, poll_reporting_with and Ui::cookie_names, and lessons.md gains a rule for two-tab sign-in journeys.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body Changes: \"`tests/ui_e2e/harness.rs`: `Ui::wait_text_is_noting`, `poll_reporting_with` and `Ui::cookie_names`. `tools/agentic/lessons.md` and a `changelog/` entry.\"",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/harness.rs",
+        "tools/agentic/lessons.md"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4498",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:802,824,842; tools/agentic/lessons.md:69",
+          "summary": "All three functions are present at those lines and lessons.md line 69 carries the #1183 rule.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 793,
+                "end": 851
+              },
+              "commit": "cdd0a3c905f11f66514d950de74839b349c47550"
+            }
+          },
+          "recorded_at": "2026-11-28T12:22:39.209115532Z",
+          "seal": {
+            "by": "server",
+            "mac": "43f78578e6029d6ee57638b66be2baff5a3f1141d8bd15d31de34ee623dd5ad4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All named items present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4498"
+          ],
+          "recorded_at": "2026-11-28T12:22:58.445962038Z",
+          "seal": {
+            "by": "server",
+            "mac": "57205f89d3319df8bf94d2fb3ae025f418bd1dcaf212398c5a27917cb77bb3ea"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:22:10.033818199Z",
+      "updated_at": "2026-11-28T12:22:58.445962038Z",
+      "seal": {
+        "by": "server",
+        "mac": "5fb96020ae19b686512266b9b2aa9fd3722ba9b4afc5094d5f8fa34507363756"
       }
     }
   ]

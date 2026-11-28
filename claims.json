@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "25c5858dcb8c218ef5b51cda3b4a031b2dfb6726fdafc7e0ed9a931748ad0811"
   },
-  "next_evidence_seq": 4683,
+  "next_evidence_seq": 4684,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "81858db50665cb5c3b6c773abac798352488a879761233d4697e43bd286856e0"
+    "mac": "e4f947c26dc0925a9d8ff9014f713cde23febb3221d3b324fd6cb59cf3a9dd19"
   },
   "claims": [
     {
@@ -235187,6 +235187,18 @@
             "by": "server",
             "mac": "4cf04cc3b38d54911837e219cbc36d722d72387b621bb5432787f518157125ac"
           }
+        },
+        {
+          "id": "EVD-4683",
+          "kind": "other",
+          "locator": "https://docs.sentry.io/security-legal-pii/scrubbing/server-side-scrubbing/ (fetched 2026-11-28 with WebFetch)",
+          "summary": "The page says: \"Values that themselves contain, or whose keynames contain, any of the following strings:\" and lists password, secret, passwd, api_key, apikey, auth, credentials, mysql_pwd, privatekey, private_key, token, bearer. These are the same twelve strings, in the same order, as the first 12 entries of SCRUBBED_SUBSTRINGS (src/http/telemetry_tests.rs:1240-1251). The page text was extracted by WebFetch's summarizer, which quoted it verbatim.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:29:44.477053283Z",
+          "seal": {
+            "by": "server",
+            "mac": "ee1eedb4d82bdbd7a88c8c83a22c24e127e68db4eb35191ea7ef9b116e937848"
+          }
         }
       ],
       "verdicts": [
@@ -235202,13 +235214,26 @@
             "by": "server",
             "mac": "b537269d961921587cb01049ec9b8b5187e652fd9b11ab80916ae2e99b46fdc1"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Sentry's server-side scrubbing page lists exactly the twelve strings that head SCRUBBED_SUBSTRINGS, in the same order. Fetched page text, via a summarizing fetch tool that quoted it verbatim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4683"
+          ],
+          "recorded_at": "2026-11-28T17:29:49.392075951Z",
+          "seal": {
+            "by": "server",
+            "mac": "880b32315fcbeb7fc8bb4d2093ed3a2474684b1d090594d806efd139cb50b62c"
+          }
         }
       ],
       "created_at": "2026-11-28T17:18:20.872841047Z",
-      "updated_at": "2026-11-28T17:19:48.440651133Z",
+      "updated_at": "2026-11-28T17:29:49.392075951Z",
       "seal": {
         "by": "server",
-        "mac": "d188970b94973ed1148085fb5160d366b4a5465222d133f38b8491c029d1c3f6"
+        "mac": "b29b980808a2387514f8a7f40ab6d013e1a8055ea0559275bf1bfb55d8ed2c05"
       }
     },
     {

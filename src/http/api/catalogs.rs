@@ -1578,6 +1578,34 @@ mod tests {
         test.catalog_on_new_store("store-b", "remote", &[("note.md", "# Remote\n")])
             .await;
         let root = every_catalog_admin(&test).await;
+        // Rows the count must leave out: a half-created registry row and a
+        // soft-deleted catalog, both on counted stores, and a store with no
+        // catalogs at all.
+        let pool = test.app.accounts().executor();
+        for (name, store, provisioned, deleted) in [
+            ("half-made", "main", "NULL", "NULL"),
+            ("gone", "main", "now()", "now()"),
+            ("gone-remote", "store-b", "now()", "now()"),
+        ] {
+            sqlx::query(sqlx::AssertSqlSafe(format!(
+                "INSERT INTO catalogs (name, created_at, store, provisioned_at, deleted_at) \
+                 VALUES ($1, now(), $2, {provisioned}, {deleted})"
+            )))
+            .bind(name)
+            .bind(store)
+            .execute(pool)
+            .await
+            .expect("a registry row");
+        }
+        sqlx::query(
+            "INSERT INTO stores (name, location_kind, host, port, database, credential_kind, \
+             credential_ref, created_at) VALUES ('store-empty', 'host', 'example.internal', 5432, \
+             'empty', 'env', $1, now())",
+        )
+        .bind(crate::db::pg::STORE_PASSWORD_VAR)
+        .execute(pool)
+        .await
+        .expect("an empty store");
 
         let (status, body) = send(&test, "GET", "/api/v1/stores", Some(&root), None).await;
 
@@ -1592,6 +1620,7 @@ mod tests {
         };
         assert_eq!(count("main"), Some(json!(2)), "main and other: {body}");
         assert_eq!(count("store-b"), Some(json!(1)), "remote: {body}");
+        assert_eq!(count("store-empty"), Some(json!(0)), "empty: {body}");
     }
 
     /// A page's places are read for the stores it references only: asking for

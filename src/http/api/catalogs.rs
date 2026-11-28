@@ -4,6 +4,7 @@
 //! mounted again under `/api/v1` with the same handlers, body cap and
 //! deadline as `/catalogs/{name}/export|import`.
 
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
@@ -19,6 +20,7 @@ use crate::catalog::CatalogState;
 use crate::clock::format_timestamp;
 use crate::error::OkfError;
 use crate::http::api::context;
+use crate::http::api::stores::{may_see_stores, places, StorePlace};
 use crate::http::requester::Requester;
 use crate::http::{archives, AppError};
 use crate::labels::directory::{Labels, Wanted};
@@ -97,6 +99,12 @@ pub(crate) struct CatalogSummary {
     /// Whether the maintenance runner may check it (`on`, the default) or
     /// is kept out (`off`), as the key cache holds it.
     pub maintenance: Switch,
+    /// The store holding its data and where that store is: the name, and
+    /// `account-database` or the host, port and database, as `GET /stores`
+    /// shows them. Left out (the key is absent) unless the caller may read
+    /// `GET /stores` ([`may_see_stores`]); never a credential detail.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub store: Option<StorePlace>,
 }
 
 impl CatalogSummary {
@@ -109,6 +117,8 @@ impl CatalogSummary {
     /// * `principal` - the caller, which must reach the catalog (its
     ///   suspension is shown only to those who do).
     /// * `labels` - the label directory, for the owner team's label.
+    /// * `places` - every store's place, for a caller who may see stores;
+    ///   `None` for any other caller.
     #[cfg_attr(
         dylint_lib = "hyp_tracing",
         allow(
@@ -116,7 +126,13 @@ impl CatalogSummary {
             reason = "trivial accessor or conversion: returns or maps a value, a span would record nothing new"
         )
     )]
-    fn of(row: &CatalogRow, state: &CatalogState, principal: &Principal, labels: &Labels) -> Self {
+    fn of(
+        row: &CatalogRow,
+        state: &CatalogState,
+        principal: &Principal,
+        labels: &Labels,
+        places: Option<&Places>,
+    ) -> Self {
         // `current()` is an `Arc` of the loaded snapshot: one consistent
         // generation, file count and concept count.
         let loaded = state.current();
@@ -139,7 +155,24 @@ impl CatalogSummary {
             // every admission decision does.
             suspended: principal.suspension(row).map(SuspensionInfo::from),
             maintenance: Switch::from(!row.maintenance_off),
+            store: places.and_then(|places| places.get(row.store.as_str()).cloned()),
         }
+    }
+}
+
+/// Every store's place by name, read only for a caller who may see stores.
+type Places = HashMap<String, StorePlace>;
+
+/// The stores' places when `principal` may see them, else `None`.
+///
+/// # Errors
+/// [`OkfError::Database`] for a failed read.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn places_for(app: &App, principal: &Principal) -> Result<Option<Places>, OkfError> {
+    if may_see_stores(principal) {
+        Ok(Some(places(app).await?))
+    } else {
+        Ok(None)
     }
 }
 
@@ -155,6 +188,12 @@ pub(crate) struct CatalogListing {
     /// them could not be reached (sorted); absent when every store answered.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub unavailable: Vec<String>,
+    /// For a caller who may see stores ([`may_see_stores`]): the store of
+    /// each catalog in `unavailable`, by catalog name, so the operator sees
+    /// which store is down. Absent for any other caller and when every store
+    /// answered.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub unavailable_stores: BTreeMap<String, String>,
 }
 
 /// `POST /catalogs`' body.
@@ -274,6 +313,7 @@ async fn list_catalogs(
         }
     }
     let labels = app.labels().labels_for(&wanted).await?;
+    let places = places_for(&app, &principal).await?;
     let mut catalogs = Vec::with_capacity(page.items.len());
     let mut unavailable = page.unavailable;
     // Rows on a store the page found down stay unloaded; the rest load
@@ -289,7 +329,13 @@ async fn list_catalogs(
     let states = ctx.listed_states(&loadable).await;
     for (row, state) in loadable.into_iter().zip(states) {
         match state {
-            Ok(Some(state)) => catalogs.push(CatalogSummary::of(row, &state, &principal, &labels)),
+            Ok(Some(state)) => catalogs.push(CatalogSummary::of(
+                row,
+                &state,
+                &principal,
+                &labels,
+                places.as_ref(),
+            )),
             Ok(None) => {}
             // The store went away since the page was read.
             Err(OkfError::StoreUnavailable { .. }) => {
@@ -300,10 +346,22 @@ async fn list_catalogs(
         }
     }
     unavailable.sort();
+    // The store of each catalog left out, for a caller who may see stores.
+    // Every id in `unavailable` is a row of this page.
+    let unavailable_stores = if places.is_some() {
+        page.items
+            .iter()
+            .filter(|row| unavailable.contains(&row.name))
+            .map(|row| (row.name.clone(), row.store.to_string()))
+            .collect()
+    } else {
+        BTreeMap::new()
+    };
     Ok(Json(CatalogListing {
         catalogs,
         next: page.next,
         unavailable,
+        unavailable_stores,
     }))
 }
 
@@ -354,10 +412,16 @@ async fn create_catalog(
     // The owner may be a suspended team: read the new row's access facts
     // from the database (one query), not from the directory, which may
     // still remember the name as absent until the create's message lands.
-    let suspended = catalog_rows::row_by_name(app.accounts().executor(), &row.name)
-        .await?
-        .and_then(|created| principal.suspension(&created))
+    let created = catalog_rows::row_by_name(app.accounts().executor(), &row.name).await?;
+    let suspended = created
+        .as_ref()
+        .and_then(|created| principal.suspension(created))
         .map(SuspensionInfo::from);
+    // Where it was placed, for a caller who may see stores.
+    let store = match (&created, places_for(&app, &principal).await?) {
+        (Some(created), Some(mut places)) => places.remove(created.store.as_str()),
+        _ => None,
+    };
     // Built from the row, not the loaded state: a new catalog holds only its
     // starter files (a root index.md and a log.md, no concepts), written
     // when it was created, and the answer must not depend on the catalog
@@ -384,6 +448,7 @@ async fn create_catalog(
         suspended,
         // `catalogs.maintenance` defaults to true and `create` never sets it.
         maintenance: Switch::On,
+        store,
     };
     Ok((StatusCode::CREATED, Json(summary)))
 }
@@ -1338,6 +1403,207 @@ mod tests {
         assert_eq!(created, StatusCode::CREATED, "{in_suspended}");
         assert_eq!(in_suspended["suspended"]["team"], SUSPENDED_TEAM);
         assert_eq!(in_active.get("suspended"), Some(&serde_json::Value::Null));
+    }
+
+    /// The catalog in `body`'s list called `name`.
+    fn listed_catalog(body: &serde_json::Value, name: &str) -> serde_json::Value {
+        body["catalogs"]
+            .as_array()
+            .expect("a list")
+            .iter()
+            .find(|catalog| catalog["name"] == name)
+            .cloned()
+            .unwrap_or_else(|| panic!("{name} in {body}"))
+    }
+
+    /// The keys of a JSON object, sorted.
+    fn keys_of(value: &serde_json::Value) -> Vec<String> {
+        let mut keys: Vec<String> = value
+            .as_object()
+            .expect("an object")
+            .keys()
+            .cloned()
+            .collect();
+        keys.sort();
+        keys
+    }
+
+    /// Issue #1030: an admin's listing and a new catalog's answer name the
+    /// store each catalog is on, in the shape `GET /stores` gives; a key
+    /// below admin, and a provisioner, get no `store` key at all.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn an_admin_sees_each_catalogs_store_and_no_one_else_does() {
+        // Arrange
+        let test = app().await;
+        test.catalog_on_new_store("store-b", "remote", &[("note.md", "# Remote\n")])
+            .await;
+        let keys = keys(&test).await;
+        let root = every_catalog_admin(&test).await;
+        let provisioner = crate::store::keys::create_provisioner(
+            test.app.accounts().executor(),
+            &crate::store::keys::NewProvisioner {
+                name: "signup",
+                actor: "signup",
+                user: crate::db::TEST_USER,
+            },
+            &AuditActor::cli(),
+            Utc::now(),
+        )
+        .await
+        .expect("a provisioner key")
+        .key;
+
+        // Act
+        let (_, as_root) = send(&test, "GET", "/api/v1/catalogs", Some(&root), None).await;
+        let (_, as_scoped_admin) =
+            send(&test, "GET", "/api/v1/catalogs", Some(&keys.admin), None).await;
+        let (_, as_reader) = send(&test, "GET", "/api/v1/catalogs", Some(&keys.read), None).await;
+        let (_, as_writer) = send(&test, "GET", "/api/v1/catalogs", Some(&keys.write), None).await;
+        let (_, stores) = send(&test, "GET", "/api/v1/stores", Some(&root), None).await;
+        let (created, by_root) = send(
+            &test,
+            "POST",
+            "/api/v1/catalogs",
+            Some(&root),
+            Some(json!({ "name": "fresh", "owner": TEST_TEAM })),
+        )
+        .await;
+        let (created_by_provisioner, by_provisioner) = send(
+            &test,
+            "POST",
+            "/api/v1/catalogs",
+            Some(&provisioner),
+            Some(json!({ "name": "fresh-too", "owner": TEST_TEAM })),
+        )
+        .await;
+
+        // Assert: each catalog reports its own store, in `GET /stores`' shape
+        // and with nothing beyond it (no credential kind or reference).
+        let place = ["database", "host", "location", "name", "port"];
+        for (catalog, store_name, location) in [
+            ("main", "main", "account-database"),
+            ("other", "main", "account-database"),
+            ("remote", "store-b", "host"),
+        ] {
+            let store = &listed_catalog(&as_root, catalog)["store"];
+            assert_eq!(store["name"], store_name, "{catalog}: {store}");
+            assert_eq!(store["location"], location, "{catalog}: {store}");
+            assert_eq!(keys_of(store), place, "{catalog}: {store}");
+            let entry = stores["stores"]
+                .as_array()
+                .expect("the stores")
+                .iter()
+                .find(|entry| entry["name"] == store_name)
+                .unwrap_or_else(|| panic!("{store_name} in {stores}"));
+            for field in place {
+                assert_eq!(store[field], entry[field], "{catalog}.{field}");
+            }
+        }
+        assert!(listed_catalog(&as_root, "remote")["store"]["host"].is_string());
+        assert!(listed_catalog(&as_root, "remote")["store"]["port"].is_u64());
+        assert_eq!(
+            listed_catalog(&as_scoped_admin, "main")["store"]["name"],
+            "main",
+            "any admin may read GET /stores, so any admin sees it"
+        );
+        // Not even a null: the answer is the one non-admins got before.
+        for (who, body) in [("read", &as_reader), ("write", &as_writer)] {
+            let main = listed_catalog(body, "main");
+            assert!(main.get("store").is_none(), "{who}: {main}");
+            assert!(!keys_of(&main).contains(&"store".to_string()), "{who}");
+        }
+        assert_eq!(created, StatusCode::CREATED, "{by_root}");
+        assert_eq!(by_root["store"]["name"], "main");
+        assert_eq!(
+            created_by_provisioner,
+            StatusCode::CREATED,
+            "{by_provisioner}"
+        );
+        assert!(by_provisioner.get("store").is_none(), "{by_provisioner}");
+    }
+
+    /// Issue #1030: a catalog left out of a listing because its store is
+    /// down is named by store for an admin, in a field a client that reads
+    /// only `unavailable` never sees; a non-admin sees `unavailable` alone.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn an_unavailable_catalog_is_named_by_store_for_an_admin_only() {
+        // Arrange
+        let test = app().await;
+        let store = test
+            .catalog_on_new_store("store-b", "remote", &[("note.md", "# Remote\n")])
+            .await;
+        test.make_unreachable(&store).await;
+        let root = every_catalog_admin(&test).await;
+        let grants = ["main".to_string(), "remote".to_string()];
+        let reader = key_rows_for(&test, "remote-reader", &grants).await;
+
+        // Act
+        let (_, as_root) = send(&test, "GET", "/api/v1/catalogs", Some(&root), None).await;
+        let (_, as_reader) = send(&test, "GET", "/api/v1/catalogs", Some(&reader), None).await;
+
+        // Assert
+        assert_eq!(as_root["unavailable"], json!(["remote"]), "{as_root}");
+        assert_eq!(
+            as_root["unavailable_stores"],
+            json!({ "remote": "store-b" }),
+            "{as_root}"
+        );
+        assert_eq!(as_reader["unavailable"], json!(["remote"]), "{as_reader}");
+        assert!(as_reader.get("unavailable_stores").is_none(), "{as_reader}");
+        assert_eq!(
+            listed_catalog(&as_root, "main")["store"]["name"],
+            "main",
+            "the reachable catalogs still list"
+        );
+    }
+
+    /// Issue #1030: `GET /stores` counts the catalogs each store holds.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_stores_list_counts_each_stores_catalogs() {
+        let test = app().await;
+        test.catalog_on_new_store("store-b", "remote", &[("note.md", "# Remote\n")])
+            .await;
+        let root = every_catalog_admin(&test).await;
+
+        let (status, body) = send(&test, "GET", "/api/v1/stores", Some(&root), None).await;
+
+        assert_eq!(status, StatusCode::OK, "{body}");
+        let count = |name: &str| {
+            body["stores"]
+                .as_array()
+                .expect("the stores")
+                .iter()
+                .find(|store| store["name"] == name)
+                .map(|store| store["catalogs"].clone())
+        };
+        assert_eq!(count("main"), Some(json!(2)), "main and other: {body}");
+        assert_eq!(count("store-b"), Some(json!(1)), "remote: {body}");
+    }
+
+    /// A read key named `name` that reaches `catalogs`.
+    async fn key_rows_for(test: &TestApp, name: &'static str, catalogs: &[String]) -> String {
+        use crate::store::keys::{create_with_id, Grants, NewKey};
+        let new = NewKey {
+            name,
+            access: Access::Read,
+            maintenance_report: false,
+            grants: Grants::Catalogs(catalogs),
+            default_catalog: Some("main"),
+            actor: name,
+            user: crate::db::TEST_USER,
+            self_issued: false,
+            expires_at: None,
+            levels: &[],
+        };
+        create_with_id(
+            test.app.accounts().executor(),
+            &new,
+            &AuditActor::cli(),
+            Utc::now(),
+        )
+        .await
+        .expect("create a key")
+        .key
     }
 
     #[tokio::test(flavor = "multi_thread")]

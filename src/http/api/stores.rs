@@ -10,6 +10,7 @@
 //! name of a variable or a secret, not its value. A refused connection check
 //! names no host, port or credential.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use axum::extract::{Path, State};
@@ -21,17 +22,21 @@ use serde::{Deserialize, Serialize};
 use crate::app::App;
 use crate::auth::Principal;
 use crate::clock::format_timestamp;
+use crate::error::OkfError;
 use crate::http::api::{require_admin, require_every_catalog};
 use crate::http::AppError;
 use crate::store::audit::AuditActor;
+use crate::store::keys::Access;
 use crate::store::stores::{self, CredentialKind, StoreLocation, StoreRow, StoreSummary};
 use crate::store::teams;
 use crate::stores::StoreName;
 use crate::telemetry::subscriber::split_event;
 
-/// One store as the API shows it.
+/// Where one store is: what the catalog routes show an admin about the store
+/// a catalog is on. Exactly the location part of [`StoreView`], and no more:
+/// never a credential's kind or reference.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub(crate) struct StoreView {
+pub(crate) struct StorePlace {
     /// Its name.
     pub name: String,
     /// `account-database` or `host`.
@@ -42,6 +47,83 @@ pub(crate) struct StoreView {
     pub port: Option<u16>,
     /// The database's name (a `host` store).
     pub database: Option<String>,
+}
+
+impl From<&StoreRow> for StorePlace {
+    #[cfg_attr(
+        dylint_lib = "hyp_tracing",
+        allow(uninstrumented_fn, reason = "maps a value, no I/O")
+    )]
+    fn from(row: &StoreRow) -> Self {
+        let mut place = Self {
+            name: row.name.to_string(),
+            location: "account-database",
+            host: None,
+            port: None,
+            database: None,
+        };
+        if let StoreLocation::Host {
+            host,
+            port,
+            database,
+            ..
+        } = &row.location
+        {
+            place.location = "host";
+            place.host = Some(host.clone());
+            place.port = Some(*port);
+            place.database = Some(database.clone());
+        }
+        place
+    }
+}
+
+/// Whether `principal` may be told which store a catalog is on: the callers
+/// `GET /stores` answers. That route needs an admin and is not on the
+/// provisioner allow-list ([`super::PROVISIONER_ROUTES`]), so a provisioner,
+/// which reaches the catalog routes that create and change catalogs, never
+/// learns a store.
+///
+/// # Arguments
+/// * `principal` - the caller.
+///
+/// # Returns
+/// `true` for an admin that is not a provisioner.
+#[cfg_attr(
+    dylint_lib = "hyp_tracing",
+    allow(uninstrumented_fn, reason = "a pure predicate")
+)]
+pub(crate) fn may_see_stores(principal: &Principal) -> bool {
+    principal.access >= Access::Admin && !principal.provisioner
+}
+
+/// Every store's place by name: what a catalog listing joins its rows to.
+///
+/// # Arguments
+/// * `app` - the application, for the account database.
+///
+/// # Errors
+/// [`OkfError::Database`] for a failed read.
+#[tracing::instrument(level = "debug", skip_all)]
+pub(crate) async fn places(app: &App) -> Result<HashMap<String, StorePlace>, OkfError> {
+    Ok(stores::summaries(app.accounts().executor())
+        .await?
+        .iter()
+        .map(|summary| {
+            let place = StorePlace::from(&summary.row);
+            (place.name.clone(), place)
+        })
+        .collect())
+}
+
+/// One store as the API shows it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub(crate) struct StoreView {
+    /// Its name and where it is.
+    // `flatten` writes the place's keys beside this struct's own, so the
+    // JSON is as it was before `StorePlace` was split out.
+    #[serde(flatten)]
+    pub place: StorePlace,
     /// How its credential is found (a `host` store).
     pub credential_kind: Option<&'static str>,
     /// What names the credential: a variable, a secret ARN or an IAM
@@ -53,6 +135,8 @@ pub(crate) struct StoreView {
     pub is_default: bool,
     /// How many teams are pinned to it.
     pub pinned_teams: i64,
+    /// How many catalogs it holds.
+    pub catalogs: i64,
 }
 
 impl From<StoreSummary> for StoreView {
@@ -66,35 +150,25 @@ impl From<StoreSummary> for StoreView {
             created_at,
             is_default,
             pinned_teams,
+            catalogs,
         } = summary;
-        let mut view = Self {
-            name: row.name.to_string(),
-            location: "account-database",
-            host: None,
-            port: None,
-            database: None,
-            credential_kind: None,
-            credential_ref: None,
+        let (credential_kind, credential_ref) = match row.location {
+            StoreLocation::AccountDatabase => (None, None),
+            StoreLocation::Host {
+                credential_kind,
+                ref credential_ref,
+                ..
+            } => (Some(credential_kind.as_str()), Some(credential_ref.clone())),
+        };
+        Self {
+            place: StorePlace::from(&row),
+            credential_kind,
+            credential_ref,
             created_at: format_timestamp(created_at),
             is_default,
             pinned_teams,
-        };
-        if let StoreLocation::Host {
-            host,
-            port,
-            database,
-            credential_kind,
-            credential_ref,
-        } = row.location
-        {
-            view.location = "host";
-            view.host = Some(host);
-            view.port = Some(port);
-            view.database = Some(database);
-            view.credential_kind = Some(credential_kind.as_str());
-            view.credential_ref = Some(credential_ref);
+            catalogs,
         }
-        view
     }
 }
 

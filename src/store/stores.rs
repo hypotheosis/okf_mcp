@@ -216,6 +216,9 @@ pub struct StoreSummary {
     pub is_default: bool,
     /// How many teams are pinned to it.
     pub pinned_teams: i64,
+    /// How many catalogs it holds: the provisioned, undeleted ones, as the
+    /// catalog listings count them.
+    pub catalogs: i64,
 }
 
 /// [`StoreSummary`] as the query returns it.
@@ -225,6 +228,7 @@ struct SummaryColumns {
     row: StoreRowColumns,
     created_at: DateTime<Utc>,
     pinned_teams: i64,
+    catalogs: i64,
 }
 
 /// Every store with its creation time and pin count, in name order, and
@@ -244,7 +248,9 @@ pub async fn summaries(executor: &PgPool) -> Result<Vec<StoreSummary>, OkfError>
     let columns = sqlx::query_as::<_, SummaryColumns>(
         "SELECT s.name, s.location_kind, s.host, s.port, s.database, s.credential_kind, \
                 s.credential_ref, s.created_at, \
-                (SELECT count(*) FROM teams t WHERE t.store = s.name) AS pinned_teams \
+                (SELECT count(*) FROM teams t WHERE t.store = s.name) AS pinned_teams, \
+                (SELECT count(*) FROM catalogs c WHERE c.store = s.name \
+                   AND c.provisioned_at IS NOT NULL AND c.deleted_at IS NULL) AS catalogs \
          FROM stores s ORDER BY s.name",
     )
     .fetch_all(executor)
@@ -258,6 +264,7 @@ pub async fn summaries(executor: &PgPool) -> Result<Vec<StoreSummary>, OkfError>
                 row,
                 created_at: columns.created_at,
                 pinned_teams: columns.pinned_teams,
+                catalogs: columns.catalogs,
             })
         })
         .collect()
@@ -498,6 +505,7 @@ async fn insert_in(
         row,
         created_at: now,
         pinned_teams: 0,
+        catalogs: 0,
     })
 }
 

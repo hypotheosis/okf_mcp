@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2542,
+  "next_claim_seq": 2551,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "1a7f590fd1a0dab54d04697ee28d4e9939038a49198d4f221e74034c0d27fae9"
+    "mac": "6b5e284d468963934648a9c62f74149a2b7f83fec9d3802d04a6dc335dcb26b0"
   },
-  "next_evidence_seq": 4431,
+  "next_evidence_seq": 4442,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "9248d781758585bd470591feac72df5bfac5bd9e0f9a6145935ec843850165bc"
+    "mac": "787e3684aca7a16d04bba3c5df218aeb3ed1f33d87e6edfe238a499c97b0a4c1"
   },
   "claims": [
     {
@@ -223397,6 +223397,632 @@
       "seal": {
         "by": "server",
         "mac": "4c0013f7e46b7cfe70948e68f8bb609b6dd482b1dacd5f2246ecb62b7c4a6a21"
+      }
+    },
+    {
+      "id": "CLM-2542",
+      "statement": "Issue #1017 is resolved: no call probes a catalog store a second time after the same call already found it down, on the list_catalogs grant fallback and on list_changesets with a connection list.",
+      "kind": "performance",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1017",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/changesets.rs",
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4441",
+          "kind": "analysis",
+          "locator": "children of CLM-2542",
+          "summary": "Both named paths skip a known-down store (children 2543, 2544) via a per-call set (2546) while keeping account rows (2545) and the answer (2547); counting tests fail before and pass after (2548); docs and changelog match (2549, 2550).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T09:13:19.534545335Z",
+          "seal": {
+            "by": "server",
+            "mac": "42f8099accd5caeaf188829ec5f60ae86b23be3270c965da5a920522adc1cd1a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All active children are supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4441"
+          ],
+          "recorded_at": "2026-11-28T09:13:24.243756282Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9567dd74b71d660d79c1eb514dd19d001a6ef510f0a9fa9b548a64749add85b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:24.243756282Z",
+      "seal": {
+        "by": "server",
+        "mac": "6f3d494f28dbc35ab9f799b8aa1bed5a41340ead4df0c3d0a8fbf748576e0069"
+      }
+    },
+    {
+      "id": "CLM-2543",
+      "statement": "With a cold directory, a key granted two catalogs and no key/server default or connection list, `list_catalogs` makes one probe's worth of connections to a stalled store: the select(None) grant fallback in candidate_rows passes the call's down set to resolve_many_skipping.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1017 requirement 1; PR body: \"the `select(None)` grant fallback in `candidate_rows` calls `CatalogDirectory::resolve_many_skipping` with that set\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4431",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:467-486",
+          "summary": "The select(None) grant fallback reads self.down_stores() and calls resolve_many_skipping(&granted, &known_down) instead of resolve_many; found rows on a down store call mark_down.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 467,
+                "end": 486
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:03.548468720Z",
+          "seal": {
+            "by": "server",
+            "mac": "30a77ca6d8684a3a5b2c3691864192bc449d07db82e46c8c988ddce3d865832f"
+          }
+        },
+        {
+          "id": "EVD-4432",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib probes_a_lost",
+          "summary": "On head fe588c70: list_catalogs_with_two_granted_catalogs_probes_a_lost_store_once ok (4 passed, 0 failed with the console-search and selected-store tests). With the three src files reverted to origin/main in a scratch worktree it FAILED: left 2 right 1 at unavailable_tests.rs:367 \"the grant fallback reuses it\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 352,
+                "end": 377
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:03.708794600Z",
+          "seal": {
+            "by": "server",
+            "mac": "0640aacd7cbe480e8b5757181b2aad88fe48b590d8e68c81ab9c48bceccc6111"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code passes the down set to resolve_many_skipping and the test counting accepted connections passes on head and fails (2 vs 1) with the fix reverted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4431",
+            "EVD-4432"
+          ],
+          "recorded_at": "2026-11-28T09:13:19.693075035Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc22d56400d9882662cd159edd9e14d513c581f0a82e054217d19ee24630531a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:19.693075035Z",
+      "seal": {
+        "by": "server",
+        "mac": "d1290755bf03d3601bddc933b75387f90563b88b4875a786275d6c41e21ec6b1"
+      }
+    },
+    {
+      "id": "CLM-2544",
+      "statement": "With a connection list, `list_changesets` makes one probe's worth of connections to a stalled store: open_in_every_store reports a store in the call's down set as down without connecting to it.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1017 requirement 2; PR body: \"`open_in_every_store` reports a store in the call's down set as down without connecting to it\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/mcp/changesets.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4433",
+          "kind": "inspection",
+          "locator": "src/mcp/changesets.rs:276-291",
+          "summary": "open_in_every_store takes ctx.down_stores() once and, per store, returns Err(OkfError::store_unavailable) before store_db is called when the store is in the set; the result loop maps that to the down list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/changesets.rs",
+              "lines": {
+                "start": 276,
+                "end": 291
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:03.866392931Z",
+          "seal": {
+            "by": "server",
+            "mac": "2066df9f4299cc7617fe4e55655dd98cacdbb919e4af105a6c4f14cd047e93a8"
+          }
+        },
+        {
+          "id": "EVD-4434",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib probes_a_lost",
+          "summary": "On head: list_changesets_with_a_connection_list_probes_a_lost_store_once ok. With the src files reverted to origin/main it FAILED: left 2 right 1 at unavailable_tests.rs:395 \"the fan-out reuses it\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 379,
+                "end": 398
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.013546376Z",
+          "seal": {
+            "by": "server",
+            "mac": "4274f18341a341ca2f6957cc52432cc5b659f2469d293d13ed64d2ba4ada6994"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "open_in_every_store returns store_unavailable before connecting for a down-set store; the counting test passes on head and fails (2 vs 1) with the fix reverted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4433",
+            "EVD-4434"
+          ],
+          "recorded_at": "2026-11-28T09:13:19.905598371Z",
+          "seal": {
+            "by": "server",
+            "mac": "d4d8d1c3fba74d4695eadca101e3d509ea29e41b15e9a38cbf141c8aae1e4219"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:19.905598371Z",
+      "seal": {
+        "by": "server",
+        "mac": "f544a58f141ea12fc9d68fba14c2b9a7db685bd673790637d6333b472eead670"
+      }
+    },
+    {
+      "id": "CLM-2545",
+      "statement": "A store passed as known down to resolve_many_skipping skips its generation read but its catalogs' account rows are still returned (generation 0) and the store is in the returned down set; resolve_many passes an empty set so the credential cache caller is unchanged.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1017 requirement 3; PR body: \"its account rows are still read. ... `resolve_many` still passes an empty set\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/cache/directory.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4435",
+          "kind": "inspection",
+          "locator": "src/cache/directory.rs:301-314,523-580",
+          "summary": "fill_generations puts known_down stores straight into the down set and leaves them out of by_store (no connect); rows_by_names (account pool) still supplies the rows, which stay in `found` with generation 0. resolve_many is `resolve_many_skipping(names, &HashSet::new())`; its other caller credentials.rs:461 is unchanged by the diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/directory.rs",
+              "lines": {
+                "start": 301,
+                "end": 314
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.167790036Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c9243c68b45fbe7828cd0add93996337a3c896e331ebf256cb34993225add29"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "fill_generations marks known-down stores down without connecting, rows come from the account query regardless, and resolve_many forwards an empty set.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4435"
+          ],
+          "recorded_at": "2026-11-28T09:13:20.134925437Z",
+          "seal": {
+            "by": "server",
+            "mac": "93feed6ab8b22763ec2357ed56ed5f2b3dc7b69597bb4a67ccab66e76f777b74"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:20.134925437Z",
+      "seal": {
+        "by": "server",
+        "mac": "456de1c506ec4aed765898270f2b6b52edcc3dfb9374d418e3983d5d49b86827"
+      }
+    },
+    {
+      "id": "CLM-2546",
+      "statement": "The down set is per call only: ToolContext::down_stores copies the ToolContext's own Mutex<Down> field, and nothing stores it on App or carries it across requests.",
+      "kind": "constraint",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "Issue #1017 requirement 3; PR body: \"returns the stores this call has found down (per call only, never kept across requests)\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4436",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:84-87,140,169,504-512",
+          "summary": "Down is a private struct held in ToolContext's `down: Mutex<Down>` field, initialised Mutex::default() in ToolContext::new; down_stores clones stores out of it. grep found no other holder (App, cache), and a ToolContext is built per call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 504,
+                "end": 512
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.324824325Z",
+          "seal": {
+            "by": "server",
+            "mac": "fabd96d5f14154942daf54d87f8c6ad8ccfa894c98b60a9c5ea3baf747a3748c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The set lives only in the per-call ToolContext Mutex field; no App or cache state holds it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4436"
+          ],
+          "recorded_at": "2026-11-28T09:13:20.345738917Z",
+          "seal": {
+            "by": "server",
+            "mac": "63af2da8fdb1172a2780d9f33b46762bf9b2ef97dd5f5d922aefe150bd7e2340"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:20.345738917Z",
+      "seal": {
+        "by": "server",
+        "mac": "8391f3925f400ad96bd39dd8b1daeb9efa83e58a0474a31f6ab14c1b31cedae0"
+      }
+    },
+    {
+      "id": "CLM-2547",
+      "statement": "The outcome is unchanged by the skip: both new tests assert the same partial result (main listed / main's open changeset returned) and the same `unavailable` entry [\"remote\"].",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1017 requirement 3; PR body: \"Tests ... assert the full answer\" and \"the same partial result and the same `unavailable` entries\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4437",
+          "kind": "test",
+          "locator": "src/mcp/unavailable_tests.rs:352-398; gate.sh narrow --lib probes_a_lost (4 passed)",
+          "summary": "Grant-fallback test asserts catalogs == [\"main\"], unavailable == [\"remote\"], selection_error is some. Changesets test asserts unavailable == [\"remote\"] and the changesets list equals main's one open handle. Both pass on head.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 352,
+                "end": 398
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.483976901Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0951ba97eac3c122f6b51fa7965a8e6dae80d088d68462ef5e58691531e74bd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both tests assert the full partial answer and unavailable entries, and pass on head.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4437"
+          ],
+          "recorded_at": "2026-11-28T09:13:20.552159523Z",
+          "seal": {
+            "by": "server",
+            "mac": "4568f647b018d4faac45f59afebb25959126358cca31687a8bb424a1566128b2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:20.552159523Z",
+      "seal": {
+        "by": "server",
+        "mac": "03f1efd5a3054e73732a8baf832f0d716aa032967907996d9316304e7d88af53"
+      }
+    },
+    {
+      "id": "CLM-2548",
+      "statement": "The tests list_catalogs_with_two_granted_catalogs_probes_a_lost_store_once and list_changesets_with_a_connection_list_probes_a_lost_store_once each count 2 probes without the fix and 1 with it.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1017 requirement 4; PR body: \"Each counted 2 probes before the fix and 1 after.\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4438",
+          "kind": "test",
+          "locator": "scratch worktree at HEAD with src/cache/directory.rs, src/mcp/changesets.rs, src/mcp/context.rs from origin/main: gate.sh narrow --lib probes_a_lost",
+          "summary": "Both new tests failed there with left 2 right 1 (the assertion compares accepted-connection delta to one_probe), and passed on head: 2 probes before, 1 after. The two existing tests passed in both.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 352,
+                "end": 398
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.637239727Z",
+          "seal": {
+            "by": "server",
+            "mac": "118078c9276b13bf11c321eb8e071130fdda5fb125a81671fa4cd4c628d77e6b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Reproduced: with the three src files at origin/main both tests fail with 2 vs 1; on head they pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4438"
+          ],
+          "recorded_at": "2026-11-28T09:13:20.757539125Z",
+          "seal": {
+            "by": "server",
+            "mac": "8eaad1e135ac232a8efb9a99a29202851f39f7eae150571d82615b1a9c4b233e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:20.757539125Z",
+      "seal": {
+        "by": "server",
+        "mac": "02500c770da14fb185945e2164017d78ee08c3b26e6e1fe3a4faea1d3d199bf0"
+      }
+    },
+    {
+      "id": "CLM-2549",
+      "statement": "docs/operations.md states the probe-once rule for the two paths (per-call down set, account rows still read, same partial result) and no longer lists #1017 as a known gap.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1017 requirement 5; PR body: \"`docs/operations.md` states the probe-once rule and drops the known-gap note\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4439",
+          "kind": "inspection",
+          "locator": "docs/operations.md:615-627",
+          "summary": "The \"Known gaps ... (#1017)\" sentence is removed; a paragraph says a call probes a lost store once, the set is per call, the list_catalogs grant-fallback selection and list_changesets without catalog skip such a store, account rows are still read, same partial result and unavailable entries. This matches the code (list_changesets with `catalog` uses ctx.one, no fan-out).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 615,
+                "end": 627
+              },
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.783239032Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc7c077ebdcd94174d65a7a1dd55164711f3a9078c18df5e2dc107fa37d2f5d2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The doc paragraph matches the code and the gap sentence is gone.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4439"
+          ],
+          "recorded_at": "2026-11-28T09:13:20.963667500Z",
+          "seal": {
+            "by": "server",
+            "mac": "91c1452243c552d3ced3d488bb14a8bebbdb0101291601602ecbd7e65871885f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:20.963667500Z",
+      "seal": {
+        "by": "server",
+        "mac": "4447451e04ea5c4f742100b170879cc064f45f5d687b2913d817412866beda71"
+      }
+    },
+    {
+      "id": "CLM-2550",
+      "statement": "A dated changelog entry for #1017 exists and describes the change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Issue #1017 requirement 5; PR body: \"changelog entry added\"",
+      "derived_from": [
+        "CLM-2542"
+      ],
+      "artifacts": [
+        "changelog/20261128T090447Z-issue-1017-store-reprobe.md"
+      ],
+      "tags": [
+        "from-issue:1017"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4440",
+          "kind": "inspection",
+          "locator": "changelog/20261128T090447Z-issue-1017-store-reprobe.md",
+          "summary": "Timestamped file added in the commit; describes both fixed paths, the unchanged result, per-call scope, resolve_many unchanged, and names both tests.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T090447Z-issue-1017-store-reprobe.md",
+              "commit": "fe588c708681e8dd26672ee540d41308fed2684b"
+            }
+          },
+          "recorded_at": "2026-11-28T09:13:04.934190415Z",
+          "seal": {
+            "by": "server",
+            "mac": "ef3ef8d4a77946bb6b532aa64b68f26d246d30b3f593dc32089be5c7b0fc9866"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The changelog file exists, is dated, and is accurate.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4440"
+          ],
+          "recorded_at": "2026-11-28T09:13:21.102479511Z",
+          "seal": {
+            "by": "server",
+            "mac": "b7cb5f081945ebfede759a98d4b2c81dd3a0563f0c8b5382cb6bbf9d51ee5be8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:12:42.314165460Z",
+      "updated_at": "2026-11-28T09:13:21.102479511Z",
+      "seal": {
+        "by": "server",
+        "mac": "907defd3418cc784ec2f654575fe4171b7326ee2d009abfeb0e33ce8e3971ce4"
       }
     }
   ]

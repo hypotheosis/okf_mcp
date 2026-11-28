@@ -1260,8 +1260,9 @@ const SCRUBBED_SUBSTRINGS: [&str; 15] = [
 /// A key is declared unquoted before an `=` inside `fields(...)` or
 /// `info_span!(...)` (possibly on its own line), or recorded as a quoted
 /// literal by `record("okf....", ..)`. Span names and metric names are quoted
-/// and never followed by `=`, so they are not collected. Code after the first
-/// `#[cfg(test)]` and files named `*tests.rs` are skipped.
+/// and never followed by `=`, so they are not collected. Whole files are
+/// scanned (a `#[cfg(test)]` early in a file must not hide the code after
+/// it); files named `*tests.rs` are skipped.
 fn okf_span_keys() -> std::collections::BTreeSet<String> {
     let declared = regex::Regex::new(r#"(?:^|[^"A-Za-z0-9_.])(okf\.[a-z0-9_.]+)\s*=[^=]"#)
         .expect("a valid pattern");
@@ -1286,9 +1287,12 @@ fn okf_span_keys() -> std::collections::BTreeSet<String> {
             continue;
         }
         let text = std::fs::read_to_string(&path).expect("a source file");
-        let code = text.split("#[cfg(test)]").next().unwrap_or("");
         for pattern in [&declared, &recorded] {
-            keys.extend(pattern.captures_iter(code).map(|found| found[1].to_owned()));
+            keys.extend(
+                pattern
+                    .captures_iter(&text)
+                    .map(|found| found[1].to_owned()),
+            );
         }
     }
     keys

@@ -81,6 +81,14 @@ test-mcpjam:
         scripts/test-pg.sh run bash -c 'cd tests/mcpjam && npx vitest run'
     fi
 
+# Live MCPJam swarm, okf-mcp side: one seeded catalog and one catalog-scoped
+# write key per session, verified, then torn down (tests/mcpjam/README.md,
+# "Live swarm"). Needs OKF_MCP_URL and OKF_MCP_KEY (an admin key reaching every
+# catalog); `--dry-run` needs neither. Usage: just mcpjam-swarm <goalId> [--sessions N] [--keep] [--dry-run]
+mcpjam-swarm *args:
+    (cd tests/mcpjam && npm ci --ignore-scripts --no-audit --no-fund)
+    cd tests/mcpjam && npx tsx src/swarm-cli.ts {{args}}
+
 # Shell tests for tools/agentic (stub gh, fake clock; no Docker or network).
 test-agentic:
     timeout 300 tools/agentic/tests/run.sh

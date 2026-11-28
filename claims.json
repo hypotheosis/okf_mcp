@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2641,
+  "next_claim_seq": 2645,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "bab0ca7e50fe8d534823350709454313726b92eed824b13532cfe28c5a025d39"
+    "mac": "c946091775a0e4f0aed43b541dc7c234d011be4b7c2f5a6f1b86100a10ee2d1e"
   },
-  "next_evidence_seq": 4593,
+  "next_evidence_seq": 4608,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b18ef4675c5eec2e06c3084c91fc94824a8576fd3cb9769e1f4324a665dc745e"
+    "mac": "e52fa8aff59d22a78a695509ae2fd0fc317ccb81dc5b6ee1e77f669965f574ee"
   },
   "claims": [
     {
@@ -230849,6 +230849,28 @@
             "by": "server",
             "mac": "b560e5d7ba20ce20046baaee8e9daf286ea3166e28449cc0d0a5b051f8659078"
           }
+        },
+        {
+          "id": "EVD-4603",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/c31 (to.sh, sig.sh); pr-1193-only.sh '^test_gate.*(timeout|term|...)' at 3403e5db",
+          "summary": "At 3403e5db with no caller trap: `agentic_run_bounded 1 sleep 20` returns 124 with agentic_timed_out=1. A shell running agentic_run_bounded 30 (exec sleep 30) dies of TERM (rc 143) and, launched with set -m, of INT (rc 130); the command is gone each time and 'SURVIVED' is never printed. The 9 gate tests matching timeout/killed/term (test_gate_timeout_returns_124, ..._stops_term_ignoring_child_and_frees_lock, ..._killed_leader_stops_child_and_frees_lock, dylint/worker/mcpjam timeouts, lock cases) all pass, 9 passed 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 117,
+                "end": 121
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:42.954325681Z",
+          "seal": {
+            "by": "server",
+            "mac": "26eeaec09332025bb0c1d4e04afa56d0256d7a8a73c6edef8f9d558b28d902bc"
+          }
         }
       ],
       "verdicts": [
@@ -230865,13 +230887,26 @@
             "by": "server",
             "mac": "9340815d835738be6c1a1c48dc9782580db895a45a24eb4049f780ce93798d08"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "At the new head, with no caller trap, a timeout returns 124 and TERM/INT kill the calling shell with 143/130 after the group is stopped; the gate timeout/kill tests pass (EVD-4603).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4603"
+          ],
+          "recorded_at": "2026-11-28T15:33:50.152403397Z",
+          "seal": {
+            "by": "server",
+            "mac": "6641290e151475bf4b6010d3708110b32df88dee39fb2db5a6f1ff1fa93060a6"
+          }
         }
       ],
       "created_at": "2026-11-28T14:26:56.685942330Z",
-      "updated_at": "2026-11-28T14:28:44.595485525Z",
+      "updated_at": "2026-11-28T15:33:50.152403397Z",
       "seal": {
         "by": "server",
-        "mac": "aaec456595701bd3c4c5083949eeefc2c5c9cc600fabe52015da886c61032931"
+        "mac": "b2995412f8a064001c6e815d89add2aa56c70067f3b732a3aa55881b6529ea8f"
       }
     },
     {
@@ -231259,7 +231294,9 @@
         "from-issue:1193"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by CLM-2644: the lessons line no longer names agentic_traps_restore, which round 3 removed (signals deferred to one exit).",
+        "retired_at": "2026-11-28T15:27:02.442164838Z"
       },
       "evidence": [
         {
@@ -231301,10 +231338,10 @@
         }
       ],
       "created_at": "2026-11-28T14:26:56.685942330Z",
-      "updated_at": "2026-11-28T14:28:45.688804669Z",
+      "updated_at": "2026-11-28T15:27:02.442164838Z",
       "seal": {
         "by": "server",
-        "mac": "54ce216e41223689d3d720779de878e212718e225bcbf18129f7398f288875d4"
+        "mac": "3cb7083ff2c26a0bcf37164713c6de93295c61ab65772499318a81f6430cb9cf"
       }
     },
     {
@@ -231412,6 +231449,50 @@
             "by": "server",
             "mac": "99cb3e9f6a629037a1b5d92e1c5bf4bad58d607516011e2f1bb701877684d9b2"
           }
+        },
+        {
+          "id": "EVD-4601",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit (r1/inj/r.sh, sub/caller.sh, wr/caller.sh, rw/drive.sh); pr-1193-only.sh on the three #1193 tests plus the two round-1 tests; at 3403e5db",
+          "summary": "Against the redesigned code, with set -u and a returning `trap 'echo handled' TERM|INT` in the caller: agentic_run_captured, bounded_capture and agentic_run_bounded stop, return 143/130, keep the trap, leave TMPDIR empty and launch nothing for every window I could synchronise by marker (budget clock, mktemp, command running, leftover being stopped, copy-out), for the signal arriving inside an `x=$(agentic_gh ...)` subshell, and nested in remove-worktree.sh. The tests named in the claim's evidence and the three new ones pass. Exception: a signal in the one-statement gap just before/after the launch (EVD-4593) still launches the command and leaves it running, and for a set -e caller with a failing plain call the exit never runs (EVD-4598); both are judged under CLM-2641 and CLM-2642, not as a failure of the returning-handler contract this claim describes.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 56,
+                "end": 95
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:42.657833379Z",
+          "seal": {
+            "by": "server",
+            "mac": "c9dfc1fed316c762d1b6bd915eae6ceedae46732ae481e6d5e35678d4d1c52e8"
+          }
+        },
+        {
+          "id": "EVD-4607",
+          "kind": "test",
+          "locator": "pr-1193-only.sh at d1f2b015: the three returning-handler tests (run_captured, run_bounded, bounded_capture) and the round-3 tests; n1 injections",
+          "summary": "At d1f2b015 the three returning-handler tests (test_run_captured_..., test_run_bounded_..., test_bounded_capture_aborts_when_the_callers_term_handler_returns) pass, as do the round-3 and two new tests (11 of 11 in one filtered run). With the caller's trap returning, an injected TERM before or after the launch now gives rc=143, trap kept, TMPDIR empty and no command left running (0/8 leaks in each of three variants); the launch-gap leak noted at 3403e5db is closed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 53,
+                "end": 66
+              },
+              "commit": "d1f2b01550bedd05912bd8e6fb00dc62434e132b"
+            }
+          },
+          "recorded_at": "2026-11-28T15:40:49.236042415Z",
+          "seal": {
+            "by": "server",
+            "mac": "2128350aadcdceaeccd3d3b27df3df204b8e6c5f97ba7106c477a3b5e5749ec9"
+          }
         }
       ],
       "verdicts": [
@@ -231468,13 +231549,39 @@
             "by": "server",
             "mac": "4fc7410f58b34e00dbd315f9f4fb2efbabdd312b2cde063555529398c232e79b"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "As worded (caller handler returns after the helper re-raised), all three functions return 130/143, keep the trap, leave no file and launch nothing in every marker-synchronised window, in subshells and nested (EVD-4601). Caveat: a signal in the one-statement gap around the launch still launches (and may leak) the command; that is the CLM-2641 defect, not this contract.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4601"
+          ],
+          "recorded_at": "2026-11-28T15:33:49.871147108Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b378e01bd2f76937a48f82392858eeb27b47d4dda32c26a73aece3defc5eadb"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The returning-handler contract holds at d1f2b015 in tests and injections, including the launch gap that leaked a command at 3403e5db (EVD-4607).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head d1f2b015)",
+          "evidence_ids": [
+            "EVD-4607"
+          ],
+          "recorded_at": "2026-11-28T15:40:57.682973478Z",
+          "seal": {
+            "by": "server",
+            "mac": "d7f79098ee129cbb66f92b436a4fb96ac7d389732b50147c231e349a9a0940d9"
+          }
         }
       ],
       "created_at": "2026-11-28T14:41:29.298479115Z",
-      "updated_at": "2026-11-28T15:09:10.335483654Z",
+      "updated_at": "2026-11-28T15:40:57.682973478Z",
       "seal": {
         "by": "server",
-        "mac": "9f9625617fa13ec445341b1ad437f5c3eada2830518593a56c6c968f283b9a35"
+        "mac": "05fd9fa74f23b354e962dc057ffdc4aeca47bba41be0a6f2756630cbbefd7211"
       }
     },
     {
@@ -231522,6 +231629,28 @@
             "by": "server",
             "mac": "0e82c3e76060461aa3ef791e05d445ebb1cfac6c6b81bad28969f4fc782c35ae"
           }
+        },
+        {
+          "id": "EVD-4602",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:117-121, :342-346, :383-395; tools/agentic/watchdog.sh:143-147",
+          "summary": "At 3403e5db the three public functions are wrappers: agentic_run_bounded = signals_begin; steps; agentic_signals_end (status override), agentic_run_captured / agentic_bounded_call / bounded_capture = cap_begin; steps; agentic_cap_finish (which calls agentic_signals_end). Every return of the *_steps bodies reaches the wrapper's exit, which returns 130/143 over the command's status when a signal was recorded. Wording drift: 'the agentic_run_bounded status override' is now agentic_signals_end (agentic_bounded_signalled is gone). Exception: under set -e a plain failing call leaves the wrapper before the exit line (EVD-4598), i.e. no return to the caller at all.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 117,
+                "end": 121
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:42.807355628Z",
+          "seal": {
+            "by": "server",
+            "mac": "b2bf4cd47932b69e52267faebd64d858cc8e106fd2f1fc67dda52301220b75da"
+          }
         }
       ],
       "verdicts": [
@@ -231537,13 +231666,487 @@
             "by": "server",
             "mac": "c2a72e7540edaa3b7ab65398fc502acb3e42b81ddd57a811d1a6ee6908762521"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Each function is a wrapper whose only return passes agentic_signals_end (directly or through agentic_cap_finish), so a recorded signal gives 130/143 over the command's status (EVD-4602). The wording's 'agentic_run_bounded status override' now names agentic_signals_end, and under set -e a failing plain call never returns to the caller (CLM-2642 finding).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4602"
+          ],
+          "recorded_at": "2026-11-28T15:33:50.011450331Z",
+          "seal": {
+            "by": "server",
+            "mac": "6e9393aff07815c86a9f0adbfe3d70d3e2a275fe341e41cac9e7eb287f73f727"
+          }
         }
       ],
       "created_at": "2026-11-28T15:09:10.480504946Z",
-      "updated_at": "2026-11-28T15:09:18.724484889Z",
+      "updated_at": "2026-11-28T15:33:50.011450331Z",
       "seal": {
         "by": "server",
-        "mac": "41b82ea90159b21eab980d188eb3bfd8471364b5e3a08fc675688d414f886e02"
+        "mac": "0e3c78135fb088acae573c7f56642fc32222f2ee8b944c11473bcfb403e348d3"
+      }
+    },
+    {
+      "id": "CLM-2641",
+      "statement": "In agentic_run_bounded, agentic_run_captured, agentic_gh/agentic_git (agentic_bounded_call), watchdog.sh's bounded_capture and remove-worktree.sh's clean, once INT or TERM has been recorded by the helper's trap, no later step creates a temp file, launches a process or writes output; a signal that lands between a step's check and the step itself (one statement) is undone at once (the file is already registered; a launched group is stopped by the first poll or the skipped/interrupted wait).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR #1218 review round 3 (Brooke, watchdog.sh:165) and the round-3 design brief",
+      "source_anchor": {
+        "path": "tools/agentic/lib.sh",
+        "lines": {
+          "start": 5,
+          "end": 30
+        },
+        "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+      },
+      "derived_from": [
+        "CLM-2639"
+      ],
+      "artifacts": [],
+      "tags": [],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4593",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/r1/inj (lib_w3b/w3c/w4 variants of lib.sh at 3403e5db; drivers w3b.sh, w4.sh)",
+          "summary": "Injected a TERM to the shell itself (kill -TERM $BASHPID, so the trap runs after that statement, as for a real signal in that gap), caller handler returning. (a) in agentic_capture_supervise between the agentic_cap_live check and the setsid launch; (b) right after agentic_cap_pid=$!; (c) in agentic_run_bounded_steps right before setsid. Each: rc=143, handler ran, no temp file, BUT the command (sleep 25) was left running: 10/10 for (a), 6/6 for (b), 6/6 for (c). Cause: the immediate first poll calls agentic_stop_group, whose `kill -TERM -- -pgid` fails because the child has not yet called setsid() (the group does not exist), so it returns 0; the leader is then found alive, disowned ('child left behind' / a misleading 'survived KILL' warning for run_bounded; nothing printed for captures). Adding sleep 0.05 before the stop makes it 0/4 leaks, confirming the race. This contradicts the claim's 'a launched group is stopped by the first poll or the skipped/interrupted wait'.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 48,
+                "end": 52
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:32:58.597361124Z",
+          "seal": {
+            "by": "server",
+            "mac": "889f4c758d2c98fd753ce192b7cd5f9d569ceb5ea6e80aa494bfb585471c9f27"
+          }
+        },
+        {
+          "id": "EVD-4594",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/r1/inj/lib_w1.sh + w1.sh (TERM injected between the `if [ \\\"$agentic_bounded_signal\\\" = 0 ]` check and `wait -n`)",
+          "summary": "A TERM recorded after the check at lib.sh:138 and before `wait -n` at :139 is neither skipped nor interrupting (the trap already ran, before the wait starts). With agentic_run_bounded 6 and a command that runs 20 s, the helper returned rc=143 only after the whole 6 s budget (elapsed=6s) instead of promptly; with a real budget (gate: 300-1800 s) the stop would be ignored until the timer. The comment 'one recorded before it (after the check above) skips it' does not cover the one-statement gap between the check and the wait.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 135,
+                "end": 141
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:32:58.742836312Z",
+          "seal": {
+            "by": "server",
+            "mac": "24fffa840834c4c504b4e7b11275a0e2ac56beb38608d6e1a0099cb8e92b393f"
+          }
+        },
+        {
+          "id": "EVD-4595",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/r1/inj/lib_w2.sh + w2.sh (TERM injected right after agentic_cap_begin in agentic_bounded_call); target/i1193-logs/audit/wr (caller.sh, marker-synchronised)",
+          "summary": "Two literal exceptions to 'no later step launches a process or writes output' after a signal is recorded. (1) agentic_bounded_call_steps (lib.sh:385) and bounded_capture_steps (watchdog.sh:161) run `$(agentic_call_budget)` with no agentic_cap_live check first: with the TERM recorded just before it, the AGENTIC_NOW_CMD stub still ran (marker clock-ran created) before the call returned 143; gh/git itself was not launched. (2) agentic_run_bounded writes its stderr warnings without checking the record: marker-synchronised run (leader exited, TERM-ignoring leftover being stopped, TERM sent meanwhile) printed 'agentic: warning: ... exited (status 0) leaving processes behind; stopped them' after the signal was recorded, then the caller's handler ran (rc=143, no leak). Both are harmless diagnostics/read-only forks, but the claim and the lib.sh header state them as never happening.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 383,
+                "end": 389
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:32:58.892768392Z",
+          "seal": {
+            "by": "server",
+            "mac": "66b46f487b47fb622ebf62ccb9adb30dc62a33dc768353b1bccd0ddf331b9dec"
+          }
+        },
+        {
+          "id": "EVD-4596",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/rw/drive.sh (real remove-worktree.sh, stub cargo blocked on a marker); tests: pr-1193-only.sh on the three #1193 tests; target/i1193-logs/audit/sub (caller.sh)",
+          "summary": "What does hold. remove-worktree.sh end to end (agentic_run_bounded nested in a capture, blocked cargo stub, TERM and INT sent to the script after cargo started): rc 143 / 130, nothing printed, TMPDIR empty, cargo stub gone, worktree not removed. agentic_gh inside $(...) with a TERM sent to the subshell: rc=143, caller trap kept and run, partial output not emitted, TMPDIR empty, stub gone. The three new tests pass (3 passed). Injected TERMs between the two trap restores and after both restores in agentic_signals_end give the handler exactly once (rc=143 resp. rc=0 with the signal delivered to the caller's handler). Code read: after the entry checks every file/launch/write step in agentic_run_captured_steps, bounded_capture_steps and clean_build_output_steps is preceded by agentic_cap_live, apart from the exceptions recorded in the refuting items.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 5,
+                "end": 30
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:32:59.038490901Z",
+          "seal": {
+            "by": "server",
+            "mac": "adc447ad6e55349cea2e134592409cb63dd00a8921bb8d1abd98adff43e6e18a"
+          }
+        },
+        {
+          "id": "EVD-4604",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/n1 (lib_a2/lib_b/lib_c/lib_w1/lib_w2 injected copies of lib.sh at d1f2b015; wr/caller.sh); rw/drive.sh; pr-1193-only.sh on 11 tests",
+          "summary": "Reran my four injections at d1f2b015 (tools/agentic identical to that commit). Defect 1: TERM injected before setsid in the supervise (a2), right after $! (b), and before setsid in run_bounded (c): 0/8 leaks each, rc=143, handler ran, TMPDIR empty (was 10/10, 6/6, 6/6). agentic_stop_group now retries the group TERM for up to 1 s while the leader lives. Defect 2: TERM injected between the check and wait -n: elapsed=0s on 3 runs (was the full 6 s budget); the trap's on-signal kills the timer so the wait returns. Defect 3: TERM right after agentic_cap_begin in agentic_bounded_call: the clock stub did not run and nothing launched (agentic_cap_live now precedes the budget; same check in bounded_capture_steps); marker-synchronised TERM during the leftover stop in agentic_run_bounded: stderr empty (agentic_bounded_warn is silent after a record), rc=143, leftover gone. Also: remove-worktree.sh e2e with blocked cargo, TERM and INT: rc 143/130, TMPDIR empty, cargo gone, no output. 11 tests pass (the three round-3 tests, the two new ones, the three round-1 returning-handler tests, three gate timeout/kill tests). Code read of the diff: stop_group returns at once when the leader is dead and the group empty (no added delay on normal paths); the on-signal reads agentic_bounded_timer, reset to empty after the wait; a signal before the timer variable is set is caught by the check that precedes the wait. Remaining by design: a signal that lands after a check still lets that one statement run, as the claim says, and it is undone.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 53,
+                "end": 66
+              },
+              "commit": "d1f2b01550bedd05912bd8e6fb00dc62434e132b"
+            }
+          },
+          "recorded_at": "2026-11-28T15:40:44.115796212Z",
+          "seal": {
+            "by": "server",
+            "mac": "7763cf3975fc6b61057ff1f576221914ba283251687f39e128dd36108b527f21"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "The claim says a signal landing between a step's check and the step is undone at once, and a launched group is stopped by the first poll or the skipped/interrupted wait. Injected signals at exactly those gaps show otherwise: a signal just before or just after the setsid launch leaves the command running (agentic_stop_group's kill of the not-yet-created group fails, 22/22 runs, EVD-4593); a signal between the check and `wait -n` is ignored until the whole budget elapses (EVD-4594); and the budget computation forks, and run_bounded writes warnings, after a recorded signal (EVD-4595). The windows are one statement wide (no realistic-timing reproduction, only injection), and the marker-synchronised windows, nesting and subshell cases all hold (EVD-4596), so this is a narrow defect, but the claim and the lib.sh header assert it away. Fix: in agentic_stop_group retry briefly when `kill -TERM -- -pgid` fails while the leader pid is still alive (or fall back to signalling the leader), make the interrupted wait stoppable (poll like capture_supervise, or have the trap kill the timer), and narrow the wording to 'launches no gh/git/command and creates no file' or add agentic_cap_live checks before the budget fork and the run_bounded warnings.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4593",
+            "EVD-4594",
+            "EVD-4595"
+          ],
+          "recorded_at": "2026-11-28T15:33:12.737308036Z",
+          "seal": {
+            "by": "server",
+            "mac": "3670bbef7234b1515c752d8b116882ee3bdf945243cd77760a87ca6967cf6ba9"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "All three earlier defects are closed and re-demonstrated by the same injections: no leak at the launch gap (0/8 x3), the wait returns at once (0 s), no clock fork or warning after a record (EVD-4604). I found no remaining step that creates, launches or writes after a record beyond the one statement the claim itself allows.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head d1f2b015)",
+          "evidence_ids": [
+            "EVD-4604"
+          ],
+          "recorded_at": "2026-11-28T15:40:57.396488081Z",
+          "seal": {
+            "by": "server",
+            "mac": "1978c3036888a4b23f969576aea006fb74ed7a234a28669c3d69076a3f56795d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T15:26:56.177216561Z",
+      "updated_at": "2026-11-28T15:40:57.396488081Z",
+      "seal": {
+        "by": "server",
+        "mac": "b0ff032b14d878426ba5c1c42a52c641ac4a4d4e2724ad1e970797284979d504"
+      }
+    },
+    {
+      "id": "CLM-2642",
+      "statement": "While one of those helpers owns INT/TERM, its traps only record 130 or 143 (first signal wins) and tear nothing down; the temp-file removal, the restore of the caller's INT and TERM traps (one statement per signal) and the re-raise of a recorded signal happen exactly once, in the helper's single exit (agentic_cap_finish / agentic_signals_end), and the helper then returns 130/143 if the caller's handler returned.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR #1218 round-3 design (deferral, option b)",
+      "source_anchor": {
+        "path": "tools/agentic/lib.sh",
+        "lines": {
+          "start": 56,
+          "end": 95
+        },
+        "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+      },
+      "derived_from": [
+        "CLM-2639"
+      ],
+      "artifacts": [],
+      "tags": [],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4597",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:56-95 (agentic_signals_begin/end), :243-258 (agentic_cap_finish), :117-121; experiments r1/inj/lib_r1.sh, lib_r2.sh, r.sh",
+          "summary": "Traps installed by agentic_signals_begin are `[ \"$p_signal\" != 0 ] || p_signal=130|143`: record only, first wins, nothing torn down. Removal, restore (one `trap`/eval per signal) and re-raise sit only in agentic_signals_end (called from agentic_run_bounded and agentic_cap_finish); the only other callers of cleanup are none (agentic_cap_cleanup/agentic_traps_restore no longer exist: grep over tools/agentic empty). Experiments: TERM injected between the INT and TERM restore: handler once, rc=143, trap kept; TERM injected after both restores: handler once via the caller's own trap, rc=0; signal in a nested run_bounded inside the remove-worktree capture re-raises into the outer recorder and the outer exit then re-raises once (TERM and INT, rc 143/130, no files); `x=$(agentic_gh ...)` subshell likewise. A recorded signal returns 130/143 over the command's own status.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 56,
+                "end": 95
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:12.882446323Z",
+          "seal": {
+            "by": "server",
+            "mac": "938aa0d82b1242438ab147051a8e214287c53aa68197300b13831740b1db8ea2"
+          }
+        },
+        {
+          "id": "EVD-4598",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/r1/e1.sh (new head) vs e1old.sh (04900f01): set -euo pipefail caller, plain `agentic_run_captured 5 bash -c 'echo out; echo err >&2; exit 3'`",
+          "summary": "With errexit on and a plain (unguarded) call whose command fails, `agentic_run_captured_steps \"$@\"` at lib.sh:344 returns non-zero and the caller shell exits right there: agentic_cap_finish never runs. Result at 3403e5db: rc=3 and TWO temp files left in TMPDIR (agentic-call.*), the recording INT/TERM traps still installed. The identical script on 04900f01 leaves TMPDIR empty. So the exit runs zero times on this path, and it is a regression from 04900f01 (same shape in agentic_bounded_call, bounded_capture, and agentic_run_bounded, whose traps stay installed). All in-repo call sites currently guard with `||`/`if` (checked remove-worktree.sh, merge-reviewed.sh, gate.sh, watchdog.sh), so nothing in the repo triggers it today.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 342,
+                "end": 346
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:13.029131625Z",
+          "seal": {
+            "by": "server",
+            "mac": "d54421aa7c94686a5065fd72512be0ef38fcdec8eaa91ea511734e7369731fc8"
+          }
+        },
+        {
+          "id": "EVD-4605",
+          "kind": "demonstration",
+          "locator": "target/i1193-logs/audit/n1 (e1.sh, e2.sh, e3.sh, e4.sh under set -euo pipefail) at d1f2b015; pr-1193-only.sh test_the_helpers_clean_up_under_a_callers_set_e",
+          "summary": "Defect 4 rechecked at d1f2b015. Unguarded failing calls under set -euo pipefail: agentic_run_captured (rc=3, TMPDIR empty; was 2 leaked files), bounded_capture (rc=4, TMPDIR empty), agentic_run_bounded (rc=3, and the guarded form leaves the caller's traps as before). Each wrapper now takes the body's status with `|| status=$?` and then runs its one exit (lib.sh agentic_run_bounded, agentic_run_captured, agentic_bounded_call, watchdog.sh bounded_capture), so the exit runs once on that path. New test_the_helpers_clean_up_under_a_callers_set_e passes at d1f2b015 and fails at 3403e5db (trap left as the recording trap). Signal paths re-checked: nested remove-worktree run (TERM/INT), record-only traps, one restore/re-raise; I found no path with zero or two exits (one begin matches one finish/end at every call site: lib.sh wrappers, watchdog.sh:143, remove-worktree.sh).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 137,
+                "end": 150
+              },
+              "commit": "d1f2b01550bedd05912bd8e6fb00dc62434e132b"
+            }
+          },
+          "recorded_at": "2026-11-28T15:40:44.265912730Z",
+          "seal": {
+            "by": "server",
+            "mac": "fc6124ca33c3a4873cbd9bc930b9a3f8b2b614f9a0a15a0249a400859d2b6926"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "refuted",
+          "rationale": "On every signal path I tried the claim holds (EVD-4597: record-only traps, one exit, restore one statement per signal, single re-raise, nesting and subshells, injected signals between and after the two restores). But it says temp-file removal and trap restore happen exactly once in the single exit, and with a set -e caller making a plain call whose command fails, the steps function's non-zero return kills the caller before agentic_cap_finish / agentic_signals_end run: zero times, two temp files leaked, recording traps left in place (EVD-4598). 04900f01 did not leak there, so this is a regression; no in-repo caller triggers it today because all guard with `||`/`if`. Fix: make the wrappers errexit-proof, for example `agentic_run_captured_steps \"$@\" || status=$?` then `agentic_cap_finish \"$status\"` (same in agentic_run_bounded, agentic_bounded_call, bounded_capture), and add a test that sources lib.sh under set -e, makes a failing plain call and asserts TMPDIR is empty.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4598"
+          ],
+          "recorded_at": "2026-11-28T15:33:23.418660244Z",
+          "seal": {
+            "by": "server",
+            "mac": "b441ad5c54d765bd353c5ed2c2dfc652e2009262236faf10a6e6bd2f7d999b0f"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The signal-path evidence still holds (EVD-4597, code unchanged in the exit), and the set -e path now runs the exit once: no leaked files, test passes at d1f2b015 and fails at 3403e5db (EVD-4605). No zero-exit or double-exit path found.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head d1f2b015)",
+          "evidence_ids": [
+            "EVD-4597",
+            "EVD-4605"
+          ],
+          "recorded_at": "2026-11-28T15:40:57.540047280Z",
+          "seal": {
+            "by": "server",
+            "mac": "bd1d9d638d24c41d8714058ba7a7645d96ece142bb4da6875b84044e3d5e16a2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T15:26:56.177216561Z",
+      "updated_at": "2026-11-28T15:40:57.540047280Z",
+      "seal": {
+        "by": "server",
+        "mac": "5055147af06e845ac80f62990e98cb413817e3ed75e34d6092b0f6b8bdf21be8"
+      }
+    },
+    {
+      "id": "CLM-2643",
+      "statement": "The new tests test_bounded_capture_aborts_when_termed_during_the_budget, test_a_term_at_each_capture_step_launches_and_leaks_nothing and test_an_int_with_a_returning_handler_gives_130 are marker-synchronised (no fixed sleep decides when the signal is sent), fail on the scripts at 04900f01 and pass at the fix.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1218 review round 3 test request",
+      "source_anchor": {
+        "path": "tools/agentic/tests/run.sh",
+        "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+      },
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4599",
+          "kind": "test",
+          "locator": "pr-1193-only.sh '^(test_bounded_capture_aborts_when_termed_during_the_budget|test_a_term_at_each_capture_step_launches_and_leaks_nothing|test_an_int_with_a_returning_handler_gives_130)$' at 3403e5db; same filtered run.sh with new tests/run.sh over `git archive 04900f01 tools/agentic`",
+          "summary": "New scripts: 3 passed, 0 failed. Old scripts (04900f01) with the new run.sh: 0 passed, 3 failed, for the intended reasons (a_term_at_each_capture_step and an_int_..._130: rc=0 instead of 143/130; during_the_budget: a watchdog-call temp file left behind). Read tests/run.sh term_at/term_during_budget: the signal is sent when a test-side condition holds (a stub's marker file, cmd.pid written by the command, leader gone and leftover pid present), polled every 0.1 s up to 10 s, then the stubs are released; no fixed sleep decides the moment. Gap: none of the tests inject a signal in the one-statement windows (before setsid, before wait -n), which is why EVD-4593/4594 are not caught.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1088,
+                "end": 1193
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:23.563174679Z",
+          "seal": {
+            "by": "server",
+            "mac": "b32d79c966d3d75e7c40bcf7af7f1261708a18f12010a8a843b1ebe3cda2b2a9"
+          }
+        },
+        {
+          "id": "EVD-4606",
+          "kind": "test",
+          "locator": "pr-1193-only.sh on the three named tests at d1f2b015; two new tests against `git archive 3403e5db tools/agentic`",
+          "summary": "At d1f2b015 the three named tests still pass (test_bounded_capture_aborts_when_termed_during_the_budget, test_a_term_at_each_capture_step_launches_and_leaks_nothing, test_an_int_with_a_returning_handler_gives_130; part of an 11-of-11 run). The two new tests, test_a_term_before_the_group_exists_stops_the_command and test_the_helpers_clean_up_under_a_callers_set_e, pass at d1f2b015 and fail on the 3403e5db scripts (command left running; caller trap left as the recording trap). The 04900f01 result from the earlier audit is unchanged since those scripts are not touched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "commit": "d1f2b01550bedd05912bd8e6fb00dc62434e132b"
+            }
+          },
+          "recorded_at": "2026-11-28T15:40:44.414324463Z",
+          "seal": {
+            "by": "server",
+            "mac": "dccf8c66943bcb0e2d6a77dd86bc9cc5bf21870e1bcfea1afe0bf2dcce30ca38"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Ran the three named tests: pass on the fix (3/3), fail on the 04900f01 scripts (0/3, for the intended reasons), and the signal is sent on a test-side marker condition, not a timer (EVD-4599).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4599"
+          ],
+          "recorded_at": "2026-11-28T15:33:29.384234918Z",
+          "seal": {
+            "by": "server",
+            "mac": "e15fe03f8e7e1f5b407e76dc3cc30e60e5ad24549210f079ad655ca2a5a36748"
+          }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The three named tests still pass at the new head; the two added tests cover the launch gap and set -e and fail on the previous head (EVD-4606).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head d1f2b015)",
+          "evidence_ids": [
+            "EVD-4599",
+            "EVD-4606"
+          ],
+          "recorded_at": "2026-11-28T15:40:57.823307809Z",
+          "seal": {
+            "by": "server",
+            "mac": "850a705140db730ec32ebed8d7a4e24e8b09930323a6f112592230f60c105916"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T15:26:56.177216561Z",
+      "updated_at": "2026-11-28T15:40:57.823307809Z",
+      "seal": {
+        "by": "server",
+        "mac": "88c4a4700da21b764c6f772a7d34a9f6bb3c48a8a707315d9ea828b1b9b60112"
+      }
+    },
+    {
+      "id": "CLM-2644",
+      "statement": "tools/agentic/lessons.md has exactly one #1193 rule (register a temp file in the statement that creates it, and defer signals until the helper's one exit), naming agentic_cap_mktemp, agentic_cap_live and agentic_cap_finish / agentic_signals_end, and the changelog file changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md has a review round 3 section describing the deferral.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "brief-common.md changelog/lessons rules",
+      "source_anchor": {
+        "path": "tools/agentic/lessons.md",
+        "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+      },
+      "derived_from": [],
+      "artifacts": [],
+      "tags": [],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4600",
+          "kind": "inspection",
+          "locator": "tools/agentic/lessons.md:73; changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md:35-57",
+          "summary": "grep -c 1193 tools/agentic/lessons.md = 1: a single rule (line 73) titled 'Register a temp file in the statement that creates it, and defer signals until the helper's one exit', naming agentic_cap_mktemp, agentic_cap_live and `agentic_cap_finish` / `agentic_signals_end`. The changelog file exists, is tracked, and has '## Review round 3: signals deferred, one invariant' describing the deferral (record-only traps, agentic_cap_live checks, one exit). The names it lists as gone (agentic_cap_cleanup, agentic_traps_restore, agentic_cap_status, agentic_bounded_signalled) do not appear anywhere under tools/agentic. Note the rule and changelog repeat the 'every step checks the record first' wording that EVD-4593..4595 qualify.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 73,
+                "end": 73
+              },
+              "commit": "3403e5dbf15a258a49480ea29d5d9cbec5afb5f0"
+            }
+          },
+          "recorded_at": "2026-11-28T15:33:29.531750942Z",
+          "seal": {
+            "by": "server",
+            "mac": "c4f06185efe26e25f03e883f6c8b3584b2bda5120ee488630f6536699635b2ac"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Exactly one #1193 rule exists in lessons.md and names the three functions; the tracked changelog has the review round 3 section describing the deferral (EVD-4600).",
+          "auditor": "claude-sonnet-5-5 (independent re-audit, head 3403e5db)",
+          "evidence_ids": [
+            "EVD-4600"
+          ],
+          "recorded_at": "2026-11-28T15:33:42.514281116Z",
+          "seal": {
+            "by": "server",
+            "mac": "ab16dff8ec4fb763f2147ce3e92e77ec54f2d6a12b06a5ff9c728aa479bbd7fb"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T15:26:56.177216561Z",
+      "updated_at": "2026-11-28T15:33:42.514281116Z",
+      "seal": {
+        "by": "server",
+        "mac": "ee27398b50ab904a64a68618fba3337fcdb7269ebca2af02c8dcfc26cfca475b"
       }
     }
   ]

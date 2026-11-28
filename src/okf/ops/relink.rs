@@ -26,7 +26,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OkfError;
-use crate::okf::markdown::{encode_link_path, find_links, resolve_link, LinkMatch};
+use crate::okf::markdown::{encode_link_path, find_links, link_lines, resolve_link, LinkMatch};
 use crate::okf::paths::{dirname, is_concept, outside_link_graph, relpath};
 use crate::okf::pystr::py_unquote;
 use crate::okf::workspace::Workspace;
@@ -154,10 +154,9 @@ pub(crate) fn rewrite_text(
 ) -> Option<String> {
     let mut changed = false;
     // `Cow` keeps every unchanged line borrowed; only rewritten lines are new strings.
-    let lines: Vec<Cow<'_, str>> = text
-        .split('\n')
+    let lines: Vec<Cow<'_, str>> = link_lines(text)
         .map(
-            |line| match rewrite_line(workspace, path, base, line, redirect) {
+            |(line, links)| match rewrite_line(workspace, path, base, (line, &links), redirect) {
                 Some(updated) if updated != line => {
                     changed = true;
                     Cow::Owned(updated)
@@ -176,12 +175,12 @@ fn rewrite_line(
     workspace: &dyn Workspace,
     path: &str,
     base: &str,
-    line: &str,
+    (line, links): (&str, &[LinkMatch]),
     redirect: &Redirect,
 ) -> Option<String> {
     let mut out: Option<String> = None;
     let mut copied = 0;
-    for link in find_links(line) {
+    for link in links {
         let Some(target) = redirected_target(workspace, path, base, &link.target, redirect) else {
             continue;
         };
@@ -287,7 +286,18 @@ pub(crate) fn links_to(
     source: &str,
     target: &str,
 ) -> Vec<LinkMatch> {
-    find_links(line)
+    into_links_to(workspace, find_links(line), source, target)
+}
+
+/// The links of `links` that resolve to `target`, as [`links_to`] reads them.
+#[tracing::instrument(level = "trace", skip_all)]
+fn into_links_to(
+    workspace: &dyn Workspace,
+    links: Vec<LinkMatch>,
+    source: &str,
+    target: &str,
+) -> Vec<LinkMatch> {
+    links
         .into_iter()
         .filter(|link| {
             resolve_link(workspace, &link.target, source)
@@ -318,15 +328,16 @@ pub(crate) fn unlink_text(
     target: &str,
 ) -> Option<String> {
     let mut changed = false;
-    let lines: Vec<Cow<'_, str>> = text
-        .split('\n')
-        .map(|line| match unlink_line(workspace, path, line, target) {
-            Some(updated) => {
-                changed = true;
-                Cow::Owned(updated)
-            }
-            None => Cow::Borrowed(line),
-        })
+    let lines: Vec<Cow<'_, str>> = link_lines(text)
+        .map(
+            |(line, links)| match unlink_line(workspace, path, (line, links), target) {
+                Some(updated) => {
+                    changed = true;
+                    Cow::Owned(updated)
+                }
+                None => Cow::Borrowed(line),
+            },
+        )
         .collect();
     changed.then(|| lines.join("\n"))
 }
@@ -340,11 +351,22 @@ pub(crate) fn unlink_text(
 /// # Returns
 /// The new line, or `None` when no link resolves to `target`.
 #[tracing::instrument(level = "trace", skip_all)]
-fn unlink_line(workspace: &dyn Workspace, path: &str, line: &str, target: &str) -> Option<String> {
+fn unlink_line(
+    workspace: &dyn Workspace,
+    path: &str,
+    (line, found): (&str, Vec<LinkMatch>),
+    target: &str,
+) -> Option<String> {
     let mut current: Option<String> = None;
+    // The first pass uses the links found with the whole text's code ranges;
+    // later passes read the shortened line alone.
+    let mut first = Some(found);
     loop {
         let text = current.as_deref().unwrap_or(line);
-        let links = links_to(workspace, text, path, target);
+        let links = match first.take() {
+            Some(found) => into_links_to(workspace, found, path, target),
+            None => links_to(workspace, text, path, target),
+        };
         if links.is_empty() {
             return current;
         }
@@ -598,6 +620,47 @@ mod tests {
             "---\ntype: Note\n---\n[rel](../b/) [abs](/b/) [file](../b/index.md#top) \
              [root](../index.md)\n"
         );
+    }
+
+    #[test]
+    fn relink_leaves_code_spans_and_blocks_untouched() {
+        let workspace = MemWorkspace::from_files(MOVE_FILES);
+        let text = "[a](alpha.md) `[a](alpha.md)` [b](alpha.md)\n\
+                    ```\n[a](alpha.md)\n```\n    [a](alpha.md)\n";
+        let redirect = redirect("moves/alpha.md", "moves/renamed.md");
+
+        let rewritten = rewrite_text(
+            &workspace,
+            "moves/beta.md",
+            "moves/beta.md",
+            text,
+            &redirect,
+        )
+        .expect("the plain links are rewritten");
+
+        assert_eq!(
+            rewritten,
+            "[a](renamed.md) `[a](alpha.md)` [b](renamed.md)\n\
+             ```\n[a](alpha.md)\n```\n    [a](alpha.md)\n"
+        );
+    }
+
+    #[test]
+    fn unlink_leaves_code_spans_and_blocks_untouched() {
+        let workspace = MemWorkspace::from_files(MOVE_FILES);
+        let text = "[a](alpha.md) `[a](alpha.md)`\n```\n[a](alpha.md)\n```\n";
+
+        let unlinked = unlink_text(&workspace, "moves/beta.md", text, "moves/alpha.md")
+            .expect("the plain link is unlinked");
+
+        assert_eq!(unlinked, "a `[a](alpha.md)`\n```\n[a](alpha.md)\n```\n");
+        assert!(unlink_text(
+            &workspace,
+            "moves/beta.md",
+            "`[a](alpha.md)`",
+            "moves/alpha.md"
+        )
+        .is_none());
     }
 
     #[test]

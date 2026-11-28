@@ -42,7 +42,7 @@ use crate::okf::analysis::links::MentionMatcher;
 use crate::okf::analysis::secrets::{scan_secrets, OKF_PY_PATH};
 use crate::okf::analysis::Finding;
 use crate::okf::doc::Doc;
-use crate::okf::markdown::{anchors_in, find_links, resolve_link, split_frontmatter};
+use crate::okf::markdown::{anchors_in, link_lines, resolve_link, split_frontmatter};
 use crate::okf::paths::{basename, escapes_root, is_concept, normpath, outside_link_graph};
 use crate::okf::pystr::{py_strip, universal_newlines};
 use crate::okf::search::SearchFields;
@@ -592,8 +592,8 @@ fn title_and_aliases(frontmatter: &Frontmatter, text: &str) -> (Option<String>, 
 #[tracing::instrument(level = "trace", skip_all)]
 fn links_of(workspace: &dyn Workspace, path: &str, text: &str) -> Vec<SnapshotLink> {
     let mut links = Vec::new();
-    for (index, line) in text.split('\n').enumerate() {
-        for found in find_links(line) {
+    for (index, (_, found_links)) in link_lines(text).enumerate() {
+        for found in found_links {
             let raw = found.target;
             let fragment = raw.split_once('#').map(|(_, f)| f.to_string());
             if raw.starts_with('#') {

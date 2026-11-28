@@ -751,7 +751,7 @@ The report structs derive `serde::Serialize`; their JSON has the keys of
         cargo test --test it roundtrip:: -- --ignored # the real catalog round-trips
     OKF_PARITY_CATALOG=~/repos/pg_knowledge_catalog \
         cargo test --release --test it smoke:: -- --ignored --nocapture   # timings
-    UPDATE_GOLDEN=1 cargo test --test it parity:: -- --ignored regenerate_goldens
+    UPDATE_GOLDEN=1 cargo test --test it -- --ignored --exact parity::regenerate_goldens
     just test-ui                                 # the web console's browser journeys
     just test-worker                             # the mobile reader's worker and page modules (Node)
 
@@ -762,7 +762,9 @@ selects the `admin_parity::` tests and `smoke::` the `ui_e2e::smoke::` ones;
 the `--ignored` commands above are not affected, because those are not
 `#[ignore]`. Three tests that set process-wide state (`telemetry_install`,
 `telemetry_sdk_disabled`, `cimd_no_proxy`) are binaries of their own:
-`cargo test --test telemetry_install`.
+`cargo test --test telemetry_install`. So is `snapshot_weight`, whose counting
+`#[global_allocator]` would otherwise instrument every test in `it`:
+`cargo test --release --test snapshot_weight -- --ignored --nocapture`.
 
 The database tests need Docker. Each test gets a throwaway database of its
 own, dropped when it is done, on the server `TEST_PG_URL` names (a

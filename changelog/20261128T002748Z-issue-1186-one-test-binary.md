@@ -21,6 +21,11 @@ are now one binary, `it` (`tests/it.rs`), with a module per former test file.
   variables. nextest gives every test its own process, but plain `cargo test` runs a binary's tests
   as threads of one process: run in `it` together with `telemetry_privacy`, six of the nine tests
   failed. The reason is recorded in `tests/it.rs`.
+- `snapshot_weight` stays its own target too (review): its counting `#[global_allocator]` would
+  instrument every allocation of every test in `it`.
+- The golden regeneration command is `UPDATE_GOLDEN=1 cargo test --test it -- --ignored --exact
+  parity::regenerate_goldens` (review): `parity::` plus a second filter would OR them and run every
+  ignored parity test.
 - A libtest filter is a substring match: `parity::` also matches `admin_parity::` and `smoke::`
   matches `ui_e2e::smoke::`. The README's `--ignored` commands are unaffected.
 - `cargo nextest list`: 3775 tests before, 3760 after. The only difference is

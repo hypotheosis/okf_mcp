@@ -11,6 +11,9 @@
 //! `cargo test` runs a binary's tests as threads of one process. Run together with
 //! `telemetry_privacy` in one process, the three made six of its tests fail (issue #1186), so they
 //! keep the isolation of a process each.
+//!
+//! `snapshot_weight` is a target of its own as well: it installs a counting `#[global_allocator]`,
+//! which as a module here would instrument every allocation of every test in this binary.
 #![recursion_limit = "256"]
 #[path = "admin_parity.rs"]
 mod admin_parity;
@@ -42,8 +45,6 @@ mod server_oauth;
 mod skills;
 #[path = "smoke.rs"]
 mod smoke;
-#[path = "snapshot_weight.rs"]
-mod snapshot_weight;
 #[path = "stores.rs"]
 mod stores;
 #[allow(dead_code, unused_imports)]

@@ -29,6 +29,12 @@ path = "tests/telemetry_sdk_disabled.rs"
 name = "cimd_no_proxy"
 path = "tests/cimd_no_proxy.rs"
 
+# The snapshot memory measurement installs a counting `#[global_allocator]`, which would
+# instrument every allocation of every test in `it`: it keeps a binary of its own too.
+[[test]]
+name = "snapshot_weight"
+path = "tests/snapshot_weight.rs"
+
 [[bin]]
 name = "okf-mcp"
 path = "src/main.rs"

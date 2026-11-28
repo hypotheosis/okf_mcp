@@ -15,7 +15,7 @@
 //!
 //! `delete_concept` uses the same link resolution to unlink a deleted
 //! concept from `log.md` files (issue #658): `unlink_text` (crate-internal)
-//! turns each link into it into its link text, and `links_to` is the one
+//! turns each link into it into its link text, and `into_links_to` is the one
 //! test of "a link into a document" that the edit and the delete's
 //! `StillLinked` check share. Publish replays it through
 //! [`crate::okf::ops::ReplayOp::Unlink`].
@@ -26,7 +26,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OkfError;
-use crate::okf::markdown::{encode_link_path, find_links, link_lines, resolve_link, LinkMatch};
+use crate::okf::markdown::{encode_link_path, link_lines, resolve_link, LinkMatch};
 use crate::okf::paths::{dirname, is_concept, outside_link_graph, relpath};
 use crate::okf::pystr::py_unquote;
 use crate::okf::workspace::Workspace;
@@ -262,36 +262,9 @@ fn redirected_target(
     Some(new)
 }
 
-/// The links on `line`, a line of the document at `source`, that resolve to
-/// `target`: the one test of "a link into a document" that
-/// `delete_concept`'s `StillLinked` check and its `log.md` unlinking
-/// ([`unlink_text`]) share, so the two never disagree on which links count.
-/// It resolves each link as [`rewrite_text`] (a move) and the snapshot's
-/// link graph do: in-page (`#x`) and external links never count, and a
-/// percent-encoded path is decoded first ([`resolve_link`]).
-///
-/// # Arguments
-/// * `workspace` - resolves directory links (the replay passes an empty one,
-///   which is enough while `target` is a concept).
-/// * `line` - one line, split on `\n`.
-/// * `source` - the document's catalog-relative path, to resolve relative links.
-/// * `target` - the catalog-relative path linked to.
-///
-/// # Returns
-/// The matching links, left to right.
+/// The links of `links` that resolve to `target`, as `delete_concept`'s guard and [`unlink_text`] read them.
 #[tracing::instrument(level = "trace", skip_all)]
-pub(crate) fn links_to(
-    workspace: &dyn Workspace,
-    line: &str,
-    source: &str,
-    target: &str,
-) -> Vec<LinkMatch> {
-    into_links_to(workspace, find_links(line), source, target)
-}
-
-/// The links of `links` that resolve to `target`, as [`links_to`] reads them.
-#[tracing::instrument(level = "trace", skip_all)]
-fn into_links_to(
+pub(crate) fn into_links_to(
     workspace: &dyn Workspace,
     links: Vec<LinkMatch>,
     source: &str,
@@ -313,13 +286,18 @@ fn into_links_to(
 /// keeps them, so the op and its replay produce the same text.
 ///
 /// # Arguments
-/// * `workspace` - resolves links, as for [`links_to`].
+/// * `workspace` - resolves links, as for [`rewrite_text`].
 /// * `path` - the file's catalog-relative path.
 /// * `text` - its content, as stored.
 /// * `target` - the deleted concept's catalog-relative path.
 ///
 /// # Returns
-/// The new text, or `None` when no link resolves to `target`.
+/// The new text, or `None` when no link resolves to `target`. The text is
+/// reparsed whole after each pass, so code spans and blocks stay protected
+/// as the text shrinks. A second pass is needed only when a link's text and
+/// what follows it form a new link (`[[a](x.md)](x.md)` leaves `[a](x.md)`);
+/// each pass shortens the text, so it ends, and the result has no link into
+/// `target`, which keeps the replay idempotent.
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) fn unlink_text(
     workspace: &dyn Workspace,
@@ -327,58 +305,32 @@ pub(crate) fn unlink_text(
     text: &str,
     target: &str,
 ) -> Option<String> {
-    let mut changed = false;
-    let lines: Vec<Cow<'_, str>> = link_lines(text)
-        .map(
-            |(line, links)| match unlink_line(workspace, path, (line, links), target) {
-                Some(updated) => {
-                    changed = true;
-                    Cow::Owned(updated)
-                }
-                None => Cow::Borrowed(line),
-            },
-        )
-        .collect();
-    changed.then(|| lines.join("\n"))
-}
-
-/// One line of [`unlink_text`]: each link into `target` replaced by its
-/// text, repeated until none is left. A second pass is needed only when a
-/// link's text and what follows it form a new link (`[[a](x.md)](x.md)`
-/// leaves `[a](x.md)`); each pass shortens the line, so it ends, and the
-/// result has no link into `target`, which keeps the replay idempotent.
-///
-/// # Returns
-/// The new line, or `None` when no link resolves to `target`.
-#[tracing::instrument(level = "trace", skip_all)]
-fn unlink_line(
-    workspace: &dyn Workspace,
-    path: &str,
-    (line, found): (&str, Vec<LinkMatch>),
-    target: &str,
-) -> Option<String> {
     let mut current: Option<String> = None;
-    // The first pass uses the links found with the whole text's code ranges;
-    // later passes read the shortened line alone.
-    let mut first = Some(found);
     loop {
-        let text = current.as_deref().unwrap_or(line);
-        let links = match first.take() {
-            Some(found) => into_links_to(workspace, found, path, target),
-            None => links_to(workspace, text, path, target),
-        };
-        if links.is_empty() {
+        let text = current.as_deref().unwrap_or(text);
+        let mut changed = false;
+        let mut lines: Vec<Cow<'_, str>> = Vec::new();
+        for (line, found) in link_lines(text) {
+            let links = into_links_to(workspace, found, path, target);
+            if links.is_empty() {
+                lines.push(Cow::Borrowed(line));
+                continue;
+            }
+            changed = true;
+            let mut out = String::with_capacity(line.len());
+            let mut copied = 0;
+            for link in &links {
+                out.push_str(&line[copied..link.range.start]);
+                out.push_str(&link.text);
+                copied = link.range.end;
+            }
+            out.push_str(&line[copied..]);
+            lines.push(Cow::Owned(out));
+        }
+        if !changed {
             return current;
         }
-        let mut out = String::with_capacity(text.len());
-        let mut copied = 0;
-        for link in &links {
-            out.push_str(&text[copied..link.range.start]);
-            out.push_str(&link.text);
-            copied = link.range.end;
-        }
-        out.push_str(&text[copied..]);
-        current = Some(out);
+        current = Some(lines.join("\n"));
     }
 }
 
@@ -654,6 +606,28 @@ mod tests {
             .expect("the plain link is unlinked");
 
         assert_eq!(unlinked, "a `[a](alpha.md)`\n```\n[a](alpha.md)\n```\n");
+        // A span over a line break stays code on the later passes too.
+        assert_eq!(
+            unlink_text(
+                &workspace,
+                "moves/beta.md",
+                "`start\n[a](alpha.md)` [b](alpha.md)",
+                "moves/alpha.md"
+            )
+            .as_deref(),
+            Some("`start\n[a](alpha.md)` b")
+        );
+        // A nested link surfaces on the second pass and is unlinked there.
+        assert_eq!(
+            unlink_text(
+                &workspace,
+                "moves/beta.md",
+                "[[a](alpha.md)](alpha.md)",
+                "moves/alpha.md"
+            )
+            .as_deref(),
+            Some("a")
+        );
         assert!(unlink_text(
             &workspace,
             "moves/beta.md",

@@ -47,7 +47,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OkfError;
 use crate::okf::analysis::links::INDEX_HEADING;
-use crate::okf::markdown::{encode_link_path, find_links, resolve_link};
+use crate::okf::markdown::{encode_link_path, find_links, link_lines, resolve_link};
 use crate::okf::ops::frontmatter::replay_edit;
 use crate::okf::ops::relink::{rewrite_text, unlink_text, Redirect};
 use crate::okf::ops::StampField;
@@ -756,9 +756,9 @@ pub(crate) fn listing_line(
     index: &str,
     target: &str,
 ) -> Option<usize> {
-    text.split('\n').position(|line| {
+    link_lines(text).position(|(line, links)| {
         is_bullet(line)
-            && find_links(line).iter().any(|link| {
+            && links.iter().any(|link| {
                 resolve_link(workspace, &link.target, index)
                     .is_some_and(|resolved| resolved.path == target)
             })
@@ -1585,6 +1585,16 @@ mod tests {
                 anchors: None,
             },
         }
+    }
+
+    #[test]
+    fn listing_line_ignores_a_bullet_inside_a_fenced_block() {
+        let workspace = MemWorkspace::default();
+        let text = "# Infra\n\n```\n* [NTP](ntp.md) - sync\n```\n* [NTP](ntp.md) - real\n";
+
+        let line = listing_line(&workspace, text, "infra/index.md", "infra/ntp.md");
+
+        assert_eq!(line, Some(5));
     }
 
     #[test]

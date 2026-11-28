@@ -926,13 +926,23 @@ async fn a_ticked_catalog_lowered_meanwhile_is_created_at_its_new_level() {
 /// still lists the second key as active; the read after revoking the second
 /// answers first and lists neither. The older answer, released now, must
 /// not bring the revoked key back.
+///
+/// Issue #943: the older read also carries the account as it was then (no
+/// key lifetime limit); an admin set a 30 day limit before the newer read.
+/// The released older answer must not change what the New key form
+/// offers: the newer account's 7 days and 30 days, not Never and the rest.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn an_older_list_read_that_answers_late_never_redraws_the_my_keys_table() {
     let server = login_server().await;
     member(&server, Access::Write).await;
     alices_key(&server, "laptop").await;
     alices_key(&server, "desk").await;
-    drive(console_base(&server), |ui| {
+    let app = server.app.clone();
+    let pool = server.db.pool.clone();
+    // The journey runs on a blocking thread, which waits on the test's
+    // runtime to change the limit mid-journey.
+    let runtime = tokio::runtime::Handle::current();
+    drive(console_base(&server), move |ui| {
         ui.sign_in_password(EMAIL, PASSWORD);
         ui.open("/my-keys");
         ui.wait_visible("[data-test=my-key-laptop]");
@@ -943,6 +953,19 @@ async fn an_older_list_read_that_answers_late_never_redraws_the_my_keys_table() 
             ui.click("#my-key-revoke");
             ui.click("#confirm-ok");
         });
+        // The limit arrives after the older read took its account and
+        // before the newer read takes its own.
+        runtime.block_on(crate::support::server::applied(&app, async {
+            settings::set(
+                &pool,
+                SettingKey::MaxKeyLifetime,
+                "30d",
+                &AuditActor::cli(),
+                Utc::now(),
+            )
+            .await
+            .expect("limit key lifetimes to 30 days");
+        }));
         ui.click("[data-test=my-key-desk]");
         ui.wait_visible("#my-key-revoke");
         ui.click("#my-key-revoke");
@@ -953,6 +976,18 @@ async fn an_older_list_read_that_answers_late_never_redraws_the_my_keys_table() 
         assert!(
             !ui.present("[data-test=my-key-desk]"),
             "the older read redrew the my keys table"
+        );
+        // Nor the account the New key form offers its expiries from.
+        ui.click("#my-key-new");
+        ui.wait_visible("#my-key-form");
+        assert_eq!(
+            ui.eval(
+                "() => [...document.querySelectorAll('#my-key-form select[name=expires_in] option')] \
+                 .map(option => option.value)",
+                json!(null)
+            ),
+            json!(["7d", "longest"]),
+            "the older read's account reached the New key form"
         );
     })
     .await;

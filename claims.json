@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2665,
+  "next_claim_seq": 2667,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "9a16ef2c04f114223389a4263a3adddd2796c4b42cf3a148cd4128bf9e43856a"
+    "mac": "59a6c2cacc32f9eb3ced993f2cf5b6589bd36a676b176a159665b3adec2b5e77"
   },
-  "next_evidence_seq": 4644,
+  "next_evidence_seq": 4648,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "abceb9605dcc5dce6ddb33e8a1aa79d11d4ac62f407ebba2a0d0d09b043a2ab4"
+    "mac": "26cacc9db7ff3a6c70ffa26c1e9509d5117fe10b1cf54ad2d0d6b701fbf68151"
   },
   "claims": [
     {
@@ -232663,6 +232663,18 @@
             "by": "server",
             "mac": "dc19946e9856858b62012364fc0aa104c0214918f2535b4a900a20d06e317d88"
           }
+        },
+        {
+          "id": "EVD-4647",
+          "kind": "analysis",
+          "locator": "children of CLM-2649",
+          "summary": "At head 901e134e the children CLM-2650 to CLM-2654, CLM-2657 to CLM-2664, CLM-2665 and CLM-2666 are supported. They cover the runner, tick and poll overrides, the cap of 4 (CLM-2662, CLM-2664), the 63.3 s run at 4 jobs under the 300 s cap (CLM-2657, CLM-2666), no weakened assertion (CLM-2654) and the pool (CLM-2663). CLM-2655 and CLM-2656 still carry their old verdicts only because they are not yet retired; CLM-2665 and CLM-2666 replace them.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:00:25.676327999Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc1357b328a01412c927f935d17bd50923e673f85725cd9296d939750803b68b"
+          }
         }
       ],
       "verdicts": [
@@ -232678,13 +232690,26 @@
             "by": "server",
             "mac": "d08434c51369aa0f966b4e3e05729123e76f20577fd794c421f76721b9ba687d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 901e134e: every child that states current behaviour is supported; the two stale children are superseded by CLM-2665 and CLM-2666 and need retiring.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4647"
+          ],
+          "recorded_at": "2026-11-28T17:00:28.770672083Z",
+          "seal": {
+            "by": "server",
+            "mac": "cab052443ba0dad39f2b565aa6e125098dba33199a1a30167f42ff436dbe1624"
+          }
         }
       ],
       "created_at": "2026-11-28T16:35:51.470817587Z",
-      "updated_at": "2026-11-28T16:54:36.410162687Z",
+      "updated_at": "2026-11-28T17:00:28.770672083Z",
       "seal": {
         "by": "server",
-        "mac": "12e9fcdd7e3acd5a2582b3828ceac2344dcc18bc9d90fa69f0fee32376fdb2b2"
+        "mac": "1165c5deacdd77e5c35669f43afbd4a53c85c53bc3f12e179e464640fb7736f8"
       }
     },
     {
@@ -233114,7 +233139,9 @@
         "from-issue:1216"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by CLM-2665 (test count and new-test list updated after review round 1).",
+        "retired_at": "2026-11-28T17:02:48.215337648Z"
       },
       "evidence": [
         {
@@ -233171,10 +233198,10 @@
         }
       ],
       "created_at": "2026-11-28T16:35:51.470817587Z",
-      "updated_at": "2026-11-28T16:54:52.057298689Z",
+      "updated_at": "2026-11-28T17:02:48.215337648Z",
       "seal": {
         "by": "server",
-        "mac": "e81beecdcfc41bd1754fd67690b756f652a95497f209574b03b731065d71b9b5"
+        "mac": "68511d0581100eccad24d14e9432f9a578ccc528f7839c589317e7758161850d"
       }
     },
     {
@@ -233198,7 +233225,9 @@
         "from-issue:1216"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by CLM-2666 (measured table relabelled with test counts after review round 1).",
+        "retired_at": "2026-11-28T17:02:48.362798342Z"
       },
       "evidence": [
         {
@@ -233255,10 +233284,10 @@
         }
       ],
       "created_at": "2026-11-28T16:35:51.470817587Z",
-      "updated_at": "2026-11-28T16:54:52.205374062Z",
+      "updated_at": "2026-11-28T17:02:48.362798342Z",
       "seal": {
         "by": "server",
-        "mac": "6c152d0d7b5975ee05b8e40512d764fee0db9f266ea12f48a973760fc8614d98"
+        "mac": "aa330b4cca6e1b4cb8b251fda14543c6a0337756959c86d3236cbd3cee94e31e"
       }
     },
     {
@@ -233806,6 +233835,28 @@
             "by": "server",
             "mac": "afac55b100afc038f6c2fe97ffe66c36a44366a97bcc5354d54bbfa6c0c7d7dd"
           }
+        },
+        {
+          "id": "EVD-4646",
+          "kind": "demonstration",
+          "locator": "tools/agentic/tests/run.sh:2869-2883 at 901e134e; scratch copy of tools/agentic with the kill -0 skip replaced by 'true && continue'; AGENTIC_TEST_EXTRA_FILE=<one sleep 1 test> AGENTIC_TEST_JOBS=2 run.sh test_zz_a",
+          "summary": "At head the idle bound calls stop_all 1 and stop_all exits with ${1:-130}; the trap path still exits 130. On the modified copy the run printed 'run.sh: lost track of 1 running test(s): test_zz_a' and exited rc=1, no run.sh left. The sweep code (kill -0 loop, stop_session, unset once) is unchanged from the previous head. The branch still has no test in the repo and the PR body now says so.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2856,
+                "end": 2884
+              },
+              "commit": "901e134e831c7236571a77ff870ac8f3292ad750"
+            }
+          },
+          "recorded_at": "2026-11-28T17:00:16.371514128Z",
+          "seal": {
+            "by": "server",
+            "mac": "e02f176df6b9e69331ade0240a0bbc0ed769d25421dd37226bc71d16ed248275"
+          }
         }
       ],
       "verdicts": [
@@ -233821,13 +233872,27 @@
             "by": "server",
             "mac": "954417f8e489c40d0e375486ef85152cf60543bf312b0535f0e66e2cde51a7d3"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 901e134e: sweep unchanged, idle bound now exits 1 (shown on a scratch copy). The idle branch still has no repository test; the PR body says so, and the sweep test passes on the old pool too.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4646",
+            "EVD-4634"
+          ],
+          "recorded_at": "2026-11-28T17:00:25.532866691Z",
+          "seal": {
+            "by": "server",
+            "mac": "f37960599a260d138e358bc877074f1b18d31c062fc58b93b19a08a84dda5930"
+          }
         }
       ],
       "created_at": "2026-11-28T16:53:21.632705322Z",
-      "updated_at": "2026-11-28T16:54:15.243246879Z",
+      "updated_at": "2026-11-28T17:00:25.532866691Z",
       "seal": {
         "by": "server",
-        "mac": "3a59bc51c635f8d795a9d1b26217072ef3ea748c6a9ccc9440c3957c115ae650"
+        "mac": "000bdb3106a0362b06cb09a7c1361e73851a1fded9b55f6d732dba68f34b1677"
       }
     },
     {
@@ -233895,6 +233960,124 @@
       "seal": {
         "by": "server",
         "mac": "7ec88b8c02ed793fbecc3555d8961dc4e699e482647eeb00e5768c1b9f48b763"
+      }
+    },
+    {
+      "id": "CLM-2665",
+      "statement": "PR body (head 901e134e): the suite has 168 tests (160 on main), and 'New tests (8)' lists exactly the added tests: tick default and fallback, tick is a whole reciprocal of the rate, a slow tick does not cut a budget short, finer ticks notice a finished command sooner and keep a 1 s limit (two tests), the default watch poll is 30 s, the job limit, and the pool collecting tests that end while another's group is stopped.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR #1220 body, Summary and Changes (pr-1216-body.md); replaces CLM-2655",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216",
+        "round:1"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4644",
+          "kind": "analysis",
+          "locator": "diff of sorted '^test_..()' names, origin/main vs head 901e134e (excluding the 4 test_zz fixtures); grep -c on head = 172 minus 4 fixtures; target/i1216-logs/j4-r1b.log '168 passed, 0 failed (jobs: 4)'",
+          "summary": "Head has 168 tests; main has 160. The name diff shows exactly 8 additions: slow_tick, tick_is_a_whole_reciprocal, finer_ticks_do_not_stretch, finer_ticks_notice, job_limit, pool_collects, ticks_default, watch_polls_every_30; none removed. They match the PR body's list of 8.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:00:16.075308441Z",
+          "seal": {
+            "by": "server",
+            "mac": "b481abdb27a9a2c91fd95eb154cb54fff00a141b1e88891e7cd97e5a381e37e6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Name diff and the 168-passed log agree with the PR body's count and list of 8.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4644"
+          ],
+          "recorded_at": "2026-11-28T17:00:25.241004319Z",
+          "seal": {
+            "by": "server",
+            "mac": "d8c2cd820fabb7aa4ae7402dcecb410176a3c2a3c943d123a139cc3a091e7063"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:00:07.086621930Z",
+      "updated_at": "2026-11-28T17:00:25.241004319Z",
+      "seal": {
+        "by": "server",
+        "mac": "043686ff1af06c5a144bacda402f688f5de83c52fb3b25dc02700196e7170df2"
+      }
+    },
+    {
+      "id": "CLM-2666",
+      "statement": "PR body measured table (head 901e134e): main serial 324.8 s (160 tests); this PR 62.3 s and 62.0 s at 4 jobs and 179.6 s at 1 job, both on 164 tests, with the 1-job run labelled not re-run at the head; head at 4 jobs 63.3 s (168 tests); test_watch_bot_reaction_delays_retrigger 13.5 s before and 2.4 s after.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR #1220 body, Measured (pr-1216-body.md); replaces CLM-2656",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "target/i1216-logs/base.log",
+        "target/i1216-logs/j4.log",
+        "target/i1216-logs/j4b.log",
+        "target/i1216-logs/j1.log",
+        "target/i1216-logs/j4-r1b.log"
+      ],
+      "tags": [
+        "from-issue:1216",
+        "round:1"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4645",
+          "kind": "log",
+          "locator": "target/i1216-logs/base.log (160 passed; real 5m24.794s; watch test 13518 ms), j4.log (164, 1m2.307s), j4b.log (164, 1m2.030s), j1.log (164, jobs 1, 2m59.624s), j4-r1b.log (168 passed, jobs 4, real 1m3.348s; watch test 2462 ms)",
+          "summary": "Every figure in the claim matches a log, with the test counts and the labelling as the claim states them. 324.8 s base is a loaded-machine figure (earlier caveat). The 1-job run is on 164 tests and the claim says so; no 1-job run at the head exists and the claim says that too.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T17:00:16.222017200Z",
+          "seal": {
+            "by": "server",
+            "mac": "df90498c37e888e172d4fa62b74f0b4df92b08ddaf6e7a57538a049d44ccf2a3"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every number matches its log, and the 164/168 labelling and the missing 1-job rerun are stated accurately.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4645"
+          ],
+          "recorded_at": "2026-11-28T17:00:25.387533827Z",
+          "seal": {
+            "by": "server",
+            "mac": "239965e47dbd7036349288facbdfbcf00545f641c95d27b329ebeb9e93fa0f74"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T17:00:07.086621930Z",
+      "updated_at": "2026-11-28T17:00:25.387533827Z",
+      "seal": {
+        "by": "server",
+        "mac": "4930a42228f1ba2f4071a119b1ab70d3b206aba0190fc4dc6b46a574db60362d"
       }
     }
   ]

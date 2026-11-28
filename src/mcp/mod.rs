@@ -551,9 +551,7 @@ const ARGUMENT_ERROR_PREFIX: &str = "failed to deserialize parameters:";
 /// # Returns
 /// The kind, or `None` for a success or an error `tool_error` already recorded.
 #[tracing::instrument(level = "trace", skip_all)]
-fn protocol_error_kind(
-    result: &Result<CallToolResponse, rmcp::ErrorData>,
-) -> Option<&'static str> {
+fn protocol_error_kind(result: &Result<CallToolResponse, rmcp::ErrorData>) -> Option<&'static str> {
     match result {
         Err(error) => Some(kind_of_code(error.code)),
         Ok(CallToolResponse::Complete(done)) if done.is_error == Some(true) => done
@@ -585,6 +583,7 @@ fn kind_of_code(code: rmcp::model::ErrorCode) -> &'static str {
 
 /// Records `kind` on `span` as `okf.error.kind` and as the semantic-convention `error.type`.
 /// Never the error's message: serde's can echo argument values.
+#[tracing::instrument(level = "trace", skip_all)]
 fn record_error_kind(span: &tracing::Span, kind: &str) {
     span.record("okf.error.kind", kind);
     span.record("error.type", kind);

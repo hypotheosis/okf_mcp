@@ -398,12 +398,24 @@ async fn a_protocol_error_records_its_kind_and_error_type_not_its_message() {
                 Some("InvalidParams"),
                 "{filter} {name}"
             );
-            assert!(matches!(span.status, Status::Error { .. }), "{filter} {name}");
+            assert!(
+                matches!(span.status, Status::Error { .. }),
+                "{filter} {name}"
+            );
         }
         let exported = format!("{:?}", observed.spans);
-        assert!(!exported.contains(SENTINEL), "{filter}: an argument value leaked");
-        assert!(!exported.contains("unknown variant"), "{filter}: serde's message leaked");
-        assert!(!exported.contains("tool not found"), "{filter}: the message leaked");
+        assert!(
+            !exported.contains(SENTINEL),
+            "{filter}: an argument value leaked"
+        );
+        assert!(
+            !exported.contains("unknown variant"),
+            "{filter}: serde's message leaked"
+        );
+        assert!(
+            !exported.contains("tool not found"),
+            "{filter}: the message leaked"
+        );
     }
     served.stop().await;
 }

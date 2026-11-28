@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2488,
+  "next_claim_seq": 2493,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "f0b4b3b6409e76799c621f71608a0025213be5440dabafa8d452d993a5a090d4"
+    "mac": "362f4263ee09d5f1cf9dd6d7cda3c6aa19f64d8dc47143fbdbb075691f86dec4"
   },
-  "next_evidence_seq": 4338,
+  "next_evidence_seq": 4346,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "7a9b6ca5a6f23b9542be22c5a60842119d5222cf3d6c1cf8736b2a127bc2f31c"
+    "mac": "11a2c1eaede34e105bea7c29c673983891ab6dcede02ea7e5c72931b59845521"
   },
   "claims": [
     {
@@ -76109,7 +76109,9 @@
         "from-issue:962"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the #995 fix: evidence::read now acquires from db.pool() and classifies; replaced by a new claim.",
+        "retired_at": "2026-11-28T06:55:07.992414980Z"
       },
       "evidence": [
         {
@@ -76186,10 +76188,10 @@
         }
       ],
       "created_at": "2026-11-23T14:19:25.478862135Z",
-      "updated_at": "2026-11-28T06:47:50.758063445Z",
+      "updated_at": "2026-11-28T06:55:07.992414980Z",
       "seal": {
         "by": "server",
-        "mac": "2aeb1110603e5a4c5e854a477bd8115070d4188cc95527f29a6c494c15c3c412"
+        "mac": "c856d713efc20afbe9154a2d01be9eac19012fc8ee3127a2d4a3d1ffcd3174a9"
       }
     },
     {
@@ -94072,7 +94074,9 @@
         "review-round"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by the #995 fix: a plain executor() read refused after a rotation is now StoreUnavailable; replaced by a new claim.",
+        "retired_at": "2026-11-28T06:55:07.786629975Z"
       },
       "evidence": [
         {
@@ -94149,10 +94153,10 @@
         }
       ],
       "created_at": "2026-11-23T19:27:30.446993423Z",
-      "updated_at": "2026-11-28T06:47:50.368970167Z",
+      "updated_at": "2026-11-28T06:55:07.786629975Z",
       "seal": {
         "by": "server",
-        "mac": "a8551c424469b14c83807ace84539d3d758d9dbd4c55728e0e43e5164084f875"
+        "mac": "355e5a06be3c2183daf037abc93f1f4719e4333c5935467e8def33170a94eaa8"
       }
     },
     {
@@ -94382,6 +94386,28 @@
             "by": "server",
             "mac": "9a89b62beb80a0acad5af93e72efa0f021a612b441cfbd11675466734267e483"
           }
+        },
+        {
+          "id": "EVD-4344",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- after_a_rotation (3 passed) at head 47fb3a58",
+          "summary": "Re-audit: the named test passes; its helper now asserts StoreUnavailable for the refused plain read, then refresh, then success of the next read. The statement (refresh triggered, next read succeeds; error propagated with ?) holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2020,
+                "end": 2041
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:43.191874998Z",
+          "seal": {
+            "by": "server",
+            "mac": "df10e1520e0017a7a889afe64dc07f82ec328d613506e0569b5e20d8485170a6"
+          }
         }
       ],
       "verdicts": [
@@ -94436,13 +94462,26 @@
             "by": "server",
             "mac": "a5a5ef37cf0cab55c89edd4e767267987a3ede76a9b2987fa13304e5d1bb47c7"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The named test passes at head with the corrected assertion; refresh and next-read success are asserted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4344"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.227890360Z",
+          "seal": {
+            "by": "server",
+            "mac": "c03125b496add21700c0d8ade5e04716968d71eb5258e4fa62e5a35bbd9cea25"
+          }
         }
       ],
       "created_at": "2026-11-23T19:27:30.603438329Z",
-      "updated_at": "2026-11-28T06:47:50.498397486Z",
+      "updated_at": "2026-11-28T06:55:58.227890360Z",
       "seal": {
         "by": "server",
-        "mac": "6bb5c4e22faa5501636d3f8da27a11c19959ca9ebab23d1d8825302df34ad7f8"
+        "mac": "66d935ee0595ebbc36ce999b9994e6500038b6c7fc57181e25a80d0a0073575f"
       }
     },
     {
@@ -123384,7 +123423,9 @@
         "from-issue:978"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Describes the pre-fix open gap #995, which this change closes and removes from docs/operations.md; replaced by a new claim.",
+        "retired_at": "2026-11-28T06:55:08.203518360Z"
       },
       "evidence": [
         {
@@ -123554,10 +123595,10 @@
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-28T06:47:50.627140483Z",
+      "updated_at": "2026-11-28T06:55:08.203518360Z",
       "seal": {
         "by": "server",
-        "mac": "0006aeeba73faf77ef78c55565ca973c2795c215368a793cb850a50e4b313365"
+        "mac": "2ca89cc10e19e3401952c389704b6d2c69254884f5c3223476026271cb71fcc1"
       }
     },
     {
@@ -218038,6 +218079,18 @@
             "by": "server",
             "mac": "e9d0d6df38c92d01bef57aae42a2f5cbae364ddf10ef3158ad2a1ad84468d1fe"
           }
+        },
+        {
+          "id": "EVD-4345",
+          "kind": "analysis",
+          "locator": "children of CLM-2477",
+          "summary": "Wrapper, predicate, Database pass-through, history tool and route, refused-login behavior, evidence read, docs, changelog and call-site counts are supported, and the previously failing registry tests now pass. CLM-2491 (history test failed before) is not_enough_info, non-blocking. The full suite result is pending.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T06:55:57.902431669Z",
+          "seal": {
+            "by": "server",
+            "mac": "9332a2e01d4c9fa4cb8a773267ef7c9c4fead971ee6eb8b3b0ff4e5d0256eb9c"
+          }
         }
       ],
       "verdicts": [
@@ -218053,13 +218106,27 @@
             "by": "server",
             "mac": "ead32f564fd17696a47a95448c4965298dcf80b096a4f4d7ea4861eb9c735f65"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Children cover wrapper, predicate, pass-through, history paths, refused login, docs and changelog; only CLM-2491 is not_enough_info (non-blocking) and the full suite is pending.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4324",
+            "EVD-4345"
+          ],
+          "recorded_at": "2026-11-28T06:56:02.300034716Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c2ed454b7ea7c0b11f4d1b8eec962b56aa7653a7540004373fe01d4e480d155"
+          }
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:50.239230057Z",
+      "updated_at": "2026-11-28T06:56:02.300034716Z",
       "seal": {
         "by": "server",
-        "mac": "1cf16171a2db59d06588ae308dcf205d8f4191d78f9e64cbe24f6fd6c803e89f"
+        "mac": "fe37c5991971ed4e283e19db09aca911602a733a16b516dde1661d1298f0d9af"
       }
     },
     {
@@ -218349,7 +218416,9 @@
         "from-issue:995"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Statement narrowed in the PR body to the history tool test only; replaced by a narrower claim.",
+        "retired_at": "2026-11-28T06:55:08.395027148Z"
       },
       "evidence": [
         {
@@ -218391,10 +218460,10 @@
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:23.156653858Z",
+      "updated_at": "2026-11-28T06:55:08.395027148Z",
       "seal": {
         "by": "server",
-        "mac": "19cb3de40d0067eb937852767f95a394e7b2daeedc981dfbccdc1f8091a2115b"
+        "mac": "9a1aad124649821cc32195f05b12cc0974589e9632a3e6538e451d037bd3bffc"
       }
     },
     {
@@ -218707,6 +218776,28 @@
             "by": "server",
             "mac": "a9a9dbe19438c8dd4e3188fbd6889eebef408f584bbe0a77afd66b5f6c826254"
           }
+        },
+        {
+          "id": "EVD-4343",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- after_a_rotation (3 passed) at head 47fb3a58; src/stores/registry.rs:2028-2032",
+          "summary": "The three previously failing tests now pass because the assertion expects StoreUnavailable. Full-suite result is pending (running separately), so no claim about other pre-existing tests beyond the filters I ran (stores::executor 3, unavailable_tests 21 earlier, after_a_rotation 3, a_refused_login_on_an_open_pool 1).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2028,
+                "end": 2032
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:43.029782789Z",
+          "seal": {
+            "by": "server",
+            "mac": "633a7a8c0cf096be3e60535fe7ad135f6dcb3a74b426d4ed075bb3be58b2d092"
+          }
         }
       ],
       "verdicts": [
@@ -218722,13 +218813,359 @@
             "by": "server",
             "mac": "677c2a6ddd250a4712442e1ce1239d073e31243aa2f07a3641285cce57c32289"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The three failing tests now pass on the narrow filter. Scope is the filters I ran only; the full-suite result is pending and is not claimed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4343"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.065836752Z",
+          "seal": {
+            "by": "server",
+            "mac": "21c03eee1d1a4785e99f6819ea016f78203e71360e6ba7e2bae03a685162f0aa"
+          }
         }
       ],
       "created_at": "2026-11-28T06:46:29.411066325Z",
-      "updated_at": "2026-11-28T06:47:23.808716350Z",
+      "updated_at": "2026-11-28T06:55:58.065836752Z",
       "seal": {
         "by": "server",
-        "mac": "7976036cb69f76d5332a6d210f109502740db39b890a4f4ed0dbdc0471114c36"
+        "mac": "5e7ad0ccc932ff64ba9de74c15f3f1e6ac2ac90fbac4e6ca00ed6a1adcd4ee1e"
+      }
+    },
+    {
+      "id": "CLM-2488",
+      "statement": "A plain CatalogDb::executor() read refused after a secret rotation yields OkfError::StoreUnavailable (which names neither the store nor host to the client), still wakes the credential tasks, and the next read after the refresh succeeds; test a_plain_read_refused_after_a_rotation_refreshes_the_login_and_the_next_read_works asserts it.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "Replaces CLM-0967 second clause and CLM-0970 after the change for issue #995 (PR body: a refused login is unreachable)",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "src/stores/mod.rs"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4338",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib -- after_a_rotation (3 passed); src/stores/registry.rs:2020-2041",
+          "summary": "At head 47fb3a58 the shared helper asserts the refused plain executor read is StoreUnavailable, waits for the credential refresh, then asserts the next read returns 1 and the secret was fetched at least twice. All 3 tests (plain, one quotation mark, two adjacent) passed. Message names no store: variant text is fixed. Full-suite result pending.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 2020,
+                "end": 2041
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:41.790026322Z",
+          "seal": {
+            "by": "server",
+            "mac": "4817d09a74135989416ebb8738fe07dcb7bcbddf95fe172d6d1b3baa46249925"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The three rotation tests pass asserting StoreUnavailable, refresh and next-read success; the variant's fixed text names no store.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4338"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.396415118Z",
+          "seal": {
+            "by": "server",
+            "mac": "46634246daee8fc0d6368b16ec9aad56c3bd751f930874f69f73772f6f24c455"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:55:08.589273363Z",
+      "updated_at": "2026-11-28T06:55:58.396415118Z",
+      "seal": {
+        "by": "server",
+        "mac": "c4f1f6db00106d8935496e3078a7287686845484038f66de8bfe4f1c0dab367e"
+      }
+    },
+    {
+      "id": "CLM-2489",
+      "statement": "evidence::read acquires its connection from db.pool() and maps an acquire error with db.classify; reports::count_findings still runs on db.executor().",
+      "kind": "interface",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"Outside tests the callers are the registry, catalog::build's begin_with and the evidence read, which now also classify with CatalogDb::classify.\"",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "src/store/maintenance/evidence.rs",
+        "src/store/maintenance/reports.rs"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4339",
+          "kind": "inspection",
+          "locator": "src/store/maintenance/evidence.rs:85-93; src/store/maintenance/reports.rs (count_findings)",
+          "summary": "evidence::read does db.pool().acquire().await.map_err(|error| db.classify(error))?. count_findings is unchanged (still fetch_all(db.executor())).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/maintenance/evidence.rs",
+              "lines": {
+                "start": 85,
+                "end": 93
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:42.102932415Z",
+          "seal": {
+            "by": "server",
+            "mac": "4cd3214c18290f77cd203b00d402c5a858ddc88b265fd675716be886ae62da47"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "evidence.rs:88-92 reads as stated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4339"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.564593285Z",
+          "seal": {
+            "by": "server",
+            "mac": "9088a2b45b87298312848a967ceb34002f62f798c9a189519088c1466959a852"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:55:08.589273363Z",
+      "updated_at": "2026-11-28T06:55:58.564593285Z",
+      "seal": {
+        "by": "server",
+        "mac": "15164619ceb06b704a50bb6d981d7ed3cf8c6e98760ee5f1bd7a0ceb5c452c2c"
+      }
+    },
+    {
+      "id": "CLM-2490",
+      "statement": "docs/operations.md states the executor rule: every query on a store's pool reports pool timeout, closed pool, transport/TLS failure and refused login as StoreUnavailable, a constraint violation or bad statement stays Database (HTTP 500), and only #1017 remains a known gap.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Task: docs that describe when StoreUnavailable appears are updated; replaces CLM-1251",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4340",
+          "kind": "inspection",
+          "locator": "docs/operations.md:603-608",
+          "summary": "The paragraph states the executor rule, that a constraint violation or bad statement stays Database (HTTP 500), and names only #1017 as a known gap. Caveat: it does not say queries inside a transaction from CatalogDb::begin are classified only if the caller classifies them.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 603,
+                "end": 608
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:42.358622096Z",
+          "seal": {
+            "by": "server",
+            "mac": "174242768aa892f7d39245c3891648e52314a113aeb8628b251dbba90cdd31ed"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "operations.md:603-608 states the rule and leaves only #1017.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4340"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.719186371Z",
+          "seal": {
+            "by": "server",
+            "mac": "34b767c1825204896cb8969abf46b4edc0bbcf9421d4bcbebe6b4f4608d19f50"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:55:08.589273363Z",
+      "updated_at": "2026-11-28T06:55:58.719186371Z",
+      "seal": {
+        "by": "server",
+        "mac": "11fde1cdd4006b89a1eeda7043f943d34309a530d6cd280654f49fca2cb2744e"
+      }
+    },
+    {
+      "id": "CLM-2491",
+      "statement": "The history tool test history_on_a_store_that_went_away_is_unavailable_not_a_database_error failed with Database { PoolTimedOut } before the change.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Reworded PR body; replaces CLM-2482",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4341",
+          "kind": "analysis",
+          "locator": "src/mcp/unavailable_tests.rs:399-422; origin/main src/stores/mod.rs:343 (executor() returned &PgPool)",
+          "summary": "The test exists and passes at head. That it failed before the change is the author's account (first run before any fix, and a revert by disabling mark_unavailable); I did not observe either run and did not modify source or the base. On the base, executor() returned a raw &PgPool, so the old outcome is plausibly Database, but nothing independent shows the exact error.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 399,
+                "end": 422
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:42.604181556Z",
+          "seal": {
+            "by": "server",
+            "mac": "d14dba01e1315d9a31edf79929401c249408f63ec361a3b3664d73be0696e3f2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "Only the author's account says the test failed with Database { PoolTimedOut } before the change; I did not observe it. Fix: run history_on_a_store_that_went_away_is_unavailable_not_a_database_error with mark_unavailable disabled (or against origin/main with the test added) via gate.sh narrow, and record the Database { PoolTimedOut } output as a log, or keep the PR sentence worded as the author's observation.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4341"
+          ],
+          "recorded_at": "2026-11-28T06:55:58.875516603Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3704fd8651d9bfc5c1b88a6caf86f13966a3bfa3aa3f4b12132d5773b6efad5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:55:08.589273363Z",
+      "updated_at": "2026-11-28T06:55:58.875516603Z",
+      "seal": {
+        "by": "server",
+        "mac": "1229deec2e74f91d3137583079fd59071851d8371df8f5db1bb0d0c3589ee849"
+      }
+    },
+    {
+      "id": "CLM-2492",
+      "statement": "A refused login on an open pool read through CatalogDb::classify yields OkfError::StoreUnavailable (carrying the store name only internally, not to the client), as it did before the change.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "First clause of retired CLM-0967, re-audited after the change for issue #995",
+      "derived_from": [
+        "CLM-2477"
+      ],
+      "artifacts": [
+        "src/stores/mod.rs",
+        "src/stores/registry.rs"
+      ],
+      "tags": [
+        "from-issue:995"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4342",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- a_refused_login_on_an_open_pool (1 passed); stores::tests::classify_turns_connection_failures_into_store_unavailable (1 passed); src/stores/registry.rs:1843",
+          "summary": "The refused-login test asserts StoreUnavailable at registry.rs:1843 and passed; classify_store_error still signals auth refusal then returns store_unavailable (src/stores/mod.rs:53-65).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/mod.rs",
+              "lines": {
+                "start": 53,
+                "end": 65
+              },
+              "commit": "47fb3a5811db79cb18239c3ad556268f3febc643"
+            }
+          },
+          "recorded_at": "2026-11-28T06:55:42.840215838Z",
+          "seal": {
+            "by": "server",
+            "mac": "8d0554e1dfc6310e84b086954ff34836a548089d994241e6d5cb777a942fc656"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The refused-login-on-open-pool test asserts StoreUnavailable and passed; classify_store_error still signals then returns store_unavailable.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4342"
+          ],
+          "recorded_at": "2026-11-28T06:55:59.033564504Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e9c47989163eedc8fdeaa7df05aaeeadfc69766791b0343d04a015e2a340586"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T06:55:25.828107039Z",
+      "updated_at": "2026-11-28T06:55:59.033564504Z",
+      "seal": {
+        "by": "server",
+        "mac": "5a056fa923d230695618b33ca49c1e4868cc22dc43b62d3a1c6a72e0e38e77c2"
       }
     }
   ]

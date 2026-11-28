@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2718,
+  "next_claim_seq": 2726,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "061d5ee3ffc13efc032191bcf00ea0da9cdd74dcbefc3a294657a02165d625ec"
+    "mac": "af8189a302aa104ff908bdae94a37002a2edd1231446330863f5441e88c0a167"
   },
-  "next_evidence_seq": 4723,
+  "next_evidence_seq": 4744,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "16d8279e6792cb4eed8229f751a35116b3ff50cc8d85c41ee7db8d78de2a5b5d"
+    "mac": "a779ba48926881dabce35cd1c61bb48a5839121346fe3b7468d27fafcbd283a7"
   },
   "claims": [
     {
@@ -117539,6 +117539,28 @@
             "by": "server",
             "mac": "2c69d33b38b4e829d497a0223c41ab7d5d92e19531b1a91cf28409a95778eaf1"
           }
+        },
+        {
+          "id": "EVD-4740",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1251-1262 at af09fd4d",
+          "summary": "Re-read after #1207: changeset_by_handle still walks stores_main_first (main first); a store reached and unreachable still ends the lookup with StoreUnavailable, and a store already in the call's down set now returns the same StoreUnavailable without connecting. The claim's meaning is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1251,
+                "end": 1273
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:33:23.875556526Z",
+          "seal": {
+            "by": "server",
+            "mac": "238ceb97dae1a5ecc085313db453cb07ed8cdaca2b980b2a6f574c2cea152467"
+          }
         }
       ],
       "verdicts": [
@@ -117581,13 +117603,26 @@
             "by": "server",
             "mac": "3a37d4943938156240084359594a4ef8c33a5b75260f407c0b8dd2abd3a7c9c7"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on af09fd4d: meaning unchanged by the skip.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4740"
+          ],
+          "recorded_at": "2026-11-28T19:33:32.849954464Z",
+          "seal": {
+            "by": "server",
+            "mac": "fd9bef515b2c6b00a3b5d762917ea1d8e02727d2e3ec71a85b5380e36ddb3e71"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-26T13:08:56.809004278Z",
+      "updated_at": "2026-11-28T19:33:32.849954464Z",
       "seal": {
         "by": "server",
-        "mac": "78b32b3640500b97a722654350aed560a9840d9f778de6519661101f402f716f"
+        "mac": "0bca899a04f5f93e99bc5a9ce392ae065b58cab09eed37997d0db1fb97cbc4d7"
       }
     },
     {
@@ -118559,6 +118594,28 @@
             "by": "server",
             "mac": "52ea46f820ce67036490f6e2e578332ff38e827edcdd3a2671941165a375bf75"
           }
+        },
+        {
+          "id": "EVD-4743",
+          "kind": "inspection",
+          "locator": "src/mcp/unavailable_tests.rs:410-438; src/mcp/context.rs:1251-1262",
+          "summary": "Extends rather than changes the claim: a handle lookup after check_connection no longer probes the same lost store a second time (new test changeset_by_handle_probes_a_lost_store_once). The earlier tests for catalogs are untouched by this diff.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 410,
+                "end": 438
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:33:24.367479025Z",
+          "seal": {
+            "by": "server",
+            "mac": "a66acaa16e8c8fe7fe2d07455ea772dbd75e7bbf775075b7cc035592ca6649f3"
+          }
         }
       ],
       "verdicts": [
@@ -118667,13 +118724,26 @@
             "by": "server",
             "mac": "acede2e04d4d3e5f0144f9fda0940286c595ae2c1bd67a72d54af6722f2184a8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on af09fd4d: the diff extends the one-probe guarantee to handle lookups; nothing contradicts it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4743"
+          ],
+          "recorded_at": "2026-11-28T19:33:33.280308792Z",
+          "seal": {
+            "by": "server",
+            "mac": "92c9baf5cc9cf53eb15c48dce374ccbb320bf7d93d06ddefdd5dafb5ab039fdd"
+          }
         }
       ],
       "created_at": "2026-11-24T14:28:46.499664433Z",
-      "updated_at": "2026-11-26T03:58:23.845662933Z",
+      "updated_at": "2026-11-28T19:33:33.280308792Z",
       "seal": {
         "by": "server",
-        "mac": "d6ad634cf791203474c80c93d01d30f9add20c93d1f9dcd6631d5fd1586daaec"
+        "mac": "eb5dc792c7ffeee048883af6f97a9cf8ec11a82d943aac3992a086049c1fc815"
       }
     },
     {
@@ -123437,6 +123507,28 @@
             "by": "server",
             "mac": "cac46a717adefb7c356a441ae74d4a0b5d1a7391bf91f41e3919ff5f7ac9d586"
           }
+        },
+        {
+          "id": "EVD-4741",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1251-1273 at af09fd4d",
+          "summary": "Re-read after #1207: the lookup still returns None for a malformed handle without asking a store, walks main first and returns at the first holder; a lost store met first (or for an unknown handle) still gives StoreUnavailable, now also without a second connect when the call already found it down. Doc bullets still match. Existing test a_changeset_handle_on_a_lost_store_is_unavailable_and_others_still_resolve is in the author's test.log run as passing (not rerun by me).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1251,
+                "end": 1273
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:33:24.027729506Z",
+          "seal": {
+            "by": "server",
+            "mac": "a78d3230908ce75ea2669d53b79a5b0fb4661b3217b98600a462ba648d5fef16"
+          }
         }
       ],
       "verdicts": [
@@ -123479,13 +123571,26 @@
             "by": "server",
             "mac": "f242c203145cac3577e01e009dcab65cb44f7ec39ca9f71c2c09f4dfbfd5672e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on af09fd4d: handle lookup semantics unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4741"
+          ],
+          "recorded_at": "2026-11-28T19:33:32.991025209Z",
+          "seal": {
+            "by": "server",
+            "mac": "049eb2ce949e246917759c90947d0c52521341d8661aeca4dc0433d5ff253130"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-26T13:08:35.471700437Z",
+      "updated_at": "2026-11-28T19:33:32.991025209Z",
       "seal": {
         "by": "server",
-        "mac": "f33a1b7b42d9b840bc097de11ba3d3a91454da848bc42cdb8a8f2c4ab47c8315"
+        "mac": "f931b8c2db54885a6f660d7019106fd73a966a8ed35b2b6eab1dcb21a673324d"
       }
     },
     {
@@ -124645,6 +124750,28 @@
             "by": "server",
             "mac": "4a98944770fd7641d168f182bc3d3744a9b530b677bebe4b1d4cab15376722fa"
           }
+        },
+        {
+          "id": "EVD-4742",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1251-1273 at af09fd4d",
+          "summary": "Re-read after #1207: the new known_down check sits inside the in-order loop, so it is evaluated only when the loop reaches a down store; a handle held by an earlier store still returns Ok(Some) before the down store is reached. Claim's meaning unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1251,
+                "end": 1273
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:33:24.182585674Z",
+          "seal": {
+            "by": "server",
+            "mac": "dddcac4d2cbfd77f59ce2ba2a3284d077a6788fa6557ec96c492409abd906d35"
+          }
         }
       ],
       "verdicts": [
@@ -124661,13 +124788,26 @@
             "by": "server",
             "mac": "b5854ffec3a380a30f1438677170812bdc7cf7af0289774f156d96e67dfa5193"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on af09fd4d: the skip is inside the in-order loop, so a handle held earlier still resolves.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4742"
+          ],
+          "recorded_at": "2026-11-28T19:33:33.137335661Z",
+          "seal": {
+            "by": "server",
+            "mac": "45ad27659874df7775370b8fa68bf18679d945eda2a9f8960513d8ef1850381d"
+          }
         }
       ],
       "created_at": "2026-11-24T16:35:38.203978143Z",
-      "updated_at": "2026-11-24T16:36:03.509458153Z",
+      "updated_at": "2026-11-28T19:33:33.137335661Z",
       "seal": {
         "by": "server",
-        "mac": "9186f21a1be320ea3ef2687127ad451ac048b6b950652a156babf2c9ed5d60bd"
+        "mac": "25f88417209c33344bcef8bd4a44a8ca3986cc5dce6bd7474cf99976b93f8cf5"
       }
     },
     {
@@ -238046,6 +238186,717 @@
       "seal": {
         "by": "server",
         "mac": "9cdcdb5e1aef971c4cde9c0c79c226a78d15c10db7d4fea98332c11c78e29030"
+      }
+    },
+    {
+      "id": "CLM-2718",
+      "statement": "Issue #1207 is delivered: ToolContext::changeset_by_handle skips a store the call already found down and answers store_unavailable without connecting; a probe-counting test shows one probe instead of two with an unchanged answer; and a store that comes back is noticed again by a later call.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1207 and PeterGrace's comment ('ensure that there is a recovery path for temporarily down stores')",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/testing.rs",
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4739",
+          "kind": "analysis",
+          "locator": "children of CLM-2718",
+          "summary": "The skip is in changeset_by_handle and writes nothing shared; a test counts probes (2 without the fix, 1 with); the down set is per call and nothing remembers a store failure across calls, so a later call reaches a returned store, shown by a recovery test that restores only the stores row; the PR body's citations are accurate. Together these cover the issue's two requirements and the maintainer's recovery-path comment. Caveat: test results rest on the author's logs, not a rerun.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T19:33:23.722034372Z",
+          "seal": {
+            "by": "server",
+            "mac": "59e8b65dd13172a3579a3dd69b15ec82100f4d54ffe49b08594607c1888e990f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All seven children supported; together they cover the skip, the probe test and the recovery path. Test pass/fail rests on the author's logs, not a rerun.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4739"
+          ],
+          "recorded_at": "2026-11-28T19:33:32.707585404Z",
+          "seal": {
+            "by": "server",
+            "mac": "1875225487ea52490fbedfc4f2b918545172f7483afa97212b4627a0b2d61b95"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:32.707585404Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5d776dfe6895203e72e33c98cd10fe1082cd4f9cf611233415f0428b4f46e98"
+      }
+    },
+    {
+      "id": "CLM-2719",
+      "statement": "The set of stores found down is scoped to one tool call: it lives in a field of ToolContext (one tool call's context), is created empty by ToolContext::new, has no remove, clear or expiry, and production builds a new ToolContext per request.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body 'How a returned store is noticed': 'The down set is per tool call'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/mod.rs",
+        "src/http/api/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4723",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:82-87,118-141,165-170",
+          "summary": "ToolContext is documented 'One tool call's context'; its field `down: Mutex<Down>` (stores + catalogs sets) is private and ToolContext::new initialises it with Mutex::default() (empty). Nothing else holds a Down.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 118,
+                "end": 141
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:07.653480110Z",
+          "seal": {
+            "by": "server",
+            "mac": "109f695b5bb623b69a8c01ffd69be963e700f600e3c0c7ea76700ab1d33cfd30"
+          }
+        },
+        {
+          "id": "EVD-4724",
+          "kind": "analysis",
+          "locator": "src/mcp/context.rs:498-512; git grep 'mark_down|\\.down\\b' src",
+          "summary": "The only writer of the down set is mark_down (insert into stores and catalogs); down_stores returns a clone. A search of the field for remove/clear/retain finds none, so the set only grows and dies with the context. Callers of mark_down are all per-call (src/mcp/catalogs.rs, src/http/api/catalogs.rs, src/http/api/search.rs).",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "down\\.(stores|catalogs)\\.(remove|clear|retain|drain)|\\.down\\)\\.(clear|stores\\.clear)",
+              "scope": [
+                "src"
+              ],
+              "hits": 0,
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:07.814727360Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a5c13184508560018370875b0f21c2acf8e53d8dee1573eeb6a446e8140df8a"
+          }
+        },
+        {
+          "id": "EVD-4725",
+          "kind": "inspection",
+          "locator": "src/mcp/mod.rs:403-405; src/mcp/context.rs:237-250; src/http/api/mod.rs:190-196",
+          "summary": "OkfServer::context calls ToolContext::from_parts, which ends in Self::new (a fresh Down) for every request; the console builds ToolContext::new(...) per request in http/api/mod.rs:195. No static, OnceLock or cache holds a ToolContext (grep of src for ToolContext with static/OnceLock/Lazy/cache finds only doc text and a test helper).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/mod.rs",
+              "lines": {
+                "start": 403,
+                "end": 405
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:07.973007160Z",
+          "seal": {
+            "by": "server",
+            "mac": "abc40315d8736e6f1272d7daf8508aceef41384cdb3fdc851c803b5fd5c818c2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The down set is a private per-ToolContext field, created empty in new, with only insert and clone accessors; every request builds a fresh context.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4723",
+            "EVD-4724",
+            "EVD-4725"
+          ],
+          "recorded_at": "2026-11-28T19:33:09.458274885Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e2030d898ccd3292fb780f81e4499753b759735d28b4cf5551d19ef02f5cb08"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:09.458274885Z",
+      "seal": {
+        "by": "server",
+        "mac": "4b65be4af3d98bec66ddcda9ec399b9178527434bd54a309724af7968d5b9d9a"
+      }
+    },
+    {
+      "id": "CLM-2720",
+      "statement": "No store failure is remembered across calls anywhere in src or migrations: the pool registry keeps no failed open and has no TTL, the stores table has no health column, the catalog cache's broken set excludes StoreUnavailable, the directory cache holds no outage, and no change-feed or background task records store health.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'No failure is remembered across calls.' and 'a store that is back is reached by the next call; there is no timer or background probe'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/stores/registry.rs",
+        "src/cache/catalogs.rs",
+        "src/cache/directory.rs",
+        "src/cache/bounded.rs",
+        "src/invalidate.rs",
+        "migrations/accounts/0036_stores.sql"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4729",
+          "kind": "inspection",
+          "locator": "src/stores/registry.rs:13-17,310-312,376-377",
+          "summary": "Pools are a moka cache built with max_capacity only (no time_to_live/idle); entry() uses try_get_with, whose failed initialiser caches nothing (module doc: 'an unreachable store is tried again by the next request'). A search for time_to_live/time_to_idle/expire_after in src/stores and the directory cache has zero hits. A successfully opened pool stays cached but that is not a remembered failure (sqlx reconnects itself).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/stores/registry.rs",
+              "lines": {
+                "start": 306,
+                "end": 313
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:38.636136176Z",
+          "seal": {
+            "by": "server",
+            "mac": "cd097f7809abbf463f8b739acfa12acd084c0b52a23e6f76df4ca1adc0bac462"
+          }
+        },
+        {
+          "id": "EVD-4730",
+          "kind": "inspection",
+          "locator": "src/cache/catalogs.rs:127-145, 498-511",
+          "summary": "CatalogCache.broken is written only by remember_broken, reached from refresh_failed only when from_stored_data(error) is true; from_stored_data excludes StoreUnavailable (and Database, Busy, CatalogNotSelected), with the comment 'not remembered as broken, and the next request tries the store again'. catalogs.rs:297 returns a StoreUnavailable without caching.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/catalogs.rs",
+              "lines": {
+                "start": 134,
+                "end": 145
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:38.787616385Z",
+          "seal": {
+            "by": "server",
+            "mac": "5072754e7ce4412eb73499cb8761e98faadc80c0809fda0a5dec7829f573ce62"
+          }
+        },
+        {
+          "id": "EVD-4731",
+          "kind": "inspection",
+          "locator": "src/cache/bounded.rs:965-1012; src/cache/directory.rs:8-12,325-355",
+          "summary": "Bounded::get_or_load uses moka try_get_with: a StoreUnavailable load becomes Load::Failed, shared only with callers waiting on that same in-flight load and never stored as an entry. The directory cache keeps rows (10 s) and absent names (5 s); a StoreUnavailable from the generation read is collected into the per-call `down` set only. Neither records outage state.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cache/bounded.rs",
+              "lines": {
+                "start": 965,
+                "end": 1012
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:38.941857603Z",
+          "seal": {
+            "by": "server",
+            "mac": "fcca20c0728cb4493af9729bf481baa561287e3bacd4075bf158e6a116cb03c9"
+          }
+        },
+        {
+          "id": "EVD-4732",
+          "kind": "inspection",
+          "locator": "migrations/accounts/0036_stores.sql:18-33; 0037, 0039, 0043, 0044; src/invalidate.rs:560-580",
+          "summary": "stores columns: name, location_kind, host, port, database, credential_kind, credential_ref, created_at; no later migration adds a column to stores (0037 adds catalogs.store, 0043 cluster_store_stats holds open-changeset counts per store, not health). The change feed's backoff (invalidate.rs:578) is its own reconnect backoff. Housekeeping's `down` is a per-run local list. No timer or background store probe exists.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "migrations/accounts/0036_stores.sql",
+              "lines": {
+                "start": 18,
+                "end": 33
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:39.100366194Z",
+          "seal": {
+            "by": "server",
+            "mac": "79ac64fc9d6320ecde225c7f072dd7b0aef2cbcb350c3fa7efbe73660de1eea7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Checked the pool registry (no TTL, failed open uncached), CatalogCache.broken (excludes StoreUnavailable), Bounded caches (failed loads not stored), directory cache, stores table and later migrations, change feed and housekeeping: none records store health across calls. Already-open pools persist, which is not a remembered failure.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4729",
+            "EVD-4730",
+            "EVD-4731",
+            "EVD-4732"
+          ],
+          "recorded_at": "2026-11-28T19:33:09.610966357Z",
+          "seal": {
+            "by": "server",
+            "mac": "90386eb0de5842c1f8d42a31bdbab6b040e26a838040c393c6293e9f3ab68284"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:09.610966357Z",
+      "seal": {
+        "by": "server",
+        "mac": "dce363163f8f50b2544b3abc4751a7878fdb2e07b6a57b6aade9aa0dfb50969d"
+      }
+    },
+    {
+      "id": "CLM-2721",
+      "statement": "The new skip in changeset_by_handle reads only the per-call set (one down_stores() copy) and writes nothing shared: it neither calls mark_down nor touches App, the pool registry or any cache.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: 'This change reads only the per-call set and writes nothing shared'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4726",
+          "kind": "inspection",
+          "locator": "src/mcp/context.rs:1251-1262 (git diff origin/main...HEAD -- src/mcp/context.rs)",
+          "summary": "The only non-comment additions: `let known_down = self.down_stores();` (a clone) and `if known_down.contains(&store) { return Err(OkfError::store_unavailable(&store)); }`. No mark_down, no App/registry/cache call. OkfError::store_unavailable only builds an error (and logs the store name).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 1251,
+                "end": 1263
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:08.125969544Z",
+          "seal": {
+            "by": "server",
+            "mac": "34ca4670cd901b5fdab71a8d330b27ebb244405d4b95ee3fb532367d43896fec"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff adds a clone read of down_stores and an early return of a fresh error; no shared write.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4726"
+          ],
+          "recorded_at": "2026-11-28T19:33:09.756807377Z",
+          "seal": {
+            "by": "server",
+            "mac": "c7156d630c129d2b5160bcec4917509ab820b94e6354106f4a0ffdba7d065f6c"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:09.756807377Z",
+      "seal": {
+        "by": "server",
+        "mac": "9fd7256420576cb1c76d418e9f0cf820c2ba716e51f618b62bf4568be2dde1d5"
+      }
+    },
+    {
+      "id": "CLM-2722",
+      "statement": "The probe-counting test changeset_by_handle_probes_a_lost_store_once fails without the context.rs change (the stalled store is probed twice, not once) and passes with it.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "Issue #1207 requirement: 'add a probe-counting test (stalled-store proxy) showing one probe instead of two and an unchanged answer'; PR body: 'The probe test fails without the context.rs change (2 probes, expected 1)'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/unavailable_tests.rs",
+        "src/mcp/context.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4733",
+          "kind": "inspection",
+          "locator": "src/mcp/unavailable_tests.rs:410-440; src/mcp/context.rs:1145,1251-1262",
+          "summary": "The test uses a stalled-store proxy with connection list [main, remote], calls ctx.changeset(unheld handle), asserts StoreUnavailable and asserts accepted-connection delta == the single probe a bare stores().get costs. Mechanism: resolve_changeset first runs check_connection (select -> directory page marks the store down), then changeset_by_handle; without the skip it calls store_db on the down store again (a second probe), with it it returns before connecting.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 410,
+                "end": 438
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:39.252383285Z",
+          "seal": {
+            "by": "server",
+            "mac": "4fe671e3006869ba5d03c469205f1a254481714069405fef2e8b79783dc80793"
+          }
+        },
+        {
+          "id": "EVD-4734",
+          "kind": "log",
+          "locator": "target/i1207-logs/prefix.log (author's log, not tied to a commit, not rerun by me); target/i1207-logs/narrow.log",
+          "summary": "prefix.log (context.rs change reverted per fix.patch, same test name): 'changeset_by_handle_probes_a_lost_store_once ... FAILED' at unavailable_tests.rs:431 with left: 2, right: 1 (1 failed). narrow.log (with change): same test 'ok', 1 passed. Logs are the author's; commit and test body at log time are not recorded, and I did not run cargo.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T19:32:39.399516341Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc2870bc35ac27cd71acf5389560c427306af2fa8be148f785d5eca14a948e30"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows the test counts probes across one changeset() call and the mechanism of the second probe; the author's prefix log shows 2 vs 1 without the fix and pass with it. Caveat: the logs are the author's, not tied to a commit, and I did not rerun cargo.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4733",
+            "EVD-4734"
+          ],
+          "recorded_at": "2026-11-28T19:33:09.915889678Z",
+          "seal": {
+            "by": "server",
+            "mac": "ff12f360fdf37560d2ff629486f2e0c3561849e764e74b0d77dc9226d047128f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:09.915889678Z",
+      "seal": {
+        "by": "server",
+        "mac": "267da3ac583990d5c4ad6acc9b15666fbd08106f628498f7b3493614ba80ad25"
+      }
+    },
+    {
+      "id": "CLM-2723",
+      "statement": "A later call reaches a store that came back after an earlier call found it down: in a_lost_store_is_reached_again_by_a_later_call_once_it_is_back the first call gets StoreUnavailable and a second, new call resolves the same handle.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PeterGrace's comment on #1207; PR body: 'Proven by a_lost_store_is_reached_again_by_a_later_call_once_it_is_back'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4735",
+          "kind": "inspection",
+          "locator": "src/mcp/unavailable_tests.rs:445-480",
+          "summary": "Test creates a changeset on the remote store, stalls the store, asserts call 1 (a fresh context) returns StoreUnavailable and the stalled server was probed, then restores only the stores row, builds a new context via call() and asserts changeset() succeeds with row.handle == the handle. The second context has an empty down set (CLM about per-call scope), so success requires a real reconnect.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/unavailable_tests.rs",
+              "lines": {
+                "start": 441,
+                "end": 480
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:39.549488626Z",
+          "seal": {
+            "by": "server",
+            "mac": "891533cd7e2115ea9847fe0e13f6410796c15396918b31dc709d64010e8146ff"
+          }
+        },
+        {
+          "id": "EVD-4736",
+          "kind": "log",
+          "locator": "target/i1207-logs/recovery.log (author's log, not tied to a commit, not rerun by me)",
+          "summary": "recovery.log: 'a_lost_store_is_reached_again_by_a_later_call_once_it_is_back ... ok', 1 passed. Not tied to a commit; it may predate commit 2544a276 (restore without forget, per the PR body), so it does not by itself prove the current test body passes.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T19:32:39.697130683Z",
+          "seal": {
+            "by": "server",
+            "mac": "9dc07e75996b7a64617fb8f03401c70c125a2ede7e95b2367600b527962cfa78"
+          }
+        },
+        {
+          "id": "EVD-4737",
+          "kind": "log",
+          "locator": "target/i1207-logs/test.log (author's full gate run, mtime 13:22, after commit 2544a276 at 13:13:55; not rerun by me)",
+          "summary": "test.log lists 'PASS ... mcp::unavailable_tests::a_lost_store_is_reached_again_by_a_later_call_once_it_is_back' and the probe test PASS; its last Summary reads '3866 tests run: 3866 passed, 20 skipped'. The src diff between 2544a276 and HEAD touches only src/invalidate.rs (merge of main), so the test body is the one run. The log is not tied to a commit hash, and an earlier run in the same file had one unrelated flaky UI test (ui_e2e::browse::the_suspended_view_names...).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T19:32:55.554160708Z",
+          "seal": {
+            "by": "server",
+            "mac": "7834bef96349378de0d84482ceae38600292583c9977a45599d72d037d1a3888"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test asserts failure while down and success from a new context after restore; the author's post-2544a276 full run shows it passing. Caveat: not rerun by me; the log is not tied to a commit.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4735",
+            "EVD-4737"
+          ],
+          "recorded_at": "2026-11-28T19:33:10.073226024Z",
+          "seal": {
+            "by": "server",
+            "mac": "32a4f2e9417ef77999a01500746f106db21acfb259f50123ab48ddade3e47771"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:10.073226024Z",
+      "seal": {
+        "by": "server",
+        "mac": "f694299f01da57540cf3516242cdab8e57441af0d6bcaf6610fafc01e3211e18"
+      }
+    },
+    {
+      "id": "CLM-2724",
+      "statement": "The recovery test restores the store without dropping cached registry state: its restore step (TestApp::repoint_row) only updates the stores row and nothing in the restore path calls Stores::forget or forget_all.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: recovery is shown 'by restoring only the stores row'; audit round 1 refuted a version that used Stores::forget",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/testing.rs",
+        "src/mcp/unavailable_tests.rs"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4727",
+          "kind": "inspection",
+          "locator": "src/mcp/testing.rs:282-297; src/mcp/unavailable_tests.rs (a_lost_store_is_reached_again... restore step)",
+          "summary": "repoint_row executes one SQL UPDATE of stores.host/port and nothing else; `forget` now lives only in repoint (used by make_stalled, i.e. the outage setup). The recovery test restores with test.repoint_row(...) only. The comment in the test says the registry is not told.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/testing.rs",
+              "lines": {
+                "start": 282,
+                "end": 297
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:08.283014811Z",
+          "seal": {
+            "by": "server",
+            "mac": "bdc7b1fa8c05a288e097ed4412ebead6019e498d5474a470e1a3c8d5f9076b0b"
+          }
+        },
+        {
+          "id": "EVD-4728",
+          "kind": "analysis",
+          "locator": "git grep -n forget -- src/mcp/unavailable_tests.rs; git grep -Ei '(trigger|notify).*stores' -- migrations",
+          "summary": "Zero 'forget' hits in the test file, so the recovery test itself never calls Stores::forget/forget_all. No DB trigger or NOTIFY is attached to the stores table (zero hits), so the row UPDATE cannot make the change feed (Invalidation::Store -> Stores::forget, app.rs:1394) drop the pool behind the test's back; the test's pool state was therefore not dropped by anything in the restore path. Note the outage setup (make_stalled -> repoint) does call forget, before the first failing call, by design.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "forget",
+              "case_insensitive": true,
+              "scope": [
+                "src/mcp/unavailable_tests.rs"
+              ],
+              "hits": 0,
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:38.483267262Z",
+          "seal": {
+            "by": "server",
+            "mac": "cffe05e05b3c8c39acf604eb608b1a38307ac3aeef6eedf90a10b5bc0a1faaff"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "repoint_row is a bare UPDATE; no forget in the test file and no store trigger/NOTIFY that could drop the pool; the forget in repoint is only in the outage setup.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4727",
+            "EVD-4728"
+          ],
+          "recorded_at": "2026-11-28T19:33:10.220492898Z",
+          "seal": {
+            "by": "server",
+            "mac": "0017a52acafed4d9543de3f87c2bb12b0d9d4f720a0fbae8dd66d54adcbb99c4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:10.220492898Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac320462d62b147c85824869e3e404572d85c1c2deffb6852b0ad1fb7013585f"
+      }
+    },
+    {
+      "id": "CLM-2725",
+      "statement": "Every file:line citation in the PR body's 'How a returned store is noticed' section is accurate at HEAD.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "target/i1207-logs/pr-1207-body.md, section 'How a returned store is noticed'",
+      "derived_from": [
+        "CLM-2718"
+      ],
+      "artifacts": [
+        "src/mcp/context.rs",
+        "src/mcp/mod.rs",
+        "src/http/api/mod.rs",
+        "src/stores/registry.rs",
+        "src/invalidate.rs",
+        "src/cache/directory.rs",
+        "src/cache/catalogs.rs",
+        "migrations/accounts/0036_stores.sql"
+      ],
+      "tags": [
+        "from-issue:1207"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4738",
+          "kind": "inspection",
+          "locator": "pr-1207-body.md 'How a returned store is noticed' vs src at af09fd4d",
+          "summary": "All checked line by line: context.rs:118 'One tool call's context', :140 `down: Mutex<Down>`, :169 `down: Mutex::default()` inside new, :498 mark_down, :510 down_stores; mod.rs:403 `fn context` (calls ToolContext::from_parts, which uses Self::new); http/api/mod.rs:195 ToolContext::new; registry.rs:310-312 moka builder (max_capacity only), :377 try_get_with, :14-17 doc (failed initialiser caches nothing, retried next request); 0036_stores.sql:18-33 CREATE TABLE stores, no health column; invalidate.rs:578 Backoff::new in the change feed run loop (reconnect backoff); directory.rs:10 `absent` 5 s; catalogs.rs:127-146 attribute+from_stored_data (:143 StoreUnavailable excluded; the range ends one blank line past the closing brace at :145). Minor: mod.rs:403 is the context() constructor wrapper, not the literal ToolContext::new call.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/context.rs",
+              "lines": {
+                "start": 118,
+                "end": 141
+              },
+              "commit": "af09fd4df336c9e736f4f10c24f856ef447ad24e"
+            }
+          },
+          "recorded_at": "2026-11-28T19:32:55.718094704Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bbe4304ff0ba2fdfa342551bed8213e0753bdefc65488e48a6b05a1d35a88c7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every cited line was opened at HEAD and matches its description; only nit is mod.rs:403 being the wrapper rather than the literal new() call.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4738"
+          ],
+          "recorded_at": "2026-11-28T19:33:10.367755543Z",
+          "seal": {
+            "by": "server",
+            "mac": "13cfea9f7cc157e8a807b82418e54f5aa26493045016fba8babc075878ea46c9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T19:31:46.705363105Z",
+      "updated_at": "2026-11-28T19:33:10.367755543Z",
+      "seal": {
+        "by": "server",
+        "mac": "83c49799ca518e47c0e0438d3e70d4f15173d49d74cba337051f53afac752a72"
       }
     }
   ]

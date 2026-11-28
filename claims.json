@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2551,
+  "next_claim_seq": 2566,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "6b5e284d468963934648a9c62f74149a2b7f83fec9d3802d04a6dc335dcb26b0"
+    "mac": "94a0f72d56ece10f2f1557c533b2a8c0ed54388cb7c18440abeabaff75582810"
   },
-  "next_evidence_seq": 4442,
+  "next_evidence_seq": 4467,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "787e3684aca7a16d04bba3c5df218aeb3ed1f33d87e6edfe238a499c97b0a4c1"
+    "mac": "855cf68fac85e42a3c0a3fea62bbad457d4c898ec47ef68a0c643125d5470f02"
   },
   "claims": [
     {
@@ -122966,6 +122966,28 @@
             "by": "server",
             "mac": "5b78b9612cd6b9a6ece0026f2c7d81ac96d413eca1f8927318a54310edf3efde"
           }
+        },
+        {
+          "id": "EVD-4466",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:183-190,346-366 at 0642ae34",
+          "summary": "GET /catalogs unavailable is still Vec<String> with skip_serializing_if is_empty and is sorted (unavailable.sort()); the diff only adds unavailable_stores beside it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 181,
+                "end": 197
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:36:19.750709041Z",
+          "seal": {
+            "by": "server",
+            "mac": "96d5729ad5e0050a869ac529a87ea0db2feb65b7c245a381899eb270db7b3990"
+          }
         }
       ],
       "verdicts": [
@@ -122996,13 +123018,26 @@
             "by": "server",
             "mac": "6fe04c11c853b183668b619059d2820a8dbb1edd23430bc15ba18b40598b359d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head 0642ae34: GET /catalogs unavailable is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4466"
+          ],
+          "recorded_at": "2026-11-28T09:36:24.173134126Z",
+          "seal": {
+            "by": "server",
+            "mac": "058542ea6d6a87cfee22503b687fbb899a3c254f117f33a4b06c7358cdb6bffe"
+          }
         }
       ],
       "created_at": "2026-11-24T16:23:19.118447111Z",
-      "updated_at": "2026-11-26T13:08:35.380750564Z",
+      "updated_at": "2026-11-28T09:36:24.173134126Z",
       "seal": {
         "by": "server",
-        "mac": "75c64d561f26e2fe6cd6c2955def3c881ea81c9b7cfd38c1476e37b8a737c142"
+        "mac": "8da476b4eaa53cbc22ecc0debc48379b6d61964723d9417b0fa246ca6eb196e7"
       }
     },
     {
@@ -217798,6 +217833,28 @@
             "by": "server",
             "mac": "de5d855fe591d8684724b0ae6d0476ede8cc7722f5e78b629cd131e5d4808650"
           }
+        },
+        {
+          "id": "EVD-4465",
+          "kind": "inspection",
+          "locator": "src/store/stores.rs:248-255 at 0642ae34",
+          "summary": "The pinned_teams subquery (teams t WHERE t.store = s.name) is unchanged; a catalogs count subquery was added beside it. Claim still holds.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/stores.rs",
+              "lines": {
+                "start": 248,
+                "end": 255
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:36:19.590497419Z",
+          "seal": {
+            "by": "server",
+            "mac": "2b8ca3dc81d589144306cc0cb9ff1b99bc2b236a830d6438b45210ae9fd1a3b6"
+          }
         }
       ],
       "verdicts": [
@@ -217813,13 +217870,26 @@
             "by": "server",
             "mac": "85712609e7efa25cb710202c5010b5a6e18ec06835516a57a2ee0228c29020fe"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on head 0642ae34: the teams count is unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4465"
+          ],
+          "recorded_at": "2026-11-28T09:36:24.013696867Z",
+          "seal": {
+            "by": "server",
+            "mac": "43e80e3174d14e9e6abdb40c4417f0709cccd42be3a89a07f24a13cfa84bbba2"
+          }
         }
       ],
       "created_at": "2026-11-28T06:07:25.358154679Z",
-      "updated_at": "2026-11-28T06:08:21.753566691Z",
+      "updated_at": "2026-11-28T09:36:24.013696867Z",
       "seal": {
         "by": "server",
-        "mac": "34d9476eb47b2f9a69b63d24927778680a96f711d8aa18eea1e982f50eef77c6"
+        "mac": "8502f4d1541d87a1630b8b88dcbaf6d25debd56f116de98e84409c2ea5c185f7"
       }
     },
     {
@@ -224023,6 +224093,1176 @@
       "seal": {
         "by": "server",
         "mac": "907defd3418cc784ec2f654575fe4171b7326ee2d009abfeb0e33ce8e3971ce4"
+      }
+    },
+    {
+      "id": "CLM-2551",
+      "statement": "Issue #1030 is delivered: admin console, API and CLI show which store each catalog is on, with docs and tests.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1030",
+      "derived_from": [],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/http/ui/js/pages/catalogs.js",
+        "src/cli.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4464",
+          "kind": "analysis",
+          "locator": "children of CLM-2551",
+          "summary": "Children cover API (store, admin-only, unavailable_stores, catalogs count), console (column, filter, drawer, notice), CLI, docs and tests, which together are the issue's requirements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T09:35:52.045983198Z",
+          "seal": {
+            "by": "server",
+            "mac": "518a06235b0ec0a84d3590eee31652b9008f66dde63123db10aeff86b08a25f4"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All fourteen children are supported; they cover each requirement of the issue.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4464"
+          ],
+          "recorded_at": "2026-11-28T09:35:55.818875330Z",
+          "seal": {
+            "by": "server",
+            "mac": "d2ed60fa290c573405b0d019d45dbf7aea5d6ada6efccf22f1036fb9125dcf3f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:55.818875330Z",
+      "seal": {
+        "by": "server",
+        "mac": "afe166cb69d0e7fcd4c1b2ea70f9f99c37803927fc114bbcec0110b59bd81db3"
+      }
+    },
+    {
+      "id": "CLM-2552",
+      "statement": "GET /api/v1/catalogs and the answer to POST /api/v1/catalogs add a `store` object {name, location, host, port, database} to each catalog for an admin credential.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"add a `store` object `{name, location, host, port, database}` to each catalog, only when the caller is an admin credential\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4442",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:158,451",
+          "summary": "CatalogSummary::of fills store from places (list); create_catalog sets store from the created row for places_for callers. Both emit StorePlace {name, location, host, port, database}.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 151,
+                "end": 160
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.159334793Z",
+          "seal": {
+            "by": "server",
+            "mac": "a9e467c00fb6bed2aa7eb80e7776e0961c1208e1aa689d4438d1c9455d1e3445"
+          }
+        },
+        {
+          "id": "EVD-4443",
+          "kind": "test",
+          "locator": "okf_mcp http::api::catalogs::tests::an_admin_sees_each_catalogs_store_and_no_one_else_does (not re-run by me)",
+          "summary": "Test asserts root and scoped admin listings carry store name/location/host/port for main, other and a second store, and POST by root answers store.name == main. Result not re-run by me; reported separately.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1433,
+                "end": 1527
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.307072746Z",
+          "seal": {
+            "by": "server",
+            "mac": "c5c53eccff1e692acaa00d7fbedd9620920f71791f4a6e4c0d80b3f16486ac4a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code sets store for admins on list and create; test asserts it (not re-run by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4442",
+            "EVD-4443"
+          ],
+          "recorded_at": "2026-11-28T09:35:47.288867686Z",
+          "seal": {
+            "by": "server",
+            "mac": "c92f3d30f7b6f56775528fcebf4d9b1795d56ee16ac71f5d3b61b9477558468e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:47.288867686Z",
+      "seal": {
+        "by": "server",
+        "mac": "d3163e9bae5bb2dceda344e6bfc7517075191c835555575122f79ec37769e885"
+      }
+    },
+    {
+      "id": "CLM-2553",
+      "statement": "The `store` object carries the same fields and values as the entry in GET /api/v1/stores and never a credential kind, reference or user.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR body: \"These are the same fields and values `GET /api/v1/stores` gives, with no credential kind, reference or user.\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs",
+        "src/http/api/stores.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4444",
+          "kind": "inspection",
+          "locator": "src/http/api/stores.rs:39-80,140-170",
+          "summary": "StorePlace holds only name, location, host, port, database; StoreView flattens the same StorePlace plus credential_kind/credential_ref, so both routes share one source for the location fields; the catalog routes never touch credential fields.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/stores.rs",
+              "lines": {
+                "start": 36,
+                "end": 80
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.457022536Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1143751bfa302f54eb0cb18f7005c9f0639b0f44aca302de2f9203ba0e8a083"
+          }
+        },
+        {
+          "id": "EVD-4445",
+          "kind": "test",
+          "locator": "catalogs.rs test an_admin_sees_each_catalogs_store_and_no_one_else_does (not re-run by me)",
+          "summary": "Test compares each of name/location/host/port/database with the GET /api/v1/stores entry and asserts the store object's key set equals exactly [database, host, location, name, port].",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1493,
+                "end": 1512
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.604203177Z",
+          "seal": {
+            "by": "server",
+            "mac": "9769204781efcf9654a4650cc98c853576d49869d0a5cab5751d56d20e9f64a6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "StorePlace has only the location fields, shared with StoreView; test compares values and exact key set.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4444",
+            "EVD-4445"
+          ],
+          "recorded_at": "2026-11-28T09:35:47.447038432Z",
+          "seal": {
+            "by": "server",
+            "mac": "48d11d4cf4b545d68d4fb8f1c04f072402178a5ba7f6e4c0ac719bf43c0f3cbd"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:47.447038432Z",
+      "seal": {
+        "by": "server",
+        "mac": "66f58410ff99219d56b00dcdb94bad5bb119066aa82a5b7d487e74b3f6c7e6ca"
+      }
+    },
+    {
+      "id": "CLM-2554",
+      "statement": "A key below admin and a provisioner key get no `store` key at all (not even null) from GET and POST /api/v1/catalogs.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "test",
+      "source": "PR body: \"A key below admin, and a provisioner key, get no `store` key at all (not even null), so their answer is unchanged.\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4446",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:99-107 (serde skip_serializing_if Option::is_none), 319-322 (places_for)",
+          "summary": "store is Option with skip_serializing_if is_none, so None omits the key; places_for returns None unless may_see_stores.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 98,
+                "end": 108
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.762231812Z",
+          "seal": {
+            "by": "server",
+            "mac": "43eb5683631c685f2c77e224501d00a134814adf6d47a2cf106d383a84c51227"
+          }
+        },
+        {
+          "id": "EVD-4447",
+          "kind": "test",
+          "locator": "catalogs.rs test an_admin_sees_each_catalogs_store_and_no_one_else_does (not re-run by me)",
+          "summary": "Asserts read and write keys' list has no store key (get is None, key set lacks it), and a provisioner's POST answer has no store key (by_provisioner.get(\\\"store\\\").is_none()). The provisioner GET listing is not exercised; GET /api/v1/catalogs is not on the provisioner route list as far as I saw, so it would be refused anyway.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1514,
+                "end": 1527
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:46.922551774Z",
+          "seal": {
+            "by": "server",
+            "mac": "21c083574cc0b4507955a68501cc0284de32521a7edc2dd3a04dc1891a33afef"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Option with skip_serializing_if omits the key; test covers read, write and provisioner POST. Provisioner GET listing is untested but the route is not on the provisioner allow-list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4446",
+            "EVD-4447"
+          ],
+          "recorded_at": "2026-11-28T09:35:47.598874878Z",
+          "seal": {
+            "by": "server",
+            "mac": "62b09ae728a7dd0e11c8c5c884150b05a215b9f31e8d221c0d6b06c22980a69d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:47.598874878Z",
+      "seal": {
+        "by": "server",
+        "mac": "db84786f4222b8c86b05b4b5672a6b75741cefc11bb1b5068ff0f45220a8ddec"
+      }
+    },
+    {
+      "id": "CLM-2555",
+      "statement": "The store audience matches GET /api/v1/stores: access of admin or above and not a provisioner, because GET /api/v1/stores is not on the provisioner allow-list.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 4,
+      "verification_method": "analysis",
+      "source": "PR body: \"The audience matches `GET /api/v1/stores`: an admin access level, and not a provisioner (that route is not on the provisioner allow-list).\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/stores.rs",
+        "src/http/api/mod.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4448",
+          "kind": "inspection",
+          "locator": "src/http/api/stores.rs:96-98; src/http/api/mod.rs:274-312",
+          "summary": "may_see_stores = principal.access >= Access::Admin && !principal.provisioner. Searching PROVISIONER_ROUTES shows no /api/v1/stores entry (POST /api/v1/catalogs is listed).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/stores.rs",
+              "lines": {
+                "start": 94,
+                "end": 98
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:47.079101524Z",
+          "seal": {
+            "by": "server",
+            "mac": "518acee3c5ac17c424c499fa3fa2f60f2ae7a3e9d662defb6b45f6cd5056b103"
+          }
+        },
+        {
+          "id": "EVD-4449",
+          "kind": "analysis",
+          "locator": "git grep stores in PROVISIONER_ROUTES (src/http/api/mod.rs:274-312)",
+          "summary": "No line between 274 and 312 names a stores route (0 matches), so provisioner_gate refuses GET /api/v1/stores for provisioners.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\"/api/v1/stores",
+              "scope": [
+                "src/http/api/mod.rs"
+              ],
+              "hits": 0,
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:34:47.230219937Z",
+          "seal": {
+            "by": "server",
+            "mac": "3afdbc5a0c3e06ee1930fa70756a53c96bf3b4617a9ac9944610f7e1ea0f9734"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "may_see_stores is admin-and-not-provisioner; zero stores routes on the provisioner allow-list.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4448",
+            "EVD-4449"
+          ],
+          "recorded_at": "2026-11-28T09:35:47.740714663Z",
+          "seal": {
+            "by": "server",
+            "mac": "9a32e05bc56b341c6418906cb4f6490cd0afe6f2977a2cbd96d9cfc52b541c05"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:47.740714663Z",
+      "seal": {
+        "by": "server",
+        "mac": "431136ad04bd4596447da063ca1cb7545fcdbd63b0bdba6e113f7bb6852af000"
+      }
+    },
+    {
+      "id": "CLM-2556",
+      "statement": "GET /api/v1/catalogs keeps `unavailable` a list of ids and adds `unavailable_stores`, a map from each such id to its store name, for admins only, absent when empty and for other callers.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"Admins also get `unavailable_stores`, a map from each such id to its store name (absent when empty and for other callers).\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4450",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:191-196,349-364",
+          "summary": "unavailable_stores is a BTreeMap skipped when empty; filled only when places.is_some() (admin), from page rows whose name is in unavailable; unavailable stays Vec<String>.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 348,
+                "end": 366
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:06.351061872Z",
+          "seal": {
+            "by": "server",
+            "mac": "60114b40046f942a9076ae1ad5d1740f84815ac6c81f7fa4e18484f24ab74fd5"
+          }
+        },
+        {
+          "id": "EVD-4451",
+          "kind": "test",
+          "locator": "catalogs.rs test an_unavailable_catalog_is_named_by_store_for_an_admin_only (not re-run by me)",
+          "summary": "With store-b unreachable: root sees unavailable [remote] and unavailable_stores {remote: store-b}; reader sees unavailable but no unavailable_stores key. Absent-when-empty is by skip_serializing_if, not tested directly.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1527,
+                "end": 1560
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:06.502401296Z",
+          "seal": {
+            "by": "server",
+            "mac": "049d5bf3eaffc9e38c4469c46bdafd79b36569b3a70a8f1ef8d9dc4ed2a12c76"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and test agree with the claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4450",
+            "EVD-4451"
+          ],
+          "recorded_at": "2026-11-28T09:35:47.894063364Z",
+          "seal": {
+            "by": "server",
+            "mac": "029069c00601d5bdf1e24024a43bb1fe548f27d1c46239de833adfb0f19fc553"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:47.894063364Z",
+      "seal": {
+        "by": "server",
+        "mac": "3322ab3a2048aff813bbaaea852619cacbe1968be8d3e76e5c3b96d59a4f53f6"
+      }
+    },
+    {
+      "id": "CLM-2557",
+      "statement": "GET /api/v1/stores entries gain `catalogs`, the number of provisioned, undeleted catalogs the store holds.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`GET /api/v1/stores` entries gain `catalogs`: the number of provisioned, undeleted catalogs the store holds\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/store/stores.rs",
+        "src/http/api/stores.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4452",
+          "kind": "inspection",
+          "locator": "src/store/stores.rs:248-255",
+          "summary": "Subquery counts catalogs c where c.store = s.name AND provisioned_at IS NOT NULL AND deleted_at IS NULL; carried through StoreSummary.catalogs into StoreView.catalogs (stores.rs:139,150-171).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/stores.rs",
+              "lines": {
+                "start": 246,
+                "end": 257
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:06.678922988Z",
+          "seal": {
+            "by": "server",
+            "mac": "d955a0bb15fa0e06ffce4cc0ed5cc1c7297d682e47808384ead7e18c577d398e"
+          }
+        },
+        {
+          "id": "EVD-4453",
+          "kind": "test",
+          "locator": "catalogs.rs test the_stores_list_counts_each_stores_catalogs (not re-run by me)",
+          "summary": "Asserts main has 2 and store-b has 1. It does not cover a half-created or deleted catalog being excluded; that rests on the SQL filter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1561,
+                "end": 1584
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:06.838164396Z",
+          "seal": {
+            "by": "server",
+            "mac": "bddc261aa4a054ab6689fe33908fb31a41c59024a5f2b135d88b5770f0227e8a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "SQL filters provisioned and undeleted; test checks counts 2 and 1.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4452",
+            "EVD-4453"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.043234192Z",
+          "seal": {
+            "by": "server",
+            "mac": "3a85f3623380e3abd2468f9357b402ba938ab01a792ea156a5335b1ab48ae6c9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.043234192Z",
+      "seal": {
+        "by": "server",
+        "mac": "55f0ea07eeb48129018a6e5fde54e6f2ec5c7546941505802a4c86699075cbf6"
+      }
+    },
+    {
+      "id": "CLM-2558",
+      "statement": "For an admin the Catalogs page has a sortable Store column whose tooltip is the location (`account database` or `host:port/database`); a key below admin sees no Store column.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"a sortable Store column with the location (`account database` or `host:port/database`) as its tooltip\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4454",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:31-35,62-66",
+          "summary": "Column added only when admin; sort by store name; title = storeLocation (account database or host:port/database).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 31,
+                "end": 66
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:06.999864972Z",
+          "seal": {
+            "by": "server",
+            "mac": "60a95f9c74dd6168d3a1eeae7cbd07b9046c5c1121fe20931c262461fb3c8ccd"
+          }
+        },
+        {
+          "id": "EVD-4455",
+          "kind": "test",
+          "locator": "tests/ui_e2e/catalogs.rs an_admin_sees_which_store_each_catalog_is_on (not re-run by me)",
+          "summary": "Asserts text and title attribute for main (account database) and alpha (host:port/database), and that a read key has no [data-test=catalog-store-main]. Sorting is not exercised by any test; it rests on the sort callback.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1519,
+                "end": 1542
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:07.160701135Z",
+          "seal": {
+            "by": "server",
+            "mac": "3b302dc8e67d696ddecc2951e5e78e5f92add113e24c44226aa0ccadebd20f8c"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Column, sort and tooltip in code; e2e asserts text, title and absence for a read key. Sorting itself is untested.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4454",
+            "EVD-4455"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.195619449Z",
+          "seal": {
+            "by": "server",
+            "mac": "118c8f0728089525ff00147fffdd97e36193f4b6905a1e530cf183e400021cb4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.195619449Z",
+      "seal": {
+        "by": "server",
+        "mac": "6a1c359ec9ac0bc05339bb0c72003fcef877c39e9ad240d64e45bf531800227c"
+      }
+    },
+    {
+      "id": "CLM-2559",
+      "statement": "The Catalogs page has a Store filter (admin only) that narrows the rows to one store.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"a Store filter\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4457",
+          "kind": "test",
+          "locator": "tests/ui_e2e/catalogs.rs an_admin_sees_which_store_each_catalog_is_on (not re-run by me); catalogs.js:73-97",
+          "summary": "Selects acme in #catalogs-store-filter: main hidden, alpha present; selects All: main visible again. Reader session asserts no filter element.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1520,
+                "end": 1543
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.027776579Z",
+          "seal": {
+            "by": "server",
+            "mac": "40cfd7271cf437d5d1d4a10b998ffd396017a30e030641ae59e0763645924bdb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "e2e drives the filter both ways.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4457"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.336450952Z",
+          "seal": {
+            "by": "server",
+            "mac": "88fec10d4ee14258b11eca4f5b56e0cf31045faffdf4c0e3995b2680bd339801"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.336450952Z",
+      "seal": {
+        "by": "server",
+        "mac": "7d98c10112c12ed3902adb0a3194b7c202a5d5724ead213696561e6e24d51743"
+      }
+    },
+    {
+      "id": "CLM-2560",
+      "statement": "The catalog drawer has a Store section showing the store and its location.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"a Store section in the catalog drawer\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js",
+        "tests/ui_e2e/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4458",
+          "kind": "test",
+          "locator": "tests/ui_e2e/catalogs.rs an_admin_sees_which_store_each_catalog_is_on (not re-run by me); catalogs.js:696-705,323",
+          "summary": "Clicking alpha's row opens the drawer; #catalog-store-name waits for acme and #catalog-store-location equals host:port/database. storeSection is passed to ticket.open.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/catalogs.rs",
+              "lines": {
+                "start": 1520,
+                "end": 1543
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.170785767Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe18cb7a32ba3a87e75263842cfc99d8e8aa8c2a3065b4bca2b03a23740f53f2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "e2e asserts drawer store name and location.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4458"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.476904153Z",
+          "seal": {
+            "by": "server",
+            "mac": "cfde307aa9398475ac73515bdea3f5251dea9594177e4bc848d1ccfb4951356f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.476904153Z",
+      "seal": {
+        "by": "server",
+        "mac": "8777a8094845f376b005c851514d2b8e1e10b8e59f2faebb42acba338252c60e"
+      }
+    },
+    {
+      "id": "CLM-2561",
+      "statement": "The Catalogs page shows a notice naming each unreachable store and its left-out catalogs.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "PR body: \"a notice naming each unreachable store and its left-out catalogs\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4456",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:98-116,168-172,197-201,399",
+          "summary": "downNote is filled from unavailable_stores on first page and on continuation, grouped by store: \\\"Store X cannot be reached; left out: a, b.\\\" and inserted into the page. No UI test drives it (the e2e test does not make a store unreachable); the API side is tested by the unavailable_stores test.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 98,
+                "end": 116
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:07.531403012Z",
+          "seal": {
+            "by": "server",
+            "mac": "022e0c8fb32a0241028276282074cf53b508010a346aef330bfb0ba6b6a06258"
+          }
+        },
+        {
+          "id": "EVD-4459",
+          "kind": "inspection",
+          "locator": "catalogs.js:98-116 and calls at 168-172, 197-201",
+          "summary": "drawDown groups down-map entries by store and writes one sentence per store naming the store and its sorted catalogs; noteDown feeds it from answer.unavailable_stores on both first page and continuation; downNote is in the page layout. Code reading only; no UI test.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 100,
+                "end": 117
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.314126947Z",
+          "seal": {
+            "by": "server",
+            "mac": "6fe0c065f8577b9e58688a0f11465c041060a64f27b3fb4b2c44964b712ce5b6"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows the notice is built and shown as described; no UI test exercises it (I did not demonstrate it running).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4459"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.629429011Z",
+          "seal": {
+            "by": "server",
+            "mac": "115f77c1e93f9fd6c9e8d7263266ebb14c76475409404419e4c9b8cdbc913c1e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.629429011Z",
+      "seal": {
+        "by": "server",
+        "mac": "e786fbcf4284bbb85922b0af727dc3728e4e67a46e7e1bfaee823aec70a4a101"
+      }
+    },
+    {
+      "id": "CLM-2562",
+      "statement": "All store values on the Catalogs page are set as text, never as markup.",
+      "kind": "security",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"All values are set as text, never as markup.\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4460",
+          "kind": "analysis",
+          "locator": "catalogs.js:31-35,60-66,89-95,106-110,698-705; core/dom.js:19-29",
+          "summary": "Store name, location and catalog names go through h() children (el.append of text nodes) or textContent; h() sets attributes (title) via setAttribute. Store-related innerHTML uses: none.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "innerHTML|insertAdjacentHTML|outerHTML",
+              "scope": [
+                "src/http/ui/js/pages/catalogs.js"
+              ],
+              "hits": 0,
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.462167201Z",
+          "seal": {
+            "by": "server",
+            "mac": "4705a35fe2a081e522cb0383f416378cd70362eb4831bae22ec4b49fa32261e1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Zero HTML-injection sinks in the file; values go through text nodes, textContent or setAttribute.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4460"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.770660675Z",
+          "seal": {
+            "by": "server",
+            "mac": "013601729b010230246e846823e7d76388f5139efb72c752a6167ae226ac8eef"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.770660675Z",
+      "seal": {
+        "by": "server",
+        "mac": "f0c6f387653d3d138f98a302948292dff8b5bfa0e4f70f5e67af67f748b21cce"
+      }
+    },
+    {
+      "id": "CLM-2563",
+      "statement": "`okf-mcp catalog list` prints `store NAME` after the owner column, with the description last.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"`okf-mcp catalog list` prints `store NAME` after the owner column (description stays last).\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/cli.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4461",
+          "kind": "test",
+          "locator": "cargo test cli::tests::catalog_list_columns_have_the_documented_order (not re-run by me); src/cli.rs:1816-1825",
+          "summary": "format_catalog emits name, generation, owner, `store S`, description. Test asserts \\\"pg\\\\tgeneration 3\\\\towner family\\\\tstore main\\\\tNotes\\\\tand more\\\", the legacy owner - row, and a store-b catalog.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/cli.rs",
+              "lines": {
+                "start": 1816,
+                "end": 1825
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.606955915Z",
+          "seal": {
+            "by": "server",
+            "mac": "e0e0f86e2e0b227524ea62d1d9342a2f85bece8a6c54f8eecd80b5f6a79f38ab"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "format_catalog and its unit test agree with the claim.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4461"
+          ],
+          "recorded_at": "2026-11-28T09:35:48.910248173Z",
+          "seal": {
+            "by": "server",
+            "mac": "1121bd94f78f10bb3b428a432159f1247d848403bd694610afc8b931a3cb7589"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:48.910248173Z",
+      "seal": {
+        "by": "server",
+        "mac": "ac9aaf00566e3670d7e369b29987dd78f2d7542ad63f1a8212002ca7e6928158"
+      }
+    },
+    {
+      "id": "CLM-2564",
+      "statement": "docs/operations.md has a new \"Which store a catalog is on\" section and updated API tables, CLI listing and Web console text, and a changelog entry exists.",
+      "kind": "documentation",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Docs: `docs/operations.md` (new \\\"Which store a catalog is on\\\" section, API tables, CLI listing, Web console) and a changelog entry.\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "docs/operations.md",
+        "changelog/20261128T092600Z-issue-1030-catalog-store-shown.md"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4462",
+          "kind": "inspection",
+          "locator": "docs/operations.md:508 (new section), 616-622, 2098-2101, 4437, 4698, Web console paragraph; changelog/20261128T092600Z-issue-1030-catalog-store-shown.md",
+          "summary": "All named docs places are present and describe the implemented behavior. Minor typo: the GET /catalogs table row lacks a comma before `maintenance`; the CLI listing line is overlong.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/operations.md",
+              "lines": {
+                "start": 508,
+                "end": 530
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.752251961Z",
+          "seal": {
+            "by": "server",
+            "mac": "333222bc04c6d8e7e659f55f52d5726729fba237dbcb664e2df0eb4861b6d307"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every named docs location exists and matches the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4462"
+          ],
+          "recorded_at": "2026-11-28T09:35:49.060810155Z",
+          "seal": {
+            "by": "server",
+            "mac": "894b8bcf955d67645e04df04f2ca2985a6b93212e698d3f91d69399135e81d5a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:49.060810155Z",
+      "seal": {
+        "by": "server",
+        "mac": "56d9e3ebd653793a98546818c34a581e42fb110c498653e161d5b5b9652a79e0"
+      }
+    },
+    {
+      "id": "CLM-2565",
+      "statement": "The display is read-only: no console or CLI control changes a catalog's store.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"The display is read-only, because a catalog's store is fixed when it is created.\"",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/catalogs.js"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4463",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/catalogs.js:696-705",
+          "summary": "storeSection renders text and a note only (no input, select or button); the diff adds no API route or CLI subcommand touching catalogs.store; the filter is a view filter only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/catalogs.js",
+              "lines": {
+                "start": 696,
+                "end": 705
+              },
+              "commit": "0642ae34cf1453fdc198b441f8889ef4f57e1a6a"
+            }
+          },
+          "recorded_at": "2026-11-28T09:35:24.898878590Z",
+          "seal": {
+            "by": "server",
+            "mac": "415056f0d24f293b1002150e11a5734ce9fb8e914f9b8e2afa07f5af2122541f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "No editing control or route exists in the diff.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4463"
+          ],
+          "recorded_at": "2026-11-28T09:35:49.211936119Z",
+          "seal": {
+            "by": "server",
+            "mac": "8be03b811f63f754d1915aa341c665f215622fcbd9fc64231b633d52944c72ce"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T09:34:18.617178110Z",
+      "updated_at": "2026-11-28T09:35:49.211936119Z",
+      "seal": {
+        "by": "server",
+        "mac": "0a2cf288bab71cdb1a82b4a4c8ceb8bec59584829d5c919ae16de6a4e741348a"
       }
     }
   ]

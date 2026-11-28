@@ -137,9 +137,21 @@ newest_log_time() {
 # command (never its output or arguments), and returns 124. A command that fails
 # returns its status with its output stored; it warns too unless -q is given
 # (for calls whose failure is expected, such as a recheck of a process that has
-# gone).
+# gone). INT and TERM follow lib.sh's "Signals" invariant from the first step
+# (the budget included): 130 or 143 when the caller's own handler returned,
+# with nothing launched or stored after the signal.
 bounded_capture() {
-    local bc_quiet=0 bc_in=/dev/null bc_status=0
+    local bc_exit=0
+    agentic_cap_begin
+    bounded_capture_steps "$@" || bc_exit=$?
+    agentic_cap_finish "$bc_exit"
+}
+
+# bounded_capture_steps: the body of bounded_capture, between agentic_cap_begin
+# and agentic_cap_finish (lib.sh). Returns early, to that exit, at the first
+# check that finds a signal recorded.
+bounded_capture_steps() {
+    local bc_quiet=0 bc_in=/dev/null bc_status=0 bc_budget bc_file
     while :; do
         case "$1" in
             -q) bc_quiet=1; shift ;;
@@ -147,26 +159,24 @@ bounded_capture() {
             *) break ;;
         esac
     done
-    agentic_cap_files=()
-    # Installed before the temp file exists, so a signal can't leave it behind.
-    trap 'agentic_cap_cleanup INT' INT
-    trap 'agentic_cap_cleanup TERM' TERM
-    local bc_file
-    bc_file=$(mktemp "${TMPDIR:-/tmp}/watchdog-call.XXXXXX") || { agentic_cap_cleanup; return 1; }
-    agentic_cap_files+=("$bc_file")
-    agentic_capture_supervise "$(agentic_call_budget)" "$bc_in" "$bc_file" /dev/null "${@:2}" \
+    agentic_cap_live || return
+    bc_budget=$(agentic_call_budget)
+    agentic_cap_mktemp bc_file "${TMPDIR:-/tmp}/watchdog-call.XXXXXX" || return
+    agentic_capture_supervise "$bc_budget" "$bc_in" "$bc_file" /dev/null "${@:2}" \
         || bc_status=$?
     [ -z "$agentic_cap_left" ] \
-        || echo "watchdog: warning: $2 call exited leaving processes behind; $agentic_cap_left" >&2
+        || agentic_cap_say "watchdog: warning: $2 call exited leaving processes behind;" \
+            "$agentic_cap_left" || return
     if [ "$bc_status" -eq 124 ]; then
-        agentic_cap_cleanup
-        echo "watchdog: warning: $2 call $agentic_cap_reason (status 124); skipping it" >&2
+        agentic_cap_say "watchdog: warning: $2 call $agentic_cap_reason (status 124);" \
+            "skipping it" || return
         return 124
     fi
+    agentic_cap_live || return
     printf -v "$1" '%s' "$(<"$bc_file")"
-    agentic_cap_cleanup
     if [ "$bc_status" -ne 0 ] && [ "$bc_quiet" = 0 ]; then
-        echo "watchdog: warning: $2 call $agentic_cap_reason (status $bc_status); skipping it" >&2
+        agentic_cap_say "watchdog: warning: $2 call $agentic_cap_reason" \
+            "(status $bc_status); skipping it" || return
     fi
     return "$bc_status"
 }

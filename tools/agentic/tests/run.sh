@@ -933,6 +933,402 @@ test_watchdog_abandons_a_find_it_cannot_stop() {
     watch_abandoning find
 }
 
+# slow_mktemp_stub: a stub `mktemp` that records that it started in
+# $fx/mktemp-started, sleeps 1 s and then runs the real mktemp, so a signal can
+# be sent while it runs (#1193). Sets up $fx/tmp, the TMPDIR of the test.
+slow_mktemp_stub() {
+    local real
+    real=$(command -v mktemp)
+    mkdir -p "$fx/bin" "$fx/tmp"
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/mktemp-started\"" 'sleep 1' \
+        "exec $real \"\$@\"" >"$fx/bin/mktemp"
+    chmod +x "$fx/bin/mktemp"
+}
+
+# term_during_mktemp <pid>: waits (up to 10 s) for the stub mktemp to start, sends
+# TERM to <pid> while it sleeps, and waits (up to 10 s) for <pid> to end. The
+# stub's marker file is the signal: no fixed sleep decides when TERM is sent.
+term_during_mktemp() {
+    local tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/mktemp-started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/mktemp-started" ] || die "the stub mktemp never started"
+    kill -TERM "$1"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$1" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$1" 2>/dev/null && { kill -KILL "$1"; die "TERM did not stop it"; }
+    wait "$1" 2>/dev/null
+    return 0
+}
+
+test_watchdog_leaves_no_temp_file_when_termed_during_mktemp() {
+    # #1193: a TERM that arrives while a call's `mktemp` runs must not leave the
+    # temp file behind (the file was created but not yet registered for cleanup).
+    new_fixtures; printf '%s\n' "693000.50 1.00" >"$fx/uptime"
+    slow_mktemp_stub
+    (cd "$work/wt" && PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" AGENTIC_UPTIME_FILE="$fx/uptime" \
+        exec "$tools/watchdog.sh" >"$fx/watchdog.out" 2>&1) &
+    term_during_mktemp "$!"
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+}
+
+test_run_captured_leaves_no_temp_file_when_termed_during_mktemp() {
+    # #1193: the same for agentic_run_captured, which makes two temp files.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c \
+        'source "$1/lib.sh"; agentic_run_captured 5 true' _ "$tools") >/dev/null 2>&1 &
+    term_during_mktemp "$!"
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+}
+
+test_run_captured_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): a caller whose TERM handler returns must get 143 back, with
+    # the command never launched, no temp file left and its trap still installed.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_captured 5 touch "$2"; echo "rc=$?"; trap -p TERM' \
+        _ "$tools" "$fx/launched" >"$fx/rc.out" 2>&1) &
+    term_during_mktemp "$!"
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+test_run_captured_aborts_when_a_signal_arrives_during_the_copy_out() {
+    # #1193 (re-audit): a TERM while the captured output is being copied out
+    # (a stub `cat` that waits for the test) is not lost: 143, handler ran, the
+    # caller's trap kept.
+    new_fixtures; mkdir -p "$fx/bin" "$fx/tmp"
+    local real; real=$(command -v cat)
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/cat-started\"" \
+        "i=0; while [ ! -e \"$fx/release\" ] && [ \$i -lt 100 ]; do sleep 0.1; i=\$((i + 1)); done" \
+        "exec $real \"\$@\"" >"$fx/bin/cat"
+    chmod +x "$fx/bin/cat"
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_captured 5 true; echo "rc=$?"; trap -p TERM' _ "$tools" \
+        >"$fx/rc.out" 2>&1) &
+    local pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/cat-started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/cat-started" ] || { kill -KILL "$pid"; die "the copy-out never started"; }
+    kill -TERM "$pid"
+    : >"$fx/release"
+    wait "$pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+# term_after_stop_begins <script>: runs <script> (bash -c; $1=tools, $2 and $3
+# files) in the background. Its command leaves a TERM-ignoring child behind, so
+# the stop after the wait takes a while. Waits until the command's leader is gone,
+# i.e. until that stop has begun, then sends TERM, and stops the leftover by its
+# recorded pid. Sets out from the script's output.
+term_after_stop_begins() {
+    local pid tick leader
+    (exec bash -c "$1" _ "$tools" "$fx/leftover" "$fx/leader.pid" "${2:-}" >"$fx/rc.out" 2>&1) &
+    pid=$!
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -s "$fx/leader.pid" ] && [ -s "$fx/leftover" ] && break
+        sleep 0.1
+    done
+    [ -s "$fx/leftover" ] || { kill -KILL "$pid"; die "the command never started"; }
+    leader=$(<"$fx/leader.pid")
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "/proc/$leader" ] || break
+        sleep 0.05
+    done
+    kill -TERM "$pid"
+    wait "$pid" 2>/dev/null
+    kill -KILL "$(<"$fx/leftover")" 2>/dev/null
+    out=$(<"$fx/rc.out")
+}
+
+# The command: starts a child that ignores TERM and outlives it, records the
+# leader's and the child's pids, and ends at once.
+leftover_cmd='bash -c '"'"'echo $$ >"$2"; (trap "" TERM; echo $BASHPID >"$1"; exec sleep 30) & exit 0'"'"' _'
+
+test_run_bounded_aborts_when_term_arrives_while_stopping_leftovers() {
+    # #1193 (review round 2): the stop after the wait is a window too.
+    new_fixtures
+    term_after_stop_begins 'set -u; source "$1/lib.sh"; agentic_kill_after=2
+        trap "echo handled" TERM
+        agentic_run_bounded 30 '"$leftover_cmd"' "$2" "$3"; echo "rc=$?"; trap -p TERM'
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+test_bounded_capture_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): the watchdog's bounded_capture (its function is cut out of
+    # watchdog.sh, which can't be sourced) returns 143 the same way.
+    new_fixtures
+    slow_mktemp_stub
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
+        trap "echo handled" TERM
+        bounded_capture result touch "$2"; echo "rc=$?"; trap -p TERM' \
+        _ "$tools" "$fx/launched" >"$fx/rc.out" 2>&1) &
+    term_during_mktemp "$!"
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+# block_stub <path> <marker> <command>: an executable <path> that creates
+# $fx/<marker>, waits (up to 10 s) for $fx/release and then runs <command>, so
+# a test can send a signal at a known step (#1193).
+block_stub() {
+    mkdir -p "$(dirname "$1")"
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/$2\"" \
+        "i=0; while [ ! -e \"$fx/release\" ] && [ \$i -lt 100 ]; do sleep 0.1; i=\$((i + 1)); done" \
+        "$3" >"$1"
+    chmod +x "$1"
+}
+
+# term_at <ready> <call> [INT]: runs <call> in a caller shell (set -u, lib.sh
+# and watchdog.sh's bounded_capture sourced, a TERM (or INT) handler that
+# returns, $fx/bin first on PATH, TMPDIR=$fx/tmp; $2 is $fx in <call>). Once the
+# test-side condition <ready> holds (up to 10 s), sends the signal, releases the
+# stubs and waits (up to 10 s) for the shell. Sets out to its output and checks
+# 143 (130), the handler ran, the trap is kept and no temp file is left.
+term_at() {
+    local pid tick sig=${3:-TERM} want=143
+    [ "$sig" = TERM ] || want=130
+    mkdir -p "$fx/bin" "$fx/tmp"
+    # With job control on (set -m) the background shell does not start with INT
+    # ignored, so its INT trap can be installed.
+    [ "$sig" = TERM ] || set -m
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
+        trap "echo handled" '"$sig"'
+        '"$2"'; echo "rc=$?"; trap -p '"$sig" _ "$tools" "$fx" >"$fx/rc.out" 2>&1) &
+    pid=$!
+    set +m
+    for ((tick = 0; tick < 100; tick++)); do
+        eval "$1" && break
+        sleep 0.1
+    done
+    eval "$1" || { kill -KILL "$pid"; die "never reached the step: $1"; }
+    kill "-$sig" "$pid"
+    : >"$fx/release"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$pid" 2>/dev/null && { kill -KILL "$pid"; die "$sig did not stop it"; }
+    wait "$pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+    want_out "handled"; want_out "rc=$want"; want_out "trap -- 'echo handled' SIG$sig"
+}
+
+# term_during_budget <helper>: TERM while <helper> (bounded_capture result, or
+# agentic_bounded_call, behind agentic_gh) works out its budget on a blocked
+# clock. Nothing is launched.
+term_during_budget() {
+    new_fixtures
+    block_stub "$fx/bin/clock" clock-started 'echo 1000'
+    term_at '[ -e "$fx/clock-started" ]' 'export AGENTIC_NOW_CMD="$2/bin/clock"
+        agentic_deadline=2000; '"$1"' touch "$2/launched"'
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+}
+
+test_bounded_capture_aborts_when_termed_during_the_budget() {
+    # #1193 (review round 3): a TERM during $(agentic_call_budget), after the
+    # capture's traps are in, used to recreate the removed temp file and launch.
+    term_during_budget "bounded_capture result"
+}
+
+test_a_term_at_each_capture_step_launches_and_leaks_nothing() {
+    # #1193: the invariant across the steps the other tests don't cover. A TERM
+    # with a returning caller handler gives 143, keeps the trap, leaves no temp
+    # file; before the launch nothing starts, after it the group is stopped.
+    local helper pid
+    term_during_budget agentic_bounded_call
+    for helper in "bounded_capture result" "agentic_run_captured 30"; do
+        # While the command runs.
+        new_fixtures
+        term_at '[ -s "$fx/cmd.pid" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"'
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+        # While its leftover is being stopped: the leader is gone, a TERM-ignoring
+        # child is left.
+        new_fixtures
+        term_at '[ -s "$fx/leftover" ] && [ -s "$fx/cmd.pid" ] && [ ! -e "/proc/$(<"$fx/cmd.pid")" ]' \
+            'agentic_kill_after=1; '"$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            (trap \"\" TERM; echo \$BASHPID >\"\$1/leftover\"; exec sleep 30) & exit 0" _ "$2"'
+        pid=$(<"$fx/leftover")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the leftover running"; }
+    done
+}
+
+test_a_term_before_the_group_exists_stops_the_command() {
+    # #1193 (audit): a TERM that lands just after the launch, before the leader
+    # has called setsid() (a stub setsid that waits), used to find no group to
+    # stop and leave the command running. Each helper stops it once it starts.
+    local helper pid real
+    real=$(command -v setsid)
+    for helper in "bounded_capture result" "agentic_run_captured 30" "agentic_run_bounded 30"; do
+        new_fixtures
+        block_stub "$fx/bin/setsid" setsid-started "exec $real \"\$@\""
+        term_at '[ -e "$fx/setsid-started" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"'
+        [ -s "$fx/cmd.pid" ] || continue
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+    done
+}
+
+test_the_helpers_clean_up_under_a_callers_set_e() {
+    # #1193 (audit): under `set -e` a failing command must still go through the
+    # one exit: temp files removed, the caller's trap back, then the shell ends.
+    local call
+    for call in "agentic_run_captured 5" "agentic_bounded_call" "bounded_capture result" \
+        "agentic_run_bounded 5"; do
+        new_fixtures; mkdir -p "$fx/tmp"
+        rc=0
+        out=$(TMPDIR="$fx/tmp" bash -c 'set -euo pipefail; source "$1/lib.sh"
+            source <(sed -n "/^bounded_capture\(_steps\)\{0,1\}() {/,/^}/p" "$1/watchdog.sh")
+            trap "echo mine" TERM; trap "trap -p TERM" EXIT
+            '"$call"' bash -c "exit 3"; echo not-reached' _ "$tools" 2>&1) || rc=$?
+        want_rc 3; want_no_out "not-reached"; want_out "trap -- 'echo mine' SIGTERM"
+        [ -z "$(ls -A "$fx/tmp")" ] || die "$call left a temp file: $(ls -A "$fx/tmp")"
+    done
+}
+
+test_an_int_with_a_returning_handler_gives_130() {
+    # #1193: INT takes the same path as TERM: before the launch (the budget) and
+    # while the command runs, for a capture and for agentic_run_bounded.
+    local helper pid
+    new_fixtures
+    block_stub "$fx/bin/clock" clock-started 'echo 1000'
+    term_at '[ -e "$fx/clock-started" ]' 'export AGENTIC_NOW_CMD="$2/bin/clock"
+        agentic_deadline=2000; agentic_bounded_call touch "$2/launched"' INT
+    [ ! -e "$fx/launched" ] || die "the command was launched"
+    for helper in "agentic_run_captured 30" "agentic_run_bounded 30"; do
+        new_fixtures
+        term_at '[ -s "$fx/cmd.pid" ]' "$helper"' bash -c "echo \$\$ >\"\$1/cmd.pid\"
+            exec sleep 30" _ "$2"' INT
+        pid=$(<"$fx/cmd.pid")
+        [ ! -e "/proc/$pid" ] || { kill -KILL "$pid"; die "$helper left the command running"; }
+    done
+}
+
+# sweep <region> <points> <call>: the signal sweep of lib.sh's "Signals"
+# invariant (#1193) over one helper, through tests/signal-sweep.sh: a first
+# run of <call> lists the statements of the functions in <points> that run,
+# then one run per statement sends TERM right before it. Each run must give
+# 143 with the caller's handler run and kept, leave no temp file, and run no
+# wrapped command (an external one, or echo; as a statement or from one) after
+# the statement the signal landed before, except the undoing
+# (agentic_stop_group, agentic_cap_finish).
+# A statement a run does not reach (the timing changed the path) is skipped.
+# What ran after a signal is added to sweep_bad, so one run lists every gap.
+sweep() {
+    local point log hit=0 bad
+    mkdir -p "$fx/bin" "$fx/tmp"
+    sweep_run() {
+        PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" bash "$tools/tests/signal-sweep.sh" \
+            "$tools" "$1" "$region" "$points" "$call" "${2:-}" 2>&1
+    }
+    local region=$1 points=$2 call=$3
+    out=$(sweep_run "$fx/points")
+    [ -s "$fx/points" ] || die "the sweep of $region listed no statements"
+    for point in $(awk '!seen[$0]++' "$fx/points"); do
+        log="$fx/sweep.log"
+        : >"$log"
+        out=$(sweep_run "$log" "$point")
+        grep -q '^INJECT' "$log" || continue
+        hit=$((hit + 1))
+        want_out "handled"; want_out "rc=143"; want_out "trap -- 'printf \"handled\\n\"' SIGTERM"
+        [ -z "$(ls -A "$fx/tmp")" ] || die "TERM before $point left $(ls -A "$fx/tmp")"
+        bad=$(awk '/^INJECT/ { n = $2; next }
+            n != "" && $1 > n && $2 ~ /^(cat|sed|tail|mktemp|rm|date|setsid|sleep|echo)$/ \
+                && $3 != "agentic_stop_group" && $3 != "agentic_cap_finish"' "$log")
+        [ -z "$bad" ] || sweep_bad+="TERM before $point ($(grep '^INJECT' "$log")) let these run:
+$bad
+"
+    done
+    [ "$hit" -gt 0 ] || die "the sweep of $region reached no statement"
+}
+
+test_a_term_before_any_statement_lets_only_that_statement_run() {
+    # #1193 (review round 4): the invariant statement by statement, for each
+    # helper on each path that writes: a leftover and a failure, a timeout, the
+    # budget's clock, and remove-worktree.sh's clean, failed and not.
+    local left='bash -c "(trap \"\" TERM; exec sleep 5) & exit 3"'
+    local bounded="agentic_run_bounded agentic_run_bounded_steps agentic_bounded_warn" clean
+    local capture="agentic_cap_live agentic_cap_mktemp agentic_cap_say agentic_capture_supervise"
+    sweep_bad=""
+    new_fixtures
+    sweep agentic_run_captured_steps "agentic_run_captured_steps $capture" \
+        "agentic_run_captured 5 $left"
+    new_fixtures
+    sweep agentic_run_captured_steps agentic_run_captured_steps "agentic_run_captured 1 sleep 5"
+    new_fixtures
+    sweep bounded_capture_steps bounded_capture_steps "bounded_capture result $left"
+    new_fixtures
+    sweep bounded_capture_steps bounded_capture_steps \
+        "AGENTIC_CALL_TIMEOUT=1 bounded_capture result sleep 5"
+    new_fixtures
+    sweep agentic_bounded_call_steps agentic_bounded_call_steps \
+        "agentic_deadline=\$((\$(date +%s) + 100)); agentic_bounded_call $left"
+    new_fixtures
+    sweep agentic_run_bounded_steps "$bounded" "agentic_run_bounded 30 $left"
+    for clean in 'echo "     Removed 3 files"' 'echo broken; exit 2'; do
+        new_fixtures
+        mkdir -p "$fx/bin"
+        printf '%s\n' '#!/usr/bin/env bash' "$clean" >"$fx/bin/cargo"
+        chmod +x "$fx/bin/cargo"
+        sweep clean_build_output_steps "clean_build_output_steps $bounded" \
+            "wt=$fx; clean_build_output"
+    done
+    out=""
+    [ -z "$sweep_bad" ] || die "$sweep_bad"
+}
+
+test_run_bounded_aborts_when_the_callers_term_handler_returns() {
+    # #1193 (review): the same for agentic_run_bounded, which must stop the group,
+    # return 143 and keep the caller's trap.
+    new_fixtures
+    (PATH="$fx/bin:$PATH" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_bounded 30 bash -c ": >\"\$1\"; exec sleep 30" _ "$2"
+        echo "rc=$?"; trap -p TERM' _ "$tools" "$fx/started" >"$fx/rc.out" 2>&1) &
+    local rb_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/started" ] || { kill -KILL "$rb_pid"; die "the command never started"; }
+    kill -TERM "$rb_pid"
+    wait "$rb_pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
+test_run_captured_puts_the_callers_traps_back() {
+    # #1193: agentic_run_captured used to clear the caller's INT and TERM traps.
+    new_fixtures; mkdir -p "$fx/tmp"
+    local trapped
+    trapped=$(TMPDIR="$fx/tmp" bash -c \
+        'source "$1/lib.sh"; trap "echo mine" TERM; agentic_run_captured 5 true; trap -p TERM' \
+        _ "$tools")
+    [ "$trapped" = "trap -- 'echo mine' SIGTERM" ] || die "the caller's TERM trap was lost: $trapped"
+}
+
 # group_stub <leader body>: a stub `ps` whose call first starts a member of its
 # own process group (no setsid) that ignores TERM and holds the call's output
 # open, recording its pid in $fx/members, and then runs <leader body>.
@@ -1723,6 +2119,28 @@ test_remove_keeps_the_worktree_when_clean_times_out() {
     [ -d "$rw_wt" ] || die "removed it"
 }
 
+test_remove_leaves_no_log_when_termed_during_the_clean() {
+    # #1193: a TERM during the bounded cargo clean must not leave its log behind.
+    new_fixtures; rw_worktree cargo; touch "$fx/cargo.hang"; mkdir -p "$fx/tmp"
+    (cd "$repo" && PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" AGENTIC_BASE_REF=main \
+        exec "$tools/remove-worktree.sh" "$rw_wt" >"$fx/rw.out" 2>&1) &
+    local rw_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/cargo.log" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/cargo.log" ] || { kill -KILL "$rw_pid"; die "the stub cargo never started"; }
+    kill -TERM "$rw_pid"
+    for ((tick = 0; tick < 100; tick++)); do
+        kill -0 "$rw_pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    kill -0 "$rw_pid" 2>/dev/null && { kill -KILL "$rw_pid"; die "TERM did not stop it"; }
+    wait "$rw_pid" 2>/dev/null
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind: $(ls -A "$fx/tmp")"
+    [ -d "$rw_wt" ] || die "removed the worktree"
+}
+
 test_remove_skips_clean_without_cargo_toml() {
     new_fixtures; rw_worktree
     run_remove "$rw_wt"
@@ -1953,6 +2371,34 @@ test_watchdog_stops_alerting_once_the_report_is_done() {
     (cd "$repo" && "$tools/expect.sh" done "$work/ex-done") >/dev/null
     expect_watchdog 1400
     want_rc 0
+}
+
+# --- agentic_run_bounded: the caller's traps (#1193) ---
+
+test_run_bounded_puts_the_callers_traps_back() {
+    new_fixtures
+    local trapped
+    trapped=$(bash -c 'source "$1/lib.sh"; trap "echo mine" TERM; agentic_run_bounded 5 true
+        trap -p TERM' _ "$tools")
+    [ "$trapped" = "trap -- 'echo mine' SIGTERM" ] || die "the caller's TERM trap was lost: $trapped"
+}
+
+test_run_bounded_hands_a_term_to_the_callers_trap() {
+    # The signal stops the group, then reaches the caller's own handler.
+    new_fixtures
+    (exec bash -c 'source "$1/lib.sh"; trap "echo caller-trap; exit 7" TERM
+        agentic_run_bounded 30 bash -c ": >\"\$1\"; exec sleep 30" _ "$2"' \
+        _ "$tools" "$fx/started" >"$fx/rb.out" 2>&1) &
+    local rb_pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/started" ] || { kill -KILL "$rb_pid"; die "the command never started"; }
+    kill -TERM "$rb_pid"
+    rc=0; wait "$rb_pid" || rc=$?
+    out=$(<"$fx/rb.out")
+    want_rc 7; want_out "caller-trap"
 }
 
 # --- agentic_run_bounded: processes that survive KILL (#948) ---

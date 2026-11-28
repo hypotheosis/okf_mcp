@@ -227,3 +227,31 @@ fn only_timeout_class_errors_pass_the_zero_timeout_check() {
     )));
     assert!(!pg::is_timeout_class(&timed_out("no such image")));
 }
+
+/// A start is retried only for a timeout or a Docker port refusal that clears
+/// on its own; a missing image or a bad request fails on the first attempt.
+#[test]
+fn only_transient_docker_start_errors_are_retried() {
+    use testcontainers_modules::testcontainers::TestcontainersError;
+
+    let other = |message: &str| TestcontainersError::other(message.to_string());
+
+    for transient in [
+        "driver failed programming external connectivity: listen tcp 0.0.0.0:32771: \
+         bind: address already in use",
+        "Bind for 0.0.0.0:32771 failed: port is already allocated",
+        "Error response from daemon: failed to program external connectivity on endpoint",
+        "request timed out",
+    ] {
+        assert!(pg::is_transient_start_error(&other(transient)), "{transient}");
+    }
+    assert!(pg::is_transient_start_error(&TestcontainersError::Io(
+        std::io::ErrorKind::TimedOut.into()
+    )));
+    for permanent in ["no such image: postgres:0", "invalid reference format", "denied"] {
+        assert!(!pg::is_transient_start_error(&other(permanent)), "{permanent}");
+    }
+    assert!(!pg::is_transient_start_error(&TestcontainersError::Io(
+        std::io::ErrorKind::NotFound.into()
+    )));
+}

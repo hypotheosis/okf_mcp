@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2624,
+  "next_claim_seq": 2639,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "b4685faec708cae14acd56545fafd222066f429b5e3faa94066b767a8982548f"
+    "mac": "358c03bcbdbeefc85cb5f3825618c5a2a468527e0c2ead0dc440f2f30e1a0519"
   },
-  "next_evidence_seq": 4561,
+  "next_evidence_seq": 4586,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "eeedd7447ea4e9a524902b923ac3b5652d3c5fb53113f41aab3a12abef4c3eb9"
+    "mac": "7f05daf64b5884cdb9213a8fb0d59a44cd9910236cca9f6d3eff4e3c7e0a09a8"
   },
   "claims": [
     {
@@ -228229,6 +228229,28 @@
             "by": "server",
             "mac": "9c725914caff9adab1c1d3677594b45af4391cec06176c6f055b80e155fc9ece"
           }
+        },
+        {
+          "id": "EVD-4582",
+          "kind": "demonstration",
+          "locator": "lib.sh:251-275 at head 1c1eb2b3; scratch TERM run (agentic_run_captured, stub mktemp)",
+          "summary": "Re-audit after the diff touched agentic_run_captured: it still cats both files after the command, cleanup rm -f's them on every path, and a TERM during mktemp now leaves TMPDIR empty (3/3 scratch runs). Test test_run_captured_leaves_no_temp_file_when_termed_during_mktemp ok in the 149-pass log.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 251,
+                "end": 275
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:15.377254891Z",
+          "seal": {
+            "by": "server",
+            "mac": "6abe5510ab8d52f81748a5d4463e00266e68100a6ed090e5a0418d924fcd7a35"
+          }
         }
       ],
       "verdicts": [
@@ -228245,13 +228267,26 @@
             "by": "server",
             "mac": "314062db7a0affd26c1f23578ec5ec87cf717b7cf53931244c4afb6b8762de22"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: still holds and now also covers the mktemp window.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4582"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.835380947Z",
+          "seal": {
+            "by": "server",
+            "mac": "afc647b5dcdf4eb3261729d6366e54171058a1acfb5cb470d21ac55339edbe8d"
+          }
         }
       ],
       "created_at": "2026-11-28T13:22:01.849278098Z",
-      "updated_at": "2026-11-28T13:23:31.062177995Z",
+      "updated_at": "2026-11-28T14:28:45.835380947Z",
       "seal": {
         "by": "server",
-        "mac": "a6a2fdd86fca388fc9b52a9ad88d72aadb4146398bfb6f75a1521d7c5e45438a"
+        "mac": "4360b1ca8af3bb6dc6ae8d2be8314560160483dfe34be30a25825c42344112b3"
       }
     },
     {
@@ -228367,6 +228402,28 @@
             "by": "server",
             "mac": "764b5c23251c8f598eb64763b040274f43d3000207f526be7cd0ef45a88e795e"
           }
+        },
+        {
+          "id": "EVD-4583",
+          "kind": "inspection",
+          "locator": "tools/agentic/watchdog.sh:148-165 at head 1c1eb2b3",
+          "summary": "Re-audit: bounded_capture still calls agentic_capture_supervise (line 155); the diff in watchdog.sh only replaces the trap/mktemp lines with agentic_cap_begin/agentic_cap_mktemp.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 148,
+                "end": 165
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:15.542314036Z",
+          "seal": {
+            "by": "server",
+            "mac": "d6917933211ebef61672830fa098bd1a501df9701c07a5b709e13d9e4e5bbaa7"
+          }
         }
       ],
       "verdicts": [
@@ -228382,13 +228439,26 @@
             "by": "server",
             "mac": "df0006533af0bd31b3c9fe23c5e9457691357fa69ed7de5b5f296cdc39ce71b1"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: bounded_capture still calls agentic_capture_supervise.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4583"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.999692929Z",
+          "seal": {
+            "by": "server",
+            "mac": "e193191a372e6008caf0b8fe42cf7584572e6aedf0a21b1881d9bd77c07d7747"
+          }
         }
       ],
       "created_at": "2026-11-28T13:22:01.849278098Z",
-      "updated_at": "2026-11-28T13:23:31.425236671Z",
+      "updated_at": "2026-11-28T14:28:45.999692929Z",
       "seal": {
         "by": "server",
-        "mac": "97aa20b7dbbd9c9b19bb019168b448b27d54a61843a2be0cdd1ad46836cb3a56"
+        "mac": "3cfb64e49f53679726f536b186536a7c5b04ad05afecf897bb077e7d4d55202c"
       }
     },
     {
@@ -228433,6 +228503,28 @@
             "by": "server",
             "mac": "e7e2446483e9381794798d973ff4cd82a4291dc08cb1eeb3a787df217ca6c976"
           }
+        },
+        {
+          "id": "EVD-4584",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- tools/agentic/watchdog.sh",
+          "summary": "Re-audit: the whole watchdog.sh diff is one hunk replacing the trap/mktemp lines; the warning, status and 124 handling after agentic_capture_supervise is untouched, and the watchdog tests in the 149-pass log are ok.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watchdog.sh",
+              "lines": {
+                "start": 148,
+                "end": 175
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:15.700848811Z",
+          "seal": {
+            "by": "server",
+            "mac": "df12698deeffc0d37876c9ef9ee619fe2ffa7a9ae8b7df11e4db34ad91549ed0"
+          }
         }
       ],
       "verdicts": [
@@ -228448,13 +228540,26 @@
             "by": "server",
             "mac": "87c54870162d3932d65360e49af7d7b3721ddea2ba5f5f454ab108138cb5e690"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audit at head: the watchdog.sh diff touches only the trap/mktemp lines; warnings and statuses unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4584"
+          ],
+          "recorded_at": "2026-11-28T14:28:46.145362015Z",
+          "seal": {
+            "by": "server",
+            "mac": "1259c27cfa5691b10711cd68b6488f4d47178f092baed700d098ff77cacc2eb4"
+          }
         }
       ],
       "created_at": "2026-11-28T13:22:01.849278098Z",
-      "updated_at": "2026-11-28T13:23:31.623976705Z",
+      "updated_at": "2026-11-28T14:28:46.145362015Z",
       "seal": {
         "by": "server",
-        "mac": "63e66a1ad534c1fe877ea6483e804e0ff0045636d1697b7e05c547333adc2d9f"
+        "mac": "a0ec4876b1f8197c3ec9fcb938561bff25fec111b2ce1f7adab2167c79cf5e54"
       }
     },
     {
@@ -230138,6 +230243,1068 @@
       "seal": {
         "by": "server",
         "mac": "879c837854c810b8f3153a970aedd29d5992486ffa4c9195705023594536db80"
+      }
+    },
+    {
+      "id": "CLM-2624",
+      "statement": "Issue #1193 is resolved: a TERM or INT arriving while mktemp runs in tools/agentic (bounded_capture, agentic_run_captured, remove-worktree.sh's clean log) leaves no temp file, the caller's INT/TERM traps are restored rather than cleared, gate.sh still exits 124 on timeout and dies on TERM/INT, expect.sh is deliberately left alone, and lessons.md gains one line.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1193 plus coordinator requirements",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/watchdog.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4585",
+          "kind": "analysis",
+          "locator": "children of CLM-2624",
+          "summary": "The children cover the three mktemp sites, the whole-class search, trap restoration in both helpers, gate.sh's 124/TERM/INT behaviour, the expect.sh exemption and the docs; all are supported, and the PR-description statements (tests, counts) are checked too.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:28:50.267439932Z",
+          "seal": {
+            "by": "server",
+            "mac": "3506c99c79d0c86db21924c9157767c1d9e9d926a9b382c963f7d3bc41fe554a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All children supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4585"
+          ],
+          "recorded_at": "2026-11-28T14:28:53.716251070Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ec6a4487acecbf0a9f02cf6f04598d04c55434542901947ebc622776e469f8e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:53.716251070Z",
+      "seal": {
+        "by": "server",
+        "mac": "8cbcc872261c2d70defea41169852f5d38a463e05c91ac34ae72802b3ddf1a1a"
+      }
+    },
+    {
+      "id": "CLM-2625",
+      "statement": "watchdog.sh's bounded_capture leaves no temp file in TMPDIR when TERM arrives while its mktemp is running (stub mktemp sleeping 1 s); the pre-change watchdog.sh/lib.sh leaves one.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Issue #1193: regression test, stub mktemp sleeping 1 s, send TERM during it, assert no temp file; old code fails, fixed passes",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/watchdog.sh",
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4561",
+          "kind": "demonstration",
+          "locator": "scratch run: stub mktemp (writes marker, sleeps 1 s), TERM on marker, old (origin/main) vs new watchdog.sh, 2 runs each",
+          "summary": "Old watchdog.sh from origin/main left watchdog-call.* in TMPDIR in both runs; the head watchdog.sh left TMPDIR empty in both runs. TERM was sent after the stub's marker appeared.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:25.284481531Z",
+          "seal": {
+            "by": "server",
+            "mac": "0112e7fef39aa720ff12928b59732e194c8b659a1d741b843f1625a718713e8c"
+          }
+        },
+        {
+          "id": "EVD-4562",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:968 test_watchdog_leaves_no_temp_file_when_termed_during_mktemp; target/i1193-logs/agentic.log",
+          "summary": "The test starts watchdog.sh with the stub mktemp, TERMs it after the marker appears and asserts TMPDIR is empty (ls -A). The gate log shows it ok (1012 ms) in the 149-pass run, which is dated after the head commit.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 968,
+                "end": 977
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:25.453326524Z",
+          "seal": {
+            "by": "server",
+            "mac": "a403294c8c56d4eeb00e9294245b095e4466b452ccb3fd4cdfab8eca4bd1a0a7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own scratch run reproduces the leak on old code (2/2) and none on head (2/2); the regression test asserts it and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4561",
+            "EVD-4562"
+          ],
+          "recorded_at": "2026-11-28T14:28:43.719855557Z",
+          "seal": {
+            "by": "server",
+            "mac": "465a88ffafed04764e707f652dab003e5de0ec4899af0bbdcc026675a6fff8e5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:43.719855557Z",
+      "seal": {
+        "by": "server",
+        "mac": "4b78748149b49df76233f0e0264554d8c89d3f6f3b16cfa9455b3f475cc94c2f"
+      }
+    },
+    {
+      "id": "CLM-2626",
+      "statement": "agentic_run_captured (two temp files) leaves no temp file when TERM arrives while either mktemp runs; the pre-change lib.sh leaves one.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator: find the whole class (every mktemp in tools/agentic)",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4563",
+          "kind": "demonstration",
+          "locator": "scratch run: bash -c 'source lib.sh; agentic_run_captured 5 true' with the 1 s stub mktemp, TERM on marker, old vs new lib.sh, 3 runs each",
+          "summary": "Old lib.sh left agentic-call.* in TMPDIR in 3 of 3 runs (rc 143); head lib.sh left TMPDIR empty in 3 of 3 (rc 143).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:25.600280941Z",
+          "seal": {
+            "by": "server",
+            "mac": "f34508fccc53367afe86ac5db74251a5df44d028edc0ec6ccfb788ed8ef6703e"
+          }
+        },
+        {
+          "id": "EVD-4564",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:979 test_run_captured_leaves_no_temp_file_when_termed_during_mktemp; agentic.log",
+          "summary": "Test asserts an empty TMPDIR after TERM during the stub mktemp; log shows ok (1012 ms). It covers the first of the two mktemp calls only (the stub sleeps on every call, TERM lands in the first); the second goes through the same helper (lib.sh:256).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 979,
+                "end": 987
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:25.789174014Z",
+          "seal": {
+            "by": "server",
+            "mac": "eccd66c570cba445fac6f0dd1c72fd470ecb0c96bca5e48224831a33297feca1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Old leaks 3/3, head 0/3 in own runs; test passes. The test and my runs hit the first mktemp only; the second uses the same helper.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4563",
+            "EVD-4564"
+          ],
+          "recorded_at": "2026-11-28T14:28:43.866772456Z",
+          "seal": {
+            "by": "server",
+            "mac": "9675fde16a3ab7f91c62e886914b27b5dbd3f0fb36f13ca6fe394d603224a334"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:43.866772456Z",
+      "seal": {
+        "by": "server",
+        "mac": "cfa751a60b8d1a79fce647c885f333bafdd4e358cf124e81a400790ccbb5f10c"
+      }
+    },
+    {
+      "id": "CLM-2627",
+      "statement": "Every mktemp in tools/agentic outside expect.sh and the tests runs through agentic_cap_mktemp, which registers the file in the same statement that creates it (agentic_cap_files+=(\"$(mktemp ...)\")) after agentic_cap_begin has installed the cleanup traps.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "PR body: \"New `agentic_cap_mktemp` registers the file in the same statement that creates it\"; coordinator: whole class",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/watchdog.sh",
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4565",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:208-229",
+          "summary": "agentic_cap_begin installs the INT/TERM cleanup traps; agentic_cap_mktemp does agentic_cap_files+=(\\\"$(mktemp \\\"$2\\\")\\\") as one statement, so a signal during mktemp finds the file registered (the scratch TERM experiments confirm the trap runs after the statement).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 208,
+                "end": 229
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:26.032434163Z",
+          "seal": {
+            "by": "server",
+            "mac": "4e4c778ab8cca73e812f3fa4b68c63d69aa9c1548319b4486a3a17aab46543ef"
+          }
+        },
+        {
+          "id": "EVD-4568",
+          "kind": "analysis",
+          "locator": "git grep -E '\\$\\(mktemp' over the tools/agentic scripts (3 hits)",
+          "summary": "Three matching lines: lib.sh:223 (a comment quoting the old pattern), lib.sh:225 (inside agentic_cap_mktemp) and expect.sh:35. Other users call agentic_cap_mktemp: lib.sh:255-256, watchdog.sh:154, remove-worktree.sh:88, each after agentic_cap_begin (lib.sh:254, watchdog.sh:153, remove-worktree.sh:87). No other script (gate.sh, merge-reviewed.sh, watch-review.sh) calls mktemp.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\\$\\(mktemp",
+              "scope": [
+                "tools/agentic/expect.sh",
+                "tools/agentic/gate.sh",
+                "tools/agentic/lib.sh",
+                "tools/agentic/merge-reviewed.sh",
+                "tools/agentic/remove-worktree.sh",
+                "tools/agentic/watch-review.sh",
+                "tools/agentic/watchdog.sh"
+              ],
+              "hits": 3,
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:44.032901028Z",
+          "seal": {
+            "by": "server",
+            "mac": "68f06cfc46789c84ae45aa58028eab6443ec46cb99aa9c86a6b903634f658b39"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The search over every top-level script finds mktemp command substitutions only in agentic_cap_mktemp and expect.sh; all other callers use the helper after agentic_cap_begin; the helper is a single registering statement.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4568",
+            "EVD-4565"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.013682665Z",
+          "seal": {
+            "by": "server",
+            "mac": "7cd93a155055e88354f538c0d665ead94b2973d83bfacb00eea9b72b00912c03"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.013682665Z",
+      "seal": {
+        "by": "server",
+        "mac": "6d5d3a9247962e93136820977fcfc70c938cc705055761dc1acdc214d0c6e434"
+      }
+    },
+    {
+      "id": "CLM-2628",
+      "statement": "remove-worktree.sh leaves no cargo clean log (remove-worktree.*) in TMPDIR when TERM arrives during the bounded cargo clean, and keeps the worktree; the pre-change script leaves the log.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "PR body: \"remove-worktree.sh (the cargo clean log, which a TERM during the up-to-600 s clean used to leak)\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/remove-worktree.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4566",
+          "kind": "demonstration",
+          "locator": "scratch run: temp git repo + worktree with Cargo.toml, stub cargo (marker then sleep 30), TERM on marker, old vs new remove-worktree.sh",
+          "summary": "Old script left remove-worktree.* in TMPDIR and exited 143; head script left TMPDIR empty, exited 143, and kept the worktree in both.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:26.187144023Z",
+          "seal": {
+            "by": "server",
+            "mac": "0f904e1f4e0b4a8f50863f11297793bab15dd3eac71314e9bf251c769c2781b2"
+          }
+        },
+        {
+          "id": "EVD-4567",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:1789 test_remove_leaves_no_log_when_termed_during_the_clean; agentic.log",
+          "summary": "Test hangs the stub cargo, TERMs remove-worktree.sh after cargo.log appears, asserts TMPDIR empty and the worktree kept; log shows ok (1119 ms).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 1789,
+                "end": 1808
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:26.345231844Z",
+          "seal": {
+            "by": "server",
+            "mac": "934fac27431e3be7fc4b5655005dbb160cfa1aed3440de07b9fbda15dc9639b8"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own run with a stub cargo: old script leaks the log, head does not, worktree kept; the test asserts the same and passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4566",
+            "EVD-4567"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.159287461Z",
+          "seal": {
+            "by": "server",
+            "mac": "f65437096841f6612e175d13492b8501b249255942fe403cc6273a23a9b08ec9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.159287461Z",
+      "seal": {
+        "by": "server",
+        "mac": "f8d6c18732e2a7cbee8a1e16c987e80b28e1d6a35b2e5ad29e315a4b58adaa96"
+      }
+    },
+    {
+      "id": "CLM-2629",
+      "statement": "agentic_cap_cleanup puts the caller's INT and TERM traps back (not `trap - INT TERM`) and, on a signal, re-raises it so the caller's handler runs; agentic_run_captured leaves the caller's TERM trap in place on normal return.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator: the cleanup should restore the caller's INT/TERM traps instead of clearing them; PR body: \"re-raise the signal so the caller's handler sees it\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4569",
+          "kind": "demonstration",
+          "locator": "scratch run: caller trap TERM='echo mine; exit 7', agentic_run_captured with 1 s stub mktemp, TERM on marker; and caller trap 'echo mine' then normal agentic_run_captured then trap -p TERM",
+          "summary": "Head lib.sh: TERM during mktemp ran the caller's handler (printed mine, rc 7, TMPDIR empty); old lib.sh exited 143 with the file left and no handler call. After a normal run the old lib.sh printed no trap (cleared); the head test test_run_captured_puts_the_callers_traps_back asserts the trap is back and the gate log shows it ok.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:44.179797774Z",
+          "seal": {
+            "by": "server",
+            "mac": "0001d00eea32afb52048c58e6545d2c439fe7b4e5d9538184a5ce564a1908159"
+          }
+        },
+        {
+          "id": "EVD-4570",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:208-242",
+          "summary": "agentic_cap_begin saves `trap -p INT TERM`; agentic_cap_cleanup calls agentic_traps_restore with the saved text (lib.sh:239) and then kills itself with the signal, so the restored handler fires.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 208,
+                "end": 242
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:44.331807836Z",
+          "seal": {
+            "by": "server",
+            "mac": "b42c3235d50115f3623f50452f852245b87d86c969a7d2fe454185714bd33bd5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own runs show the caller's handler reached with its exit status on head and not on old code; the code restores saved traps then re-raises.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4569",
+            "EVD-4570"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.304325354Z",
+          "seal": {
+            "by": "server",
+            "mac": "0da2d1a04f215ee8e72cdda6d1eec385c437084a18308f343f92bf85e55c07be"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.304325354Z",
+      "seal": {
+        "by": "server",
+        "mac": "4d10e58569eca0f207bd8abb3151b5c4e3d33ec95a435be39def854eac8e5384"
+      }
+    },
+    {
+      "id": "CLM-2630",
+      "statement": "agentic_run_bounded restores the caller's INT and TERM traps on normal return, and a TERM or INT during it stops the command's group and then reaches the caller's own trap (exit status of that trap preserved).",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator: agentic_run_bounded likewise",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4571",
+          "kind": "demonstration",
+          "locator": "scratch run: agentic_run_bounded 5 true after trap TERM='echo mine'; and agentic_run_bounded 30 (marker, exec sleep 30) under trap TERM='echo caller-trap; exit 7', TERM on marker; old vs new lib.sh",
+          "summary": "Head: trap -p TERM printed the caller's trap after a normal run, and TERM gave rc 7 with caller-trap printed. Old lib.sh: trap cleared after the run, and TERM gave rc 143 with no handler output.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:44.478358952Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa443e610e128ae13f655b05e50bf03d571ee377f204f89ca3df8491669ce7d8"
+          }
+        },
+        {
+          "id": "EVD-4572",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:2045 test_run_bounded_puts_the_callers_traps_back, :2053 test_run_bounded_hands_a_term_to_the_callers_trap; agentic.log",
+          "summary": "The first asserts the caller's TERM trap text after a normal run; the second sends TERM once the command's started marker exists and asserts exit 7 and 'caller-trap' output. Both ok in the gate log. INT is handled by the mirrored trap (lib.sh:71-72) but no test sends INT to a caller with its own INT trap.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2045,
+                "end": 2069
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:44.629252570Z",
+          "seal": {
+            "by": "server",
+            "mac": "c15ee2c0588c79d9c1e26e17eb29b369735b17b948bc249a269e1104f17b9d59"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own run and the two tests show the caller's trap kept on normal return and reached on TERM with its status; the old code did neither. INT has no test but mirrors the TERM trap.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4571",
+            "EVD-4572"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.449254277Z",
+          "seal": {
+            "by": "server",
+            "mac": "ef46f797529a739041cc93682344289435e79a1c950eeba4a9bfc987fc8b15d9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.449254277Z",
+      "seal": {
+        "by": "server",
+        "mac": "2f263cbc7d78854e71364977121db4f6551fbea5f782c01a0ddd7aa5befbbe16"
+      }
+    },
+    {
+      "id": "CLM-2631",
+      "statement": "With no caller trap, agentic_run_bounded still returns 124 when the command times out and the calling shell still dies of TERM (143) and INT (130) after stopping the group, as gate.sh requires.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Coordinator: gate.sh must still exit 124 on timeout and die on TERM/INT",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh",
+        "tools/agentic/gate.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4573",
+          "kind": "demonstration",
+          "locator": "scratch run: head lib.sh, agentic_run_bounded 1 sleep 20 -> rc; agentic_run_bounded 30 (marker, exec sleep 30) with no caller trap, TERM then INT",
+          "summary": "Timeout returned rc=124; TERM ended the calling shell with 143 and INT with 130 (no caller trap installed).",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:27:44.777128509Z",
+          "seal": {
+            "by": "server",
+            "mac": "4f462cc2b2ea6afc5a2e5a8552836300d59bbe42a6c548517994536521087636"
+          }
+        },
+        {
+          "id": "EVD-4574",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:60-111; tools/agentic/gate.sh:161,170",
+          "summary": "gate.sh calls agentic_run_bounded directly; the timeout path is unchanged in the diff (only the two trap lines and the final restore changed). With no saved traps agentic_traps_restore reduces to `trap - INT TERM`, then the signal is re-raised. gate.sh was not run here, only the function it relies on.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 60,
+                "end": 111
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:27:44.928753050Z",
+          "seal": {
+            "by": "server",
+            "mac": "b560e5d7ba20ce20046baaee8e9daf286ea3166e28449cc0d0a5b051f8659078"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Own run: timeout gives 124; TERM and INT kill the shell (143, 130) with no caller trap. gate.sh itself was not executed, only the function.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4573",
+            "EVD-4574"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.595485525Z",
+          "seal": {
+            "by": "server",
+            "mac": "9340815d835738be6c1a1c48dc9782580db895a45a24eb4049f780ce93798d08"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.595485525Z",
+      "seal": {
+        "by": "server",
+        "mac": "aaec456595701bd3c4c5083949eeefc2c5c9cc600fabe52015da886c61032931"
+      }
+    },
+    {
+      "id": "CLM-2632",
+      "statement": "expect.sh start's `.new.*` temp file is the only remaining mktemp in tools/agentic, is a dotfile in the expectation directory, and every reader of that directory skips dotfiles (glob \"$dir/*\"), so a leak there is invisible.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"expect.sh start makes a .new.* dotfile for a few microseconds before mv; every reader skips dotfiles\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/expect.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4575",
+          "kind": "inspection",
+          "locator": "tools/agentic/expect.sh:35-37,60-63; tools/agentic/watchdog.sh:187",
+          "summary": "expect.sh start writes to \\\"$dir/.new.XXXXXX\\\" then mv's it; the only readers of the expectation directory are expect.sh list (for file in \\\"$dir\\\"/*) and watchdog.sh check_expectations (for file in \\\"$dir\\\"/*, line 187); bash globs skip dotfiles. watchdog.sh:116 runs find over a different directory (target/i*-logs). The git grep for mktemp finds no other script that creates files there.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/expect.sh",
+              "lines": {
+                "start": 30,
+                "end": 40
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:04.049736987Z",
+          "seal": {
+            "by": "server",
+            "mac": "0a742afc77e4017977c14043433ded5474e1e695735d546c9285aa5d694e37bd"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both readers of the expectation directory use a bare glob, which skips dotfiles; expect.sh:35 is the only other mktemp.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4575"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.740625339Z",
+          "seal": {
+            "by": "server",
+            "mac": "d58e992eab44a06ca287e304032e799cb42749d494b0509fe255c8069b6d6a65"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.740625339Z",
+      "seal": {
+        "by": "server",
+        "mac": "4cfba658947e4ac7d58bc6209dd82cfc5af332cda1f1d13aa0d37bcdd6bdae4c"
+      }
+    },
+    {
+      "id": "CLM-2633",
+      "statement": "The cleanup trap was already installed before mktemp in bounded_capture on main (since #1191), and the leak came from `bc_file=$(mktemp ...)` and `agentic_cap_files+=(\"$bc_file\")` being two statements.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The cleanup trap was already installed before mktemp (since #1191), but f=$(mktemp) and files+=(\\\"$f\\\") were two statements.\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/watchdog.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4576",
+          "kind": "inspection",
+          "locator": "git show origin/main:tools/agentic/watchdog.sh lines 150-157; lib.sh agentic_run_captured on main",
+          "summary": "On main, bounded_capture installed the INT/TERM traps, then ran `bc_file=$(mktemp ...)` and, as a separate statement, `agentic_cap_files+=(\\\"$bc_file\\\")`, with the comment 'Installed before the temp file exists'. Same shape in agentic_run_captured. The scratch experiment shows the old code leaking, which fits the two-statement gap. The #1191 attribution: CLM-2594 records #1191 as the change that introduced agentic_run_captured and bounded_capture's supervisor.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:28:04.196396615Z",
+          "seal": {
+            "by": "server",
+            "mac": "c49d5118d30755bcac1bd35eb41c0b9b56896b332fdaf10a9ded728785310b30"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Main's code has the traps first and two statements for mktemp and registration; the leak reproduces.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4576"
+          ],
+          "recorded_at": "2026-11-28T14:28:44.887995739Z",
+          "seal": {
+            "by": "server",
+            "mac": "9ccab06af49a6a2c07e4decd141af236388dde753d650adf9ca5cd5b10d74174"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:44.887995739Z",
+      "seal": {
+        "by": "server",
+        "mac": "eb30ef5ad5aa032c903b646075966b586f860857cb9ff1f174ac26f677f16692"
+      }
+    },
+    {
+      "id": "CLM-2634",
+      "statement": "The six new tests (two TERM-during-mktemp, TERM-during-clean, caller trap survives agentic_run_captured, caller trap survives agentic_run_bounded, TERM reaches the caller's trap) fail on the pre-change code and pass on the fix.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"New tests (all fail on the old lib.sh/watchdog.sh/remove-worktree.sh, pass on the fix)\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4577",
+          "kind": "demonstration",
+          "locator": "scratch runs against origin/main lib.sh/watchdog.sh/remove-worktree.sh (see the scenario evidence on CLM-2625, CLM-2626, CLM-2628, CLM-2629, CLM-2630)",
+          "summary": "I reproduced each scenario by hand, not by running the test functions: old code leaked in watchdog (2/2), agentic_run_captured (3/3) and remove-worktree (1/1), lost the caller's trap after agentic_run_captured and agentic_run_bounded, and ignored the caller's TERM handler. Head passes all. test_run_captured_puts_the_callers_traps_back was reproduced on old lib.sh by trap -p output only. The test functions themselves were not run against old code, so 'fail on old' is shown for the behaviour, not the assertions.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:28:04.343167014Z",
+          "seal": {
+            "by": "server",
+            "mac": "9caa6a75b92e0c5e28634125cc062c26d17ae94225443130602ecd518288a793"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Behaviour behind each of the six tests fails on old code in my scratch reproductions and passes on head; all six ok in the log. The test functions were not run against old code (caveat in evidence).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4577"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.034342647Z",
+          "seal": {
+            "by": "server",
+            "mac": "b3650a43b6e5e1b908ec5d24626748acd0757734dbdc16ab2412c64516f3850b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:45.034342647Z",
+      "seal": {
+        "by": "server",
+        "mac": "541f262fd2e1c97e35d3459aa094216c18d09706ac59d81c91bdf368e78e0963"
+      }
+    },
+    {
+      "id": "CLM-2635",
+      "statement": "The TERM-timing tests wait on a marker file the stub writes (stub mktemp's mktemp-started, stub cargo's cargo.log, the command's started file) and not on a fixed sleep.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"The tests wait on a marker file the stub writes, not on a fixed sleep.\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4578",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:939-966, 1789-1808, 2053-2069",
+          "summary": "The stub mktemp writes $fx/mktemp-started and term_during_mktemp polls for it in 0.1 s ticks (up to 10 s) before TERM; the clean test polls cargo.log (written by the stub cargo at run.sh:1724 before its hang); the run_bounded test polls $fx/started. The post-TERM waits are polling loops with a 10 s cap. The stub itself sleeps 1 s by design.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 939,
+                "end": 966
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:04.494913328Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb5fd761577072002ede8815d3f8c6df3e9451f40c2c82917db498836720beda"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All three signal-timing tests poll for a stub-written marker before sending TERM.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4578"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.196195302Z",
+          "seal": {
+            "by": "server",
+            "mac": "a28abba01d7d1b1aa9dd3d2320e4653e4e7049d5ad4a19e0a896201c5ce347d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:45.196195302Z",
+      "seal": {
+        "by": "server",
+        "mac": "e568721745bbcef5598519530a0df852d6a2b089ac2b6e898ae6777f9d26b580"
+      }
+    },
+    {
+      "id": "CLM-2636",
+      "statement": "tools/agentic/tests/run.sh passed at the head commit with 149 passed, 0 failed, and the run printed no FLAKY line.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"tools/agentic/tests/run.sh: 149 passed, 0 failed, 0 FLAKY lines.\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4579",
+          "kind": "log",
+          "locator": "target/i1193-logs/agentic.log (last line), agentic.rc, mtime 09:24:10 vs head commit 1c1eb2b3 at 09:19:06",
+          "summary": "Last line '149 passed, 0 failed'; agentic.rc 'rc=0 secs=300'; 149 'ok' lines; zero lines containing FLAKY (case-insensitive). The log is newer than the head commit and git diff HEAD shows no uncommitted changes. I did not rerun the suite, as instructed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T14:28:04.641157935Z",
+          "seal": {
+            "by": "server",
+            "mac": "e401dd8d8575724641290cbcb67883102084dd02879a9257e2ab278764097f80"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The coordinator's run log, newer than the head commit, shows 149 passed, 0 failed and no FLAKY. I read it and did not rerun it, as instructed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4579"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.358534998Z",
+          "seal": {
+            "by": "server",
+            "mac": "c351bb947d17b0ed9f27fa7125baa598dec74df951faea626c41e28ef8d3fd4f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:45.358534998Z",
+      "seal": {
+        "by": "server",
+        "mac": "ec36942f0a4f5c81f690c1441ae7a073138b3b8e3f3d4597b72bc33f82a2aa78"
+      }
+    },
+    {
+      "id": "CLM-2637",
+      "statement": "The existing watchdog \"abandons a ... it cannot stop\" tests send TERM right after a warning (watch_until_warnings), when the next mktemp is likely running, so the old leak could hit them.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The existing 'abandons a ... it cannot stop' watchdog tests send TERM right after a warning, when the next mktemp is likely running; this fix removes that leak.\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4580",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh:748-766 (watch_until_warnings), 847-860 (watch_abandoning)",
+          "summary": "watch_until_warnings polls until the output holds the wanted number of warnings, then sends TERM to the looping watchdog (AGENTIC_WATCHDOG_INTERVAL=0, so the next pass's calls start at once); watch_abandoning then asserts TMPDIR is empty. 'Likely running' is an inference about timing, not a measured fact.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 748,
+                "end": 768
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:04.792441348Z",
+          "seal": {
+            "by": "server",
+            "mac": "790bc215699dc5d6ca6dc5fc753132d2ebf7876121d946f347d3857c07f46064"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test helper TERMs the looping watchdog right after the second warning with no interval, so a next-pass call is in flight; the claim says 'likely', which the code supports.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4580"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.523605013Z",
+          "seal": {
+            "by": "server",
+            "mac": "03eb86563493ac16e01273832251c6a237aa00f8cfb4e0e6255492c3622bd14d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:45.523605013Z",
+      "seal": {
+        "by": "server",
+        "mac": "1d59e2bc2da0594e1fdef265546fcbd3e3e8641656cb19ba44f6ea971ea47b29"
+      }
+    },
+    {
+      "id": "CLM-2638",
+      "statement": "tools/agentic/lessons.md gains exactly one new line (a rule naming agentic_cap_mktemp, agentic_cap_begin and agentic_traps_restore), and a dated changelog file changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md exists.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "Coordinator: one lessons.md line; PR body: \"lessons.md gets one line; a changelog entry is added\"",
+      "derived_from": [
+        "CLM-2624"
+      ],
+      "artifacts": [
+        "tools/agentic/lessons.md",
+        "changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md"
+      ],
+      "tags": [
+        "from-issue:1193"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4581",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- tools/agentic/lessons.md; changelog/20261128T141906Z-issue-1193-mktemp-trap-window.md",
+          "summary": "The lessons.md diff adds one bullet (line 73) naming agentic_cap_mktemp, agentic_cap_begin and agentic_traps_restore, plus one blank line before it. The changelog file exists with a UTC timestamp name and describes the change. Note: the bullet is separated from the previous bullets by a blank line (cosmetic).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lessons.md",
+              "lines": {
+                "start": 73,
+                "end": 73
+              },
+              "commit": "1c1eb2b3d8108dbace298d03c1c03038b718ec15"
+            }
+          },
+          "recorded_at": "2026-11-28T14:28:04.941884175Z",
+          "seal": {
+            "by": "server",
+            "mac": "9791d694b8d3a86808fad17047ad42d9180ea6641846b04b3d96904652ea1f2e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The diff adds one bullet to lessons.md and the dated changelog file exists.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4581"
+          ],
+          "recorded_at": "2026-11-28T14:28:45.688804669Z",
+          "seal": {
+            "by": "server",
+            "mac": "956ea1e4a480d90cd446b98a918612b72164f803cfea881c21b1571bd0b1eb53"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T14:26:56.685942330Z",
+      "updated_at": "2026-11-28T14:28:45.688804669Z",
+      "seal": {
+        "by": "server",
+        "mac": "54ce216e41223689d3d720779de878e212718e225bcbf18129f7398f288875d4"
       }
     }
   ]

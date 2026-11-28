@@ -28,11 +28,13 @@ are now one binary, `it` (`tests/it.rs`), with a module per former test file.
   ignored parity test.
 - A libtest filter is a substring match: `parity::` also matches `admin_parity::` and `smoke::`
   matches `ui_e2e::smoke::`. The README's `--ignored` commands are unaffected.
-- `cargo nextest list`: 3775 tests before, 3760 after. The only difference is
-  `support::redis::tests::random_prefixes_have_the_documented_shape_and_never_repeat`: 17 integration-test
-  copies before, 2 after (`it`, and `telemetry_install`, which keeps its own `support` because it
-  is a separate target); the lib's own, different test of that name is unchanged. That is 15
-  fewer, not the 16 the issue expected.
+- `cargo nextest list` lists the same tests as before except for one duplicate:
+  `support::redis::tests::random_prefixes_have_the_documented_shape_and_never_repeat` is compiled
+  into every target that declares `tests/support/`, so it had 17 integration-test copies before and
+  has 3 now (`it`, `snapshot_weight` and `telemetry_install`, the separate targets that declare
+  `support`): 14 fewer, not the 16 the issue expected. The lib's own, different test of that name
+  is unchanged. At the final head the integration suites list `it` 522, `snapshot_weight` 2,
+  `telemetry_install` 2, `telemetry_sdk_disabled` 1 and `cimd_no_proxy` 1 tests.
 - Tests that re-run the test binary (`current_exe` with `--exact`) name their child by its module
   path now (`investigator::journal_process::...`, `test_database::template_race_child`).
   Unprefixed, the child matches no test under `it`; the journal tests and the template race then

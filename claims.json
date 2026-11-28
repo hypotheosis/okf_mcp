@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2566,
+  "next_claim_seq": 2567,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "94a0f72d56ece10f2f1557c533b2a8c0ed54388cb7c18440abeabaff75582810"
+    "mac": "97c807007104903346640fef0251b9540802056ba8c4b1e114cb9254774ff9bb"
   },
-  "next_evidence_seq": 4467,
+  "next_evidence_seq": 4475,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "855cf68fac85e42a3c0a3fea62bbad457d4c898ec47ef68a0c643125d5470f02"
+    "mac": "0dea76587ff49b23102168fd2893c2263ec5c2a30ce8f2807a0ab79305660a07"
   },
   "claims": [
     {
@@ -224215,6 +224215,28 @@
             "by": "server",
             "mac": "c5c53eccff1e692acaa00d7fbedd9620920f71791f4a6e4c0d80b3f16486ac4a"
           }
+        },
+        {
+          "id": "EVD-4470",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs list_catalogs (places_for with page stores), create_catalog at f60a97ea",
+          "summary": "list: places built from page.items' stores, CatalogSummary::of looks up row.store in it; create: places_for with the created row's store, then remove(that name). Both still yield the store object for an admin.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 163,
+                "end": 182
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.582792259Z",
+          "seal": {
+            "by": "server",
+            "mac": "7eca63f3b70adc6a3ee3d69b9965e405bea4cabd8ed725c78fa735f20bdf05c7"
+          }
         }
       ],
       "verdicts": [
@@ -224231,13 +224253,27 @@
             "by": "server",
             "mac": "c92f3d30f7b6f56775528fcebf4d9b1795d56ee16ac71f5d3b61b9477558468e"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: list and create still produce the store object for admins.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4470",
+            "EVD-4443"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.049675007Z",
+          "seal": {
+            "by": "server",
+            "mac": "85c4ca22c3ea5da6364b4b8930043264c7a4e8610c19ee3371c4d8b9f818cec4"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:47.288867686Z",
+      "updated_at": "2026-11-28T10:11:26.049675007Z",
       "seal": {
         "by": "server",
-        "mac": "d3163e9bae5bb2dceda344e6bfc7517075191c835555575122f79ec37769e885"
+        "mac": "a63b40997a1ecb763bdb7dab5e504cbdf759e5597b5974a884ae48db2fb2113d"
       }
     },
     {
@@ -224305,6 +224341,28 @@
             "by": "server",
             "mac": "9769204781efcf9654a4650cc98c853576d49869d0a5cab5751d56d20e9f64a6"
           }
+        },
+        {
+          "id": "EVD-4469",
+          "kind": "inspection",
+          "locator": "src/http/api/stores.rs:100-130 at f60a97ea",
+          "summary": "places() still maps through StorePlace::from(&StoreRow), the same mapping StoreView uses (place: StorePlace::from(&row)); the shape is unchanged. The test still compares each field with the GET /stores entry and the exact key set; it no longer fixes main's location as account-database (main may be a separate database), but still requires remote location == host.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/stores.rs",
+              "lines": {
+                "start": 100,
+                "end": 130
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.424037875Z",
+          "seal": {
+            "by": "server",
+            "mac": "f66283894a8de6fd969d12b1e08e5446bbaec5fe6e6f73bfd1871cded7c32b1d"
+          }
         }
       ],
       "verdicts": [
@@ -224321,13 +224379,27 @@
             "by": "server",
             "mac": "48d11d4cf4b545d68d4fb8f1c04f072402178a5ba7f6e4c0ac719bf43c0f3cbd"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: one shared StorePlace mapping, same shape as GET /stores.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4469",
+            "EVD-4445"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.203214040Z",
+          "seal": {
+            "by": "server",
+            "mac": "5c1fc1aca5b93aef1bd4324bf951b4ec19df3b52316078fa2a28c0193ed4692f"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:47.447038432Z",
+      "updated_at": "2026-11-28T10:11:26.203214040Z",
       "seal": {
         "by": "server",
-        "mac": "66f58410ff99219d56b00dcdb94bad5bb119066aa82a5b7d487e74b3f6c7e6ca"
+        "mac": "43f2fc9510eaf435674f24fbba62a405b478e812478af565f16236cb2d402524"
       }
     },
     {
@@ -224394,6 +224466,28 @@
             "by": "server",
             "mac": "21c083574cc0b4507955a68501cc0284de32521a7edc2dd3a04dc1891a33afef"
           }
+        },
+        {
+          "id": "EVD-4471",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:163-182 at f60a97ea",
+          "summary": "places_for still returns None, without reading any store, unless may_see_stores(principal); the Option store field still skips serializing when None. The earlier test is unchanged apart from main's location assertion.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 163,
+                "end": 182
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.747061698Z",
+          "seal": {
+            "by": "server",
+            "mac": "9357bfbb7140e36ce3363ef54aa13b0f7e424733e7933f282cc1e071ec77448b"
+          }
         }
       ],
       "verdicts": [
@@ -224410,13 +224504,27 @@
             "by": "server",
             "mac": "62b09ae728a7dd0e11c8c5c884150b05a215b9f31e8d221c0d6b06c22980a69d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: non-admins and provisioners still get None and no key.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4471",
+            "EVD-4447"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.345621080Z",
+          "seal": {
+            "by": "server",
+            "mac": "913a1745826b975822bec6b1aa063995faaba1183c34eeac6ce9377180290a99"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:47.598874878Z",
+      "updated_at": "2026-11-28T10:11:26.345621080Z",
       "seal": {
         "by": "server",
-        "mac": "db84786f4222b8c86b05b4b5672a6b75741cefc11bb1b5068ff0f45220a8ddec"
+        "mac": "de99fce45d63047ecb6fabb97124bcff4303bec866695b1e3d16c09cdc5953cf"
       }
     },
     {
@@ -224484,6 +224592,28 @@
             "by": "server",
             "mac": "3afdbc5a0c3e06ee1930fa70756a53c96bf3b4617a9ac9944610f7e1ea0f9734"
           }
+        },
+        {
+          "id": "EVD-4472",
+          "kind": "inspection",
+          "locator": "src/http/api/stores.rs:94-98 at f60a97ea",
+          "summary": "may_see_stores is unchanged (admin or above and not a provisioner); the diff since 0642ae34 does not touch it or the provisioner allow-list.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/stores.rs",
+              "lines": {
+                "start": 88,
+                "end": 99
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.898708380Z",
+          "seal": {
+            "by": "server",
+            "mac": "13c18e3bd934aa4784ce44d76b0b25e46ec1a6557761525be5b3a01464a8e862"
+          }
         }
       ],
       "verdicts": [
@@ -224500,13 +224630,27 @@
             "by": "server",
             "mac": "9a32e05bc56b341c6418906cb4f6490cd0afe6f2977a2cbd96d9cfc52b541c05"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: may_see_stores and the allow-list are untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4472",
+            "EVD-4449"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.489780168Z",
+          "seal": {
+            "by": "server",
+            "mac": "eae83aa3f0d590b00a578235edb75b537b354fa023aa89ca704d3b6c6b7d44fd"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:47.740714663Z",
+      "updated_at": "2026-11-28T10:11:26.489780168Z",
       "seal": {
         "by": "server",
-        "mac": "431136ad04bd4596447da063ca1cb7545fcdbd63b0bdba6e113f7bb6852af000"
+        "mac": "27c3244256a623757e4657609ba463cdb51b849febe5a7c7beb938b7986f2312"
       }
     },
     {
@@ -224573,6 +224717,28 @@
             "by": "server",
             "mac": "049d5bf3eaffc9e38c4469c46bdafd79b36569b3a70a8f1ef8d9dc4ed2a12c76"
           }
+        },
+        {
+          "id": "EVD-4473",
+          "kind": "inspection",
+          "locator": "src/http/api/catalogs.rs:355-372 at f60a97ea",
+          "summary": "unavailable_stores is still built when places.is_some() from page.items' row.store (not from the places map) for ids in unavailable, so it names the stores of unavailable catalogs; those rows are part of page.items, whose stores were also read for places. Unchanged by the diff; the test is untouched.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 355,
+                "end": 372
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:14.076674580Z",
+          "seal": {
+            "by": "server",
+            "mac": "dc54a712634fa98a1184bc24abb4e97cb6a711e2cb183f516aefc16117bd1b7d"
+          }
         }
       ],
       "verdicts": [
@@ -224589,13 +224755,27 @@
             "by": "server",
             "mac": "029069c00601d5bdf1e24024a43bb1fe548f27d1c46239de833adfb0f19fc553"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: unavailable_stores is built from page rows' own store, independent of the places map.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4473",
+            "EVD-4451"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.631739386Z",
+          "seal": {
+            "by": "server",
+            "mac": "d1aa72bb39eab52df93b391c6229e64ca772d1f077f1afcea338c1b9850266ce"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:47.894063364Z",
+      "updated_at": "2026-11-28T10:11:26.631739386Z",
       "seal": {
         "by": "server",
-        "mac": "3322ab3a2048aff813bbaaea852619cacbe1968be8d3e76e5c3b96d59a4f53f6"
+        "mac": "a34965551b1c4b7fb9928353a18abeb4186057a570da4a96117a8c9d2acf9a5f"
       }
     },
     {
@@ -224663,6 +224843,28 @@
             "by": "server",
             "mac": "bddc261aa4a054ab6689fe33908fb31a41c59024a5f2b135d88b5770f0227e8a"
           }
+        },
+        {
+          "id": "EVD-4474",
+          "kind": "inspection",
+          "locator": "src/store/stores.rs:272-285 at f60a97ea",
+          "summary": "summaries() still has the catalogs count subquery (provisioned, undeleted) and GET /stores still uses it; rows_named is a separate function and does not alter it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/stores.rs",
+              "lines": {
+                "start": 275,
+                "end": 290
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:14.240100205Z",
+          "seal": {
+            "by": "server",
+            "mac": "9129fb81cbd99ac8b5ecfba0780c2af54e43681aee642d324c040205dcff51ee"
+          }
         }
       ],
       "verdicts": [
@@ -224679,13 +224881,27 @@
             "by": "server",
             "mac": "3a85f3623380e3abd2468f9357b402ba938ab01a792ea156a5335b1ab48ae6c9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at f60a97ea: summaries() and the count are unchanged and still back GET /stores.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4474",
+            "EVD-4453"
+          ],
+          "recorded_at": "2026-11-28T10:11:26.784957748Z",
+          "seal": {
+            "by": "server",
+            "mac": "a1448208cee9e3279234266dab0e20045f2d23b84ddce6066e046ef49b62297d"
+          }
         }
       ],
       "created_at": "2026-11-28T09:34:18.617178110Z",
-      "updated_at": "2026-11-28T09:35:48.043234192Z",
+      "updated_at": "2026-11-28T10:11:26.784957748Z",
       "seal": {
         "by": "server",
-        "mac": "55f0ea07eeb48129018a6e5fde54e6f2ec5c7546941505802a4c86699075cbf6"
+        "mac": "7792e48cca7a63b5a30b6cbb1e7cc7dc510df1b5e14e70abc7d35c674d7009ce"
       }
     },
     {
@@ -225263,6 +225479,97 @@
       "seal": {
         "by": "server",
         "mac": "0a2cf288bab71cdb1a82b4a4c8ceb8bec59584829d5c919ae16de6a4e741348a"
+      }
+    },
+    {
+      "id": "CLM-2566",
+      "statement": "A catalog listing page or create reads the location rows of the referenced stores only, with no team or catalog counts.",
+      "kind": "performance",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR 1208 latest commit f60a97ea: places() calls stores::rows_named for the referenced stores instead of stores::summaries()",
+      "derived_from": [
+        "CLM-2551"
+      ],
+      "artifacts": [
+        "src/http/api/stores.rs",
+        "src/store/stores.rs",
+        "src/http/api/catalogs.rs"
+      ],
+      "tags": [
+        "from-issue:1030"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4467",
+          "kind": "inspection",
+          "locator": "src/store/stores.rs:186-213; src/http/api/stores.rs:100-130; catalogs.rs list_catalogs and create_catalog",
+          "summary": "rows_named selects only the location and credential columns FROM stores WHERE name = ANY($1), no count subqueries. places() dedups names and maps rows via StorePlace::from. list_catalogs passes the page rows' stores; create_catalog passes the created row's store.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/stores.rs",
+              "lines": {
+                "start": 186,
+                "end": 213
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.043400366Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed3cbc7a713da09207db00dfe0984074405c5478689e91eeb22b2568a9c91224"
+          }
+        },
+        {
+          "id": "EVD-4468",
+          "kind": "test",
+          "locator": "http::api::catalogs::tests::places_are_read_for_the_named_stores_only (not re-run by me)",
+          "summary": "Asserts places([\"main\",\"main\"]) keys are exactly [main]; places with store-b, main and an unknown name returns main and store-b only; an empty list returns nothing. It does not assert the absence of counts (that rests on the SQL).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/catalogs.rs",
+              "lines": {
+                "start": 1597,
+                "end": 1617
+              },
+              "commit": "f60a97ea38855882099841c8944f30a96d2fb434"
+            }
+          },
+          "recorded_at": "2026-11-28T10:11:13.237813138Z",
+          "seal": {
+            "by": "server",
+            "mac": "59940cdfcc4cdf5086120cc9b690cb400b8115e267879050c3c717084987068a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "rows_named reads location columns only for named stores; the test checks which stores are returned (not re-run by me).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4467",
+            "EVD-4468"
+          ],
+          "recorded_at": "2026-11-28T10:11:25.893097621Z",
+          "seal": {
+            "by": "server",
+            "mac": "06227f5ee774e3dee439f283b9c3bea6335f8b66d5c1b8b56c22297fee27811e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T10:10:55.364834180Z",
+      "updated_at": "2026-11-28T10:11:25.893097621Z",
+      "seal": {
+        "by": "server",
+        "mac": "e3d4fe6d4f62c6be641d6f977a770a9b65cc687f05d97e74dbe91fffab145c12"
       }
     }
   ]

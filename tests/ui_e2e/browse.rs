@@ -173,7 +173,7 @@ async fn the_links_tab_shows_backlinks_and_a_revision_opens_its_diff() {
 }
 
 /// The revision numbers in the History tab's rows, in the order shown.
-fn history_rows(ui: &crate::harness::Ui) -> Vec<String> {
+fn history_rows(ui: &crate::ui_e2e::harness::Ui) -> Vec<String> {
     serde_json::from_value(ui.eval(
         "() => [...document.querySelectorAll('#history tbody tr td:first-child')]\
          .map(cell => cell.textContent)",

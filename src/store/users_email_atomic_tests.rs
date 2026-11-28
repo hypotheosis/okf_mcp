@@ -159,7 +159,7 @@ async fn a_provisioner_creates_with_an_email_like_it_sets_one() {
     assert_eq!(created.email.as_deref(), Some("alice@example.com"));
     let changed = audit::testing::entries(&db.pool, "user.email_changed").await;
     assert_eq!(changed.len(), 1);
-    assert!(changed[0].actor_label.len() > 0);
+    assert!(!changed[0].actor_label.is_empty());
 }
 
 #[tokio::test(flavor = "multi_thread")]

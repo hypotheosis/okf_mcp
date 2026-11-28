@@ -24,8 +24,14 @@ are now one binary, `it` (`tests/it.rs`), with a module per former test file.
 - A libtest filter is a substring match: `parity::` also matches `admin_parity::` and `smoke::`
   matches `ui_e2e::smoke::`. The README's `--ignored` commands are unaffected.
 - `cargo nextest list`: 3775 tests before, 3760 after. The only difference is
-  `support::redis::tests::random_prefixes_have_the_documented_shape_and_never_repeat`: 18 copies
-  before, 3 after (the lib, `it`, and `telemetry_install`, which keeps its own `support` because it
-  is a separate target). That is 15 fewer, not the 16 the issue expected.
+  `support::redis::tests::random_prefixes_have_the_documented_shape_and_never_repeat`: 17 integration-test
+  copies before, 2 after (`it`, and `telemetry_install`, which keeps its own `support` because it
+  is a separate target); the lib's own, different test of that name is unchanged. That is 15
+  fewer, not the 16 the issue expected.
+- Tests that re-run the test binary (`current_exe` with `--exact`) name their child by its module
+  path now (`investigator::journal_process::...`, `test_database::template_race_child`).
+  Unprefixed, the child matches no test under `it`; the journal tests and the template race then
+  failed, and `investigator_config_secrets_environment_isolated` would have passed without running
+  its child.
 - Timings: the issue's benchmark table stands; local timings were skipped, the machine was
   saturated.

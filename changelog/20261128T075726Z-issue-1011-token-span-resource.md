@@ -2,8 +2,8 @@
 
 Generated: 2026-11-28T07:57:26Z
 
-A client was refused with `400 invalid_target` and the trace could not say
-what it had sent. On code exchanges, `okf.grant` also reached the trace
+A client was refused with `400 invalid_target` at the token endpoint and
+the trace could not say what it had sent. On code exchanges, `okf.grant` also reached the trace
 backend as `[Filtered]`.
 
 ## Added
@@ -18,7 +18,8 @@ backend as `[Filtered]`.
   query, fragment or user info are `other_form`; an empty value is
   `unparseable`.
 - The refusals are unchanged: `invalid_target` is still returned for every
-  one of them, including a trailing slash.
+  one of them, including a trailing slash: as a 400 by the token endpoint, as
+  a 303 redirect carrying `error=invalid_target` by authorize.
 
 ## Changed (telemetry-breaking)
 

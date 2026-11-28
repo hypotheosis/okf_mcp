@@ -5017,11 +5017,12 @@ slide. It never revives a revoked connection, and another client presenting
 the token is refused as before. Past the window, a reuse ends the
 connection as before.
 
-A `400 invalid_target` from `/oauth/token` or `/oauth/authorize` means the
-client sent a `resource` other than this server's MCP endpoint
-(`<public_url>/mcp`, compared byte for byte). The span (`okf.oauth.token`, or
-`authorize` at `debug`) then carries `okf.resource`, how the sent value
-differed, never the value: `trailing_slash` (the endpoint with a `/` added),
+`/oauth/token` answers a `resource` other than this server's MCP endpoint
+(`<public_url>/mcp`, compared byte for byte) with `400 invalid_target`.
+`/oauth/authorize` answers it with a `303` redirect to the client carrying
+`error=invalid_target`, not a 400. The `okf.oauth.token` span (at
+authorize, the `debug` span `authorize`) then carries `okf.resource`, how
+the sent value differed, never the value: `trailing_slash` (the endpoint with a `/` added),
 `origin` (the bare origin), `other_path` (this host, another path),
 `other_host` (another host, scheme or port), `unparseable` (empty, relative or
 malformed) or `other_form` (the endpoint written another way: letter case in

@@ -31,7 +31,8 @@
 //! it. Every container therefore carries a label unique to its start, and
 //! [`start_labelled`] removes whatever has that label when the start fails.
 //! Tests that need a customized container (`tests/tls.rs`) start it through
-//! [`start_with_retry`] too.
+//! [`start_with_retry`] too, which retries a transient start failure
+//! ([`is_transient_start_error`]) up to [`START_ATTEMPTS`] times.
 //!
 //! A killed process runs no `Drop` and no start cleanup, so its containers
 //! stay. The first start in each process therefore sweeps
@@ -77,9 +78,26 @@ pub const OWNER_SCOPE_LABEL: &str = "okf-mcp.test-owner-scope";
 /// own default).
 pub const STARTUP_TIMEOUT: Duration = Duration::from_secs(60);
 
-/// Attempts per container start: one retry covers a transient Docker
-/// refusal or a start that timed out under load.
-const START_ATTEMPTS: u32 = 2;
+/// Attempts per container start when the failure is transient
+/// ([`is_transient_start_error`]). The full gate starts many containers at
+/// once, so Docker's port allocation can fail for longer than one retry
+/// covers (#1083). Any other failure is not retried.
+const START_ATTEMPTS: u32 = 4;
+
+/// The pause before retry `n` is `n` times this, so the three retries wait
+/// 0.5 s, 1 s and 1.5 s.
+const START_BACKOFF: Duration = Duration::from_millis(500);
+
+/// Texts of Docker start refusals that clear on their own: another start
+/// holds the host port a moment (the daemon's ephemeral port pick races
+/// with other starts and with client sockets), or the daemon is still
+/// programming a published port. Lowercase, matched against the lowercased
+/// error.
+const TRANSIENT_START_TEXTS: [&str; 3] = [
+    "address already in use",
+    "port is already allocated",
+    "failed to program external connectivity",
+];
 
 /// The environment variable naming a running server every test shares: a
 /// `postgres://user:password@host:port` URL with no database name.
@@ -981,7 +999,10 @@ pub fn postgres_17() -> ContainerRequest<Postgres> {
 }
 
 /// Starts the container `request` builds, through [`start_labelled`] with
-/// [`STARTUP_TIMEOUT`], retrying a failed start once with a fresh label.
+/// [`STARTUP_TIMEOUT`], retrying a transient failure
+/// ([`is_transient_start_error`]) with a fresh label, up to
+/// [`START_ATTEMPTS`] starts with a growing pause ([`START_BACKOFF`]). Any
+/// other failure panics at once. Each retried error is logged.
 ///
 /// # Arguments
 /// * `request` - builds the container request; called once per attempt,
@@ -998,8 +1019,15 @@ pub async fn start_with_retry<I: Image>(
         let image = labelled.image().name().to_string();
         match start_labelled(labelled, &unique_start_label()).await {
             Ok(container) => return container,
-            Err(error) if attempt < START_ATTEMPTS => {
+            Err(error) if attempt < START_ATTEMPTS && is_transient_start_error(&error) => {
+                // `eprintln!` as well: not every test binary installs a
+                // tracing subscriber, and the flake log must show this.
+                eprintln!(
+                    "{image} container start {attempt}/{START_ATTEMPTS} failed \
+                     (transient), retrying: {error}"
+                );
                 tracing::warn!("{image} container start failed, retrying: {error}");
+                tokio::time::sleep(START_BACKOFF * attempt).await;
                 attempt += 1;
             }
             Err(error) => panic!("start a {image} container (is docker reachable?): {error}"),
@@ -1048,6 +1076,25 @@ pub async fn start_labelled<I: Image>(
             "{start_error}; removing its container also failed: {cleanup_error}"
         ))),
     }
+}
+
+/// Whether a failed start is worth retrying: a timeout of some stage
+/// ([`is_timeout_class`]) or a Docker refusal that clears on its own
+/// ([`TRANSIENT_START_TEXTS`]). A missing image or a bad request is not.
+///
+/// # Arguments
+/// * `error` - what a start returned.
+///
+/// # Returns
+/// Whether another attempt can succeed.
+pub fn is_transient_start_error(error: &TestcontainersError) -> bool {
+    if is_timeout_class(error) {
+        return true;
+    }
+    let text = error.to_string().to_lowercase();
+    TRANSIENT_START_TEXTS
+        .iter()
+        .any(|known| text.contains(known))
 }
 
 /// Whether `error` is the kind a start with a zero-length timeout can

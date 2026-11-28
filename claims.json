@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2567,
+  "next_claim_seq": 2577,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "97c807007104903346640fef0251b9540802056ba8c4b1e114cb9254774ff9bb"
+    "mac": "20ad4f547b7d2cd40d8dadd5bfc56e0d2f7447f08822bfd61be859fb4b85c5f8"
   },
-  "next_evidence_seq": 4476,
+  "next_evidence_seq": 4487,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "1b093b486510baf0cedfe993ec59c52cee79b03a3a9f2a03d369af9738e4655f"
+    "mac": "c4e04974556f7c10e7fbb40fdf84a32e9ede6a92940df684fa97d57eb3b7d92a"
   },
   "claims": [
     {
@@ -225606,6 +225606,645 @@
       "seal": {
         "by": "server",
         "mac": "e3d4fe6d4f62c6be641d6f977a770a9b65cc687f05d97e74dbe91fffab145c12"
+      }
+    },
+    {
+      "id": "CLM-2567",
+      "statement": "Issue #1083 is delivered: start_with_retry retries known transient Docker start errors up to 4 attempts with a short backoff, only for those errors, logs the retried error, and a Docker-free unit test classifies transient vs permanent errors.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1083",
+      "derived_from": [],
+      "artifacts": [
+        "tests/support/pg.rs",
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4486",
+          "kind": "analysis",
+          "locator": "children of CLM-2567",
+          "summary": "Children cover each issue requirement: attempts and backoff (2568), transient-only retry with fast failure (2569), logging (2570), shared helper (2571), pure-function test (2572), root cause (2573, 2574). 2576 (failure rate) is not_enough_info and is a description claim, not an issue requirement.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T11:24:26.015530298Z",
+          "seal": {
+            "by": "server",
+            "mac": "1545bd9b4569bb1097588ef001a67a1fde9c06607c61d4c63c6535ec09c85d90"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All requirement children (2568-2575) are supported. The one open child, CLM-2576, is a description statement about the flake rate, not an issue requirement. The new unit test was read, not run.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4486"
+          ],
+          "recorded_at": "2026-11-28T11:24:52.140758159Z",
+          "seal": {
+            "by": "server",
+            "mac": "fa3c57f7b03d51a6ec1c3f4bb16dde4548dee979a3838fa4430da76a908ca3d8"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:52.140758159Z",
+      "seal": {
+        "by": "server",
+        "mac": "02b8b5a4efc0016f5f66c4bddd6c03adfc238e7cf3013a4f77b346106ce2b874"
+      }
+    },
+    {
+      "id": "CLM-2568",
+      "statement": "start_with_retry in tests/support/pg.rs makes up to START_ATTEMPTS = 4 attempts and sleeps START_BACKOFF * attempt (0.5 s, 1 s, 1.5 s) before each retry.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"`START_ATTEMPTS` is 4 ... The pauses are 0.5 s, 1 s and 1.5 s.\"; issue #1083: 3-4 attempts, short backoff",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4476",
+          "kind": "inspection",
+          "locator": "tests/support/pg.rs:85,89,1030-1031",
+          "summary": "START_ATTEMPTS is 4; START_BACKOFF is 500 ms; the retry arm sleeps START_BACKOFF * attempt (attempt 1,2,3 gives 0.5/1/1.5 s) then increments attempt; the guard attempt < START_ATTEMPTS yields 3 retries.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1013,
+                "end": 1036
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:03.794705433Z",
+          "seal": {
+            "by": "server",
+            "mac": "7e8c02c417a4d22f94df0bfd61a64d208e9ddc7dc2fd2192745fe14ece485740"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Constants and sleep arithmetic read directly: 4 attempts, 3 retries, pauses 0.5/1/1.5 s.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4476"
+          ],
+          "recorded_at": "2026-11-28T11:24:20.052047216Z",
+          "seal": {
+            "by": "server",
+            "mac": "5e11730388be43d17227cc35bdd30f9c7b59fd38c9d4a55b1dbb8273517e9087"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:20.052047216Z",
+      "seal": {
+        "by": "server",
+        "mac": "1e6f7c7bed7013b212517d246a5c6cd880f418d0bc5f7e057b55ab93bafde723"
+      }
+    },
+    {
+      "id": "CLM-2569",
+      "statement": "start_with_retry retries only when is_transient_start_error is true (a timeout-class error, or text containing \"address already in use\", \"port is already allocated\" or \"failed to program external connectivity\"); any other error panics on the first attempt.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body: \"Any other error panics on the first attempt (before, it got one retry).\"; issue #1083: those errors only, so other failures still fail fast",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4477",
+          "kind": "inspection",
+          "locator": "tests/support/pg.rs:1022,1033,1090-1098",
+          "summary": "The retry arm's guard is `attempt < START_ATTEMPTS && is_transient_start_error(&error)`; any other error falls to the final arm, which panics. is_transient_start_error returns is_timeout_class(error) or lowercase text contains one of TRANSIENT_START_TEXTS (the three texts, lines 96-100).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1086,
+                "end": 1098
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:04.078913705Z",
+          "seal": {
+            "by": "server",
+            "mac": "71acee32f551424162d995b764262f5ddcf4bd9f1b8f2f56ff7685f6927c8d13"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The guard and the predicate are exactly as stated; all other errors reach the panic arm on attempt 1.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4477"
+          ],
+          "recorded_at": "2026-11-28T11:24:20.339712105Z",
+          "seal": {
+            "by": "server",
+            "mac": "5473b35fbb28976044c8f8af461ef206ded40f9cda7c656f6cc85d8e73f09d02"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:20.339712105Z",
+      "seal": {
+        "by": "server",
+        "mac": "195fbff488c3015efc794bc05841f9fc9e29246bc989a4f2f8f930f8b4d43974"
+      }
+    },
+    {
+      "id": "CLM-2570",
+      "statement": "Each retried start error is printed with eprintln! (including the error text, attempt and START_ATTEMPTS) and logged with tracing::warn!.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Each retried error is printed with `eprintln!` and logged with `tracing::warn!`.\"; issue #1083: log which error was retried",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4478",
+          "kind": "inspection",
+          "locator": "tests/support/pg.rs:1023-1030",
+          "summary": "The retry arm calls eprintln! with image, attempt/START_ATTEMPTS, \"(transient), retrying\" and the error, then tracing::warn! with the error, before sleeping.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/support/pg.rs",
+              "lines": {
+                "start": 1022,
+                "end": 1031
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:04.346001038Z",
+          "seal": {
+            "by": "server",
+            "mac": "a61f2411b9c8c9fd258c87578d58e67bdabfd84fc0742fbe1c6c64725ad9f2ad"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both log calls are in the retry arm and include the error.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4478"
+          ],
+          "recorded_at": "2026-11-28T11:24:20.573728016Z",
+          "seal": {
+            "by": "server",
+            "mac": "191a85e66397a1ff05e563ec1863a9c51dd76a4fb2d62b3c529ff4061c51e303"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:20.573728016Z",
+      "seal": {
+        "by": "server",
+        "mac": "22eb28ef4e2e9a7acbcb2b9037867a9e79d091bf9e469ac8f0dd1a9c3ca556c6"
+      }
+    },
+    {
+      "id": "CLM-2571",
+      "statement": "The retry lives in the shared start_with_retry, which tests/tls.rs postgres_with_tls and the shared postgres start use; no separate retry loop was added elsewhere.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "issue #1083: keep it in the shared start_with_retry",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs",
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4479",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD --stat; tests/tls.rs:106",
+          "summary": "The diff touches only tests/support/pg.rs (the existing start_with_retry), tests/tls.rs (the new test) and a changelog; no new loop. postgres_with_tls calls pg::start_with_retry (tls.rs:106) and the shared postgres start calls start_with_retry(postgres_17) (pg.rs ~671).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/tls.rs",
+              "lines": {
+                "start": 105,
+                "end": 107
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:04.613859374Z",
+          "seal": {
+            "by": "server",
+            "mac": "3166a7e1848cdca6c1591507f8444a81eb96d97f8b80e3654fa9ff942b0a7266"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Only the shared helper changed; its callers include the tls start.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4479"
+          ],
+          "recorded_at": "2026-11-28T11:24:20.810838232Z",
+          "seal": {
+            "by": "server",
+            "mac": "2fefc9a7daca6d47316b1b0af9ec5c48820c63b2c8dff73c1af70277da800b06"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:20.810838232Z",
+      "seal": {
+        "by": "server",
+        "mac": "676e5d7ffe1cbefcad2fd81ec651cca59694305c02d36bc55eb035b80661e716"
+      }
+    },
+    {
+      "id": "CLM-2572",
+      "statement": "The test only_transient_docker_start_errors_are_retried in tests/tls.rs calls the pure is_transient_start_error without Docker, asserting true for the three port texts, a timeout text and io TimedOut, and false for no-such-image, invalid-reference, denied and io NotFound.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body: \"unit test `only_transient_docker_start_errors_are_retried` for the classification, no Docker needed.\"; issue #1083: pure-function unit test",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4480",
+          "kind": "inspection",
+          "locator": "tests/tls.rs:231-267 (only_transient_docker_start_errors_are_retried)",
+          "summary": "Plain #[test] (not async, no container). Asserts is_transient_start_error true for three port texts plus \"request timed out\" (Other) and Io TimedOut; false for \"no such image\", \"invalid reference format\", \"denied\" and Io NotFound. Assertions read, not run (gate in progress).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/tls.rs",
+              "lines": {
+                "start": 231,
+                "end": 267
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:04.874275192Z",
+          "seal": {
+            "by": "server",
+            "mac": "97c47e539fde6adcf31c5d65c1a202307f5298efa621d44fd23271cff132d2cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The test is a sync #[test] over the pure function with the listed true/false cases. I did not run it (a gate is running; builds were forbidden), so the pass is not confirmed here.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4480"
+          ],
+          "recorded_at": "2026-11-28T11:24:21.127395572Z",
+          "seal": {
+            "by": "server",
+            "mac": "a901d5752f7f72a55cdb979ab0b33073086db0d86778d6f6c162e4f1c0248314"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:21.127395572Z",
+      "seal": {
+        "by": "server",
+        "mac": "6c95cc90002d604213cb366eb8506590346077f59e9154868a7ea640a9d66b86"
+      }
+    },
+    {
+      "id": "CLM-2573",
+      "statement": "postgres_with_tls asks testcontainers for an ordinary Docker-assigned host port (no fixed port, none reserved and released first), reads the mapped port after the start with get_host_port_ipv4(5432), mounts the certificate and key with with_copy_to, and starts through start_with_retry.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body, Root cause: \"Nothing in `postgres_with_tls` is special: it mounts the certificate and key with `with_copy_to`, asks testcontainers for an ordinary Docker-assigned host port ... reads the mapped port back ... through the same `start_with_retry`\"; issue #1083: find the root cause",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4481",
+          "kind": "inspection",
+          "locator": "tests/tls.rs:91-110; tests/support/pg.rs:997-999",
+          "summary": "tls_request builds postgres_17() (Postgres::default().with_tag) plus two with_copy_to and with_cmd; no with_mapped_port or fixed port. postgres_with_tls starts via pg::start_with_retry then get_host_port_ipv4(5432).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/tls.rs",
+              "lines": {
+                "start": 89,
+                "end": 112
+              },
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:05.090003087Z",
+          "seal": {
+            "by": "server",
+            "mac": "5d8fbd0495c536f582d854110ffdf1c83584deae9d9b4aaf87862f5dfaea6583"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code matches the description.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4481"
+          ],
+          "recorded_at": "2026-11-28T11:24:21.344663865Z",
+          "seal": {
+            "by": "server",
+            "mac": "85ad68fc5e9935905064239e4bf8ac3e0ddeebbe2741379e1fd81f03bc757cac"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:21.344663865Z",
+      "seal": {
+        "by": "server",
+        "mac": "a5ee4a0b3049c766542f6edfe889cf6e77cbdb34b692e93e21a2df8dc2008f3e"
+      }
+    },
+    {
+      "id": "CLM-2574",
+      "statement": "The PR body's root-cause conclusion holds: the \"address already in use\" / \"failed to program external connectivity\" errors come from Docker's own ephemeral host-port pick (testcontainers publishes all ports and lets Docker choose), not from a port chosen in test code.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body, Root cause: \"come from Docker's own ephemeral host-port pick racing with the many other containers and sockets of a full gate, not from a port chosen in test code.\"",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/tls.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4482",
+          "kind": "analysis",
+          "locator": "testcontainers-0.27.3/src/runners/async_runner.rs:291-297 (cargo registry)",
+          "summary": "With no mapped ports the runner sets publish_all_ports = true and empty port_bindings, so Docker chooses the host port; tls.rs has no search hit for with_mapped_port/free_port (only tests/support/redis.rs does). Consistent with the PR's conclusion. The concrete failure logs were not seen by the PR (it says so), so the race with other containers is inferred, not observed.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T11:24:05.327818737Z",
+          "seal": {
+            "by": "server",
+            "mac": "f79fc0863db170d909710fb3adfc693139d7dd52f11c8bb18015ed26c7372b82"
+          }
+        },
+        {
+          "id": "EVD-4483",
+          "kind": "analysis",
+          "locator": "git grep -nE \"with_mapped_port|free_port\" -- tests/tls.rs",
+          "summary": "Zero hits: tls.rs picks no port itself.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "with_mapped_port|free_port",
+              "scope": [
+                "tests/tls.rs"
+              ],
+              "hits": 0,
+              "commit": "dba8f15d04e4eb3b6e9ef8aef0a65ddf8bb06b30"
+            }
+          },
+          "recorded_at": "2026-11-28T11:24:05.548462037Z",
+          "seal": {
+            "by": "server",
+            "mac": "fe3715a51a9889dc5657ecd552e743c420db466c714fcb5e367ebb60f740c4d7"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Test code picks no port and testcontainers 0.27.3 publishes all ports so Docker picks, which supports \"not a port chosen in test code\". That the race is with other containers is inference (no failure logs), which the PR body states honestly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4482",
+            "EVD-4483"
+          ],
+          "recorded_at": "2026-11-28T11:24:21.543755403Z",
+          "seal": {
+            "by": "server",
+            "mac": "539998f80f810a44d5e67a6d457d4b01d87ecfcc4ca16f87ed9d044548a8d049"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:21.543755403Z",
+      "seal": {
+        "by": "server",
+        "mac": "295e3b00b922d8643015daa643a46e7bcdd9d9a76086510b075907bd614a9d2c"
+      }
+    },
+    {
+      "id": "CLM-2575",
+      "statement": "Before this change, START_ATTEMPTS was 2 and start_with_retry retried any start error once, so a non-transient error got one retry.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"Any other error panics on the first attempt (before, it got one retry).\"",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [
+        "tests/support/pg.rs"
+      ],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4484",
+          "kind": "inspection",
+          "locator": "git show origin/main:tests/support/pg.rs lines 82, 1001",
+          "summary": "On origin/main START_ATTEMPTS = 2 and the retry arm was `Err(error) if attempt < START_ATTEMPTS =>` with no classification, so any error got one retry.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T11:24:05.782540037Z",
+          "seal": {
+            "by": "server",
+            "mac": "a2ab37c6482ebcd53c2612ff4eaea59a44ce491d89fd6f75dcd9e537e2d4c88a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "origin/main's constant and unguarded arm confirm it.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4484"
+          ],
+          "recorded_at": "2026-11-28T11:24:21.750090129Z",
+          "seal": {
+            "by": "server",
+            "mac": "d74d7a633266b17573357f89dbeb7d1bfae1afe2e5145ad6e64b1b9872721eb2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:21.750090129Z",
+      "seal": {
+        "by": "server",
+        "mac": "e016b195ba09bf5179c18137e690ae8918855aee335c6cbf5e6680aff7b954ee"
+      }
+    },
+    {
+      "id": "CLM-2576",
+      "statement": "The `tls` tests failed in the full test gate on about half of all runs.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "analysis",
+      "source": "PR body: \"The `tls` tests failed in the full test gate on about half of all runs\"",
+      "derived_from": [
+        "CLM-2567"
+      ],
+      "artifacts": [],
+      "tags": [
+        "from-issue:1083"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4485",
+          "kind": "analysis",
+          "locator": "PR body, Root cause; ledger CLM-1631",
+          "summary": "No flake-rate data in the repository or reachable logs (the PR body itself says earlier failure logs were not found). Ledger CLM-1631 records one gate run with 2 failed tls tests, which does not give a rate.",
+          "stance": "neutral",
+          "recorded_at": "2026-11-28T11:24:06.003594720Z",
+          "seal": {
+            "by": "server",
+            "mac": "9faf4f84b80e35975925b4d41ac4d8e45b021fbf94420d43ee50b548d1c22078"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "not_enough_info",
+          "rationale": "No data in the repository gives the failure rate. Fix: replace \"on about half of all runs\" in the PR body with what the issue says, or cite the gate runs counted (for example, N of M recent gate runs failed in tls).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [],
+          "recorded_at": "2026-11-28T11:24:21.948705344Z",
+          "seal": {
+            "by": "server",
+            "mac": "708ac7bf922466b4a1ce47492619bfcc9990fd722fa700e935eb3814c5a0b637"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T11:23:40.297730895Z",
+      "updated_at": "2026-11-28T11:24:21.948705344Z",
+      "seal": {
+        "by": "server",
+        "mac": "d63e4fc179160d0347932397b948647e508cb2db996b2747fee771cdbffb1674"
       }
     }
   ]

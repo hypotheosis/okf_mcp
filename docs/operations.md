@@ -489,7 +489,9 @@ together wait on the same refresh, which fetches the login once. Only a
 refused login is retried: a timeout or a network failure is not, and a login
 still refused after the refresh ends in `StoreUnavailable`. The refresh runs
 at most once every 10 seconds, so a second rotation inside that gap can fail
-requests until the next one. A store using `env` has no refresh and no retry.
+requests until the next one. The retry attempt has its own bound, the pool's
+connect timeout, so a request that waited for a refresh can take up to twice
+`store_connect_timeout` in all. A store using `env` has no refresh and no retry.
 The AWS credentials are used only for `secrets-manager` and `iam` stores.
 
 ### Placement

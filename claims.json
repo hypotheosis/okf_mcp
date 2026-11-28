@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2592,
+  "next_claim_seq": 2594,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "5d7c268bb504f355096efbaea48f26d4a3f60b2ba840d65d2f257a16296708a0"
+    "mac": "f2748d404183513effafbed944694bafb80f0cce2fd5f847a0689b15f4f969ae"
   },
-  "next_evidence_seq": 4508,
+  "next_evidence_seq": 4514,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "b2326844355965d335e21338007b4227bbf4b8ab1d63560403318e9d19cbccc8"
+    "mac": "48b21de0b96d270c52d7fd22c80249c0878d4a801f4f6bfa4d9431c20cc56326"
   },
   "claims": [
     {
@@ -226602,6 +226602,24 @@
             "by": "server",
             "mac": "3fc57b74ccda884abe23b42f7b828dfb75eddcf84a34dba62b9589395d087146"
           }
+        },
+        {
+          "id": "EVD-4513",
+          "kind": "inspection",
+          "locator": "changelog/20261128T120157Z-issue-1183-second-account-flake.md at 026fc22d",
+          "summary": "The entry still exists under its timestamped name; later commits only added the review-round section.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "changelog/20261128T120157Z-issue-1183-second-account-flake.md",
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:53.182762305Z",
+          "seal": {
+            "by": "server",
+            "mac": "bb216e563ee192b954ee8cc4df21b368c875932c8609b9e383ffc1536b5d207b"
+          }
         }
       ],
       "verdicts": [
@@ -226617,13 +226635,26 @@
             "by": "server",
             "mac": "40445ca6fe820022d13c0c775e0305edfda1c6b9c6a0683ecb903a09bb4ab7d8"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 026fc22d; entry still present.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4513"
+          ],
+          "recorded_at": "2026-11-28T12:58:57.401765848Z",
+          "seal": {
+            "by": "server",
+            "mac": "437ac720ac295899df4fe290459637a790555bd33f8122e79a69c8e154d63ba9"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:22:57.322184659Z",
+      "updated_at": "2026-11-28T12:58:57.401765848Z",
       "seal": {
         "by": "server",
-        "mac": "6dbdb5809a0a68876441bbf3c8e7b15f921106a169d6aca3c9925ac79f9844b3"
+        "mac": "359a35d035c8b3b7b844d1dd5e76b8a5f6d2ab546609c09d0fe1af33af2d75c6"
       }
     },
     {
@@ -226888,6 +226919,28 @@
             "by": "server",
             "mac": "3c61b96a919337ed1b505e2eed2095ee1d00937473714901a13bd0a5d85866bf"
           }
+        },
+        {
+          "id": "EVD-4512",
+          "kind": "inspection",
+          "locator": "git diff 148c0894..HEAD -- tests/ui_e2e/read.rs (hunk at 1915)",
+          "summary": "The only change in the helper since the last audit is its doc comment (the track_fetches note); the body (healthz, read-back, 3 attempts, no console reload) is unchanged.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 1928,
+                "end": 1968
+              },
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:53.003435981Z",
+          "seal": {
+            "by": "server",
+            "mac": "852f540bfa399e75a4d637d81702c323c784f78d9e3d7e1e499c78f1232c1e65"
+          }
         }
       ],
       "verdicts": [
@@ -226916,13 +226969,26 @@
             "by": "server",
             "mac": "bd32aaff30c1e89aae1415c3c509545db2164b8ad752b7cb6c8a1b7e1d3bf6e9"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 026fc22d; body unchanged.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4512"
+          ],
+          "recorded_at": "2026-11-28T12:58:57.229001060Z",
+          "seal": {
+            "by": "server",
+            "mac": "f1c5d91b537da4a7d2fc84c85de86bf94a5382bd7741638eac8ef702a2099e10"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:37:55.927383688Z",
+      "updated_at": "2026-11-28T12:58:57.229001060Z",
       "seal": {
         "by": "server",
-        "mac": "39f2c4aae22eb376db00749f79be7ca1afc3012eb7c71f5a38167ed45589974f"
+        "mac": "a01dabc482698e9e2b00e082e66d964e1425df5e5444b3570e6194837ebdbdb3"
       }
     },
     {
@@ -226989,6 +227055,28 @@
             "by": "server",
             "mac": "da0a3be7b18a99ef5bf5d80da9e7ef83eb015a59bba208c15f38180ae2665422"
           }
+        },
+        {
+          "id": "EVD-4511",
+          "kind": "analysis",
+          "locator": "tests/ui_e2e/harness.rs:656-695; src/http/read/js/main.js:332-343",
+          "summary": "The round-2 gap is closed: boot's un-awaited catalogList() read starts before sign_in_reader returns, and the count now exists from the first document, so the pending read is counted and awaited before the second sign-in. The counter resets per document, which is right since an old document's fetches die with it. Same residual as before: the no-flake claim's empirical half rests on the author's runs, which I did not repeat; the author reports the known tls verify_full_* flake in some full runs, unrelated to these journeys.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/read/js/main.js",
+              "lines": {
+                "start": 332,
+                "end": 343
+              },
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:19.441380861Z",
+          "seal": {
+            "by": "server",
+            "mac": "8abb79a54ff6472ca25cb6965a8d2f7da7590411b2cdc58dc4ba05acbc33d2e2"
+          }
         }
       ],
       "verdicts": [
@@ -227017,13 +227105,26 @@
             "by": "server",
             "mac": "784c94645d7ca6ba9d1192488a8df672d599fc1997536589938292c73b60fa89"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 026fc22d: boot's un-awaited read is now counted. Empirical no-flake half still rests on the author's runs.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4511"
+          ],
+          "recorded_at": "2026-11-28T12:58:27.298031907Z",
+          "seal": {
+            "by": "server",
+            "mac": "082371518f1110b814a9c2587208f821f5e3ed89b06b276c72b4ebecf6a27286"
+          }
         }
       ],
       "created_at": "2026-11-28T12:22:10.033818199Z",
-      "updated_at": "2026-11-28T12:37:56.075056497Z",
+      "updated_at": "2026-11-28T12:58:27.298031907Z",
       "seal": {
         "by": "server",
-        "mac": "a8b0e6edc3a780ea3312483c5bd29a8a94c1bc297f1c9fdd6bdf9cad838bf7e1"
+        "mac": "747e83473c20e8359e295034d1a5c27b7af33f3561e9d28ecd265aa712e58006"
       }
     },
     {
@@ -227224,7 +227325,9 @@
         "from-issue:1183"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded at 026fc22d: track_fetches is no longer called after wait_worker; it is installed at document start before sign_in_reader. Replaced by a corrected claim.",
+        "retired_at": "2026-11-28T12:58:06.447179773Z"
       },
       "evidence": [
         {
@@ -227266,10 +227369,10 @@
         }
       ],
       "created_at": "2026-11-28T12:37:26.755633119Z",
-      "updated_at": "2026-11-28T12:37:55.502147276Z",
+      "updated_at": "2026-11-28T12:58:06.447179773Z",
       "seal": {
         "by": "server",
-        "mac": "b43ddb9c490b13b84cd8bb7f027742d21b47f89c885bbccb08ff01c812767905"
+        "mac": "e21bed0e7eb82e6274fa5d5acd89a98846865673d5fd391ee832fb6391581671"
       }
     },
     {
@@ -227315,6 +227418,28 @@
             "by": "server",
             "mac": "6d9200389402c4160bb5a17b1209c17b2e9f479cb3365f6fb5259e8a435ea439"
           }
+        },
+        {
+          "id": "EVD-4510",
+          "kind": "inspection",
+          "locator": "git diff 148c0894..HEAD -- tests/ui_e2e/read.rs",
+          "summary": "At 026fc22d the journeys' only change is moving track_fetches to before sign_in_reader; the reader is signed in, opened and used exactly as before. The script only wraps fetch at document start; the wait only reads the counter.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2007,
+                "end": 2020
+              },
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:19.188658691Z",
+          "seal": {
+            "by": "server",
+            "mac": "de26890f8d3c329bcd88cf245e7d5d573a646725cb5518d73f4e3e8424745177"
+          }
         }
       ],
       "verdicts": [
@@ -227330,13 +227455,26 @@
             "by": "server",
             "mac": "819420e3b363762a703950eb0a33df00ab6498975aba0b6a3365d62d104c93f5"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited at 026fc22d; the journeys only gained an earlier tracking line.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4510"
+          ],
+          "recorded_at": "2026-11-28T12:58:27.075265464Z",
+          "seal": {
+            "by": "server",
+            "mac": "5a2b0744ab9e813e12b1784d2ee64e179847ed96d2c5c6aa6d93fbdf7afd8f62"
+          }
         }
       ],
       "created_at": "2026-11-28T12:37:26.755633119Z",
-      "updated_at": "2026-11-28T12:37:55.645765164Z",
+      "updated_at": "2026-11-28T12:58:27.075265464Z",
       "seal": {
         "by": "server",
-        "mac": "13e4dd3d12c015c1ab09918329ceba3007a4844888904aaa44a6d0a1181cc662"
+        "mac": "ee2cd270bbaa6375f430930b19f72ab823e4081d6a6882852fac582ee6bd1c79"
       }
     },
     {
@@ -227357,7 +227495,9 @@
         "from-issue:1183"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "The test it names no longer exists at 026fc22d; replaced by the_second_sign_in_waits_for_the_readers_boot_requests.",
+        "retired_at": "2026-11-28T12:58:06.726083350Z"
       },
       "evidence": [
         {
@@ -227399,10 +227539,143 @@
         }
       ],
       "created_at": "2026-11-28T12:37:26.755633119Z",
-      "updated_at": "2026-11-28T12:37:55.786779168Z",
+      "updated_at": "2026-11-28T12:58:06.726083350Z",
       "seal": {
         "by": "server",
-        "mac": "a6247057ecdcd6f02d4fd0579dc994b89d4bef91776feab536548ad65107faa8"
+        "mac": "923465f14855145dbd9aca5538b94ebaadef2a2d061e6bc13d49b6781c5b21e9"
+      }
+    },
+    {
+      "id": "CLM-2592",
+      "statement": "Both journeys call ui.track_fetches() before ui.sign_in_reader and keep its result alive, track_fetches installs the counting fetch wrapper with Page.addScriptToEvaluateOnNewDocument so it runs as each document starts, and sign_in_second_in_another_tab calls ui.wait_fetches_settled() before posting the sign-in; so the count includes boot's un-awaited requests.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "analysis",
+      "source": "Reviewer round 2: the fetch tracker was installed after sign_in_reader, so boot's un-awaited catalogList() read could already be in flight",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs",
+        "tests/ui_e2e/harness.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4508",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/harness.rs:95-104, 666-695; tests/ui_e2e/read.rs:1930, 2011, 2053",
+          "summary": "at_document_start attaches to the page target, enables Page, and adds the script with Page.addScriptToEvaluateOnNewDocument; track_fetches passes TRACK_FETCHES (an IIFE resetting window.pendingFetches and wrapping fetch) and returns the DevTools connection. Both journeys bind it to _tracking (kept alive for the closure) on the line before sign_in_reader. wait_fetches_settled() is the helper's first statement. Boot's un-awaited catalogList() (src/http/read/js/main.js:338) goes through api.js's page fetch, so the wrapper counts it. The second tab is a separate target and is not wrapped. Not run by me.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/harness.rs",
+              "lines": {
+                "start": 656,
+                "end": 695
+              },
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:18.721768025Z",
+          "seal": {
+            "by": "server",
+            "mac": "448a4992e37d03093aabda28d42f34768e1c85e09309d6e96ada66dda2cfd56e"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Install order, document-start mechanism and the boot read's path through the page fetch are all in the code.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4508"
+          ],
+          "recorded_at": "2026-11-28T12:58:26.589805755Z",
+          "seal": {
+            "by": "server",
+            "mac": "1c27feacbc773491090b7f18e6ff683e004ca04432d8a18d11f103da332019d2"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:58:07.031742306Z",
+      "updated_at": "2026-11-28T12:58:26.589805755Z",
+      "seal": {
+        "by": "server",
+        "mac": "e1fd5a37a7e1b71555238f79d748c9b98464bd27ced612e334869c30c6bbaa41"
+      }
+    },
+    {
+      "id": "CLM-2593",
+      "statement": "The test the_second_sign_in_waits_for_the_readers_boot_requests installs a document-start hold on the first GET /api/v1/catalogs?readable=true before the count, signs in the reader, asserts fetches_settle_within(1.5 s) is false while it is held, releases it, asserts the wait then returns true, and then runs sign_in_second_in_another_tab.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "Reviewer round 2; changelog 'Review round'",
+      "derived_from": [
+        "CLM-2577"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/read.rs"
+      ],
+      "tags": [
+        "from-issue:1183"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4509",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/read.rs:2077-2120",
+          "summary": "HOLD_BOOT_CATALOGS holds the first fetch whose URL contains /api/v1/catalogs?readable=true until window.releaseBootRead(); it is added first (_hold) and the count second (_tracking), so the count wraps the held fetch. The body signs in the reader, asserts !fetches_settle_within(1500 ms), calls releaseBootRead, asserts fetches_settle_within(10 s), then sign_in_second_in_another_tab. That is the boot read at main.js:338 / readAll('/catalogs?readable=true') at :149. Under the old after-sign-in install the count would miss it. I did not run the test or the author's counterfactual.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/read.rs",
+              "lines": {
+                "start": 2077,
+                "end": 2120
+              },
+              "commit": "026fc22daaa0f7555a417b9fc53a90b42697bfd0"
+            }
+          },
+          "recorded_at": "2026-11-28T12:58:18.946886141Z",
+          "seal": {
+            "by": "server",
+            "mac": "de6a1a697b82c10a0dbb1655fb5a15e79500f2f42780ae234aa9ed7b4b64b921"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Assertions read and match the statement; they would fail if the count missed the boot read. Not run by me.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4509"
+          ],
+          "recorded_at": "2026-11-28T12:58:26.846581738Z",
+          "seal": {
+            "by": "server",
+            "mac": "d67f4577c5ae2a6570f848969319b4c4de9cad03e928fa5ea5a7ebb501e3e908"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T12:58:07.031742306Z",
+      "updated_at": "2026-11-28T12:58:26.846581738Z",
+      "seal": {
+        "by": "server",
+        "mac": "0fe94f9e51561bd30f1bbd647e4d35d4784dcd4eb8b2a5aef60349766691a625"
       }
     }
   ]

@@ -396,7 +396,9 @@ test_merge_refuses_an_unknown_state_that_never_resolves() {
     printf '{"headRefOid":"%s","mergeStateStatus":"UNKNOWN","baseRefName":"main"}\n' "$head_a" \
         >"$fx/pr-view.json"
     run_merge_fake_clock
-    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting 60 s"; want_not_merged
+    want_rc 1; want_out "mergeStateStatus=UNKNOWN after waiting 51 s"; want_not_merged
+    # The 10 s cleanup reserve ends the polling early (1061 - 10 = 1051), and the
+    # message reports that, not the 60 s of AGENTIC_STATE_WAIT (#1169).
     [ "$(cat "$fx/clock")" -le 1100 ] || die "waited past the bound"
 }
 
@@ -406,11 +408,11 @@ test_merge_state_wait_is_bounded_with_a_slow_lookup() {
         >"$fx/pr-view.json"
     # Each state lookup would take 20 s and ignores TERM, the worst cleanup that
     # can be stopped. The documented bound (await_merge_state) is
-    # AGENTIC_STATE_WAIT + 2 + agentic_kill_after + agentic_reap_after
-    # = 2 + 2 + 1 + 1 = 6 s; the test allows 2 s more for the script's own
-    # start-up and the stub calls before the wait (a loaded machine).
+    # AGENTIC_STATE_WAIT + 2 = 4 s, cleanup included (#1169); the test allows
+    # 2 s more for the script's own start-up and the stub calls before the wait
+    # (a loaded machine).
     echo 20 >"$fx/lookup-sleep"
-    local bound_ms=6000 tolerance_ms=2000 started_ms elapsed_ms pgid
+    local bound_ms=4000 tolerance_ms=2000 started_ms elapsed_ms pgid
     started_ms=$(($(date +%s%N) / 1000000))
     out=$(cd "$repo" && AGENTIC_STATE_WAIT=2 agentic_kill_after=1 agentic_reap_after=1 \
         timeout 30 "$tools/merge-reviewed.sh" 7 2>&1)
@@ -437,7 +439,7 @@ test_merge_names_the_wait_when_still_blocked_after_resolving() {
     new_fixtures; blocked_pr "$head_a"
     threads_page 1 "$(thread T1 false "$bot")"
     run_merge_fake_clock
-    want_rc 1; want_out "still 6"; want_out "s after resolving 1"; want_resolved "T1"
+    want_rc 1; want_out "still 51 s after resolving 1"; want_resolved "T1"
     want_not_merged
 }
 
@@ -609,14 +611,73 @@ test_watch_never_retriggers_while_behind_main() {
 
 test_watch_stalled_gh_still_ends_at_deadline() {
     new_fixtures; good_pr "$head_a"; block_gh
-    # Real clock with a 2 s deadline: a stalled gh must not hold the watcher
-    # past it, and the diagnostics get only their own few seconds.
+    # Real clock with a 4 s deadline and a 2 s cleanup reserve (1 + 1): a
+    # stalled gh must not hold the watcher past the deadline, and the
+    # diagnostics get only their own window, 3 s plus the reserve (#1169).
     started=$SECONDS
-    out=$(cd "$repo" && AGENTIC_WATCH_TIMEOUT=2 timeout 15 "$tools/watch-review.sh" 7 2>&1)
+    out=$(cd "$repo" && AGENTIC_WATCH_TIMEOUT=4 agentic_kill_after=1 agentic_reap_after=1 \
+        timeout 20 "$tools/watch-review.sh" 7 2>&1)
     rc=$?
     want_rc 2; want_out "TIMEOUT"
-    [ $((SECONDS - started)) -le 8 ] || die "took $((SECONDS - started)) s, want about 5"
+    # 4 + (3 + 2) = 9 s at most, plus a little for the shell.
+    [ $((SECONDS - started)) -le 11 ] || die "took $((SECONDS - started)) s, want at most 9"
     want_no_blocked_left
+}
+
+# stubborn_gh: a gh that ignores TERM and stays up until it is KILLed, the
+# worst call to stop. Its pid goes to $fx/stubborn.pid; the EXIT trap kills it
+# in case a script under test leaves it behind.
+stubborn_gh() {
+    mkdir -p "$fx/bin"
+    cat >"$fx/bin/gh" <<STUB
+#!/usr/bin/env bash
+trap '' TERM
+echo \$\$ >>"$fx/stubborn.pid"
+while :; do sleep 0.2; done
+STUB
+    chmod +x "$fx/bin/gh"
+    trap '[ -s "$fx/stubborn.pid" ] && xargs kill -KILL <"$fx/stubborn.pid" 2>/dev/null' EXIT
+}
+
+test_call_budget_reserves_the_cleanup_time_before_the_deadline() {
+    new_fixtures; echo 1000 >"$fx/clock"
+    # budget <deadline> [VAR=value...]: agentic_call_budget on the fake clock.
+    budget() {
+        local deadline=$1
+        shift
+        env "$@" AGENTIC_NOW_CMD=fake-now bash -c \
+            'source "$1"; agentic_deadline=$2; agentic_call_budget' _ "$tools/lib.sh" "$deadline"
+    }
+    [ "$(budget 1030 X=1)" = 20 ] || die "30 s left, 10 s reserve: want 20"
+    [ "$(budget 1100 X=1)" = 60 ] || die "the per-call cap still applies"
+    [ "$(budget 1100 AGENTIC_CALL_TIMEOUT=7)" = 7 ] || die "AGENTIC_CALL_TIMEOUT still caps"
+    [ "$(budget 1010 X=1)" = 0 ] || die "left equal to the reserve: no call"
+    [ "$(budget 1005 X=1)" = 0 ] || die "left below the reserve: no call"
+    [ "$(budget 1030 agentic_kill_after=1 agentic_reap_after=2)" = 27 ] \
+        || die "the reserve is kill_after + reap_after"
+    [ "$(env AGENTIC_NOW_CMD=fake-now AGENTIC_CALL_TIMEOUT=9 bash -c \
+        'source "$1"; agentic_call_budget' _ "$tools/lib.sh")" = 9 ] \
+        || die "without a deadline there is no reserve"
+}
+
+test_a_stalled_call_is_stopped_by_the_deadline_not_after_it() {
+    new_fixtures; stubborn_gh
+    # A deadline 4 s away, reserve 1 + 1: the call runs 2 s, gets TERM (ignored),
+    # is KILLed 1 s later and is gone by the deadline. Without the reserve it
+    # would run 4 s and need 1 s more.
+    local started_ms elapsed_ms pid
+    started_ms=$(($(date +%s%N) / 1000000))
+    out=$(PATH="$fx/bin:$PATH" agentic_kill_after=1 agentic_reap_after=1 timeout 20 bash -c '
+        source "$1"
+        agentic_deadline=$(($(agentic_now) + 4))
+        agentic_gh pr view 7
+        echo "rc=$?"' _ "$tools/lib.sh" 2>&1)
+    elapsed_ms=$(($(date +%s%N) / 1000000 - started_ms))
+    want_out "rc=124"
+    [ "$elapsed_ms" -le 4500 ] || die "took $elapsed_ms ms; the deadline is 4000 ms (+500 ms for the shell)"
+    [ "$elapsed_ms" -ge 1000 ] || die "took only $elapsed_ms ms: the call was never started"
+    pid=$(head -n1 "$fx/stubborn.pid") || die "the stalled call never ran"
+    ! kill -0 "$pid" 2>/dev/null || die "the stalled call $pid is still running"
 }
 
 test_watchdog_covers_worktrees_outside_main_checkout() {

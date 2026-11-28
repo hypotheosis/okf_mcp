@@ -22,9 +22,12 @@
 #   gh), and prints the bot's latest PR comments: the usual cause is a skip
 #   notice such as "out of date with main" (merge origin/main into the branch
 #   and push again).
-# - Every gh call is bounded by the time left before that deadline, and by a
-#   per-call cap ($AGENTIC_CALL_TIMEOUT, default 60 s); the final diagnostics
-#   get a few seconds of their own.
+# - Every gh call, including stopping a stalled one, is over by that deadline:
+#   its run time is capped by the time left minus the cleanup reserve
+#   ($agentic_kill_after + $agentic_reap_after, 10 s by default; lib.sh), and by
+#   a per-call cap ($AGENTIC_CALL_TIMEOUT, default 60 s). The final diagnostics
+#   get a window of their own, 3 s of run time plus that reserve, so the whole
+#   run ends within AGENTIC_WATCH_TIMEOUT + 3 + reserve s (plus 1 s of clock).
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source-path=SCRIPTDIR source=lib.sh
@@ -34,7 +37,7 @@ pr=${1:?usage: watch-review.sh <pr>}
 started=$(agentic_now) # for re-trigger timing
 readonly deadline=$((started + ${AGENTIC_WATCH_TIMEOUT:-900})) # overall limit; never moves
 agentic_deadline=$deadline # bounds every gh call (lib.sh: agentic_call_budget)
-diagnostics_budget=3
+diagnostics_budget=$((3 + $(agentic_cleanup_reserve)))
 repo=$(agentic_repo) || { echo "watch-review.sh: could not resolve the repository" >&2; exit 1; }
 bot=$(agentic_reviewer)
 retrigger=${AGENTIC_RETRIGGER:-/prrb}

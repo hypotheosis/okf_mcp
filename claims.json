@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2378,
+  "next_claim_seq": 2393,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "895f7589257e7e3126a80f616dfb8123663fa4bc9e363301f080aeb89d2f0b78"
+    "mac": "5a0a7aae09e1cee054f900cb4fe8aadd103e1824f8aa2172846d8ce985054b0a"
   },
-  "next_evidence_seq": 4187,
+  "next_evidence_seq": 4202,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "c541f658b3197ab941626f7f7239d22d88e5570e27e3e2cdcba7b19bd3c68328"
+    "mac": "010c81ae45ad0513c4a63563f63789b14a3ce491bf7b040f415295735c936ea8"
   },
   "claims": [
     {
@@ -210340,6 +210340,994 @@
       "seal": {
         "by": "server",
         "mac": "3067378eda875d67fcafc5a19ebf0ac5240818c2a82963e203463a648ab0284e"
+      }
+    },
+    {
+      "id": "CLM-2378",
+      "statement": "Issue #949 is delivered: history, the browse history route and the console History tab page past the newest 200 revisions with before and next.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/949",
+      "derived_from": [],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/store/history.rs",
+        "src/http/api/browse.rs",
+        "src/http/ui/js/pages/browse.js"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4201",
+          "kind": "analysis",
+          "locator": "children of CLM-2378",
+          "summary": "All active children are supported: tool parameter and next, exact-limit boundary, tests past 200 revisions, store query and index use, browse route, console button, journey, schema, fixture, docs, MCPJam and changelog. Together they cover the issue and the extra requirements.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T01:39:59.409976768Z",
+          "seal": {
+            "by": "server",
+            "mac": "38716e3a996b03ca214839fd685c14c805e5a80e1944bcd02ef1769d93aabf8a"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every child supported.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4201"
+          ],
+          "recorded_at": "2026-11-28T01:40:01.617802591Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2fadb099cbda5ea08fc9992f94fca0110761ec0a23d58cdc43d12b116d7367b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:40:01.617802591Z",
+      "seal": {
+        "by": "server",
+        "mac": "3075fd12d5b17029fd2147b68c07b8ce7f86b1d5f0d9e0ff0bf3b3b1c91c52f5"
+      }
+    },
+    {
+      "id": "CLM-2379",
+      "statement": "history takes an optional `before: i32` and returns only revisions with revision < before (strict), newest first.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #949: optional `before: i32` parameter returning revisions with `revision < before`",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/mcp/history_paging_tests.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4187",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- history_paging (6 passed); src/mcp/history_paging_tests.rs:106",
+          "summary": "before_is_a_strict_bound...: before=10 limit 3 gives [9,8,7]; before=1 and -5 empty; i32::MAX gives [261,260,259]. Query REVISIONS_SQL has revision < COALESCE($6,...) ORDER BY revision DESC.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 66,
+                "end": 76
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:11.093473791Z",
+          "seal": {
+            "by": "server",
+            "mac": "36d43b4b816f02109f0c131daa29e99a81964ef57d1e34f482ca36e5ff73279b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Strict bound and order asserted by passing test.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4187"
+          ],
+          "recorded_at": "2026-11-28T01:39:33.958458994Z",
+          "seal": {
+            "by": "server",
+            "mac": "14a2c52648c22194190554a33e35842eca24af3e82aa4274fc55afec3a4886ac"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:33.958458994Z",
+      "seal": {
+        "by": "server",
+        "mac": "a08b56dbf4e773df93dce225ef703c8f2c8cad8933e47186e06bd9a6cd39bc2d"
+      }
+    },
+    {
+      "id": "CLM-2380",
+      "statement": "history's result has `next`: the last revision number returned while an older matching revision exists, else null.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #949: add `next` to the result (the last revision returned, or null when there are no older ones)",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4188",
+          "kind": "inspection",
+          "locator": "src/mcp/history.rs:297-318",
+          "summary": "Reads limit+1 rows, more = len > page_len, truncates, next = last row's revision only when more; else None. Tests assert next Some(TOTAL-199), Some(7), Some(2), None at the end; filtered walk too.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 297,
+                "end": 318
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:11.309666386Z",
+          "seal": {
+            "by": "server",
+            "mac": "96ded4f2e999dc8e4777b22dc435948e06d02d12f5fe397267ee7ab4b30d9f1f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reads limit+1 and sets next only when an older row exists; tests assert the values.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4188"
+          ],
+          "recorded_at": "2026-11-28T01:39:34.214803378Z",
+          "seal": {
+            "by": "server",
+            "mac": "da4ee409a1e08f1a8901843bb135f61777abfd6288506b8833dd28bb7f0f0160"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:34.214803378Z",
+      "seal": {
+        "by": "server",
+        "mac": "a8606de603bb8cebcc1bdded1cd6b86745c67416ba741e680ef8372ba89b7f69"
+      }
+    },
+    {
+      "id": "CLM-2381",
+      "statement": "When exactly `limit` revisions remain, history returns them with next null (no pointer to an empty page).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "task requirement: next is null when exactly limit revisions remain",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/mcp/history_paging_tests.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4189",
+          "kind": "test",
+          "locator": "mcp::history_paging_tests::exactly_limit_revisions_left_gives_no_next (ok)",
+          "summary": "261 revisions; limit 61 before 62 returns 61..1 with next None; limit 60 returns 60 rows with next Some(2).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_paging_tests.rs",
+              "lines": {
+                "start": 91,
+                "end": 104
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:11.533623368Z",
+          "seal": {
+            "by": "server",
+            "mac": "fac4cd3d10a60589bceea943a46c869bf8c6447737a6632dddfdfb45b0d4aebb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Boundary test asserts next None at exactly limit remaining, Some(2) at limit-1 short.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4189"
+          ],
+          "recorded_at": "2026-11-28T01:39:34.374408176Z",
+          "seal": {
+            "by": "server",
+            "mac": "2bd9d140b938e26abbc5ad3a49b3850251be094b2ad527d99d261bb10e15324a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:34.374408176Z",
+      "seal": {
+        "by": "server",
+        "mac": "5254730d2ecf6488c90bc0c476c9ba5fdbcedb47533c48dcf4a6660265a444d9"
+      }
+    },
+    {
+      "id": "CLM-2382",
+      "statement": "A document with more than 200 revisions can be listed all the way to revision 1 by following next, and a before at or past the oldest revision returns an empty page with next null; both are asserted by tests.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 3,
+      "verification_method": "test",
+      "source": "issue #949 Tests section",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history_paging_tests.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4190",
+          "kind": "test",
+          "locator": "mcp::history_paging_tests::next_lists_a_document_past_200_revisions_down_to_revision_1 and before_is_a_strict_bound_... (ok)",
+          "summary": "Walk by next from limit 200 yields exactly 261..1 in 2 pages; before=1 gives empty revisions and next None with latest_revision 261.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history_paging_tests.rs",
+              "lines": {
+                "start": 77,
+                "end": 125
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:11.757931720Z",
+          "seal": {
+            "by": "server",
+            "mac": "a451526583ffafa9ac5662f558eb888fbb7b0756d3cfa7b3786d946cacc3136f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests run and pass, asserting the full 261..1 walk and the empty page.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4190"
+          ],
+          "recorded_at": "2026-11-28T01:39:34.557904851Z",
+          "seal": {
+            "by": "server",
+            "mac": "8def004e3a20e092e31456ce7c422279e8dac01cfe4a317b685533701af2f88a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:34.557904851Z",
+      "seal": {
+        "by": "server",
+        "mac": "fbe10d89afd189d11242d2754926eddc399c4d9953e8731c3e211534b70c5dfc"
+      }
+    },
+    {
+      "id": "CLM-2383",
+      "statement": "store::history::revisions and revisions_by both take `before: Option<i32>` and add `revision < COALESCE($6, 2147483647)` to one query ordered by revision DESC; a test EXPLAINs it and asserts an Index Scan Backward on the primary key with no Sort.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #949: store::history::revisions add AND revision < $n; primary key still serves; PR body Changes bullet 1",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/store/history.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4191",
+          "kind": "test",
+          "locator": "mcp::history_paging_tests::the_page_query_reads_the_primary_key_backwards_without_sorting (ok); src/store/history.rs:52-77,96-115",
+          "summary": "revisions and revisions_by both take before: Option<i32> and bind $6 into the single REVISIONS_SQL; the test EXPLAINs it (seqscan/bitmap off) and asserts Index Scan Backward, the key name, no Sort, and a 'revision <' condition.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/store/history.rs",
+              "lines": {
+                "start": 52,
+                "end": 115
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:11.993561471Z",
+          "seal": {
+            "by": "server",
+            "mac": "d21667b8d72430132d08371a34f1d86ddb410e6ebd72d06256b6eebb5ecbfb48"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and EXPLAIN test pass as stated.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4191"
+          ],
+          "recorded_at": "2026-11-28T01:39:34.727621245Z",
+          "seal": {
+            "by": "server",
+            "mac": "f050ff55fb66d2c9ae0d58cd21cff553871198129900885876266614a2951f7f"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:34.727621245Z",
+      "seal": {
+        "by": "server",
+        "mac": "a7607926b1f2c54d3e6fb275f290bac3f821bcbb010ad71f617f1ac706b8c6f7"
+      }
+    },
+    {
+      "id": "CLM-2384",
+      "statement": "The browse API route GET /catalogs/{catalog}/history/{*path} accepts ?before= and returns next, and a non-integer before is a client error; a test asserts this.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "issue #949: Browse API accepts ?before= and returns next",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/http/api/browse.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4192",
+          "kind": "test",
+          "locator": "http::api::browse::tests::history_pages_back_with_before_and_next (ok)",
+          "summary": "limit=1 gives [2], next 2; before=2 gives [1], next null; before=1 empty, next null; before=soon is a client error. Route passes query.before into HistoryParams (browse.rs:404).",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/api/browse.rs",
+              "lines": {
+                "start": 859,
+                "end": 906
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:12.224878558Z",
+          "seal": {
+            "by": "server",
+            "mac": "10626a9669ec600e47801b2cab2767c8faeff0b52c0b602ec9c59f3e3ed7f069"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Route test passes and asserts next and the bad before.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4192"
+          ],
+          "recorded_at": "2026-11-28T01:39:34.898958116Z",
+          "seal": {
+            "by": "server",
+            "mac": "ed3192ca3d614073f5c2ba50a6ccb9d165dc37015a9c9f03896b8b04a583b442"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:34.898958116Z",
+      "seal": {
+        "by": "server",
+        "mac": "61eea3dfa660f5a90b201e59431642b16387b90697ab419259b58154292c6424"
+      }
+    },
+    {
+      "id": "CLM-2385",
+      "statement": "The console History tab has a Load older button that requests the page below next, appends the rows, ignores a click while a read is in flight, ignores answers of a replaced or left tab via latest(), and is hidden when next is null.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "issue #949 console Load older; task: no double-append, stale answers ignored (latest()), hidden when next is null; PR body Console bullet",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/http/ui/js/pages/browse.js"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4193",
+          "kind": "inspection",
+          "locator": "src/http/ui/js/pages/browse.js:262-330",
+          "summary": "historyTab: button hidden when next == null; loadOlder returns if pending or next null, sets pending before the await; reads=latest(wrap), current=reads(), results ignored when !current(); rows concat, next updated, button hidden when next null; failure shows retry and re-shows button.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/http/ui/js/pages/browse.js",
+              "lines": {
+                "start": 262,
+                "end": 330
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:12.441235613Z",
+          "seal": {
+            "by": "server",
+            "mac": "b48e95f4a986b505bef636cb7a2007892879c4ba46035a572df692ac875b28f2"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code reading shows every listed behavior (pending guard, latest(), hide on null next).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4193"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.081114795Z",
+          "seal": {
+            "by": "server",
+            "mac": "e076058afadbbf7157776858dba67da9a7de43f9ee08cc534b94812f0519a2de"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.081114795Z",
+      "seal": {
+        "by": "server",
+        "mac": "d987d4637e039d5ceb90756521c7cdf4af24840aa4ef85607aeeaa5819ae0e7d"
+      }
+    },
+    {
+      "id": "CLM-2386",
+      "statement": "A ui_e2e journey (tests/ui_e2e/browse.rs) double-clicks Load older, asserts one request and one append, leaves the tab with a held answer and asserts nothing is drawn, and asserts the button is hidden after the last page.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "task: a ui_e2e journey exists",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "tests/ui_e2e/browse.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4194",
+          "kind": "inspection",
+          "locator": "tests/ui_e2e/browse.rs:187-241 (not run: browser journey)",
+          "summary": "Journey seeds revisions 2..12, page size 5, click_twice with hold_answer asserts held_matches()==1, then checks rows 12..3; held answer after leaving the tab draws nothing; ends with wait_hidden('#history-older') and rows 12..1. Helpers hold_answer, click_twice, held_matches exist in harness.rs. I did not run it.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/ui_e2e/browse.rs",
+              "lines": {
+                "start": 187,
+                "end": 241
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:12.662552716Z",
+          "seal": {
+            "by": "server",
+            "mac": "681afb6ca910d9b8b79b4a9786940c270ca039859dcd5eb960ba794a7ffe095b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "The journey asserts each listed behavior (read, not run; the gate for test-ui is the author's).",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4194"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.268547989Z",
+          "seal": {
+            "by": "server",
+            "mac": "c024a9b509afe4839adf42e3b61075e74041524bc87ce1f7adb630d3655e3382"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.268547989Z",
+      "seal": {
+        "by": "server",
+        "mac": "c5ccca0fa7c8948ff75ebe146704c2c570f1adfef3ffbfc9bf46816b91ecf71d"
+      }
+    },
+    {
+      "id": "CLM-2387",
+      "statement": "The new `before` parameter is in history's input schema with a description, and the tool description's first 31 characters are unchanged.",
+      "kind": "interface",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "task: new parameter in schema with a description; first 31 characters unchanged (#1174)",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/mcp/openings_tests.rs",
+        "src/investigator/contract_tools.json"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4195",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- openings (4 passed); src/mcp/history.rs:51-52",
+          "summary": "HistoryParams.before has a doc comment (the schema description, also in contract_tools.json). The description diff only changes text after the opening 'See how a note has changed.'; openings_tests (31-char check) pass.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 48,
+                "end": 52
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:12.888413524Z",
+          "seal": {
+            "by": "server",
+            "mac": "a5271279b51698a4cf3a0b5c27dfd6ff8c414f3db3a3bfbf378f11c253509576"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Schema description present; openings tests pass; opening text untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4195"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.443704877Z",
+          "seal": {
+            "by": "server",
+            "mac": "7eeba0886b094206767b55b9d4a2c7d5269088d1eb5e71e7dfede6d145374558"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.443704877Z",
+      "seal": {
+        "by": "server",
+        "mac": "05a202f874550b67ef65954ddfd3556513eb16fe24189d007001454c516b10d7"
+      }
+    },
+    {
+      "id": "CLM-2388",
+      "statement": "src/investigator/contract_tools.json is regenerated: it has history's before parameter and next field, matching the tool definitions, and a contract test compares them.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "task: contract_tools.json regenerated; PR body: contract test compares schemas",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/investigator/contract_tools.json"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4196",
+          "kind": "test",
+          "locator": "gate.sh narrow --lib -- investigator_contract_matches (1 passed); src/investigator/contract_tools.json",
+          "summary": "Fixture has history.inputSchema.before (int32, described) and output next; investigator_contract_matches_delivered_maintenance_fixture compares the fixture to the live tools and passes.",
+          "stance": "supports",
+          "anchor": {
+            "search": {
+              "pattern": "\"before\": \\{|\"next\": \\{",
+              "scope": [
+                "src/investigator/contract_tools.json"
+              ],
+              "hits": 2,
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:13.112659266Z",
+          "seal": {
+            "by": "server",
+            "mac": "7448f321096c0b9b117d90189f2780bfa19939fd0cdc9feeda123b26b0bcde7f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Fixture contains both and contract test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4196"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.623962238Z",
+          "seal": {
+            "by": "server",
+            "mac": "9772f292bd2e893b4533900be64af232b117dea71289dbcbef3a71956cf917bf"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.623962238Z",
+      "seal": {
+        "by": "server",
+        "mac": "76c3b7f5cb48a9cf64f17e4afc57a9543cca113f872fdcfc8bf5bac5585b01bb"
+      }
+    },
+    {
+      "id": "CLM-2389",
+      "statement": "docs/reference/tools.md#history and docs/operations.md describe before and next (same text as the tool description and the HTTP route).",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "issue #949: update docs/reference/tools.md#history and tool description; task: docs/operations.md",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "docs/reference/tools.md",
+        "docs/operations.md"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4197",
+          "kind": "inspection",
+          "locator": "docs/reference/tools.md:232-241; docs/operations.md:4615",
+          "summary": "tools.md description sentence and the before parameter row match src/mcp/history.rs text; operations.md route row lists ?before=, next semantics, empty page and 400. (400 vs 'client error' is only test-asserted as client error.)",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "docs/reference/tools.md",
+              "lines": {
+                "start": 230,
+                "end": 241
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:13.340313980Z",
+          "seal": {
+            "by": "server",
+            "mac": "99ffff90ac04aece20012a3260259468202c40021bda339f6ea1f84ed32c7c1b"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Docs text matches source text.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4197"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.784690231Z",
+          "seal": {
+            "by": "server",
+            "mac": "85439f2892324ff913029b725b4146b6d22ae9a06f60e80cc3c425b5016ad9e3"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.784690231Z",
+      "seal": {
+        "by": "server",
+        "mac": "4cec9403d12c929b5dda68535b35750066ed707c2a1f833e42dde82611a05694"
+      }
+    },
+    {
+      "id": "CLM-2390",
+      "statement": "An MCPJam scenario and a changelog entry for #949 exist: tests/mcpjam/scenarios/skeptical-recall-prober.test.ts pages history through next, and changelog/20261128T013244Z-issue-949-history-paging.md describes the change.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "task: an MCPJam scenario and a changelog entry exist",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+        "changelog/20261128T013244Z-issue-949-history-paging.md"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4198",
+          "kind": "inspection",
+          "locator": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts:387-411; changelog/20261128T013244Z-issue-949-history-paging.md",
+          "summary": "Scenario test 'history pages back through next and ends with a null next' pages limit 2 over 3 revisions and asserts [3,2] next 2, [1] next null, empty past. Changelog entry exists and describes the change.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tests/mcpjam/scenarios/skeptical-recall-prober.test.ts",
+              "lines": {
+                "start": 387,
+                "end": 411
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:13.559253555Z",
+          "seal": {
+            "by": "server",
+            "mac": "6d11bf195ed30732b577b71916e60e7716468d9df46868a4fd622b30b7aa2ac1"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Both files exist with the described content.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4198"
+          ],
+          "recorded_at": "2026-11-28T01:39:35.958809934Z",
+          "seal": {
+            "by": "server",
+            "mac": "a69c7e8a8d91342a188b0e9b1dff453ab89ba40dbfb78252be3f83affd39022a"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:35.958809934Z",
+      "seal": {
+        "by": "server",
+        "mac": "8c32f97e186f5955fe864974296ea41b9cac6ecb167bd1157de98d870dd757e9"
+      }
+    },
+    {
+      "id": "CLM-2391",
+      "statement": "PR body: a history `before` at or below the oldest revision gives an empty page with next null (not 'not found'), while an unknown path is still 'not found'.",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body: \"A `before` at or below the oldest revision gives an empty page with `next: null` (not \\\"not found\\\"); an unknown path is still \\\"not found\\\".\"",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/mcp/history.rs",
+        "src/mcp/history_paging_tests.rs"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4199",
+          "kind": "test",
+          "locator": "mcp::history_paging_tests::before_is_a_strict_bound_and_past_the_oldest_is_an_empty_page and an_unknown_path_is_still_not_found_with_before (ok)",
+          "summary": "before=1 gives empty page, next None (no error); unknown path with before is_err. Code: the exists check runs when before is Some.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/mcp/history.rs",
+              "lines": {
+                "start": 318,
+                "end": 330
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:13.805721943Z",
+          "seal": {
+            "by": "server",
+            "mac": "a63976eab065624438127a69908368b648e112150a4c0ef9882e6e9e1f5bf958"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests pass and assert both outcomes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4199"
+          ],
+          "recorded_at": "2026-11-28T01:39:36.128388957Z",
+          "seal": {
+            "by": "server",
+            "mac": "3437f5b02854fdd73f678998aee6dd3f730038e5428652fde080bb9d618dd126"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:36.128388957Z",
+      "seal": {
+        "by": "server",
+        "mac": "598f16302586016e69bb559d109e135ae13e39a3e50a266e55c8da4812ce156b"
+      }
+    },
+    {
+      "id": "CLM-2392",
+      "statement": "PR body: the recapture of contract_tools.json also refreshed other tools' descriptions (get_concept, maintenance_*, search) that had drifted from the #1174 openings, and no other change to them.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body: \"the recapture also refreshed other tools' descriptions that had drifted from the #1174 openings\"",
+      "derived_from": [
+        "CLM-2378"
+      ],
+      "artifacts": [
+        "src/investigator/contract_tools.json"
+      ],
+      "tags": [
+        "from-issue:949"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4200",
+          "kind": "inspection",
+          "locator": "git diff origin/main...HEAD -- src/investigator/contract_tools.json",
+          "summary": "Beyond history's before/next, the only hunks are description changes to get_concept, search and maintenance_claim/close/get_run/read_revision/renew/submit (a new opening prepended). Matches the statement.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/investigator/contract_tools.json",
+              "lines": {
+                "start": 1,
+                "end": 12
+              },
+              "commit": "3dddbca694a06eb9a5ff79839b80bd87316bfcc6"
+            }
+          },
+          "recorded_at": "2026-11-28T01:39:14.041678584Z",
+          "seal": {
+            "by": "server",
+            "mac": "da5088664e7c5cf7e0d8ad5cb7c310373fa375526372ee86b50d59ee0b4c3276"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff of the fixture matches the statement exactly.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4200"
+          ],
+          "recorded_at": "2026-11-28T01:39:36.300777673Z",
+          "seal": {
+            "by": "server",
+            "mac": "3c45a0d3e4f557e199c06c95acfe33a5ea444f267e9cfc12dac22945049333e5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T01:38:28.236630771Z",
+      "updated_at": "2026-11-28T01:39:36.300777673Z",
+      "seal": {
+        "by": "server",
+        "mac": "f593a0d3a71a699efe79f006e5fcc9259be5eaaf38d1fbf65846098328e51dbb"
       }
     }
   ]

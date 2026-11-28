@@ -371,7 +371,11 @@ async fn list_catalogs_with_two_granted_catalogs_probes_a_lost_store_once() {
     );
     // The selection is the same as without the saving: both granted, so no
     // single catalog is chosen.
-    assert!(listed.selection_error.is_some(), "{:?}", listed.selection_error);
+    assert!(
+        listed.selection_error.is_some(),
+        "{:?}",
+        listed.selection_error
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -390,7 +394,11 @@ async fn list_changesets_with_a_connection_list_probes_a_lost_store_once() {
         .unwrap();
 
     assert_eq!(listed.unavailable, ["remote"]);
-    let handles: Vec<&str> = listed.changesets.iter().map(|c| c.changeset.as_str()).collect();
+    let handles: Vec<&str> = listed
+        .changesets
+        .iter()
+        .map(|c| c.changeset.as_str())
+        .collect();
     assert_eq!(handles, [open_on_main.as_str()]);
     assert_eq!(
         stalled.accepted() - before,

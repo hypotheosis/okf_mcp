@@ -41,3 +41,7 @@ way to ask for older ones. It now pages by revision number.
   filtered walk, the `EXPLAIN`), a browse API round trip, a ui_e2e journey and
   an MCPJam scenario.
 - The tool description's first 31 characters are unchanged (#1174).
+- Review round 1: a second ui_e2e journey fails the `before=<next>` request,
+  then checks that the rows stay, `#history-status` shows, Load older returns,
+  and the retry asks for the same cursor once, appends once and clears the
+  message. Removing the `pending` reset on failure makes it fail.

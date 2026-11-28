@@ -182,8 +182,8 @@ fn history_rows(ui: &crate::ui_e2e::harness::Ui) -> Vec<String> {
     .expect("row numbers")
 }
 
-#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
-async fn history_loads_older_revisions_once_and_a_late_page_draws_nowhere() {
+/// The `server()` with revisions 2..=12 of alpha added, so its history has 12.
+async fn server_with_long_history() -> (TestServer, String) {
     let (server, key) = server().await;
     // Revisions 2..=12 of alpha, written straight into the store: publishing
     // them one by one would be slow, and the page is shrunk to 5 below.
@@ -197,9 +197,52 @@ async fn history_loads_older_revisions_once_and_a_late_page_draws_nowhere() {
     .execute(&server.db.store())
     .await
     .expect("seed revisions");
-    let numbers = |from: i32, to: i32| -> Vec<String> {
-        (to..=from).rev().map(|number| number.to_string()).collect()
-    };
+    (server, key)
+}
+
+/// The revision numbers `from` down to `to`, as the History tab shows them.
+fn numbers(from: i32, to: i32) -> Vec<String> {
+    (to..=from).rev().map(|number| number.to_string()).collect()
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_failed_load_older_keeps_the_rows_and_a_retry_asks_for_the_same_page() {
+    let (server, key) = server_with_long_history().await;
+    drive(server.base.clone(), move |ui| {
+        ui.login(&key);
+        ui.eval(
+            "async () => { (await import('/ui/js/pages/browse.js')).setHistoryPageSize(5); }",
+            json!(null),
+        );
+        ui.open("/browse/main/systems/alpha.md");
+        ui.wait_text("#concept-title", "Alpha");
+        ui.click("#concept-tabs [data-value='history']");
+        ui.wait_text("#history", "edit 12");
+        ui.wait_visible("#history-older");
+        // The page below 8 fails: the rows stay, the message shows, and
+        // Load older comes back.
+        ui.fail_next("GET", "limit=5&before=8", 503, "down for a moment");
+        ui.click("#history-older");
+        ui.wait_visible("#history-status");
+        assert!(ui.text("#history-status").contains("down for a moment"));
+        ui.wait_visible("#history-older");
+        assert_eq!(history_rows(ui), numbers(12, 8));
+        // The retry asks for the same cursor once, appends the page once and
+        // clears the message.
+        ui.hold_answer("GET", "limit=5&before=8", || ui.click("#history-older"));
+        assert_eq!(ui.held_matches(), 1, "the same cursor, asked once");
+        ui.release_held();
+        ui.wait_text("#history", "edit 3");
+        ui.wait_hidden("#history-status");
+        assert_eq!(history_rows(ui), numbers(12, 3));
+        ui.wait_visible("#history-older");
+    })
+    .await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn history_loads_older_revisions_once_and_a_late_page_draws_nowhere() {
+    let (server, key) = server_with_long_history().await;
     drive(server.base.clone(), move |ui| {
         ui.login(&key);
         ui.eval(

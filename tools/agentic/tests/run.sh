@@ -1002,6 +1002,34 @@ test_run_captured_aborts_when_the_callers_term_handler_returns() {
     want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
 }
 
+test_run_captured_aborts_when_a_signal_arrives_during_the_copy_out() {
+    # #1193 (re-audit): a TERM while the captured output is being copied out
+    # (a stub `cat` that waits for the test) is not lost: 143, handler ran, the
+    # caller's trap kept.
+    new_fixtures; mkdir -p "$fx/bin" "$fx/tmp"
+    local real; real=$(command -v cat)
+    printf '%s\n' '#!/usr/bin/env bash' ": >\"$fx/cat-started\"" \
+        "i=0; while [ ! -e \"$fx/release\" ] && [ \$i -lt 100 ]; do sleep 0.1; i=\$((i + 1)); done" \
+        "exec $real \"\$@\"" >"$fx/bin/cat"
+    chmod +x "$fx/bin/cat"
+    (PATH="$fx/bin:$PATH" TMPDIR="$fx/tmp" exec bash -c 'set -u; source "$1/lib.sh"
+        trap "echo handled" TERM
+        agentic_run_captured 5 true; echo "rc=$?"; trap -p TERM' _ "$tools" \
+        >"$fx/rc.out" 2>&1) &
+    local pid=$! tick
+    for ((tick = 0; tick < 100; tick++)); do
+        [ -e "$fx/cat-started" ] && break
+        sleep 0.1
+    done
+    [ -e "$fx/cat-started" ] || { kill -KILL "$pid"; die "the copy-out never started"; }
+    kill -TERM "$pid"
+    : >"$fx/release"
+    wait "$pid" 2>/dev/null
+    out=$(<"$fx/rc.out")
+    [ -z "$(ls -A "$fx/tmp")" ] || die "a temp file was left behind"
+    want_out "handled"; want_out "rc=143"; want_out "trap -- 'echo handled' SIGTERM"
+}
+
 test_bounded_capture_aborts_when_the_callers_term_handler_returns() {
     # #1193 (review): the watchdog's bounded_capture (its function is cut out of
     # watchdog.sh, which can't be sourced) returns 143 the same way.

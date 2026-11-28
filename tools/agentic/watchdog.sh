@@ -161,11 +161,14 @@ bounded_capture() {
         || echo "watchdog: warning: $2 call exited leaving processes behind; $agentic_cap_left" >&2
     if [ "$bc_status" -eq 124 ]; then
         agentic_cap_cleanup
+        [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
         echo "watchdog: warning: $2 call $agentic_cap_reason (status 124); skipping it" >&2
         return 124
     fi
     printf -v "$1" '%s' "$(<"$bc_file")"
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     agentic_cap_cleanup
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     if [ "$bc_status" -ne 0 ] && [ "$bc_quiet" = 0 ]; then
         echo "watchdog: warning: $2 call $agentic_cap_reason (status $bc_status); skipping it" >&2
     fi

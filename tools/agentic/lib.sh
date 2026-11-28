@@ -255,6 +255,9 @@ agentic_cap_cleanup() {
     [ "${#agentic_cap_files[@]}" -eq 0 ] || rm -f -- "${agentic_cap_files[@]}"
     agentic_cap_files=()
     agentic_cap_pid=""
+    # After a signal the caller's traps are already back (and agentic_cap_status
+    # is set): a later plain cleanup must not clear them again.
+    [ -n "${1:-}" ] || [ "$agentic_cap_status" = 0 ] || return 0
     agentic_traps_restore "$agentic_cap_saved_traps"
     agentic_cap_saved_traps=""
     [ -z "${1:-}" ] && return 0
@@ -279,7 +282,9 @@ agentic_run_captured() {
     agentic_capture_supervise "$budget" /dev/null "$cap_out" "$cap_err" "$@" || status=$?
     [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     cat -- "$cap_out"
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     cat -- "$cap_err" >&2
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     case "$agentic_cap_reason" in
         "timed out"* | "had no time left"*)
             echo "agentic: warning: '$1' $agentic_cap_reason (status 124)" >&2 ;;
@@ -288,6 +293,7 @@ agentic_run_captured() {
         || echo "agentic: warning: '$1' exited (status $status) leaving processes behind;" \
             "$agentic_cap_left" >&2
     agentic_cap_cleanup
+    [ "$agentic_cap_status" = 0 ] || return "$agentic_cap_status"
     return "$status"
 }
 

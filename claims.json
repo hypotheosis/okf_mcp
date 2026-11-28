@@ -5,10 +5,10 @@
     "by": "server",
     "mac": "2632fea6d9f70b868aedd9ee369a31dce84d851f653ad60a3bce41279865ceff"
   },
-  "next_evidence_seq": 4587,
+  "next_evidence_seq": 4589,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "39178f0749ea1daeaba64d5b7db47d4c9aee5a479ca7f8d2a3593016c0636562"
+    "mac": "6688917e01aecae2c0db89bea4663d696489a44e1d33e15a65e3ab17e549185b"
   },
   "claims": [
     {
@@ -231342,6 +231342,40 @@
             "by": "server",
             "mac": "d2e9dc9367fe04570d96980072f0abccde5f1187bb65a68a9ffd8367ad95a809"
           }
+        },
+        {
+          "id": "EVD-4587",
+          "kind": "inspection",
+          "locator": "tools/agentic/lib.sh:239-291 (agentic_cap_mktemp, agentic_cap_cleanup, agentic_run_captured); tools/agentic/watchdog.sh:143-176; tools/agentic/lib.sh:70-86",
+          "summary": "Read the code. Signal during mktemp or supervision: the trap kills the group, removes files, restores the caller's traps, sets agentic_cap_status 130/143, re-raises; the callers check agentic_cap_status after each mktemp and after supervise and return it, so nothing is launched after the signal (agentic_run_bounded does the same with agentic_bounded_signalled). INT and TERM take the same code path (one case statement; run_bounded has symmetric trap strings), so the missing INT test is a coverage gap, not a logic gap. The three named tests cover only the TERM-during-mktemp (and run_bounded TERM-while-running) windows. The check agentic_cap_status is done once, BEFORE the copy-out in agentic_run_captured (cat of cap_out/cap_err) and before the `$(<bc_file)` read in bounded_capture; no check follows them, and the final agentic_cap_cleanup (no signal) calls agentic_traps_restore with agentic_cap_saved_traps already emptied by the signal-time cleanup.",
+          "stance": "neutral",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 239,
+                "end": 291
+              },
+              "commit": "9328aaa07d854973461b47c4d111b987c1bdf92b"
+            }
+          },
+          "recorded_at": "2026-11-28T14:57:59.425645174Z",
+          "seal": {
+            "by": "server",
+            "mac": "1a250e0c5d99946df34ba2e5d5913f79b4ccfefbf3cce458329ebcd0d520c793"
+          }
+        },
+        {
+          "id": "EVD-4588",
+          "kind": "demonstration",
+          "locator": "scratch /tmp/claude-1000/-home-pgrace-repos-okf-mcp--worktrees-okf-mcp-burndown-20261122/0fc9398e-b3c9-4bf0-a753-20386b95c854/scratchpad/e1193b (runs a and b)",
+          "summary": "Own experiment, marker-synchronised (a PATH stub cat announces itself with a marker file and waits for a release file; no fixed-sleep sync). Caller sets trap \"echo handled\" on TERM (run a) or INT (run b), calls agentic_run_captured 5 echo hi, and the signal is sent while the copy-out `cat` of the temp file runs (after the supervise phase). Result for both TERM and INT: the temp files were removed by the signal-time cleanup, the second cat failed with No such file, agentic_run_captured returned rc=0 (not 143/130), the caller's handler never printed handled, and `trap -p` printed nothing, i.e. the caller's trap was gone. This contradicts the claim's return code, handler and keep-the-trap parts for a signal in that window; bounded_capture has the same shape (no check between supervise-check and the final cleanup).",
+          "stance": "refutes",
+          "recorded_at": "2026-11-28T14:57:59.567091268Z",
+          "seal": {
+            "by": "server",
+            "mac": "eb6e724687dd9f3e89eefe3f6a2b6c189b3539b26a888ee4d9a30144e1869dca"
+          }
         }
       ],
       "verdicts": [
@@ -231357,13 +231391,26 @@
             "by": "server",
             "mac": "e4152777e138fe982021a47562b83a0ff2784088c7fea57e2021fc31886dc511"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "Holds for a signal during mktemp or supervision (tests, code, and TERM/INT symmetry by inspection, EVD-4587), but a signal arriving after the single agentic_cap_status check, during the copy-out cat in agentic_run_captured (same shape in bounded_capture), leaves rc=0, no handler call and the caller's trap removed, in both TERM and INT (EVD-4588). The claim is stated without a window restriction, so it is refuted as worded; narrowing it to signals before the copy-out, or adding a status check after copy-out and having the final cleanup not clear traps already restored, would make it supported.",
+          "auditor": "claude-sonnet-5-5 (independent re-audit)",
+          "evidence_ids": [
+            "EVD-4588"
+          ],
+          "recorded_at": "2026-11-28T14:58:03.306524572Z",
+          "seal": {
+            "by": "server",
+            "mac": "822fa52acc9c33f533603a5dbc124acbfcaf9797589de55e7f37f78980f57406"
+          }
         }
       ],
       "created_at": "2026-11-28T14:41:29.298479115Z",
-      "updated_at": "2026-11-28T14:41:37.197055002Z",
+      "updated_at": "2026-11-28T14:58:03.306524572Z",
       "seal": {
         "by": "server",
-        "mac": "b041d59c8d96c08b33bba7b402256605ba38f6b0edf57d8c559f08007d17bb25"
+        "mac": "77ceef617f87f1a6abf606301439d65d148b55feefd522270dc050ff4ac56cda"
       }
     }
   ]

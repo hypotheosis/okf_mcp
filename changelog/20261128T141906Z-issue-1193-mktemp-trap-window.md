@@ -21,3 +21,7 @@
   capture. They now record 130 (INT) or 143 (TERM): `agentic_cap_mktemp`,
   `agentic_run_captured`, `bounded_capture` and `agentic_run_bounded` stop and return
   it, launching nothing; the caller's trap stays installed.
+- Re-audit: a signal during the copy-out (after the first status check) was lost: the
+  final plain cleanup cleared the traps already restored. `agentic_cap_cleanup` now
+  leaves them alone once a signal was handled, and `agentic_run_captured` and
+  `bounded_capture` re-check the status after the copy-out and the final cleanup.

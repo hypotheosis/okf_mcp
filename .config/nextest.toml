@@ -13,3 +13,14 @@ fail-fast = false
 slow-timeout = { period = "60s", terminate-after = 5 }
 # Print each failure's output again at the end of the run.
 final-status-level = "fail"
+# Every test gets one retry inside the run, so a transient failure costs one
+# test's time instead of a whole re-run of the gate (about 4.5 minutes, plus
+# an agent turn to read the failure). A passing test never retries, so a
+# green run costs nothing extra; a test that fails both tries fails the gate.
+# nextest reports a pass on the second try as FLAKY (`TRY 2 PASS` and the
+# summary's flaky count). That is not a clean pass: an implementer reports
+# every FLAKY line, and a flaky test without an open issue is investigated as
+# a possible race the change introduced (tools/agentic/brief-common.md).
+# A hung test now costs two slow-timeouts (up to 10 minutes) before it fails.
+retries = 1
+

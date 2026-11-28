@@ -2017,16 +2017,19 @@ mod tests {
         // role, so it wakes every task) lands in between.
         secrets.set(Ok(secret("pw-2")));
         set_password(&db.pool, &role, "pw-rotating").await;
-        // A read that goes straight to the pool and propagates with `?`,
+        // A read that goes straight to the executor and propagates with `?`,
         // never through `CatalogDb::classify` (the shape of the store
-        // layer's functions).
+        // layer's functions): the executor classifies the refusal itself.
         async fn plain_read(db: &CatalogDb) -> Result<i32, OkfError> {
             Ok(sqlx::query_scalar("SELECT 1")
                 .fetch_one(db.executor())
                 .await?)
         }
         let refused = plain_read(&store).await.unwrap_err();
-        assert!(matches!(refused, OkfError::Database { .. }), "{refused:?}");
+        assert!(
+            matches!(refused, OkfError::StoreUnavailable { .. }),
+            "{refused:?}"
+        );
         a_refresh_is_applied(&mut refreshes).await;
         // The database now accepts the new password, which the pool holds.
         set_password(&db.pool, &role, "pw-2").await;

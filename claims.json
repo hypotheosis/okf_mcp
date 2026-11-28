@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2444,
+  "next_claim_seq": 2447,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "0e93257d360a3a11a3dff4cc5828234875c0e61b7df583a60ba212889fba313e"
+    "mac": "8df051366d1d016415229e04fc1baa8646f094d387ffc4bfcd649560366565a2"
   },
-  "next_evidence_seq": 4268,
+  "next_evidence_seq": 4276,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "af3c5b0d564837a2da6511ca407f93a093938415e1b2f290fc56c64fbdd72040"
+    "mac": "da8a3e0ed2f0f836c205bf0e6318d164afe6ee8eee300458cdaebd3f761971f2"
   },
   "claims": [
     {
@@ -214014,6 +214014,28 @@
             "by": "server",
             "mac": "ed8365d65af872a444c00887a89053b9cae17838496986973713cb3b0441f848"
           }
+        },
+        {
+          "id": "EVD-4272",
+          "kind": "test",
+          "locator": "okf::markdown::tests::a_link_in_a_code_span_is_not_found at HEAD f6a41e9f (src/okf/markdown.rs:880)",
+          "summary": "Re-run at HEAD: passes (48 passed, 0 failed in module). Code spans are masked to 0xFF, which neither the opening bracket nor the destination of LINK accepts, so the link in a span is not found.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 880,
+                "end": 890
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:40.176026947Z",
+          "seal": {
+            "by": "server",
+            "mac": "c637612d7e1844b6dec53d38dae2f1e815e1dc008871954f85022ee659254360"
+          }
         }
       ],
       "verdicts": [
@@ -214029,13 +214051,26 @@
             "by": "server",
             "mac": "260af99daf382e3d1951ef8e71d7d41ad973fc45fed8e1edece303b7cb78aa91"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "The test passes at HEAD with the masking implementation.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4272"
+          ],
+          "recorded_at": "2026-11-28T04:52:52.257866805Z",
+          "seal": {
+            "by": "server",
+            "mac": "8b79736f9a7dc0255b43b4a242ab9eff6d2674befeebb91a34f5e4e1f374ae9f"
+          }
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T04:40:51.835279806Z",
+      "updated_at": "2026-11-28T04:52:52.257866805Z",
       "seal": {
         "by": "server",
-        "mac": "77c71237650588ce39bb0fa61461dc2db756d9a8e6b42793b56069ce958281a8"
+        "mac": "01f903cdc1def09ff79a73c2fbd964ed41969d22b40bf00d90dd8c8ffc5fd2a6"
       }
     },
     {
@@ -214212,6 +214247,28 @@
             "by": "server",
             "mac": "7338edffe5bff0fd456bd17f05e12ce1ba05e3649c36c326b3d8c778ecd03638"
           }
+        },
+        {
+          "id": "EVD-4273",
+          "kind": "test",
+          "locator": "okf::markdown::tests::a_double_backtick_span_may_hold_a_single_backtick and an_unclosed_backtick_is_literal_and_the_link_is_found at HEAD",
+          "summary": "Both tests pass at HEAD (48 passed, 0 failed). Assertions: \"``a ` [x](a.md) b``\" has no link; \"``a ` b`` [x](a.md)\", \"a ` [x](a.md)\" and \"``a ` [x](a.md)\" yield a.md.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 911,
+                "end": 923
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:40.384421468Z",
+          "seal": {
+            "by": "server",
+            "mac": "7ecdd135e2e7b79cff163288d32518d98d6aa3ac14df78a2856b8fbc43d08976"
+          }
         }
       ],
       "verdicts": [
@@ -214227,13 +214284,26 @@
             "by": "server",
             "mac": "d697df91e1178626a284e20a8a2419f51219c9798691065ec1c712569c39ad0f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Both tests pass at HEAD with the expected CommonMark outcomes.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4273"
+          ],
+          "recorded_at": "2026-11-28T04:52:52.459116664Z",
+          "seal": {
+            "by": "server",
+            "mac": "c69f09e6decf103317b2835a14fbd1c0c5297d42012cee4b30f66c07bc57ae72"
+          }
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T03:51:06.804663355Z",
+      "updated_at": "2026-11-28T04:52:52.459116664Z",
       "seal": {
         "by": "server",
-        "mac": "4506cd6fddc6a93a2c76c37d64ac303c3847befc106b88a3c00580bc6aa61362"
+        "mac": "323c12c585366e2c53376cd1956cfc950d7aa99cb2df959b58d97da377f71b9a"
       }
     },
     {
@@ -214344,6 +214414,28 @@
             "by": "server",
             "mac": "a7b392023ad5cca40cdbe7ce4f4f02370371dccb7ab950e313dd3a6e7fd335fa"
           }
+        },
+        {
+          "id": "EVD-4274",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs find_links/link_lines (CodeRanges::of once per call) and tests at HEAD",
+          "summary": "At HEAD, CodeRanges::of is still called once per call and masked once (mask is O(n)); links are found in one bytes-regex pass. The 50,000-span tests find_links_stays_linear_on_many_backticks and many_code_span_brackets_before_a_link_stay_linear pass in 0.14s total for the module. The tests assert results, not timing, but the runtime is consistent with linear scanning.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 178,
+                "end": 215
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:40.591071784Z",
+          "seal": {
+            "by": "server",
+            "mac": "ece5e8b3adfe190f5bc95542837206550753db735113b502a3abc446a5710018"
+          }
         }
       ],
       "verdicts": [
@@ -214359,13 +214451,26 @@
             "by": "server",
             "mac": "22127263c6aaffb100097287770ef85f44f1c4a3b3a717e94d0f2d834a37c017"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Parsing is still once per call at HEAD and the many-span tests pass quickly; they check results, not time.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4274"
+          ],
+          "recorded_at": "2026-11-28T04:52:52.743353263Z",
+          "seal": {
+            "by": "server",
+            "mac": "4c9500892e9b6746af5f53d896d7504b8cf762184037da21302c98596e0cfea4"
+          }
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T03:51:07.119761078Z",
+      "updated_at": "2026-11-28T04:52:52.743353263Z",
       "seal": {
         "by": "server",
-        "mac": "0301c5ba5f8d23a2dce0aed29ea9596664c50295f82472cf456f335a95b3dd21"
+        "mac": "7858447a13d9fdc536eabe1eb35d04260c42fc846137e4d608d822e956c1d9d8"
       }
     },
     {
@@ -214717,6 +214822,28 @@
             "by": "server",
             "mac": "eed600a6e71dca7c5cebd89a1f1da73775d63b1c789441eb50bd0c637bd66efd"
           }
+        },
+        {
+          "id": "EVD-4275",
+          "kind": "test",
+          "locator": "okf::markdown::tests::slugify_keeps_a_link_written_as_code_literal at HEAD (src/okf/markdown.rs:1013)",
+          "summary": "The implementation changed: slugify now runs SLUG_LINK (a bytes regex) on CodeRanges::mask output and reads the kept text from the original. The test passes at HEAD (\"Use `[a](b)` here\" gives \"use-ab-here\"; \"Use [a](b) and `x`\" gives \"use-a-and-x\"). code_never_becomes_a_destination_or_title also asserts slugify(\"See [x](`a b`)\") == \"see-xa-b\".",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 1013,
+                "end": 1017
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:40.796402776Z",
+          "seal": {
+            "by": "server",
+            "mac": "9d52080b1ae8e4984017bba2f58079897b7225bf3b2ad9c40f8b29bbcbb853a6"
+          }
         }
       ],
       "verdicts": [
@@ -214732,13 +214859,26 @@
             "by": "server",
             "mac": "4f4438d6ffc5a00528ce562f5d5d831f859d04b81eb368871a0127614b498a95"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "slugify still keeps a link written as code literal at HEAD, now through masking; the test passes.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4275"
+          ],
+          "recorded_at": "2026-11-28T04:52:53.004356258Z",
+          "seal": {
+            "by": "server",
+            "mac": "02e344ab1d1de7dabaf562ed32dcdf6e36945d3122cef3403bba23346e905965"
+          }
         }
       ],
       "created_at": "2026-11-28T03:49:56.126540413Z",
-      "updated_at": "2026-11-28T03:51:07.851487742Z",
+      "updated_at": "2026-11-28T04:52:53.004356258Z",
       "seal": {
         "by": "server",
-        "mac": "9c1198708bb7485a2c0b1ae423a6c362ef21ed5cabb15a8a6689445f7ecdbea1"
+        "mac": "5b6c620eb0befe8e86bba05f867d40fb6e0a8bbc5e2cfaa308b9c2f37e34f859"
       }
     },
     {
@@ -215030,6 +215170,217 @@
       "seal": {
         "by": "server",
         "mac": "9ffaf8d5b8ca8412361a2875aab1ca7bfad645f12105d0bf6625f8b907c8cf7f"
+      }
+    },
+    {
+      "id": "CLM-2444",
+      "statement": "Masking code can never make a link: find_links returns no link for `[x](`a b.md`)` (or any text where a code span sits in a destination, title or the space before a title), because LINK and SLUG_LINK accept a code mask byte only in the link text and before the `[`, so every byte of an accepted match from its `(` to its `)` is the original text",
+      "kind": "functional",
+      "level": "unit",
+      "verification_method": "test",
+      "source": "PR #1195 review round 3 (comment 4725537660)",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "issue-953",
+        "review-round-3"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4268",
+          "kind": "analysis",
+          "locator": "src/okf/markdown.rs:66-100 (link_label!, LINK, SLUG_LINK)",
+          "summary": "Mask bytes 0xFF/0xFE appear in the regexes only as (?-u:\\xFF) inside link_label! and as (?-u:[\\xFE\\xFF]) in the char before the opening bracket. Every other class (angle destination, bare destination, whitespace before a title, title [^\"]*, SLUG_LINK [^)]*) is a Unicode class, which on a bytes Regex matches only valid UTF-8, so it cannot match 0xFE/0xFF. From the opening paren to the closing paren every matched byte is original text. A code span in a destination, title or title separator therefore breaks the match.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 66,
+                "end": 100
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:39.294023220Z",
+          "seal": {
+            "by": "server",
+            "mac": "eab012adec5169edb4adab96c28afe55b414a29dd9102638e3c7e0358b036c69"
+          }
+        },
+        {
+          "id": "EVD-4269",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib okf::markdown::tests (log target/i953-logs/audit-narrow.log)",
+          "summary": "test result: ok. 48 passed; 0 failed, including code_never_becomes_a_destination_or_title, which asserts find_links is empty for [x](`a b.md`), [x](a`b c`), [x](a.md` `\"t\") and [x](<a` b>`), and finds [y](b.md) after a rejected link.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T04:52:39.503645246Z",
+          "seal": {
+            "by": "server",
+            "mac": "5fe83dfb69550604a3910b9c8fb10e6a33e16839167332817109a851f571730f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Regex reading shows mask bytes are accepted only in the link label and before the opening bracket; all other classes are Unicode classes on a bytes regex and cannot match 0xFE/0xFF. The test asserting this passed in my run.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4268",
+            "EVD-4269"
+          ],
+          "recorded_at": "2026-11-28T04:52:51.633605154Z",
+          "seal": {
+            "by": "server",
+            "mac": "def33b819ddcd1c83fa953b353db0b24f6107abed27de49dea3981d48e6a47d5"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T04:50:58.126576742Z",
+      "updated_at": "2026-11-28T04:52:51.633605154Z",
+      "seal": {
+        "by": "server",
+        "mac": "e49c01c1c12edeed86c1f4218e1f7dd1554bc720fcb7264d4e11f99eecf5e129"
+      }
+    },
+    {
+      "id": "CLM-2445",
+      "statement": "find_links reads `[x](`a.md`)` as one link with target `` `a.md` `` (CommonMark scans a destination as raw text, so there is no code span; okf.py's LINK_RE gives the same target), and a code block can never be part of a link's text",
+      "kind": "functional",
+      "level": "unit",
+      "verification_method": "test",
+      "source": "PR #1195 review round 3 takeover brief",
+      "derived_from": [
+        "CLM-2428"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "issue-953",
+        "review-round-3"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4270",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib okf::markdown::tests (log target/i953-logs/audit-narrow.log)",
+          "summary": "48 passed, 0 failed. a_destination_with_backticks_and_no_space_is_a_link asserts targets(\"[x](`a.md`)\") == [\"`a.md`\"] and that the match range is the whole text. a_link_label_cannot_span_a_code_block asserts no link for \"[a\\n```\\n[b]\\n```\\nc](d.md)\" and that \"`c`[x](a.md)\" still finds a.md. Code reading: link_label! allows only \\xFF (span), never \\xFE (block), and block ranges are masked with 0xFE.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 59,
+                "end": 72
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:39.731368977Z",
+          "seal": {
+            "by": "server",
+            "mac": "cb71c462a35c97826bc53dd3dad479d3a2162fa6e9be2e5de339e5468bb11450"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Tests for the backtick destination target and for a code block in a label pass in my run; the label allows only the span byte, not the block byte.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4270"
+          ],
+          "recorded_at": "2026-11-28T04:52:51.836717389Z",
+          "seal": {
+            "by": "server",
+            "mac": "cc43b011a342a9609e01bdca2e7d37aaec6106e5a1347ff2496adf8fcb49bbca"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T04:50:58.264624015Z",
+      "updated_at": "2026-11-28T04:52:51.836717389Z",
+      "seal": {
+        "by": "server",
+        "mac": "08f7590ca5ccdc7e63c3dc3c2ae66f7432e771bedab3356f48db8a908971502c"
+      }
+    },
+    {
+      "id": "CLM-2446",
+      "statement": "The round 3 change keeps link scanning linear (one pulldown-cmark parse plus one regex pass, no rescans) and all earlier tests pass, including the 50k code-span and 200k unclosed-angle-bracket tests",
+      "kind": "performance",
+      "level": "unit",
+      "verification_method": "test",
+      "source": "PR #1195 review round 3 takeover brief",
+      "derived_from": [
+        "CLM-2434"
+      ],
+      "artifacts": [
+        "src/okf/markdown.rs"
+      ],
+      "tags": [
+        "issue-953",
+        "review-round-3"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4271",
+          "kind": "test",
+          "locator": "tools/agentic/gate.sh narrow --lib okf::markdown::tests (log target/i953-logs/audit-narrow.log)",
+          "summary": "48 passed, 0 failed in 0.14s, including find_links_stays_linear_on_unclosed_angle_brackets (200,000 repeats), many_code_span_brackets_before_a_link_stay_linear (50,000) and find_links_stays_linear_on_many_backticks (50,000). The code is one CodeRanges::of parse, one mask copy and one regex pass: the regex crate is linear-time, and mask is O(n). Only the markdown module tests were run, not the full suite, so \"all earlier tests pass\" is verified for this module only.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "src/okf/markdown.rs",
+              "lines": {
+                "start": 178,
+                "end": 215
+              },
+              "commit": "f6a41e9f33d14cadc7da6a1453debac30d34b54a"
+            }
+          },
+          "recorded_at": "2026-11-28T04:52:39.948023204Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d3384d180eca844c920783c75dec7a43afce5b5c7d72064945271330d834b29"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "One parse, one mask and one linear regex pass; the 50k and 200k tests pass in the 48/48 module run. Only the markdown module was run, not the whole suite, so \"all earlier tests\" is verified for this module only.",
+          "auditor": "claude-sonnet (auditor subagent)",
+          "evidence_ids": [
+            "EVD-4271"
+          ],
+          "recorded_at": "2026-11-28T04:52:52.024812047Z",
+          "seal": {
+            "by": "server",
+            "mac": "fac41bf0e4a8988efab3a678cde3857fdb2f2e44956f6cc56881e5d538e902e4"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T04:50:58.400910253Z",
+      "updated_at": "2026-11-28T04:52:52.024812047Z",
+      "seal": {
+        "by": "server",
+        "mac": "c80f8f6dbf2f8141eb90a12ebeab06feaf3039815908e42f32ab0dbbc2521ee2"
       }
     }
   ]

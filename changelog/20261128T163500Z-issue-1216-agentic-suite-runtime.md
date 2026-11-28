@@ -1,4 +1,4 @@
-# Issue 1216: the agentic suite runs in about 2 minutes, not 5
+# Issue 1216: the agentic suite runs in about a minute, not 5
 
 - `tests/run.sh` runs 4 tests at a time (`AGENTIC_TEST_JOBS`, 1 for serial). Each
   test is its own `run.sh --one <name>` in its own session, with its own temporary

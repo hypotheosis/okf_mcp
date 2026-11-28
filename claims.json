@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "next_claim_seq": 2649,
+  "next_claim_seq": 2660,
   "next_claim_seq_seal": {
     "by": "server",
-    "mac": "1e0dbc096bbdb1ec3d8d15e0709a38bd8a5601f7bbc69324179bbb3cfd2b4a67"
+    "mac": "3169e267e00dc6d451af1e2c66e7f37f5e71489de3cf135cbb336ca4f5e23985"
   },
-  "next_evidence_seq": 4616,
+  "next_evidence_seq": 4630,
   "next_evidence_seq_seal": {
     "by": "server",
-    "mac": "516af3c5c2298aa004fb0cab78ca8ec6b11b6e82cdebb98bc6aa928f11ecabd2"
+    "mac": "cdc9b9f3f921972e1b47d6079b20ccbab9f0207a96a9c2998d32519a9212d224"
   },
   "claims": [
     {
@@ -229632,6 +229632,28 @@
             "by": "server",
             "mac": "b4df31ca5a6e0504b3759dab7325887ca76b926f045a6ad354dbbb1578dd18c5"
           }
+        },
+        {
+          "id": "EVD-4626",
+          "kind": "test",
+          "locator": "AGENTIC_TEST_JOBS=2 tools/agentic/tests/run.sh merge_state ... (test_merge_state_wait_is_bounded_with_a_slow_lookup ok, 2101 ms)",
+          "summary": "On HEAD the merge-reviewed.sh state wait diff is only state_poll=${AGENTIC_STATE_POLL:-3} replacing the literal 3; the bounded-wait test still passes. Anchor changed only by that line.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/merge-reviewed.sh",
+              "lines": {
+                "start": 81,
+                "end": 107
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:37:23.109060488Z",
+          "seal": {
+            "by": "server",
+            "mac": "7599696a93f4254afb5e03962f09285ad600af1d89711cea15caf4ef9ef37c57"
+          }
         }
       ],
       "verdicts": [
@@ -229647,13 +229669,26 @@
             "by": "server",
             "mac": "f263f57c2737fd373ec1750f210c0fba61cd0838378d78dec44c99311152211d"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on HEAD: only the poll literal became an env default of 3; bounded-wait test passes.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4626"
+          ],
+          "recorded_at": "2026-11-28T16:37:32.060659771Z",
+          "seal": {
+            "by": "server",
+            "mac": "8f54b6cfac0dcaea83b7f4dadc3202422d430e6783e0ed76740ec4f618dd3c92"
+          }
         }
       ],
       "created_at": "2026-11-28T14:01:25.341391872Z",
-      "updated_at": "2026-11-28T14:02:53.126533477Z",
+      "updated_at": "2026-11-28T16:37:32.060659771Z",
       "seal": {
         "by": "server",
-        "mac": "7f7afa323092b6c42cb9804f36b449168d3fd06e78cab2b66b7d08c073f96bb6"
+        "mac": "ae4b7fa87ce99ed59402291bc5de3188cfc28f7c1969e9567d2147ec9626eb5c"
       }
     },
     {
@@ -230197,7 +230232,9 @@
         "from-issue:1169"
       ],
       "status": {
-        "state": "active"
+        "state": "retired",
+        "reason": "Superseded by #1216: the README line stating the suite takes about 5 minutes was deliberately rewritten.",
+        "retired_at": "2026-11-28T16:38:04.901287529Z"
       },
       "evidence": [
         {
@@ -230221,6 +230258,28 @@
             "by": "server",
             "mac": "c52820170f3b3d34761f6c3d683d858b88d24cd6c0a59a45d5d809de6588f053"
           }
+        },
+        {
+          "id": "EVD-4628",
+          "kind": "inspection",
+          "locator": "tools/agentic/README.md:45 at HEAD; git diff origin/main..HEAD -- tools/agentic/README.md",
+          "summary": "README:45 deliberately no longer says the suite takes about 5 minutes: it now says it runs 4 tests at a time. The claim as worded is no longer true of the file.",
+          "stance": "refutes",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 45,
+                "end": 45
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:37:23.416199710Z",
+          "seal": {
+            "by": "server",
+            "mac": "2e6925088d1333501a05b8b2e75d765def6cccadf6808c27d42481ca81b28eb2"
+          }
         }
       ],
       "verdicts": [
@@ -230236,13 +230295,39 @@
             "by": "server",
             "mac": "b119ee0312e2dc944d9940ac4e64e5ac9c78d127482e8c374302f6883a1402a4"
           }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "This diff intentionally rewrote README:45, so the quoted sentence ('about 5 minutes') is gone; the claim is superseded by the issue's fix, not a defect.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4628"
+          ],
+          "recorded_at": "2026-11-28T16:37:32.369046236Z",
+          "seal": {
+            "by": "server",
+            "mac": "02434aa16ea8811376109171d60ef91c3699ae8547ec7a51f3e8d3a357873da6"
+          }
+        },
+        {
+          "verdict": "refuted",
+          "rationale": "README:45 was deliberately rewritten by this PR and no longer says the suite takes about 5 minutes, so the claim is superseded, not a defect. Fix: retire CLM-2623 with the reason 'superseded by #1216 README rewrite' (retire_claim) so it stops counting as refuted.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4628"
+          ],
+          "recorded_at": "2026-11-28T16:37:35.672648563Z",
+          "seal": {
+            "by": "server",
+            "mac": "f281c5dc22bb96c427b8d99500f2be15b3bf75fcd64acf1346571e2133e5eae4"
+          }
         }
       ],
       "created_at": "2026-11-28T14:05:34.770296723Z",
-      "updated_at": "2026-11-28T14:05:44.053228340Z",
+      "updated_at": "2026-11-28T16:38:04.901287529Z",
       "seal": {
         "by": "server",
-        "mac": "879c837854c810b8f3153a970aedd29d5992486ffa4c9195705023594536db80"
+        "mac": "d75781aee19dfc92d90176ab068140dd5dae4e06e35d7cba143daa94a8eb1f40"
       }
     },
     {
@@ -231507,6 +231592,28 @@
             "by": "server",
             "mac": "ddcd07308545ebf70de579ba2461baf435f4126bc379a2f6c503228e900bb5c6"
           }
+        },
+        {
+          "id": "EVD-4627",
+          "kind": "test",
+          "locator": "AGENTIC_TEST_JOBS=2 tools/agentic/tests/run.sh term_before_any signal (test_a_term_before_any_statement_lets_only_that_statement_run ok 11335 ms; test_run_captured_aborts_when_a_signal_arrives_during_the_copy_out ok)",
+          "summary": "The lib.sh hunk at 62 only inserts the tick setup before agentic_stop_group; signal handling is untouched and the signal sweep (which keeps 10 ticks) still passes on HEAD. The old anchor lib.sh:53-66 merely shifted by the 14 inserted lines.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 62,
+                "end": 75
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:37:23.262858910Z",
+          "seal": {
+            "by": "server",
+            "mac": "0c245eeeb60891ec86c3b9172d11869ca9a23bf4c9c59a6f044054ed7af4a8cc"
+          }
         }
       ],
       "verdicts": [
@@ -231602,13 +231709,26 @@
             "by": "server",
             "mac": "814b4b6a7e4f45e1e42b23e92f4c29f16188c13b880542181a2a1e69db5ce77f"
           }
+        },
+        {
+          "verdict": "supported",
+          "rationale": "Re-audited on HEAD: lib.sh hunk inserts tick setup only; signal sweep and copy-out signal test pass.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4627"
+          ],
+          "recorded_at": "2026-11-28T16:37:32.218432903Z",
+          "seal": {
+            "by": "server",
+            "mac": "e8a182331014c16f370b894e17eec9a040db869b769712a7cccf2edee3c04720"
+          }
         }
       ],
       "created_at": "2026-11-28T14:41:29.298479115Z",
-      "updated_at": "2026-11-28T16:17:36.797264033Z",
+      "updated_at": "2026-11-28T16:37:32.218432903Z",
       "seal": {
         "by": "server",
-        "mac": "b7fb194bca7d4f2a5ce6fcfa442d8a36c3e052a1db0783b72daff233f9192a58"
+        "mac": "51683057706d59db57a2682122f41337cef3eec5601b9d8d29f5b5b1c32475c9"
       }
     },
     {
@@ -232498,6 +232618,705 @@
       "seal": {
         "by": "server",
         "mac": "f05ce59fb5df6508f7bcf9f252654d2819aa6b35347aa475b3e91ce64ca7eebe"
+      }
+    },
+    {
+      "id": "CLM-2649",
+      "statement": "Issue #1216 is resolved: the agentic suite runs well under its 300 s cap without weakening any test's assertion, with env-overridable waits defaulting to today's values and parallelism capped at 4.",
+      "kind": "functional",
+      "level": "system",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "https://github.com/hypotheosis/okf_mcp/issues/1216",
+      "derived_from": [],
+      "artifacts": [
+        "tools/agentic/tests/run.sh",
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4629",
+          "kind": "analysis",
+          "locator": "children of CLM-2649",
+          "summary": "Children cover runtime (logs: 62 s at 4 jobs vs 300 s cap), env overrides with unchanged defaults, no weakened assertions, concurrency cap 4 with isolated worlds, and docs. Residual: the full-suite timings were taken from the author's logs, not rerun by the auditor.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:37:31.902941298Z",
+          "seal": {
+            "by": "server",
+            "mac": "7801707c7af135469e56dad6a2ac90c5e66c060c569fdb7554d3e5f53261e4ee"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All ten children supported; see roll-up evidence.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4629"
+          ],
+          "recorded_at": "2026-11-28T16:37:32.518984217Z",
+          "seal": {
+            "by": "server",
+            "mac": "d08434c51369aa0f966b4e3e05729123e76f20577fd794c421f76721b9ba687d"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:37:32.518984217Z",
+      "seal": {
+        "by": "server",
+        "mac": "b5a75a8f297251d6011395471878a8aa8ae59c383c81310c4dfe51e1d86841bb"
+      }
+    },
+    {
+      "id": "CLM-2650",
+      "statement": "PR body: 'tests/run.sh runs up to AGENTIC_TEST_JOBS (default 4, 1 = serial) tests at once, each as its own run.sh --one <name> process in its own process group, with its own temp dir, git repositories and fixtures.'",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Changes",
+      "source_anchor": {
+        "path": "tools/agentic/tests/run.sh",
+        "lines": {
+          "start": 10,
+          "end": 22
+        },
+        "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+      },
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4616",
+          "kind": "test",
+          "locator": "tools/agentic/tests/run.sh:run_pool, --one; AGENTIC_TEST_JOBS=4 run.sh watch_gives_up watch_merge_state_error watch_reviews_api merge_refuses_on_hung",
+          "summary": "run_pool starts `bash run.sh --one name` under set -m (own pgid), capped by AGENTIC_TEST_JOBS (default 4, validated 1..99); each --one makes its own mktemp work dir and new_fixtures builds repo/origin/worktrees lazily in it. A 4-test subset at jobs 4 passed, 4 passed 0 failed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 2760,
+                "end": 2820
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:18.072376673Z",
+          "seal": {
+            "by": "server",
+            "mac": "de5b6f1118ca08e37a64cc5cd16dba8cfa767c06722bcdbe631bb34ea671db4d"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and a parallel subset run show per-test process groups, own work dirs, cap 4.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4616"
+          ],
+          "recorded_at": "2026-11-28T16:36:35.662268981Z",
+          "seal": {
+            "by": "server",
+            "mac": "d004259d5e76eaad79157fac56add5766a9039d20a58056330eb6f836f2a2855"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:35.662268981Z",
+      "seal": {
+        "by": "server",
+        "mac": "c624c550b3cb9da620c72e8c2ce4537e2e29c39c8acd88825fee054b063f8351"
+      }
+    },
+    {
+      "id": "CLM-2651",
+      "statement": "PR body: 'Nine tests that bound real elapsed time tightly (serial_tests) run alone after the parallel ones.'",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body, Changes",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4617",
+          "kind": "inspection",
+          "locator": "tools/agentic/tests/run.sh serial_tests=( ... )",
+          "summary": "serial_tests lists 9 test names (counted); they are partitioned into tail_tests and run via run_pool 1 after the parallel pool.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 36,
+                "end": 46
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:18.271690183Z",
+          "seal": {
+            "by": "server",
+            "mac": "a169fb09fcb241c375cc5eeb9b884950e151893eb80397703068fb49638b4ed5"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Nine names counted, run last with pool of 1.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4617"
+          ],
+          "recorded_at": "2026-11-28T16:36:35.844752076Z",
+          "seal": {
+            "by": "server",
+            "mac": "331e27b0fb6ad29283615a560ee998b7efb51144bbb631b1149858edcaabb526"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:35.844752076Z",
+      "seal": {
+        "by": "server",
+        "mac": "e99fb63d45453bdf6d22330ff51a4747345eecf1386f79fe17f4ab2973db5156"
+      }
+    },
+    {
+      "id": "CLM-2652",
+      "statement": "PR body: 'lib.sh: AGENTIC_TICKS_PER_SEC (default 10, the old 0.1 s tick; 1..1000, else 10). A loop still ends after limit x ticks, and also when the clock says the limit has passed.'",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Changes",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/lib.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4618",
+          "kind": "test",
+          "locator": "AGENTIC_TEST_JOBS=1 tools/agentic/tests/run.sh ticks_default finer_ticks watch_polls_every (4 passed, 0 failed)",
+          "summary": "lib.sh validates 1..1000 else 10, tick=0.%03d of 1000/n; loops break on EPOCHREALTIME end as well as tick count. Tests for fallback (0, abc, 1001, -5, 2.5), default 10/0.100, 0.3 s command noticed in 325 ms, 1 s limit at 1000 ticks stays within 1.0-4.0 s all pass. Minor: the clock bound also ends default-tick loops earlier than count-only would (never later), a semantic tightening not stated.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/lib.sh",
+              "lines": {
+                "start": 62,
+                "end": 110
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:18.463138522Z",
+          "seal": {
+            "by": "server",
+            "mac": "0365ac78e7f738f399cb5b6152317e711eea103d563b4c8b808f1d8f23402dfb"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Code and the three tick tests I ran confirm default, range, fallback and the clock bound.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4618"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.009588413Z",
+          "seal": {
+            "by": "server",
+            "mac": "8c9a3874b4f74077c49458a345c67b541d9098d8b1ce3e50e049f5223d8979cd"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.009588413Z",
+      "seal": {
+        "by": "server",
+        "mac": "1944c315b4f22b4b5da37e2dfc05c7cd9d3ac22d98c6a96711b4e821f0145ea2"
+      }
+    },
+    {
+      "id": "CLM-2653",
+      "statement": "PR body: 'watch-review.sh: AGENTIC_WATCH_POLL (default 30). merge-reviewed.sh: AGENTIC_STATE_POLL (default 3).' Production defaults are unchanged.",
+      "kind": "functional",
+      "level": "unit",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Changes",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/watch-review.sh",
+        "tools/agentic/merge-reviewed.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4619",
+          "kind": "test",
+          "locator": "watch-review.sh:44 poll=${AGENTIC_WATCH_POLL:-30}; merge-reviewed.sh:83 state_poll=${AGENTIC_STATE_POLL:-3}; run.sh watch_polls_every (ok, 3003 ms)",
+          "summary": "Defaults 30 and 3 as before; test_watch_polls_every_30_seconds_by_default asserts 30 passes by default and 39 with a 100 s poll, and passed.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/watch-review.sh",
+              "lines": {
+                "start": 44,
+                "end": 44
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:18.702829212Z",
+          "seal": {
+            "by": "server",
+            "mac": "4aaae89a68046e3c1d2020c6b076ebbd8a017305e777513bba36ced7edb84e61"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Defaults 30 and 3 in code; default-poll test passed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4619"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.174148069Z",
+          "seal": {
+            "by": "server",
+            "mac": "7fe5814975ea3dc966ee104e20b17350c8c453ab031fe1851ecbc2fba75c93cb"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.174148069Z",
+      "seal": {
+        "by": "server",
+        "mac": "167497b1046522e8d8e1e4f444839ccdc07dfa1f2719c3b8016d91be2460f8db"
+      }
+    },
+    {
+      "id": "CLM-2654",
+      "statement": "PR body: 'Four watch tests that only assert no re-trigger by the deadline poll every 100 s on the fake clock', and the diff removes or weakens no assertion of any test.",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "inspection",
+      "source": "PR body, Changes and Summary ('No test's assertion was weakened')",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4620",
+          "kind": "inspection",
+          "locator": "git diff origin/main..HEAD -- tools/agentic/tests/run.sh (all '-' lines)",
+          "summary": "Four tests (gives_up_when_pr_view_keeps_failing, reviews_api_error, reactions_api_error, merge_state_error) only gain `export AGENTIC_WATCH_POLL=100` (9 passes vs 30; still past the 90 s/300 s re-trigger thresholds, same deadline). The only other removed lines are the old serial runner loop and the sweep_run line (adds AGENTIC_TICKS_PER_SEC=10). No want_*/die assertion removed or loosened. Caveat: those four tests now see 9 rather than 30 passes, a coarser re-trigger probe, justified in a comment and not a weakening of meaning.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/tests/run.sh",
+              "lines": {
+                "start": 524,
+                "end": 530
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:18.925405105Z",
+          "seal": {
+            "by": "server",
+            "mac": "e326946da4c2c90680180f2b89fcedbed1bbccc6bcaf79707d4d1e852b54e375"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Diff read in full: only env additions and runner rewrite; no assertion removed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4620"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.340014719Z",
+          "seal": {
+            "by": "server",
+            "mac": "4d0ba80b965a65367c6f35700ba0a1c0d8943519fa35f7e7278aa08cc5e940f9"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.340014719Z",
+      "seal": {
+        "by": "server",
+        "mac": "9270262d62a72ffeb6fcd9c173be92e922bfde3dc7402e9d4bf00674366e164d"
+      }
+    },
+    {
+      "id": "CLM-2655",
+      "statement": "PR body: 'New tests: tick default and fallback, finer ticks notice a finished command sooner and keep a 1 s limit, the default watch poll is still 30 s.' and the suite has 164 tests (160 before).",
+      "kind": "functional",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "test",
+      "source": "PR body, Changes and Summary",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4621",
+          "kind": "log",
+          "locator": "git show HEAD:/origin/main run.sh function diff; target/i1216-logs/base.log vs j4.log",
+          "summary": "test_ function names: 160 on main, 164 at HEAD; the four additions are the three tick tests and test_watch_polls_every_30_seconds_by_default. base.log ends '160 passed, 0 failed'; j4/j4b/j1 end '164 passed, 0 failed'.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:36:19.104481320Z",
+          "seal": {
+            "by": "server",
+            "mac": "f2d4198ca14914e1a2e198190bfe000fff16f3e5e38de5321f53d576fed61247"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Function-name diff and logs agree.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4621"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.500948835Z",
+          "seal": {
+            "by": "server",
+            "mac": "5ecea06fff08953176639f0655116d3879a19d19512c2fda98b2614b26d63b0e"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.500948835Z",
+      "seal": {
+        "by": "server",
+        "mac": "c57661380b961232f251ce9324ee2cd1dea9e1c198b032fd7be9729e44598a6b"
+      }
+    },
+    {
+      "id": "CLM-2656",
+      "statement": "PR body measured table: main serial 324.8 s (160 tests); this PR 62.3 s and 62.0 s at 4 jobs and 179.6 s at 1 job (164 tests); test_watch_bot_reaction_delays_retrigger 13.5 s before and 2.4 s after.",
+      "kind": "performance",
+      "level": "artifact",
+      "integrity_level": 2,
+      "verification_method": "analysis",
+      "source": "PR body, Measured",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "target/i1216-logs/base.log",
+        "target/i1216-logs/j4.log",
+        "target/i1216-logs/j4b.log",
+        "target/i1216-logs/j1.log"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4622",
+          "kind": "log",
+          "locator": "target/i1216-logs/base.log (real 5m24.794s), j4.log (1m2.307s), j4b.log (1m2.030s), j1.log (2m59.624s)",
+          "summary": "Logs match the table: 324.8 s/160 tests, 62.3 s and 62.0 s at 4 jobs, 179.6 s at 1 job, watch test 13518 ms in base and 2434/2451/2437 ms after. Plausible: user time is only ~27 s, so wall time is sleeps. Caveat: base ran while the machine was loaded (issue measured 294.8 s/141 tests; 'timeout 600' used), so 324.8 s is a loaded figure.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:36:19.265256216Z",
+          "seal": {
+            "by": "server",
+            "mac": "86c5d87587973207bf3348a6dba0380de95ec7e43641996e70d38294e1ddab5f"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Every number matches the logs; I did not rerun the full suite as instructed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4622"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.670820185Z",
+          "seal": {
+            "by": "server",
+            "mac": "a3250a8404ad84c662543358795b066fb4fca42e89f609e705b6aa4e5ac5edfc"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.670820185Z",
+      "seal": {
+        "by": "server",
+        "mac": "a07bc901343b5a51975cf601adbb97b132d3864293b2396f3e3f775908a8616f"
+      }
+    },
+    {
+      "id": "CLM-2657",
+      "statement": "PR body: 'just test-agentic keeps its 300 s cap unchanged.'",
+      "kind": "constraint",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body, Summary",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "justfile"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4623",
+          "kind": "inspection",
+          "locator": "justfile:85-86; git diff origin/main..HEAD --stat -- justfile (empty)",
+          "summary": "justfile is untouched and still has `timeout 300 tools/agentic/tests/run.sh`.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "justfile",
+              "lines": {
+                "start": 85,
+                "end": 86
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:19.434605475Z",
+          "seal": {
+            "by": "server",
+            "mac": "59d25e9b393d71d6d9c033365a4b42cac888fb535f43af40f4d7e57dcf565134"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "justfile untouched.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4623"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.831852692Z",
+          "seal": {
+            "by": "server",
+            "mac": "d0c202056cdc6d67b488fe9eb9012d91ea65a4d6d09a06a39131446286d110e1"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.831852692Z",
+      "seal": {
+        "by": "server",
+        "mac": "1ea78312b17bae549f5e2fcb595b0242551bbdd291ed1386fb654a657c26d602"
+      }
+    },
+    {
+      "id": "CLM-2658",
+      "statement": "PR body: 'Docs: lessons.md, brief-common.md, README.md, changelog' are updated and the README no longer says the suite takes about 5 minutes.",
+      "kind": "documentation",
+      "level": "artifact",
+      "integrity_level": 1,
+      "verification_method": "inspection",
+      "source": "PR body, Changes",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/README.md",
+        "tools/agentic/lessons.md",
+        "tools/agentic/brief-common.md"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4624",
+          "kind": "inspection",
+          "locator": "git diff --stat origin/main..HEAD; tools/agentic/README.md:45; changelog/*issue-1216*",
+          "summary": "lessons.md, brief-common.md, README.md and a dated changelog file are all in the diff; README line 45 no longer says 'about 5 minutes'. Minor: the changelog title says 'about 2 minutes' while the measured figure is 62 s at 4 jobs and 180 s at 1 job.",
+          "stance": "supports",
+          "anchor": {
+            "file": {
+              "path": "tools/agentic/README.md",
+              "lines": {
+                "start": 45,
+                "end": 45
+              },
+              "commit": "fb3013126f32b50fbecb4e05d3df3d68d126f7ce"
+            }
+          },
+          "recorded_at": "2026-11-28T16:36:19.703179803Z",
+          "seal": {
+            "by": "server",
+            "mac": "887e1edeef5e57cf6b1cacb2a5afd8a83388c8f2845b3d0a2a137a60650f99cc"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "All four docs changed; README stale figure removed.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4624"
+          ],
+          "recorded_at": "2026-11-28T16:36:36.980802725Z",
+          "seal": {
+            "by": "server",
+            "mac": "05352fb3e9cdd29b463ac948e07a214161f51771abfe47badc42c97682b9c111"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:36.980802725Z",
+      "seal": {
+        "by": "server",
+        "mac": "bb49608e3112905170882ea2982c087b07b8407fdbd7f99e08f62b21de6afae0"
+      }
+    },
+    {
+      "id": "CLM-2659",
+      "statement": "The parallel runner leaves no process or temp directory behind after a run, and tests that share no state do not collide (each test has its own work dir).",
+      "kind": "functional",
+      "level": "component",
+      "integrity_level": 2,
+      "verification_method": "demonstration",
+      "source": "Issue #1216 requirement: parallel tests need own fixture dir and PATH stubs, no colliding shared state",
+      "derived_from": [
+        "CLM-2649"
+      ],
+      "artifacts": [
+        "tools/agentic/tests/run.sh"
+      ],
+      "tags": [
+        "from-issue:1216"
+      ],
+      "status": {
+        "state": "active"
+      },
+      "evidence": [
+        {
+          "id": "EVD-4625",
+          "kind": "demonstration",
+          "locator": "AGENTIC_TEST_JOBS=4 run.sh <4 names>; ps -eo comm | grep -c run.sh; ls -d /tmp/tmp.* count before/after",
+          "summary": "After a 4-test parallel run: 0 run.sh processes remained and the count of /tmp/tmp.* dirs was 35 before and 35 after; git status clean. The 35 pre-existing /tmp/tmp.* dirs are not attributable to this change. Each --one has its own EXIT trap rm -rf of its work dir; stop_session reaps groups.",
+          "stance": "supports",
+          "recorded_at": "2026-11-28T16:36:19.965137703Z",
+          "seal": {
+            "by": "server",
+            "mac": "27123c7b510d88023a766be42b7e2a5ee003642271f1362d8f1c5cb949f4b646"
+          }
+        }
+      ],
+      "verdicts": [
+        {
+          "verdict": "supported",
+          "rationale": "Subset run left no process or new temp dir; only a 4-test sample, not the whole suite, was checked.",
+          "auditor": "claude-sonnet-5-5",
+          "evidence_ids": [
+            "EVD-4625"
+          ],
+          "recorded_at": "2026-11-28T16:36:37.142366103Z",
+          "seal": {
+            "by": "server",
+            "mac": "ce21c518dc565504a61d907cf7225b50b702a1af25b4d32176cc0079d22d310b"
+          }
+        }
+      ],
+      "created_at": "2026-11-28T16:35:51.470817587Z",
+      "updated_at": "2026-11-28T16:36:37.142366103Z",
+      "seal": {
+        "by": "server",
+        "mac": "eae9aaae8040ab66d18ecd0171a3b8f61759867076ebade2805c587d89882a1a"
       }
     }
   ]

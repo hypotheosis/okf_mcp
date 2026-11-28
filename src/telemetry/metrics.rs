@@ -860,6 +860,16 @@ impl Grant {
             Self::RefreshToken => "refresh_token",
         }
     }
+
+    /// The `okf.grant` span value. Not the grant type's spelling: `auth` and
+    /// `token` are substrings trace backends' default scrubbers hide, and a
+    /// value that holds one arrives as `[Filtered]` (issue #1011).
+    pub const fn span_value(self) -> &'static str {
+        match self {
+            Self::AuthorizationCode => "code",
+            Self::RefreshToken => "refresh",
+        }
+    }
 }
 
 /// What presenting a refresh token found: the `result` label of
@@ -1450,6 +1460,8 @@ mod tests {
         }
         assert_eq!(Grant::AuthorizationCode.as_str(), "authorization_code");
         assert_eq!(Grant::RefreshToken.as_str(), "refresh_token");
+        assert_eq!(Grant::AuthorizationCode.span_value(), "code");
+        assert_eq!(Grant::RefreshToken.span_value(), "refresh");
         assert_eq!(MailOutcome::Sent.as_str(), "sent");
         assert_eq!(MailOutcome::Retry.as_str(), "retry");
         assert_eq!(MailOutcome::Failed.as_str(), "failed");

@@ -1755,7 +1755,7 @@ tool, so at the default `info` filter their traces hold the request span alone.
 | `okf.clock.check` | `okf.outcome`, `okf.clock.offset` (seconds) |
 | `okf.archive.export` and `okf.archive.import` | `okf.catalog` (only for a catalog that exists), `okf.archive.size` (bytes, on success), `okf.outcome` |
 | `okf.mail.job` | `okf.mail.template`, `okf.mail.provider`, `okf.outcome`. Never the address |
-| `okf.oauth.token` | `okf.grant` (`authorization_code` or `refresh_token`), `outcome` (`ok` or `failed`), `okf.error` (the RFC 6749 error code, on failure), `okf.refresh` for a refresh (`rotated`, `grace`, `reused` or `unknown`; [Concurrent refreshes](#concurrent-refreshes)). No key holds `auth` or `token`, which trace backends' default scrubbers hide. Never a code, token or client id |
+| `okf.oauth.token` | `okf.grant` (`code` or `refresh`), `outcome` (`ok` or `failed`), `okf.error` (the RFC 6749 error code, on failure), `okf.refresh` for a refresh (`rotated`, `grace`, `reused` or `unknown`; [Concurrent refreshes](#concurrent-refreshes)). `okf.resource` when `invalid_target` came from a `resource` that was not this server's (see below). No key or value holds `auth` or `token`, which trace backends' default scrubbers hide. Never a code, token or client id |
 | Redis calls: `connect` and `subscribe` (at `info`), then `publish`, `admits`, `bind`, `release`, `load_state`, `store_state`, `delete_state`, `run_counter`, the rate limits' `take` (operation `limit`) and the stored-state operations (at `debug`, off by default) | `db.system.name` (`redis`), `db.operation.name` (the same set as `okf_redis_errors_total`'s `operation`, except `decode`, which is a metric label only). Never a key name, a session or flow id, a value or the URL |
 | Everything else (store, handlers) | Function spans at `debug` and `trace`, off by default; they carry safe ids only |
 
@@ -5016,6 +5016,17 @@ the connection stays. The window starts at the first use and does not
 slide. It never revives a revoked connection, and another client presenting
 the token is refused as before. Past the window, a reuse ends the
 connection as before.
+
+A `400 invalid_target` from `/oauth/token` or `/oauth/authorize` means the
+client sent a `resource` other than this server's MCP endpoint
+(`<public_url>/mcp`, compared byte for byte). The span (`okf.oauth.token`, or
+`authorize` at `debug`) then carries `okf.resource`, how the sent value
+differed, never the value: `trailing_slash` (the endpoint with a `/` added),
+`origin` (the bare origin), `other_path` (this host, another path),
+`other_host` (another host, scheme or port), `unparseable` (empty, relative or
+malformed) or `other_form` (the endpoint written another way: letter case in
+the host, an explicit default port, a query or a fragment). It is still
+refused; the value tells you which spelling the client uses.
 
 The `okf.oauth.token` span records each refresh's `okf.refresh`: `rotated`,
 `grace` (rotated again within the window), `reused` (the connection ended)

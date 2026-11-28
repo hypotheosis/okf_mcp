@@ -14,7 +14,7 @@ use crate::mcp::changesets::{list_changesets, open_changeset, ListParams, OpenPa
 use crate::mcp::documents::{get_concept, read_document, GetConceptParams, ReadDocumentParams};
 use crate::mcp::history::{history, HistoryParams};
 use crate::mcp::search::{run, SearchParams};
-use crate::mcp::testing::{app_with, context, open, principal, writer, TestApp};
+use crate::mcp::testing::{app_with, context, open, principal, principal_as, writer, TestApp};
 use crate::store::keys::Access;
 
 /// Longest any call in these tests may take.
@@ -346,6 +346,56 @@ async fn list_catalogs_probes_a_lost_selected_store_once() {
         stalled.accepted() - before,
         one_probe,
         "the page's probe is the only one: the selection reuses it"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn list_catalogs_with_two_granted_catalogs_probes_a_lost_store_once() {
+    // No key or server default and no connection list: the selection falls
+    // back to the key's grants, which the page already read (issue #1017).
+    let (test, stalled, one_probe) = app_with_a_stalled_store(quick_config(None)).await;
+    let ctx = context(&test, principal(&["main", "remote"], None), None);
+    let before = stalled.accepted();
+
+    let listed = bounded(crate::mcp::catalogs::list(&ctx, None))
+        .await
+        .unwrap();
+
+    let names: Vec<&str> = listed.catalogs.iter().map(|c| c.name.as_str()).collect();
+    assert_eq!(names, ["main"]);
+    assert_eq!(listed.unavailable, ["remote"]);
+    assert_eq!(
+        stalled.accepted() - before,
+        one_probe,
+        "the page's probe is the only one: the grant fallback reuses it"
+    );
+    // The selection is the same as without the saving: both granted, so no
+    // single catalog is chosen.
+    assert!(listed.selection_error.is_some(), "{:?}", listed.selection_error);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn list_changesets_with_a_connection_list_probes_a_lost_store_once() {
+    let (test, stalled, one_probe) = app_with_a_stalled_store(quick_config(None)).await;
+    let ctx = context(
+        &test,
+        principal_as("writer", Access::Write, &[], None),
+        Some(&["main", "remote"]),
+    );
+    let open_on_main = open(&writer(&test, "writer", "main").await).await;
+    let before = stalled.accepted();
+
+    let listed = bounded(list_changesets(&ctx, ListParams { catalog: None }))
+        .await
+        .unwrap();
+
+    assert_eq!(listed.unavailable, ["remote"]);
+    let handles: Vec<&str> = listed.changesets.iter().map(|c| c.changeset.as_str()).collect();
+    assert_eq!(handles, [open_on_main.as_str()]);
+    assert_eq!(
+        stalled.accepted() - before,
+        one_probe,
+        "check_connection's probe is the only one: the fan-out reuses it"
     );
 }
 

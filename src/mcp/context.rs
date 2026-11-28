@@ -438,7 +438,7 @@ impl ToolContext {
             if rows.contains_key(*name) || self.principal.excludes(name) {
                 continue;
             }
-            let known_down = locked(&self.down).stores.clone();
+            let known_down = self.down_stores();
             let found = self
                 .app
                 .directory()
@@ -467,7 +467,14 @@ impl ToolContext {
         if names.is_empty() {
             if let Reach::Catalogs(levels) = &self.principal.reach {
                 let granted: Vec<String> = levels.keys().cloned().collect();
-                let (found, down) = self.app.directory().resolve_many(&granted).await?;
+                // A store this call already found down (the listing's page
+                // probed it) is not probed again; its rows are still read.
+                let known_down = self.down_stores();
+                let (found, down) = self
+                    .app
+                    .directory()
+                    .resolve_many_skipping(&granted, &known_down)
+                    .await?;
                 for row in found {
                     if down.contains(&row.store) {
                         self.mark_down(&row);
@@ -492,6 +499,16 @@ impl ToolContext {
         let mut down = locked(&self.down);
         down.stores.insert(row.store.clone());
         down.catalogs.insert(row.name.clone(), row.store.clone());
+    }
+
+    /// The stores this call has found unreachable so far (per call; never
+    /// carried to another request).
+    ///
+    /// # Returns
+    /// A copy of the set, for a read that must not probe them again.
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub(crate) fn down_stores(&self) -> HashSet<StoreName> {
+        locked(&self.down).stores.clone()
     }
 
     /// The unreachable store `name` was found on in this call, if any.

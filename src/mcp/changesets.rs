@@ -249,7 +249,9 @@ pub(crate) async fn list_changesets(
 
 /// The open changesets of the catalogs `names` (every catalog for `None`) in
 /// every store, read together (at most [`READ_CONCURRENCY`] stores at once)
-/// and each store within its connect timeout.
+/// and each store within its connect timeout. A store the call already found
+/// down ([`ToolContext::down_stores`]) is not read again: it is returned as
+/// down.
 ///
 /// # Arguments
 /// * `ctx` - the call's context.
@@ -273,13 +275,19 @@ async fn open_in_every_store(
     let accounts = ctx.app().accounts();
     let bound = ctx.app().stores().connect_timeout();
     let stores = ctx.stores_main_first().await?;
+    // Stores this call already found down (`check_connection`, a listing) are
+    // not probed again: they are reported down as if the read had failed.
+    let known_down = ctx.down_stores();
     // A chunk's reads run together; chunks of `READ_CONCURRENCY` bound how
     // many stores are asked at once, and the stores' order is kept.
     let mut answers: Vec<Result<Vec<changesets::ListedRow>, OkfError>> =
         Vec::with_capacity(stores.len());
     for chunk in stores.chunks(READ_CONCURRENCY) {
         answers.extend(
-            futures_util::future::join_all(chunk.iter().map(|store| async move {
+            futures_util::future::join_all(chunk.iter().map(|store| async {
+                if known_down.contains(store) {
+                    return Err(OkfError::store_unavailable(store));
+                }
                 let read = async {
                     let db = ctx.app().store_db(store).await?;
                     changesets::open_for_catalogs(accounts, &db, names, key_filter)

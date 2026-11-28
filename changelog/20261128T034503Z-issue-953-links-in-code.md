@@ -24,3 +24,14 @@ see inline code only.
 
 Tests: markdown.rs, relink.rs and lint.rs unit tests; an MCPJam scenario
 (careful-fact-curator) that publishes a concept with an example link in code.
+
+## Review round 1
+
+`unlink_text` reparsed each shortened line alone on its later passes, so a code
+span over a line break lost its protection ("`start\n[a](alpha.md)` [b](alpha.md)"
+unlinked both links). It now reparses the whole updated text on each pass.
+`delete_concept`'s StillLinked guard (`links_into`) and replay's `listing_line`
+use `link_lines`, so a link written as code no longer refuses a delete, and a
+bullet inside a fenced block is not a listing. `links_to` is gone;
+`into_links_to` replaces it. `leading_link_to` and `relinked_bullet` (the
+okf.py mirrors) still read one line.

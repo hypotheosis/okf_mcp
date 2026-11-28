@@ -1309,6 +1309,9 @@ fn no_okf_span_key_holds_a_substring_a_scrubber_hides() {
         "okf.refusal",
         "okf.refresh",
         "okf.error",
+        "okf.error.kind",
+        "okf.tool",
+        "okf.clock.offset",
     ] {
         assert!(
             keys.contains(expected),

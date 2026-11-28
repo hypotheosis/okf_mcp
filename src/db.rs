@@ -72,13 +72,15 @@ pub async fn connect(url: &str, max_connections: u32) -> Result<PgPool, OkfError
 /// migrations). A build that fails part-way leaves the index behind,
 /// marked INVALID, and its migration unrecorded; `CREATE INDEX ... IF NOT
 /// EXISTS` on the retry would then keep the invalid index for good.
-const CONCURRENT_INDEXES: [&str; 6] = [
+const CONCURRENT_INDEXES: [&str; 8] = [
     "catalogs_member_reach",
     "catalogs_member_write",
     "catalogs_member_reach_bytes",
     "feedback_finished",
     "feedback_undelivered_user",
     "catalogs_unprovisioned",
+    "teams_store",
+    "catalogs_store",
 ];
 
 /// The indexes the catalog migrations (`migrations/catalog/`) build
@@ -167,6 +169,92 @@ async fn drop_invalid_indexes(
     Ok(invalid.len())
 }
 
+/// How long a migration may wait for a lock another transaction holds
+/// before it fails. [`migrate`] and [`migrate_store`] set it as the
+/// connection's `lock_timeout` for the whole run, so an `ALTER TABLE` queued
+/// behind a long transaction gives up (and the queries queued behind the
+/// `ALTER` go on) instead of waiting without limit. It bounds every future
+/// migration, including `no-transaction` ones (the setting belongs to the
+/// session, and they run on it); a migration that already ran is not edited.
+pub const MIGRATION_LOCK_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
+
+/// The SQLSTATE of "canceling statement due to lock timeout".
+const LOCK_NOT_AVAILABLE: &str = "55P03";
+
+/// Sets [`MIGRATION_LOCK_TIMEOUT`] on the connection's session.
+///
+/// # Returns
+/// The previous `lock_timeout`, for [`restore_lock_timeout`]: the connection
+/// goes back to the pool afterwards, and must not keep the bound.
+///
+/// # Errors
+/// [`OkfError::Database`] (or `Busy`) for a driver error.
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "db.bound_lock_waits"))]
+async fn bound_lock_waits(
+    conn: &mut PgConnection,
+    timeout: std::time::Duration,
+) -> Result<String, OkfError> {
+    let previous: String = sqlx::query_scalar("SELECT current_setting('lock_timeout')")
+        .fetch_one(&mut *conn)
+        .await?;
+    // `set_config(.., false)` is `SET` (for the session); `SET` itself takes
+    // no bind parameter.
+    sqlx::query("SELECT set_config('lock_timeout', $1, false)")
+        .bind(format!("{}ms", timeout.as_millis()))
+        .execute(&mut *conn)
+        .await?;
+    Ok(previous)
+}
+
+/// Puts back the `lock_timeout` [`bound_lock_waits`] returned (owned: a
+/// borrowed `&str` bind makes the future "not general enough" to be `Send`).
+///
+/// # Errors
+/// [`OkfError::Database`] (or `Busy`) for a driver error.
+#[tracing::instrument(level = "debug", skip_all, fields(db.system.name = "postgresql", db.operation.name = "db.restore_lock_timeout"))]
+async fn restore_lock_timeout(conn: &mut PgConnection, previous: String) -> Result<(), OkfError> {
+    sqlx::query("SELECT set_config('lock_timeout', $1, false)")
+        .bind(previous)
+        .execute(&mut *conn)
+        .await?;
+    Ok(())
+}
+
+/// Turns a migration that gave up waiting for a lock into a retryable
+/// [`OkfError::Busy`] that says so; any other result passes through.
+#[tracing::instrument(level = "debug", skip_all)]
+fn name_lock_timeout<T>(
+    result: Result<T, OkfError>,
+    timeout: std::time::Duration,
+) -> Result<T, OkfError> {
+    let timed_out = match &result {
+        Err(OkfError::Migrate {
+            source:
+                sqlx::migrate::MigrateError::Execute(error)
+                | sqlx::migrate::MigrateError::ExecuteMigration(error, _),
+        })
+        | Err(OkfError::Database { source: error }) => error
+            .as_database_error()
+            .and_then(|db_error| db_error.code())
+            .is_some_and(|code| code == LOCK_NOT_AVAILABLE),
+        _ => false,
+    };
+    if !timed_out {
+        return result;
+    }
+    if let Err(error) = &result {
+        tracing::error!(error = %error, "a migration timed out waiting for a lock");
+    }
+    Err(OkfError::Busy {
+        reason: format!(
+            "a migration waited more than {} ms for a lock another transaction holds \
+             and was rolled back (or, for an index build, left to be rebuilt); nothing is \
+             half-applied, so start it again once that transaction ends",
+            timeout.as_millis()
+        ),
+    })
+}
+
 /// Applies every okf migration not yet applied, then the account database's
 /// own catalog store (`main`: adoption the first time, see
 /// [`migrate_store`]), then apalis' own (each a no-op when up to date).
@@ -180,9 +268,22 @@ async fn drop_invalid_indexes(
 /// # Errors
 /// [`OkfError::Migrate`] if a migration fails, or the database has a
 /// migration this binary does not know (it is older than the schema);
+/// [`OkfError::Busy`] if one waited longer than [`MIGRATION_LOCK_TIMEOUT`]
+/// for a lock (it is rolled back, or an index build is left to be rebuilt,
+/// so running `migrate` again is safe);
 /// [`OkfError::Database`] if apalis' setup cannot reach the database.
 #[tracing::instrument(level = "debug", skip_all)]
 pub async fn migrate(pool: &PgPool) -> Result<(), OkfError> {
+    migrate_within(pool, MIGRATION_LOCK_TIMEOUT).await
+}
+
+/// [`migrate`] with the lock wait bound as an argument (the tests use a short
+/// one).
+///
+/// # Errors
+/// As for [`migrate`].
+#[tracing::instrument(level = "debug", skip_all)]
+async fn migrate_within(pool: &PgPool, timeout: std::time::Duration) -> Result<(), OkfError> {
     // One connection holds the lock for the cleanup and the migrations, so
     // two replicas starting together never drop an index the other is
     // still building (one being built CONCURRENTLY is INVALID until done).
@@ -191,20 +292,16 @@ pub async fn migrate(pool: &PgPool) -> Result<(), OkfError> {
     let mut conn = pool.acquire().await?;
     lock_migrations(&mut conn).await?;
     // The lock is released below whatever this returns, so no `?` here.
-    let migrated = match drop_invalid_indexes(&mut conn, "public", &CONCURRENT_INDEXES).await {
-        // `&mut *conn`: the pooled connection itself (sqlx's migrator takes
-        // its own advisory lock on it, and runs `no-transaction` files on
-        // it outside any transaction, as on a pool).
-        Ok(_) => match MIGRATOR.run(&mut *conn).await {
-            // Then the catalog schema the account migrations built (0041,
-            // 0042): the account database is store `main`, adopted the
-            // first time and brought up to date after, inside the same hold.
-            Ok(()) => migrate_store_locked(&mut conn, &StoreName::main())
-                .await
-                .map(|_| ()),
-            Err(error) => Err(OkfError::from(error)),
-        },
-        Err(error) => Err(OkfError::from(error)),
+    let migrated = match bound_lock_waits(&mut conn, timeout).await {
+        Ok(previous) => {
+            let result = migrate_account_locked(&mut conn).await;
+            // The connection returns to the pool without the bound.
+            match restore_lock_timeout(&mut conn, previous).await {
+                Ok(()) => name_lock_timeout(result, timeout),
+                Err(error) => result.and(Err(error)),
+            }
+        }
+        Err(error) => Err(error),
     };
     // Released on every path; a lost connection releases it too.
     sqlx::query("SELECT pg_advisory_unlock($1)")
@@ -220,6 +317,30 @@ pub async fn migrate(pool: &PgPool) -> Result<(), OkfError> {
         .await
         .map_err(apalis_error)?;
     Ok(())
+}
+
+/// [`migrate`]'s work between taking and releasing the migration lock: the
+/// invalid-index cleanup, the account migrations, then store `main`.
+///
+/// # Errors
+/// As for [`migrate`], before apalis' setup.
+#[tracing::instrument(level = "debug", skip_all)]
+async fn migrate_account_locked(conn: &mut PgConnection) -> Result<(), OkfError> {
+    match drop_invalid_indexes(conn, "public", &CONCURRENT_INDEXES).await {
+        // `&mut *conn`: the pooled connection itself (sqlx's migrator takes
+        // its own advisory lock on it, and runs `no-transaction` files on
+        // it outside any transaction, as on a pool).
+        Ok(_) => match MIGRATOR.run(&mut *conn).await {
+            // Then the catalog schema the account migrations built (0041,
+            // 0042): the account database is store `main`, adopted the
+            // first time and brought up to date after, inside the same hold.
+            Ok(()) => migrate_store_locked(conn, &StoreName::main())
+                .await
+                .map(|_| ()),
+            Err(error) => Err(OkfError::from(error)),
+        },
+        Err(error) => Err(OkfError::from(error)),
+    }
 }
 
 /// What [`migrate_store`] did to a store's database.
@@ -282,7 +403,17 @@ pub async fn migrate_store(
     }
     lock_migrations(conn).await?;
     // The lock is released below whatever this returns, so no `?` here.
-    let migrated = migrate_store_locked(conn, store).await;
+    let migrated = match bound_lock_waits(conn, MIGRATION_LOCK_TIMEOUT).await {
+        Ok(previous) => {
+            let result = migrate_store_locked(conn, store).await;
+            // The connection returns to its pool without the bound.
+            match restore_lock_timeout(conn, previous).await {
+                Ok(()) => name_lock_timeout(result, MIGRATION_LOCK_TIMEOUT),
+                Err(error) => result.and(Err(error)),
+            }
+        }
+        Err(error) => Err(error),
+    };
     sqlx::query("SELECT pg_advisory_unlock($1)")
         .bind(CONCURRENT_INDEX_LOCK)
         .execute(&mut *conn)
@@ -3652,6 +3783,129 @@ mod tests {
             ]
         );
         assert_eq!(index, vec![(true, true)], "valid and partial");
+    }
+
+    /// Issue #993: a migration queued behind another transaction's lock fails
+    /// at the bound, naming it and saying a retry is safe, instead of waiting
+    /// (and holding up every query queued behind its own lock request); the
+    /// connection goes back without the bound; the retry then succeeds. The
+    /// migration here is 0044, a `no-transaction` one, which also shows the
+    /// session setting reaches those.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn a_migration_blocked_by_a_lock_fails_at_the_bound_and_a_retry_succeeds() {
+        use std::time::Duration;
+        let db = pg_support::TestDb::start_migrated().await;
+        sqlx::query("DROP INDEX teams_store")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM _sqlx_migrations WHERE version = 44")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        // The lock a long transaction on `teams` would hold: a concurrent
+        // index build cannot start under it.
+        let mut holder = db.pool.begin().await.unwrap();
+        sqlx::query("LOCK TABLE teams IN ACCESS EXCLUSIVE MODE")
+            .execute(&mut *holder)
+            .await
+            .unwrap();
+        let holder_pid: i32 = sqlx::query_scalar("SELECT pg_backend_pid()")
+            .fetch_one(&mut *holder)
+            .await
+            .unwrap();
+        // A pool of one: the migration's own connection is the one checked
+        // afterwards for the restored setting.
+        let one = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(1)
+            .connect(&db.url)
+            .await
+            .unwrap();
+        let bound = Duration::from_millis(500);
+        let mut watcher = db.pool.acquire().await.unwrap();
+
+        // Act: the holder keeps the lock; only the bound can end the wait.
+        // Polled together, not spawned: the migrator's future is not `Send`
+        // for a borrowed pool (sqlx's `Acquire` bound, see `migrate_store_locked`).
+        let (failed, waiter) = tokio::time::timeout(
+            Duration::from_secs(30),
+            futures_util::future::join(
+                migrate_within(&one, bound),
+                crate::test_locks::wait_waiter(&mut watcher, holder_pid),
+            ),
+        )
+        .await
+        .expect("the migration should give up at the bound, not wait for the holder");
+        assert_ne!(waiter.pid, holder_pid, "the waiter is another session");
+
+        // Assert: a retryable error naming the wait; the setting is back.
+        let error = failed.expect_err("the migration cannot take the lock");
+        assert!(matches!(error, OkfError::Busy { .. }), "{error:?}");
+        assert!(
+            error.to_string().contains("waited more than 500 ms"),
+            "{error}"
+        );
+        assert!(error.to_string().contains("start it again"), "{error}");
+        let setting: String = sqlx::query_scalar("SELECT current_setting('lock_timeout')")
+            .fetch_one(&one)
+            .await
+            .unwrap();
+        assert_eq!(setting, "0", "the pooled connection keeps no bound");
+
+        // Retry once the holder is gone: the build starts over (the failed
+        // one's INVALID index is dropped first) and ends valid.
+        holder.rollback().await.unwrap();
+        migrate_within(&one, bound).await.unwrap();
+        let valid: bool = sqlx::query_scalar(
+            "SELECT i.indisvalid FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid \
+             WHERE c.relname = 'teams_store'",
+        )
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+        assert!(valid);
+    }
+
+    /// Issue #993: the foreign-key checks and the per-store reads use the
+    /// indexes on the store columns, each on exactly the foreign key's column.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn the_store_columns_are_indexed_for_the_foreign_key_checks_and_store_reads() {
+        let db = pg_support::TestDb::start_migrated().await;
+        let columns: Vec<(String, String, bool)> = sqlx::query_as(
+            "SELECT c.relname::text, pg_get_indexdef(i.indexrelid), i.indisvalid \
+             FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid \
+             WHERE c.relname IN ('teams_store', 'catalogs_store') ORDER BY 1",
+        )
+        .fetch_all(&db.pool)
+        .await
+        .unwrap();
+        assert_eq!(columns.len(), 2, "{columns:?}");
+        assert!(columns[0]
+            .1
+            .ends_with("ON public.catalogs USING btree (store)"));
+        assert!(columns[1]
+            .1
+            .ends_with("ON public.teams USING btree (store)"));
+        assert!(columns.iter().all(|column| column.2));
+
+        // The tables here are empty, so the planner would pick a scan: turn
+        // scans off for the transaction, so only an index can answer.
+        for (table, index) in [("teams", "teams_store"), ("catalogs", "catalogs_store")] {
+            let mut tx = db.pool.begin().await.unwrap();
+            sqlx::query("SET LOCAL enable_seqscan = off")
+                .execute(&mut *tx)
+                .await
+                .unwrap();
+            // The query the `ON DELETE RESTRICT` check runs, and the one a
+            // per-store read runs.
+            let plan: Vec<String> = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
+                "EXPLAIN SELECT 1 FROM {table} WHERE store = 'shared-1'"
+            )))
+            .fetch_all(&mut *tx)
+            .await
+            .unwrap();
+            assert!(plan.join("\n").contains(index), "{table}: {plan:?}");
+        }
     }
 
     /// Inserts a system audit entry about `kind` with the given target

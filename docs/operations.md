@@ -363,6 +363,21 @@ reads the same file as the server, with no extra flags.
   and by every subcommand. `okf-mcp migrate` applies them and exits, for a
   separate deploy step if you want one. They are forward-only: a binary older
   than the schema refuses to start.
+- **A migration never waits long for a lock.** While it runs, `migrate` (and
+  so `serve`, and `okf-mcp stores migrate` for a store) sets the connection's
+  `lock_timeout` to 10 seconds, so an `ALTER TABLE` queued behind a long
+  transaction cannot make every query on that table queue behind it without
+  limit. When the wait runs out the start fails with `busy: a migration waited
+  more than 10000 ms for a lock another transaction holds and was rolled back
+  ...; retry` (Postgres' own report, `canceling statement due to lock
+  timeout`, is in the log). **A retry is safe:** an ordinary migration is
+  rolled back with its history row, and an index built `CONCURRENTLY` that
+  was cut short leaves an INVALID index that the next start drops and builds
+  again. Find the long transaction (`pg_stat_activity`, oldest `xact_start`),
+  let it end or end it, and start again; a replica that fails this way
+  restarts under its orchestrator on its own. The bound does not apply to the
+  build's own run time, only to waits for locks, and it is put back when the
+  migration ends.
 
 ### TLS
 

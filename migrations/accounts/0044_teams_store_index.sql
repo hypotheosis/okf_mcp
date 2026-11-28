@@ -1,0 +1,14 @@
+-- no-transaction
+-- An index on the foreign key `teams.store` (0037, issue #993). Removing a
+-- store checks `ON DELETE RESTRICT` by looking for a team pinned to it, and
+-- the store list counts the teams pinned to each store
+-- (`store::stores::summaries`): without this index each of those reads every
+-- row of `teams`. The index is on exactly the foreign key's column.
+--
+-- Built CONCURRENTLY, as 0025 was, so replicas serving during a rolling
+-- upgrade keep writing teams while it builds. That cannot run in a
+-- transaction, hence `no-transaction` above (it must be the file's first
+-- line), and the file holds this one statement only. A build that failed
+-- part-way leaves an INVALID index, which `db::migrate` drops before the
+-- migrations run (`CONCURRENT_INDEXES`).
+CREATE INDEX CONCURRENTLY IF NOT EXISTS teams_store ON teams (store);

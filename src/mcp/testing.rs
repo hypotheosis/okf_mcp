@@ -281,13 +281,19 @@ impl TestApp {
 
     /// Points `store`'s row at `127.0.0.1:port` and drops its open pool.
     async fn repoint(&self, store: &crate::stores::StoreName, port: u16) {
+        self.repoint_row(store, port).await;
+        self.app.stores().forget(store).await;
+    }
+
+    /// Points `store`'s row at `127.0.0.1:port` and nothing else: the pool
+    /// registry is not told, as when a store simply comes back.
+    pub(crate) async fn repoint_row(&self, store: &crate::stores::StoreName, port: u16) {
         sqlx::query("UPDATE stores SET host = '127.0.0.1', port = $2 WHERE name = $1")
             .bind(store.as_str())
             .bind(i32::from(port))
             .execute(self.app.accounts().executor())
             .await
             .expect("repoint the store");
-        self.app.stores().forget(store).await;
     }
 }
 

@@ -407,6 +407,78 @@ async fn list_changesets_with_a_connection_list_probes_a_lost_store_once() {
     );
 }
 
+/// A handle no store holds: the lookup has to ask every store.
+const UNHELD_HANDLE: &str = "00000000-0000-4000-8000-000000000000";
+
+#[tokio::test(flavor = "multi_thread")]
+async fn changeset_by_handle_probes_a_lost_store_once() {
+    let (test, stalled, one_probe) = app_with_a_stalled_store(quick_config(None)).await;
+    let ctx = context(
+        &test,
+        principal_as("writer", Access::Write, &[], None),
+        Some(&["main", "remote"]),
+    );
+    let before = stalled.accepted();
+
+    let result = bounded(ctx.changeset(UNHELD_HANDLE, Access::Read)).await;
+
+    // The handle might be on the lost store, so the answer is unavailable.
+    assert!(
+        matches!(result, Err(OkfError::StoreUnavailable { .. })),
+        "{:?}",
+        result.err()
+    );
+    assert_eq!(
+        stalled.accepted() - before,
+        one_probe,
+        "check_connection's probe is the only one: the handle lookup reuses it"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_lost_store_is_reached_again_by_a_later_call_once_it_is_back() {
+    let test = app_with(&[("main", &[("note.md", HOME_NOTE)])], quick_config(None)).await;
+    let store = test
+        .catalog_on_new_store("store-b", "remote", &[("note.md", REMOTE_NOTE)])
+        .await;
+    let (_host, port): (String, i32) =
+        sqlx::query_as("SELECT host, port FROM stores WHERE name = $1")
+            .bind(store.as_str())
+            .fetch_one(test.app.accounts().executor())
+            .await
+            .expect("read the store's address");
+    let on_remote = open(&writer(&test, "writer", "remote").await).await;
+    let call = || {
+        context(
+            &test,
+            principal_as("writer", Access::Write, &[], None),
+            Some(&["main", "remote"]),
+        )
+    };
+    // The store goes away.
+    let stalled = test.make_stalled(&store).await;
+    let before = stalled.accepted();
+
+    let during = bounded(call().changeset(&on_remote, Access::Read)).await;
+
+    assert!(
+        matches!(during, Err(OkfError::StoreUnavailable { .. })),
+        "{:?}",
+        during.err()
+    );
+    assert!(stalled.accepted() > before, "the lost store was probed");
+
+    // It comes back at its address. The pool registry is not told (a failed
+    // open cached nothing), so a new call finding the handle shows nothing
+    // remembered the first call's finding.
+    test.repoint_row(&store, u16::try_from(port).expect("a port"))
+        .await;
+    let after = bounded(call().changeset(&on_remote, Access::Read))
+        .await
+        .expect("the store is reached again");
+    assert_eq!(after.row.handle, on_remote);
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn a_store_that_goes_away_after_its_pool_opened_is_unavailable_not_a_database_error() {
     let test = app_with(&[("home", &[("note.md", HOME_NOTE)])], quick_config(None)).await;

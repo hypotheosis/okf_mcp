@@ -457,6 +457,7 @@ async fn a_read_that_answers_from_the_first_catalog_records_only_that_one() {
             limit: None,
             user: None,
             since: None,
+            before: None,
         },
     )
     .await

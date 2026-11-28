@@ -147,7 +147,7 @@ struct FullQuery {
     full: bool,
 }
 
-/// `?limit=&user=&since=` on the history route.
+/// `?limit=&before=&user=&since=` on the history route.
 #[derive(Debug, Clone, Default, Deserialize)]
 struct LimitQuery {
     /// At most this many revisions (as `history`: default 20, at most 200).
@@ -156,6 +156,8 @@ struct LimitQuery {
     user: Option<String>,
     /// Only revisions at or after this RFC 3339 time (as `history`'s `since`).
     since: Option<String>,
+    /// Only revisions numbered below this (as `history`'s `before`): the previous page's `next`.
+    before: Option<i32>,
 }
 
 /// `?limit=&after=&user=&since=` on the recent-changes route.
@@ -378,7 +380,7 @@ async fn links(
     }))
 }
 
-/// `GET /catalogs/{catalog}/history/{*path}?limit=`: the `history` tool.
+/// `GET /catalogs/{catalog}/history/{*path}?limit=&before=`: the `history` tool.
 ///
 /// # Errors
 /// As `history`: 404 for an unreached catalog or a path without revisions.
@@ -399,6 +401,7 @@ async fn revisions(
             limit: query.limit,
             user: query.user,
             since: query.since,
+            before: query.before,
         },
     )
     .await?;
@@ -435,6 +438,7 @@ async fn revision(
             limit: Some(1),
             user: None,
             since: None,
+            before: None,
         },
     )
     .await?;
@@ -850,6 +854,55 @@ mod tests {
             .collect();
         assert!(sources.contains(&"/systems/alpha.md"), "{beta}");
         assert!(sources.contains(&"/systems/index.md"), "{beta}");
+    }
+
+    #[tokio::test]
+    async fn history_pages_back_with_before_and_next() {
+        let test = app().await;
+        let keys = keys(&test).await;
+        let edited = edited_main();
+        let entries: Vec<(&str, &str)> = edited
+            .iter()
+            .map(|(path, text)| (*path, text.as_str()))
+            .collect();
+        let options = ImportOptions {
+            replace: true,
+            scope: ImportScope::Everything,
+            expect_generation: None,
+            expect_catalog_id: None,
+            actor: "editor",
+            audit: &crate::store::audit::AuditActor::cli(),
+            now: Utc::now(),
+        };
+        import(&test.app.main_db().await, "main", files(&entries), &options)
+            .await
+            .expect("import the edit");
+        let page = |query: &'static str| {
+            let uri = format!("/api/v1/catalogs/main/history/systems/alpha.md{query}");
+            let (test, read) = (&test, keys.read.clone());
+            async move { send(test, "GET", &uri, Some(&read), None).await }
+        };
+
+        let (_, newest) = page("?limit=1").await;
+        let (_, older) = page("?limit=1&before=2").await;
+        let (_, past) = page("?limit=1&before=1").await;
+        let (status, bad) = page("?before=soon").await;
+
+        let numbers = |body: &Value| -> Vec<i64> {
+            body["revisions"]
+                .as_array()
+                .expect("revisions")
+                .iter()
+                .filter_map(|row| row["revision"].as_i64())
+                .collect()
+        };
+        assert_eq!(numbers(&newest), [2]);
+        assert_eq!(newest["next"], 2);
+        assert_eq!(numbers(&older), [1]);
+        assert!(older["next"].is_null(), "{older}");
+        assert!(numbers(&past).is_empty());
+        assert!(past["next"].is_null(), "{past}");
+        assert!(status.is_client_error(), "{status} {bad}");
     }
 
     #[tokio::test]

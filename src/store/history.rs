@@ -44,9 +44,12 @@ pub struct Filter<'a> {
 /// * `catalog_id` - the catalog.
 /// * `path` - catalog-relative path, as stored (no leading `/`).
 /// * `limit` - at most this many rows.
+/// * `before` - only revisions numbered below this one (a strict bound), to
+///   page past a previous page's oldest row; `None` starts at the newest.
 ///
 /// # Returns
-/// The rows, newest first; empty if the path never existed.
+/// The rows, newest first; empty if the path never existed or `before` is
+/// at or below its oldest revision.
 ///
 /// # Errors
 /// [`OkfError::Database`].
@@ -56,9 +59,21 @@ pub async fn revisions(
     catalog_id: i64,
     path: &str,
     limit: i64,
+    before: Option<i32>,
 ) -> Result<Vec<RevisionRow>, OkfError> {
-    revisions_by(db, catalog_id, path, limit, &Filter::default()).await
+    revisions_by(db, catalog_id, path, limit, before, &Filter::default()).await
 }
+
+/// The query behind [`revisions_by`]: `$1` catalog, `$2` path, `$3` limit,
+/// `$4` user, `$5` since, `$6` before (strict). A constant so a test can
+/// `EXPLAIN` exactly what runs.
+pub(crate) const REVISIONS_SQL: &str =
+    "SELECT revision, op, actor, user_id, message, created_at FROM revisions \
+     WHERE catalog_id = $1 AND path = $2 \
+       AND revision < COALESCE($6, 2147483647) \
+       AND ($4::text IS NULL OR user_id = $4) \
+       AND created_at >= COALESCE($5, '-infinity'::timestamptz) \
+     ORDER BY revision DESC LIMIT $3";
 
 /// [`revisions`], keeping only the revisions `filter` allows.
 ///
@@ -67,6 +82,7 @@ pub async fn revisions(
 /// * `catalog_id` - the catalog.
 /// * `path` - catalog-relative path, as stored (no leading `/`).
 /// * `limit` - at most this many rows.
+/// * `before` - only revisions numbered below this one (a strict bound).
 /// * `filter` - the person and time a revision must match.
 ///
 /// # Returns
@@ -80,26 +96,22 @@ pub async fn revisions_by(
     catalog_id: i64,
     path: &str,
     limit: i64,
+    before: Option<i32>,
     filter: &Filter<'_>,
 ) -> Result<Vec<RevisionRow>, OkfError> {
     // The primary key (catalog_id, path, revision), read backwards, serves
-    // the path and the order; the person and the time are tested on the
-    // rows it reads. One path's revisions are few, so this is bounded by
-    // that path's own history, never by the catalog's.
-    let rows = sqlx::query_as::<_, RevisionRow>(
-        "SELECT revision, op, actor, user_id, message, created_at FROM revisions \
-         WHERE catalog_id = $1 AND path = $2 \
-           AND ($4::text IS NULL OR user_id = $4) \
-           AND created_at >= COALESCE($5, '-infinity'::timestamptz) \
-         ORDER BY revision DESC LIMIT $3",
-    )
-    .bind(catalog_id)
-    .bind(path)
-    .bind(limit)
-    .bind(filter.user_id)
-    .bind(filter.since)
-    .fetch_all(db.executor())
-    .await?;
+    // the path, the `before` bound (a range on its last column) and the
+    // order; the person and the time are tested on the rows it reads. A
+    // read is bounded by that path's own history, never by the catalog's.
+    let rows = sqlx::query_as::<_, RevisionRow>(REVISIONS_SQL)
+        .bind(catalog_id)
+        .bind(path)
+        .bind(limit)
+        .bind(filter.user_id)
+        .bind(filter.since)
+        .bind(before)
+        .fetch_all(db.executor())
+        .await?;
     Ok(rows)
 }
 
@@ -517,6 +529,7 @@ mod tests {
             catalog.id,
             "a.md",
             20,
+            None,
         )
         .await
         .unwrap();
@@ -525,6 +538,7 @@ mod tests {
             catalog.id,
             "a.md",
             1,
+            None,
         )
         .await
         .unwrap();
@@ -533,6 +547,7 @@ mod tests {
             catalog.id,
             "c.md",
             20,
+            None,
         )
         .await
         .unwrap();
@@ -1049,7 +1064,7 @@ mod tests {
         assert_eq!(third.next, None);
         // One path's revisions, with the same filters.
         async fn path(store: &CatalogDb, pg: i64, filter: Filter<'_>) -> Vec<i32> {
-            revisions_by(store, pg, "a.md", 20, &filter)
+            revisions_by(store, pg, "a.md", 20, None, &filter)
                 .await
                 .unwrap()
                 .iter()

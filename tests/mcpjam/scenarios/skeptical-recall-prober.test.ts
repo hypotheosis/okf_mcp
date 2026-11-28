@@ -341,6 +341,7 @@ describe(SCENARIOS.editConflicts.goal, () => {
         current_revision: number | null;
         latest_revision: number | null;
         revisions: { revision: number; op: string }[];
+        next: number | null;
     }
     const historyOf = (target: string) =>
         session().call<History>("history", { path: target, catalog: session().catalog });
@@ -381,6 +382,32 @@ describe(SCENARIOS.editConflicts.goal, () => {
         ]);
         expect(history.current_revision).toBe(2);
         expect(history.latest_revision).toBe(2);
+    });
+
+    // Issue #949: `next` of one page is the `before` of the next.
+    test("history pages back through next and ends with a null next", async () => {
+        const target = paths.at("guard/paged");
+        await twoRevisions(target, "Paged");
+        await edit(target, "Paged says two.", "Paged says three.", "Edit Paged again");
+        await settled(target, 3);
+        const page = (limit: number, before?: number) =>
+            session().call<History>("history", {
+                path: target,
+                catalog: session().catalog,
+                limit,
+                ...(before === undefined ? {} : { before }),
+            });
+
+        const first = await page(2);
+        const rest = await page(2, first.next ?? 0);
+        const past = await page(2, 1);
+
+        expect(first.revisions.map(({ revision }) => revision)).toEqual([3, 2]);
+        expect(first.next).toBe(2);
+        expect(rest.revisions.map(({ revision }) => revision)).toEqual([1]);
+        expect(rest.next).toBeNull();
+        expect(past.revisions).toEqual([]);
+        expect(past.next).toBeNull();
     });
 
     test("revert with expected_revision equal to latest_revision succeeds and restores the text", async () => {
